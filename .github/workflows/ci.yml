@@ -35,4 +35,12 @@ jobs:
       - name: Build Docker image
         run: docker build -t inventory-service:ci .
 
-      # Optional: Push image to DockerHub or GHCR if desired
+       # Login to DockerHub using secrets
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Tag & push image to DockerHub
+      - name: Push Docker image
+        run: |
+          docker tag inventory-service:ci ${{ secrets.DOCKER_USERNAME }}/inventory-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:latest
