@@ -5,7 +5,6 @@
 This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, authentication, CI/CD, testing, and data visualizations.
 
 ---
-
 ## 🚀 Features
 
 ### 🎯 Core Modules
