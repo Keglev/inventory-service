@@ -46,4 +46,9 @@ public class InventoryItemController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/search")
+    public List<InventoryItemDTO> searchByName(@RequestParam String name) {
+        return service.findByName(name);
+    }
 }

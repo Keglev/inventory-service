@@ -18,8 +18,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(withDefaults -> {}) // optional for UI login
-            .httpBasic(withDefaults -> {}); // optional for API testing via tools like Postman
+            .httpBasic(httpBasic -> {})  //  Enables Postman testing without UI login
+            .formLogin(form -> {});      // optional, can be removed if not using web forms
 
         return http.build();
     }

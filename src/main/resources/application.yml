@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@sspdb_tp?TNS_ADMIN=C:/Users/carlo/Documents/githubprojects/inventory-service/oracle_wallet/Wallet_sspdb
+    url: jdbc:oracle:thin:@sspdb_tp?TNS_ADMIN=/opt/oracle/wallet
     username: admin
     password: Ckb123$%&789
     driver-class-name: oracle.jdbc.OracleDriver

@@ -92,4 +92,9 @@ public class InventoryItemService {
     public void delete(String id) {
         repository.deleteById(id);
     }
+    public List<InventoryItemDTO> findByName(String name) {
+        return repository.findByNameContainingIgnoreCase(name).stream()
+                .map(InventoryItemMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }

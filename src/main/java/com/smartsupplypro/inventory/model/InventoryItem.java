@@ -40,5 +40,8 @@ public class InventoryItem {
             this.createdAt = LocalDateTime.now();
         }
     }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supplier_id", insertable = false, updatable = false)
+    private Supplier supplier;
 }
 
