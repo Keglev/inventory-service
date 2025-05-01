@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@sspdb_tp?TNS_ADMIN=/opt/oracle/wallet
+    username: admin
+    password: Ckb123$%&789
+    driver-class-name: oracle.jdbc.OracleDriver
+   
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  # Optional: set to true during testing
+  main:
+    allow-bean-definition-overriding: true
+
+---
+
+logging:
+  level:
+    '[org.springframework.jdbc.core]': DEBUG
+    '[org.hibernate.SQL]': DEBUG
+
+server:
+  port: 8081
