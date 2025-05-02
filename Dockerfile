@@ -21,7 +21,9 @@ LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-servi
 COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
 
 # Run the application
+# Important: use shell form so $SPRING_PROFILES_ACTIVE expands
 EXPOSE 8081
-ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.jar"]
+ENTRYPOINT java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -jar app.jar
+
 
 
