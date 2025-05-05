@@ -1,6 +1,8 @@
 package com.smartsupplypro.inventory.validation;
 
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+import com.smartsupplypro.inventory.repository.SupplierRepository;
+
 import org.springframework.test.context.ActiveProfiles;
 
 import org.junit.jupiter.api.Test;
@@ -28,5 +30,25 @@ public class SupplierValidatorTest {
 
         assertDoesNotThrow(() ->
                 SupplierValidator.validateDeletable("supplier-1", mockRepo));
+    }
+
+    @Test
+    void testValidateSupplierExists_withExistingName_shouldThrowException() {
+        SupplierRepository mockRepo = mock(SupplierRepository.class);
+        when(mockRepo.existsByNameIgnoreCase("duplicate-supplier")).thenReturn(true);
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+                SupplierValidator.validateSupplierExists("duplicate-supplier", mockRepo));
+
+        assertEquals("A Supplier with this name already exists.", ex.getMessage());
+    }
+
+    @Test
+    void testValidateSupplierExists_withUniqueName_shouldPass() {
+        SupplierRepository mockRepo = mock(SupplierRepository.class);
+        when(mockRepo.existsByNameIgnoreCase("unique-supplier")).thenReturn(false);
+
+        assertDoesNotThrow(() ->
+                SupplierValidator.validateSupplierExists("unique-supplier", mockRepo));
     }
 }

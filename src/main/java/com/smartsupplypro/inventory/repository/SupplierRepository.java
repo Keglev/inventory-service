@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface SupplierRepository extends JpaRepository<Supplier, String> {
     List<Supplier> findByNameContainingIgnoreCase(String name);
+    boolean existsByNameIgnoreCase(String name);
 }

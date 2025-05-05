@@ -39,6 +39,8 @@ public class SupplierService {
     }
 
     public SupplierDTO save(SupplierDTO dto) {
+        SupplierValidator.validateSupplierExists(dto.getName(), supplierRepository);
+
         Supplier entity = SupplierMapper.toEntity(dto);
 
         if (entity.getCreatedAt() == null) {
