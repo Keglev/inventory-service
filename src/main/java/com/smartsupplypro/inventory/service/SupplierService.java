@@ -54,6 +54,10 @@ public class SupplierService {
     public Optional<SupplierDTO> update(String id, SupplierDTO dto) {
         return supplierRepository.findById(id)
             .map(existing -> {
+                if (!existing.getName().equalsIgnoreCase(dto.getName())
+                    && supplierRepository.existsByNameIgnoreCase(dto.getName())) {
+                throw new IllegalArgumentException("A Supplier with this name already exists.");
+            }
                 existing.setName(dto.getName());
                 existing.setContactName(dto.getContactName());
                 existing.setPhone(dto.getPhone());

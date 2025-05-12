@@ -4,12 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsupplypro.inventory.InventoryServiceApplication;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
+import com.smartsupplypro.inventory.testconfig.SecurityTestConfig;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -17,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ImportAutoConfiguration
 @ContextConfiguration(classes = InventoryServiceApplication.class)
 @ActiveProfiles("test")
+@Import({SecurityTestConfig.class, GlobalExceptionHandler.class})
 public class InventoryItemControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -229,4 +235,33 @@ public class InventoryItemControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    void testCreate_whenDuplicateName_shouldReturnConflict() throws Exception {
+        when(inventoryItemService.save(any()))
+                .thenThrow(new IllegalArgumentException("An inventory item with this name already exists."));
+
+         mockMvc.perform(post("/api/inventory")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sampleItem)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("An inventory item with this name already exists."));
+   }
+
+   @Test
+   @WithMockUser(roles = {"ADMIN"})
+   void testUpdate_whenDuplicateName_shouldReturnConflict() throws Exception {
+        when(inventoryItemService.update(eq("item-1"), any()))
+                .thenThrow(new IllegalArgumentException("An inventory item with this name already exists."));
+
+        mockMvc.perform(put("/api/inventory/item-1")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sampleItem)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("An inventory item with this name already exists."));
+   }
+
 }
+

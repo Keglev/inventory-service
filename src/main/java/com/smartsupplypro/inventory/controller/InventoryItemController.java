@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -35,17 +36,26 @@ public class InventoryItemController {
     }
 
     @PostMapping
-    public ResponseEntity<InventoryItemDTO> create(@Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
-        InventoryItemDTO savedItem = inventoryItemService.save(inventoryItemDTO);
-        return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+    public ResponseEntity<?> create(@Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
+        try {
+            InventoryItemDTO savedItem = inventoryItemService.save(inventoryItemDTO);
+            return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", ex.getMessage()));
+        }
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<InventoryItemDTO> update(@PathVariable String id, @Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
-        return inventoryItemService.update(id, inventoryItemDTO)
-                .map(updatedItem -> ResponseEntity.ok(updatedItem))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
+        try {
+            return inventoryItemService.update(id, inventoryItemDTO)
+                    .map(updatedItem -> ResponseEntity.ok(updatedItem))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", ex.getMessage()));
+        }
     }
 
     @DeleteMapping("/{id}")

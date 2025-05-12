@@ -19,6 +19,7 @@ public class InventoryItem {
     @Id
     private String id;
 
+    @Column(unique = true)
     private String name;
 
     private int quantity;

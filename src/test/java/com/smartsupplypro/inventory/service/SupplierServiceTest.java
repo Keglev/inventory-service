@@ -85,4 +85,24 @@ class SupplierServiceTest {
         assertEquals("Updated Name", updated.get().getName());
         verify(supplierRepository).save(any(Supplier.class));
     }
+    @Test
+    void shouldThrowExceptionWhenUpdatingToExistingName() {
+        String supplierId = "123";
+        Supplier existing = new Supplier();
+        existing.setId(supplierId);
+        existing.setName("Original Name");
+
+        SupplierDTO updateDto = new SupplierDTO();
+        updateDto.setName("Duplicate Name");
+
+        when(supplierRepository.findById(supplierId)).thenReturn(Optional.of(existing));
+        when(supplierRepository.existsByNameIgnoreCase("Duplicate Name")).thenReturn(true);
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+                supplierService.update(supplierId, updateDto));
+
+        assertEquals("A Supplier with this name already exists.", ex.getMessage());
+        verify(supplierRepository, never()).save(any());
+    }
+
 }

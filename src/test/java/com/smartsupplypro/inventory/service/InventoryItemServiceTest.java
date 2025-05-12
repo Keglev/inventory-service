@@ -207,4 +207,24 @@ public class InventoryItemServiceTest {
         verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
         verify(inventoryItemRepository, never()).deleteById(any());
     }
+
+    @Test
+    void shouldThrowExceptionWhenInventoryItemAlreadyExists() {
+        when(inventoryItemRepository.existsByNameIgnoreCase("Widget")).thenReturn(true);
+
+        InventoryItemDTO duplicate = InventoryItemDTO.builder()
+            .name("Widget")
+            .price(BigDecimal.valueOf(10.0))
+            .quantity(5)
+            .supplierId("some-supplier")
+            .createdBy("tester")
+            .build();
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            inventoryItemService.save(duplicate)
+        );
+
+        assertEquals("An inventory item with this name already exists.", ex.getMessage());
+    }
+
 }

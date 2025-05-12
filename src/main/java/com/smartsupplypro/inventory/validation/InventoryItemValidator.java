@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.validation;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 
 import java.math.BigDecimal;
 
@@ -21,4 +22,11 @@ public class InventoryItemValidator {
             throw new IllegalArgumentException("Supplier ID must be provided");
         }
     }
+    
+    public static void validateInventoryItemNotExists(String name, InventoryItemRepository inventoryRepo) {
+        if (inventoryRepo.existsByNameIgnoreCase(name)) {
+         throw new IllegalArgumentException("An inventory item with this name already exists.");
+        }
+    }
+
 }

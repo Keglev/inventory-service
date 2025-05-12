@@ -44,8 +44,9 @@ public class InventoryItemService {
 
     public InventoryItemDTO save(InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);
+        InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), repository);
         validateSupplierExists(dto.getSupplierId());
-
+    
         InventoryItem entity = InventoryItemMapper.toEntity(dto);
 
         if (entity.getCreatedAt() == null) {

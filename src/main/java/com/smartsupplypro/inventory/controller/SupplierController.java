@@ -21,28 +21,28 @@ public class SupplierController {
     private final SupplierService supplierService;
 
     @GetMapping
-    public List<SupplierDTO> getAll() {
-        return supplierService.getAll();
+    public ResponseEntity<List<SupplierDTO>> getAll() {
+        return ResponseEntity.ok(supplierService.getAll());
     }
 
     @GetMapping("/{id}")
-    public SupplierDTO getById(@PathVariable String id) {
-        return supplierService.getById(id);
+    public ResponseEntity<SupplierDTO> getById(@PathVariable String id) {
+        return ResponseEntity.ok(supplierService.getById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")  // Only Admins can create suppliers
-    public ResponseEntity<SupplierDTO> create(@RequestBody @Valid SupplierDTO supplierDTO) {
-        SupplierDTO saved = supplierService.save(supplierDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved); 
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SupplierDTO> create(@RequestBody @Valid SupplierDTO dto) {
+        SupplierDTO created = supplierService.save(dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")  // Only Admins can update suppliers
-    public ResponseEntity<SupplierDTO> update(@PathVariable String id, @RequestBody @Valid SupplierDTO supplierDTO) {
-        return supplierService.update(id, supplierDTO)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SupplierDTO> update(@PathVariable String id, @RequestBody @Valid SupplierDTO dto) {
+        return supplierService.update(id, dto)
+                .map(updated -> new ResponseEntity<>(updated, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
@@ -53,7 +53,7 @@ public class SupplierController {
     }
 
     @GetMapping("/search")
-    public List<SupplierDTO> searchByName(@RequestParam String name) {
-     return supplierService.findByName(name);
+    public ResponseEntity<List<SupplierDTO>> search(@RequestParam String name) {
+        return ResponseEntity.ok(supplierService.findByName(name));
     }
 }

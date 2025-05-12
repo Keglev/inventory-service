@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.smartsupplypro.inventory.testconfig.SecurityTestConfig;
+import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 
 
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @WebMvcTest(SupplierController.class)
 @ActiveProfiles("test")
-@Import(SecurityTestConfig.class)
+@Import({SecurityTestConfig.class, GlobalExceptionHandler.class})
 public class SupplierControllerTest {
 
     @Autowired
@@ -170,5 +171,41 @@ public class SupplierControllerTest {
                         .with(csrf())
                         .with(user("regularuser").roles("USER")))
                 .andExpect(status().isForbidden());
+    }
+
+   @Test
+    void testCreate_withDuplicateName_shouldReturnConflict() throws Exception {
+        SupplierDTO dto = buildSupplierWithCreatedBy("admin");
+
+        when(supplierService.save(dto)).thenReturn(dto); // first call OK
+        mockMvc.perform(post("/api/suppliers")
+                        .with(csrf())
+                        .with(user("adminuser").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated());
+
+        when(supplierService.save(dto)).thenThrow(new IllegalArgumentException("A Supplier with this name already exists."));
+        mockMvc.perform(post("/api/suppliers")
+                        .with(csrf())
+                        .with(user("adminuser").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("A Supplier with this name already exists."));
+    }
+
+    @Test
+    void testUpdate_withDuplicateName_shouldReturnConflict() throws Exception {
+        SupplierDTO dto = buildSupplierWithCreatedBy("admin");
+
+        when(supplierService.update(eq("supplier-1"), any())).thenThrow(new IllegalArgumentException("A Supplier with this name already exists."));
+        mockMvc.perform(put("/api/suppliers/supplier-1")
+                        .with(csrf())
+                        .with(user("adminuser").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("A Supplier with this name already exists."));
     }
 }

@@ -1,6 +1,8 @@
 package com.smartsupplypro.inventory.validation;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+
 import org.springframework.test.context.ActiveProfiles;
 
 import org.junit.jupiter.api.Test;
@@ -8,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 public class InventoryItemValidatorTest {
@@ -60,5 +64,17 @@ public class InventoryItemValidatorTest {
         Exception e = assertThrows(IllegalArgumentException.class, () ->
                 InventoryItemValidator.validateBase(dto));
         assertEquals("Supplier ID must be provided", e.getMessage());
+    }
+
+    @Test
+    void testValidateInventoryItemNotExists_withExistingName_shouldThrowException() {
+        InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
+        when(mockRepo.existsByNameIgnoreCase("DuplicateItem")).thenReturn(true);
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            InventoryItemValidator.validateInventoryItemNotExists("DuplicateItem", mockRepo)
+        );
+
+        assertEquals("An inventory item with this name already exists.", ex.getMessage());
     }
 }
