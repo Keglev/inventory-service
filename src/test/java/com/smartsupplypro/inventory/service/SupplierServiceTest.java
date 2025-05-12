@@ -105,4 +105,28 @@ class SupplierServiceTest {
         verify(supplierRepository, never()).save(any());
     }
 
+    @Test
+    void testDelete_shouldThrowException_whenInventoryItemsExist() {
+        // Given
+        String supplierId = "supplier-123";
+        when(inventoryItemRepository.existsBySupplierId(supplierId)).thenReturn(true);
+
+        // Then
+        assertThrows(IllegalStateException.class, () -> supplierService.delete(supplierId));
+        verify(supplierRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void testDelete_shouldSucceed_whenNoInventoryItemsExist() {
+        // Given
+        String supplierId = "supplier-123";
+        when(inventoryItemRepository.existsBySupplierId(supplierId)).thenReturn(false);
+
+        // When
+        supplierService.delete(supplierId);
+
+        // Then
+        verify(supplierRepository).deleteById(supplierId);
+    }
+
 }
