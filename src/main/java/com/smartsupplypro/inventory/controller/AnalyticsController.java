@@ -1,6 +1,8 @@
 package com.smartsupplypro.inventory.controller;
 
 import java.time.LocalDate;
+
+import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 import com.smartsupplypro.inventory.service.AnalyticsService;
 import java.util.List;
@@ -26,4 +28,10 @@ public class AnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
         return ResponseEntity.ok(analyticsService.getTotalStockValueOverTime(start, end));
     }
+
+    @GetMapping("/stock-per-supplier")
+    public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
+        return ResponseEntity.ok(analyticsService.getTotalStockPerSupplier());
+    }
+
 }

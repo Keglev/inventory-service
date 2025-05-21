@@ -9,6 +9,7 @@ import java.sql.Date;
 
 import org.springframework.stereotype.Service;
 
+import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 import com.smartsupplypro.inventory.service.AnalyticsService;
@@ -36,4 +37,17 @@ public class AnalyticsServiceImpl implements AnalyticsService{
             ))
             .collect(Collectors.toList());
     }
+
+    @Override
+    public List<StockPerSupplierDTO> getTotalStockPerSupplier() {
+        List<Object[]> results = stockHistoryRepository.getTotalStockPerSupplier();
+
+        return results.stream()
+                .map(row -> new StockPerSupplierDTO(
+                        (String) row[0],
+                        ((BigDecimal) row[1]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
 }
