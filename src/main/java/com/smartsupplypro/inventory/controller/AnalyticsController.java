@@ -1,49 +1,85 @@
 package com.smartsupplypro.inventory.controller;
 
-import java.time.LocalDate;
-
-import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
-import com.smartsupplypro.inventory.dto.LowStockItemDTO;
-import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
-import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
+import com.smartsupplypro.inventory.dto.*;
 import com.smartsupplypro.inventory.service.AnalyticsService;
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/analytics")
 @RequiredArgsConstructor
 public class AnalyticsController {
+
     private final AnalyticsService analyticsService;
 
+    // 📈 Stock value over time (for line charts)
     @GetMapping("/stock-value")
     public ResponseEntity<List<StockValueOverTimeDTO>> getStockValueOverTime(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return ResponseEntity.ok(analyticsService.getTotalStockValueOverTime(start, end));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestParam(required = false) String supplierId) {
+
+        return ResponseEntity.ok(analyticsService.getTotalStockValueOverTime(start, end, supplierId));
     }
 
+    // 📊 Total stock quantity per supplier (for pie/bar charts)
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
         return ResponseEntity.ok(analyticsService.getTotalStockPerSupplier());
     }
 
+    // 📊 Update frequency per item (for activity analysis)
     @GetMapping("/item-update-frequency")
-    public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency() {
-        return ResponseEntity.ok(analyticsService.getItemUpdateFrequency());
+    public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency(
+            @RequestParam(required = false) String supplierId) {
+
+        return ResponseEntity.ok(analyticsService.getItemUpdateFrequency(supplierId));
     }
 
+    // ⚠️ Low-stock items (threshold warning list)
     @GetMapping("/low-stock-items")
-    public ResponseEntity<List<LowStockItemDTO>> getLowStockItems() {
-        return ResponseEntity.ok(analyticsService.getItemsBelowMinimumStock());
+    public ResponseEntity<List<LowStockItemDTO>> getLowStockItems(
+            @RequestParam(required = false) String supplierId) {
+
+        return ResponseEntity.ok(analyticsService.getItemsBelowMinimumStock(supplierId));
     }
 
+    // 📆 Monthly stock movement (for stacked bar charts)
+    @GetMapping("/monthly-stock-movement")
+    public ResponseEntity<List<MonthlyStockMovementDTO>> getMonthlyStockMovement(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestParam(required = false) String supplierId) {
+
+        return ResponseEntity.ok(analyticsService.getMonthlyStockMovement(start, end, supplierId));
+    }
+
+    // 🔍 Advanced multi-filtered analytics query (for custom reports)
+    @GetMapping("/stock-updates")
+    public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdates(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) String itemName,
+            @RequestParam(required = false) String supplierId,
+            @RequestParam(required = false) String createdBy,
+            @RequestParam(required = false) Integer minChange,
+            @RequestParam(required = false) Integer maxChange) {
+
+        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
+        filter.setStartDate(startDate);
+        filter.setEndDate(endDate);
+        filter.setItemName(itemName);
+        filter.setSupplierId(supplierId);
+        filter.setCreatedBy(createdBy);
+        filter.setMinChange(minChange);
+        filter.setMaxChange(maxChange);
+
+        return ResponseEntity.ok(analyticsService.getFilteredStockUpdates(filter));
+    }
 }
