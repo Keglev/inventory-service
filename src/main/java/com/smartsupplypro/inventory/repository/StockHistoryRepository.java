@@ -50,7 +50,16 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
       JOIN inventory_item i ON s.id = i.supplier_id
       GROUP BY s.name
         ORDER BY total_quantity DESC
-    """, nativeQuery = true)
+      """, nativeQuery = true)
     List<Object[]> getTotalStockPerSupplier();
+
+    @Query(value = """
+      SELECT i.name AS item_name, COUNT(sh.id) AS update_count
+      FROM stock_history sh
+      JOIN inventory_item i ON sh.item_id = i.id
+      GROUP BY i.name
+      ORDER BY update_count DESC
+      """, nativeQuery = true)
+    List<Object[]> getUpdateCountPerItem();
 
 }

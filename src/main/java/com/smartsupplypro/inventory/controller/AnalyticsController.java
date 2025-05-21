@@ -2,6 +2,7 @@ package com.smartsupplypro.inventory.controller;
 
 import java.time.LocalDate;
 
+import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
 import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 import com.smartsupplypro.inventory.service.AnalyticsService;
@@ -32,6 +33,11 @@ public class AnalyticsController {
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
         return ResponseEntity.ok(analyticsService.getTotalStockPerSupplier());
+    }
+
+    @GetMapping("/item-update-frequency")
+    public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency() {
+        return ResponseEntity.ok(analyticsService.getItemUpdateFrequency());
     }
 
 }

@@ -9,6 +9,7 @@ import java.sql.Date;
 
 import org.springframework.stereotype.Service;
 
+import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
 import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
@@ -44,6 +45,18 @@ public class AnalyticsServiceImpl implements AnalyticsService{
 
         return results.stream()
                 .map(row -> new StockPerSupplierDTO(
+                        (String) row[0],
+                        ((BigDecimal) row[1]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ItemUpdateFrequencyDTO> getItemUpdateFrequency() {
+        List<Object[]> results = stockHistoryRepository.getUpdateCountPerItem();
+
+        return results.stream()
+                .map(row -> new ItemUpdateFrequencyDTO(
                         (String) row[0],
                         ((BigDecimal) row[1]).longValue()
                 ))
