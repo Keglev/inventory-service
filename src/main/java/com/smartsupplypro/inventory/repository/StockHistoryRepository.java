@@ -28,6 +28,18 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
             @Param("supplierId") String supplierId,
             Pageable pageable
     );
+    
     List<StockHistory> findByItemId(String itemId);
     List<StockHistory> findByReason(StockChangeReason reason);
+    @Query(value = """
+        SELECT TRUNC(sh.timestamp), SUM(sh.quantity * sh.price_per_unit)
+        FROM stock_history sh
+        WHERE sh.timestamp BETWEEN :start AND :end
+        GROUP BY TRUNC(sh.timestamp)
+        ORDER BY TRUNC(sh.timestamp)
+        """, nativeQuery = true)
+    List<Object[]> getStockValueGroupedByDate(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
 }
