@@ -53,6 +53,10 @@ public class InventoryItemService {
             entity.setCreatedAt(LocalDateTime.now());
         }
 
+        if (entity.getMinimumQuantity() <= 0) {
+            entity.setMinimumQuantity(10); // default fallback
+        }
+
         InventoryItem saved = repository.save(entity);
 
         stockHistoryService.logStockChange(

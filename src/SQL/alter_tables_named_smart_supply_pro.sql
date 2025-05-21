@@ -42,3 +42,11 @@ FOREIGN KEY (item_id) REFERENCES INVENTORY_ITEM (id);
 ALTER TABLE SCRAP
 ADD CONSTRAINT FK_SCRAP_SOURCE_RETURN
 FOREIGN KEY (source_return_id) REFERENCES CUSTOMER_RETURN (id);
+
+ALTER TABLE INVENTORY_ITEM ADD minimum_quantity NUMBER(10);
+
+-- Optional: Set default for all existing rows
+UPDATE INVENTORY_ITEM SET minimum_quantity = 10 WHERE minimum_quantity IS NULL;
+
+-- Optional (if you want future inserts to default to 10 automatically)
+ALTER TABLE INVENTORY_ITEM MODIFY minimum_quantity DEFAULT 10;

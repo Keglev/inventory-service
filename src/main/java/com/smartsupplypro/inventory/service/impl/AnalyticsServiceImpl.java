@@ -10,8 +10,10 @@ import java.sql.Date;
 import org.springframework.stereotype.Service;
 
 import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
+import com.smartsupplypro.inventory.dto.LowStockItemDTO;
 import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 import com.smartsupplypro.inventory.service.AnalyticsService;
 
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class AnalyticsServiceImpl implements AnalyticsService{
 
     private final StockHistoryRepository stockHistoryRepository;
+    private final InventoryItemRepository inventoryItemRepository;
 
     @Override
     public List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate, LocalDate endDate) {
@@ -59,6 +62,19 @@ public class AnalyticsServiceImpl implements AnalyticsService{
                 .map(row -> new ItemUpdateFrequencyDTO(
                         (String) row[0],
                         ((BigDecimal) row[1]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LowStockItemDTO> getItemsBelowMinimumStock() {
+        List<Object[]> results = inventoryItemRepository.findItemsBelowMinimumStock();
+
+        return results.stream()
+                .map(row -> new LowStockItemDTO(
+                        (String) row[0],
+                        ((BigDecimal) row[1]).intValue(),
+                        ((BigDecimal) row[2]).intValue()
                 ))
                 .collect(Collectors.toList());
     }

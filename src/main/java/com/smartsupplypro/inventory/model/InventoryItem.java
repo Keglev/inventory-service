@@ -32,6 +32,9 @@ public class InventoryItem {
     @Column(name = "created_by")
     private String createdBy;
 
+    @Column(name = "minimum_quantity")
+    private int minimumQuantity;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
