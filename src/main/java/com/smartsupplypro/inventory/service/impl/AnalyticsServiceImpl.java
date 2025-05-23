@@ -2,7 +2,7 @@ package com.smartsupplypro.inventory.service.impl;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.sql.Timestamp; // ✅ FIX: Import Timestamp
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
