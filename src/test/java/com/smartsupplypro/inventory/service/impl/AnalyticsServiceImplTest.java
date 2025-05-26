@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Collections;
 import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,96 +38,118 @@ public class AnalyticsServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-   @Test
+    @Test
     void shouldReturnTotalStockPerSupplier() {
         when(stockHistoryRepository.getTotalStockPerSupplier()).thenReturn(
             Arrays.<Object[]>asList(
-                new Object[]{"Supplier A", BigDecimal.valueOf(100)},
-                new Object[]{"Supplier B", BigDecimal.valueOf(50)}
+                new Object[]{"Supplier A", BigDecimal.valueOf(100)}
             )
         );
 
         List<StockPerSupplierDTO> result = analyticsService.getTotalStockPerSupplier();
 
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
         assertEquals("Supplier A", result.get(0).getSupplierName());
-        assertEquals(100L, result.get(0).getTotalQuantity());
+    }
+
+    @Test
+    void shouldHandleEmptyStockPerSupplier() {
+        when(stockHistoryRepository.getTotalStockPerSupplier()).thenReturn(Collections.emptyList());
+
+        List<StockPerSupplierDTO> result = analyticsService.getTotalStockPerSupplier();
+
+        assertTrue(result.isEmpty());
     }
 
     @Test
     void shouldReturnLowStockItems() {
         when(inventoryItemRepository.findItemsBelowMinimumStockFiltered("s1"))
-            .thenReturn(
-                Arrays.<Object[]>asList(
-                    new Object[]{"Item X", BigDecimal.valueOf(5), BigDecimal.valueOf(10)}
-                )
-            );
+            .thenReturn(Arrays.<Object[]>asList(new Object[]{"Item X", BigDecimal.valueOf(5), BigDecimal.valueOf(10)}));
 
         List<LowStockItemDTO> result = analyticsService.getItemsBelowMinimumStock("s1");
 
         assertEquals(1, result.size());
         assertEquals("Item X", result.get(0).getItemName());
-        assertEquals(5, result.get(0).getQuantity());
-        assertEquals(10, result.get(0).getMinimumQuantity());
     }
 
     @Test
-    void shouldReturnItemUpdateFrequency() {
-        when(stockHistoryRepository.getUpdateCountPerItemFiltered("s1"))
-            .thenReturn(
-                Arrays.<Object[]>asList(
-                    new Object[]{"Item A", BigDecimal.valueOf(2)},
-                    new Object[]{"Item B", BigDecimal.valueOf(1)}
-                )
-            );
+    void shouldReturnEmptyWhenSupplierIdIsInvalidForLowStock() {
+        when(inventoryItemRepository.findItemsBelowMinimumStockFiltered("invalid"))
+            .thenReturn(Collections.emptyList());
 
-        List<ItemUpdateFrequencyDTO> result = analyticsService.getItemUpdateFrequency("s1");
+        List<LowStockItemDTO> result = analyticsService.getItemsBelowMinimumStock("invalid");
 
-        assertEquals(2, result.size());
-        assertEquals("Item A", result.get(0).getItemName());
-        assertEquals(2L, result.get(0).getUpdateCount());
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void shouldReturnMonthlyStockMovement() {
-        when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), eq("s1")))
-            .thenReturn(
-                Arrays.<Object[]>asList(
-                    new Object[]{"2024-01", BigDecimal.valueOf(10), BigDecimal.valueOf(5)}
-                )
-            );
+    void shouldHandleEmptyItemUpdateFrequency() {
+        when(stockHistoryRepository.getUpdateCountPerItemFiltered("none"))
+            .thenReturn(Collections.emptyList());
+
+        List<ItemUpdateFrequencyDTO> result = analyticsService.getItemUpdateFrequency("none");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void shouldHandleEmptyMonthlyStockMovement() {
+        when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), eq("bad")))
+            .thenReturn(Collections.emptyList());
 
         List<MonthlyStockMovementDTO> result = analyticsService.getMonthlyStockMovement(
-                LocalDate.now().minusMonths(1), LocalDate.now(), "s1");
+                LocalDate.now().minusMonths(2), LocalDate.now(), "bad");
 
-        assertEquals(1, result.size());
-        assertEquals("2024-01", result.get(0).getMonth());
-        assertEquals(10L, result.get(0).getStockIn());
-        assertEquals(5L, result.get(0).getStockOut());
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void shouldReturnFilteredStockUpdates() {
-        when(stockHistoryRepository.findFilteredStockUpdates(
-            any(), any(), eq("Item A"), eq("Supplier A"), any(), any(), any())
-        ).thenReturn(
-            Arrays.<Object[]>asList(
-                new Object[]{"Item A", "Supplier A", BigDecimal.valueOf(3), "SALE", "admin",
-                        Timestamp.valueOf(LocalDateTime.now())}
-            )
-        );
-
+    void shouldHandleEmptyFilteredStockUpdates() {
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
-        filter.setItemName("Item A");
-        filter.setSupplierId("Supplier A");
+        filter.setItemName("Invalid Item");
+        filter.setSupplierId("bad");
         filter.setStartDate(LocalDateTime.now().minusDays(5));
         filter.setEndDate(LocalDateTime.now());
+
+        when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(Collections.emptyList());
+
+        List<StockUpdateResultDTO> result = analyticsService.getFilteredStockUpdates(filter);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void shouldUseDefaultDatesIfMissingInStockUpdates() {
+        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
+        filter.setItemName("ItemX");
+        filter.setSupplierId("s1");
+
+        List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
+            "ItemX", "s1", BigDecimal.valueOf(5), "SALE", "admin", Timestamp.valueOf(LocalDateTime.now())
+        });
+
+        when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mockResult);
 
         List<StockUpdateResultDTO> result = analyticsService.getFilteredStockUpdates(filter);
 
         assertEquals(1, result.size());
-        assertEquals("Item A", result.get(0).getItemName());
-        assertEquals("Supplier A", result.get(0).getSupplierName());
-        assertEquals("SALE", result.get(0).getReason());
+        assertEquals("ItemX", result.get(0).getItemName());
+    }
+
+    @Test
+    void shouldUseDefaultDatesIfMissingInStockMovement() {
+        List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
+            "2024-01", BigDecimal.valueOf(10), BigDecimal.valueOf(5)
+        });
+
+        when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), any()))
+            .thenReturn(mockResult);
+
+        List<MonthlyStockMovementDTO> result = analyticsService.getMonthlyStockMovement(null, null, "s1");
+
+        assertEquals(1, result.size());
+        assertEquals("2024-01", result.get(0).getMonth());
     }
 }

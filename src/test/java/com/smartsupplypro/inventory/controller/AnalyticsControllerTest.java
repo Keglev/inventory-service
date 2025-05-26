@@ -58,6 +58,12 @@ public class AnalyticsControllerTest {
     }
 
     @Test
+    void shouldReturn400WhenSupplierIdMissingInLowStock() throws Exception {
+        mockMvc.perform(get("/api/analytics/low-stock-items"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void shouldReturnMonthlyStockMovement() throws Exception {
         List<MonthlyStockMovementDTO> sample = List.of(
                 new MonthlyStockMovementDTO("2024-01", 15L, 5L)
@@ -80,7 +86,13 @@ public class AnalyticsControllerTest {
     }
 
     @Test
-    void shouldReturnFilteredStockUpdates() throws Exception {
+    void shouldReturn400WhenSupplierIdMissingInUpdateFrequency() throws Exception {
+        mockMvc.perform(get("/api/analytics/item-update-frequency"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnFilteredStockUpdatesViaPost() throws Exception {
         List<StockUpdateResultDTO> sample = List.of(
                 new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
         );
@@ -92,7 +104,39 @@ public class AnalyticsControllerTest {
         filter.setStartDate(LocalDateTime.now().minusDays(10));
         filter.setEndDate(LocalDateTime.now());
 
+        mockMvc.perform(post("/api/analytics/stock-updates/query")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].itemName").value("ItemX"));
+    }
+
+    @Test
+    void shouldReturnFilteredStockUpdatesViaGet() throws Exception {
+        List<StockUpdateResultDTO> sample = List.of(
+                new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
+        );
+        when(analyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenReturn(sample);
+
         mockMvc.perform(get("/api/analytics/stock-updates")
+                .param("startDate", "2024-05-01T00:00:00")
+                .param("endDate", "2024-05-15T23:59:59")
+                .param("itemName", "ItemX")
+                .param("supplierId", "Supplier A"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].itemName").value("ItemX"));
+    }
+    @Test
+    void shouldUseDefaultDateWhenMissingStartDateInPost() throws Exception {
+        List<StockUpdateResultDTO> sample = List.of(
+                new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
+        );
+        when(analyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenReturn(sample);
+
+        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
+        filter.setEndDate(LocalDateTime.now());
+
+        mockMvc.perform(post("/api/analytics/stock-updates/query")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(filter)))
                 .andExpect(status().isOk())

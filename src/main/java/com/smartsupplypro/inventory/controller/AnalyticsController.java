@@ -2,9 +2,12 @@ package com.smartsupplypro.inventory.controller;
 
 import com.smartsupplypro.inventory.dto.*;
 import com.smartsupplypro.inventory.service.AnalyticsService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -14,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/analytics")
 @RequiredArgsConstructor
+@Validated
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
@@ -28,26 +32,22 @@ public class AnalyticsController {
         return ResponseEntity.ok(analyticsService.getTotalStockValueOverTime(start, end, supplierId));
     }
 
-    // 📊 Total stock quantity per supplier (for pie/bar charts)
+    // Total stock quantity per supplier (for pie/bar charts)
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
         return ResponseEntity.ok(analyticsService.getTotalStockPerSupplier());
     }
 
-    // 📊 Update frequency per item (for activity analysis)
+    // Update frequency per item (for activity analysis)
     @GetMapping("/item-update-frequency")
-    public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency(
-            @RequestParam(required = false) String supplierId) {
-
-        return ResponseEntity.ok(analyticsService.getItemUpdateFrequency(supplierId));
+    public List<ItemUpdateFrequencyDTO> getItemUpdateFrequency(@RequestParam(name = "supplierId", required = true) String supplierId) {
+        return analyticsService.getItemUpdateFrequency(supplierId);
     }
 
-    // ⚠️ Low-stock items (threshold warning list)
+    // Low-stock items (threshold warning list)
     @GetMapping("/low-stock-items")
-    public ResponseEntity<List<LowStockItemDTO>> getLowStockItems(
-            @RequestParam(required = false) String supplierId) {
-
-        return ResponseEntity.ok(analyticsService.getItemsBelowMinimumStock(supplierId));
+    public List<LowStockItemDTO> getLowStockItems(@RequestParam(name = "supplierId", required = true) String supplierId) {
+        return analyticsService.getItemsBelowMinimumStock(supplierId);
     }
 
     // 📆 Monthly stock movement (for stacked bar charts)
@@ -60,9 +60,9 @@ public class AnalyticsController {
         return ResponseEntity.ok(analyticsService.getMonthlyStockMovement(start, end, supplierId));
     }
 
-    // 🔍 Advanced multi-filtered analytics query (for custom reports)
+    // Advanced multi-filtered analytics query (for custom reports)
     @GetMapping("/stock-updates")
-    public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdates(
+    public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesFromParams(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) String itemName,
@@ -82,4 +82,11 @@ public class AnalyticsController {
 
         return ResponseEntity.ok(analyticsService.getFilteredStockUpdates(filter));
     }
+
+    @PostMapping("/stock-updates/query")
+    public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesPost(
+        @RequestBody @Valid StockUpdateFilterDTO filter) {
+    return ResponseEntity.ok(analyticsService.getFilteredStockUpdates(filter));
+    }
+
 }

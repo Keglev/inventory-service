@@ -26,6 +26,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate, LocalDate endDate, String supplierId) {
+         if (startDate == null) {
+            startDate = LocalDate.now().minusDays(30);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now();
+        }
+
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay().minusNanos(1);
 
@@ -53,6 +60,10 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public List<ItemUpdateFrequencyDTO> getItemUpdateFrequency(String supplierId) {
+        if (supplierId == null) {
+            throw new IllegalArgumentException("Supplier ID must not be null");
+        }
+
         List<Object[]> results = stockHistoryRepository.getUpdateCountPerItemFiltered(supplierId);
 
         return results.stream()
@@ -65,7 +76,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public List<LowStockItemDTO> getItemsBelowMinimumStock(String supplierId) {
-        List<Object[]> results = inventoryItemRepository.findItemsBelowMinimumStockFiltered(supplierId); // ✅ FIX: make sure this method is in the correct repo
+        if (supplierId == null) {
+            throw new IllegalArgumentException("Supplier ID must not be null");
+        }
+
+        List<Object[]> results = inventoryItemRepository.findItemsBelowMinimumStockFiltered(supplierId);
 
         return results.stream()
                 .map(row -> new LowStockItemDTO(
@@ -78,6 +93,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public List<MonthlyStockMovementDTO> getMonthlyStockMovement(LocalDate startDate, LocalDate endDate, String supplierId) {
+         if (startDate == null) {
+        startDate = LocalDate.now().minusDays(30);
+        }
+        if (endDate == null) {
+        endDate = LocalDate.now();
+        }
+
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay().minusNanos(1);
 
@@ -94,6 +116,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     @Override
     public List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter) {
+       if (filter.getStartDate() == null) {
+            filter.setStartDate(LocalDateTime.now().minusDays(30));
+        }
+        if (filter.getEndDate() == null) {
+            filter.setEndDate(LocalDateTime.now());
+        }
+
         List<Object[]> results = stockHistoryRepository.findFilteredStockUpdates(
                 filter.getStartDate(),
                 filter.getEndDate(),
