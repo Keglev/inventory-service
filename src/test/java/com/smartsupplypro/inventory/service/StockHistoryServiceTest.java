@@ -66,35 +66,30 @@ public class StockHistoryServiceTest {
     }
 
     @Test
-    void testLogStockChange_withEmptyCreatedBy_shouldStillSave() {
-        stockHistoryService.logStockChange("item-1", 5, StockChangeReason.SOLD, "");
+    void testLogStockChange_withBlankCreatedBy_shouldThrow() {
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            stockHistoryService.logStockChange("item-1", 5, StockChangeReason.SOLD, " ")
+        );
 
-        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
-        verify(repository).save(captor.capture());
-
-        StockHistory saved = captor.getValue();
-        assertEquals("item-1", saved.getItemId());
-        assertEquals(5, saved.getChange());
-        assertEquals("SOLD", saved.getReason());
-        assertEquals("", saved.getCreatedBy());
-        assertNotNull(saved.getTimestamp());
+        assertEquals("CreatedBy is required", ex.getMessage());
     }
 
     @Test
-    void testLogStockChange_withNullItemId_shouldSaveOrThrowBasedOnLogic() {
-        
-        // Currently assuming it accepts null and saves it
-        stockHistoryService.logStockChange(null, 5, StockChangeReason.SOLD, "admin");
+    void testLogStockChange_withZeroChange_shouldThrow() {
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            stockHistoryService.logStockChange("item-1", 0, StockChangeReason.SOLD, "admin")
+        );
 
-        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
-        verify(repository).save(captor.capture());
+        assertEquals("Change amount must be non-zero", ex.getMessage());
+    }
 
-        StockHistory saved = captor.getValue();
-        assertNull(saved.getItemId()); // <- you could alternatively enforce not null if you prefer
-        assertEquals(5, saved.getChange());
-        assertEquals("SOLD", saved.getReason());
-        assertEquals("admin", saved.getCreatedBy());
-        assertNotNull(saved.getTimestamp());
+    @Test
+    void testLogStockChange_withNullItemId_shouldThrow() {
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            stockHistoryService.logStockChange(null, 5, StockChangeReason.SOLD, "admin")
+        );
+
+        assertEquals("Item ID cannot be null or empty", ex.getMessage());
     }
 
 }

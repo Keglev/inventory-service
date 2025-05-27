@@ -21,6 +21,9 @@ public class InventoryItemValidator {
         if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {
             throw new IllegalArgumentException("Supplier ID must be provided");
         }
+        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
+        throw new IllegalArgumentException("CreatedBy must be provided");
+        }
     }
     
     public static void validateInventoryItemNotExists(String name, InventoryItemRepository inventoryRepo) {

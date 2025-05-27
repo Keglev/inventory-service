@@ -22,6 +22,7 @@ public class InventoryItemValidatorTest {
                 .quantity(10)
                 .price(new BigDecimal("199.99"))
                 .supplierId("supplier-1")
+                .createdBy("admin")
                 .build();
     }
 
@@ -77,4 +78,15 @@ public class InventoryItemValidatorTest {
 
         assertEquals("An inventory item with this name already exists.", ex.getMessage());
     }
+
+    @Test
+    void testValidateInventoryItemNotExists_withUniqueName_shouldPass() {
+        InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
+        when(mockRepo.existsByNameIgnoreCase("UniqueItem")).thenReturn(false);
+
+        assertDoesNotThrow(() ->
+            InventoryItemValidator.validateInventoryItemNotExists("UniqueItem", mockRepo)
+        );
+    }
+
 }

@@ -5,13 +5,14 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.mapper.StockHistoryMapper;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
+import com.smartsupplypro.inventory.validation.StockHistoryValidator;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,16 +46,16 @@ public class StockHistoryService {
                 .map(StockHistoryMapper::toDTO);
     }
     public void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy) {
-        if (!EnumSet.of(
-            StockChangeReason.SOLD,
-            StockChangeReason.SCRAPPED,
-            StockChangeReason.RETURNED_TO_SUPPLIER,
-            StockChangeReason.RETURNED_BY_CUSTOMER,
-            StockChangeReason.INITIAL_STOCK,
-            StockChangeReason.MANUAL_UPDATE
-        ).contains(reason)) {
-        throw new IllegalArgumentException("Invalid stock change reason: " + reason);
-        }
+        StockHistoryValidator.validateEnum(reason); // enum-based validation
+
+    StockHistoryDTO dto = StockHistoryDTO.builder()
+            .itemId(itemId)
+            .change(change)
+            .reason(reason.name())
+            .createdBy(createdBy)
+            .build();
+
+    StockHistoryValidator.validate(dto); 
         StockHistory history = StockHistory.builder()
             .id("sh-" + itemId + "-" + System.currentTimeMillis())
             .itemId(itemId)

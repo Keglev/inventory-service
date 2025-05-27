@@ -1,6 +1,8 @@
 package com.smartsupplypro.inventory.validation;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+
 import org.springframework.test.context.ActiveProfiles;
 
 import org.junit.jupiter.api.Test;
@@ -55,4 +57,21 @@ public class StockHistoryValidationTest {
         Exception e = assertThrows(IllegalArgumentException.class, () -> StockHistoryValidator.validate(dto));
         assertEquals("CreatedBy is required", e.getMessage());
     }
+
+    @Test
+    void testBlankCreatedBy_shouldThrow() {
+        StockHistoryDTO dto = validDTO();
+        dto.setCreatedBy(" ");
+        Exception e = assertThrows(IllegalArgumentException.class, () -> StockHistoryValidator.validate(dto));
+        assertEquals("CreatedBy is required", e.getMessage());
+    }
+    @Test
+    void testValidReason_shouldNotThrow() {
+        for (StockChangeReason reason : StockChangeReason.values()) {
+            StockHistoryDTO dto = validDTO();
+            dto.setReason(reason.name());
+            assertDoesNotThrow(() -> StockHistoryValidator.validate(dto));
+        }
+    }
+
 }

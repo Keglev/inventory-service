@@ -152,4 +152,36 @@ public class AnalyticsServiceImplTest {
         assertEquals(1, result.size());
         assertEquals("2024-01", result.get(0).getMonth());
     }
+
+    @Test
+    void shouldUseDefaultsAndHandleNullSupplierIdInStockUpdates() {
+        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
+        filter.setItemName("ItemX");
+
+        List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
+            "ItemX", null, BigDecimal.valueOf(5), "SALE", "admin", Timestamp.valueOf(LocalDateTime.now())
+        });
+
+        when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(mockResult);
+
+        List<StockUpdateResultDTO> result = analyticsService.getFilteredStockUpdates(filter);
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void shouldUseDefaultsAndHandleNullSupplierInStockMovement() {
+        List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
+            "2024-02", BigDecimal.valueOf(20), BigDecimal.valueOf(7)
+        });
+
+        when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), any()))
+            .thenReturn(mockResult);
+
+        List<MonthlyStockMovementDTO> result = analyticsService.getMonthlyStockMovement(null, null, null);
+
+        assertEquals(1, result.size());
+        assertEquals("2024-02", result.get(0).getMonth());
+    }
 }

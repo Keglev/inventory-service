@@ -227,4 +227,26 @@ public class InventoryItemServiceTest {
         assertEquals("An inventory item with this name already exists.", ex.getMessage());
     }
 
+    @Test
+    void testSave_withZeroQuantity_shouldSucceed() {
+        dto.setQuantity(0);
+
+        InventoryItemDTO result = inventoryItemService.save(dto);
+
+        assertNotNull(result);
+        verify(inventoryItemRepository).save(any(InventoryItem.class));
+        verify(stockHistoryService).logStockChange("item-1", 0, StockChangeReason.INITIAL_STOCK, "admin");
+    }
+
+    @Test
+    void testSave_withEmptyCreatedBy_shouldThrowException() {
+        dto.setCreatedBy(null); // or ""
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            inventoryItemService.save(dto)
+        );
+
+        assertEquals("CreatedBy must be provided", ex.getMessage());
+    }
+
 }

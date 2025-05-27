@@ -108,5 +108,31 @@ public class StockHistoryControllerTest {
                 .andExpect(jsonPath("$.content.length()").value(0));
     }
 
+    @Test
+    void testGetByReason_withInvalidEnum_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/api/stock-history/reason/INVALID_REASON"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testSearch_withNoParams_shouldReturnPage() throws Exception {
+        Page<StockHistoryDTO> page = new PageImpl<>(List.of(history));
+        when(stockHistoryService.findFiltered(any(), any(), any(), any(), any())).thenReturn(page);
+
+        mockMvc.perform(get("/api/stock-history/search"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1));
+    }
+
+    @Test
+    void testSearch_withOnlyItemName_shouldReturnPage() throws Exception {
+        Page<StockHistoryDTO> page = new PageImpl<>(List.of(history));
+        when(stockHistoryService.findFiltered(any(), any(), any(), any(), any())).thenReturn(page);
+
+        mockMvc.perform(get("/api/stock-history/search")
+                .param("itemName", "item"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1));
+    }
 
 }

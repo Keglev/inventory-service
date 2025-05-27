@@ -15,15 +15,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.smartsupplypro.inventory.testconfig.SecurityTestConfig;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -185,7 +188,7 @@ public class SupplierControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated());
 
-        when(supplierService.save(dto)).thenThrow(new IllegalArgumentException("A Supplier with this name already exists."));
+        when(supplierService.save(dto)).thenThrow(new DuplicateResourceException("A Supplier with this name already exists."));
         mockMvc.perform(post("/api/suppliers")
                         .with(csrf())
                         .with(user("adminuser").roles("ADMIN"))
@@ -199,7 +202,7 @@ public class SupplierControllerTest {
     void testUpdate_withDuplicateName_shouldReturnConflict() throws Exception {
         SupplierDTO dto = buildSupplierWithCreatedBy("admin");
 
-        when(supplierService.update(eq("supplier-1"), any())).thenThrow(new IllegalArgumentException("A Supplier with this name already exists."));
+        when(supplierService.update(eq("supplier-1"), any())).thenThrow(new DuplicateResourceException("A Supplier with this name already exists."));
         mockMvc.perform(put("/api/suppliers/supplier-1")
                         .with(csrf())
                         .with(user("adminuser").roles("ADMIN"))
@@ -207,5 +210,80 @@ public class SupplierControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("A Supplier with this name already exists."));
+    }
+
+    @Test
+    void testGetById_whenNotFound_shouldReturn404() throws Exception {
+        when(supplierService.getById("nonexistent")).thenThrow(new NoSuchElementException("Supplier not found"));
+
+        mockMvc.perform(get("/api/suppliers/nonexistent")
+                        .with(user("adminuser").roles("ADMIN")))
+                        .andExpect(status().isNotFound());
+    }
+    // TODO: Re-enable this test once CSRF protection is active again.
+//
+// Currently, CSRF is globally disabled in SecurityConfig:
+//    http.csrf(csrf -> csrf.disable())
+//
+// This is intentional for local development and testing,
+// and will be replaced when OAuth2 authentication is implemented.
+//
+// Once CSRF is enabled, this test should ensure that POST requests
+// without a CSRF token are rejected with HTTP 403 Forbidden.
+ // TODO: Re-enable this test once CSRF protection is active again.
+    // @Test
+    // void testCreate_withoutCsrf_shouldFail() throws Exception {
+      //   SupplierDTO dto = buildSupplierWithCreatedBy("admin");
+      //  mockMvc.perform(post("/api/suppliers")
+      //                  .with(user("adminuser").roles("ADMIN"))
+      //                  .contentType(MediaType.APPLICATION_JSON)
+      //                  .content(objectMapper.writeValueAsString(dto)))
+      //          .andExpect(status().isForbidden());
+   // }
+
+    @Test
+    void testCreate_withMissingName_shouldReturnBadRequest() throws Exception {
+        SupplierDTO invalid = SupplierDTO.builder()
+                .contactName("Jane")
+                .email("invalid@abc.com")
+                .phone("000000000")
+                .createdBy("admin")
+                .build();
+
+        mockMvc.perform(post("/api/suppliers")
+                        .with(csrf())
+                        .with(user("adminuser").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdate_withMissingName_shouldReturnBadRequest() throws Exception {
+        SupplierDTO invalid = SupplierDTO.builder()
+                .contactName("Jane")
+                .email("update@abc.com")
+                .phone("999999999")
+                .createdBy("admin")
+                .build();
+
+        mockMvc.perform(put("/api/suppliers/supplier-1")
+                        .with(csrf())
+                        .with(user("adminuser").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testDelete_whenSupplierHasItems_shouldReturnConflict() throws Exception {
+        doThrow(new IllegalStateException("Cannot delete supplier with linked items"))
+                .when(supplierService).delete("supplier-1");
+
+        mockMvc.perform(delete("/api/suppliers/supplier-1")
+                        .with(csrf())
+                        .with(user("adminuser").roles("ADMIN")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Cannot delete supplier with linked items"));
     }
 }

@@ -12,7 +12,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +31,9 @@ public class SupplierService {
     }
 
     public SupplierDTO getById(String id) {
-        Optional<Supplier> supplier = supplierRepository.findById(id);
-        return supplier.map(SupplierMapper::toDTO).orElse(null);
+        return supplierRepository.findById(id)
+                .map(SupplierMapper::toDTO)
+                .orElseThrow(() -> new NoSuchElementException("Supplier not found"));
     }
 
     public List<SupplierDTO> findByName(String name) {
@@ -39,7 +43,10 @@ public class SupplierService {
     }
 
     public SupplierDTO save(SupplierDTO dto) {
-        SupplierValidator.validateSupplierExists(dto.getName(), supplierRepository);
+        SupplierValidator.validateBase(dto);
+        if (supplierRepository.existsByNameIgnoreCase(dto.getName())) {
+            throw new DuplicateResourceException("A Supplier with this name already exists.");
+        }
 
         Supplier entity = SupplierMapper.toEntity(dto);
 
@@ -52,12 +59,14 @@ public class SupplierService {
     }
 
     public Optional<SupplierDTO> update(String id, SupplierDTO dto) {
+        SupplierValidator.validateBase(dto);
+
         return supplierRepository.findById(id)
             .map(existing -> {
                 if (!existing.getName().equalsIgnoreCase(dto.getName())
-                    && supplierRepository.existsByNameIgnoreCase(dto.getName())) {
-                throw new IllegalArgumentException("A Supplier with this name already exists.");
-            }
+                        && supplierRepository.existsByNameIgnoreCase(dto.getName())) {
+                    throw new DuplicateResourceException("A Supplier with this name already exists.");
+                }
                 existing.setName(dto.getName());
                 existing.setContactName(dto.getContactName());
                 existing.setPhone(dto.getPhone());

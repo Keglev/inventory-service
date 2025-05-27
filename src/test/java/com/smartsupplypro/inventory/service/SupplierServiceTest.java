@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.service;
 
 import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.model.Supplier;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
@@ -54,10 +55,11 @@ class SupplierServiceTest {
     void shouldThrowExceptionWhenSupplierAlreadyExists() {
         SupplierDTO dto = new SupplierDTO();
         dto.setName("Existing Supplier");
+        dto.setCreatedBy("admin");
 
         when(supplierRepository.existsByNameIgnoreCase("Existing Supplier")).thenReturn(true);
 
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> supplierService.save(dto));
+        Exception ex = assertThrows(DuplicateResourceException.class, () -> supplierService.save(dto));
         assertEquals("A Supplier with this name already exists.", ex.getMessage());
         verify(supplierRepository, never()).save(any());
     }
@@ -94,11 +96,12 @@ class SupplierServiceTest {
 
         SupplierDTO updateDto = new SupplierDTO();
         updateDto.setName("Duplicate Name");
+        updateDto.setCreatedBy("admin");
 
         when(supplierRepository.findById(supplierId)).thenReturn(Optional.of(existing));
         when(supplierRepository.existsByNameIgnoreCase("Duplicate Name")).thenReturn(true);
 
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+        Exception ex = assertThrows(DuplicateResourceException.class, () ->
                 supplierService.update(supplierId, updateDto));
 
         assertEquals("A Supplier with this name already exists.", ex.getMessage());
@@ -127,6 +130,17 @@ class SupplierServiceTest {
 
         // Then
         verify(supplierRepository).deleteById(supplierId);
+    }
+
+    @Test
+    void testCreate_withMissingCreatedBy_shouldThrowException() {
+        SupplierDTO dto = SupplierDTO.builder()
+            .name("XYZ Supplier")
+            .createdBy(null)
+            .build();
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> supplierService.save(dto));
+        assertEquals("CreatedBy must be provided.", ex.getMessage());
     }
 
 }

@@ -122,6 +122,14 @@ public class InventoryItemControllerTest {
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
+    void testDelete_withMissingReason_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(delete("/api/inventory/item-1")
+                .with(csrf()))
+                .andExpect(status().isBadRequest());
+   }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
     void testSearchByName_shouldReturnMatchingItems() throws Exception {
         when(inventoryItemService.findByName("Monitor")).thenReturn(List.of(sampleItem));
 

@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -142,4 +143,53 @@ public class AnalyticsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].itemName").value("ItemX"));
     }
+
+    @Test
+    void shouldUseDefaultDateWhenMissingStartDateInGet() throws Exception {
+        List<StockUpdateResultDTO> sample = List.of(
+                new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
+        );
+        when(analyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenReturn(sample);
+
+        mockMvc.perform(get("/api/analytics/stock-updates")
+                .param("endDate", "2024-05-15T23:59:59")
+                .param("itemName", "ItemX"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].itemName").value("ItemX"));
+    }
+
+    @Test
+    void shouldUseDefaultDateWhenMissingEndDateInPost() throws Exception {
+        List<StockUpdateResultDTO> sample = List.of(
+                new StockUpdateResultDTO("ItemX", "Supplier A", 5, "SALE", "admin", LocalDateTime.now())
+        );
+        when(analyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class))).thenReturn(sample);
+
+        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
+        filter.setStartDate(LocalDateTime.now().minusDays(10));
+
+        mockMvc.perform(post("/api/analytics/stock-updates/query")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].itemName").value("ItemX"));
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNoFiltersProvidedInGet() throws Exception {
+        when(analyticsService.getFilteredStockUpdates(any(StockUpdateFilterDTO.class)))
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/analytics/stock-updates"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+   }
+
+   @Test
+   void shouldReturn400WhenStartDateFormatInvalidInGet() throws Exception {
+        mockMvc.perform(get("/api/analytics/stock-updates")
+                .param("startDate", "invalid-date"))
+                .andExpect(status().isBadRequest());
+   }
+
 }

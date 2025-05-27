@@ -1,7 +1,10 @@
 package com.smartsupplypro.inventory.validation;
 
+import java.util.EnumSet;
+
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+
 
 public class StockHistoryValidator {
     private StockHistoryValidator() {}
@@ -16,16 +19,26 @@ public class StockHistoryValidator {
         if (dto.getReason() == null || dto.getReason().trim().isEmpty()) {
             throw new IllegalArgumentException("Change reason is required");
         }
-
-        // Optional: Validate only supported enum values
         try {
             StockChangeReason.valueOf(dto.getReason());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unsupported change reason: " + dto.getReason());
         }
-
         if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
             throw new IllegalArgumentException("CreatedBy is required");
+        }
+    }
+
+    public static void validateEnum(StockChangeReason reason) {
+        if (reason == null || !EnumSet.of(
+                StockChangeReason.SOLD,
+                StockChangeReason.SCRAPPED,
+                StockChangeReason.RETURNED_TO_SUPPLIER,
+                StockChangeReason.RETURNED_BY_CUSTOMER,
+                StockChangeReason.INITIAL_STOCK,
+                StockChangeReason.MANUAL_UPDATE
+        ).contains(reason)) {
+            throw new IllegalArgumentException("Invalid stock change reason: " + reason);
         }
     }
 }
