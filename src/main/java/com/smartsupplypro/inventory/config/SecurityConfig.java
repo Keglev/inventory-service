@@ -1,26 +1,34 @@
 package com.smartsupplypro.inventory.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+     @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/", "/public/**").permitAll()
+                .requestMatchers("/admin-only").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
-            .httpBasic(httpBasic -> {})  //  Enables Postman testing without UI login
-            .formLogin(form -> {});      // optional, can be removed if not using web forms
-
+            .oauth2Login(oauth -> oauth
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customOAuth2UserService)
+                )
+            );
         return http.build();
     }
 }
