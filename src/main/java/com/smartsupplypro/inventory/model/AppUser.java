@@ -16,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "app_users")
+@Table(name = "USERS_APP")
 public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

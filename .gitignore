@@ -4,10 +4,15 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Ignore log files
+logs/
+*.log
+
 # Secrets
 .env
 src/main/resources/application-dev.yml
 src/main/resources/application-prod.yml
+src/main/resources/run-prod-env.bat
 
 ### STS ###
 .apt_generated

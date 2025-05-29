@@ -1,8 +1,9 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@//localhost:1521/XEPDB1
-    username: dev_user
-    password: dev_pass
+    url: jdbc:oracle:thin:@sspdb_tp?TNS_ADMIN=C:/Users/carlo/documents/githubprojects/inventory-service/oracle_wallet/Wallet_sspdb
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: oracle.jdbc.OracleDriver
   jpa:
     hibernate:
       ddl-auto: update
@@ -11,5 +12,12 @@ spring:
       hibernate:
         '[format_sql]': true
 logging:
-  level:
-    root: DEBUG
+    level:
+      root: DEBUG
+    file:
+      name: logs/dev-application.log
+    logback:
+      rollingpolicy:
+        max-file-size: 10MB
+        max-history: 7
+  

@@ -17,6 +17,10 @@ spring:
       path: /h2-console
 
 logging:
+  file:
+    name: logs/test-application.log
   level:
-    root: WARN
+    root: DEBUG
 
+server:
+  port: 8081

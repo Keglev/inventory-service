@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .userInfoEndpoint(userInfo -> userInfo
                     .userService(customOAuth2UserService)
                 )
+                .defaultSuccessUrl("/secured", true)  // force redirect after login
             );
         return http.build();
     }
