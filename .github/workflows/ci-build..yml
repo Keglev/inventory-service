@@ -1,5 +1,5 @@
 
-name: Inventory Service CI/CD - CI Build & Test
+name: Inventory Service CI/CD - CI Build & Test & Docker Build
 # This workflow builds and tests the Inventory Service application using Maven and Docker.
 # It is triggered on pushes and pull requests to the main branch.
 
@@ -10,7 +10,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,8 +34,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build with Maven
-        run: mvn clean verify
+      - name: Decode Oracle Wallet and configure TNS_ADMIN
+        run: |
+          mkdir -p ./wallet
+          echo "${{ secrets.TNS_ADMIN_ZIP_B64 }}" | base64 -d > ./wallet/wallet.zip
+          unzip -o ./wallet/wallet.zip -d ./wallet
+          echo "TNS_ADMIN=$(realpath ./wallet)" >> $GITHUB_ENV
+        env:
+          TNS_ADMIN_ZIP_B64: ${{ secrets.TNS_ADMIN_ZIP_B64 }}
+
+      - name: Build and Test with Maven (Test Profile)
+        run: mvn clean verify -Dspring.profiles.active=test
+        env:
+          SPRING_DATASOURCE_URL: ${{ secrets.DB_URL }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASS }}
+          OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
       - name: Login to DockerHub
         uses: docker/login-action@v3

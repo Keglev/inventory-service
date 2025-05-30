@@ -11,7 +11,6 @@ import org.springframework.core.env.Environment;
 @SpringBootApplication
 public class InventoryServiceApplication {
 public static void main(String[] args) {
-        System.out.println(">>>>> ACTIVE PROFILE: " + System.getProperty("spring.profiles.active"));
         SpringApplication.run(InventoryServiceApplication.class, args);
     }
 

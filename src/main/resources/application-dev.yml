@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@sspdb_tp?TNS_ADMIN=C:/Users/carlo/documents/githubprojects/inventory-service/oracle_wallet/Wallet_sspdb
+    url: jdbc:oracle:thin:@sspdb_tp?TNS_ADMIN=C:/Users/carlo/Documents/githubprojects/inventory-service/oracle_wallet/Wallet_sspdb
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
@@ -11,6 +11,8 @@ spring:
     properties:
       hibernate:
         '[format_sql]': true
+        database-platform: org.hibernate.dialect.OracleDialect
+ 
 logging:
     level:
       root: DEBUG
@@ -20,4 +22,14 @@ logging:
       rollingpolicy:
         max-file-size: 10MB
         max-history: 7
-  
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

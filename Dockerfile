@@ -23,7 +23,9 @@ COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
 # Run the application
 # Important: use shell form so $SPRING_PROFILES_ACTIVE expands
 EXPOSE 8081
-ENTRYPOINT java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -jar app.jar
+ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -jar app.jar"]
+HEALTHCHECK --interval=30s --timeout=3s CMD wget --spider -q http://localhost:8081/actuator/health || exit 1
+
 
 
 
