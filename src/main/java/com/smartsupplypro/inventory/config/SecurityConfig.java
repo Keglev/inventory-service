@@ -6,30 +6,33 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
-import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
+import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
 
+@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-     @Autowired
-    private CustomOAuth2UserService customOAuth2UserService;
+    @Autowired
+    private OAuth2LoginSuccessHandler successHandler;
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/public/**").permitAll()
-                .requestMatchers("/admin-only").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                .requestMatchers("/", "/actuator/**").permitAll()
+                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                .requestMatchers("/api/**").authenticated()
             )
             .oauth2Login(oauth -> oauth
-                .userInfoEndpoint(userInfo -> userInfo
-                    .userService(customOAuth2UserService)
-                )
-                .defaultSuccessUrl("/secured", true)  // force redirect after login
-            );
+                .loginPage("/oauth2/authorization/google")
+                .successHandler(successHandler)
+            )
+            .logout(logout -> logout.logoutSuccessUrl("/"))
+            .csrf(csrf -> csrf.disable()); // Disable CSRF for simplicity, not recommended for production
+
         return http.build();
     }
 }

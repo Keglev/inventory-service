@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,12 +23,13 @@ public class InventoryItemController {
     public InventoryItemController(InventoryItemService inventoryItemService) {
         this.inventoryItemService = inventoryItemService;
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
     public List<InventoryItemDTO> getAll() {
         return inventoryItemService.getAll();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
     public ResponseEntity<InventoryItemDTO> getById(@PathVariable String id) {
         return inventoryItemService.getById(id)
@@ -35,6 +37,7 @@ public class InventoryItemController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
         try {
@@ -46,6 +49,7 @@ public class InventoryItemController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
         try {
@@ -58,6 +62,7 @@ public class InventoryItemController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, 
                                        @RequestParam StockChangeReason reason) {
@@ -65,6 +70,7 @@ public class InventoryItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/search")
     public List<InventoryItemDTO> searchByName(@RequestParam String name) {
         return inventoryItemService.findByName(name);

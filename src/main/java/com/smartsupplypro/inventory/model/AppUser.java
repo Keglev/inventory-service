@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,6 +18,11 @@ import lombok.Setter;
 @Entity
 @Table(name = "USERS_APP")
 public class AppUser {
+
+    public enum Role {
+        ADMIN, USER
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -32,10 +37,17 @@ public class AppUser {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public enum Role {
-        USER, ADMIN
-    }
+    private boolean enabled;
 
+    public AppUser(String email, String name, boolean enabled) {
+        this.email = email;
+        this.name = name;
+        this.enabled = enabled;
+        this.createdAt = LocalDateTime.now();
+    }
+    public AppUser() {
+        // Default constructor for JPA
+    }
     // getters/setters
 }
 

@@ -20,11 +20,13 @@ import java.util.List;
 public class SupplierController {
     private final SupplierService supplierService;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
     public ResponseEntity<List<SupplierDTO>> getAll() {
         return ResponseEntity.ok(supplierService.getAll());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
     public ResponseEntity<SupplierDTO> getById(@PathVariable String id) {
         return ResponseEntity.ok(supplierService.getById(id));
@@ -52,6 +54,7 @@ public class SupplierController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/search")
     public ResponseEntity<List<SupplierDTO>> search(@RequestParam String name) {
         return ResponseEntity.ok(supplierService.findByName(name));

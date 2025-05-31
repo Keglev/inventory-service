@@ -6,6 +6,7 @@ import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.validation.InventoryItemSecurityValidator;
 import com.smartsupplypro.inventory.validation.InventoryItemValidator;
 import org.springframework.stereotype.Service;
 
@@ -70,21 +71,29 @@ public class InventoryItemService {
     }
 
     public Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto) {
+        // Validate input and supplier
         InventoryItemValidator.validateBase(dto);
         validateSupplierExists(dto.getSupplierId());
 
         return repository.findById(id)
                 .map(existing -> {
-                    int quantityDiff = dto.getQuantity() - existing.getQuantity();
+                    // Step 1: Validate user permissions for this update
+                    InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
 
+                    // step 2: calculate quantity difference (used for stock history)
+                    int quantityDiff = dto.getQuantity() - existing.getQuantity();
+                    
+                    // step 3: Apply the allowed updates
                     existing.setName(dto.getName());
                     existing.setQuantity(dto.getQuantity());
                     existing.setPrice(dto.getPrice());
                     existing.setSupplierId(dto.getSupplierId());
                     existing.setCreatedBy(dto.getCreatedBy());
 
+                    // Step 4: Save the updated entity
                     InventoryItem updated = repository.save(existing);
 
+                    // Step 5: Log the stock change if quantity has changed
                     if (quantityDiff != 0) {
                         stockHistoryService.logStockChange(
                             updated.getId(),
@@ -93,7 +102,7 @@ public class InventoryItemService {
                             updated.getCreatedBy()
                         );
                     }
-
+                    // Step 6: Return the updated DTO
                     return InventoryItemMapper.toDTO(updated);
                 });
     }

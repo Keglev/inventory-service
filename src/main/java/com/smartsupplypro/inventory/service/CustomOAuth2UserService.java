@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.model.AppUser.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 @Service
@@ -39,10 +40,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 throw new OAuth2AuthenticationException("User limit reached");
             }
 
-            AppUser newUser = new AppUser();
-            newUser.setEmail(email);
-            newUser.setName(name);
-            newUser.setRole(email.equals("ckbuzin1@gmail.com") ? AppUser.Role.ADMIN : AppUser.Role.USER);
+            AppUser newUser = new AppUser(email, name, true);
+            newUser.setRole(email.equals("ckbuzin1@gmail.com") ? Role.ADMIN : Role.USER);
             return userRepository.save(newUser);
         });
 
