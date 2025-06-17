@@ -143,4 +143,32 @@ class SupplierServiceTest {
         assertEquals("CreatedBy must be provided.", ex.getMessage());
     }
 
+    @Test
+    void shouldReturnEmptyWhenUpdatingNonExistingSupplier() {
+        String supplierId = "nonexistent";
+        SupplierDTO updateDto = SupplierDTO.builder()
+                .name("Some Name")
+                .createdBy("admin")
+                .build();
+
+        when(supplierRepository.findById(supplierId)).thenReturn(Optional.empty());
+
+        Optional<SupplierDTO> result = supplierService.update(supplierId, updateDto);
+
+        assertTrue(result.isEmpty());
+        verify(supplierRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNameIsMissingOnSave() {
+        SupplierDTO dto = SupplierDTO.builder()
+                .name(null)  // or use "  "
+                .createdBy("admin")
+                .build();
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> supplierService.save(dto));
+        assertEquals("Supplier name must be provided.", ex.getMessage());
+    }
+
+
 }
