@@ -6,8 +6,19 @@ import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
-import org.springframework.test.context.ActiveProfiles;
 
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.http.HttpStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +30,10 @@ import org.mockito.*;
 
 import java.util.Optional;
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Collection;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -61,8 +76,32 @@ public class InventoryItemServiceTest {
         when(inventoryItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
+    @AfterEach
+    void clearContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void mockOAuth2Authentication(String email, String... roles) {
+        Map<String, Object> attributes = Map.of("email", email);
+
+        Collection<GrantedAuthority> authorities = Arrays.stream(roles)
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toList());
+
+        OAuth2User oauth2User = new DefaultOAuth2User(authorities, attributes, "email");
+
+        Authentication auth = new TestingAuthenticationToken(oauth2User, null, authorities);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+    }
+
+   // === SAVE ===
+
     @Test
     void testSave_callsStockHistoryServiceWithInitialStock() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
         InventoryItemDTO result = inventoryItemService.save(dto);
 
         assertNotNull(result);
@@ -73,143 +112,22 @@ public class InventoryItemServiceTest {
     }
 
     @Test
-    void testUpdate_withQuantityChange_callsStockHistoryService() {
-        InventoryItem existing = InventoryItemMapper.toEntity(dto);
-        existing.setQuantity(30);
-        when(inventoryItemRepository.findById("item-1")).thenReturn(Optional.of(existing));
+    void testSave_withZeroQuantity_shouldSucceed() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
 
-        dto.setQuantity(50);
+        dto.setQuantity(0);
 
-        Optional<InventoryItemDTO> result = inventoryItemService.update("item-1", dto);
+        InventoryItemDTO result = inventoryItemService.save(dto);
 
-        assertTrue(result.isPresent());
-        verify(stockHistoryService).logStockChange(eq("item-1"), eq(20), eq(StockChangeReason.MANUAL_UPDATE), eq("admin"));
-    }
-
-    @Test
-    void testUpdate_withoutQuantityChange_doesNotCallStockHistoryService() {
-        InventoryItem existing = InventoryItemMapper.toEntity(dto);
-        existing.setQuantity(50);
-        when(inventoryItemRepository.findById("item-1")).thenReturn(Optional.of(existing));
-
-        Optional<InventoryItemDTO> result = inventoryItemService.update("item-1", dto);
-
-        assertTrue(result.isPresent());
-        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
-    }
-
-    @Test
-    void testDelete_shouldCallRepositoryDeleteById() {
-        inventoryItemService.delete("item-1", StockChangeReason.SCRAPPED);
-
-        verify(stockHistoryService).logStockChange("item-1", -50, StockChangeReason.SCRAPPED, "admin");
-        verify(inventoryItemRepository).deleteById("item-1");
-    }
-
-    @Test
-    void testGetById_whenItemExists_shouldReturnDTO() {
-        Optional<InventoryItemDTO> result = inventoryItemService.getById("item-1");
-
-        assertTrue(result.isPresent());
-        assertEquals("SSD", result.get().getName());
-    }
-
-    @Test
-    void testGetById_whenItemDoesNotExist_shouldReturnEmptyOptional() {
-        when(inventoryItemRepository.findById("item-999")).thenReturn(Optional.empty());
-
-        Optional<InventoryItemDTO> result = inventoryItemService.getById("item-999");
-
-        assertFalse(result.isPresent());
-    }
-
-    @Test
-    void testUpdate_whenItemNotFound_shouldReturnEmptyOptional() {
-        when(inventoryItemRepository.findById("invalid-id")).thenReturn(Optional.empty());
-
-        Optional<InventoryItemDTO> result = inventoryItemService.update("invalid-id", dto);
-
-        assertFalse(result.isPresent());
-        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
-    }
-
-    @Test
-    void testSave_withNullName_shouldThrowException() {
-        dto.setName(null);
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
-        assertEquals("Product name cannot be null or empty", ex.getMessage());
-    }
-
-    @Test
-    void testSave_withNegativeQuantity_shouldThrowException() {
-        dto.setQuantity(-5);
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
-        assertEquals("Quantity cannot be negative", ex.getMessage());
-    }
-
-    @Test
-    void testSave_withNegativePrice_shouldThrowException() {
-        dto.setPrice(new BigDecimal("-10.00"));
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
-        assertEquals("Price must be positive", ex.getMessage());
-    }
-
-    @Test
-    void testSave_withNullSupplierId_shouldThrowException() {
-        dto.setSupplierId(null);
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
-        assertEquals("Supplier ID must be provided", ex.getMessage());
-    }
-
-    @Test
-    void testValidateSupplierExists_withNonExistingSupplier_shouldThrow() {
-        when(supplierRepository.existsById("invalid-supplier")).thenReturn(false);
-
-        InventoryItemDTO invalidDto = InventoryItemMapper.toDTO(entity);
-        invalidDto.setSupplierId("invalid-supplier");
-
-        Exception e = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(invalidDto));
-        assertEquals("Supplier does not exist", e.getMessage());
-    }
-
-    @Test
-    void testDelete_withValidReason_shouldDeleteAndLog() {
-        inventoryItemService.delete("item-1", StockChangeReason.DESTROYED);
-
-        verify(stockHistoryService).logStockChange("item-1", -50, StockChangeReason.DESTROYED, "admin");
-        verify(inventoryItemRepository).deleteById("item-1");
-    }
-
-    @Test
-    void testDelete_withInvalidReason_shouldThrowException() {
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            inventoryItemService.delete("item-1", StockChangeReason.SOLD)
-        );
-
-        assertEquals("Invalid reason for deletion", ex.getMessage());
-        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
-        verify(inventoryItemRepository, never()).deleteById(any());
-    }
-
-    @Test
-    void testDelete_nonExistingItem_shouldThrowException() {
-        when(inventoryItemRepository.findById("invalid-id")).thenReturn(Optional.empty());
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            inventoryItemService.delete("invalid-id", StockChangeReason.DESTROYED)
-        );
-
-        assertEquals("Item not found", ex.getMessage());
-        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
-        verify(inventoryItemRepository, never()).deleteById(any());
+        assertNotNull(result);
+        verify(inventoryItemRepository).save(any(InventoryItem.class));
+        verify(stockHistoryService).logStockChange("item-1", 0, StockChangeReason.INITIAL_STOCK, "admin");
     }
 
     @Test
     void shouldThrowExceptionWhenInventoryItemAlreadyExists() {
+        mockOAuth2Authentication("tester", "ROLE_ADMIN");
+
         when(inventoryItemRepository.existsByNameIgnoreCase("Widget")).thenReturn(true);
 
         InventoryItemDTO duplicate = InventoryItemDTO.builder()
@@ -227,26 +145,191 @@ public class InventoryItemServiceTest {
         assertEquals("An inventory item with this name already exists.", ex.getMessage());
     }
 
-    @Test
-    void testSave_withZeroQuantity_shouldSucceed() {
-        dto.setQuantity(0);
+    // === VALIDATION (save) ===
 
-        InventoryItemDTO result = inventoryItemService.save(dto);
+    @Test void testSave_withNullName_shouldThrowException() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+        dto.setName(null);
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
+        assertEquals("Product name cannot be null or empty", ex.getMessage());
+    }
 
-        assertNotNull(result);
-        verify(inventoryItemRepository).save(any(InventoryItem.class));
-        verify(stockHistoryService).logStockChange("item-1", 0, StockChangeReason.INITIAL_STOCK, "admin");
+    @Test void testSave_withNegativeQuantity_shouldThrowException() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+        dto.setQuantity(-5);
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
+        assertEquals("Quantity cannot be negative", ex.getMessage());
+    }
+
+    @Test void testSave_withNegativePrice_shouldThrowException() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+        dto.setPrice(new BigDecimal("-10.00"));
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
+        assertEquals("Price must be positive", ex.getMessage());
+    }
+
+    @Test void testSave_withNullSupplierId_shouldThrowException() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+        dto.setSupplierId(null);
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
+        assertEquals("Supplier ID must be provided", ex.getMessage());
+    }
+
+    @Test void testValidateSupplierExists_withNonExistingSupplier_shouldThrow() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
+        when(supplierRepository.existsById("invalid-supplier")).thenReturn(false);
+        InventoryItemDTO invalidDto = InventoryItemMapper.toDTO(entity);
+        invalidDto.setSupplierId("invalid-supplier");
+
+        Exception e = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(invalidDto));
+        assertEquals("Supplier does not exist", e.getMessage());
     }
 
     @Test
     void testSave_withEmptyCreatedBy_shouldThrowException() {
-        dto.setCreatedBy(null); // or ""
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+        dto.setCreatedBy(null);
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
+        assertEquals("CreatedBy must be provided", ex.getMessage());
+    }
+
+    // === UPDATE ===
+
+    @Test
+    void testUpdate_withQuantityChange_asAdmin_shouldSucceed() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
+        InventoryItem existing = InventoryItemMapper.toEntity(dto);
+        existing.setQuantity(30);
+        when(inventoryItemRepository.findById("item-1")).thenReturn(Optional.of(existing));
+
+        dto.setQuantity(50);
+
+        Optional<InventoryItemDTO> result = inventoryItemService.update("item-1", dto);
+
+        assertTrue(result.isPresent());
+        verify(stockHistoryService).logStockChange(eq("item-1"), eq(20), eq(StockChangeReason.MANUAL_UPDATE), eq("admin"));
+    }
+
+    @Test
+    void testUpdate_withQuantityChange_asUser_shouldSucceed() {
+        mockOAuth2Authentication("user", "ROLE_USER");
+
+        InventoryItem existing = InventoryItemMapper.toEntity(dto);
+        existing.setQuantity(30);
+        when(inventoryItemRepository.findById("item-1")).thenReturn(Optional.of(existing));
+
+        dto.setQuantity(50); // allowed
+
+        Optional<InventoryItemDTO> result = inventoryItemService.update("item-1", dto);
+        assertTrue(result.isPresent());
+        verify(stockHistoryService).logStockChange(eq("item-1"), eq(20), eq(StockChangeReason.MANUAL_UPDATE), eq("admin"));
+    }
+
+    @Test
+    void testUpdate_withNameChange_asUser_shouldThrow403() {
+        mockOAuth2Authentication("user", "ROLE_USER");
+
+        InventoryItem existing = InventoryItemMapper.toEntity(dto);
+        existing.setName("Old SSD");
+        when(inventoryItemRepository.findById("item-1")).thenReturn(Optional.of(existing));
+
+        dto.setName("New SSD");
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () ->
+            inventoryItemService.update("item-1", dto)
+        );
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+    }
+
+    @Test
+    void testUpdate_withoutQuantityChange_doesNotCallStockHistoryService() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
+        InventoryItem existing = InventoryItemMapper.toEntity(dto);
+        existing.setQuantity(50);
+        when(inventoryItemRepository.findById("item-1")).thenReturn(Optional.of(existing));
+
+        Optional<InventoryItemDTO> result = inventoryItemService.update("item-1", dto);
+
+        assertTrue(result.isPresent());
+        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
+    }
+
+    @Test
+    void testUpdate_whenItemNotFound_shouldReturnEmptyOptional() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
+        when(inventoryItemRepository.findById("invalid-id")).thenReturn(Optional.empty());
+
+        Optional<InventoryItemDTO> result = inventoryItemService.update("invalid-id", dto);
+
+        assertFalse(result.isPresent());
+        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
+    }
+
+    // === DELETE ===
+
+    @Test
+    void testDelete_withValidReason_shouldDeleteAndLog() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
+        inventoryItemService.delete("item-1", StockChangeReason.DESTROYED);
+
+        verify(stockHistoryService).logStockChange("item-1", -50, StockChangeReason.DESTROYED, "admin");
+        verify(inventoryItemRepository).deleteById("item-1");
+    }
+
+    @Test
+    void testDelete_withInvalidReason_shouldThrowException() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
 
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            inventoryItemService.save(dto)
+            inventoryItemService.delete("item-1", StockChangeReason.SOLD)
         );
 
-        assertEquals("CreatedBy must be provided", ex.getMessage());
+        assertEquals("Invalid reason for deletion", ex.getMessage());
+        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
+        verify(inventoryItemRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void testDelete_nonExistingItem_shouldThrowException() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
+        when(inventoryItemRepository.findById("invalid-id")).thenReturn(Optional.empty());
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            inventoryItemService.delete("invalid-id", StockChangeReason.DESTROYED)
+        );
+
+        assertEquals("Item not found", ex.getMessage());
+        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
+        verify(inventoryItemRepository, never()).deleteById(any());
+    }
+
+    // === GET ===
+
+    @Test
+    void testGetById_whenItemExists_shouldReturnDTO() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
+        Optional<InventoryItemDTO> result = inventoryItemService.getById("item-1");
+
+        assertTrue(result.isPresent());
+        assertEquals("SSD", result.get().getName());
+    }
+
+    @Test
+    void testGetById_whenItemDoesNotExist_shouldReturnEmptyOptional() {
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
+
+        when(inventoryItemRepository.findById("item-999")).thenReturn(Optional.empty());
+
+        Optional<InventoryItemDTO> result = inventoryItemService.getById("item-999");
+
+        assertFalse(result.isPresent());
     }
 
 }

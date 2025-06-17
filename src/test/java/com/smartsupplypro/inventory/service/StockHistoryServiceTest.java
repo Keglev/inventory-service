@@ -86,10 +86,18 @@ public class StockHistoryServiceTest {
     @Test
     void testLogStockChange_withNullItemId_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            stockHistoryService.logStockChange(null, 5, StockChangeReason.SOLD, "admin")
+            stockHistoryService.logStockChange(" ", 5, StockChangeReason.SOLD, "admin")
         );
 
         assertEquals("Item ID cannot be null or empty", ex.getMessage());
+    }
+
+    @Test
+    void testLogStockChange_withNullCreatedBy_shouldThrow() {
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            stockHistoryService.logStockChange("item-1", 5, StockChangeReason.SOLD, null)
+        );
+        assertEquals("CreatedBy is required", ex.getMessage());
     }
 
 }

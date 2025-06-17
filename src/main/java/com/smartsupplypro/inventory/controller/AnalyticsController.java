@@ -89,4 +89,32 @@ public class AnalyticsController {
     return ResponseEntity.ok(analyticsService.getFilteredStockUpdates(filter));
     }
 
+    @GetMapping("/summary")
+    public ResponseEntity<DashboardSummaryDTO> getDashboardSummary(
+        @RequestParam(required = false) String supplierId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+    ) {
+        if (startDate == null) startDate = LocalDateTime.now().minusDays(30);
+        if (endDate == null) endDate = LocalDateTime.now();
+
+        DashboardSummaryDTO summary = new DashboardSummaryDTO();
+
+        summary.setStockPerSupplier(analyticsService.getTotalStockPerSupplier());
+
+        summary.setLowStockItems(supplierId != null ?
+            analyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList() :
+            List.of());
+
+        summary.setMonthlyStockMovement(
+            analyticsService.getMonthlyStockMovement(startDate.toLocalDate(), endDate.toLocalDate(), supplierId));
+
+        summary.setTopUpdatedItems(supplierId != null ?
+            analyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList() :
+            List.of());
+
+        return ResponseEntity.ok(summary);
+    }
+
+
 }
