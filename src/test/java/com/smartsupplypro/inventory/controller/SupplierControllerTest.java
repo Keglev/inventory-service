@@ -1,6 +1,7 @@
 package com.smartsupplypro.inventory.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.dto.SupplierDTO;
 import com.smartsupplypro.inventory.service.SupplierService;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import com.smartsupplypro.inventory.testconfig.SecurityTestConfig;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 
@@ -35,7 +35,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @WebMvcTest(SupplierController.class)
 @ActiveProfiles("test")
-@Import({SecurityTestConfig.class, GlobalExceptionHandler.class})
+@Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 public class SupplierControllerTest {
 
     @Autowired

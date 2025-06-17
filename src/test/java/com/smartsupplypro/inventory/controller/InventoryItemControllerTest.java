@@ -2,11 +2,11 @@ package com.smartsupplypro.inventory.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsupplypro.inventory.InventoryServiceApplication;
+import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
-import com.smartsupplypro.inventory.testconfig.SecurityTestConfig;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 
 import java.math.BigDecimal;
@@ -39,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ImportAutoConfiguration
 @ContextConfiguration(classes = InventoryServiceApplication.class)
 @ActiveProfiles("test")
-@Import({SecurityTestConfig.class, GlobalExceptionHandler.class})
+@Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 public class InventoryItemControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -74,6 +75,17 @@ public class InventoryItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Monitor"));
     }
+
+    @Test
+    void testDeleteInventoryItem_withAdmin_shouldSucceed() throws Exception {
+        doNothing().when(inventoryItemService).delete(eq("item-1"), eq(StockChangeReason.SCRAPPED));
+
+        mockMvc.perform(delete("/api/inventory/item-1")
+                        .with(csrf())
+                        .with(user("adminuser").roles("ADMIN"))
+                        .param("reason", "SCRAPPED"))
+                .andExpect(status().isNoContent());
+        }
 
     @Test
     @WithMockUser(roles = {"USER", "ADMIN"})
