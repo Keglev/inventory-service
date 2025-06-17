@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.validation;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.dto.SupplierDTO;
 
 import org.springframework.test.context.ActiveProfiles;
 
@@ -65,5 +66,41 @@ public class SupplierValidatorTest {
                 SupplierValidator.validateSupplierExists(" ", mockRepo));
         assertEquals("Supplier name cannot be null or empty", ex2.getMessage());
     }
+
+    @Test
+    void testValidateBase_withMissingName_shouldThrow() {
+        SupplierDTO dto = SupplierDTO.builder()
+                .name("  ")  // or null
+                .createdBy("admin")
+                .build();
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+                SupplierValidator.validateBase(dto));
+
+        assertEquals("Supplier name must be provided.", ex.getMessage());
+    }
+
+    @Test
+    void testValidateBase_withMissingCreatedBy_shouldThrow() {
+        SupplierDTO dto = SupplierDTO.builder()
+                .name("Test Supplier")
+                .createdBy(null)
+                .build();
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+                SupplierValidator.validateBase(dto));
+
+        assertEquals("CreatedBy must be provided.", ex.getMessage());
+    }
+
+    @Test
+    void testValidateBase_withValidDTO_shouldPass() {
+        SupplierDTO dto = SupplierDTO.builder()
+                .name("Valid Supplier")
+                .createdBy("admin")
+                .build();
+
+        assertDoesNotThrow(() -> SupplierValidator.validateBase(dto));
+    }   
 
 }

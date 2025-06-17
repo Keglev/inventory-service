@@ -74,4 +74,13 @@ public class StockHistoryValidationTest {
         }
     }
 
+    @Test
+    void testLowercaseReason_shouldThrow() {
+        StockHistoryDTO dto = validDTO();
+        dto.setReason("sold"); // not uppercase
+        Exception e = assertThrows(IllegalArgumentException.class, () ->
+            StockHistoryValidator.validate(dto));
+        assertEquals("Unsupported change reason: sold", e.getMessage());
+    }
+
 }
