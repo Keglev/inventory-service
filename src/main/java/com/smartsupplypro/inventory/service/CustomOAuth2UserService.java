@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.smartsupplypro.inventory.model.AppUser;
-import com.smartsupplypro.inventory.model.AppUser.Role;
+import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 @Service

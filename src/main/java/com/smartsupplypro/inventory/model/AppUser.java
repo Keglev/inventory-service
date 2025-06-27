@@ -2,25 +2,33 @@ package com.smartsupplypro.inventory.model;
 
 import java.time.LocalDateTime;
 
+import com.smartsupplypro.inventory.converter.RoleConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Convert;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Getter
 @Setter
-@Entity
-@Table(name = "USERS_APP")
+@Entity(name = "UsersApp")
+@Table(name = "USERS_APP", schema = "ADMIN")
 public class AppUser {
 
-    public enum Role {
-        ADMIN, USER
+    public Role getRoleEnum() {
+        return this.role;
+    }
+    static {
+         System.out.println(">>> ENUM CLASS = " + Role.class.getName());
+        System.out.println(">>> LOADED FROM = " + Role.class.getResource("/" + Role.class.getName().replace('.', '/') + ".class"));
+        for (Role r : Role.values()) {
+            System.out.println(">>> Role enum value: " + r.name());
+        }
     }
 
     @Id
@@ -32,7 +40,8 @@ public class AppUser {
 
     private String name;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = RoleConverter.class)
+    @Column(name = "ROLE")
     private Role role;
 
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -44,6 +53,7 @@ public class AppUser {
         this.name = name;
         this.enabled = enabled;
         this.createdAt = LocalDateTime.now();
+        System.out.println(">>> AppUser constructor: email=" + email + ", role=" + role);
     }
     public AppUser() {
         // Default constructor for JPA

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@sspdb_tp?TNS_ADMIN=C:/Users/carlo/Documents/githubprojects/inventory-service/oracle_wallet/Wallet_sspdb
+    url: ${DB_URL}?TNS_ADMIN=${TNS_ADMIN}
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
@@ -11,11 +11,15 @@ spring:
     properties:
       hibernate:
         '[format_sql]': true
-        database-platform: org.hibernate.dialect.OracleDialect
+        '[use_sql_comments]': true
+        dialect: org.hibernate.dialect.OracleDialect
+        '[default_schema]': ADMIN
  
 logging:
     level:
       root: DEBUG
+      '[org.hibernate.SQL]': DEBUG
+      '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
     file:
       name: logs/dev-application.log
     logback:

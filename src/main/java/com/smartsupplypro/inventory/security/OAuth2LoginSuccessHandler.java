@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.security;
 
+import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 import jakarta.servlet.ServletException;
@@ -28,18 +29,19 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         String email = token.getPrincipal().getAttribute("email");
         String name = token.getPrincipal().getAttribute("name");
-
         if (email == null || name == null) {
             throw new IllegalStateException("Email or name not provided by OAuth2 provider");
         }
 
         userRepository.findById(email).orElseGet(() -> {
             AppUser user = new AppUser(email, name, true);
-            user.setRole(AppUser.Role.USER);
+            user.setRole(Role.USER);
             user.setCreatedAt(LocalDateTime.now());
+            System.out.println(">>> Saving new user: " + user.getEmail() + ", role = [" + user.getRole() + "]");
             return userRepository.save(user);
         });
 
         super.onAuthenticationSuccess(request, response, authentication);
     }
+
 }

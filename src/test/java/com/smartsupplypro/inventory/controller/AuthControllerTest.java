@@ -2,6 +2,7 @@ package com.smartsupplypro.inventory.controller;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -50,8 +51,8 @@ public class AuthControllerTest {
 
     @DisplayName("Should return current user details")
     @ParameterizedTest
-    @EnumSource(AppUser.Role.class)
-    void shouldReturnCurrentUser_givenRole(AppUser.Role role) throws Exception {
+    @EnumSource(Role.class)
+    void shouldReturnCurrentUser_givenRole(Role role) throws Exception {
         String email = role.name().toLowerCase() + "@example.com";
 
         AppUser user = new AppUser();
@@ -114,7 +115,7 @@ public class AuthControllerTest {
         AppUser user = new AppUser();
         user.setEmail(email);
         user.setName(null); // name can be null
-        user.setRole(AppUser.Role.USER);
+        user.setRole(Role.USER);
 
         when(appUserRepository.findById(email)).thenReturn(Optional.of(user));
 

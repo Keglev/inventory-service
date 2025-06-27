@@ -7,12 +7,28 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 
 @SpringBootApplication
 public class InventoryServiceApplication {
 public static void main(String[] args) {
-        SpringApplication.run(InventoryServiceApplication.class, args);
+		
+
+		System.setProperty("oracle.net.tns_admin", "C:/Users/carlo/Documents/githubprojects/inventory-service/oracle_wallet/wallet_sspdb_new");
+		System.setProperty("oracle.net.wallet_password", "SecureTest2025"); // if required
+
+		System.out.println(">>> TNS_ADMIN = " + System.getProperty("oracle.net.tns_admin"));
+		SpringApplication.run(InventoryServiceApplication.class, args);
     }
+
+	@Bean
+	public CommandLineRunner logDbSettings(@Value("${spring.datasource.username}") String user,
+                                       @Value("${spring.datasource.url}") String url) {
+    	return args -> {
+        	System.out.println(">>> DB_USER: " + user);
+        	System.out.println(">>> DB_URL: " + url);
+    	};
+	}
 
     @Bean
 	public CommandLineRunner logEnvironment(Environment env) {
