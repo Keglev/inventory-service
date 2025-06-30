@@ -4,7 +4,7 @@ import com.smartsupplypro.inventory.model.Role;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = true)
+@Converter(autoApply = false)
 public class RoleConverter implements AttributeConverter<Role, String> {
 
     @Override

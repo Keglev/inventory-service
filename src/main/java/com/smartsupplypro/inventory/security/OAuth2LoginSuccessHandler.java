@@ -34,7 +34,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         userRepository.findById(email).orElseGet(() -> {
-            AppUser user = new AppUser(email, name, true);
+            AppUser user = new AppUser(email, name);
             user.setRole(Role.USER);
             user.setCreatedAt(LocalDateTime.now());
             System.out.println(">>> Saving new user: " + user.getEmail() + ", role = [" + user.getRole() + "]");

@@ -1,0 +1,49 @@
+openapi: 3.1.0
+info:
+  title: Inventory Analytics API
+  version: 1.0.0
+paths:
+  /api/analytics/stock-value:
+    get:
+      summary: Get total stock value over time
+      parameters:
+        - in: query
+          name: start
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: end
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: supplierId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of stock value entries
+  /api/analytics/summary:
+    get:
+      summary: Get dashboard analytics summary
+      parameters:
+        - in: query
+          name: supplierId
+          schema:
+            type: string
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Summary object with multiple analytics values

@@ -40,7 +40,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 throw new OAuth2AuthenticationException("User limit reached");
             }
 
-            AppUser newUser = new AppUser(email, name, true);
+            AppUser newUser = new AppUser(email, name);
             newUser.setRole(email.equals("ckbuzin1@gmail.com") ? Role.ADMIN : Role.USER);
             return userRepository.save(newUser);
         });

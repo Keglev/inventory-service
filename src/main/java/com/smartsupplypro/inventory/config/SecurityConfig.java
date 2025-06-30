@@ -41,9 +41,13 @@ public class SecurityConfig {
                                             @NonNull FilterChain chain)
                     throws ServletException, IOException {
                 String accept = req.getHeader("Accept");
+                System.out.println(">>> [Request URI] " + req.getRequestURI());
+                System.out.println(">>> [Accept Header] " + accept);
+
                 if (req.getRequestURI().startsWith("/api/")
                         && accept != null && accept.contains("application/json")) {
                     req.setAttribute("IS_API_REQUEST", true);
+                    System.out.println(">>> [API FLAG SET] " + req.getRequestURI());
                 }
                 chain.doFilter(req, res);
             }
@@ -51,8 +55,13 @@ public class SecurityConfig {
 
         http.addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
+
         RequestMatcher apiMatcher = request ->
-            Boolean.TRUE.equals(request.getAttribute("IS_API_REQUEST"));
+            Boolean.TRUE.equals(request.getAttribute("IS_API_REQUEST"))
+            && !request.getRequestURI().startsWith("/v3/api-docs")
+            && !request.getRequestURI().startsWith("/swagger-ui")
+            && !request.getRequestURI().startsWith("/swagger-resources")
+            && !request.getRequestURI().startsWith("/webjars");
 
         AuthenticationEntryPoint apiEntry = (req, res, ex) -> {
             System.out.println(">>> [API ENTRY POINT] " + req.getRequestURI());
@@ -66,17 +75,20 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/actuator/**").permitAll()
                 // allow Swagger docs publicy
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/swagger-resources/**",
                     "/webjars/**",
-                    "swagger-ui.html"
+                    "/swagger-ui.html"
                 ).permitAll()
+                // Allow public access to root and actuator endpoints
+                .requestMatchers("/", "/actuator/**").permitAll()
+                // API endpoints with specific access rules
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .requestMatchers("/api/**").authenticated()
+                .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
                 .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)
