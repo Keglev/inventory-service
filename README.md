@@ -55,6 +55,11 @@ Docker and GitHub Actions are configured to build and run the app using the `pro
 - Docker Compose
 - Vercel (Frontend) / Fly.io or Oracle Cloud VM (Backend)
 
+## API Documentation
+
+ - You can check the documentation here:
+   👉 [View API Docs (Redoc)](https://<your-username>.github.io/<your-repo>/)
+
 ---
 
 ## 🛠️ Architecture
