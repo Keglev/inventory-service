@@ -15,22 +15,28 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @RestController
 @RequestMapping("/api")
 public class AuthController {
-     @Autowired
+
+    @Autowired
     private AppUserRepository appUserRepository;
 
+    /**
+     * Returns the profile of the currently authenticated OAuth2 user.
+     * This requires the user to be logged in via Google OAuth2 and previously saved in the DB.
+     */
+    
     @GetMapping("/me")
     public ResponseEntity<AppUser> getCurrentUser(@AuthenticationPrincipal OAuth2User principal) {
-    if (principal == null) {
-        throw new ResponseStatusException(UNAUTHORIZED, "No authentication provided");
-    }
+        if (principal == null) {
+            throw new ResponseStatusException(UNAUTHORIZED, "No authentication provided");
+        }
 
-    String email = principal.getAttribute("email");
-    if (email == null) {
-        throw new ResponseStatusException(UNAUTHORIZED, "Email not provided by OAuth2 provider");
-    }
+        String email = principal.getAttribute("email");
+        if (email == null) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Email not provided by OAuth2 provider");
+        }
 
-    return appUserRepository.findById(email)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResponseStatusException(UNAUTHORIZED, "User not found"));
-}
+        return appUserRepository.findById(email)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(UNAUTHORIZED, "User not found"));
+    }
 }

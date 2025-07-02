@@ -1,0 +1,172 @@
+openapi: 3.0.1
+info:
+  title: Supplier API
+  version: 1.0.0
+  description: >
+    API for managing supplier records including creation, update, deletion, and searching.
+paths:
+  /api/suppliers:
+    get:
+      summary: Get all suppliers
+      description: Returns a list of all suppliers.
+      tags: [Suppliers]
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: A list of suppliers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupplierDTO'
+
+    post:
+      summary: Create a new supplier
+      description: Creates a new supplier. Only accessible to ADMIN users.
+      tags: [Suppliers]
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierDTO'
+      responses:
+        '201':
+          description: Supplier created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierDTO'
+        '409':
+          description: Duplicate supplier or validation error
+
+  /api/suppliers/{id}:
+    get:
+      summary: Get supplier by ID
+      description: Fetches a single supplier by its unique ID.
+      tags: [Suppliers]
+      security:
+        - OAuth2: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique supplier ID
+      responses:
+        '200':
+          description: Found the supplier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierDTO'
+        '404':
+          description: Supplier not found
+
+    put:
+      summary: Update an existing supplier
+      description: Updates supplier information. Only accessible to ADMIN users.
+      tags: [Suppliers]
+      security:
+        - OAuth2: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Supplier ID to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierDTO'
+      responses:
+        '200':
+          description: Supplier updated successfully
+        '404':
+          description: Supplier not found
+
+    delete:
+      summary: Delete a supplier
+      description: Permanently deletes a supplier. Only accessible to ADMIN users.
+      tags: [Suppliers]
+      security:
+        - OAuth2: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Supplier ID
+      responses:
+        '204':
+          description: Deleted successfully
+        '404':
+          description: Supplier not found
+
+  /api/suppliers/search:
+    get:
+      summary: Search suppliers by name
+      description: Searches suppliers by name (partial or full).
+      tags: [Suppliers]
+      security:
+        - OAuth2: []
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Name to search
+      responses:
+        '200':
+          description: List of matching suppliers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupplierDTO'
+
+components:
+  schemas:
+    SupplierDTO:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+securitySchemes:
+  OAuth2:
+    type: oauth2
+    flows:
+      authorizationCode:
+        authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+        tokenUrl: https://oauth2.googleapis.com/token
+        scopes:
+          openid: OpenID Connect scope
+          profile: Access basic profile
+          email: Access email

@@ -16,19 +16,28 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/inventory")
-
 public class InventoryItemController {
+
     private final InventoryItemService inventoryItemService;
 
     public InventoryItemController(InventoryItemService inventoryItemService) {
         this.inventoryItemService = inventoryItemService;
     }
+
+    /**
+     * Returns all inventory items.
+     * Accessible by both ADMIN and USER roles.
+     */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
     public List<InventoryItemDTO> getAll() {
         return inventoryItemService.getAll();
     }
 
+    /**
+     * Retrieves an inventory item by ID.
+     * Returns 404 if not found.
+     */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
     public ResponseEntity<InventoryItemDTO> getById(@PathVariable String id) {
@@ -37,6 +46,11 @@ public class InventoryItemController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Creates a new inventory item.
+     * Only accessible by ADMIN users.
+     * Returns 201 Created on success or 409 Conflict if duplicate.
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
@@ -49,6 +63,11 @@ public class InventoryItemController {
         }
     }
 
+    /**
+     * Updates an existing inventory item.
+     * Accessible by ADMIN and USER roles.
+     * Returns 200 OK on success, 404 if not found, 409 if validation fails.
+     */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
@@ -62,14 +81,23 @@ public class InventoryItemController {
         }
     }
 
+    /**
+     * Deletes an inventory item by ID and logs the reason.
+     * Only accessible by ADMIN users.
+     * Reason is required to ensure auditability.
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id, 
+    public ResponseEntity<Void> delete(@PathVariable String id,
                                        @RequestParam StockChangeReason reason) {
         inventoryItemService.delete(id, reason);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Searches inventory items by name.
+     * Accessible by both ADMIN and USER roles.
+     */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/search")
     public List<InventoryItemDTO> searchByName(@RequestParam String name) {

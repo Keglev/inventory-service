@@ -1,0 +1,168 @@
+openapi: 3.0.3
+info:
+  title: Smart Supply Pro API - Inventory Items
+  version: 1.0.0
+  description: Manage inventory items with full CRUD and search capabilities.
+
+paths:
+  /api/inventory:
+    get:
+      summary: Get all inventory items
+      tags: [Inventory]
+      security:
+        - oauth2: []
+      responses:
+        '200':
+          description: List of inventory items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryItem'
+
+    post:
+      summary: Create a new inventory item
+      tags: [Inventory]
+      security:
+        - oauth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItem'
+      responses:
+        '201':
+          description: Item created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+        '409':
+          description: Conflict - item already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /api/inventory/{id}:
+    get:
+      summary: Get inventory item by ID
+      tags: [Inventory]
+      security:
+        - oauth2: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Found the item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+        '404':
+          description: Item not found
+
+    put:
+      summary: Update inventory item
+      tags: [Inventory]
+      security:
+        - oauth2: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItem'
+      responses:
+        '200':
+          description: Updated item
+        '404':
+          description: Not found
+        '409':
+          description: Conflict
+
+    delete:
+      summary: Delete inventory item with reason
+      tags: [Inventory]
+      security:
+        - oauth2: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: reason
+          required: true
+          schema:
+            type: string
+            enum: [DAMAGED, EXPIRED, SOLD, SCRAPPED]
+      responses:
+        '204':
+          description: Deleted successfully
+
+  /api/inventory/search:
+    get:
+      summary: Search inventory items by name
+      tags: [Inventory]
+      security:
+        - oauth2: []
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryItem'
+
+components:
+  schemas:
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "inv-123456"
+        name:
+          type: string
+          example: "Steel Rod"
+        supplierId:
+          type: string
+          example: "supplier-789"
+        quantity:
+          type: integer
+          example: 100
+        price:
+          type: number
+          format: double
+          example: 25.5
+        minimumQuantity:
+          type: integer
+          example: 10
+        createdBy:
+          type: string
+          example: "ckbuzin1@gmail.com"

@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: Smart Supply Pro API
+  version: 1.0.0
+  description: |
+    This endpoint allows authenticated users to retrieve their user profile after successful OAuth2 login.
+
+paths:
+  /api/me:
+    get:
+      summary: Get authenticated user's profile
+      tags:
+        - Auth
+      security:
+        - oauth2: []
+      responses:
+        '200':
+          description: Authenticated user's profile returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUser'
+        '401':
+          description: Unauthorized - no valid OAuth2 session found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UNAUTHORIZED
+                  message:
+                    type: string
+                    example: No authentication provided
+
+components:
+  schemas:
+    AppUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "e2b4b77f-6a6b-4e4d-8b45-5a7f718c5e9c"
+        email:
+          type: string
+          format: email
+          example: "ckbuzin1@gmail.com"
+        name:
+          type: string
+          example: "Carlos Keglevich"
+        role:
+          type: string
+          example: "ADMIN"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-06-30T11:42:00"
