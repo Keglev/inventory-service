@@ -23,6 +23,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Configures application-wide security rules using Spring Security.
+ *
+ * <p>Key Features:
+ * <ul>
+ *     <li>Enables OAuth2 login with Google</li>
+ *     <li>Restricts access based on roles (USER/ADMIN)</li>
+ *     <li>Allows public access to root and actuator endpoints</li>
+ *     <li>Distinguishes between API and browser requests using a filter</li>
+ *     <li>Customizes response format (JSON or redirect) based on request type</li>
+ * </ul>
+ *
+ * <p>This is designed for a microservice environment with frontend/backend separation.
+ */
 @EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 @EnableWebSecurity
@@ -30,16 +44,24 @@ public class SecurityConfig {
 
     @Autowired
     private OAuth2LoginSuccessHandler successHandler;
-    
+
+    /**
+     * Defines the security filter chain for all incoming HTTP requests.
+     *
+     * @param http the {@link HttpSecurity} object for configuring access rules
+     * @return a configured {@link SecurityFilterChain}
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Filter to tag JSON-based API requests
+
+        // Custom filter to tag API requests based on Accept header and URI
         OncePerRequestFilter apiFlagFilter = new OncePerRequestFilter() {
             @Override
             protected void doFilterInternal(@NonNull HttpServletRequest req,
                                             @NonNull HttpServletResponse res,
                                             @NonNull FilterChain chain)
                     throws ServletException, IOException {
+
                 String accept = req.getHeader("Accept");
                 System.out.println(">>> [Request URI] " + req.getRequestURI());
                 System.out.println(">>> [Accept Header] " + accept);
@@ -49,20 +71,18 @@ public class SecurityConfig {
                     req.setAttribute("IS_API_REQUEST", true);
                     System.out.println(">>> [API FLAG SET] " + req.getRequestURI());
                 }
+
                 chain.doFilter(req, res);
             }
         };
 
         http.addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
-
+        // Request matcher to identify flagged API requests
         RequestMatcher apiMatcher = request ->
-            Boolean.TRUE.equals(request.getAttribute("IS_API_REQUEST"))
-            && !request.getRequestURI().startsWith("/v3/api-docs")
-            && !request.getRequestURI().startsWith("/swagger-ui")
-            && !request.getRequestURI().startsWith("/swagger-resources")
-            && !request.getRequestURI().startsWith("/webjars");
+                Boolean.TRUE.equals(request.getAttribute("IS_API_REQUEST"));
 
+        // API response for unauthenticated access: return JSON with 401
         AuthenticationEntryPoint apiEntry = (req, res, ex) -> {
             System.out.println(">>> [API ENTRY POINT] " + req.getRequestURI());
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -70,24 +90,20 @@ public class SecurityConfig {
             res.getWriter().write("{\"message\":\"Unauthorized\"}");
         };
 
+        // Web-based response (redirect to Google login page)
         AuthenticationEntryPoint webEntry =
-            new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google");
+                new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google");
 
         http
             .authorizeHttpRequests(auth -> auth
-                // allow Swagger docs publicy
-                .requestMatchers(
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/swagger-resources/**",
-                    "/webjars/**",
-                    "/swagger-ui.html"
-                ).permitAll()
-                // Allow public access to root and actuator endpoints
-                .requestMatchers("/", "/actuator/**").permitAll()
-                // API endpoints with specific access rules
+                // Public endpoints
+                .requestMatchers("/", "/actuator/**", "/health/**").permitAll()
+
+                // Role-based API restrictions
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .requestMatchers("/api/**").authenticated()
+
+                // Default fallback: all other endpoints must be authenticated
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
@@ -99,9 +115,8 @@ public class SecurityConfig {
                 .successHandler(successHandler)
             )
             .logout(logout -> logout.logoutSuccessUrl("/"))
-            .csrf(csrf -> csrf.disable());
+            .csrf(csrf -> csrf.disable()); // Disabled for API calls
 
         return http.build();
     }
 }
-// This configuration class sets up basic security for the application.

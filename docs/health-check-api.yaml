@@ -1,0 +1,47 @@
+openapi: 3.0.3
+info:
+  title: Health Check API
+  description: >
+    This endpoint verifies the status of the Oracle database connection.
+    It is especially useful for Oracle Free Tier deployments to keep the connection alive.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+paths:
+  /health/db:
+    get:
+      summary: Check Oracle DB connectivity
+      description: >
+        Executes a simple "SELECT 1 FROM DUAL" to verify the database is reachable.
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Database is reachable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  db:
+                    type: string
+                    example: reachable
+        '503':
+          description: Database is not reachable or query failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: DOWN
+                  db:
+                    type: string
+                    example: query failed
+                  error:
+                    type: string
+                    example: ORA-12541: TNS:no listener
