@@ -4,67 +4,108 @@
 
 This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, authentication, CI/CD, testing, and data visualizations.
 
-Still in development!!
+> ⚠️ Project still under development!
 ![CI](https://github.com/Keglev/inventory-service/actions/workflows/ci.yml/badge.svg)
 
-
 ---
+
 ## 🚀 Features
 
 ### 🎯 Core Modules
-- ✅ **Authentication** with OAuth2 (Google/GitHub) via Spring Security
+- ✅ **Authentication** with Google OAuth2 via Spring Security
 - 📦 **Inventory Management** – CRUD items, quantity tracking, stock history
-- 🧾 **Supplier Management** – CRUD supplier info, link to inventory
-- 📊 **Dashboard with Charts** – Interactive insights:
-  - Stock level over time
+- 🧾 **Supplier Management** – CRUD supplier data, filtering by name
+- 📊 **Analytics & Dashboard** – Visual insights including:
   - Stock value over time
-  - Returns to suppliers
-  - Top suppliers by volume
+  - Monthly stock movement
+  - Update frequency per item
+  - Low stock alerts
 
 ---
 
-## Environment Configuration
+## 🛡️ Security
 
-This microservice supports multi-environment configuration using Spring Boot profiles:
+- OAuth2 login with role-based access (`ADMIN`, `USER`)
+- All `/api/**` endpoints are secured
+- Fine-grained access using `@PreAuthorize`
+- Swagger is **not used** for runtime documentation to simplify security configuration
 
-- `application-dev.yml` — local testing with verbose logs and auto schema updates
-- `application-prod.yml` — production config with optimized logging and strict DB validation
+---
 
-Docker and GitHub Actions are configured to build and run the app using the `prod` profile.
+## 📘 API Documentation (OpenAPI YAML + Redoc)
 
+All endpoints are documented manually via OpenAPI 3.0 YAML files and rendered using [Redoc](https://github.com/Redocly/redoc). This allows clear, secure API sharing without exposing runtime Swagger UI.
 
+| Module                | OpenAPI Documentation |
+|-----------------------|------------------------|
+| 🔐 Auth (OAuth2 `/api/me`)         | [auth-api.yaml](https://keglev.github.io/inventory-service/docs/auth-api.yaml) |
+| 📦 Inventory Items     | [inventory-api.yaml](https://keglev.github.io/inventory-service/docs/inventory-api.yaml) |
+| 🚚 Suppliers           | [supplier-api.yaml](https://keglev.github.io/inventory-service/docs/supplier-api.yaml) |
+| 🔁 Stock History       | [stock-history-api.yaml](https://keglev.github.io/inventory-service/docs/stock-history-api.yaml) |
+| 📊 Analytics           | [analytics-api.yaml](https://keglev.github.io/inventory-service/docs/analytics-api.yaml) |
+| ❤️ Health Check       | [health-check-api.yaml](https://keglev.github.io/inventory-service/docs/health-check-api.yaml) |
+
+Browse all docs in one place:
+👉 [**Inventory API Index**](https://keglev.github.io/inventory-service/docs/index.html)
+
+---
 
 ## 🧰 Tech Stack
 
 ### Backend
-- Java 17+, Spring Boot 3
-- Spring Security + OAuth2
+- Java 17+, Spring Boot 3.5+
+- Spring Security (OAuth2 + Role-based Access)
 - Oracle Autonomous DB (Free Tier)
-- REST APIs with OpenAPI
+- REST APIs documented via OpenAPI YAML
 - Docker, JUnit, Mockito
 
-### Frontend
+### Frontend (WIP)
 - React + TypeScript
-- Tailwind CSS
-- Axios, React Router
-- Chart.js (via `react-chartjs-2`)
-- React Testing Library, Jest
+- Tailwind CSS, Axios, Chart.js
+- React Router, React Testing Library, Jest
 
 ### DevOps
 - GitHub Actions (CI/CD)
 - Docker Compose
-- Vercel (Frontend) / Fly.io or Oracle Cloud VM (Backend)
-
-## 📘 API Documentation
-
-View the full OpenAPI specification rendered via [Redoc](https://github.com/Redocly/redoc):
-
-👉 [**Inventory Analytics API Docs**](https://Keglev.github.io/inventory-service/)
-
-This documentation includes key analytics endpoints for stock monitoring, supplier breakdowns, and update summaries.
+- Vercel (Frontend) / Fly.io or Oracle Cloud (Backend)
 
 ---
 
-## 🛠️ Architecture
+## 🌐 Environment Profiles
 
+- `application-dev.yml` — for local testing (auto-reload, detailed logs)
+- `application-prod.yml` — used in Docker + CI/CD
+- `application-test.yml` — used in unit + integration test containers
+
+Oracle Wallet authentication is used in all environments via environment variables for secure DB access.
+
+---
+
+## ✅ CI/CD
+
+GitHub Actions automatically:
+- Builds and tests the backend using Maven
+- Runs unit + integration tests with Testcontainers
+- Builds Docker image and optionally pushes to DockerHub
+
+> Frontend CI/CD is planned after backend is fully stabilized.
+
+---
+
+## 🏗️ Architecture Overview
+
+- Modular domain-driven design (separate DTO, validation, service, repository layers)
+- Full test coverage planned (unit, integration, and MockMvc)
+- Designed for microservices: decoupled backend, frontend, and deployment
+
+---
+
+## 👀 Coming Next
+- Frontend React dashboard
+- Jenkins-based parallel CI pipeline (optional)
+- Dynamic chart filtering + analytics export
+
+---
+
+📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
 
