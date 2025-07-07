@@ -39,14 +39,14 @@ All endpoints are documented manually via OpenAPI 3.0 YAML files and rendered us
 | Module                | OpenAPI Documentation |
 |-----------------------|------------------------|
 | 🔐 Auth (OAuth2 `/api/me`)         | [auth-api.yaml](https://keglev.github.io/inventory-service/auth-api.yaml) |
-| 📦 Inventory Items     | [inventory-api.yaml](https://keglev.github.io/inventory-service/docs/inventory-api.yaml) |
-| 🚚 Suppliers           | [supplier-api.yaml](https://keglev.github.io/inventory-service/docs/supplier-api.yaml) |
-| 🔁 Stock History       | [stock-history-api.yaml](https://keglev.github.io/inventory-service/docs/stock-history-api.yaml) |
-| 📊 Analytics           | [analytics-api.yaml](https://keglev.github.io/inventory-service/docs/analytics-api.yaml) |
-| ❤️ Health Check       | [health-check-api.yaml](https://keglev.github.io/inventory-service/docs/health-check-api.yaml) |
+| 📦 Inventory Items     | [inventory-api.yaml](https://keglev.github.io/inventory-service/inventory-api.yaml) |
+| 🚚 Suppliers           | [supplier-api.yaml](https://keglev.github.io/inventory-service/supplier-api.yaml) |
+| 🔁 Stock History       | [stock-history-api.yaml](https://keglev.github.io/inventory-service/stock-history-api.yaml) |
+| 📊 Analytics           | [analytics-api.yaml](https://keglev.github.io/inventory-service/analytics-api.yaml) |
+| ❤️ Health Check       | [health-check-api.yaml](https://keglev.github.io/inventory-service/health-check-api.yaml) |
 
 Browse all docs in one place:
-👉 [**Inventory API Index**](https://keglev.github.io/inventory-service/docs/index.html)
+👉 [**Inventory API Index**](https://keglev.github.io/inventory-service/index.html)
 
 ---
 
