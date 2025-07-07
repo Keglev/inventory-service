@@ -38,7 +38,7 @@ All endpoints are documented manually via OpenAPI 3.0 YAML files and rendered us
 
 | Module                | OpenAPI Documentation |
 |-----------------------|------------------------|
-| 🔐 Auth (OAuth2 `/api/me`)         | [auth-api.yaml](https://keglev.github.io/inventory-service/docs/auth-api.yaml) |
+| 🔐 Auth (OAuth2 `/api/me`)         | [auth-api.yaml](https://keglev.github.io/inventory-service/auth-api.yaml) |
 | 📦 Inventory Items     | [inventory-api.yaml](https://keglev.github.io/inventory-service/docs/inventory-api.yaml) |
 | 🚚 Suppliers           | [supplier-api.yaml](https://keglev.github.io/inventory-service/docs/supplier-api.yaml) |
 | 🔁 Stock History       | [stock-history-api.yaml](https://keglev.github.io/inventory-service/docs/stock-history-api.yaml) |
