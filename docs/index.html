@@ -1,19 +1,40 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Inventory Analytics API</title>
+    <title>SmartSupplyPro - Inventory API Docs</title>
     <meta charset="UTF-8" />
-    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    <meta name="description" content="OpenAPI documentation for SmartSupplyPro microservices">
+    <link rel="icon" href="https://keglev.github.io/inventory-service/favicon.ico" />
+    <style>
+      body { margin: 0; font-family: sans-serif; }
+      header {
+        background: #0d1117;
+        color: #fff;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      header h1 { margin: 0; font-size: 1.2rem; }
+      header a { color: #58a6ff; text-decoration: none; }
+    </style>
   </head>
   <body>
+    <header>
+      <h1>SmartSupplyPro API Documentation</h1>
+      <a href="https://github.com/Keglev/inventory-service" target="_blank">View on GitHub ↗</a>
+    </header>
+
+    <redoc spec-url="auth-api.yaml"></redoc>
+    <redoc spec-url="supplier-api.yaml"></redoc>
     <redoc spec-url="analytics-api.yaml"></redoc>
-    <li><a href="auth-api.yaml">Auth API</a></li>
-    <li><a href="inventory-api.yaml">Inventory API</a></li>
-    <li><a href="stock-history-api.yaml">Stock History API</a>
-    <li><a href="supplier-api.yaml">Supplier API</a>
-      <li><a href="health-check-api.yaml">Health Check Database</a></li>
+    <redoc spec-url="inventory-api.yaml"></redoc>
+    <redoc spec-url="stock-history-api.yaml"></redoc>
+    <redoc spec-url="health-check-api.yaml"></redoc>
 
-    
-
+    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
   </body>
+</html>
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+  </head>
 </html>

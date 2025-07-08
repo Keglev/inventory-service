@@ -1,9 +1,19 @@
-openapi: 3.0.1
+openapi: 3.0.3
 info:
-  title: Supplier API
-  version: 1.0.0
+  title: Inventory Service - Supplier API
   description: >
     API for managing supplier records including creation, update, deletion, and searching.
+  version: "1.0.0"
+  contact:
+    name: Carlos Keglevich
+    url: https://carloskeglevich.vercel.app
+    email: carloskeglevich@gmail.com
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit/
+servers:
+  - url: https://keglevich.github.io/inventory-Service
+    description: GitHub Pages
 paths:
   /api/suppliers:
     get:
