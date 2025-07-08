@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -13,8 +15,6 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.lang.NonNull;
 
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
 
@@ -24,37 +24,39 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Configures application-wide security rules using Spring Security.
- *
- * <p>Key Features:
+ * Central security configuration class using Spring Security.
+ * 
+ * <p>This class defines:
  * <ul>
- *     <li>Enables OAuth2 login with Google</li>
- *     <li>Restricts access based on roles (USER/ADMIN)</li>
- *     <li>Allows public access to root and actuator endpoints</li>
- *     <li>Distinguishes between API and browser requests using a filter</li>
- *     <li>Customizes response format (JSON or redirect) based on request type</li>
+ *   <li>OAuth2 login using Google with a custom success handler</li>
+ *   <li>Role-based access control for secured REST endpoints</li>
+ *   <li>Custom API-aware authentication entry points for consistent behavior (JSON vs redirect)</li>
+ *   <li>CSRF disabled for stateless REST communication</li>
  * </ul>
  *
- * <p>This is designed for a microservice environment with frontend/backend separation.
+ * <p>Designed for a microservice-based architecture with frontend/backend separation.
+ * All security logic is encapsulated in a single, modular, and testable configuration.
  */
+@EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
     private OAuth2LoginSuccessHandler successHandler;
 
     /**
-     * Defines the security filter chain for all incoming HTTP requests.
+     * Defines the security rules and authentication flow for HTTP requests.
      *
-     * @param http the {@link HttpSecurity} object for configuring access rules
-     * @return a configured {@link SecurityFilterChain}
+     * @param http HttpSecurity instance provided by Spring Security
+     * @return configured security filter chain
+     * @throws Exception in case of misconfiguration
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // Custom filter to tag API requests based on Accept header and URI
+        // Filter that flags API requests based on URI prefix and Accept header
+        // This is used to differentiate REST clients from browser-based clients
         OncePerRequestFilter apiFlagFilter = new OncePerRequestFilter() {
             @Override
             protected void doFilterInternal(@NonNull HttpServletRequest req,
@@ -63,59 +65,63 @@ public class SecurityConfig {
                     throws ServletException, IOException {
 
                 String accept = req.getHeader("Accept");
-                System.out.println(">>> [Request URI] " + req.getRequestURI());
-                System.out.println(">>> [Accept Header] " + accept);
-
-                if (req.getRequestURI().startsWith("/api/")
-                        && accept != null && accept.contains("application/json")) {
+                if (req.getRequestURI().startsWith("/api/") &&
+                    accept != null && accept.contains("application/json")) {
                     req.setAttribute("IS_API_REQUEST", true);
-                    System.out.println(">>> [API FLAG SET] " + req.getRequestURI());
                 }
 
                 chain.doFilter(req, res);
             }
         };
 
+        // Register the custom filter before pre-authentication phase
         http.addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
-        // Request matcher to identify flagged API requests
+        // Matcher to identify flagged API requests
         RequestMatcher apiMatcher = request ->
                 Boolean.TRUE.equals(request.getAttribute("IS_API_REQUEST"));
 
-        // API response for unauthenticated access: return JSON with 401
+        // For API requests, return JSON error instead of redirect
         AuthenticationEntryPoint apiEntry = (req, res, ex) -> {
-            System.out.println(">>> [API ENTRY POINT] " + req.getRequestURI());
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setContentType("application/json");
             res.getWriter().write("{\"message\":\"Unauthorized\"}");
         };
 
-        // Web-based response (redirect to Google login page)
+        // For browser-based requests, trigger OAuth2 login
         AuthenticationEntryPoint webEntry =
                 new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google");
 
+        // Configure endpoint access and authentication logic
         http
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
+                // Public endpoints (e.g., root and health checks)
                 .requestMatchers("/", "/actuator/**", "/health/**").permitAll()
 
-                // Role-based API restrictions
+                // Admin-only endpoints
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+
+                // General authenticated access for all other /api routes
                 .requestMatchers("/api/**").authenticated()
 
-                // Default fallback: all other endpoints must be authenticated
+                // All other requests require authentication by default
                 .anyRequest().authenticated()
             )
+            // Entry points depending on request type (API vs web)
             .exceptionHandling(ex -> ex
                 .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)
                 .defaultAuthenticationEntryPointFor(webEntry, request -> true)
             )
+            // OAuth2 login integration with Google
             .oauth2Login(oauth -> oauth
                 .loginPage("/oauth2/authorization/google")
                 .successHandler(successHandler)
             )
+            // Redirect to root after logout
             .logout(logout -> logout.logoutSuccessUrl("/"))
-            .csrf(csrf -> csrf.disable()); // Disabled for API calls
+
+            // Disable CSRF for RESTful API (stateless communication)
+            .csrf(csrf -> csrf.disable());
 
         return http.build();
     }

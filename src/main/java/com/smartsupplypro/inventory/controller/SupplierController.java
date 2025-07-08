@@ -14,19 +14,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * REST Controller for handling supplier-related API operations.
+ * REST controller for managing supplier-related operations.
+ *
+ * <p>This controller provides secure endpoints to:
+ * <ul>
+ *     <li>Create, update, and delete suppliers (ADMIN only)</li>
+ *     <li>Search and retrieve suppliers (ADMIN and USER)</li>
+ * </ul>
+ *
+ * <p>Built for frontend/backend separation with role-based access control (RBAC).
  */
 @RestController
 @RequestMapping("/api/suppliers")
 @RequiredArgsConstructor
 public class SupplierController {
 
-    // Service layer is injected using constructor-based dependency injection
     private final SupplierService supplierService;
 
     /**
-     * Fetches all suppliers in the system.
-     * Accessible by ADMIN and USER roles.
+     * Retrieves a list of all suppliers.
+     * 
+     * <p>Accessible to both ADMIN and USER roles.
+     *
+     * @return list of all registered suppliers
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
@@ -35,8 +45,12 @@ public class SupplierController {
     }
 
     /**
-     * Fetch a specific supplier by ID.
-     * Accessible by ADMIN and USER roles.
+     * Retrieves a specific supplier by its ID.
+     * 
+     * <p>Accessible to both ADMIN and USER roles.
+     * 
+     * @param id supplier's unique identifier
+     * @return supplier details
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
@@ -45,8 +59,13 @@ public class SupplierController {
     }
 
     /**
-     * Create a new supplier.
-     * Only accessible by ADMIN users.
+     * Creates a new supplier entry.
+     * 
+     * <p>Only accessible to ADMIN users.
+     * Returns HTTP 201 Created on success.
+     *
+     * @param dto validated supplier data
+     * @return newly created supplier
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -56,8 +75,14 @@ public class SupplierController {
     }
 
     /**
-     * Update an existing supplier by ID.
-     * Only accessible by ADMIN users.
+     * Updates an existing supplier's data by ID.
+     * 
+     * <p>Only accessible to ADMIN users.
+     * Returns HTTP 200 OK if updated, or 404 Not Found if the supplier does not exist.
+     *
+     * @param id  supplier ID to update
+     * @param dto updated supplier data
+     * @return updated supplier or 404 if not found
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -68,9 +93,14 @@ public class SupplierController {
     }
 
     /**
-     * Delete a supplier by ID.
-     * Only ADMINs are allowed to perform deletion.
-     * Returns HTTP 204 (No Content) on success.
+     * Deletes a supplier by ID.
+     * 
+     * <p>Only ADMIN users are authorized to perform this operation.
+     * 
+     * <p>Deletion may be prevented if related inventory items exist.
+     * 
+     * @param id supplier ID
+     * @return HTTP 204 No Content on success
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -80,8 +110,13 @@ public class SupplierController {
     }
 
     /**
-     * Search suppliers by name (partial match).
-     * Accessible by both ADMIN and USER roles.
+     * Searches suppliers by partial or full name match.
+     * 
+     * <p>Useful for UI autocomplete and filtered lists.
+     * Accessible to both ADMIN and USER roles.
+     *
+     * @param name name or fragment to search for
+     * @return list of matching suppliers
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/search")

@@ -14,6 +14,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST controller for managing inventory items.
+ *
+ * <p>Supports CRUD operations and item search, with role-based access control (RBAC).
+ * This controller enforces security restrictions and auditing logic,
+ * including reason tracking on deletion.
+ *
+ * <p>Accessible roles:
+ * <ul>
+ *   <li><b>ADMIN</b>: Full access (create, update, delete)</li>
+ *   <li><b>USER</b>: Read and update access only</li>
+ * </ul>
+ */
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryItemController {
@@ -25,8 +38,11 @@ public class InventoryItemController {
     }
 
     /**
-     * Returns all inventory items.
-     * Accessible by both ADMIN and USER roles.
+     * Retrieves a list of all inventory items.
+     * 
+     * <p>Accessible to both ADMIN and USER roles.
+     *
+     * @return list of inventory items
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
@@ -35,8 +51,12 @@ public class InventoryItemController {
     }
 
     /**
-     * Retrieves an inventory item by ID.
-     * Returns 404 if not found.
+     * Retrieves a specific inventory item by its ID.
+     * 
+     * <p>Returns 404 Not Found if the item does not exist.
+     *
+     * @param id unique identifier of the item
+     * @return item details or 404 if not found
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{id}")
@@ -48,8 +68,12 @@ public class InventoryItemController {
 
     /**
      * Creates a new inventory item.
-     * Only accessible by ADMIN users.
-     * Returns 201 Created on success or 409 Conflict if duplicate.
+     * 
+     * <p>Accessible only by ADMIN users.
+     * Returns HTTP 201 on success, or HTTP 409 if item already exists.
+     *
+     * @param inventoryItemDTO validated item data
+     * @return created item or conflict response
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
@@ -65,15 +89,20 @@ public class InventoryItemController {
 
     /**
      * Updates an existing inventory item.
-     * Accessible by ADMIN and USER roles.
-     * Returns 200 OK on success, 404 if not found, 409 if validation fails.
+     * 
+     * <p>Accessible to both ADMIN and USER roles.
+     * Returns HTTP 200 if updated, 404 if not found, or 409 on validation conflict.
+     *
+     * @param id item ID to update
+     * @param inventoryItemDTO updated item data
+     * @return updated item or appropriate error
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable String id, @Valid @RequestBody InventoryItemDTO inventoryItemDTO) {
         try {
             return inventoryItemService.update(id, inventoryItemDTO)
-                    .map(updatedItem -> ResponseEntity.ok(updatedItem))
+                    .map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -82,9 +111,14 @@ public class InventoryItemController {
     }
 
     /**
-     * Deletes an inventory item by ID and logs the reason.
-     * Only accessible by ADMIN users.
-     * Reason is required to ensure auditability.
+     * Deletes an inventory item and records the reason.
+     * 
+     * <p>Only ADMIN users are allowed to delete items.
+     * The reason for deletion (e.g., SCRAPPED, RETURNED) is required for audit trails.
+     *
+     * @param id     inventory item ID
+     * @param reason enum representing the stock change reason
+     * @return 204 No Content on success
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
@@ -95,8 +129,13 @@ public class InventoryItemController {
     }
 
     /**
-     * Searches inventory items by name.
+     * Searches for inventory items by partial or full name.
+     * 
+     * <p>Useful for implementing search bars or dropdown suggestions.
      * Accessible by both ADMIN and USER roles.
+     *
+     * @param name full or partial item name
+     * @return matching items
      */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/search")
