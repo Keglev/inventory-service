@@ -4,9 +4,17 @@ info:
   description: >
     This endpoint verifies the status of the Oracle database connection.
     It is especially useful for Oracle Free Tier deployments to keep the connection alive.
-  version: 1.0.0
+  version: "1.0.0"
+  contact:
+    name: Carlos Keglevich
+    url: https://carloskeglevich.vercel.app
+    email: carls.keglevich@gmail.com
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit/
 servers:
-  - url: http://localhost:8081
+  - url: https://keglevich.github.io/inventory-Service
+    description: GitHub Pages
 paths:
   /health/db:
     get:

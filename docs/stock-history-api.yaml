@@ -1,9 +1,19 @@
 openapi: 3.0.1
 info:
-  title: Stock History API
-  version: 1.0.0
+  title: Inventory Service - Stock History API
   description: >
     Provides read-only access to historical stock changes including filtering by item, reason, and date range.
+  version: "1.0.0"
+  contact:
+    name: Carlos Keglevich
+    url: https://carloskeglevich.vercel.app
+    email: carloskeglevich@gmail.com
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit/
+servers:
+  - url: https://keglevich.github.io/inventory-Service
+    description: GitHub Pages
 paths:
   /api/stock-history:
     get:

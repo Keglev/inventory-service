@@ -1,9 +1,19 @@
 openapi: 3.0.3
 info:
   title: Smart Supply Pro API
-  version: 1.0.0
   description: |
     This endpoint allows authenticated users to retrieve their user profile after successful OAuth2 login.
+  version: "1.0.0"
+  contact:
+    name: Carlos Keglevich
+    url: https://carloskeglevich.vercel.app
+    email: carloskeglevich@gmail.com
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit/
+servers:
+  - url: https://keglevich.github.io/inventory-Service
+    description: GitHub Pages
 
 paths:
   /api/me:
