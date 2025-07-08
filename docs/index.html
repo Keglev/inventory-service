@@ -1,40 +1,59 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>SmartSupplyPro - Inventory API Docs</title>
-    <meta charset="UTF-8" />
-    <meta name="description" content="OpenAPI documentation for SmartSupplyPro microservices">
-    <link rel="icon" href="https://keglev.github.io/inventory-service/favicon.ico" />
-    <style>
-      body { margin: 0; font-family: sans-serif; }
-      header {
-        background: #0d1117;
-        color: #fff;
-        padding: 1rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      header h1 { margin: 0; font-size: 1.2rem; }
-      header a { color: #58a6ff; text-decoration: none; }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>SmartSupplyPro API Documentation</h1>
-      <a href="https://github.com/Keglev/inventory-service" target="_blank">View on GitHub ↗</a>
-    </header>
+<head>
+  <title>SmartSupplyPro API Docs</title>
+  <meta charset="UTF-8" />
+  <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    header {
+      background: #0d1117;
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav {
+      background: #f0f0f0;
+      padding: 0.5rem 2rem;
+    }
+    nav a {
+      margin-right: 1.5rem;
+      text-decoration: none;
+      font-weight: bold;
+      color: #0d1117;
+    }
+  </style>
+</head>
+<body>
 
-    <redoc spec-url="auth-api.yaml"></redoc>
-    <redoc spec-url="supplier-api.yaml"></redoc>
-    <redoc spec-url="analytics-api.yaml"></redoc>
-    <redoc spec-url="inventory-api.yaml"></redoc>
-    <redoc spec-url="stock-history-api.yaml"></redoc>
-    <redoc spec-url="health-check-api.yaml"></redoc>
+<header>
+  <h1>SmartSupplyPro API Docs</h1>
+  <a href="https://github.com/Keglev/inventory-service" target="_blank">GitHub ↗</a>
+</header>
 
-    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
-  </body>
+<nav>
+  <a href="#" onclick="loadSpec('auth-api.yaml')">Auth</a>
+  <a href="#" onclick="loadSpec('inventory-api.yaml')">Inventory</a>
+  <a href="#" onclick="loadSpec('supplier-api.yaml')">Suppliers</a>
+  <a href="#" onclick="loadSpec('stock-history-api.yaml')">Stock History</a>
+  <a href="#" onclick="loadSpec('analytics-api.yaml')">Analytics</a>
+  <a href="#" onclick="loadSpec('health-check-api.yaml')">Health Check</a>
+</nav>
+
+<div id="redoc-container"></div>
+
+<script>
+  function loadSpec(specUrl) {
+    Redoc.init(specUrl, {}, document.getElementById('redoc-container'));
+  }
+
+  // Default load
+  loadSpec('auth-api.yaml');
+</script>
+
+</body>
 </html>
-    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
-  </head>
-</html>
+<!-- This HTML file serves as the main entry point for the SmartSupplyPro API documentation.
+     It uses Redoc to render OpenAPI specifications for various APIs in a user-friendly format. -->

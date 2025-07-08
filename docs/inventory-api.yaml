@@ -11,7 +11,7 @@ license:
   name: MIT License
   url: https://opensource.org/license/mit/
 servers:
-  - url: https://keglevich.github.io/inventory-Service
+  - url: https://keglevich.github.io/inventory-service
     description: GitHub Pages
 
 paths:
