@@ -7,7 +7,7 @@ target/
 # Ignore log files
 logs/
 *.log
-
+lib/
 # Secrets
 .env
 src/main/resources/application-dev.yml
