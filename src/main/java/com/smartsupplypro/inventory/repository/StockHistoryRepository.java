@@ -11,9 +11,25 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Repository for managing {@link StockHistory} entities.
+ * <p>
+ * Provides full audit trail access, historical reporting, and
+ * advanced filtering capabilities, including support for dashboard visualizations.
+ */
 public interface StockHistoryRepository extends JpaRepository<StockHistory, String> {
 
-    // For paginated admin view
+    /**
+     * Retrieves paginated stock history entries based on optional filters:
+     * date range, item name, and supplier ID.
+     *
+     * @param startDate   Start of date range (optional)
+     * @param endDate     End of date range (optional)
+     * @param itemName    Item name to search (optional, case-insensitive)
+     * @param supplierId  Supplier ID filter (optional)
+     * @param pageable    Pagination configuration
+     * @return Page of filtered stock history records
+     */
     @Query("""
         SELECT s FROM StockHistory s 
         JOIN InventoryItem i ON s.itemId = i.id
@@ -30,10 +46,30 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         Pageable pageable
     );
 
+    /**
+     * Finds all stock history records for a given inventory item.
+     *
+     * @param itemId Inventory item ID
+     * @return List of stock changes for the item
+     */
     List<StockHistory> findByItemId(String itemId);
+
+    /**
+     * Finds stock history records by reason code.
+     *
+     * @param reason Enum reason (e.g., SOLD, SCRAPPED)
+     * @return List of matching history entries
+     */
     List<StockHistory> findByReason(StockChangeReason reason);
 
-    // Chart: Stock value over time
+    /**
+     * Aggregates stock value per day based on quantity × price.
+     *
+     * @param start      Start date
+     * @param end        End date
+     * @param supplierId Supplier filter (optional)
+     * @return List of Object[] { date, totalValue }
+     */
     @Query(value = """
         SELECT TRUNC(sh.timestamp), SUM(sh.change * i.price)
         FROM stock_history sh
@@ -49,7 +85,11 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         @Param("supplierId") String supplierId
     );
 
-    // Chart: Total stock quantity per supplier
+    /**
+     * Returns total quantity of stock held by each supplier.
+     *
+     * @return List of Object[] { supplierName, totalQuantity }
+     */
     @Query(value = """
         SELECT s.name AS supplier_name, SUM(i.quantity) AS total_quantity
         FROM supplier s
@@ -59,7 +99,12 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         """, nativeQuery = true)
     List<Object[]> getTotalStockPerSupplier();
 
-    // Chart: Item update frequency
+    /**
+     * Returns update frequency per item (for dashboard).
+     *
+     * @param supplierId Supplier filter (optional)
+     * @return List of Object[] { itemName, updateCount }
+     */
     @Query(value = """
         SELECT i.name AS item_name, COUNT(sh.id) AS update_count
         FROM stock_history sh
@@ -70,7 +115,13 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         """, nativeQuery = true)
     List<Object[]> getUpdateCountPerItemFiltered(@Param("supplierId") String supplierId);
 
-    // Chart: Monthly stock movement (all)
+    /**
+     * Retrieves monthly stock movement (global).
+     *
+     * @param start Start date
+     * @param end   End date
+     * @return List of Object[] { month, stockIn, stockOut }
+     */
     @Query(value = """
         SELECT TO_CHAR(sh.timestamp, 'YYYY-MM') AS month,
                SUM(CASE WHEN sh.change > 0 THEN sh.change ELSE 0 END) AS stock_in,
@@ -85,7 +136,14 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         @Param("end") LocalDateTime end
     );
 
-    // Chart: Monthly stock movement (filtered)
+    /**
+     * Retrieves monthly stock movement per supplier.
+     *
+     * @param start      Start date
+     * @param end        End date
+     * @param supplierId Supplier ID filter
+     * @return List of Object[] { month, stockIn, stockOut }
+     */
     @Query(value = """
         SELECT TO_CHAR(sh.timestamp, 'YYYY-MM') AS month,
                SUM(CASE WHEN sh.change > 0 THEN sh.change ELSE 0 END) AS stock_in,
@@ -103,7 +161,12 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         @Param("supplierId") String supplierId
     );
 
-    // Table: Low-stock items (filtered)
+    /**
+     * Returns low-stock items where quantity is below minimum threshold.
+     *
+     * @param supplierId Optional supplier filter
+     * @return List of Object[] { itemName, quantity, minimumQuantity }
+     */
     @Query(value = """
         SELECT name, quantity, minimum_quantity
         FROM inventory_item
@@ -113,7 +176,18 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         """, nativeQuery = true)
     List<Object[]> findItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
 
-    // Advanced analytics: Filtered stock history results
+    /**
+     * Advanced reporting: Filtered stock history records for tabular export.
+     *
+     * @param startDate  Optional start timestamp
+     * @param endDate    Optional end timestamp
+     * @param itemName   Optional item name (partial match)
+     * @param supplierId Optional supplier ID
+     * @param createdBy  Optional creator username
+     * @param minChange  Optional minimum quantity threshold
+     * @param maxChange  Optional maximum quantity threshold
+     * @return List of Object[] { itemName, supplierName, change, reason, createdBy, timestamp }
+     */
     @Query(value = """
         SELECT i.name AS item_name, s.name AS supplier_name, sh.change, sh.reason, sh.created_by, sh.timestamp
         FROM stock_history sh
@@ -138,3 +212,11 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         @Param("maxChange") Integer maxChange
     );
 }
+/**
+ * This repository interface provides methods for querying stock history data
+ * with advanced filtering and aggregation capabilities, suitable for reporting
+ * and dashboard visualizations.
+ * <p>
+ * It supports pagination, date range filtering, item and supplier searches,
+ * and various aggregations to facilitate comprehensive inventory management.
+ */

@@ -18,12 +18,45 @@ import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
+/**
+ * Custom implementation of {@link OAuth2UserService} that integrates OAuth2 login
+ * with internal user management and role assignment logic.
+ * <p>
+ * This class is responsible for loading user details from an OAuth2 provider (e.g. Google),
+ * and mapping them to the system's internal {@link AppUser} entity, with role management,
+ * user persistence, and constraint enforcement (e.g. user limits).
+ * </p>
+ *
+ * <p>
+ * If the user logs in for the first time, a new record is created unless the system
+ * already has the maximum number of allowed users. The first admin user is determined
+ * by email.
+ * </p>
+ *
+ * <h3>Responsibilities:</h3>
+ * <ul>
+ *   <li>Retrieve authenticated OAuth2 user details</li>
+ *   <li>Create or reuse internal {@link AppUser} entity</li>
+ *   <li>Assign appropriate {@link Role} (ADMIN or USER)</li>
+ *   <li>Enforce a maximum of 10 registered users</li>
+ *   <li>Inject system roles into the Spring Security context</li>
+ * </ul>
+ *
+ * @author SmartSupply
+ */
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     @Autowired
     private AppUserRepository userRepository;
 
+    /**
+     * Loads and processes the authenticated OAuth2 user.
+     *
+     * @param userRequest the request containing OAuth2 provider and token info
+     * @return a {@link DefaultOAuth2User} enriched with application-specific role information
+     * @throws OAuth2AuthenticationException if the user cannot be loaded or violates constraints
+     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(userRequest);
@@ -54,6 +87,5 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 "name"
         );
     }
-    
-    
 }
+// This code handles the OAuth2 login success scenario, registering new users if they do not exist in the database.

@@ -16,17 +16,46 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing historical stock movements in the inventory system.
+ * <p>
+ * This class provides methods to:
+ * <ul>
+ *   <li>Retrieve all stock history entries</li>
+ *   <li>Filter stock history by item ID, change reason, or time range</li>
+ *   <li>Log validated stock changes with timestamp and user attribution</li>
+ * </ul>
+ * The service ensures clean separation between domain logic and persistence concerns,
+ * while also applying domain-specific validation through {@link StockHistoryValidator}.
+ * </p>
+ *
+ * @author
+ * SmartSupplyPro Dev Team
+ */
 @Service
 @RequiredArgsConstructor
 public class StockHistoryService {
+
+    /** JPA repository for stock history persistence operations */
     private final StockHistoryRepository repository;
 
+    /**
+     * Retrieves all stock history records in the system.
+     *
+     * @return list of all stock changes, mapped to DTOs
+     */
     public List<StockHistoryDTO> getAll() {
         return repository.findAll().stream()
                 .map(StockHistoryMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves all stock history records associated with a given item ID.
+     *
+     * @param itemId the inventory item ID to filter by
+     * @return list of stock changes for the specified item
+     */
     public List<StockHistoryDTO> getByItemId(String itemId) {
         return repository.findAll().stream()
                 .filter(h -> h.getItemId().equals(itemId))
@@ -34,38 +63,73 @@ public class StockHistoryService {
                 .collect(Collectors.toList());
     }
 
-   public List<StockHistoryDTO> getByReason(StockChangeReason reason) {
-    return repository.findAll().stream()
-            .filter(h -> h.getReason().equals(reason.name()))
-            .map(StockHistoryMapper::toDTO)
-            .collect(Collectors.toList());
+    /**
+     * Retrieves all stock history records for a specific change reason.
+     *
+     * @param reason the {@link StockChangeReason} to filter by
+     * @return list of stock changes matching the given reason
+     */
+    public List<StockHistoryDTO> getByReason(StockChangeReason reason) {
+        return repository.findAll().stream()
+                .filter(h -> h.getReason().equals(reason.name()))
+                .map(StockHistoryMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves paginated stock history entries filtered by date range, item name, and supplier ID.
+     *
+     * @param startDate  filter start date and time (inclusive)
+     * @param endDate    filter end date and time (inclusive)
+     * @param itemName   optional item name for partial matching
+     * @param supplierId optional supplier ID to narrow results
+     * @param pageable   pagination and sorting configuration
+     * @return page of matching stock history records
+     */
     public Page<StockHistoryDTO> findFiltered(LocalDateTime startDate, LocalDateTime endDate, String itemName, String supplierId, Pageable pageable) {
         return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)
                 .map(StockHistoryMapper::toDTO);
     }
+
+    /**
+     * Logs a new stock change with full validation and timestamping.
+     * <p>
+     * A unique ID is generated using the item ID and system timestamp to ensure uniqueness.
+     * The reason is validated using {@link StockHistoryValidator}.
+     * </p>
+     *
+     * @param itemId    the ID of the item whose stock changed
+     * @param change    the quantity change (positive or negative)
+     * @param reason    the {@link StockChangeReason} enum describing the reason
+     * @param createdBy the user (email or ID) who initiated the change
+     * @throws IllegalArgumentException if input is invalid
+     */
     public void logStockChange(String itemId, int change, StockChangeReason reason, String createdBy) {
-        StockHistoryValidator.validateEnum(reason); // enum-based validation
+        // Validate the enum value to ensure consistency
+        StockHistoryValidator.validateEnum(reason);
 
-    StockHistoryDTO dto = StockHistoryDTO.builder()
-            .itemId(itemId)
-            .change(change)
-            .reason(reason.name())
-            .createdBy(createdBy)
-            .build();
+        // Construct a DTO for validation purposes
+        StockHistoryDTO dto = StockHistoryDTO.builder()
+                .itemId(itemId)
+                .change(change)
+                .reason(reason.name())
+                .createdBy(createdBy)
+                .build();
 
-    StockHistoryValidator.validate(dto); 
+        // Validate fields for business logic constraints
+        StockHistoryValidator.validate(dto);
+
+        // Create and persist a new StockHistory entity
         StockHistory history = StockHistory.builder()
-            .id("sh-" + itemId + "-" + System.currentTimeMillis())
-            .itemId(itemId)
-            .change(change)
-            .reason(reason.name()) // store the enum name as string
-            .createdBy(createdBy)
-            .timestamp(LocalDateTime.now())
-            .build();
+                .id("sh-" + itemId + "-" + System.currentTimeMillis())
+                .itemId(itemId)
+                .change(change)
+                .reason(reason.name())  // stored as a string in the database
+                .createdBy(createdBy)
+                .timestamp(LocalDateTime.now())
+                .build();
 
         repository.save(history);
     }
-
 }
+// This code handles the stock history service, providing methods to log and retrieve stock changes.
