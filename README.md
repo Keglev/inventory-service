@@ -91,6 +91,22 @@ GitHub Actions automatically:
 > Frontend CI/CD is planned after backend is fully stabilized.
 
 ---
+## 🔌 Oracle Wallet Connectivity Test
+
+This project includes a standalone Java utility to manually test the Oracle Wallet connection **outside Spring Boot**. This is helpful for validating database access and credentials securely.
+
+### Prerequisites
+
+1. Java and Oracle JDBC Driver in `/lib`
+2. Oracle Wallet files downloaded and placed locally
+3. `.env` file with the following keys:
+   ```env
+   ENABLE_WALLET_TEST=true
+   TNS_ADMIN=/path/to/wallet
+   ORACLE_WALLET_PASSWORD=your_wallet_password
+   DB_URL=jdbc:oracle:thin:@your-db
+   DB_USERNAME=your_user
+   DB_PASSWORD=your_password
 
 ## 🏗️ Architecture Overview
 
