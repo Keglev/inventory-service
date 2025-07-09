@@ -1,0 +1,95 @@
+name: Inventory Service CI/CD - CI Build & Test & Docker Build
+
+# /**
+#  * CI/CD Pipeline for Smart Supply Pro - Inventory Microservice
+#  *
+#  * Trigger:
+#  *   - Automatically on push and pull requests to the 'main' branch.
+#  *
+#  * Jobs:
+#  *   1. Checkout and setup build environment.
+#  *   2. Decode Oracle Wallet and configure secure connection.
+#  *   3. Run Maven build and tests using 'test' profile with Testcontainers disabled.
+#  *   4. Build Docker image with both 'dev' tag and Git SHA tag.
+#  *   5. Push Docker image(s) to DockerHub.
+#  */
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Enable shell debug mode to print each command for easier debugging.
+      - name: Enable debug output
+        run: set -x
+
+      # Checkout the source code from the repository.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Java Development Kit (JDK) version 17 using Temurin distribution.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Cache local Maven dependencies (~/.m2) to improve build performance.
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Decode and extract Oracle Wallet from base64-encoded GitHub Secret.
+      # Sets TNS_ADMIN to point to the extracted wallet directory.
+      - name: Decode Oracle Wallet and configure TNS_ADMIN
+        run: |
+          mkdir -p ./wallet
+          echo "${{ secrets.TNS_ADMIN_ZIP_B64 }}" | base64 -d > ./wallet/wallet.zip
+          unzip -o ./wallet/wallet.zip -d ./wallet
+          echo "TNS_ADMIN=$(realpath ./wallet)" >> $GITHUB_ENV
+
+      # Store current Git commit SHA (short) for use as Docker image tag.
+      - name: Set Git SHA
+        run: echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      # Build and run tests using the 'test' Spring profile.
+      # Disables Testcontainers to avoid Docker usage in CI.
+      - name: Build and Test with Maven (Test Profile)
+        run: mvn clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+      # Authenticate with DockerHub using secrets configured in GitHub.
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Build the Docker image with:
+      #   - dev tag for staging/testing environments.
+      #   - Git SHA tag for traceability and rollbacks.
+      # Uses build-arg PROFILE=dev to inject Spring profile.
+      - name: Build Docker image (DEV and SHA)
+        run: |
+          docker build --build-arg PROFILE=dev             -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev             -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
+
+      # Push both Docker tags (dev and SHA) to DockerHub.
+      - name: Push Docker images
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev
+          docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA

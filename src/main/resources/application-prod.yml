@@ -1,26 +1,32 @@
+# =============================================
+# Spring Boot - Production Environment Config
+# Profile: prod
+# Used in deployment (e.g. Docker, cloud, prod server)
+# =============================================
+
 spring:
   datasource:
-    url: jdbc:oracle:thin:@sspdb_tp?TNS_ADMIN=${TNS_ADMIN}
-    username: ${DB_USER}
+    url: ${DB_URL}?TNS_ADMIN=${TNS_ADMIN}      # Use environment variable for Oracle Wallet path
+    username: ${DB_USER}                       # Set via GitHub secrets or secure env injection
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
-    
+
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: false
+      ddl-auto: update                         # Note: Use Flyway/Liquibase in real enterprise apps
+    show-sql: false                            # Disable SQL logging for performance and security
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.OracleDialect 
+        dialect: org.hibernate.dialect.OracleDialect
 
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}
+            client-id: ${GOOGLE_CLIENT_ID}         # Provided via secrets in CI/CD or vault
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: 
+            scope:
               - openid
               - profile
               - email
@@ -29,19 +35,20 @@ spring:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            
+
 logging:
   level:
-    '[com.smartsupplypro]': DEBUG
-    root: DEBUG
+    '[com.smartsupplypro]': INFO                  # Application logs: keep informative, not verbose
+    root: WARN                                    # Suppress framework-level noise unless needed
+
 server:
-  port: 8081
+  port: 8081                                       # Override default port (if needed by reverse proxy/load balancer)
 
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health                           # Only expose health endpoint publicly
   endpoint:
     health:
-      show-details: never
+      show-details: never                         # Hide internals in production for security reasons

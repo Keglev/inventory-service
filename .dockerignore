@@ -1,5 +1,40 @@
+# ===============================
+# Docker Ignore File (.dockerignore)
+# Used to prevent unnecessary files from being copied into the Docker build context.
+# This reduces image size and build time.
+# ===============================
+
+# Ignore compiled Java classes and build output
 target/
+
+# Ignore IDE configuration files (JetBrains IntelliJ, Eclipse, etc.)
 .idea/
-.git/
-.env
 *.iml
+*.classpath
+*.project
+.settings/
+
+# Ignore Maven wrapper directory if not needed
+.mvn/
+
+# Ignore Git repository metadata
+.git/
+
+# Ignore environment variable files (do NOT include secrets in Docker images)
+.env
+
+# Ignore logs (just in case log files are present locally)
+*.log
+logs/
+**/logs/
+log/
+**/log/
+
+# Ignore Oracle Wallet directory (sensitive DB config; handled by CI/CD secrets)
+wallet/
+oracle_wallet/
+wallet.zip
+
+# Ignore test output directories (if generated during local testing)
+out/
+test-output/

@@ -1,35 +1,43 @@
+# ============================================
+# Spring Boot - Test Environment Config
+# Profile: test
+# Used for unit, integration, and CI testing
+# ============================================
+
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:mem:testdb       # In-memory H2 database for fast, isolated testing
     driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    username: sa                  # Default H2 username
+    password:                     # No password required for in-memory use
+
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: create-drop       # Create schema on startup, drop it on shutdown
+    show-sql: true                # Log all executed SQL statements (useful for debugging)
     properties:
       hibernate:
-        '[format_sql]': true
+        '[format_sql]': true      # Format SQL for easier reading in logs
+
   h2:
     console:
-      enabled: true
-      path: /h2-console
+      enabled: true               # Enable browser-based H2 console for debugging
+      path: /h2-console           # Accessible at /h2-console (only in local/test environments)
 
 logging:
   file:
-    name: logs/test-application.log
+    name: logs/test-application.log  # Log file for test runs
   level:
-    root: DEBUG
+    root: DEBUG                    # Verbose logging for test diagnostics
 
 server:
-  port: 8081
+  port: 8081                       # Ensure consistent port for testing environments
 
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health            # Allow health check exposure in test profile
   endpoint:
     health:
-      show-details: always
+      show-details: always         # Always show detailed health info (for CI assertions)

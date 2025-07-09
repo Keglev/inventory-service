@@ -1,17 +1,27 @@
+# =============================================
+# Spring Boot - Global Shared Configuration
+# This file provides default values and shared settings
+# across all environments (dev, test, prod)
+# =============================================
+
 spring:
+  profiles:
+    active: dev                                 # Default profile (can be overridden via CLI or Docker ENV)
+
   datasource:
-    url: ${DB_URL}
+    url: ${DB_URL}                              # Fallback (usually overridden by profile-specific config)
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
+
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}
+            client-id: ${GOOGLE_CLIENT_ID}      # These values are injected via secrets or env vars
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: 
+            scope:
               - openid
               - profile
               - email
@@ -19,23 +29,20 @@ spring:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo   
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+
   jpa:
     hibernate:
-      ddl-auto: none
-    show-sql: true
-  
-  # Optional: set to true during testing
+      ddl-auto: none                            # Do not auto-create schemas by default
+    show-sql: true                              # Shown unless overridden (e.g. turned off in prod)
+
   main:
-    allow-bean-definition-overriding: true
+    allow-bean-definition-overriding: true      # Useful when using multiple configs (e.g., testing mocks)
 
-
----
+server:
+  port: 8081                                     # Default server port
 
 logging:
   level:
-    '[org.springframework.jdbc.core]': DEBUG
-    '[org.hibernate.SQL]': DEBUG
-
-server:
-  port: 8081
+    '[org.springframework.jdbc.core]': DEBUG     # Enable detailed JDBC logs for dev/debugging
+    '[org.hibernate.SQL]': DEBUG                 # Hibernate SQL logging (override in prod)

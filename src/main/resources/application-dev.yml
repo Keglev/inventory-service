@@ -1,39 +1,48 @@
+# ============================================
+# Spring Boot - Development Environment Config
+# Profile: dev
+# Used locally and in CI for non-production builds
+# ============================================
+
 spring:
   datasource:
+    # Oracle DB connection using Wallet; TNS_ADMIN path injected via environment
     url: ${DB_URL}?TNS_ADMIN=${TNS_ADMIN}
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
+
   jpa:
     hibernate:
-      ddl-auto: none
-    show-sql: true
+      ddl-auto: none  # Avoid accidental schema changes in dev
+    show-sql: true    # Show SQL queries in logs for debugging
     properties:
       hibernate:
-        '[format_sql]': true
-        '[use_sql_comments]': true
-        dialect: org.hibernate.dialect.OracleDialect
-        '[default_schema]': ADMIN
- 
+        '[format_sql]': true              # Format SQL output for readability
+        '[use_sql_comments]': true        # Add comments to SQL logs
+        '[default_schema]': ADMIN         # Use ADMIN schema explicitly
+        dialect: org.hibernate.dialect.OracleDialect  # Oracle-specific dialect
+
 logging:
-    level:
-      root: DEBUG
-      '[org.hibernate.SQL]': DEBUG
-      '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
-    file:
-      name: logs/dev-application.log
-    logback:
-      rollingpolicy:
-        max-file-size: 10MB
-        max-history: 7
+  level:
+    root: DEBUG  # Default logging level
+    '[org.hibernate.SQL]': DEBUG  # Show executed SQL queries
+    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE  # Show SQL parameter bindings
+  file:
+    name: logs/dev-application.log  # Output log file for dev environment
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB   # Rotate logs when size exceeds 10MB
+      max-history: 7        # Keep last 7 rolled log files
+
 server:
-  port: 8081
+  port: 8081  # Run on port 8081 (avoid conflict with other services)
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info  # Expose actuator endpoints for health/info
   endpoint:
     health:
-      show-details: always
+      show-details: always    # Show component-level details in /actuator/health
