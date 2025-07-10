@@ -1,12 +1,27 @@
 name: Frontend CI
 
+# /**
+#  * CI workflow for the Frontend (React + Vite + TypeScript).
+#  *
+#  * Triggers:
+#  *   - Only runs on changes within the frontend/ directory.
+#  *
+#  * Jobs:
+#  *   1. Checkout code and install Node.js
+#  *   2. Install dependencies
+#  *   3. Run Vitest tests
+#  *   4. Build the Vite frontend
+#  */
+
 on:
   push:
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
   pull_request:
     paths:
       - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
 
 jobs:
   build:
@@ -16,9 +31,10 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
@@ -26,8 +42,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npm run test 
+      - name: Run tests (Vitest)
+        run: npm run test
 
       - name: Build project
         run: npm run build

@@ -1,46 +1,65 @@
 name: Inventory Service CI/CD - CI Build & Test & Docker Build
 
 # /**
-#  * CI/CD Pipeline for Smart Supply Pro - Inventory Microservice
+#  * CI/CD Pipeline for Smart Supply Pro - Inventory Microservice (Spring Boot)
 #  *
 #  * Trigger:
-#  *   - Automatically on push and pull requests to the 'main' branch.
+#  *   - Automatically runs on push and pull requests to the 'main' branch.
+#  *   - Executes only if changes occur within inventory-service/ or this CI config file.
 #  *
 #  * Jobs:
-#  *   1. Checkout and setup build environment.
-#  *   2. Decode Oracle Wallet and configure secure connection.
-#  *   3. Run Maven build and tests using 'test' profile with Testcontainers disabled.
-#  *   4. Build Docker image with both 'dev' tag and Git SHA tag.
-#  *   5. Push Docker image(s) to DockerHub.
+#  *   1. Checkout and prepare the backend repository.
+#  *   2. Configure Java and Maven environment.
+#  *   3. Decode Oracle Wallet for secure Oracle DB connection.
+#  *   4. Run full Maven build and tests with Spring 'test' profile (without Docker).
+#  *   5. Build Docker image tagged with both 'dev' and current Git SHA.
+#  *   6. Push Docker images to DockerHub.
 #  */
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'inventory-service/**'
+      - '.github/workflows/ci-build.yml'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'inventory-service/**'
+      - '.github/workflows/ci-build.yml'
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # Enable shell debug mode to print each command for easier debugging.
+      # /**
+      #  * Enables debug output to print all shell commands during execution.
+      #  * Helps with troubleshooting build failures.
+      #  */
       - name: Enable debug output
         run: set -x
 
-      # Checkout the source code from the repository.
+      # /**
+      #  * Checks out the repository's code so that the workflow can access it.
+      #  */
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Set up Java Development Kit (JDK) version 17 using Temurin distribution.
+      # /**
+      #  * Configures Java Development Kit (JDK 17) using Eclipse Temurin distribution.
+      #  * Required for building and running Spring Boot applications.
+      #  */
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # Cache local Maven dependencies (~/.m2) to improve build performance.
+      # /**
+      #  * Caches Maven dependencies (~/.m2) across workflow runs.
+      #  * Speeds up builds by avoiding repeated downloads.
+      #  */
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -49,8 +68,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Decode and extract Oracle Wallet from base64-encoded GitHub Secret.
-      # Sets TNS_ADMIN to point to the extracted wallet directory.
+      # /**
+      #  * Decodes the base64-encoded Oracle Wallet zip secret from GitHub Secrets.
+      #  * Unzips the file to a temporary wallet directory and sets TNS_ADMIN environment variable.
+      #  */
       - name: Decode Oracle Wallet and configure TNS_ADMIN
         run: |
           mkdir -p ./wallet
@@ -58,12 +79,17 @@ jobs:
           unzip -o ./wallet/wallet.zip -d ./wallet
           echo "TNS_ADMIN=$(realpath ./wallet)" >> $GITHUB_ENV
 
-      # Store current Git commit SHA (short) for use as Docker image tag.
+      # /**
+      #  * Stores the current short Git commit SHA in an environment variable.
+      #  * Used to tag Docker images for traceability.
+      #  */
       - name: Set Git SHA
         run: echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      # Build and run tests using the 'test' Spring profile.
-      # Disables Testcontainers to avoid Docker usage in CI.
+      # /**
+      #  * Runs unit and integration tests using the 'test' Spring profile.
+      #  * Skips Testcontainers usage to avoid Docker-in-Docker complexity in CI.
+      #  */
       - name: Build and Test with Maven (Test Profile)
         run: mvn clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
         env:
@@ -73,22 +99,31 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
-      # Authenticate with DockerHub using secrets configured in GitHub.
+      # /**
+      #  * Logs into DockerHub using GitHub Secrets credentials.
+      #  * Required to push Docker images to your DockerHub repository.
+      #  */
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # /**
       # Build the Docker image with:
-      #   - dev tag for staging/testing environments.
-      #   - Git SHA tag for traceability and rollbacks.
+      # - dev tag for staging/testing environments.
+      # - Git SHA tag for traceability and rollbacks.
       # Uses build-arg PROFILE=dev to inject Spring profile.
+      #  */
       - name: Build Docker image (DEV and SHA)
         run: |
-          docker build --build-arg PROFILE=dev             -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev             -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
+          docker build --build-arg PROFILE=dev \
+                       -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev \
+                       -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
 
-      # Push both Docker tags (dev and SHA) to DockerHub.
+      # /**
+      #  * Pushes both Docker tags (dev and Git SHA) to DockerHub.
+      #  */
       - name: Push Docker images
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev
