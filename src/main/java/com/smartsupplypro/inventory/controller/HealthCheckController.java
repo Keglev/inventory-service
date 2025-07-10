@@ -46,14 +46,15 @@ public class HealthCheckController {
             Connection conn = dataSource.getConnection();
 
             // Oracle-specific dummy query to test DB availability
-            PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM DUAL");
+            PreparedStatement stmt = conn.prepareStatement("SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL");
 
             // Execute query
             ResultSet rs = stmt.executeQuery()
         ) {
             if (rs.next()) {
+                String ip = rs.getString("ip");
                 // Query succeeded — DB is reachable
-                return ResponseEntity.ok("{\"status\": \"UP\", \"db\": \"reachable\"}");
+                return ResponseEntity.ok("{\"status\": \"UP\", \"oracleSeesIp\": \"" + ip + "\"}");
             } else {
                 // Query returned no result — unusual but possible
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
