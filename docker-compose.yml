@@ -1,0 +1,32 @@
+
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./inventory-service
+    container_name: inventory-backend
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      DB_URL: ${DB_URL}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+    env_file:
+      - ./inventory-service/.env
+    command: mvn spring-boot:run
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: inventory-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    command: npm run dev
+
