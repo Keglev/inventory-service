@@ -22,6 +22,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link AnalyticsServiceImpl}, ensuring correctness of business logic
+ * related to stock analytics, inventory insights, and supplier-based metrics.
+ * 
+ * These tests simulate repository behavior using Mockito to validate transformations,
+ * filtering logic, and default value handling in analytics scenarios.
+ */
 public class AnalyticsServiceImplTest {
 
     @Mock
@@ -33,11 +40,17 @@ public class AnalyticsServiceImplTest {
     @InjectMocks
     private AnalyticsServiceImpl analyticsService;
 
+    /**
+     * Initializes mocks before each test case using MockitoAnnotations.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Tests that {@code getTotalStockPerSupplier} correctly maps data to DTOs when supplier records exist.
+     */
     @Test
     void shouldReturnTotalStockPerSupplier() {
         when(stockHistoryRepository.getTotalStockPerSupplier()).thenReturn(
@@ -52,6 +65,9 @@ public class AnalyticsServiceImplTest {
         assertEquals("Supplier A", result.get(0).getSupplierName());
     }
 
+    /**
+     * Verifies that {@code getTotalStockPerSupplier} returns an empty list when no data is present.
+     */
     @Test
     void shouldHandleEmptyStockPerSupplier() {
         when(stockHistoryRepository.getTotalStockPerSupplier()).thenReturn(Collections.emptyList());
@@ -61,6 +77,10 @@ public class AnalyticsServiceImplTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Tests that {@code getItemsBelowMinimumStock} returns a list of low stock items
+     * when the repository returns matching records.
+     */
     @Test
     void shouldReturnLowStockItems() {
         when(inventoryItemRepository.findItemsBelowMinimumStockFiltered("s1"))
@@ -72,6 +92,9 @@ public class AnalyticsServiceImplTest {
         assertEquals("Item X", result.get(0).getItemName());
     }
 
+    /**
+     * Ensures that an invalid supplier ID for low stock returns an empty list gracefully.
+     */
     @Test
     void shouldReturnEmptyWhenSupplierIdIsInvalidForLowStock() {
         when(inventoryItemRepository.findItemsBelowMinimumStockFiltered("invalid"))
@@ -82,6 +105,9 @@ public class AnalyticsServiceImplTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Verifies that {@code getItemUpdateFrequency} handles cases with no updates for a given supplier.
+     */
     @Test
     void shouldHandleEmptyItemUpdateFrequency() {
         when(stockHistoryRepository.getUpdateCountPerItemFiltered("none"))
@@ -92,6 +118,9 @@ public class AnalyticsServiceImplTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Verifies that {@code getMonthlyStockMovement} returns an empty list if no records are found for the filter.
+     */
     @Test
     void shouldHandleEmptyMonthlyStockMovement() {
         when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), eq("bad")))
@@ -103,6 +132,9 @@ public class AnalyticsServiceImplTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Ensures that filtered stock updates return an empty result list when no matching entries are found.
+     */
     @Test
     void shouldHandleEmptyFilteredStockUpdates() {
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
@@ -119,6 +151,9 @@ public class AnalyticsServiceImplTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Tests default behavior when {@code getFilteredStockUpdates} receives a filter with missing dates.
+     */
     @Test
     void shouldUseDefaultDatesIfMissingInStockUpdates() {
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
@@ -138,6 +173,9 @@ public class AnalyticsServiceImplTest {
         assertEquals("ItemX", result.get(0).getItemName());
     }
 
+    /**
+     * Ensures default behavior for null start/end dates when invoking {@code getMonthlyStockMovement}.
+     */
     @Test
     void shouldUseDefaultDatesIfMissingInStockMovement() {
         List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
@@ -153,6 +191,9 @@ public class AnalyticsServiceImplTest {
         assertEquals("2024-01", result.get(0).getMonth());
     }
 
+    /**
+     * Validates that {@code getFilteredStockUpdates} handles a null supplier ID gracefully and defaults appropriately.
+     */
     @Test
     void shouldUseDefaultsAndHandleNullSupplierIdInStockUpdates() {
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
@@ -170,6 +211,9 @@ public class AnalyticsServiceImplTest {
         assertEquals(1, result.size());
     }
 
+    /**
+     * Validates that {@code getMonthlyStockMovement} works with a null supplier ID and missing date range.
+     */
     @Test
     void shouldUseDefaultsAndHandleNullSupplierInStockMovement() {
         List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
@@ -185,3 +229,8 @@ public class AnalyticsServiceImplTest {
         assertEquals("2024-02", result.get(0).getMonth());
     }
 }
+/**
+ * This class contains unit tests for the AnalyticsServiceImpl class, focusing on
+ * various scenarios including empty results, default values, and specific filtering logic.
+ * Each test case is designed to validate a specific aspect of the analytics service's behavior.
+ */

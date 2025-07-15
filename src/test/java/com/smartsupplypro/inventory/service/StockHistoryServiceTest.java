@@ -5,7 +5,6 @@ import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 import org.springframework.test.context.ActiveProfiles;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -13,6 +12,11 @@ import org.mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link StockHistoryService}, validating its ability to correctly
+ * log stock changes under various input conditions. Ensures persistence behavior
+ * and input validation rules for audit logs.
+ */
 @ActiveProfiles("test")
 public class StockHistoryServiceTest {
 
@@ -21,11 +25,19 @@ public class StockHistoryServiceTest {
 
     @InjectMocks
     private StockHistoryService stockHistoryService;
+
+    /**
+     * Initializes mock objects before each test case.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Tests that a valid stock change log with proper reason, quantity, and metadata
+     * is persisted via the repository and all fields are mapped correctly.
+     */
     @Test
     void testLogStockChange_withValidReason_shouldSaveStockHistory() {
         stockHistoryService.logStockChange("item-1", 10, StockChangeReason.SOLD, "admin");
@@ -40,7 +52,11 @@ public class StockHistoryServiceTest {
         assertEquals("admin", saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
     }
-    
+
+    /**
+     * Validates that an {@link IllegalArgumentException} is thrown
+     * when attempting to log stock change with a null reason.
+     */
     @Test
     void testLogStockChange_withInvalidReason_shouldThrowException() {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
@@ -50,6 +66,10 @@ public class StockHistoryServiceTest {
         assertTrue(ex.getMessage().contains("Invalid stock change reason"));
     }
 
+    /**
+     * Ensures that negative quantity changes (e.g., stock reductions)
+     * are allowed and persisted correctly.
+     */
     @Test
     void testLogStockChange_withNegativeChange_shouldSaveNormally() {
         stockHistoryService.logStockChange("item-1", -5, StockChangeReason.SCRAPPED, "admin");
@@ -65,6 +85,9 @@ public class StockHistoryServiceTest {
         assertNotNull(saved.getTimestamp());
     }
 
+    /**
+     * Verifies that the service throws an exception when the createdBy field is blank or empty.
+     */
     @Test
     void testLogStockChange_withBlankCreatedBy_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
@@ -74,6 +97,10 @@ public class StockHistoryServiceTest {
         assertEquals("CreatedBy is required", ex.getMessage());
     }
 
+    /**
+     * Verifies that a zero stock change (no quantity movement) is rejected
+     * as meaningless and results in an {@link IllegalArgumentException}.
+     */
     @Test
     void testLogStockChange_withZeroChange_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
@@ -83,6 +110,9 @@ public class StockHistoryServiceTest {
         assertEquals("Change amount must be non-zero", ex.getMessage());
     }
 
+    /**
+     * Ensures that a blank item ID input is treated as invalid and results in an exception.
+     */
     @Test
     void testLogStockChange_withNullItemId_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
@@ -92,6 +122,9 @@ public class StockHistoryServiceTest {
         assertEquals("Item ID cannot be null or empty", ex.getMessage());
     }
 
+    /**
+     * Verifies that a null createdBy field (missing user context) results in a validation error.
+     */
     @Test
     void testLogStockChange_withNullCreatedBy_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
@@ -99,5 +132,4 @@ public class StockHistoryServiceTest {
         );
         assertEquals("CreatedBy is required", ex.getMessage());
     }
-
 }

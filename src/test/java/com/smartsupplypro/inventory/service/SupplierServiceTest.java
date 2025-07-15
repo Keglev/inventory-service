@@ -15,11 +15,20 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit test suite for {@link SupplierService}, ensuring proper CRUD functionality,
+ * validation behavior, and repository interaction. Tests include edge cases,
+ * input validation, and duplicate prevention.
+ */
 class SupplierServiceTest {
+
     private SupplierService supplierService;
     private SupplierRepository supplierRepository;
     private InventoryItemRepository inventoryItemRepository;
 
+    /**
+     * Initializes mock dependencies and injects them into the {@link SupplierService} before each test.
+     */
     @BeforeEach
     void setUp() {
         supplierRepository = mock(SupplierRepository.class);
@@ -27,6 +36,10 @@ class SupplierServiceTest {
         supplierService = new SupplierService(supplierRepository, inventoryItemRepository);
     }
 
+    /**
+     * Verifies that a new supplier is saved correctly when no existing supplier
+     * with the same name is found.
+     */
     @Test
     void shouldSaveNewSupplierWhenNotExists() {
         SupplierDTO dto = new SupplierDTO();
@@ -51,6 +64,10 @@ class SupplierServiceTest {
         verify(supplierRepository, times(1)).save(any(Supplier.class));
     }
 
+    /**
+     * Ensures that saving a supplier with an existing name throws a {@link DuplicateResourceException}
+     * and does not persist the duplicate entity.
+     */
     @Test
     void shouldThrowExceptionWhenSupplierAlreadyExists() {
         SupplierDTO dto = new SupplierDTO();
@@ -64,6 +81,10 @@ class SupplierServiceTest {
         verify(supplierRepository, never()).save(any());
     }
 
+    /**
+     * Verifies that updating an existing supplier modifies the fields properly
+     * and returns the updated DTO.
+     */
     @Test
     void shouldUpdateExistingSupplier() {
         String supplierId = "123";
@@ -87,6 +108,11 @@ class SupplierServiceTest {
         assertEquals("Updated Name", updated.get().getName());
         verify(supplierRepository).save(any(Supplier.class));
     }
+
+    /**
+     * Ensures that updating a supplier to a name that already exists throws
+     * a {@link DuplicateResourceException} and prevents saving.
+     */
     @Test
     void shouldThrowExceptionWhenUpdatingToExistingName() {
         String supplierId = "123";
@@ -108,30 +134,36 @@ class SupplierServiceTest {
         verify(supplierRepository, never()).save(any());
     }
 
+    /**
+     * Validates that the service rejects deletion of a supplier if related inventory items exist.
+     */
     @Test
     void testDelete_shouldThrowException_whenInventoryItemsExist() {
-        // Given
         String supplierId = "supplier-123";
         when(inventoryItemRepository.existsBySupplierId(supplierId)).thenReturn(true);
 
-        // Then
         assertThrows(IllegalStateException.class, () -> supplierService.delete(supplierId));
         verify(supplierRepository, never()).deleteById(any());
     }
 
+    /**
+     * Confirms that deleting a supplier succeeds when no inventory items
+     * are associated with the supplier.
+     */
     @Test
     void testDelete_shouldSucceed_whenNoInventoryItemsExist() {
-        // Given
         String supplierId = "supplier-123";
         when(inventoryItemRepository.existsBySupplierId(supplierId)).thenReturn(false);
 
-        // When
         supplierService.delete(supplierId);
 
-        // Then
         verify(supplierRepository).deleteById(supplierId);
     }
 
+    /**
+     * Ensures that a supplier with a null `createdBy` field cannot be saved and throws
+     * an {@link IllegalArgumentException}.
+     */
     @Test
     void testCreate_withMissingCreatedBy_shouldThrowException() {
         SupplierDTO dto = SupplierDTO.builder()
@@ -143,6 +175,10 @@ class SupplierServiceTest {
         assertEquals("CreatedBy must be provided.", ex.getMessage());
     }
 
+    /**
+     * Verifies that attempting to update a non-existent supplier ID returns an empty result
+     * and avoids any save operation.
+     */
     @Test
     void shouldReturnEmptyWhenUpdatingNonExistingSupplier() {
         String supplierId = "nonexistent";
@@ -159,16 +195,18 @@ class SupplierServiceTest {
         verify(supplierRepository, never()).save(any());
     }
 
+    /**
+     * Ensures that saving a supplier without a name results in an exception due to
+     * required field validation.
+     */
     @Test
     void shouldThrowExceptionWhenNameIsMissingOnSave() {
         SupplierDTO dto = SupplierDTO.builder()
-                .name(null)  // or use "  "
+                .name(null)
                 .createdBy("admin")
                 .build();
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> supplierService.save(dto));
         assertEquals("Supplier name must be provided.", ex.getMessage());
     }
-
-
 }
