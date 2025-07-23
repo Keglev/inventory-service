@@ -1,8 +1,10 @@
 package com.smartsupplypro.inventory.service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,6 +15,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
@@ -68,15 +71,29 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             throw new OAuth2AuthenticationException("Email not found in OAuth2 provider");
         }
 
-        AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
+         Optional<AppUser> optionalUser = userRepository.findByEmail(email);
+
+        AppUser user;
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+        } else {
             if (userRepository.count() >= 10) {
                 throw new OAuth2AuthenticationException("User limit reached");
             }
 
             AppUser newUser = new AppUser(email, name);
             newUser.setRole(email.equals("ckbuzin1@gmail.com") ? Role.ADMIN : Role.USER);
-            return userRepository.save(newUser);
-        });
+            newUser.setCreatedAt(LocalDateTime.now());
+
+            try {
+                user = userRepository.save(newUser);
+            } catch (DataIntegrityViolationException ex) {
+                // Duplicate detected — fallback to fetch existing user
+                System.err.println(">>> Detected duplicate user insert (already exists): " + email);
+                user = userRepository.findByEmail(email).orElseThrow(() ->
+                        new OAuth2AuthenticationException("User already exists but cannot be loaded"));
+            }
+        }
 
         Map<String, Object> attributes = new HashMap<>(oauthUser.getAttributes());
         attributes.put("appRole", user.getRole().name());

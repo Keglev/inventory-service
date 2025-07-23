@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,7 +33,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "UsersApp")
-@Table(name = "USERS_APP", schema = "ADMIN")
+@Table(
+    name = "USERS_APP", 
+    schema = "ADMIN",
+    uniqueConstraints = @UniqueConstraint(name= "uk_users_email", columnNames = "email")
+)
 public class AppUser {
 
     /** Unique internal user ID (UUID format) */

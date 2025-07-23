@@ -94,7 +94,12 @@ public class SecurityConfig {
 
         // Configure endpoint access and authentication logic
         http
+        // Enable CORS support for cross-origin requests
+            .cors(cors -> {})
+            
+            // Define security rules for HTTP requests
             .authorizeHttpRequests(auth -> auth
+
                 // Public endpoints (e.g., root and health checks)
                 .requestMatchers("/", "/actuator/**", "/health/**").permitAll()
 
@@ -113,12 +118,21 @@ public class SecurityConfig {
                 .defaultAuthenticationEntryPointFor(webEntry, request -> true)
             )
             // OAuth2 login integration with Google
+            // This will redirect to the Google login page
+            // and handle the success with a custom handler
             .oauth2Login(oauth -> oauth
                 .loginPage("/oauth2/authorization/google")
                 .successHandler(successHandler)
+                .defaultSuccessUrl("http://localhost:5173/", true)
             )
-            // Redirect to root after logout
-            .logout(logout -> logout.logoutSuccessUrl("/"))
+            // Redirect to root after logout and clear cookies
+            // This is important for SPA applications to reset state
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSION")
+            )
 
             // Disable CSRF for RESTful API (stateless communication)
             .csrf(csrf -> csrf.disable());

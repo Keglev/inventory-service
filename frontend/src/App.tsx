@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom';
+
 import AppRouter from './routes/AppRouter';
 
 /**
@@ -7,11 +7,7 @@ import AppRouter from './routes/AppRouter';
  * Future layout and context providers can be added here.
  */
 function App() {
-  return (
-    <BrowserRouter>
-      <AppRouter />
-    </BrowserRouter>
-  );
+  return <AppRouter />;
 }
 
 export default App;

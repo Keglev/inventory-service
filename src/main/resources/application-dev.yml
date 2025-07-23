@@ -37,6 +37,11 @@ logging:
 
 server:
   port: 8081  # Run on port 8081 (avoid conflict with other services)
+  servlet:
+    session:
+      cookie:
+        same-site: none # Allow session cookies across ports (5173 frontend <-> 8081 backend)
+        secure: true # Required when using SameSite-None (even in localhost dev!)
 
 management:
   endpoints:

@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -62,12 +63,19 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         // Register the user if not found in DB
+        // Use Optional to handle potential absence of user
+        // This ensures that we do not create duplicates
         userRepository.findById(email).orElseGet(() -> {
-            AppUser user = new AppUser(email, name);
-            user.setRole(Role.USER);
-            user.setCreatedAt(LocalDateTime.now());
-            System.out.println(">>> Saving new user: " + user.getEmail() + ", role = [" + user.getRole() + "]");
-            return userRepository.save(user);
+            try {
+                AppUser user = new AppUser(email, name);
+                user.setRole(Role.USER);
+                user.setCreatedAt(LocalDateTime.now());
+                return userRepository.save(user);
+            } catch (DataIntegrityViolationException ex) {
+                System.err.println(">>> Duplicate detected in SuccessHandler, loading user: " + email);
+                return userRepository.findByEmail(email).orElseThrow(() ->
+                        new IllegalStateException("User already exists but cannot be loaded."));
+            }
         });
 
         // Continue default flow (e.g., redirect to default target URL)
