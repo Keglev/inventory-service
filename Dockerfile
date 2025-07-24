@@ -59,6 +59,7 @@ COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
 
 # Set TNS_ADMIN to point directly to the extracted Wallet directory
 # This path must match the subfolder structure inside the .zip file
+ARG ORACLE_WALLET_B64
 ENV TNS_ADMIN=/app/wallet/Wallet_sspdb_fixed
 
 # Decode the base64 Oracle Wallet into a .zip file
@@ -66,7 +67,7 @@ ENV TNS_ADMIN=/app/wallet/Wallet_sspdb_fixed
 # Then launch the Spring Boot application using the specified profile
 # Entry point: unzip wallet and launch app
 ENTRYPOINT ["sh", "-c", "\
-  base64 -d /app/wallet.b64 > /app/wallet.zip && \
+  echo \"$ORACLE_WALLET_B64\" | base64 -d > /app/wallet.zip && \
   unzip -o /app/wallet.zip -d /app/wallet && \
   echo ' Wallet extracted' && \
   echo 'Contents of sqlnet.ora:' && \
