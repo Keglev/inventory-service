@@ -73,6 +73,8 @@ ENTRYPOINT ["sh", "-c", "\
   echo '--- TNS_ADMIN content ---' && \
   cat /app/wallet/Wallet_sspdb_fixed/sqlnet.ora && \
   cat /app/wallet/Wallet_sspdb_fixed/tnsnames.ora && \
+  echo 'Public IP:' && \
+  curl -s ifconfig.me && \
   echo '--- Starting app ---' && \
   java \
     -Doracle.net.wallet_password=${WALLET_PASSWORD} \
