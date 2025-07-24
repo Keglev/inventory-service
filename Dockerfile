@@ -35,11 +35,22 @@ LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-servi
 # Copy built app
 COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
 
+# Install unzip (needed to extract Oracle Wallet)
+RUN apk add --no-cache unzip
+
+# Set TNS_ADMIN to where wallet will be unzipped
+ENV TNS_ADMIN=/app/wallet
+
 # Expose Spring Boot app port
 EXPOSE 8081
 
-# Use shell form to allow variable expansion
-ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -jar app.jar"]
+# Entry point: unzip wallet and launch app
+ENTRYPOINT ["sh", "-c", "\
+  unzip -o /app/wallet.zip -d /app/wallet && \
+  java \
+    -Doracle.net.wallet_password=${WALLET_PASSWORD} \
+    -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
+    -jar app.jar"]
 
 # Healthcheck (for Docker and CI/CD orchestration)
 HEALTHCHECK --interval=30s --timeout=3s \
