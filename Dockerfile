@@ -35,6 +35,9 @@ RUN apk add --no-cache unzip coreutils
 # Set working directory where the app and decoded files will live
 WORKDIR /app
 
+# Fix permissions so appuser can write to /app (for wallet.zip)
+RUN chown -R appuser:appgroup /app
+
 # Switch to non-root user after installing required packages
 USER appuser
 
