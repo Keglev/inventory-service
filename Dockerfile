@@ -68,6 +68,12 @@ ENV TNS_ADMIN=/app/wallet/Wallet_sspdb_fixed
 ENTRYPOINT ["sh", "-c", "\
   base64 -d /app/wallet.b64 > /app/wallet.zip && \
   unzip -o /app/wallet.zip -d /app/wallet && \
+  echo '--- Wallet directory structure ---' && \
+  ls -R /app/wallet && \
+  echo '--- TNS_ADMIN content ---' && \
+  cat /app/wallet/Wallet_sspdb_fixed/sqlnet.ora && \
+  cat /app/wallet/Wallet_sspdb_fixed/tnsnames.ora && \
+  echo '--- Starting app ---' && \
   java \
     -Doracle.net.wallet_password=${WALLET_PASSWORD} \
     -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
