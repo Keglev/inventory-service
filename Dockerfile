@@ -6,6 +6,7 @@ FROM maven:3.9.9-eclipse-temurin-17 AS build
 ARG PROFILE=prod
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
 
+
 WORKDIR /app
 
 # Copy source code
@@ -22,9 +23,16 @@ FROM eclipse-temurin:17-jre-alpine
 
 # Create non-root user for security best practices
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
+
+# Intall unzip BEFORE switching to non-root user
+# This ensures the user has permissions to install packages
+# This is needed to extract Oracle Wallet
+RUN apk add --no-cache unzip
 
 WORKDIR /app
+
+# Set correct user AFTER installing packages
+USER appuser
 
 # Metadata for image traceability
 LABEL maintainer="https://github.com/Keglev"
@@ -34,9 +42,6 @@ LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-servi
 
 # Copy built app
 COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
-
-# Install unzip (needed to extract Oracle Wallet)
-RUN apk add --no-cache unzip
 
 # Set TNS_ADMIN to where wallet will be unzipped
 ENV TNS_ADMIN=/app/wallet
