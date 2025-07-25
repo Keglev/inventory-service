@@ -1,45 +1,62 @@
 # ==============================
 # Build Stage
 # ==============================
+
+# /**
+#  * Use Maven with Eclipse Temurin JDK 17 to build the Spring Boot application.
+#  * This stage compiles the code and packages the JAR.
+#  */
 FROM maven:3.9.9-eclipse-temurin-17 AS build
 
-# Set Spring profile used during build
+# Set Spring profile used during build (default: prod)
 ARG PROFILE=prod
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
 
 # Set working directory in the build container
 WORKDIR /app
 
-# Copy source code into the container
+# Copy all project files into the container
 COPY . .
 
-# Optional: use BuildKit caching to speed up Maven builds
+# Build the Spring Boot application, skipping tests to speed up container build
 RUN mvn clean package -DskipTests
+
 
 # ==============================
 # Runtime Stage
 # ==============================
+
+# /**
+#  * Use lightweight JRE Alpine image for minimal runtime footprint.
+#  * This stage handles running the already-built app in a secure container.
+#  */
 FROM eclipse-temurin:17-jre-alpine
 
 # ==========================================================
 # SYSTEM SETUP
 # ==========================================================
 
-# Create non-root user for security best practices
+# /**
+#  * Create non-root user to follow container security best practices.
+#  */
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Install unzip (needed to extract Oracle Wallet) and coreutils for base64 decoding
-# Must be done before switching to non-root user
+# /**
+#  * Install required system utilities:
+#  * - unzip: to extract Oracle Wallet
+#  * - coreutils: for base64 decoding
+#  */
 RUN apk add --no-cache unzip coreutils
 
-# Set working directory where the app and decoded files will live
+# Set working directory for runtime files (wallet + jar)
 WORKDIR /app
 
-# Fix permissions so appuser can write to /app (for wallet.zip)
+# Set correct file ownership for the non-root user
 RUN chown -R appuser:appgroup /app
 
-# Switch to non-root user after installing required packages
+# Use non-root user for the rest of the container operations
 USER appuser
+
 
 # ==========================================================
 # Metadata for image traceability and maintainability
@@ -50,50 +67,46 @@ LABEL version="1.0.0"
 LABEL description="Smart Supply Pro Inventory Microservice"
 LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-service"
 
+
 # ==========================================================
 # Application Setup
 # ==========================================================
 
-# Copy the final JAR from the build stage
+# /**
+#  * Copy the built application JAR from the build stage.
+#  */
 COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
 
-# Set TNS_ADMIN to point directly to the extracted Wallet directory
-# This path must match the subfolder structure inside the .zip file
+# /**
+#  * Set Oracle Wallet environment variable for secure DB connection.
+#  * The TNS_ADMIN value must match the directory structure inside the extracted wallet.
+#  */
 ARG ORACLE_WALLET_B64
 ENV TNS_ADMIN=/app/wallet/Wallet_sspdb_fixed
 
-# Decode the base64 Oracle Wallet into a .zip file
-# Unzip it to expose Oracle connection files (e.g., sqlnet.ora, cwallet.sso)
-# Then launch the Spring Boot application using the specified profile
-# Entry point: unzip wallet and launch app
-ENTRYPOINT ["sh", "-c", "\
-  echo \"$ORACLE_WALLET_B64\" | base64 -d > /app/wallet.zip && \
-  unzip -o /app/wallet.zip -d /app/wallet && \
-  echo ' Wallet extracted' && \
-  echo 'Contents of sqlnet.ora:' && \
-  cat /app/wallet/Wallet_sspdb_fixed/sqlnet.ora || echo ' sqlnet.ora missing' && \
-  echo 'Contents of tnsnames.ora:' && \
-  cat /app/wallet/Wallet_sspdb_fixed/tnsnames.ora || echo ' tnsnames.ora missing' && \
-  echo ' Starting Spring Boot...' && \
-  java \
-    -Doracle.net.wallet_password=${WALLET_PASSWORD} \
-    -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
-    -Dserver.address=0.0.0.0 \
-    -jar app.jar \
-"]
+# /**
+#  * Copy the application startup script and make it executable.
+#  */
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# /**
+#  * Define the startup command: extract Oracle wallet and launch Spring Boot.
+#  */
+CMD ["/app/start.sh"]
+
 
 # ==========================================================
 # HEALTHCHECK & PORT EXPOSURE
 # ==========================================================
 
-# Provide Docker/Koyeb with a healthcheck URL to determine if the app is alive
+# /**
+#  * Healthcheck to validate if Spring Boot is running and responding.
+#  */
 HEALTHCHECK --interval=30s --timeout=3s \
   CMD wget --spider -q http://localhost:8081/actuator/health || exit 1
 
-# Inform Docker/Koyeb that the app listens on port 8081
+# /**
+#  * Expose port 8081, which Spring Boot uses in this microservice.
+#  */
 EXPOSE 8081
-
-
-
-
-
