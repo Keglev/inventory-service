@@ -78,6 +78,7 @@ ENTRYPOINT ["sh", "-c", "\
   java \
     -Doracle.net.wallet_password=${WALLET_PASSWORD} \
     -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
+    -Dserver.address=0.0.0.0 \
     -jar app.jar \
 "]
 

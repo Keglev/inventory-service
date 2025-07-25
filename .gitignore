@@ -44,6 +44,9 @@ logs/
 # VS Code
 .vscode/
 
+# Necessary files for deployment
+fly.toml
+
 ###############################################################################
 # Docker
 ###############################################################################
@@ -71,6 +74,8 @@ oracle_wallet/**/*.sso
 *.jks
 .env
 *.zip
+oracle_wallet.zip
+oracle_wallet_b64.txt
 
 ###############################################################################
 # Node.js Frontend Output
