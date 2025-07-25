@@ -73,6 +73,7 @@ oracle_wallet/**/*.sso
 *.sso
 *.jks
 .env
+*.env
 *.zip
 oracle_wallet.zip
 oracle_wallet_b64.txt

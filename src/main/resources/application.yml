@@ -40,8 +40,8 @@ spring:
     allow-bean-definition-overriding: true      # Useful when using multiple configs (e.g., testing mocks)
 
 server:
-  address: 0.0.0.0                               # Listen on all interfaces
   port: 8081                                     # Default server port
+  address: 0.0.0.0                               # Listen on all interfaces
 
 logging:
   level:
