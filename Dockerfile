@@ -78,6 +78,18 @@ LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-servi
 COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
 
 # /**
+#  * Copy the startup script with correct ownership and permissions in one step.
+#  * Using BuildKit’s --chmod/--chown avoids a separate chmod RUN that can fail under non-root.
+#  */
+COPY --chown=appuser:appgroup --chmod=0755 start.sh /app/start.sh
+
+# Ensure entire /app is owned by appuser (jar + wallet dir to be created later)
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user AFTER copies/chmods
+USER appuser
+
+# /**
 #  * Set Oracle Wallet environment variable for secure DB connection.
 #  * The TNS_ADMIN value must match the directory structure inside the extracted wallet.
 #  */
@@ -85,16 +97,9 @@ ARG ORACLE_WALLET_B64
 ENV TNS_ADMIN=/app/wallet/Wallet_sspdb_fixed
 
 # /**
-#  * Copy the application startup script and make it executable.
-#  */
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
-# /**
 #  * Define the startup command: extract Oracle wallet and launch Spring Boot.
 #  */
 CMD ["/app/start.sh"]
-
 
 # ==========================================================
 # HEALTHCHECK & PORT EXPOSURE
