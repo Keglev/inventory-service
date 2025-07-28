@@ -10,7 +10,9 @@ spring:
     username: ${DB_USER}                       # Set via GitHub secrets or secure env injection
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
-
+    hikari:
+      connection-timeout: 5000                 # 5 seconds connection timeout
+      validation-timeout: 3000                 # 3 seconds validation timeout
   jpa:
     hibernate:
       ddl-auto: update                         # Note: Use Flyway/Liquibase in real enterprise apps

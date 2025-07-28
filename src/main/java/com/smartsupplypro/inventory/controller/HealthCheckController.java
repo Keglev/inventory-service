@@ -36,8 +36,22 @@ public class HealthCheckController {
      *     <li>Basic query execution works</li>
      * </ul>
      *
-     * @return HTTP 200 with a JSON response if database is reachable;
-     *         HTTP 503 with error info otherwise.
+
+    /**
+     * Lightweight health check — confirms the app is up.
+     * Used as the default health check for Fly.io and Kubernetes.
+     *
+     * @return HTTP 200 OK always if the app is running.
+     */
+    @GetMapping
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("OK");
+    }
+      /**
+     * Performs a deep health check by querying the Oracle database.
+     * This is intended for manual monitoring tools, not as Fly's liveness probe.
+     *
+     * @return HTTP 200 if database is reachable; 503 if not.
      */
     @GetMapping("/db")
     public ResponseEntity<String> checkDatabaseConnection() {
