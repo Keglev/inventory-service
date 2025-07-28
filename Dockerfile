@@ -83,8 +83,8 @@ COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
 #  */
 COPY --chown=appuser:appgroup --chmod=0755 start.sh /app/start.sh
 
-# Ensure entire /app is owned by appuser (jar + wallet dir to be created later)
-RUN chown -R appuser:appgroup /app
+# Copy JAR and assign ownership to non-root user
+COPY --from=build --chown=appuser:appgroup /app/target/inventory-service-0.0.1-SNAPSHOT.jar /app/app.jar
 
 # Switch to non-root user AFTER copies/chmods
 USER appuser
