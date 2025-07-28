@@ -101,6 +101,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
 
                 // Public endpoints (e.g., root and health checks)
+                // - "/health/**" is implemented via HealthCheckController
+                // - "/actuator/**" is not used currently, but allowed for future expansion
                 .requestMatchers("/", "/actuator/**", "/health/**").permitAll()
 
                 // Admin-only endpoints
