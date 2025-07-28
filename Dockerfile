@@ -109,7 +109,7 @@ CMD ["/app/start.sh"]
 #  * Healthcheck to validate if Spring Boot is running and responding.
 #  */
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget --spider -q http://localhost:8081/actuator/health || exit 1
+  CMD wget --spider -q http://localhost:8081/health || exit 1
 
 # /**
 #  * Expose port 8081, which Spring Boot uses in this microservice.
