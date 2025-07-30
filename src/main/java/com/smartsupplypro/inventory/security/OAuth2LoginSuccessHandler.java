@@ -17,18 +17,28 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+import java.util.Optional;
+import java.util.logging.Logger;
+
 /**
- * Custom OAuth2 login success handler for processing authenticated users.
+ * OAuth2LoginSuccessHandler handles user onboarding and redirection
+ * after successful Google OAuth2 login.
  *
- * <p>This handler is triggered upon successful login via an external OAuth2 provider
- * (e.g., Google). If the user does not already exist in the system, a new {@link AppUser}
- * is automatically registered with default {@code USER} role.
+ * <p>This component is automatically triggered by Spring Security when a
+ * user logs in via an external OAuth2 provider (e.g., Google). If the user
+ * does not yet exist in the local database, it creates a new {@link AppUser}
+ * with default {@link Role#USER} privileges.
  *
- * <p>Logs and audits newly registered users in the database and lets Spring Security
- * proceed with its post-login redirection flow.
+ * <p>All user identities are based on the unique email address returned
+ * by the OAuth2 provider. After successful login and registration,
+ * the user is redirected to the frontend (e.g., Vite-based SPA).
  *
- * <p><strong>Note:</strong> This handler does not expose an API endpoint but can be
- * described in architectural documentation or a login sequence diagram if needed.
+ * <p>Note: This handler does not expose any REST endpoint and is purely part
+ * of the Spring Security backend flow.
+ *
+ * @author Carlos K.
+ * @version 1.0
+ * @since 2025-07-30
  */
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -36,17 +46,20 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Autowired
     private AppUserRepository userRepository;
 
+    private static final Logger LOGGER = Logger.getLogger(OAuth2LoginSuccessHandler.class.getName());
+
     /**
-     * Handles the logic after a successful OAuth2 login.
-     * - Extracts user details from the authentication token
-     * - Saves new users into the system if they don’t already exist
-     * - Assigns default {@link Role#USER}
+     * Callback method invoked after a successful OAuth2 authentication.
      *
-     * @param request        the HTTP request
-     * @param response       the HTTP response
-     * @param authentication the OAuth2 authentication object
-     * @throws IOException      on IO errors
-     * @throws ServletException on servlet errors
+     * <p>This method extracts the user's email and name from the OAuth2 token,
+     * checks if the user already exists in the database, and creates a new user
+     * with role {@code USER} if not found.
+     *
+     * @param request        the incoming HTTP request
+     * @param response       the outgoing HTTP response
+     * @param authentication the authentication object containing OAuth2 user details
+     * @throws IOException        in case of I/O errors
+     * @throws ServletException   in case of general servlet-related errors
      */
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -55,31 +68,32 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             throws IOException, ServletException {
 
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+
         String email = token.getPrincipal().getAttribute("email");
         String name = token.getPrincipal().getAttribute("name");
 
         if (email == null || name == null) {
+            LOGGER.severe("OAuth2 provider did not return email or name.");
             throw new IllegalStateException("Email or name not provided by OAuth2 provider");
         }
 
-        // Register the user if not found in DB
-        // Use Optional to handle potential absence of user
-        // This ensures that we do not create duplicates
-        userRepository.findById(email).orElseGet(() -> {
-            try {
-                AppUser user = new AppUser(email, name);
-                user.setRole(Role.USER);
-                user.setCreatedAt(LocalDateTime.now());
-                return userRepository.save(user);
-            } catch (DataIntegrityViolationException ex) {
-                System.err.println(">>> Duplicate detected in SuccessHandler, loading user: " + email);
-                return userRepository.findByEmail(email).orElseThrow(() ->
-                        new IllegalStateException("User already exists but cannot be loaded."));
+        try {
+            // Register the user if they don't exist
+            Optional<AppUser> existing = userRepository.findById(email);
+            if (existing.isEmpty()) {
+                AppUser newUser = new AppUser(email, name);
+                newUser.setRole(Role.USER);
+                newUser.setCreatedAt(LocalDateTime.now());
+                userRepository.save(newUser);
+                LOGGER.info("New user registered via OAuth2: " + email);
             }
-        });
+        } catch (DataIntegrityViolationException e) {
+            LOGGER.warning("Duplicate user detected during OAuth2 login: " + email);
+            userRepository.findByEmail(email).orElseThrow(() ->
+                    new IllegalStateException("User already exists but cannot be loaded."));
+        }
 
-        // Continue default flow (e.g., redirect to default frontend after login)
-        response.sendRedirect("http:localhost:5173/login");
+        // ✅ Important: Ensure redirect uses proper protocol and host
+        response.sendRedirect("http://localhost:5173/login");
     }
 }
-// This code handles the OAuth2 login success scenario, registering new users if they do not exist in the database.

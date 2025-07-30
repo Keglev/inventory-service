@@ -14,7 +14,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
+import java.util.List;
 
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
 
@@ -139,5 +143,37 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable());
 
         return http.build();
+    }
+    /**
+    * Defines the CORS policy for cross-origin requests between frontend and backend.
+    *
+    * <p>This setup is required to:
+    * <ul>
+    *   <li>Allow session cookies (e.g., JSESSIONID) for OAuth2 and authenticated requests</li>
+    *   <li>Enable secure interaction from a frontend hosted on a different domain (e.g., Vite dev server or Fly.io frontend)</li>
+    * </ul>
+    *
+    * <p><strong>Note:</strong> Allowing credentials requires an explicit origin — wildcards (*) are not permitted.
+    *
+    * @return configured CorsConfigurationSource bean for Spring Security
+    */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // Replace with your actual frontend origins (you can add more as needed)
+        config.setAllowedOrigins(List.of("http://localhost:5173", "https://your-frontend-domain.fly.dev"));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+
+        // Critical for session-based auth (OAuth2 cookies, JSESSIONID)
+        config.setAllowCredentials(true);
+
+        config.setMaxAge(3600L); // Cache CORS config for 1 hour
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
