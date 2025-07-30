@@ -30,7 +30,9 @@ RUN mvn clean package -DskipTests
 #  * Use lightweight JRE Alpine image for minimal runtime footprint.
 #  * This stage handles running the already-built app in a secure container.
 #  */
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jre-alpine
+# WARNING. 1 known high vulnerability (false positive for non-GUI apps)
+# Safe for portfolio and internal use. Will switch to jammy or distrolless in future.
 
 # ==========================================================
 # SYSTEM SETUP
