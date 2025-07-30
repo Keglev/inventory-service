@@ -51,7 +51,7 @@ jobs:
 
       # Build the Vite project
       - name: Build project
-        run: npm run build#
+        run: npm run build
       
       # [Optional Future Step]
       # -name: Deploy to hosting service
