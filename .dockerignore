@@ -38,3 +38,11 @@ wallet.zip
 # Ignore test output directories (if generated during local testing)
 out/
 test-output/
+
+# Ignore Node.js dependencies and configuration files (if applicable)
+node_modules/
+.vscode/
+
+# Ignore frontend build artifacts (if using a separate frontend build)
+frontend/
+dist/

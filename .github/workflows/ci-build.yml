@@ -69,17 +69,6 @@ jobs:
             ${{ runner.os }}-maven-
 
       # /**
-      #  * Decodes the base64-encoded Oracle Wallet zip secret from GitHub Secrets.
-      #  * Unzips the file to a temporary wallet directory and sets TNS_ADMIN environment variable.
-      #  */
-      - name: Decode Oracle Wallet and configure TNS_ADMIN
-        run: |
-          mkdir -p ./wallet
-          echo "${{ secrets.TNS_ADMIN_ZIP_B64 }}" | base64 -d > ./wallet/wallet.zip
-          unzip -o ./wallet/wallet.zip -d ./wallet
-          echo "TNS_ADMIN=$(realpath ./wallet)" >> $GITHUB_ENV
-
-      # /**
       #  * Stores the current short Git commit SHA in an environment variable.
       #  * Used to tag Docker images for traceability.
       #  */
@@ -118,6 +107,7 @@ jobs:
       - name: Build Docker image (DEV and SHA)
         run: |
           docker build --build-arg PROFILE=dev \
+                       -build-arg ORACLE_WALLET_B64="${{ secrets.TNS_ADMIN_ZIP_B64 }}" \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
 
