@@ -30,7 +30,7 @@ RUN mvn clean package -DskipTests
 #  * Use lightweight JRE Alpine image for minimal runtime footprint.
 #  * This stage handles running the already-built app in a secure container.
 #  */
-FROM eclipse-temurin:17-jre-alpine-jre-alpine@sha256:99c8ec779ab02e4fcfb22268304d6177861bb74879b85bdfc7b51a8e4c678149
+FROM eclipse-temurin:17-jre
 
 # ==========================================================
 # SYSTEM SETUP
