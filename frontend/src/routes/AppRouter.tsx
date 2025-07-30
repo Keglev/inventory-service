@@ -1,32 +1,73 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Dashboard from '../pages/Dashboard';
 import Inventory from '../pages/Inventory';
 import Suppliers from '../pages/Suppliers';
 import Auth from '../pages/Auth';
-import Home from '../pages/Home'; // ← formerly LandingPage
+import Home from '../pages/Home';
 import TopBar from '../components/Topbar';
+import RequireAuth from '../components/RequireAuth';
+import { CircularProgress, Box } from '@mui/material';
+
 /**
- * Defines all application routes, including fallback handling.
+ * Defines all application routes, including fallback and auth protection.
  */
 const AppRouter = () => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <Box className="flex items-center justify-center h-screen">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
-      <TopBar />
+      {user && <TopBar />}
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Auth />} />
-        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-        <Route path="/inventory" element={user ? <Inventory /> : <Navigate to="/login" />} />
-        <Route path="/suppliers" element={user ? <Suppliers /> : <Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to="/" />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <Dashboard />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <RequireAuth>
+              <Inventory />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/suppliers"
+          element={
+            <RequireAuth>
+              <Suppliers />
+            </RequireAuth>
+          }
+        />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
 };
 
+// Temporary 404 placeholder
+const NotFound = () => (
+  <Box className="flex items-center justify-center h-screen">
+    <h1>404 - Page not found</h1>
+  </Box>
+);
+
 export default AppRouter;
+

@@ -120,20 +120,19 @@ public class SecurityConfig {
                 .defaultAuthenticationEntryPointFor(webEntry, request -> true)
             )
             // OAuth2 login integration with Google
-            // This will redirect to the Google login page
-            // and handle the success with a custom handler
+            // This will redirect to Google for authentication
+            // and use a custom success handler to redirect back to the SPA
             .oauth2Login(oauth -> oauth
-                .loginPage("/oauth2/authorization/google")
                 .successHandler(successHandler)
-                .defaultSuccessUrl("http://localhost:5173/", true)
             )
+                
             // Redirect to root after logout and clear cookies
             // This is important for SPA applications to reset state
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSION")
+                .deleteCookies("JSESSIONID")
             )
 
             // Disable CSRF for RESTful API (stateless communication)

@@ -1,33 +1,34 @@
-import { Button, Card, Typography } from '@mui/material';
+// src/pages/Auth.tsx
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CircularProgress, Typography, Box } from '@mui/material';
+import { useAuth } from '../context/AuthContext';
+import httpClient from '../api/httpClient';
 
 const Auth = () => {
-  const handleLogin = () => {
-    window.location.href = '/oauth2/authorization/google';
-  };
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await httpClient.get('/api/me', { withCredentials: true });
+        setUser(res.data);
+        navigate('/dashboard');
+      } catch (err) {
+        console.error('Login failed or session invalid', err);
+        navigate('/login'); // optionally redirect to login or show message
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <Card className="p-8 shadow-lg w-full max-w-md text-center">
-        <Typography variant="h4" gutterBottom>
-          Smart Supply Pro
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          Please sign in to continue
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          onClick={handleLogin}
-          sx={{ mt: 2 }}
-        >
-          Login with Google
-        </Button>
-        <Typography variant="caption" display="block" sx={{ mt: 4, color: 'gray' }}>
-          © {new Date().getFullYear()} Smart Supply Pro
-        </Typography>
-      </Card>
-    </div>
+    <Box className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <CircularProgress />
+      <Typography variant="body2" mt={2}>Verifying your login...</Typography>
+    </Box>
   );
 };
 

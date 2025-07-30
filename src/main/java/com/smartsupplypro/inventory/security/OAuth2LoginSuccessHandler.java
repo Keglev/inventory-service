@@ -78,8 +78,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             }
         });
 
-        // Continue default flow (e.g., redirect to default target URL)
-        super.onAuthenticationSuccess(request, response, authentication);
+        // Continue default flow (e.g., redirect to default frontend after login)
+        response.sendRedirect("http:localhost:5173/login");
     }
 }
 // This code handles the OAuth2 login success scenario, registering new users if they do not exist in the database.

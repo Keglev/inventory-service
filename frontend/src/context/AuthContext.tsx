@@ -14,6 +14,7 @@ interface AuthContextType {
   loading: boolean;
   login: () => void;
   logout: () => void;
+  setUser: (user: AppUser | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,18 +25,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    httpClient.get('/api/me')
+    httpClient.get('/api/me', { withCredentials: true })
       .then((res) => setUser(res.data))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
 
   const login = () => {
-    window.location.href = '/oauth2/authorization/google';
+    window.location.href = 'https://inventoryservice.fly.dev/oauth2/authorization/google';
   };
 
   const logout = () => {
-    httpClient.post('/logout') // Spring handles this by default
+    httpClient.post('/logout', {}, { withCredentials: true }) // Spring handles this by default
       .finally(() => {
         setUser(null);
         navigate('/login');
@@ -43,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

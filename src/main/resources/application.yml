@@ -21,13 +21,14 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}      # These values are injected via secrets or env vars
             client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope:
               - openid
               - profile
               - email
         provider:
           google:
-            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
 
@@ -42,6 +43,11 @@ spring:
 server:
   port: 8081                                     # Default server port
   address: 0.0.0.0                               # Listen on all interfaces
+  servlet:
+    session:
+      cookie: 
+        same-site: none                              # Allow cookies in cross-site requests (adjust as needed)
+        secure: true                                 # Use secure cookies (set to false in dev if not using HTTPS)
 
 logging:
   level:
