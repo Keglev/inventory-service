@@ -21,6 +21,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.util.List;
 
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -175,5 +177,22 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    /**
+     * Configures session cookie behavior to allow cross-origin cookies.
+     * 
+     * <p>This is required for frontend-backend separation where the frontend is hosted on
+     * a different domain (e.g., localhost:5173) and needs to receive and send the JSESSIONID
+     * cookie to the backend hosted on a separate domain (e.g., inventoryservice.fly.dev).
+     * 
+     * @return customized CookieSerializer with SameSite=None and Secure flag
+     */
+    @Bean
+    public CookieSerializer cookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        serializer.setSameSite("None");          // ✅ required for cross-origin cookies
+        serializer.setUseSecureCookie(true);     // ✅ required when SameSite=None
+        return serializer;
     }
 }

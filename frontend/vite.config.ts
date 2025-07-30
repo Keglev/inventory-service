@@ -1,14 +1,34 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+/**
+ * Vite configuration for Smart Supply Pro frontend.
+ *
+ * This setup:
+ * - Proxies all backend requests to Fly.io backend service
+ * - Ensures cookies (e.g., JSESSIONID) are preserved for authentication
+ * - Supports development and production login sessions via OAuth2
+ */
 export default defineConfig({
   server: {
     proxy: {
-      '/api': 'https://inventoryservice.fly.dev',
-      '/oauth2': 'https://inventoryservice.fly.dev',
-      '/logout': 'https://inventoryservice.fly.dev'
+      '/api': {
+        target: 'https://inventoryservice.fly.dev',
+        changeOrigin: true,
+        secure: true
+      },
+      '/oauth2': {
+        target: 'https://inventoryservice.fly.dev',
+        changeOrigin: true,
+        secure: true
+      },
+      '/logout': {
+        target: 'https://inventoryservice.fly.dev',
+        changeOrigin: true,
+        secure: true
+      }
     }
   },
   plugins: [react()],
-});
+})
+

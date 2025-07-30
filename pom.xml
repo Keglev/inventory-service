@@ -121,6 +121,12 @@
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Spring Session for cookie serialization and cross-origin session handling -->
+		<dependency>
+    		<groupId>org.springframework.session</groupId>
+    		<artifactId>spring-session-core</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>oracle-free</artifactId>
