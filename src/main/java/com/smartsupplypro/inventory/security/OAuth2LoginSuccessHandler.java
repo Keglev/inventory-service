@@ -61,11 +61,16 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
      * @throws IOException        in case of I/O errors
      * @throws ServletException   in case of general servlet-related errors
      */
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication)
             throws IOException, ServletException {
+
+        // 🔍 TEMPORARY DEBUG LOG: Output injected environment variables from Fly.io
+        System.out.println("DEBUG >> GOOGLE_CLIENT_ID: " + System.getenv("GOOGLE_CLIENT_ID"));
+        System.out.println("DEBUG >> GOOGLE_CLIENT_SECRET: " + System.getenv("GOOGLE_CLIENT_SECRET"));
 
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
 
