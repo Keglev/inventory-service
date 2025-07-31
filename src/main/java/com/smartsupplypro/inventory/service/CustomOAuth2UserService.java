@@ -101,7 +101,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         return new DefaultOAuth2User(
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())),
                 attributes,
-                "name"
+                "email"  // Use email as the principal name
         );
     }
 }
