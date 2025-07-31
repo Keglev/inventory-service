@@ -24,6 +24,7 @@ export default defineConfig({
       '/oauth2': 'https://inventoryservice.fly.dev',
       '/logout': 'https://inventoryservice.fly.dev',
     },
+    port: 5173,
   },
   plugins: [react()],
 })
