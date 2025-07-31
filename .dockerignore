@@ -30,6 +30,7 @@ logs/
 log/
 **/log/
 
+
 # Ignore Oracle Wallet directory (sensitive DB config; handled by CI/CD secrets)
 wallet/
 oracle_wallet/

@@ -21,7 +21,7 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}      # These values are injected via secrets or env vars
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: https://inventoryservice.fly.dev/login/oauth2/code/google
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope:
               - openid
               - profile
