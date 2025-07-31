@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -19,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.util.List;
+import java.net.URLEncoder;
 
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
 import org.springframework.session.web.http.CookieSerializer;
@@ -129,6 +131,7 @@ public class SecurityConfig {
             // This will redirect to Google for authentication
             // and use a custom success handler to redirect back to the SPA
             .oauth2Login(oauth -> oauth
+                .failureHandler(oauthFailureHandler())
                 .successHandler(successHandler)
             )
                 
@@ -195,4 +198,22 @@ public class SecurityConfig {
         serializer.setUseSecureCookie(true);     // ✅ required when SameSite=None
         return serializer;
     }
+
+    /**
+     * Custom failure handler for OAuth2 login failures.
+     *
+     * <p>This handler logs the full exception stack trace and redirects to the login page
+     * with an error message. It is useful for debugging OAuth2 authentication issues.
+     *
+     * @return configured AuthenticationFailureHandler bean
+     * @throws IOException if URL encoding fails
+     */
+    @Bean
+    public AuthenticationFailureHandler oauthFailureHandler() {
+        return (request, response, exception) -> {
+            exception.printStackTrace(); // logs full error
+            response.sendRedirect("/login?error=" + URLEncoder.encode(exception.getMessage(), "UTF-8"));
+        };
+    }
+
 }

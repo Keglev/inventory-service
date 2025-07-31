@@ -42,7 +42,9 @@ spring:
 logging:
   level:
     '[com.smartsupplypro]': INFO                  # Application logs: keep informative, not verbose
-    root: WARN                                    # Suppress framework-level noise unless needed
+    root: INFO                                    # Suppress framework-level noise unless needed
+    '[org.springframework.security]': DEBUG       # Enable security debug logs for troubleshooting
+    '[org.springframework.web]': INFO             # Web layer logs: keep at info level for production
 
 server:
   port: 8081                                       # Override default port (if needed by reverse proxy/load balancer)
