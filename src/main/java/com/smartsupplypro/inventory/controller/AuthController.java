@@ -74,6 +74,7 @@ public class AuthController {
     @GetMapping("/me-debug")
     public ResponseEntity<?> getCurrentUserDebug(Authentication authentication, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
+        System.out.println(">>> /api/me-debug HIT");
         System.out.println("SESSION ID: " + (session != null ? session.getId() : "null"));
         System.out.println("AUTH: " + authentication);
 

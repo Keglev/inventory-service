@@ -42,7 +42,7 @@ spring:
 
 server:
   port: 8081                                       # Override default port (if needed by reverse proxy/load balancer)
-  forward-headers-strategy: framework              # Handle reverse proxy headers correctly
+  forward-headers-strategy: native                 # Use native strategy for handling forwarded headers
 
 logging:
   level:
