@@ -81,4 +81,28 @@ public class AuthController {
                 ? ResponseEntity.ok(Collections.singletonMap("principal", authentication.getPrincipal()))
                 : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
     }
+    /**
+     * Debug endpoint to inspect authentication state.
+     *
+     * <p>This endpoint is useful for diagnosing issues with authentication and session management.
+     * It prints the session ID and authentication details to the console.
+     *
+     * @param auth    Spring Security {@link Authentication} object
+     * @param request current {@link HttpServletRequest} to extract session info
+     * @return JSON response indicating whether the user is authenticated
+     */
+    @GetMapping("/api/me-debug")
+    public ResponseEntity<?> debugAuth(Authentication auth, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        System.out.println("SESSION ID: " + (session != null ? session.getId() : "null"));
+        System.out.println("AUTH: " + auth);
+        if (auth != null) {
+            System.out.println("AUTH CLASS: " + auth.getClass());
+            System.out.println("PRINCIPAL: " + auth.getPrincipal());
+        }
+        return auth != null
+            ? ResponseEntity.ok(auth.getPrincipal())
+            : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
+    }
+
 }

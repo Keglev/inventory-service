@@ -46,6 +46,7 @@ logging:
 
 server:
   port: 8081                                       # Override default port (if needed by reverse proxy/load balancer)
+  forward-headers-strategy: framework              # Handle reverse proxy headers correctly
 
 management:
   endpoints:
