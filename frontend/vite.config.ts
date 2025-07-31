@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import fs from 'fs'
 
 /**
  * Vite configuration for Smart Supply Pro frontend.
@@ -11,22 +12,14 @@ import react from '@vitejs/plugin-react'
  */
 export default defineConfig({
   server: {
+    https: {
+      key: fs.readFileSync('./cert/key.pem'),
+      cert: fs.readFileSync('./cert/cert.pem'),
+    },
     proxy: {
-      '/api': {
-        target: 'https://inventoryservice.fly.dev',
-        changeOrigin: true,
-        secure: true
-      },
-      '/oauth2': {
-        target: 'https://inventoryservice.fly.dev',
-        changeOrigin: true,
-        secure: true
-      },
-      '/logout': {
-        target: 'https://inventoryservice.fly.dev',
-        changeOrigin: true,
-        secure: true
-      }
+      '/api': 'https://inventoryservice.fly.dev',
+      '/oauth2': 'https://inventoryservice.fly.dev',
+      '/logout': 'https://inventoryservice.fly.dev',
     }
   },
   plugins: [react()],

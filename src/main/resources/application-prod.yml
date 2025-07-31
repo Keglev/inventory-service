@@ -43,6 +43,11 @@ spring:
 server:
   port: 8081                                       # Override default port (if needed by reverse proxy/load balancer)
   forward-headers-strategy: native                 # Use native strategy for handling forwarded headers
+  servlet:
+    session:
+      cookie:
+        same-site: none                      # Allow cross-site cookies for OAuth2
+        secure: true                        # Ensure cookies are secure (HTTPS only)
 
 logging:
   level:
