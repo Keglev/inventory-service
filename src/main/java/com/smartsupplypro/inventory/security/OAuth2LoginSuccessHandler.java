@@ -68,10 +68,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        // 🔍 TEMPORARY DEBUG LOG: Output injected environment variables from Fly.io
-        System.out.println("DEBUG >> GOOGLE_CLIENT_ID: " + System.getenv("GOOGLE_CLIENT_ID"));
-        System.out.println("DEBUG >> GOOGLE_CLIENT_SECRET: " + System.getenv("GOOGLE_CLIENT_SECRET"));
-
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
 
         String email = token.getPrincipal().getAttribute("email");
@@ -99,6 +95,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         // ✅ Important: Ensure redirect uses proper protocol and host
-        response.sendRedirect("http://localhost:5173/login");
+        response.sendRedirect("https://localhost:5173/login");
     }
 }
