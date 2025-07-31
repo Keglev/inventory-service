@@ -52,7 +52,9 @@ logging:
     '[org.springframework.security.oauth2.client]': DEBUG  # OAuth2 specific debug logs
     '[org.springframework.security.oauth2.core]': DEBUG    # Core OAuth2 logs'
     '[org.springframework.web]': INFO                      # Web layer logs: keep at info level for production
-    
+    '[org.springframework.web.client.RestTemplate]': DEBUG     # Enable RestTemplate debug logs for external calls
+    '[org.springframework.security.oauth2.client.endpoint.DefaultOAuth2AuthorizationCodeTokenResponseClient]': DEBUG  # OAuth2 token response client logs
+
 management:
   endpoints:
     web:
