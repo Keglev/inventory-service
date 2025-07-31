@@ -1,143 +1,112 @@
 package com.smartsupplypro.inventory.config;
 
-import java.io.IOException;
-
+import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import java.util.List;
+
+import java.io.IOException;
 import java.net.URLEncoder;
-
-import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
-import org.springframework.session.web.http.CookieSerializer;
-import org.springframework.session.web.http.DefaultCookieSerializer;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
- * Central security configuration class using Spring Security.
- * 
- * <p>This class defines:
+ * Global Spring Security configuration for the SmartSupplyPro backend application.
+ *
+ * <p>This class centralizes security concerns including:
  * <ul>
  *   <li>OAuth2 login using Google with a custom success handler</li>
- *   <li>Role-based access control for secured REST endpoints</li>
- *   <li>Custom API-aware authentication entry points for consistent behavior (JSON vs redirect)</li>
- *   <li>CSRF disabled for stateless REST communication</li>
+ *   <li>Session-based authentication with SameSite=None cookies</li>
+ *   <li>Role-based access to secured REST endpoints</li>
+ *   <li>Cross-origin request (CORS) configuration for frontend-backend communication</li>
+ *   <li>Consistent handling of browser vs API authentication failures</li>
  * </ul>
  *
- * <p>Designed for a microservice-based architecture with frontend/backend separation.
- * All security logic is encapsulated in a single, modular, and testable configuration.
+ * <p>Designed for stateless frontend-backend separation with session-based login support.
  */
+@Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-@Configuration
 public class SecurityConfig {
 
     @Autowired
     private OAuth2LoginSuccessHandler successHandler;
 
     /**
-     * Defines the security rules and authentication flow for HTTP requests.
+     * Configures the main security filter chain, including CORS, session management,
+     * and endpoint access rules.
      *
-     * @param http HttpSecurity instance provided by Spring Security
-     * @return configured security filter chain
+     * @param http the {@link HttpSecurity} configuration object
+     * @return the configured {@link SecurityFilterChain}
      * @throws Exception in case of misconfiguration
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // Filter that flags API requests based on URI prefix and Accept header
-        // This is used to differentiate REST clients from browser-based clients
+        // Filter to flag API requests (e.g., /api/**) that expect JSON responses
         OncePerRequestFilter apiFlagFilter = new OncePerRequestFilter() {
             @Override
             protected void doFilterInternal(@NonNull HttpServletRequest req,
                                             @NonNull HttpServletResponse res,
                                             @NonNull FilterChain chain)
                     throws ServletException, IOException {
-
                 String accept = req.getHeader("Accept");
                 if (req.getRequestURI().startsWith("/api/") &&
                     accept != null && accept.contains("application/json")) {
                     req.setAttribute("IS_API_REQUEST", true);
                 }
-
                 chain.doFilter(req, res);
             }
         };
 
-        // Register the custom filter before pre-authentication phase
-        http.addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class);
+        RequestMatcher apiMatcher = request -> Boolean.TRUE.equals(request.getAttribute("IS_API_REQUEST"));
 
-        // Matcher to identify flagged API requests
-        RequestMatcher apiMatcher = request ->
-                Boolean.TRUE.equals(request.getAttribute("IS_API_REQUEST"));
-
-        // For API requests, return JSON error instead of redirect
         AuthenticationEntryPoint apiEntry = (req, res, ex) -> {
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setContentType("application/json");
             res.getWriter().write("{\"message\":\"Unauthorized\"}");
         };
 
-        // For browser-based requests, trigger OAuth2 login
-        AuthenticationEntryPoint webEntry =
-                new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google");
+        AuthenticationEntryPoint webEntry = new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google");
 
-        // Configure endpoint access and authentication logic
         http
-        // Enable CORS support for cross-origin requests
-            .cors(cors -> {})
-            
-            // Define security rules for HTTP requests
+            .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)
+            .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
-
-                // Public endpoints (e.g., root and health checks)
-                // - "/health/**" is implemented via HealthCheckController
-                // - "/actuator/**" is not used currently, but allowed for future expansion
                 .requestMatchers("/", "/actuator/**", "/health/**").permitAll()
-
-                // Admin-only endpoints
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-
-                // General authenticated access for all other /api routes
                 .requestMatchers("/api/**").authenticated()
-
-                // All other requests require authentication by default
                 .anyRequest().authenticated()
             )
-            // Entry points depending on request type (API vs web)
             .exceptionHandling(ex -> ex
                 .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)
                 .defaultAuthenticationEntryPointFor(webEntry, request -> true)
             )
-            // OAuth2 login integration with Google
-            // This will redirect to Google for authentication
-            // and use a custom success handler to redirect back to the SPA
             .oauth2Login(oauth -> oauth
                 .failureHandler(oauthFailureHandler())
                 .successHandler(successHandler)
             )
-                
-            // Redirect to root after logout and clear cookies
-            // This is important for SPA applications to reset state
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
@@ -147,39 +116,30 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
-            // Disable CSRF for RESTful API (stateless communication)
             .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
+
     /**
-    * Defines the CORS policy for cross-origin requests between frontend and backend.
-    *
-    * <p>This setup is required to:
-    * <ul>
-    *   <li>Allow session cookies (e.g., JSESSIONID) for OAuth2 and authenticated requests</li>
-    *   <li>Enable secure interaction from a frontend hosted on a different domain (e.g., Vite dev server or Fly.io frontend)</li>
-    * </ul>
-    *
-    * <p><strong>Note:</strong> Allowing credentials requires an explicit origin — wildcards (*) are not permitted.
-    *
-    * @return configured CorsConfigurationSource bean for Spring Security
-    */
+     * Defines CORS settings to allow cross-origin requests between the frontend (e.g., Vite/React)
+     * and this backend service. Enables session cookies for secure OAuth2 login flow.
+     *
+     * @return a CORS configuration source used by Spring Security
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Replace with your actual frontend origins (you can add more as needed)
-        config.setAllowedOrigins(List.of("http://localhost:5173", "https://your-frontend-domain.fly.dev"));
-
+        config.setAllowedOrigins(List.of(
+            "https://localhost:5173",               // Local development frontend
+            "https://inventoryfrontend.fly.dev"     // Production frontend domain (adjust when ready)
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-
-        // Critical for session-based auth (OAuth2 cookies, JSESSIONID)
         config.setExposedHeaders(List.of("Set-Cookie"));
         config.setAllowCredentials(true);
-
-        config.setMaxAge(3600L); // Cache CORS config for 1 hour
+        config.setMaxAge(3600L); // cache for 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -187,37 +147,31 @@ public class SecurityConfig {
     }
 
     /**
-     * Configures session cookie behavior to allow cross-origin cookies.
-     * 
-     * <p>This is required for frontend-backend separation where the frontend is hosted on
-     * a different domain (e.g., localhost:5173) and needs to receive and send the JSESSIONID
-     * cookie to the backend hosted on a separate domain (e.g., inventoryservice.fly.dev).
-     * 
-     * @return customized CookieSerializer with SameSite=None and Secure flag
+     * Configures the session cookie to support cross-origin usage.
+     * Sets SameSite=None and Secure=true, which is required when the frontend
+     * and backend are on different domains and HTTPS is used.
+     *
+     * @return a cookie serializer used by Spring Session
      */
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setSameSite("None");          // ✅ required for cross-origin cookies
-        serializer.setUseSecureCookie(true);     // ✅ required when SameSite=None
+        serializer.setSameSite("None");
+        serializer.setUseSecureCookie(true);
         return serializer;
     }
 
     /**
-     * Custom failure handler for OAuth2 login failures.
+     * Provides a redirect-based handler for OAuth2 login failures.
+     * Appends the error message to the login page for frontend display.
      *
-     * <p>This handler logs the full exception stack trace and redirects to the login page
-     * with an error message. It is useful for debugging OAuth2 authentication issues.
-     *
-     * @return configured AuthenticationFailureHandler bean
-     * @throws IOException if URL encoding fails
+     * @return a configured {@link AuthenticationFailureHandler}
      */
     @Bean
     public AuthenticationFailureHandler oauthFailureHandler() {
         return (request, response, exception) -> {
-            exception.printStackTrace(); // logs full error
-            response.sendRedirect("/login?error=" + URLEncoder.encode(exception.getMessage(), "UTF-8"));
+            String encodedError = URLEncoder.encode(exception.getMessage(), "UTF-8");
+            response.sendRedirect("/login?error=" + encodedError);
         };
     }
-
 }
