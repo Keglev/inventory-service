@@ -106,4 +106,15 @@ public class InventoryServiceApplication {
             }
         };
     }
+    @Bean
+    public CommandLineRunner checkOAuthClientId(
+        @Value("${GOOGLE_CLIENT_ID:NOT_SET}") String clientId,
+        @Value("${GOOGLE_CLIENT_SECRET:NOT_SET}") String clientSecret
+    ) {
+        return args -> {
+            System.out.println(">>> GOOGLE_CLIENT_ID: " + clientId);
+            System.out.println(">>> GOOGLE_CLIENT_SECRET length: " + clientSecret.length());
+        };
+    }
+
 }
