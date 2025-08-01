@@ -213,18 +213,34 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         @Param("maxChange") Integer maxChange
     );
     @Query("""
-    SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)
-    FROM StockHistory sh
-    WHERE sh.itemId = :itemId
-      AND sh.timestamp BETWEEN :start AND :end
-      AND sh.priceAtChange IS NOT NULL
-    ORDER BY sh.timestamp
-    """)
-List<PriceTrendDTO> getPriceTrend(
-    @Param("itemId") String itemId,
-    @Param("start") LocalDateTime start,
-    @Param("end") LocalDateTime end
-);
+        SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)
+        FROM StockHistory sh
+        WHERE sh.itemId = :itemId
+            AND sh.timestamp BETWEEN :start AND :end
+            AND sh.priceAtChange IS NOT NULL
+            ORDER BY sh.timestamp
+        """)
+    List<PriceTrendDTO> getPriceTrend(
+        @Param("itemId") String itemId,
+        @Param("start") LocalDateTime start,
+        @Param("end") LocalDateTime end
+    );
+
+    @Query("""
+        SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)
+        FROM StockHistory sh
+        WHERE sh.itemId = :itemId
+            AND (:supplierId IS NULL OR sh.supplierId = :supplierId)
+            AND sh.timestamp BETWEEN :start AND :end
+            AND sh.priceAtChange IS NOT NULL
+            ORDER BY sh.timestamp
+        """)
+    List<PriceTrendDTO> getPriceTrend(
+        @Param("itemId") String itemId,
+        @Param("supplierId") String supplierId,
+        @Param("start") LocalDateTime start,
+        @Param("end") LocalDateTime end
+    );
 
 }
 /**

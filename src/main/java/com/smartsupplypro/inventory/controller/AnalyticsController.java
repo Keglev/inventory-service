@@ -196,23 +196,22 @@ public class AnalyticsController {
         return ResponseEntity.ok(summary);
     }
     /**
-    * Returns historical price data for a specific inventory item.
+    * Returns historical price changes of an inventory item over time,
+    * optionally filtered by supplier.
     *
-    * <p>Each entry represents the unit price recorded at the time of a stock change
-    * (usually when stock is received or updated with a price).
-    * 
-    * <p>Useful for purchase trend charts, supplier negotiations, or cost forecasting.
-    *
-    * @param itemId the inventory item identifier
-    * @param start  start date (inclusive)
-    * @param end    end date (inclusive)
-    * @return list of {@link PriceTrendDTO} records for charting price over time
+    * @param itemId the inventory item ID (required)
+    * @param supplierId optional supplier ID
+    * @param start start date (inclusive)
+    * @param end end date (inclusive)
+    * @return list of time-series {@link PriceTrendDTO} records
     */
     @GetMapping("/price-trend")
     public ResponseEntity<List<PriceTrendDTO>> getPriceTrend(
             @RequestParam String itemId,
+            @RequestParam(required = false) String supplierId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return ResponseEntity.ok(analyticsService.getPriceTrend(itemId, start, end));
+        return ResponseEntity.ok(analyticsService.getPriceTrend(itemId, supplierId, start, end));
     }
+
 }

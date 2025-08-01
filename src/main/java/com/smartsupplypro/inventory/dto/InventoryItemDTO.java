@@ -80,4 +80,11 @@ public class InventoryItemDTO {
      * Typically set by the backend.
      */
     private LocalDateTime createdAt;
+
+    /**
+    * Name of the supplier associated with this inventory item.
+    * Populated during projection or mapping for UI display.
+    */
+    private String supplierName;
+
 }

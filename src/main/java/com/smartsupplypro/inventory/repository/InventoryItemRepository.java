@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Repository interface for managing {@link InventoryItem} entities.
@@ -33,14 +35,6 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     boolean existsBySupplierId(String supplierId);
 
     /**
-     * Checks whether an inventory item with the given name already exists (case-insensitive).
-     *
-     * @param name Name of the item
-     * @return {@code true} if such item exists
-     */
-    boolean existsByNameIgnoreCase(String name);
-
-    /**
      * Finds all inventory items where quantity is below the defined minimum quantity,
      * optionally filtered by supplier ID.
      *
@@ -57,5 +51,30 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
         ORDER BY quantity ASC
         """, nativeQuery = true)
     List<Object[]> findItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
+
+    /**
+    * Finds all inventory items with an exact name match (case-insensitive).
+    *
+       * <p>Used to verify potential duplicates with identical names but different prices.
+    *
+    * @param name the exact name of the item (case-insensitive)
+    * @return list of inventory items with that name
+    */
+    List<InventoryItem> findByNameIgnoreCase(String name);
+
+    @Query("""
+        SELECT i FROM InventoryItem i
+        WHERE LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        ORDER BY i.price ASC
+    """)
+    Page<InventoryItem> findByNameSortedByPrice(@Param("name") String name, Pageable pageable);
+
+    /**
+     * Finds inventory items by name with pagination.
+     * 
+     */
+    Page<InventoryItem> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+
 }
 

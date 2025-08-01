@@ -33,6 +33,7 @@ public class StockHistoryMapper {
                 .reason(history.getReason())
                 .createdBy(history.getCreatedBy())
                 .timestamp(history.getTimestamp())
+                .priceAtChange(history.getPriceAtChange())
                 .build();
     }
 
@@ -52,6 +53,7 @@ public class StockHistoryMapper {
                 .reason(dto.getReason())
                 .createdBy(dto.getCreatedBy())
                 .timestamp(dto.getTimestamp())
+                .priceAtChange(dto.getPriceAtChange())
                 .build();
     }
 }

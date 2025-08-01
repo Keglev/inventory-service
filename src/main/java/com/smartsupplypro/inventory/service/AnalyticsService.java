@@ -92,17 +92,15 @@ public interface AnalyticsService {
     List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter);
 
     /**
-    * Retrieves historical unit price data for a specific item within a given date range.
+    * Retrieves historical price trend data for a given inventory item,
+    * optionally filtered by supplier.
     *
-    * <p>Each entry represents the price recorded at the time of stock changes
-    * (typically when new stock is received).
-    *
-    * @param itemId the inventory item ID (required)
-    * @param startDate start date (inclusive)
-    * @param endDate end date (inclusive)
-    * @return list of {@link PriceTrendDTO} for time-series price visualization
+    * @param itemId the ID of the inventory item (required)
+    * @param supplierId optional supplier filter (nullable)
+    * @param start start date (inclusive)
+    * @param end end date (inclusive)
+    * @return list of {@link PriceTrendDTO} containing price history
     */
-    List<PriceTrendDTO> getPriceTrend(String itemId, LocalDate startDate, LocalDate endDate);
-
+    List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end);
 }
 

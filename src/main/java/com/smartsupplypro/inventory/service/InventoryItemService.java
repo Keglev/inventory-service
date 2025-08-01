@@ -9,6 +9,8 @@ import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.validation.InventoryItemSecurityValidator;
 import com.smartsupplypro.inventory.validation.InventoryItemValidator;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,6 +81,14 @@ public class InventoryItemService {
     }
 
     /**
+     * Paginated search for items by name.
+     */
+    public Page<InventoryItemDTO> findByName(String name, Pageable pageable) {
+        return repository.findByNameContainingIgnoreCase(name, pageable)
+                .map(InventoryItemMapper::toDTO);
+    }
+    
+    /**
      * Persists a new inventory item after validating input data and logging its initial stock level.
      *
      * @param dto the inventory item data transfer object
@@ -86,7 +96,7 @@ public class InventoryItemService {
      */
     public InventoryItemDTO save(InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);
-        InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), repository);
+        InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
         validateSupplierExists(dto.getSupplierId());
     
         InventoryItem entity = InventoryItemMapper.toEntity(dto);
@@ -125,13 +135,25 @@ public class InventoryItemService {
 
         return repository.findById(id)
                 .map(existing -> {
+                    // Enforce role-based rules (e.g., only admin can update price)
                     InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
+                    // Check for duplicate (name + price) only if name or price changed
+                    boolean nameChanged = !existing.getName().equalsIgnoreCase(dto.getName());
+                    boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
+
+                    if (nameChanged || priceChanged) {
+                        InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
+                    }
 
                     int quantityDiff = dto.getQuantity() - existing.getQuantity();
-                    
+
                     existing.setName(dto.getName());
                     existing.setQuantity(dto.getQuantity());
-                    existing.setPrice(dto.getPrice());
+
+                    if (priceChanged) {
+                        existing.setPrice(dto.getPrice()); // allowed only if validated
+                    }
+
                     existing.setSupplierId(dto.getSupplierId());
                     existing.setCreatedBy(dto.getCreatedBy());
 
@@ -139,10 +161,10 @@ public class InventoryItemService {
 
                     if (quantityDiff != 0) {
                         stockHistoryService.logStockChange(
-                            updated.getId(),
-                            quantityDiff,
-                            StockChangeReason.MANUAL_UPDATE,
-                            updated.getCreatedBy()
+                                updated.getId(),
+                                quantityDiff,
+                                StockChangeReason.MANUAL_UPDATE,
+                                updated.getCreatedBy()
                         );
                     }
 
@@ -195,18 +217,6 @@ public class InventoryItemService {
         } else {
             throw new IllegalArgumentException("Item not found");
         }
-    }
-
-    /**
-     * Searches for inventory items by name using case-insensitive partial match.
-     *
-     * @param name the name or partial name of the item
-     * @return a list of matching inventory item DTOs
-     */
-    public List<InventoryItemDTO> findByName(String name) {
-        return repository.findByNameContainingIgnoreCase(name).stream()
-                .map(InventoryItemMapper::toDTO)
-                .collect(Collectors.toList());
     }
 }
 // This code provides the InventoryItemService class, which manages inventory items in the system.
