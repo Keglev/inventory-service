@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -201,6 +202,18 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 ))
                 .collect(Collectors.toList());
     }
+   @Override
+    public List<PriceTrendDTO> getPriceTrend(String itemId, LocalDate start, LocalDate end) {
+        if (itemId == null || itemId.isBlank()) {
+            throw new IllegalArgumentException("Item ID must not be null or empty.");
+        }
+
+        LocalDateTime startDateTime = start.atStartOfDay();
+        LocalDateTime endDateTime = end.atTime(LocalTime.MAX);
+
+        return stockHistoryRepository.getPriceTrend(itemId, startDateTime, endDateTime);
+    }
+
 }
 // This code provides the implementation of the AnalyticsService interface, handling various analytical operations
 // such as stock value over time, low stock detection, and advanced filtering of stock updates.

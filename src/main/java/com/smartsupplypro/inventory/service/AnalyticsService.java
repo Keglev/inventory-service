@@ -6,6 +6,7 @@ import java.util.List;
 import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
 import com.smartsupplypro.inventory.dto.LowStockItemDTO;
 import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
+import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
@@ -89,5 +90,19 @@ public interface AnalyticsService {
      * @return list of {@link StockUpdateResultDTO} matching the filter
      */
     List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter);
+
+    /**
+    * Retrieves historical unit price data for a specific item within a given date range.
+    *
+    * <p>Each entry represents the price recorded at the time of stock changes
+    * (typically when new stock is received).
+    *
+    * @param itemId the inventory item ID (required)
+    * @param startDate start date (inclusive)
+    * @param endDate end date (inclusive)
+    * @return list of {@link PriceTrendDTO} for time-series price visualization
+    */
+    List<PriceTrendDTO> getPriceTrend(String itemId, LocalDate startDate, LocalDate endDate);
+
 }
 

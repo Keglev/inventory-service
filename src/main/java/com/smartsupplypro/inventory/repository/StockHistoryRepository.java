@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.repository;
 
+import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 import org.springframework.data.domain.Page;
@@ -211,6 +212,20 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         @Param("minChange") Integer minChange,
         @Param("maxChange") Integer maxChange
     );
+    @Query("""
+    SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)
+    FROM StockHistory sh
+    WHERE sh.itemId = :itemId
+      AND sh.timestamp BETWEEN :start AND :end
+      AND sh.priceAtChange IS NOT NULL
+    ORDER BY sh.timestamp
+    """)
+List<PriceTrendDTO> getPriceTrend(
+    @Param("itemId") String itemId,
+    @Param("start") LocalDateTime start,
+    @Param("end") LocalDateTime end
+);
+
 }
 /**
  * This repository interface provides methods for querying stock history data

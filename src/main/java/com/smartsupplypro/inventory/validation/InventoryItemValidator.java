@@ -48,8 +48,8 @@ public class InventoryItemValidator {
         if (dto.getQuantity() < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
-        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price must be positive");
+        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Price must be positive or greater than zero");
         }
         if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {
             throw new IllegalArgumentException("Supplier ID must be provided");

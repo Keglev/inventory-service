@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 /**
  * DTO representing a single historical stock change event for an inventory item.
@@ -45,5 +46,11 @@ public class StockHistoryDTO {
      * Timestamp when the change was recorded.
      */
     private LocalDateTime timestamp;
+
+    /**
+     * The price of the item at the time of this stock change.
+     * Useful for tracking value changes over time.
+     */
+    private BigDecimal priceAtChange;
 }
 

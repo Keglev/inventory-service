@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -49,6 +50,15 @@ public class StockHistory {
     /** Timestamp when the stock change occurred */
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
+
+    /**
+    * Unit price at the time of this stock change.
+    * 
+    * <p>Used for price trend analysis and financial audit trails.
+    * This value is set only when stock is added or updated with a valid price change.
+    */
+    @Column(name = "price_at_change", precision = 12, scale = 2)
+    private BigDecimal priceAtChange;
 
     /**
      * Auto-sets the timestamp if not manually provided.
