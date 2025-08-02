@@ -2,10 +2,10 @@ package com.smartsupplypro.inventory.controller;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
-import com.smartsupplypro.inventory.service.InventoryItemService;
 
 import jakarta.validation.Valid;
 
+import com.smartsupplypro.inventory.service.InventoryItemService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
@@ -132,23 +132,25 @@ public class InventoryItemController {
     }
 
     /**
-     * Searches for inventory items by partial or full name.
-     * 
-     * <p>Useful for implementing search bars or dropdown suggestions.
-     * Accessible by both ADMIN and USER roles.
-     *
-     * @param name full or partial item name
-     * @return matching items
-     */
-
+    * Searches for inventory items by partial or full name,
+    * returns paginated results sorted by price (ascending).
+    *
+    * <p>Accessible by both ADMIN and USER roles.</p>
+    *
+    * @param name  partial name to search for
+    * @param page  page number (default 0)
+    * @param size  page size (default 10)
+    * @return paginated list of inventory items sorted by price
+    */
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/search")
-    public Page<InventoryItemDTO> searchByName(
+    public Page<InventoryItemDTO> searchByNameSortedByPrice(
             @RequestParam String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+
         Pageable pageable = PageRequest.of(page, size);
-        return inventoryItemService.findByName(name, pageable);
+        return inventoryItemService.findByNameSortedByPrice(name, pageable);
     }
 
 }

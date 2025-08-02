@@ -6,6 +6,7 @@ import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,7 +41,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit test class for {@link InventoryItemService}. Verifies business rules, security integration,
+ * Unit test class for {@link InventoryItemServiceImpl}. Verifies business rules, security integration,
  * validation logic, and side effects such as stock history tracking.
  */
 @ExtendWith(MockitoExtension.class)
@@ -49,7 +50,7 @@ import static org.mockito.Mockito.*;
 public class InventoryItemServiceTest {
 
     @InjectMocks
-    private InventoryItemService inventoryItemService;
+    private InventoryItemServiceImpl inventoryItemService;
 
     @Mock
     private InventoryItemRepository inventoryItemRepository;

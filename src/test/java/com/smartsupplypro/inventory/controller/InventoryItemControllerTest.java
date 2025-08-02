@@ -6,7 +6,7 @@ import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
-import com.smartsupplypro.inventory.service.InventoryItemService;
+import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ public class InventoryItemControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private InventoryItemService inventoryItemService;
+    private InventoryItemServiceImpl inventoryItemService;
 
     @Autowired
     private ObjectMapper objectMapper;

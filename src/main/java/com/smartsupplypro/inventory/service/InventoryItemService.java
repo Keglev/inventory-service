@@ -2,221 +2,71 @@ package com.smartsupplypro.inventory.service;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
-import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
-import com.smartsupplypro.inventory.model.InventoryItem;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
-import com.smartsupplypro.inventory.repository.SupplierRepository;
-import com.smartsupplypro.inventory.validation.InventoryItemSecurityValidator;
-import com.smartsupplypro.inventory.validation.InventoryItemValidator;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * Service layer responsible for managing inventory item operations including
- * creation, update, deletion, and retrieval. Also coordinates stock history logging
- * and supplier validation.
- * <p>
- * This class centralizes business logic for inventory item management and ensures:
- * <ul>
- *   <li>Proper data validation and mapping between entity and DTO</li>
- *   <li>Supplier existence verification</li>
- *   <li>Automated stock change logging for all quantity-altering operations</li>
- *   <li>Enforcement of domain rules (e.g., deletion only allowed with specific reasons)</li>
- * </ul>
- * </p>
+ * Interface defining contract for inventory item management operations.
+ *
+ * <p>This service exposes high-level business logic related to inventory,
+ * including create, update, delete, and search operations. It separates
+ * controller-level logic from persistence implementation, and supports
+ * auditing and validation workflows.</p>
  *
  * @author
  * SmartSupplyPro Dev Team
  */
-@Service
-public class InventoryItemService {
-
-    private final InventoryItemRepository repository;
-    private final StockHistoryService stockHistoryService;
-    private final SupplierRepository supplierRepository;
+public interface InventoryItemService {
 
     /**
-     * Constructs the InventoryItemService with required dependencies.
+     * Retrieves all inventory items.
      *
-     * @param repository           the inventory item repository
-     * @param stockHistoryService the service for logging stock history
-     * @param supplierRepository  the repository for supplier validation
+     * @return list of all inventory items as DTOs
      */
-    public InventoryItemService(
-        InventoryItemRepository repository,
-        StockHistoryService stockHistoryService,
-        SupplierRepository supplierRepository
-    ) {
-        this.repository = repository;
-        this.stockHistoryService = stockHistoryService;
-        this.supplierRepository = supplierRepository;
-    }
+    List<InventoryItemDTO> getAll();
 
     /**
-     * Retrieves all inventory items in the system as DTOs.
-     *
-     * @return a list of all inventory item DTOs
-     */
-    public List<InventoryItemDTO> getAll() {
-        return repository.findAll().stream()
-                .map(InventoryItemMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Retrieves a single inventory item by its unique identifier.
+     * Retrieves an inventory item by its unique ID.
      *
      * @param id the item ID
-     * @return an optional containing the found item DTO, or empty if not found
+     * @return an optional containing the item DTO, or empty if not found
      */
-    public Optional<InventoryItemDTO> getById(String id) {
-        return repository.findById(id)
-                .map(InventoryItemMapper::toDTO);
-    }
+    Optional<InventoryItemDTO> getById(String id);
 
     /**
-     * Paginated search for items by name.
-     */
-    public Page<InventoryItemDTO> findByName(String name, Pageable pageable) {
-        return repository.findByNameContainingIgnoreCase(name, pageable)
-                .map(InventoryItemMapper::toDTO);
-    }
-    
-    /**
-     * Persists a new inventory item after validating input data and logging its initial stock level.
+     * Finds inventory items by name with pagination, sorted by ascending price.
      *
-     * @param dto the inventory item data transfer object
+     * @param name the partial name to search
+     * @param pageable pagination and sorting information
+     * @return paged list of matching inventory items
+     */
+    Page<InventoryItemDTO> findByNameSortedByPrice(String name, Pageable pageable);
+
+    /**
+     * Saves a new inventory item.
+     *
+     * @param dto the item data
      * @return the saved inventory item DTO
      */
-    public InventoryItemDTO save(InventoryItemDTO dto) {
-        InventoryItemValidator.validateBase(dto);
-        InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
-        validateSupplierExists(dto.getSupplierId());
-    
-        InventoryItem entity = InventoryItemMapper.toEntity(dto);
-
-        if (entity.getCreatedAt() == null) {
-            entity.setCreatedAt(LocalDateTime.now());
-        }
-
-        if (entity.getMinimumQuantity() <= 0) {
-            entity.setMinimumQuantity(10); // default fallback value
-        }
-
-        InventoryItem saved = repository.save(entity);
-
-        stockHistoryService.logStockChange(
-            saved.getId(),
-            saved.getQuantity(),
-            StockChangeReason.INITIAL_STOCK,
-            saved.getCreatedBy()
-        );
-
-        return InventoryItemMapper.toDTO(saved);
-    }
+    InventoryItemDTO save(InventoryItemDTO dto);
 
     /**
-     * Updates an existing inventory item by ID. Validates permissions, logs quantity changes,
-     * and maps back to DTO after persistence.
+     * Updates an existing inventory item.
      *
-     * @param id  the item ID to update
-     * @param dto the new inventory data
-     * @return an optional containing the updated inventory item DTO
+     * @param id the ID of the item to update
+     * @param dto the updated item data
+     * @return the updated item DTO if successful
      */
-    public Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto) {
-        InventoryItemValidator.validateBase(dto);
-        validateSupplierExists(dto.getSupplierId());
-
-        return repository.findById(id)
-                .map(existing -> {
-                    // Enforce role-based rules (e.g., only admin can update price)
-                    InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
-                    // Check for duplicate (name + price) only if name or price changed
-                    boolean nameChanged = !existing.getName().equalsIgnoreCase(dto.getName());
-                    boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
-
-                    if (nameChanged || priceChanged) {
-                        InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
-                    }
-
-                    int quantityDiff = dto.getQuantity() - existing.getQuantity();
-
-                    existing.setName(dto.getName());
-                    existing.setQuantity(dto.getQuantity());
-
-                    if (priceChanged) {
-                        existing.setPrice(dto.getPrice()); // allowed only if validated
-                    }
-
-                    existing.setSupplierId(dto.getSupplierId());
-                    existing.setCreatedBy(dto.getCreatedBy());
-
-                    InventoryItem updated = repository.save(existing);
-
-                    if (quantityDiff != 0) {
-                        stockHistoryService.logStockChange(
-                                updated.getId(),
-                                quantityDiff,
-                                StockChangeReason.MANUAL_UPDATE,
-                                updated.getCreatedBy()
-                        );
-                    }
-
-                    return InventoryItemMapper.toDTO(updated);
-                });
-    }
+    Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto);
 
     /**
-     * Validates that a given supplier exists by ID.
+     * Deletes an inventory item with a specified reason.
      *
-     * @param supplierId the ID of the supplier to check
-     * @throws IllegalArgumentException if the supplier does not exist
+     * @param id the ID of the item to delete
+     * @param reason the stock change reason
      */
-    private void validateSupplierExists(String supplierId) {
-        if (!supplierRepository.existsById(supplierId)) {
-            throw new IllegalArgumentException("Supplier does not exist");
-        }
-    }
-
-    /**
-     * Deletes an inventory item with a mandatory stock change reason.
-     * Also logs the full quantity reduction to stock history before deletion.
-     *
-     * @param id     the ID of the item to delete
-     * @param reason the reason for deletion (must be valid)
-     * @throws IllegalArgumentException if item not found or reason is invalid
-     */
-    public void delete(String id, StockChangeReason reason) {
-        if (reason != StockChangeReason.SCRAPPED && 
-            reason != StockChangeReason.DESTROYED &&
-            reason != StockChangeReason.DAMAGED &&
-            reason != StockChangeReason.EXPIRED &&
-            reason != StockChangeReason.LOST &&
-            reason != StockChangeReason.RETURNED_TO_SUPPLIER) {
-            throw new IllegalArgumentException("Invalid reason for deletion");
-        }
-
-        Optional<InventoryItem> itemOpt = repository.findById(id);
-        if (itemOpt.isPresent()) {
-            InventoryItem item = itemOpt.get();
-    
-            stockHistoryService.logStockChange(
-                item.getId(),
-                -item.getQuantity(),
-                reason,
-                item.getCreatedBy()
-            );
-    
-            repository.deleteById(id);
-        } else {
-            throw new IllegalArgumentException("Item not found");
-        }
-    }
+    void delete(String id, StockChangeReason reason);
 }
-// This code provides the InventoryItemService class, which manages inventory items in the system.
