@@ -132,4 +132,24 @@ public class StockHistoryServiceTest {
         );
         assertEquals("CreatedBy is required", ex.getMessage());
     }
+
+    /**
+    * Verifies that the `delete` method correctly logs a negative change
+    * and persists it via the repository.
+    */
+    @Test
+    void testDelete_shouldRecordDeletionInStockHistory() {
+        stockHistoryService.delete("item-1", StockChangeReason.RETURNED_TO_SUPPLIER, "admin");
+
+        ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
+        verify(repository).save(captor.capture());
+
+        StockHistory saved = captor.getValue();
+        assertEquals("item-1", saved.getItemId());
+        assertEquals(-1, saved.getChange()); // default for deletions
+        assertEquals("RETURNED_TO_SUPPLIER", saved.getReason());
+        assertEquals("admin", saved.getCreatedBy());
+        assertNotNull(saved.getTimestamp());
+    }
+
 }

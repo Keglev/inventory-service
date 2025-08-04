@@ -1,10 +1,12 @@
 package com.smartsupplypro.inventory.validation;
 
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -81,7 +83,7 @@ public class InventoryItemValidatorTest {
         Exception e = assertThrows(IllegalArgumentException.class, () ->
                 InventoryItemValidator.validateBase(dto));
 
-        assertEquals("Price must be positive", e.getMessage());
+        assertEquals("Price must be positive or greater than zero", e.getMessage());
     }
 
     /**
@@ -103,25 +105,48 @@ public class InventoryItemValidatorTest {
      * This test mocks the repository to simulate a name conflict.
      */
     @Test
-    void testValidateInventoryItemNotExists_withExistingName_shouldThrowException() {
+    void testValidateInventoryItemNotExists_withExistingNameAndPrice_shouldThrowException() {
         InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-        when(mockRepo.existsByNameIgnoreCase("DuplicateItem")).thenReturn(true);
+
+        // Simulate existing item with same name and price, but different ID
+        InventoryItem existingItem = new InventoryItem();
+        existingItem.setId("existing-id");
+        existingItem.setName("DuplicateItem");
+        existingItem.setPrice(new BigDecimal("10.00"));
+
+        when(mockRepo.findByNameIgnoreCase("DuplicateItem")).thenReturn(List.of(existingItem));
 
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
-                InventoryItemValidator.validateInventoryItemNotExists("DuplicateItem", mockRepo));
+            InventoryItemValidator.validateInventoryItemNotExists("new-id", "DuplicateItem", new BigDecimal("10.00"), mockRepo)
+        );
 
-        assertEquals("An inventory item with this name already exists.", ex.getMessage());
+        assertEquals("Another inventory item with this name and price already exists.", ex.getMessage());
     }
+
 
     /**
      * Confirms that a unique item name passes duplicate check validation without error.
      */
     @Test
-    void testValidateInventoryItemNotExists_withUniqueName_shouldPass() {
+    void testValidateInventoryItemNotExists_withUniqueNameAndPrice_shouldPass() {
         InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-        when(mockRepo.existsByNameIgnoreCase("UniqueItem")).thenReturn(false);
+        when(mockRepo.existsByNameAndPrice("UniqueItem", new BigDecimal("25.00"))).thenReturn(false);
 
         assertDoesNotThrow(() ->
-                InventoryItemValidator.validateInventoryItemNotExists("UniqueItem", mockRepo));
+            InventoryItemValidator.validateInventoryItemNotExists("UniqueItem", new BigDecimal("25.00"), mockRepo)
+        );
     }
+
+    @Test
+    void testValidateBase_withNullCreatedBy_shouldThrow() {
+        InventoryItemDTO dto = validDTO();
+        dto.setCreatedBy(null);
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+            InventoryItemValidator.validateBase(dto)
+        );
+
+        assertEquals("CreatedBy must be provided", ex.getMessage());
+    }
+
 }

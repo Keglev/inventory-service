@@ -131,5 +131,40 @@ public class StockHistoryService {
 
         repository.save(history);
     }
+
+    /**
+    * Accepts a validated StockHistoryDTO and persists it as a StockHistory entity.
+    *
+    * @param dto the DTO to be saved
+    */
+    public void save(StockHistoryDTO dto) {
+        // Validate fields for business logic constraints
+        StockHistoryValidator.validate(dto);
+
+        // Create and persist a new StockHistory entity
+        StockHistory history = StockHistory.builder()
+                .id("sh-" + dto.getItemId() + "-" + System.currentTimeMillis())
+                .itemId(dto.getItemId())
+                .change(dto.getChange())
+                .reason(dto.getReason())
+                .createdBy(dto.getCreatedBy())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        repository.save(history);
+    }
+
+    /**
+    * Records a stock deletion operation in the history.
+    *
+    * @param itemId    the ID of the deleted item
+    * @param reason    the reason for deletion (must be SCRAPPED, DESTROYED, etc.)
+    * @param createdBy the user who performed the deletion
+    */
+    public void delete(String itemId, StockChangeReason reason, String createdBy) {
+        // Use logStockChange internally to maintain consistency
+        logStockChange(itemId, -1, reason, createdBy); // convention: -1 indicates deletion
+    }
+
 }
 // This code handles the stock history service, providing methods to log and retrieve stock changes.

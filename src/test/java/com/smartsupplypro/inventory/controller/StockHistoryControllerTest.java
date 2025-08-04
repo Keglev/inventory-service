@@ -15,6 +15,7 @@ import org.springframework.data.domain.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -205,6 +206,35 @@ public class StockHistoryControllerTest {
                 .with(user("mockuser").roles(role)))
                 .andExpect(status().isBadRequest());
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"USER", "ADMIN"})
+    void testSearch_withInvalidDateRange_shouldReturnBadRequest(String role) throws Exception {
+        mockMvc.perform(get("/api/stock-history/search")
+                .param("startDate", "2024-01-31")
+                .param("endDate", "2024-01-01")
+                .with(user("mockuser").roles(role)))
+                .andExpect(status().isBadRequest());
+   }
+
+   @Test
+   void testGetAll_withoutAuthentication_shouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/stock-history"))
+                .andExpect(status().isUnauthorized());
+   }
+
+   @ParameterizedTest
+   @ValueSource(strings = {"USER", "ADMIN"})
+   void testSearch_withLargePageSize_shouldReturnLimitedResults(String role) throws Exception {
+        Page<StockHistoryDTO> page = new PageImpl<>(List.of(history));
+        when(stockHistoryService.findFiltered(any(), any(), any(), any(), any())).thenReturn(page);
+
+        mockMvc.perform(get("/api/stock-history/search")
+                .param("size", "1000")
+                .with(user("mockuser").roles(role)))
+                .andExpect(status().isOk());
+   }
+
 }
 /**
  * This class contains integration tests for the StockHistoryController,

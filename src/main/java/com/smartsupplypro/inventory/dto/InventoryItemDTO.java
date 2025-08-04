@@ -87,4 +87,7 @@ public class InventoryItemDTO {
     */
     private String supplierName;
 
+    private int minimumQuantity;
+
+
 }

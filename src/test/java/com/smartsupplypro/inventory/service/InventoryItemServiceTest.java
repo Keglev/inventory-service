@@ -147,14 +147,12 @@ public class InventoryItemServiceTest {
         verify(stockHistoryService).logStockChange("item-1", 0, StockChangeReason.INITIAL_STOCK, "admin");
     }
 
-    /**
-     * Throws IllegalArgumentException when an item with the same name already exists.
-     */
+   /**
+    * Throws IllegalArgumentException when an item with the same name and price already exists.
+    */
     @Test
     void shouldThrowExceptionWhenInventoryItemAlreadyExists() {
         mockOAuth2Authentication("tester", "ROLE_ADMIN");
-
-        when(inventoryItemRepository.existsByNameIgnoreCase("Widget")).thenReturn(true);
 
         InventoryItemDTO duplicate = InventoryItemDTO.builder()
             .name("Widget")
@@ -164,12 +162,18 @@ public class InventoryItemServiceTest {
             .createdBy("tester")
             .build();
 
+        // Required mocks
+        when(inventoryItemRepository.existsByNameAndPrice("Widget", BigDecimal.valueOf(10.0))).thenReturn(true);
+        when(supplierRepository.existsById("some-supplier")).thenReturn(true);
+
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
             inventoryItemService.save(duplicate)
         );
 
-        assertEquals("An inventory item with this name already exists.", ex.getMessage());
+        assertEquals("An inventory item with this name and price already exists.", ex.getMessage());
     }
+
+
     // ========== VALIDATION TESTS FOR SAVE ==========
 
     /**
@@ -209,7 +213,7 @@ public class InventoryItemServiceTest {
 
         Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
 
-        assertEquals("Price must be positive", ex.getMessage());
+        assertEquals("Price must be positive or greater than zero", ex.getMessage());
     }
 
     /**

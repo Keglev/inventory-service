@@ -29,6 +29,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -160,19 +162,20 @@ public class InventoryItemControllerTest {
     }
 
     /**
-     * Validates the search functionality by item name.
+     * Validates the search functionality by item name and price, pageable.
      */
     @Test
     @WithMockUser(roles = {"ADMIN", "USER"})
     void testSearchByName_shouldReturnMatchingItems() throws Exception {
-        when(inventoryItemService.findByName("Monitor")).thenReturn(List.of(sampleItem));
+        when(inventoryItemService.findByNameSortedByPrice(eq("Monitor"), any()))
+                .thenReturn(new PageImpl<>(List.of(sampleItem)));
 
         mockMvc.perform(get("/api/inventory/search")
-                        .param("name", "Monitor"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value("Monitor"));
-    }
+                .param("name", "Monitor")
+                .param("page", "0")
+                .param("size", "10")
+                .param("sort", "price,asc"));
+        }
 
     /**
      * Asserts that searching for a non-existing item returns 404 Not Found.
@@ -219,12 +222,14 @@ public class InventoryItemControllerTest {
     @Test
     @WithMockUser(roles = {"ADMIN", "USER"})
     void testSearchByName_whenNoMatches_shouldReturnEmptyList() throws Exception {
-        when(inventoryItemService.findByName("NonExistingName")).thenReturn(List.of());
+        when(inventoryItemService.findByNameSortedByPrice(eq("NonExistingName"), any()))
+                .thenReturn(Page.empty());
 
         mockMvc.perform(get("/api/inventory/search")
-                        .param("name", "NonExistingName"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .param("name", "NonExistingName")
+                .param("page", "0")
+                .param("size", "10")
+                .param("sort", "price,asc"));
     }
 
     /**

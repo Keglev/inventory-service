@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,8 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @return {@code true} if at least one item exists for the supplier
      */
     boolean existsBySupplierId(String supplierId);
+
+    boolean existsByNameAndPrice(String name, BigDecimal price);
 
     /**
      * Finds all inventory items where quantity is below the defined minimum quantity,
@@ -74,6 +77,8 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * 
      */
     Page<InventoryItem> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    boolean existsByNameIgnoreCase(String name);
 
 
 }
