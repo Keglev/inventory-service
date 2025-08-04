@@ -90,9 +90,17 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     * @return paged list of matching inventory item DTOs
     */
     public Page<InventoryItemDTO> findByNameSortedByPrice(String name, Pageable pageable) {
-        return repository.findByNameSortedByPrice(name, pageable)
-                .map(InventoryItemMapper::toDTO);
+        System.out.println(" [findByNameSortedByPrice] Querying for name: " + name + " | pageable: " + pageable);
+        Page<InventoryItem> page = repository.findByNameSortedByPrice(name, pageable);
+        System.out.println(" [findByNameSortedByPrice] Repository result is null? " + (page == null));
+    
+        if (page == null) {
+            return Page.empty();
+        }
+
+        return page.map(InventoryItemMapper::toDTO);
     }
+
 
     
     /**
@@ -105,6 +113,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         InventoryItemValidator.validateBase(dto);
         InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
         validateSupplierExists(dto.getSupplierId());
+
     
         InventoryItem entity = InventoryItemMapper.toEntity(dto);
 
@@ -129,54 +138,54 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     /**
-     * Updates an existing inventory item by ID. Validates permissions, logs quantity changes,
-     * and maps back to DTO after persistence.
-     *
-     * @param id  the item ID to update
-     * @param dto the new inventory data
-     * @return an optional containing the updated inventory item DTO
-     */
+    * Updates an existing inventory item by ID. Validates permissions, logs quantity changes,
+    * and maps back to DTO after persistence.
+    *
+    * @param id  the item ID to update
+    * @param dto the new inventory data
+    * @return an optional containing the updated inventory item DTO
+    */
     public Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);
         validateSupplierExists(dto.getSupplierId());
 
-        return repository.findById(id)
-                .map(existing -> {
-                    // Enforce role-based rules (e.g., only admin can update price)
-                    InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
-                    // Check for duplicate (name + price) only if name or price changed
-                    boolean nameChanged = !existing.getName().equalsIgnoreCase(dto.getName());
-                    boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
+        InventoryItem existing = InventoryItemValidator.validateExists(id, repository);
 
-                    if (nameChanged || priceChanged) {
-                        InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
-                    }
+        // Enforce role-based rules (e.g., only admin can update name/supplier)
+        InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
 
-                    int quantityDiff = dto.getQuantity() - existing.getQuantity();
+        // Check for duplicate (name + price) only if name or price changed
+        boolean nameChanged = !existing.getName().equalsIgnoreCase(dto.getName());
+        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
 
-                    existing.setName(dto.getName());
-                    existing.setQuantity(dto.getQuantity());
+        if (nameChanged || priceChanged) {
+            InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
+        }
 
-                    if (priceChanged) {
-                        existing.setPrice(dto.getPrice()); // allowed only if validated
-                    }
+        int quantityDiff = dto.getQuantity() - existing.getQuantity();
 
-                    existing.setSupplierId(dto.getSupplierId());
-                    existing.setCreatedBy(dto.getCreatedBy());
+        existing.setName(dto.getName());
+        existing.setQuantity(dto.getQuantity());
 
-                    InventoryItem updated = repository.save(existing);
+        if (priceChanged) {
+            existing.setPrice(dto.getPrice());
+        }
 
-                    if (quantityDiff != 0) {
-                        stockHistoryService.logStockChange(
-                                updated.getId(),
-                                quantityDiff,
-                                StockChangeReason.MANUAL_UPDATE,
-                                updated.getCreatedBy()
-                        );
-                    }
+        existing.setSupplierId(dto.getSupplierId());
+        existing.setCreatedBy(dto.getCreatedBy());
 
-                    return InventoryItemMapper.toDTO(updated);
-                });
+        InventoryItem updated = repository.save(existing);
+
+        if (quantityDiff != 0) {
+            stockHistoryService.logStockChange(
+                    updated.getId(),
+                    quantityDiff,
+                    StockChangeReason.MANUAL_UPDATE,
+                    updated.getCreatedBy()
+            );
+        }
+
+        return Optional.of(InventoryItemMapper.toDTO(updated));
     }
 
     /**
@@ -186,6 +195,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      * @throws IllegalArgumentException if the supplier does not exist
      */
     private void validateSupplierExists(String supplierId) {
+        System.out.println(" [validateSupplierExists] Checking supplierId: " + supplierId);
+        boolean exists = supplierRepository.existsById(supplierId);
+        System.out.println(" [validateSupplierExists] existsById(" + supplierId + ") = " + exists);
         if (!supplierRepository.existsById(supplierId)) {
             throw new IllegalArgumentException("Supplier does not exist");
         }
@@ -200,6 +212,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      * @throws IllegalArgumentException if item not found or reason is invalid
      */
     public void delete(String id, StockChangeReason reason) {
+        System.out.println(" [delete] Attempting to delete item with ID: " + id);
         if (reason != StockChangeReason.SCRAPPED && 
             reason != StockChangeReason.DESTROYED &&
             reason != StockChangeReason.DAMAGED &&
@@ -212,6 +225,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         Optional<InventoryItem> itemOpt = repository.findById(id);
         if (itemOpt.isPresent()) {
             InventoryItem item = itemOpt.get();
+            System.out.println(" [delete] Found item: " + item.getName() + " | Quantity: " + item.getQuantity());
     
             stockHistoryService.logStockChange(
                 item.getId(),
@@ -222,6 +236,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     
             repository.deleteById(id);
         } else {
+            System.out.println(" [delete] No item found for ID: " + id);
             throw new IllegalArgumentException("Item not found");
         }
     }

@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -154,25 +155,30 @@ public class InventoryItemServiceTest {
     void shouldThrowExceptionWhenInventoryItemAlreadyExists() {
         mockOAuth2Authentication("tester", "ROLE_ADMIN");
 
-        InventoryItemDTO duplicate = InventoryItemDTO.builder()
-            .name("Widget")
-            .price(BigDecimal.valueOf(10.0))
-            .quantity(5)
-            .supplierId("some-supplier")
-            .createdBy("tester")
-            .build();
+        InventoryItem existingItem = InventoryItem.builder()
+                .id("existing-id")
+                .name("Widget")
+                .price(BigDecimal.valueOf(10.0))
+                .quantity(50)
+                .supplierId("some-supplier")
+                .createdBy("admin")
+                .build();
 
-        // Required mocks
-        when(inventoryItemRepository.existsByNameAndPrice("Widget", BigDecimal.valueOf(10.0))).thenReturn(true);
+        when(inventoryItemRepository.findByNameIgnoreCase("Widget")).thenReturn(List.of(existingItem));
         when(supplierRepository.existsById("some-supplier")).thenReturn(true);
 
+        dto.setName("Widget");
+        dto.setPrice(BigDecimal.valueOf(10.0));
+        dto.setSupplierId("some-supplier");
+        dto.setCreatedBy("tester");
+
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            inventoryItemService.save(duplicate)
+                inventoryItemService.save(dto)
         );
 
         assertEquals("An inventory item with this name and price already exists.", ex.getMessage());
-    }
 
+    }
 
     // ========== VALIDATION TESTS FOR SAVE ==========
 
@@ -339,20 +345,23 @@ public class InventoryItemServiceTest {
     }
 
     /**
-     * Tests the behavior when trying to update a non-existent inventory item.
-     * The method should return an empty Optional and not interact with the stock history service.
-     */
+    * Tests that updating a non-existent inventory item throws an IllegalArgumentException.
+    * The method should not interact with the stock history service.
+    */
     @Test
-    void testUpdate_whenItemNotFound_shouldReturnEmptyOptional() {
+    void testUpdate_whenItemNotFound_shouldThrowException() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
 
         when(inventoryItemRepository.findById("invalid-id")).thenReturn(Optional.empty());
 
-        Optional<InventoryItemDTO> result = inventoryItemService.update("invalid-id", dto);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+            inventoryItemService.update("invalid-id", dto)
+        );
 
-        assertFalse(result.isPresent());
+        assertEquals("Item not found: invalid-id", ex.getMessage());
         verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
     }
+
     // ========== DELETE TESTS ==========
 
     /**
@@ -434,6 +443,42 @@ public class InventoryItemServiceTest {
 
         assertFalse(result.isPresent());
     }
+
+     /**
+     * Ensures successful save when no conflicting item exists.
+     */
+    @Test
+    void shouldSaveItemSuccessfullyWhenNoDuplicateExists() {
+        mockOAuth2Authentication("tester", "ROLE_ADMIN");
+
+        when(inventoryItemRepository.findByNameIgnoreCase("Widget")).thenReturn(List.of());
+        when(supplierRepository.existsById("some-supplier")).thenReturn(true);
+
+        InventoryItem savedEntity = InventoryItem.builder()
+                .id("new-id")
+                .name("Widget")
+                .price(BigDecimal.valueOf(10.0))
+                .quantity(5)
+                .minimumQuantity(1)
+                .supplierId("some-supplier")
+                .createdBy("tester")
+                .build();
+
+        when(inventoryItemRepository.save(any())).thenReturn(savedEntity);
+
+        dto.setName("Widget");
+        dto.setPrice(BigDecimal.valueOf(10.0));
+        dto.setQuantity(5);
+        dto.setSupplierId("some-supplier");
+        dto.setCreatedBy("tester");
+
+        InventoryItemDTO result = inventoryItemService.save(dto);
+
+        assertNotNull(result);
+        assertEquals("Widget", result.getName());
+        verify(stockHistoryService).logStockChange(eq("new-id"), eq(5), eq(StockChangeReason.INITIAL_STOCK), eq("tester"));
+    }
+
 }
 /**
  * Verifies that the service correctly handles unauthorized access attempts

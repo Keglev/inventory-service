@@ -91,4 +91,22 @@ public class InventoryItemValidator {
             }
         }
     }
+
+        /**
+     * Validates that an inventory item exists in the database by its ID.
+     *
+     * <p>This method abstracts the common repository lookup and throws a consistent
+     * exception when no item is found. It should be used before performing update or
+     * delete operations.</p>
+     *
+     * @param id             the ID of the inventory item
+     * @param inventoryRepo  the repository used for lookup
+     * @return the InventoryItem entity if found
+     * @throws IllegalArgumentException if the item does not exist
+     */
+    public static InventoryItem validateExists(String id, InventoryItemRepository inventoryRepo) {
+        return inventoryRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
+    }
+
 }
