@@ -70,6 +70,20 @@ public class StockHistory {
             timestamp = LocalDateTime.now();
         }
     }
+
+    /**
+    * Reference to the associated inventory item.
+    *
+    * <p>This is used for reporting, joins, and advanced filtering such as:
+    * supplier-based stock history, price trend analysis, and analytics aggregation.
+    *
+    * <p>This mapping is read-only and not used during insert/update operations.
+    */
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", insertable = false, updatable = false)
+    private InventoryItem inventoryItem;
+
 }
 // This entity is designed to be used in service layers where inventory changes need to be tracked,
 // such as in inventory management systems, reporting services, and audit logs. It provides a

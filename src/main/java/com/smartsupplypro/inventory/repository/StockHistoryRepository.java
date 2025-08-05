@@ -229,8 +229,9 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
     @Query("""
         SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)
         FROM StockHistory sh
+        JOIN sh.inventoryItem i
         WHERE sh.itemId = :itemId
-            AND (:supplierId IS NULL OR sh.supplierId = :supplierId)
+            AND (:supplierId IS NULL OR sh.supplier.id = :supplierId)
             AND sh.timestamp BETWEEN :start AND :end
             AND sh.priceAtChange IS NOT NULL
             ORDER BY sh.timestamp
