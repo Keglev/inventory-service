@@ -37,7 +37,7 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
         WHERE (:startDate IS NULL OR s.timestamp >= :startDate)
           AND (:endDate IS NULL OR s.timestamp <= :endDate)
           AND (:itemName IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :itemName, '%')))
-          AND (:supplierId IS NULL OR i.supplierId = :supplierId)
+          AND (:supplierId IS NULL OR i.supplier.id = :supplierId)
         """)
     Page<StockHistory> findFiltered(
         @Param("startDate") LocalDateTime startDate,
@@ -229,9 +229,9 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Stri
     @Query("""
         SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)
         FROM StockHistory sh
-        JOIN sh.inventoryItem i
+        JOIN InventoryItem i on sh.itemId = i.id
         WHERE sh.itemId = :itemId
-            AND (:supplierId IS NULL OR sh.supplier.id = :supplierId)
+            AND (:supplierId IS NULL OR i.supplier.id = :supplierId)
             AND sh.timestamp BETWEEN :start AND :end
             AND sh.priceAtChange IS NOT NULL
             ORDER BY sh.timestamp
