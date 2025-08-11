@@ -18,19 +18,25 @@ name: Inventory Service CI/CD - CI Build & Test & Docker Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
     paths:
       - 'inventory-service/**'
       - '.github/workflows/ci-build.yml'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
     paths:
       - 'inventory-service/**'
       - '.github/workflows/ci-build.yml'
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/inventory-service
 
     steps:
       # /**
@@ -55,6 +61,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: maven
 
       # /**
       #  * Caches Maven dependencies (~/.m2) across workflow runs.
@@ -121,13 +128,20 @@ jobs:
           # Pass it through as ORACLE_WALLET_B64 if your entrypoint expects that name:
           ORACLE_WALLET_B64: ${{ secrets.TNS_ADMIN_ZIP_B64 }}
         run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA || true
+
           docker run --rm -d --name inv-pre \
             -p 8081:8081 \
             -e SPRING_PROFILES_ACTIVE=prod \
             -e DB_URL="$DB_URL" -e DB_USER="$DB_USER" -e DB_PASS="$DB_PASS" \
             -e TNS_ADMIN="/app/wallet" \
             -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
-            ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
+            ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA || {echo "Failed to start container"; exit 1;}
+
+          sleep 3
+          if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
+            echo " Container exited early. Logs:"; docker logs inv-pre || true; exit 1
+          fi
 
           for i in {1..90}; do
             curl -sf http://localhost:8081/health/db && ok=1 && break || true 
