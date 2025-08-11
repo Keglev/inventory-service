@@ -37,13 +37,19 @@ JAVA_OPTS="-Xmx256m -Dserver.address=0.0.0.0 -Dspring.profiles.active=${SPRING_P
 
 # Pass the wallet password if provided (needed for ewallet.p12)
 if [ -n "${ORACLE_WALLET_PASSWORD:-}" ]; then
-  JAVA_OPTS="${JAVA_OPTS} -Doracle.net.wallet_password=${ORACLE_WALLET_PASSWORD}"
+  # Trim any stray CR/LF from the secret (common in CI copy-paste)
+  ORACLE_WALLET_PASSWORD="$(printf '%s' "$ORACLE_WALLET_PASSWORD" | tr -d '\r\n')"
+
+  # Optional: print length for diagnostics (doesn't reveal the value)
+  echo " Wallet password length: ${#ORACLE_WALLET_PASSWORD}"
+
+  # IMPORTANT: quote the value so spaces/special chars are preserved
+  JAVA_OPTS="${JAVA_OPTS} -Doracle.net.wallet_password=\"${ORACLE_WALLET_PASSWORD}\""
 else
   echo " WARN: ORACLE_WALLET_PASSWORD not set. If ewallet.p12 requires it, connection will fail."
 fi
 
-# Start Spring Boot application with JVM tuning
 echo " Starting Spring Boot..."
-exec java ${JAVA_OPTS} -jar app.jar
+exec sh -c "java ${JAVA_OPTS} -jar app.jar"
 
 # Note: Ensure that the environment variables ORACLE_WALLET_B64, WALLET_PASSWORD, and SPRING_PROFILES_ACTIVE are set before running this script.
