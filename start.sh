@@ -16,38 +16,39 @@ mkdir -p "$TNS_ADMIN"
 unzip -o /app/wallet.zip -d "$TNS_ADMIN"
 rm -f /app/wallet.zip
 
-echo " Oracle Wallet extracted"
+# If the ZIP has a subfolder (e.g. Wallet_sspdb_fixed), detect and use it
+CANDIDATE_TNS=$(find "$TNS_ADMIN" -maxdepth 2 -type f -name tnsnames.ora | head -n1 || true)
+if [ -n "${CANDIDATE_TNS:-}" ]; then
+  TNS_ADMIN_ACTUAL="$(dirname "$CANDIDATE_TNS")"
+else
+  TNS_ADMIN_ACTUAL="$TNS_ADMIN"
+fi
+export TNS_ADMIN="$TNS_ADMIN_ACTUAL"
 
-# Force sqlnet.ora to the actual directory
+echo " Oracle Wallet extracted"
+echo " Using TNS_ADMIN: $TNS_ADMIN"
+
+# Force sqlnet.ora to the actual directory (quote the path)
 cat > "$TNS_ADMIN/sqlnet.ora" <<EOF
-WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY=$TNS_ADMIN)))
+WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="$TNS_ADMIN")))
 SSL_SERVER_DN_MATCH = yes
 EOF
 
-# Display contents of sqlnet.ora if available
-echo "sqlnet.ora content:"
-cat "$TNS_ADMIN/sqlnet.ora" || echo " sqlnet.ora not found"
-
-# Display contents of tnsnames.ora if available
-echo "tnsnames.ora content:"
-cat "$TNS_ADMIN/tnsnames.ora" || echo " tnsnames.ora not found"
+# Safe debug (won't exit on missing files)
+echo "sqlnet.ora content:";  cat "$TNS_ADMIN/sqlnet.ora"  || true
+echo "tnsnames.ora content:"; cat "$TNS_ADMIN/tnsnames.ora" || true
 
 # JVM opts
 JAVA_OPTS="-Xmx256m -Dserver.address=0.0.0.0 -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -Doracle.net.tns_admin=${TNS_ADMIN}"
 
-# Pass the wallet password if provided (needed for ewallet.p12)
+# Wallet password (required for Free Tier)
 if [ -n "${ORACLE_WALLET_PASSWORD:-}" ]; then
-  # Trim any stray CR/LF from the secret (common in CI copy-paste)
-  ORACLE_WALLET_PASSWORD="$(printf '%s' "$ORACLE_WALLET_PASSWORD" | tr -d '\r\n')"
-
-  # Optional: print length for diagnostics (doesn't reveal the value)
+  JAVA_OPTS="${JAVA_OPTS} -Doracle.net.wallet_password=${ORACLE_WALLET_PASSWORD}"
   echo " Wallet password length: ${#ORACLE_WALLET_PASSWORD}"
-
-  # IMPORTANT: quote the value so spaces/special chars are preserved
-  JAVA_OPTS="${JAVA_OPTS} -Doracle.net.wallet_password=\"${ORACLE_WALLET_PASSWORD}\""
 else
-  echo " WARN: ORACLE_WALLET_PASSWORD not set. If ewallet.p12 requires it, connection will fail."
+  echo "WARN: ORACLE_WALLET_PASSWORD not set."
 fi
+
 
 # sanity check JKS passwords
 if ! keytool -list -storetype JKS -keystore "$TNS_ADMIN/keystore.jks" -storepass "$ORACLE_WALLET_PASSWORD" >/dev/null 2>&1; then
@@ -66,7 +67,7 @@ JAVA_OPTS="$JAVA_OPTS \
  -Djavax.net.ssl.trustStore=${TNS_ADMIN}/truststore.jks \
  -Djavax.net.ssl.trustStoreType=JKS \
  -Djavax.net.ssl.trustStorePassword=${ORACLE_WALLET_PASSWORD}"
- 
+
 echo " Starting Spring Boot..."
 exec sh -c "java ${JAVA_OPTS} -jar app.jar"
 
