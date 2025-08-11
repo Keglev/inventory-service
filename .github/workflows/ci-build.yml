@@ -117,7 +117,20 @@ jobs:
                        --build-arg ORACLE_WALLET_B64="${{ secrets.ORACLE_WALLET_B64 }}" \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
-      
+      # --- ADD THIS STEP BEFORE YOUR "Preflight DB" docker run step ---
+      - name: "Sanity check show start.sh inside the image"
+        shell: bash
+        run: |
+          echo "Image: $IMAGE_NAME:$GIT_SHA"
+          docker run --rm $IMAGE_NAME:$GIT_SHA sh -c '
+            set -e
+            echo "----- /app/start.sh (first 120 lines) -----"
+            sed -n "1,120p" /app/start.sh || true
+            echo "-------------------------------------------"
+            echo "Default TNS_ADMIN baked into image:"
+            printenv TNS_ADMIN || true
+          '
+
      # Preflight: run the built image, hit /health/db on port 8081, then stop
      # It checks if the Oracle DB is reachable and the application starts correctly. 
       - name: Preflight Oracle connectivity (container)
@@ -134,7 +147,7 @@ jobs:
             -e SPRING_PROFILES_ACTIVE=prod \
             -e SERVER_PORT=8081 \
             -e DB_URL="$DB_URL" -e DB_USER="$DB_USER" -e DB_PASS="$DB_PASS" \
-            -e TNS_ADMIN="/app/wallet" \
+            -e TNS_ADMIN="/app/wallet/Wallet_sspdb_fixed" \
             -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
             -e ORACLE_WALLET_PASSWORD="${{ secrets.ORACLE_WALLET_PASSWORD }}" \
             ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
