@@ -12,6 +12,7 @@ FROM maven:3.9.9-eclipse-temurin-17 AS build
 ARG PROFILE=prod
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
 
+
 # Set working directory in the build container
 WORKDIR /app
 
@@ -19,8 +20,15 @@ WORKDIR /app
 COPY . .
 
 # Build the Spring Boot application, skipping tests to speed up container build
-RUN mvn clean package -DskipTests
-
+RUN mvn clean package -DskipTests \
+    #  remove Maven cache after build
+    && rm -rf /root/.m2/repository   \ 
+    #  remove source JARs 
+    && rm -rf target/*-sources.jar   \ 
+    #  remove Javadoc JARs  
+    && rm -rf target/*-javadoc.jar   \
+    #  remove original pre-repackaged JAR   
+    && rm -rf target/original-*.jar      
 
 # ==============================
 # Runtime Stage
@@ -96,7 +104,7 @@ USER appuser
 #  * The TNS_ADMIN value must match the directory structure inside the extracted wallet.
 #  */
 ARG ORACLE_WALLET_B64
-ENV TNS_ADMIN=/app/wallet/Wallet_sspdb_fixed
+ENV TNS_ADMIN=/app/wallet
 
 # /**
 #  * Define the startup command: extract Oracle wallet and launch Spring Boot.

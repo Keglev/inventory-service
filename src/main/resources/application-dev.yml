@@ -6,8 +6,8 @@
 
 spring:
   datasource:
-    # Oracle DB connection using Wallet; TNS_ADMIN path injected via environment
-    url: ${DB_URL}?TNS_ADMIN=${TNS_ADMIN}
+    # Oracle DB connection using Wallet
+    url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
