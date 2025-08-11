@@ -6,7 +6,7 @@
 
 spring:
   datasource:
-    url: ${DB_URL}?TNS_ADMIN=${TNS_ADMIN}      # Use environment variable for Oracle Wallet path
+    url: ${DB_URL}                             # Use environment variable for Oracle Wallet path
     username: ${DB_USER}                       # Set via GitHub secrets or secure env injection
     password: ${DB_PASS}
     driver-class-name: oracle.jdbc.OracleDriver
