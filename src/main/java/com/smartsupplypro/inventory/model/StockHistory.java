@@ -6,6 +6,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+
 /**
  * Entity representing a stock movement event, such as an item being received,
  * sold, scrapped, or manually adjusted.
@@ -41,7 +43,9 @@ public class StockHistory {
      * Reason for the stock change, stored as a string to preserve flexibility.
      * Should correspond to a value in the {@link com.smartsupplypro.inventory.enums.StockChangeReason} enum.
      */
-    private String reason;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reason")
+    private StockChangeReason reason;
 
     /** Identifier of the user who initiated the stock change */
     @Column(name = "created_by")

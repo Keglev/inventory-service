@@ -34,8 +34,8 @@ import lombok.Setter;
 @Setter
 @Entity(name = "UsersApp")
 @Table(
-    name = "USERS_APP", 
-    schema = "ADMIN",
+    name = "users_app", 
+    // schema = "$(USERS_SCHEMA:ADMIN)",
     uniqueConstraints = @UniqueConstraint(name= "uk_users_email", columnNames = "email")
 )
 public class AppUser {

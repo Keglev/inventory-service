@@ -33,7 +33,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
      * @param supplierId ID of the supplier
      * @return {@code true} if at least one item exists for the supplier
      */
-    boolean existsBySupplierId(String supplierId);
+    boolean existsBySupplier_Id(String supplierId);
 
     boolean existsByNameAndPrice(String name, BigDecimal price);
 

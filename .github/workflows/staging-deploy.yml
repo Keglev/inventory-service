@@ -17,6 +17,10 @@ name: Inventory Service Staging Deploy
 on:
   workflow_dispatch:
 
+concurrency:
+  group: staging-image-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -73,3 +77,10 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:prod
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
+
+       # Reminder to manually deploy with Fly
+      - name: Deployment instructions
+        run: |
+          echo "Docker images pushed successfully."
+          echo "To deploy manually to Fly.io, run:"
+          echo "fly deploy --image ${{ secrets.DOCKER_USERNAME }}/inventory-service:${GIT_SHA}"

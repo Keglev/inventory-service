@@ -6,10 +6,10 @@
 
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb       # In-memory H2 database for fast, isolated testing
+    url: jdbc:h2:mem:testdb         # In-memory H2 database for fast, isolated testing
     driver-class-name: org.h2.Driver
-    username: sa                  # Default H2 username
-    password:                     # No password required for in-memory use
+    username: sa                    # Default H2 username
+    password:                       # No password required for in-memory use
 
   jpa:
     hibernate:
@@ -41,3 +41,6 @@ management:
   endpoint:
     health:
       show-details: always         # Always show detailed health info (for CI assertions)
+
+# Overrides schema for H2 tests (used in @Tavle(schema = "$(USERS_SCHEMA:ADMIN)")) 
+# warning: This is a placeholder and should be replaced with actual schema name in production.

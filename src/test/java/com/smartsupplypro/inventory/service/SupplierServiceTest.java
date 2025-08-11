@@ -140,7 +140,7 @@ class SupplierServiceTest {
     @Test
     void testDelete_shouldThrowException_whenInventoryItemsExist() {
         String supplierId = "supplier-123";
-        when(inventoryItemRepository.existsBySupplierId(supplierId)).thenReturn(true);
+        when(inventoryItemRepository.existsBySupplier_Id(supplierId)).thenReturn(true);
 
         assertThrows(IllegalStateException.class, () -> supplierService.delete(supplierId));
         verify(supplierRepository, never()).deleteById(any());
@@ -153,7 +153,7 @@ class SupplierServiceTest {
     @Test
     void testDelete_shouldSucceed_whenNoInventoryItemsExist() {
         String supplierId = "supplier-123";
-        when(inventoryItemRepository.existsBySupplierId(supplierId)).thenReturn(false);
+        when(inventoryItemRepository.existsBySupplier_Id(supplierId)).thenReturn(false);
 
         supplierService.delete(supplierId);
 

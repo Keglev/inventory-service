@@ -40,7 +40,7 @@ public class SupplierValidator {
      * @throws IllegalStateException if inventory items exist for the given supplier
      */
     public static void validateDeletable(String supplierId, InventoryItemRepository inventoryRepo) {
-        if (inventoryRepo.existsBySupplierId(supplierId)) {
+        if (inventoryRepo.existsBySupplier_Id(supplierId)) {
             throw new IllegalStateException("Cannot delete supplier with existing inventory items.");
         }
     }

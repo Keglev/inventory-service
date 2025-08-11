@@ -2,6 +2,7 @@ package com.smartsupplypro.inventory.mapper;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.model.StockHistory;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
 
 /**
  * Utility class for mapping between {@link StockHistory} entities
@@ -30,7 +31,7 @@ public class StockHistoryMapper {
                 .id(history.getId())
                 .itemId(history.getItemId())
                 .change(history.getChange())
-                .reason(history.getReason())
+                .reason(history.getReason() != null ? history.getReason().name() : null)
                 .createdBy(history.getCreatedBy())
                 .timestamp(history.getTimestamp())
                 .priceAtChange(history.getPriceAtChange())
@@ -50,7 +51,7 @@ public class StockHistoryMapper {
                 .id(dto.getId())
                 .itemId(dto.getItemId())
                 .change(dto.getChange())
-                .reason(dto.getReason())
+                .reason(dto.getReason() != null ? StockChangeReason.valueOf(dto.getReason()) : null)
                 .createdBy(dto.getCreatedBy())
                 .timestamp(dto.getTimestamp())
                 .priceAtChange(dto.getPriceAtChange())

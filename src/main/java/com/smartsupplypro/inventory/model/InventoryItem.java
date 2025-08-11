@@ -45,7 +45,7 @@ public class InventoryItem {
     private BigDecimal price;
 
     /** Foreign key reference to the item's supplier */
-    @Column(name = "supplier_id")
+    @Column(name = "supplier_id", insertable = false, updatable = false)
     private String supplierId;
 
     /** Username or email of the person who created this item */
@@ -76,7 +76,7 @@ public class InventoryItem {
      * This mapping is optional and is not used during insert/update.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id", insertable = false, updatable = false)
+    @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 }
 // This model is designed to be used in service layers where inventory items are managed,

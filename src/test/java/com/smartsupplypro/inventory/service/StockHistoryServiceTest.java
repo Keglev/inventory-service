@@ -48,7 +48,7 @@ public class StockHistoryServiceTest {
         StockHistory saved = captor.getValue();
         assertEquals("item-1", saved.getItemId());
         assertEquals(10, saved.getChange());
-        assertEquals("SOLD", saved.getReason());
+        assertEquals(StockChangeReason.SOLD, saved.getReason());
         assertEquals("admin", saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
     }
@@ -80,7 +80,7 @@ public class StockHistoryServiceTest {
         StockHistory saved = captor.getValue();
         assertEquals("item-1", saved.getItemId());
         assertEquals(-5, saved.getChange());
-        assertEquals("SCRAPPED", saved.getReason());
+        assertEquals(StockChangeReason.SCRAPPED, saved.getReason());
         assertEquals("admin", saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
     }
@@ -147,7 +147,7 @@ public class StockHistoryServiceTest {
         StockHistory saved = captor.getValue();
         assertEquals("item-1", saved.getItemId());
         assertEquals(-1, saved.getChange()); // default for deletions
-        assertEquals("RETURNED_TO_SUPPLIER", saved.getReason());
+        assertEquals(StockChangeReason.RETURNED_TO_SUPPLIER, saved.getReason());
         assertEquals("admin", saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
     }

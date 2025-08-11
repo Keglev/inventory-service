@@ -110,7 +110,39 @@ jobs:
                        --build-arg ORACLE_WALLET_B64="${{ secrets.TNS_ADMIN_ZIP_B64 }}" \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
+      
+      # Run the just-built image against Oracle (prod profile) and probe /actuator/health/db
+      - name: Preflight Oracle connectivity (container)
+        env:
+          DB_URL:  ${{ secrets.DB_URL }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          # Your wallet secret name is TNS_ADMIN_ZIP_B64 in the build step.
+          # Pass it through as ORACLE_WALLET_B64 if your entrypoint expects that name:
+          ORACLE_WALLET_B64: ${{ secrets.TNS_ADMIN_ZIP_B64 }}
+        working-directory: inventory-service
+        run: |
+          docker run --rm -d --name inv-pre \
+            -p 8080:8080 \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e DB_URL="$DB_URL" -e DB_USER="$DB_USER" -e DB_PASS="$DB_PASS" \
+            -e TNS_ADMIN="/app/wallet" \
+            -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
+            ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
 
+          # wait up to ~2 minutes for health
+          for i in {1..60}; do
+            curl -sf http://localhost:8081/health/db && ok=1 && break || sleep 2
+          done
+
+          docker logs inv-pre --tail 200 || true
+          docker rm -f inv-pre || true
+
+          if [ "${ok:-0}" != "1" ]; then
+            echo " Preflight DB health failed. Not pushing images."
+            exit 1
+          fi
+          echo " Preflight DB health check passed."
       # /**
       #  * Pushes both Docker tags (dev and Git SHA) to DockerHub.
       #  */

@@ -25,7 +25,7 @@ public class SupplierValidatorTest {
     @Test
     void testValidateDeletable_withExistingInventory_shouldThrowException() {
         InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-        when(mockRepo.existsBySupplierId("supplier-1")).thenReturn(true);
+        when(mockRepo.existsBySupplier_Id("supplier-1")).thenReturn(true);
 
         Exception ex = assertThrows(IllegalStateException.class, () ->
                 SupplierValidator.validateDeletable("supplier-1", mockRepo));
@@ -39,7 +39,7 @@ public class SupplierValidatorTest {
     @Test
     void testValidateDeletable_withNoInventory_shouldPass() {
         InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-        when(mockRepo.existsBySupplierId("supplier-1")).thenReturn(false);
+        when(mockRepo.existsBySupplier_Id("supplier-1")).thenReturn(false);
 
         assertDoesNotThrow(() ->
                 SupplierValidator.validateDeletable("supplier-1", mockRepo));

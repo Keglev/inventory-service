@@ -71,7 +71,7 @@ public class StockHistoryService {
      */
     public List<StockHistoryDTO> getByReason(StockChangeReason reason) {
         return repository.findAll().stream()
-                .filter(h -> h.getReason().equals(reason.name()))
+                .filter(h -> reason.equals(h.getReason()))
                 .map(StockHistoryMapper::toDTO)
                 .collect(Collectors.toList());
     }
@@ -124,7 +124,7 @@ public class StockHistoryService {
                 .id("sh-" + itemId + "-" + System.currentTimeMillis())
                 .itemId(itemId)
                 .change(change)
-                .reason(reason.name())  // stored as a string in the database
+                .reason(reason.name() != null ? StockChangeReason.valueOf(reason.name()) : null) 
                 .createdBy(createdBy)
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -146,7 +146,7 @@ public class StockHistoryService {
                 .id("sh-" + dto.getItemId() + "-" + System.currentTimeMillis())
                 .itemId(dto.getItemId())
                 .change(dto.getChange())
-                .reason(dto.getReason())
+                .reason(dto.getReason() != null ? StockChangeReason.valueOf(dto.getReason()) : null)
                 .createdBy(dto.getCreatedBy())
                 .timestamp(LocalDateTime.now())
                 .build();
