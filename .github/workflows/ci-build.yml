@@ -130,9 +130,7 @@ jobs:
           docker run -d --name inv-pre \
             -p 8081:8081 \
             -e SPRING_PROFILES_ACTIVE=prod \
-            -e DB_URL="$DB_URL" \
-            -e DB_USER="$DB_USER" \
-            -e DB_PASS="$DB_PASS" \
+            -e DB_URL="$DB_URL" -e DB_USER="$DB_USER" -e DB_PASS="$DB_PASS" \
             -e TNS_ADMIN="/app/wallet" \
             -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
             ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
