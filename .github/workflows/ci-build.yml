@@ -120,15 +120,13 @@ jobs:
       
      # Preflight: run the built image, hit /health/db on port 8081, then stop
       - name: Preflight Oracle connectivity (container)
+        shell: bash
         env:
           DB_URL:  ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
-          # Your wallet secret name is TNS_ADMIN_ZIP_B64 in the build step.
-          # Pass it through as ORACLE_WALLET_B64 if your entrypoint expects that name:
           ORACLE_WALLET_B64: ${{ secrets.TNS_ADMIN_ZIP_B64 }}
         run: |
-
           docker run --rm -d --name inv-pre \
             -p 8081:8081 \
             -e SPRING_PROFILES_ACTIVE=prod \
@@ -137,31 +135,38 @@ jobs:
             -e DB_PASS="$DB_PASS" \
             -e TNS_ADMIN="/app/wallet" \
             -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
-            ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA || {echo "Failed to start container"; exit 1;}
+            ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
           sleep 3
           if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
-            echo " Container exited early. Logs:"
+            echo "❌ Container exited early. Logs:"
             docker logs inv-pre || true
             exit 1
           fi
 
           for i in {1..90}; do
-            curl -sf http://localhost:8081/health/db && ok=1 && break || sleep 2
-            if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
-              echo "Container died during preflight. Logs:"
-              docker logs inv-pre || true
-              exit 1
-            fi
+            if curl -sf http://localhost:8081/health/db > /dev/null; then
+            ok=1; break
+          fi
+          if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
+            echo " Container died during preflight. Logs:"
+            docker logs inv-pre || true
+            exit 1
+          fi
+          sleep 2
           done
 
+          echo "----- Container logs (tail) -----"
           docker logs inv-pre --tail 200 || true
+
           docker rm -f inv-pre || true
 
           if [ "${ok:-0}" != "1" ]; then
             echo " Preflight DB health failed. Not pushing images."
             exit 1
           fi
+
           echo " Preflight DB health check passed."
+
       # /**
       #  * Pushes both Docker tags (dev and Git SHA) to DockerHub.
       #  */
