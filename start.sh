@@ -49,6 +49,24 @@ else
   echo " WARN: ORACLE_WALLET_PASSWORD not set. If ewallet.p12 requires it, connection will fail."
 fi
 
+# sanity check JKS passwords
+if ! keytool -list -storetype JKS -keystore "$TNS_ADMIN/keystore.jks" -storepass "$ORACLE_WALLET_PASSWORD" >/dev/null 2>&1; then
+  echo "❌ Keystore password does not unlock $TNS_ADMIN/keystore.jks"; exit 1
+fi
+if ! keytool -list -storetype JKS -keystore "$TNS_ADMIN/truststore.jks" -storepass "$ORACLE_WALLET_PASSWORD" >/dev/null 2>&1; then
+  echo "❌ Truststore password does not unlock $TNS_ADMIN/truststore.jks"; exit 1
+fi
+echo "✅ JKS password validated"
+
+# add explicit SSL props
+JAVA_OPTS="$JAVA_OPTS \
+ -Djavax.net.ssl.keyStore=${TNS_ADMIN}/keystore.jks \
+ -Djavax.net.ssl.keyStoreType=JKS \
+ -Djavax.net.ssl.keyStorePassword=${ORACLE_WALLET_PASSWORD} \
+ -Djavax.net.ssl.trustStore=${TNS_ADMIN}/truststore.jks \
+ -Djavax.net.ssl.trustStoreType=JKS \
+ -Djavax.net.ssl.trustStorePassword=${ORACLE_WALLET_PASSWORD}"
+ 
 echo " Starting Spring Boot..."
 exec sh -c "java ${JAVA_OPTS} -jar app.jar"
 

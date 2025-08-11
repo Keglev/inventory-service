@@ -114,7 +114,7 @@ jobs:
       - name: Build Docker image (DEV and SHA)
         run: |
           docker build --build-arg PROFILE=dev \
-                       --build-arg ORACLE_WALLET_B64="${{ secrets.TNS_ADMIN_ZIP_B64 }}" \
+                       --build-arg ORACLE_WALLET_B64="${{ secrets.ORACLE_WALLET_B64 }}" \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
       
@@ -126,7 +126,7 @@ jobs:
           DB_URL:  ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
-          ORACLE_WALLET_B64: ${{ secrets.TNS_ADMIN_ZIP_B64 }}
+          ORACLE_WALLET_B64: ${{ secrets.ORACLE_WALLET_B64 }}
         run: |
           docker run -d --name inv-pre \
             -p 8081:8081 \
