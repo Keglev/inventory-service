@@ -127,7 +127,7 @@ jobs:
           DB_PASS: ${{ secrets.DB_PASS }}
           ORACLE_WALLET_B64: ${{ secrets.TNS_ADMIN_ZIP_B64 }}
         run: |
-          docker run --rm -d --name inv-pre \
+          docker run -d --name inv-pre \
             -p 8081:8081 \
             -e SPRING_PROFILES_ACTIVE=prod \
             -e DB_URL="$DB_URL" \
@@ -136,12 +136,15 @@ jobs:
             -e TNS_ADMIN="/app/wallet" \
             -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
             ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
-          sleep 3
+          sleep 4
           if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
-            echo "❌ Container exited early. Logs:"
+            echo " Container exited early. Logs:"
             docker logs inv-pre || true
             exit 1
           fi
+
+          echo "SPRING_PROFILES_ACTIVE (env):"
+          docker exec inv-pre printenv SPRING_PROFILES_ACTIVE || true
 
           for i in {1..90}; do
             if curl -sf http://localhost:8081/health/db > /dev/null; then
