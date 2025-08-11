@@ -119,6 +119,7 @@ jobs:
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
       
      # Preflight: run the built image, hit /health/db on port 8081, then stop
+     # It checks if the Oracle DB is reachable and the application starts correctly. 
       - name: Preflight Oracle connectivity (container)
         shell: bash
         env:
