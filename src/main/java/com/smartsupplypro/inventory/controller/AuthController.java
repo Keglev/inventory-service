@@ -17,11 +17,27 @@ import jakarta.servlet.http.HttpSession;
 import java.util.Collections;
 
 /**
- * Controller for retrieving authentication-related data.
+ * Authentication utility endpoints.
  *
- * <p>This controller provides access to the currently authenticated user's profile.
- * It is designed to support OAuth2 login scenarios (e.g., Google OAuth) and
- * backend identity verification within a microservice environment.
+ * <p><b>Responsibilities</b>
+ * <ul>
+ *   <li>Expose the authenticated user profile at <code>GET /api/me</code>.</li>
+ *   <li>Optional debug endpoints for session/auth inspection (not for production).</li>
+ * </ul>
+ *
+ * <p><b>Security</b>
+ * <ul>
+ *   <li>All endpoints are under <code>/api/**</code> and require authentication,
+ *       except where explicitly opened in {@code SecurityConfig}.</li>
+ *   <li>On missing/invalid authentication, the controller returns 401 with a JSON body
+ *       (driven by the API entry point in {@code SecurityConfig}).</li>
+ * </ul>
+ *
+ * <p><b>Notes</b>
+ * <ul>
+ *   <li>User lookup is by OAuth2-provided email. No self-enrollment UI is provided.</li>
+ *   <li>Debug endpoints should be disabled in production builds.</li>
+ * </ul>
  */
 @RestController
 @RequestMapping("/api")
@@ -81,29 +97,6 @@ public class AuthController {
         return authentication != null
                 ? ResponseEntity.ok(Collections.singletonMap("principal", authentication.getPrincipal()))
                 : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
-    }
-    /**
-     * Debug endpoint to inspect authentication state.
-     *
-     * <p>This endpoint is useful for diagnosing issues with authentication and session management.
-     * It prints the session ID and authentication details to the console.
-     *
-     * @param auth    Spring Security {@link Authentication} object
-     * @param request current {@link HttpServletRequest} to extract session info
-     * @return JSON response indicating whether the user is authenticated
-     */
-    @GetMapping("/api/me-debug")
-    public ResponseEntity<?> debugAuth(Authentication auth, HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        System.out.println("SESSION ID: " + (session != null ? session.getId() : "null"));
-        System.out.println("AUTH: " + auth);
-        if (auth != null) {
-            System.out.println("AUTH CLASS: " + auth.getClass());
-            System.out.println("PRINCIPAL: " + auth.getPrincipal());
-        }
-        return auth != null
-            ? ResponseEntity.ok(auth.getPrincipal())
-            : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
     }
 
 }

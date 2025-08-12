@@ -24,22 +24,23 @@ import java.util.logging.Logger;
  * OAuth2LoginSuccessHandler handles user onboarding and redirection
  * after successful Google OAuth2 login.
  *
- * <p>This component is automatically triggered by Spring Security when a
- * user logs in via an external OAuth2 provider (e.g., Google). If the user
- * does not yet exist in the local database, it creates a new {@link AppUser}
- * with default {@link Role#USER} privileges.
+ * <p><b>Flow</b>
+ * <ol>
+ *   <li>Extracts <code>email</code> and <code>name</code> from the OAuth2 principal.</li>
+ *   <li>Creates a local {@link AppUser} with {@link Role#USER} if none exists.</li>
+ *   <li>Redirects the browser to the frontend login landing page.</li>
+ * </ol>
  *
- * <p>All user identities are based on the unique email address returned
- * by the OAuth2 provider. After successful login and registration,
- * the user is redirected to the frontend (e.g., Vite-based SPA).
+ * <p><b>Contract</b>
+ * <ul>
+ *   <li>Identity is keyed by unique email.</li>
+ *   <li>Duplicate detection defends against concurrent logins (DB unique constraint).</li>
+ *   <li>Redirect target should be environment-configurable for dev/prod.</li>
+ * </ul>
  *
- * <p>Note: This handler does not expose any REST endpoint and is purely part
- * of the Spring Security backend flow.
- *
- * @author Carlos K.
- * @version 1.0
- * @since 2025-07-30
+ * <p><b>Out of scope</b>: self-service enrollment flows/UI.</p>
  */
+
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
@@ -93,8 +94,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             userRepository.findByEmail(email).orElseThrow(() ->
                     new IllegalStateException("User already exists but cannot be loaded."));
         }
+        // TO DO: Make redirect URL configurable (e.g., via property "app.frontend.baseUrl").
+        // Hardcoding https://localhost:5173 will not work on production (Fly).
 
-        // ✅ Important: Ensure redirect uses proper protocol and host
+        // Important: Ensure redirect uses proper protocol and host
         response.sendRedirect("https://localhost:5173/login");
     }
 }

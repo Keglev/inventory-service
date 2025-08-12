@@ -12,23 +12,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * {@code TestSecurityConfig} defines a lightweight, test-specific Spring Security configuration
- * for isolating and verifying behavior of secured endpoints during unit and integration tests.
- * <p>
- * This configuration disables OAuth2 and CSRF, enforces authentication for API requests, and
- * provides a consistent {@code application/json} response structure for unauthorized access.
- * <p>
- * It is active only within the {@code @TestConfiguration} scope and ensures isolation from the
- * production-level security chain during automated testing.
+ * Test-only Spring Security configuration for controller tests.
  *
- * <p><b>Use Cases:</b></p>
+ * <p><b>What it does</b>
  * <ul>
- *   <li>MockMvc-based controller testing</li>
- *   <li>Security exception handling verification</li>
- *   <li>Disabling OAuth2 to test authentication-agnostic components</li>
+ *   <li>Disables OAuth2 and CSRF for simplified MockMvc testing.</li>
+ *   <li>Requires authentication by default; APIs without auth receive JSON 401.</li>
  * </ul>
  *
- * @author
+ * <p><b>Usage</b>
+ * <ul>
+ *   <li>Import with {@code @Import(TestSecurityConfig.class)} in @WebMvcTest slices.</li>
+ *   <li>Use {@code @WithMockUser} or {@code .with(authentication(...))} to simulate auth.</li>
+ * </ul>
  */
 @TestConfiguration
 @EnableMethodSecurity
