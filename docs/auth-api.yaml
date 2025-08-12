@@ -15,14 +15,17 @@ servers:
   - url: https://keglevich.github.io/inventory-service
     description: GitHub Pages
 
+# Default: all endpoints require the session cookie unless explicitly opened with `security: []`
+security:
+  - cookieAuth: []
+
 paths:
   /api/me:
     get:
       summary: Get authenticated user's profile
-      tags:
-        - Auth
+      tags: [Auth]
       security:
-        - oauth2: []
+        - cookieAuth: []
       responses:
         '200':
           description: Authenticated user's profile returned successfully
@@ -31,18 +34,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/AppUser'
         '401':
-          description: Unauthorized - no valid OAuth2 session found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: UNAUTHORIZED
-                  message:
-                    type: string
-                    example: No authentication provided
+          $ref: '#/components/responses/UnauthorizedJson'
 
 components:
   schemas:
@@ -67,3 +59,74 @@ components:
           type: string
           format: date-time
           example: "2025-06-30T11:42:00"
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Unauthorized
+        path:
+          type: string
+          example: /api/me
+        timestamp:
+          type: string
+          format: date-time
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+          tokenUrl: https://oauth2.googleapis.com/token
+          scopes:
+            openid: OpenID Connect scope
+            profile: Access basic profile
+            email: Access email
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: SESSION
+      description: >
+        Session cookie set after OAuth2 login. In servlet-only setups this may be JSESSIONID.
+        With Spring Session the cookie is named SESSION (SameSite=None; Secure).
+  responses:
+    UnauthorizedJson:
+      description: Not authenticated
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            default:
+              value:
+                message: Unauthorized
+    ForbiddenJson:
+      description: Authenticated but not allowed to access this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            default:
+              value:
+                message: Forbidden
+
+# Documentation-only metadata
+x-publicPaths:
+  - /health
+  - /actuator/health
+x-cors:
+  allowedOrigins:
+    - http://localhost:5173
+    - https://localhost:5173
+    - https://inventoryfrontend.fly.dev
+  allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+  allowedHeaders: ['*']
+  allowCredentials: true
+  notes: "Matches Spring Security CorsConfiguration; cookies require SameSite=None; Secure."
+x-csrf:
+  enabled: false
+  notes: >
+    CSRF is disabled globally for this portfolio project. In production, prefer enabling CSRF
+    and ignoring it for REST endpoints (/api/**) only. Session cookie is used with OAuth2 login.
