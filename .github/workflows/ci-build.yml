@@ -13,7 +13,8 @@ name: Inventory Service CI/CD - CI Build & Test & Docker Build
 #  *   3. Decode Oracle Wallet for secure Oracle DB connection.
 #  *   4. Run full Maven build and tests with Spring 'test' profile (without Docker).
 #  *   5. Build Docker image tagged with both 'dev' and current Git SHA.
-#  *   6. Push Docker images to DockerHub.
+#  *   6. Preflight check: run the image to verify Oracle DB connectivity.
+#  *   7. Push Docker images to DockerHub.
 #  */
 
 on:

@@ -21,9 +21,27 @@ set -eu
 #    (kept exactly as-is; expects ORACLE_WALLET_B64)
 echo "${ORACLE_WALLET_B64}" | base64 -d > /app/wallet.zip
 mkdir -p /app/wallet
-unzip -o -q /app/wallet.zip -d /app/wallet || {
-  echo "ERROR: unzip failed"; ls -R /app/wallet; exit 1;
-}
+
+# /**
+#  * Windows-zip quirk:
+#  * - Some ZIPs store paths with backslashes. `unzip` may return rc=1 with a warning
+#  *   even though extraction succeeded. We treat rc==1 as non-fatal if the expected
+#  *   /app/wallet/Wallet_sspdb_fixed folder exists.
+#  */
+# -- Windows ZIP quirk: unzip may return rc=1 yet still extract successfully.
+#    We accept rc==0, or rc==1 *if* the expected folder appears.
+set +e
+unzip -o -q /app/wallet.zip -d /app/wallet
+rc=$?
+set -e
+
+if [ "$rc" -ne 0 ]; then
+  if [ "$rc" -eq 1 ] && [ -d /app/wallet/Wallet_sspdb_fixed ]; then
+    echo "[start.sh] unzip returned 1 (Windows path separators) but files are present; continuing."
+  else
+    echo "[start.sh] ERROR: unzip failed (rc=$rc)"; ls -R /app/wallet; exit 1
+  fi
+fi
 
 # 2) Hard-set TNS_ADMIN to the known nested folder
 export TNS_ADMIN="/app/wallet/Wallet_sspdb_fixed"
