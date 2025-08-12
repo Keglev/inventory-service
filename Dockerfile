@@ -104,7 +104,6 @@ USER appuser
 #  * The TNS_ADMIN value must match the directory structure inside the extracted wallet.
 #  */
 ARG ORACLE_WALLET_B64
-ENV TNS_ADMIN=/app/wallet
 
 # /**
 #  * Define the startup command: extract Oracle wallet and launch Spring Boot.

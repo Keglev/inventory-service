@@ -147,7 +147,6 @@ jobs:
             -e SPRING_PROFILES_ACTIVE=prod \
             -e SERVER_PORT=8081 \
             -e DB_URL="$DB_URL" -e DB_USER="$DB_USER" -e DB_PASS="$DB_PASS" \
-            -e TNS_ADMIN="/app/wallet/Wallet_sspdb_fixed" \
             -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
             -e ORACLE_WALLET_PASSWORD="${{ secrets.ORACLE_WALLET_PASSWORD }}" \
             ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
