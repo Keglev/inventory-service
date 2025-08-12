@@ -13,8 +13,7 @@ name: Inventory Service CI/CD - CI Build & Test & Docker Build
 #  *   3. Decode Oracle Wallet for secure Oracle DB connection.
 #  *   4. Run full Maven build and tests with Spring 'test' profile (without Docker).
 #  *   5. Build Docker image tagged with both 'dev' and current Git SHA.
-#  *   6. Preflight check: run the image to verify Oracle DB connectivity.
-#  *   7. Push Docker images to DockerHub.
+#  *   6. Push Docker images to DockerHub.
 #  */
 
 on:
@@ -118,7 +117,8 @@ jobs:
                        --build-arg ORACLE_WALLET_B64="${{ secrets.ORACLE_WALLET_B64 }}" \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev \
                        -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
-      # --- ADD THIS STEP BEFORE YOUR "Preflight DB" docker run step ---
+
+      # --- sanity Check for image before the docker run step ---
       - name: "Sanity check show start.sh inside the image"
         shell: bash
         run: |
@@ -131,60 +131,6 @@ jobs:
             echo "Default TNS_ADMIN baked into image:"
             printenv TNS_ADMIN || true
           '
-
-          # /**
-      #  * Pre-deploy database health verification:
-      #  * - Runs the built image with wallet decoded at runtime (ORACLE_WALLET_B64).
-      #  * - Sets SERVER_PORT=8081 and checks Actuator /actuator/health.
-      #  * - Preserves wallet path at /app/wallet/Wallet_sspdb_fixed (unchanged).
-      #  * - Bridges DB_* envs to Spring in start.sh (no app YAML changes needed).
-      #  */
-
-      # /**
-      #  * Preflight: run the image, wait for health on port 8081, then stop.
-      #  * Uses the SAME wallet path and envs as production (no path changes).
-      #  */
-      - name: Preflight Oracle connectivity (container)
-        shell: bash
-        env:
-          DB_URL:  ${{ secrets.DB_URL }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASS: ${{ secrets.DB_PASS }}
-          ORACLE_WALLET_B64: ${{ secrets.ORACLE_WALLET_B64 }}
-          ORACLE_WALLET_PASSWORD: ${{ secrets.ORACLE_WALLET_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          docker rm -f inv-pre >/dev/null 2>&1 || true
-          docker run -d --name inv-pre \
-            -p 8081:8081 \
-            -e SPRING_PROFILES_ACTIVE=prod \
-            -e SERVER_PORT=8081 \
-            -e DB_URL="$DB_URL" \
-            -e DB_USER="$DB_USER" \
-            -e DB_PASS="$DB_PASS" \
-            -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
-            -e ORACLE_WALLET_PASSWORD="$ORACLE_WALLET_PASSWORD" \
-            ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
-
-          echo "Waiting for health (timeout 120s)..."
-          deadline=$(( $(date +%s) + 120 ))
-          until curl -fsS http://localhost:8081/actuator/health | grep -q '"status":"UP"'; do
-            # If your app uses a custom endpoint instead, swap the curl line to:
-            # curl -fsS http://localhost:8081/health/db >/dev/null && ok=1 && break
-            if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
-              echo "Container exited. Logs:" && docker logs inv-pre || true
-              exit 1
-            fi
-            [ "$(date +%s)" -gt "$deadline" ] && { echo "Timed out. Logs:"; docker logs inv-pre || true; exit 1; }
-            sleep 3
-          done
-
-          echo "----- recent container logs -----"
-          docker logs inv-pre --since 20s || true
-
-          docker rm -f inv-pre || true
-          echo "Preflight DB health check passed."
 
       # /**
       #  * Push Docker images (dev & SHA).

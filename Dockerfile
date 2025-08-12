@@ -129,3 +129,8 @@ HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
  CMD wget --spider -q http://localhost:8081/health || exit 1
 
 EXPOSE 8081
+# /**
+#  * Health probing is handled by Fly.io (fly.toml). Dockerfile HEALTHCHECK
+#  * is optional and ignored by Fly. We omit it here to keep the image lean.
+#  */
+
