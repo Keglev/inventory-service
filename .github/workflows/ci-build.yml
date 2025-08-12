@@ -131,8 +131,18 @@ jobs:
             printenv TNS_ADMIN || true
           '
 
-     # Preflight: run the built image, hit /health/db on port 8081, then stop
-     # It checks if the Oracle DB is reachable and the application starts correctly. 
+          # /**
+      #  * Pre-deploy database health verification:
+      #  * - Runs the built image with wallet decoded at runtime (ORACLE_WALLET_B64).
+      #  * - Sets SERVER_PORT=8081 and checks Actuator /actuator/health.
+      #  * - Preserves wallet path at /app/wallet/Wallet_sspdb_fixed (unchanged).
+      #  * - Bridges DB_* envs to Spring in start.sh (no app YAML changes needed).
+      #  */
+
+      # /**
+      #  * Preflight: run the image, wait for health on port 8081, then stop.
+      #  * Uses the SAME wallet path and envs as production (no path changes).
+      #  */
       - name: Preflight Oracle connectivity (container)
         shell: bash
         env:
@@ -140,52 +150,43 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
           ORACLE_WALLET_B64: ${{ secrets.ORACLE_WALLET_B64 }}
-        # Run the Docker container in detached mode, check health endpoint
+          ORACLE_WALLET_PASSWORD: ${{ secrets.ORACLE_WALLET_PASSWORD }}
         run: |
+          set -euo pipefail
+
+          docker rm -f inv-pre >/dev/null 2>&1 || true
           docker run -d --name inv-pre \
             -p 8081:8081 \
             -e SPRING_PROFILES_ACTIVE=prod \
             -e SERVER_PORT=8081 \
-            -e DB_URL="$DB_URL" -e DB_USER="$DB_USER" -e DB_PASS="$DB_PASS" \
+            -e DB_URL="$DB_URL" \
+            -e DB_USER="$DB_USER" \
+            -e DB_PASS="$DB_PASS" \
             -e ORACLE_WALLET_B64="$ORACLE_WALLET_B64" \
-            -e ORACLE_WALLET_PASSWORD="${{ secrets.ORACLE_WALLET_PASSWORD }}" \
+            -e ORACLE_WALLET_PASSWORD="$ORACLE_WALLET_PASSWORD" \
             ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
-          sleep 4
-          if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
-            echo " Container exited early. Logs:"
-            docker logs inv-pre || true
-            exit 1
-          fi
 
-          echo "SPRING_PROFILES_ACTIVE (env):"
-          docker exec inv-pre printenv SPRING_PROFILES_ACTIVE || true
-
-          for i in {1..90}; do
-            if curl -sf http://localhost:8081/health/db > /dev/null; then
-            ok=1; break
-          fi
-          if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
-            echo " Container died during preflight. Logs:"
-            docker logs inv-pre || true
-            exit 1
-          fi
-          sleep 2
+          echo "Waiting for health (timeout 120s)..."
+          deadline=$(( $(date +%s) + 120 ))
+          until curl -fsS http://localhost:8081/actuator/health | grep -q '"status":"UP"'; do
+            # If your app uses a custom endpoint instead, swap the curl line to:
+            # curl -fsS http://localhost:8081/health/db >/dev/null && ok=1 && break
+            if ! docker ps --format '{{.Names}}' | grep -q '^inv-pre$'; then
+              echo "Container exited. Logs:" && docker logs inv-pre || true
+              exit 1
+            fi
+            [ "$(date +%s)" -gt "$deadline" ] && { echo "Timed out. Logs:"; docker logs inv-pre || true; exit 1; }
+            sleep 3
           done
 
-          echo "----- Container logs (tail) -----"
-          docker logs inv-pre --tail 200 || true
+          echo "----- recent container logs -----"
+          docker logs inv-pre --since 20s || true
 
           docker rm -f inv-pre || true
-
-          if [ "${ok:-0}" != "1" ]; then
-            echo " Preflight DB health failed. Not pushing images."
-            exit 1
-          fi
-
-          echo " Preflight DB health check passed."
+          echo "Preflight DB health check passed."
 
       # /**
-      #  * Pushes both Docker tags (dev and Git SHA) to DockerHub.
+      #  * Push Docker images (dev & SHA).
       #  */
       - name: Push Docker images
         run: |

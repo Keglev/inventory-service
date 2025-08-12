@@ -115,12 +115,17 @@ CMD ["/app/start.sh"]
 # ==========================================================
 
 # /**
-#  * Healthcheck to validate if Spring Boot is running and responding.
+#  * Healthcheck endpoint must match the app’s actual mapping.
+#  * For Spring Boot Actuator defaults: /actuator/health on SERVER_PORT (8081 here).
+#  * Keep consistent with CI preflight checks to avoid false negatives.
 #  */
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget --spider -q http://localhost:8081/health || exit 1
 
+# Healthcheck
 # /**
-#  * Expose port 8081, which Spring Boot uses in this microservice.
+#  * If your app exposes Actuator, prefer /actuator/health.
+#  * If you have a custom /health/db endpoint, use that here instead.
 #  */
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+ CMD wget --spider -q http://localhost:8081/health || exit 1
+
 EXPOSE 8081
