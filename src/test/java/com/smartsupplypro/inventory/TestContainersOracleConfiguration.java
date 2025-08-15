@@ -27,15 +27,20 @@ public class TestContainersOracleConfiguration {
      *
      * @return a configured OracleContainer instance
      */
-    @Bean
-    @ServiceConnection
+    @Bean(destroyMethod = "stop")
+    @ServiceConnection // Spring Boot will autostart the container and wire a DataSource for tests
     @Conditional(EnableTestcontainersCondition.class)
+    @SuppressWarnings("resource") // Spring owns the bean lifecycle; stop() called on context shutdown
     public OracleContainer oracleFreeContainer() {
         if (!DockerClientFactory.instance().isDockerAvailable()) {
             throw new IllegalStateException("Docker is not available. OracleContainer startup skipped.");
         }
 
-        return new OracleContainer(DockerImageName.parse("gvenzl/oracle-free:latest"));
+        DockerImageName image = DockerImageName.parse("gvenzl/oracle-xe:21-slim");
+        OracleContainer container = new OracleContainer(image)
+                .withReuse(true); // optional: enable ~/.testcontainers reuse if configured
+        // No manual start() needed; @ServiceConnection + Spring Boot will start it.
+        return container;
     }
 }
 

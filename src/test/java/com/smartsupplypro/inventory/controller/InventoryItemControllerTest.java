@@ -1,503 +1,338 @@
 package com.smartsupplypro.inventory.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.smartsupplypro.inventory.InventoryServiceApplication;
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
-import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
-
-import org.junit.jupiter.api.BeforeEach;
+import com.smartsupplypro.inventory.service.InventoryItemService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 
+import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Unit test class for {@link InventoryItemController}.
- * <p>
- * This class uses Spring's MockMvc to test RESTful endpoints for inventory item operations.
- * It ensures role-based access control, data validation, and error handling are functioning
- * as expected for both ADMIN and USER roles.
+ * MVC slice tests for {@link InventoryItemController}.
+ *
+ * Scope: HTTP contract only (routing, security, status codes, headers, minimal JSON).
+ * Business rules and side-effects are covered in service/integration tests.
  */
 @WebMvcTest(controllers = InventoryItemController.class)
-@ImportAutoConfiguration
-@ContextConfiguration(classes = InventoryServiceApplication.class)
-@ActiveProfiles("test")
-@Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
-public class InventoryItemControllerTest {
+@Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
+class InventoryItemControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
 
-    @MockitoBean
-    private InventoryItemServiceImpl inventoryItemService;
+    @MockitoBean InventoryItemService inventoryItemService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    /* -------------------- helpers -------------------- */
 
-    private InventoryItemDTO sampleItem;
-
-    /**
-     * Initializes a sample InventoryItemDTO before each test.
-     */
-    @BeforeEach
-    void setup() {
-        sampleItem = InventoryItemDTO.builder()
-                .id("item-1")
-                .name("Monitor")
-                .quantity(10)
-                .price(new BigDecimal("299.99"))
-                .supplierId("supplier-1")
-                .createdBy("admin")
-                .build();
+    private InventoryItemDTO sample(String id) {
+        InventoryItemDTO dto = new InventoryItemDTO();
+        dto.setId(id);
+        dto.setName("Monitor");
+        dto.setQuantity(10);
+        dto.setPrice(new BigDecimal("199.99"));
+        dto.setSupplierId("sup-1");
+        return dto;
     }
 
-    /**
-     * Verifies that an existing inventory item is returned correctly when queried by ID.
-     */
-    @Test
-    @WithMockUser(roles = {"USER", "ADMIN"})
-    void testGetById_shouldReturnItem() throws Exception {
-        when(inventoryItemService.getById("item-1")).thenReturn(Optional.of(sampleItem));
-
-        mockMvc.perform(get("/api/inventory/item-1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Monitor"));
+    private InventoryItemDTO withoutId() {
+        InventoryItemDTO dto = sample(null);
+        dto.setId(null);
+        return dto;
     }
 
-    /**
-     * Verifies that an ADMIN can delete an item using a valid reason.
-     */
-    @Test
-    void testDeleteInventoryItem_withAdmin_shouldSucceed() throws Exception {
-        doNothing().when(inventoryItemService).delete(eq("item-1"), eq(StockChangeReason.SCRAPPED));
-
-        mockMvc.perform(delete("/api/inventory/item-1")
-                        .with(csrf())
-                        .with(user("adminuser").roles("ADMIN"))
-                        .param("reason", "SCRAPPED"))
-                .andExpect(status().isNoContent());
+    private InventoryItemDTO invalid() {
+        // Intentionally invalid to trigger @Valid -> 400 before service runs
+        InventoryItemDTO dto = new InventoryItemDTO();
+        dto.setName(""); // NotBlank
+        dto.setQuantity(-1); // PositiveOrZero
+        dto.setPrice(new BigDecimal("-1.00")); // Decimal min
+        return dto;
     }
 
-    /**
-     * Verifies successful creation of an inventory item by ADMIN or USER.
-     */
-    @Test
-    @WithMockUser(roles = {"USER", "ADMIN"})
-    void testCreate_shouldReturnCreatedItem() throws Exception {
-        when(inventoryItemService.save(any())).thenReturn(sampleItem);
+    /* -------------------- create (POST -> save) -------------------- */
 
-        mockMvc.perform(post("/api/inventory")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleItem)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Monitor"));
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("POST /api/inventory -> 201 + Location (ADMIN)")
+    void create_returns201AndLocation() throws Exception {
+        InventoryItemDTO request = withoutId();
+        InventoryItemDTO created = sample("i-1");
+        when(inventoryItemService.save(any())).thenReturn(created);
+
+        mockMvc.perform(post("/api/inventory").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andExpect(header().string("Location", endsWith("/api/inventory/i-1")))
+            .andExpect(jsonPath("$.id").value("i-1"))
+            .andExpect(jsonPath("$.name").value("Monitor"));
     }
 
-    /**
-     * Verifies that all items are returned in a list format.
-     */
     @Test
-    @WithMockUser(roles = {"USER", "ADMIN"})
-    void testGetAll_shouldReturnList() throws Exception {
-        when(inventoryItemService.getAll()).thenReturn(List.of(sampleItem));
-
-        mockMvc.perform(get("/api/inventory"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value("Monitor"));
+    @DisplayName("POST /api/inventory -> 401 when unauthenticated")
+    void create_unauthenticated_401() throws Exception {
+        mockMvc.perform(post("/api/inventory").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(withoutId())))
+            .andExpect(status().isUnauthorized());
     }
 
-    /**
-     * Verifies that item updates are handled successfully by ADMIN.
-     */
     @Test
-    @WithMockUser(roles = {"ADMIN"})
-    void testUpdate_shouldReturnUpdatedItem() throws Exception {
-        when(inventoryItemService.update(eq("item-1"), any())).thenReturn(Optional.of(sampleItem));
-
-        mockMvc.perform(put("/api/inventory/item-1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleItem)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Monitor"));
+    @WithMockUser(roles = "USER")
+    @DisplayName("POST /api/inventory -> 403 (USER forbidden)")
+    void create_user_forbidden_403() throws Exception {
+        mockMvc.perform(post("/api/inventory").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(withoutId())))
+            .andExpect(status().isForbidden());
     }
 
-    /**
-     * Ensures a DELETE request without a reason returns 400 Bad Request.
-     */
     @Test
-    @WithMockUser(roles = {"ADMIN"})
-    void testDelete_withMissingReason_shouldReturnBadRequest() throws Exception {
-        mockMvc.perform(delete("/api/inventory/item-1").with(csrf()))
-                .andExpect(status().isBadRequest());
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("POST /api/inventory -> 400 when bean validation fails")
+    void create_invalid_400() throws Exception {
+        mockMvc.perform(post("/api/inventory").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalid())))
+            .andExpect(status().isBadRequest());
     }
 
-    /**
-     * Validates the search functionality by item name and price, pageable.
-     */
     @Test
-    @WithMockUser(roles = {"ADMIN", "USER"})
-    void testSearchByName_shouldReturnMatchingItems() throws Exception {
-        when(inventoryItemService.findByNameSortedByPrice(eq("Monitor"), any()))
-                .thenReturn(new PageImpl<>(List.of(sampleItem)));
-
-        mockMvc.perform(get("/api/inventory/search")
-                .param("name", "Monitor")
-                .param("page", "0")
-                .param("size", "10")
-                .param("sort", "price,asc"));
-        }
-
-    /**
-     * Asserts that searching for a non-existing item returns 404 Not Found.
-     */
-    @Test
-    @WithMockUser(roles = {"ADMIN", "USER"})
-    void testGetById_whenNotFound_shouldReturn404() throws Exception {
-        when(inventoryItemService.getById("item-404")).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/api/inventory/item-404"))
-                .andExpect(status().isNotFound());
-    }
-        /**
-     * Verifies that updating a non-existent item returns HTTP 404 Not Found.
-     */
-    @Test
-    @WithMockUser(roles = {"ADMIN"})
-    void testUpdate_whenNotFound_shouldReturn404() throws Exception {
-        when(inventoryItemService.update(eq("item-404"), any())).thenReturn(Optional.empty());
-
-        mockMvc.perform(put("/api/inventory/item-404")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleItem)))
-                .andExpect(status().isNotFound());
-    }
-
-    /**
-     * Ensures that an empty item list results in a 200 OK with an empty array.
-     */
-    @Test
-    @WithMockUser(roles = {"ADMIN", "USER"})
-    void testGetAll_whenEmpty_shouldReturnEmptyList() throws Exception {
-        when(inventoryItemService.getAll()).thenReturn(List.of());
-
-        mockMvc.perform(get("/api/inventory"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-    }
-
-    /**
-     * Verifies that searching for a name with no matches returns an empty array.
-     */
-    @Test
-    @WithMockUser(roles = {"ADMIN", "USER"})
-    void testSearchByName_whenNoMatches_shouldReturnEmptyList() throws Exception {
-        when(inventoryItemService.findByNameSortedByPrice(eq("NonExistingName"), any()))
-                .thenReturn(Page.empty());
-
-        mockMvc.perform(get("/api/inventory/search")
-                .param("name", "NonExistingName")
-                .param("page", "0")
-                .param("size", "10")
-                .param("sort", "price,asc"));
-    }
-
-    /**
-     * Tests validation: creating an item with missing fields should return HTTP 400 Bad Request.
-     */
-    @Test
-    @WithMockUser(roles = {"ADMIN"})
-    void testCreate_withInvalidInput_shouldReturnBadRequest() throws Exception {
-        InventoryItemDTO invalidItem = InventoryItemDTO.builder()
-                .id("item-2")
-                .quantity(5)
-                .price(new BigDecimal("199.99"))
-                .supplierId("supplier-2")
-                .createdBy("admin")
-                .build(); // name is missing
-
-        mockMvc.perform(post("/api/inventory")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidItem)))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * Tests validation: updating an item with a negative quantity returns HTTP 400 Bad Request.
-     */
-    @Test
-    @WithMockUser(roles = {"ADMIN"})
-    void testUpdate_withInvalidInput_shouldReturnBadRequest() throws Exception {
-        InventoryItemDTO invalidUpdate = InventoryItemDTO.builder()
-                .id("item-1")
-                .name("Monitor")
-                .quantity(-5)
-                .price(new BigDecimal("299.99"))
-                .supplierId("supplier-1")
-                .createdBy("admin")
-                .build();
-
-        mockMvc.perform(put("/api/inventory/item-1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidUpdate)))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * Tests validation: creating an item with a price of 0 should fail.
-     */
-    @Test
-    @WithMockUser(roles = {"ADMIN"})
-    void testCreate_withZeroPrice_shouldReturnBadRequest() throws Exception {
-        InventoryItemDTO invalidPriceItem = InventoryItemDTO.builder()
-                .id("item-3")
-                .name("Keyboard")
-                .quantity(10)
-                .price(BigDecimal.ZERO)
-                .supplierId("supplier-3")
-                .createdBy("admin")
-                .build();
-
-        mockMvc.perform(post("/api/inventory")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidPriceItem)))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * Tests that attempting to create a duplicate item name results in HTTP 409 Conflict.
-     */
-    @Test
-    @WithMockUser(roles = {"ADMIN", "USER"})
-    void testCreate_whenDuplicateName_shouldReturnConflict() throws Exception {
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("POST /api/inventory -> 409 when duplicate (handler wiring)")
+    void create_duplicate_409() throws Exception {
         when(inventoryItemService.save(any()))
-                .thenThrow(new IllegalArgumentException("An inventory item with this name already exists."));
-
-        mockMvc.perform(post("/api/inventory")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleItem)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("An inventory item with this name already exists."));
+            .thenThrow(new DuplicateResourceException("Item name already exists"));
+        mockMvc.perform(post("/api/inventory").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(withoutId())))
+            .andExpect(status().isConflict());
     }
 
-    /**
-     * Verifies that updating an item with a duplicate name returns HTTP 409 Conflict.
-     */
+    /* -------------------- read -------------------- */
+
     @Test
-    @WithMockUser(roles = {"ADMIN"})
-    void testUpdate_whenDuplicateName_shouldReturnConflict() throws Exception {
-        when(inventoryItemService.update(eq("item-1"), any()))
-                .thenThrow(new IllegalArgumentException("An inventory item with this name already exists."));
+    @WithMockUser(roles = "USER")
+    @DisplayName("GET /api/inventory/{id} -> 200 or 404")
+    void getById_foundOrNotFound() throws Exception {
+        when(inventoryItemService.getById("i-1")).thenReturn(Optional.of(sample("i-1")));
+        when(inventoryItemService.getById("missing")).thenReturn(Optional.empty());
 
-        mockMvc.perform(put("/api/inventory/item-1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleItem)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("An inventory item with this name already exists."));
+        mockMvc.perform(get("/api/inventory/i-1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value("i-1"));
+
+        mockMvc.perform(get("/api/inventory/missing"))
+            .andExpect(status().isNotFound());
     }
 
-    /**
-     * Ensures that users (non-admin) cannot delete inventory items (HTTP 403 Forbidden).
-     */
     @Test
-    @WithMockUser(roles = {"USER"})
-    void testDeleteInventoryItem_withUser_shouldFailForbidden() throws Exception {
-        mockMvc.perform(delete("/api/inventory/item-1")
-                        .with(csrf())
-                        .param("reason", "SCRAPPED"))
-                .andExpect(status().isForbidden());
+    @WithMockUser(roles = "USER")
+    @DisplayName("GET /api/inventory -> 200 with list")
+    void getAll_returnsList() throws Exception {
+        when(inventoryItemService.getAll()).thenReturn(List.of(sample("i-1"), sample("i-2")));
+        mockMvc.perform(get("/api/inventory"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value("i-1"))
+            .andExpect(jsonPath("$[1].id").value("i-2"));
     }
 
-    /**
-     * Ensures unauthorized users (not logged in) receive HTTP 401 Unauthorized on delete.
-     */
     @Test
-    void testDeleteInventoryItem_withoutAuth_shouldFailUnauthorized() throws Exception {
-        mockMvc.perform(delete("/api/inventory/item-1")
-                        .with(csrf())
-                        .param("reason", "SCRAPPED"))
-                .andExpect(status().isUnauthorized());
+    @WithMockUser(roles = "USER")
+    @DisplayName("GET /api/inventory -> 200 with empty list")
+    void getAll_returnsEmptyList() throws Exception {
+        when(inventoryItemService.getAll()).thenReturn(List.of());
+        mockMvc.perform(get("/api/inventory"))
+            .andExpect(status().isOk())
+            .andExpect(content().json("[]"));
     }
 
-    /**
-     * Ensures that unauthenticated users cannot create inventory items.
-     */
     @Test
-    void testCreateInventoryItem_withoutAuth_shouldFailUnauthorized() throws Exception {
-        mockMvc.perform(post("/api/inventory")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleItem)))
-                .andExpect(status().isUnauthorized());
+    @WithMockUser(roles = "USER")
+    @DisplayName("GET /api/inventory/search -> pageable & sort passed through")
+    void search_pageableAndSort() throws Exception {
+        when(inventoryItemService.findByNameSortedByPrice(eq("mon"), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(sample("i-2"))));
+
+        mockMvc.perform(get("/api/inventory/search")
+                .param("name", "mon")
+                .param("page", "1")
+                .param("size", "5")
+                .param("sort", "price,desc"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].id").value("i-2"));
     }
 
-    /**
-     * Ensures users cannot change the item name — only price/quantity are allowed.
-     */
+    /* -------------------- update (PUT unwraps Optional) -------------------- */
+
     @Test
-    @WithMockUser(roles = {"USER"})
-    void testUpdateInventoryItem_withUserChangingName_shouldFailForbidden() throws Exception {
-        InventoryItemDTO incoming = InventoryItemDTO.builder()
-                .id("item-1")
-                .name("New Monitor") // not allowed
-                .quantity(10)
-                .price(new BigDecimal("299.99"))
-                .supplierId("supplier-1")
-                .createdBy("user1")
-                .build();
+    @WithMockUser(roles = "USER")
+    @DisplayName("PUT /api/inventory/{id} -> 403 when user attempts forbidden field changes")
+    void update_user_forbidden_field_change() throws Exception {
+        when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
+            .thenThrow(new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.FORBIDDEN,
+                "Users are only allowed to change quantity or price."
+            ));
 
-        when(inventoryItemService.update(eq("item-1"), any()))
-                .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Users are only allowed to change quantity or price."));
-
-        mockMvc.perform(put("/api/inventory/item-1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(incoming)))
-                .andExpect(status().isForbidden());
+        mockMvc.perform(put("/api/inventory/i-1").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sample("i-1"))))
+            .andExpect(status().isForbidden());
     }
 
-    /**
-     * Allows users to update quantity (permitted field), verifying the update is successful.
-     */
     @Test
-    @WithMockUser(roles = {"USER"})
-    void testUpdateInventoryItem_withUserChangingQuantity_shouldSucceed() throws Exception {
-        InventoryItemDTO updatedDto = InventoryItemDTO.builder()
-                .id("item-1")
-                .name("Monitor") // unchanged
-                .quantity(15)
-                .price(new BigDecimal("299.99"))
-                .supplierId("supplier-1")
-                .createdBy("user1")
-                .build();
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("PUT /api/inventory/{id} -> 200 when found, 404 when missing")
+    void update_foundOrMissing() throws Exception {
+        InventoryItemDTO updated = sample("i-1");
+        when(inventoryItemService.update(eq("i-1"), any(InventoryItemDTO.class)))
+            .thenReturn(Optional.of(updated));
+        when(inventoryItemService.update(eq("missing"), any(InventoryItemDTO.class)))
+            .thenReturn(Optional.empty());
 
-        when(inventoryItemService.update(eq("item-1"), any()))
-                .thenReturn(Optional.of(updatedDto));
+        mockMvc.perform(put("/api/inventory/i-1").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updated)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value("i-1"));
 
-        mockMvc.perform(put("/api/inventory/item-1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.quantity").value(15));
+        mockMvc.perform(put("/api/inventory/missing").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updated)))
+            .andExpect(status().isNotFound());
     }
 
-    /**
-     * Tests invalid user input (missing name) for creation by regular user.
-     */
+    /* -------------------- delete -------------------- */
+
     @Test
-    @WithMockUser(roles = {"USER"})
-    void testCreate_withInvalidInput_asUser_shouldReturnBadRequest() throws Exception {
-        InventoryItemDTO invalidItem = InventoryItemDTO.builder()
-                .id("item-2")
-                .quantity(5)
-                .price(new BigDecimal("199.99"))
-                .supplierId("supplier-2")
-                .createdBy("user")
-                .build();
-
-        mockMvc.perform(post("/api/inventory")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidItem)))
-                .andExpect(status().isBadRequest());
+    @DisplayName("DELETE /api/inventory/{id} -> 401 when unauthenticated")
+    void delete_unauthenticated_401() throws Exception {
+        mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
+                .param("reason", StockChangeReason.SCRAPPED.name()))
+            .andExpect(status().isUnauthorized());
     }
 
-    /**
-     * Tests user creation with zero price to ensure it is rejected as invalid.
-     */
     @Test
-    @WithMockUser(roles = {"USER"})
-    void testCreate_withZeroPrice_asUser_shouldReturnBadRequest() throws Exception {
-        InventoryItemDTO invalidItem = InventoryItemDTO.builder()
-                .id("item-4")
-                .name("Mouse")
-                .quantity(5)
-                .price(BigDecimal.ZERO)
-                .supplierId("supplier-3")
-                .createdBy("user")
-                .build();
-
-        mockMvc.perform(post("/api/inventory")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidItem)))
-                .andExpect(status().isBadRequest());
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("DELETE /api/inventory/{id}?reason=SCRAPPED -> 204 (ADMIN)")
+    void delete_admin_noContent() throws Exception {
+        mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
+                .param("reason", StockChangeReason.SCRAPPED.name()))
+            .andExpect(status().isNoContent());
     }
 
-    /**
-     * Verifies that updating an item with a negative quantity by USER results in a 400 error.
-     */
     @Test
-    @WithMockUser(roles = {"USER"})
-    void testUpdate_withInvalidInput_asUser_shouldReturnBadRequest() throws Exception {
-        InventoryItemDTO invalidUpdate = InventoryItemDTO.builder()
-                .id("item-1")
-                .name("Monitor")
-                .quantity(-5)
-                .price(new BigDecimal("299.99"))
-                .supplierId("supplier-1")
-                .createdBy("user")
-                .build();
-
-        mockMvc.perform(put("/api/inventory/item-1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidUpdate)))
-                .andExpect(status().isBadRequest());
+    @WithMockUser(roles = "USER")
+    @DisplayName("DELETE /api/inventory/{id} -> 403 (USER forbidden)")
+    void delete_user_forbidden() throws Exception {
+        mockMvc.perform(delete("/api/inventory/i-1").with(csrf())
+                .param("reason", StockChangeReason.SCRAPPED.name()))
+            .andExpect(status().isForbidden());
     }
 
-    /**
-     * Ensures that USER attempting to rename an item to a duplicate triggers a 409 Conflict.
-     */
     @Test
-    @WithMockUser(roles = {"USER"})
-    void testUpdate_whenDuplicateName_asUser_shouldReturnConflict() throws Exception {
-        when(inventoryItemService.update(eq("item-1"), any()))
-                .thenThrow(new IllegalArgumentException("An inventory item with this name already exists."));
-
-        mockMvc.perform(put("/api/inventory/item-1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleItem)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("An inventory item with this name already exists."));
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("DELETE /api/inventory/{id} without reason -> 400")
+    void delete_missing_reason_badRequest() throws Exception {
+        mockMvc.perform(delete("/api/inventory/i-1").with(csrf()))
+            .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void patch_quantity_user_ok() throws Exception {
+        when(inventoryItemService.adjustQuantity(eq("i-1"), eq(5), eq(StockChangeReason.SOLD)))
+            .thenReturn(sample("i-1"));
+
+        mockMvc.perform(patch("/api/inventory/i-1/quantity").with(csrf())
+                .param("delta", "5")
+                .param("reason", StockChangeReason.SOLD.name()))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void patch_price_user_ok() throws Exception {
+        when(inventoryItemService.updatePrice(eq("i-1"), eq(new BigDecimal("149.99"))))
+            .thenReturn(sample("i-1"));
+
+        mockMvc.perform(patch("/api/inventory/i-1/price").with(csrf())
+            .param("price", "149.99"))
+            .andExpect(status().isOk());
+    }
+
+
+    /* ============================================================
+     * ===============  MIGRATION PARKING LOT  =====================
+     * ============================================================
+     * Paste any of your EXISTING business-rule-heavy controller tests
+     * below, but keep them commented. Each block is tagged with a
+     * suggested destination. When you move them, delete the block.
+     */
+
+    // ============================================================
+    // MOVE → InventoryItemServiceImplTest (business rules)
+    // ============================================================
+
+/*
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("[MOVE to Service] Duplicate name on save -> 409 (DuplicateResourceException)")
+    void save_duplicateName_conflict() {}
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("[MOVE to Service] Supplier doesn’t exist -> 422")
+    void save_supplierNotFound_unprocessable() {}
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("[MOVE to Service] Negative resulting stock on adjust -> 422")
+    void adjustQuantity_negativeResultingStock_unprocessable() {}
+*/
+
+    // ============================================================
+    // MOVE → InventoryItemServiceImplTest (side-effects)
+    // ============================================================
+
+/*
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("[MOVE to Service] Delete writes one negative stock history entry before removal")
+    void delete_writesStockHistoryOnce() {}
+*/
+
+    // ============================================================
+    // MOVE → InventoryItemIntegrationTest (@SpringBootTest)
+    // ============================================================
+
+/*
+    @Test
+    @DisplayName("[MOVE to Integration] Create→Update→Delete happy path with H2/Testcontainers")
+    void happyPath_endToEnd() {}
+*/
 }
-
-

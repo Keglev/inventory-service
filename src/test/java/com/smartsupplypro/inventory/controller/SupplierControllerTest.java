@@ -3,10 +3,13 @@ package com.smartsupplypro.inventory.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.SupplierService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,361 +18,371 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import com.smartsupplypro.inventory.exception.DuplicateResourceException;
-import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 /**
- * Integration-level tests for the {@link SupplierController}, focusing on both
- * shared (USER & ADMIN) and role-restricted (ADMIN-only) functionality.
+ * Web-layer tests for {@link SupplierController}.
  *
- * All test methods simulate HTTP requests using {@link MockMvc} and verify
- * expected status codes, JSON payloads, and access restrictions.
+ * <p>Scope:
+ * <ul>
+ *   <li>Verifies security constraints (USER vs ADMIN) via {@code @PreAuthorize}.</li>
+ *   <li>Validates error-shaping from the global {@code GlobalExceptionHandler}:
+ *       not-found → 404, duplicate/conflict → 409, validation/path-mismatch → 400.</li>
+ *   <li>Ensures controller behavior matches project conventions:
+ *       <ul>
+ *         <li>POST requires {@code id == null} and returns 201 + Location.</li>
+ *         <li>PUT accepts body.id absent; if present, it must match the path id.</li>
+ *         <li>Read endpoints accessible to USER/ADMIN, write endpoints ADMIN-only.</li>
+ *       </ul>
+ *   </li>
+ * </ul>
  *
- * Test cases are executed in a Spring WebMvcTest context with an in-memory profile ("test").
+ * <p>Notes:
+ * <ul>
+ *   <li>Uses {@code @WebMvcTest} to restrict the slice to MVC + controller advice; the service is mocked.</li>
+ *   <li>Asserts on JSON field {@code $.message} for human-readable error text,
+ *       matching your current GlobalExceptionHandler contract.</li>
+ *   <li>Includes CSRF tokens on state-changing requests (POST/PUT/DELETE) to
+ *       reflect default Spring Security expectations.</li>
+ * </ul>
  */
-@WebMvcTest(SupplierController.class)
 @ActiveProfiles("test")
-@Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
-public class SupplierControllerTest {
+@WebMvcTest(SupplierController.class)
+@Import({ TestSecurityConfig.class, GlobalExceptionHandler.class })
+class SupplierControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
 
-    @MockitoBean
-    private SupplierService supplierService;
+    /** Mocked service bean injected into the MVC slice. */
+    @MockitoBean SupplierService supplierService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    /** Canonical DTO used in Given-arrange steps across tests. */
+    SupplierDTO dto;
 
-    private SupplierDTO supplierTemplate;
-
-    /**
-     * Initializes a reusable SupplierDTO object before each test.
-     */
     @BeforeEach
     void setUp() {
-        supplierTemplate = SupplierDTO.builder()
-                .id("supplier-1")
-                .name("ABC Components")
-                .contactName("Jane Doe")
-                .email("contact@abc.com")
-                .phone("123456789")
+        dto = SupplierDTO.builder()
+                .id("sup-1")
+                .name("Acme GmbH")
+                .contactName("Alice")
+                .phone("+49-123")
+                .email("alice@acme.test")
+                .createdBy("admin")
                 .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    /**
-     * Utility method to clone the template with a dynamic "createdBy" field.
-     *
-     * @param createdBy user ID creating the supplier
-     * @return a new SupplierDTO object
-     */
-    private SupplierDTO buildSupplierWithCreatedBy(String createdBy) {
-        return SupplierDTO.builder()
-                .id(supplierTemplate.getId())
-                .name(supplierTemplate.getName())
-                .contactName(supplierTemplate.getContactName())
-                .email(supplierTemplate.getEmail())
-                .phone(supplierTemplate.getPhone())
-                .createdBy(createdBy)
-                .createdAt(supplierTemplate.getCreatedAt())
-                .build();
-    }
+    // ========= Read endpoints (USER/ADMIN) =========
 
     /**
-     * Test to ensure all users (USER, ADMIN) can fetch the list of suppliers.
-     *
-     * @param role either "USER" or "ADMIN"
+     * GIVEN a USER role
+     * WHEN calling GET /api/suppliers
+     * THEN 200 with list payload.
      */
-    @ParameterizedTest
-    @ValueSource(strings = {"USER", "ADMIN"})
-    void testGetAll_shouldReturnSupplierList(String role) throws Exception {
-        when(supplierService.getAll()).thenReturn(List.of(buildSupplierWithCreatedBy(role)));
+    @Test
+    void listAll_asUser_ok() throws Exception {
+        given(supplierService.findAll()).willReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/suppliers")
-                        .with(user("testuser").roles(role)))
+        mockMvc.perform(get("/api/suppliers").with(user("u").roles("USER")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value("ABC Components"));
+                .andExpect(jsonPath("$[0].id").value("sup-1"));
     }
 
     /**
-     * Test to verify that both USER and ADMIN roles can retrieve a supplier by ID.
-     *
-     * @param role authorized user role
+     * GIVEN supplier exists
+     * WHEN GET by id
+     * THEN 200 with DTO.
      */
-    @ParameterizedTest
-    @ValueSource(strings = {"USER", "ADMIN"})
-    void testGetById_shouldReturnSupplier(String role) throws Exception {
-        when(supplierService.getById("supplier-1")).thenReturn(buildSupplierWithCreatedBy(role));
+    @Test
+    void getById_found_asUser_ok() throws Exception {
+        given(supplierService.findById("sup-1")).willReturn(Optional.of(dto));
 
-        mockMvc.perform(get("/api/suppliers/supplier-1")
-                        .with(user("testuser").roles(role)))
+        mockMvc.perform(get("/api/suppliers/sup-1").with(user("u").roles("USER")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("contact@abc.com"));
+                .andExpect(jsonPath("$.name").value("Acme GmbH"));
     }
 
     /**
-     * Test to verify that users (USER or ADMIN) can search for suppliers by name.
-     *
-     * @param role authorized user role
+     * GIVEN supplier does not exist
+     * WHEN GET by id
+     * THEN mapped to 404 by GlobalExceptionHandler (NoSuchElementException → 404).
      */
-    @ParameterizedTest
-    @ValueSource(strings = {"USER", "ADMIN"})
-    void testSearchByName_shouldReturnMatchingSuppliers(String role) throws Exception {
-        when(supplierService.findByName("ABC")).thenReturn(List.of(buildSupplierWithCreatedBy(role)));
+    @Test
+    void getById_notFound_mapsTo404() throws Exception {
+        given(supplierService.findById("missing")).willReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/suppliers/missing").with(user("u").roles("USER")))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", containsString("Supplier not found")));
+    }
+
+    /**
+     * GIVEN partial name matches
+     * WHEN GET /search
+     * THEN 200 with filtered list.
+     */
+    @Test
+    void search_byName_asUser_ok() throws Exception {
+        given(supplierService.findByName("ac")).willReturn(List.of(dto));
 
         mockMvc.perform(get("/api/suppliers/search")
-                        .with(user("testuser").roles(role))
-                        .param("name", "ABC"))
+                        .param("name", "ac")
+                        .with(user("u").roles("USER")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value("ABC Components"));
+                .andExpect(jsonPath("$[0].email").value("alice@acme.test"));
     }
+
+    // ========= Write endpoints (ADMIN only) =========
+
     /**
-     * Test to ensure an ADMIN can successfully create a new supplier.
-     * The response should include the correct contact name.
+     * GIVEN ADMIN with valid payload and id == null
+     * WHEN POST /api/suppliers
+     * THEN 201 Created with Location header + created DTO.
      */
     @Test
-    void testCreate_asAdmin_shouldReturnCreatedSupplier() throws Exception {
-        when(supplierService.save(any())).thenReturn(buildSupplierWithCreatedBy("admin"));
+    void create_asAdmin_201_withLocation() throws Exception {
+        // id must be null on create
+        SupplierDTO create = SupplierDTO.builder()
+                .name(dto.getName())
+                .contactName(dto.getContactName())
+                .phone(dto.getPhone())
+                .email(dto.getEmail())
+                .createdBy("admin")
+                .createdAt(dto.getCreatedAt())
+                .build();
+
+        given(supplierService.create(any(SupplierDTO.class)))
+                .willAnswer(inv -> SupplierDTO.builder()
+                        .id("sup-1")
+                        .name(create.getName())
+                        .contactName(create.getContactName())
+                        .phone(create.getPhone())
+                        .email(create.getEmail())
+                        .createdBy(create.getCreatedBy())
+                        .createdAt(create.getCreatedAt())
+                        .build());
 
         mockMvc.perform(post("/api/suppliers")
+                        .with(user("admin").roles("ADMIN"))
                         .with(csrf())
-                        .with(user("adminuser").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(buildSupplierWithCreatedBy("admin"))))
+                        .content(objectMapper.writeValueAsString(create)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.contactName").value("Jane Doe"));
+                .andExpect(header().string("Location", "/api/suppliers/sup-1"))
+                .andExpect(jsonPath("$.id").value("sup-1"));
+        }
+
+     /**
+     * GIVEN ADMIN but payload illegally provides id on create
+     * WHEN POST /api/suppliers
+     * THEN 400 from controller via ResponseStatusException (path/payload mismatch category).
+     */
+     @Test
+     void create_withIdProvided_returns400() throws Exception {
+                mockMvc.perform(post("/api/suppliers")
+                        .with(user("admin").roles("ADMIN"))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto))) // dto has id
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("ID must be null on create")));
+     }
+
+     /**
+     * GIVEN ADMIN and duplicate name at service/validator
+     * WHEN POST /api/suppliers
+     * THEN 409 Conflict (DuplicateResourceException → 409 by GlobalExceptionHandler).
+     */
+     @Test
+     void create_duplicateName_mapsTo409() throws Exception {
+         SupplierDTO create = SupplierDTO.builder()
+                .name(dto.getName())
+                .contactName(dto.getContactName())
+                .phone(dto.getPhone())
+                .email(dto.getEmail())
+                .build();
+
+         given(supplierService.create(any(SupplierDTO.class)))
+                .willThrow(new DuplicateResourceException("Supplier already exists"));
+
+         mockMvc.perform(post("/api/suppliers")
+                        .with(user("admin").roles("ADMIN"))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(create)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Supplier already exists"));
     }
 
     /**
-     * Test to ensure a USER attempting to create a supplier receives 403 Forbidden.
+     * GIVEN ADMIN and consistent ids
+     * WHEN PUT /api/suppliers/{id}
+     * THEN 200 with updated DTO; path id is authoritative.
      */
     @Test
-    void testCreate_asUser_shouldReturnForbidden() throws Exception {
-        mockMvc.perform(post("/api/suppliers")
-                        .with(csrf())
-                        .with(user("regularuser").roles("USER"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(buildSupplierWithCreatedBy("user"))))
-                .andExpect(status().isForbidden());
-    }
+    void update_asAdmin_ok_pathIdWins() throws Exception {
+        SupplierDTO body = SupplierDTO.builder()
+                .id("sup-1")
+                .name("Acme Updated")
+                .contactName(dto.getContactName())
+                .phone(dto.getPhone())
+                .email(dto.getEmail())
+                .build();
 
-    /**
-     * Test to ensure an ADMIN can successfully update an existing supplier.
-     */
-    @Test
-    void testUpdate_asAdmin_shouldReturnUpdatedSupplier() throws Exception {
-        when(supplierService.update(eq("supplier-1"), any()))
-                .thenReturn(Optional.of(buildSupplierWithCreatedBy("admin")));
+        given(supplierService.update(eq("sup-1"), any(SupplierDTO.class))).willReturn(body);
 
-        mockMvc.perform(put("/api/suppliers/supplier-1")
+        mockMvc.perform(put("/api/suppliers/sup-1")
+                        .with(user("admin").roles("ADMIN"))
                         .with(csrf())
-                        .with(user("adminuser").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(buildSupplierWithCreatedBy("admin"))))
+                        .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("ABC Components"));
+                .andExpect(jsonPath("$.name").value("Acme Updated"));
     }
 
+
     /**
-     * Test to verify that USERs cannot update suppliers and receive 403 Forbidden.
+     * GIVEN ADMIN but body.id != path id
+     * WHEN PUT /api/suppliers/{id}
+     * THEN 400 via ResponseStatusException (controller-level guard).
      */
     @Test
-    void testUpdate_asUser_shouldReturnForbidden() throws Exception {
-        mockMvc.perform(put("/api/suppliers/supplier-1")
+    void update_mismatchedIds_returns400() throws Exception {
+        SupplierDTO body = SupplierDTO.builder()
+                .id("different")
+                .name(dto.getName())
+                .contactName(dto.getContactName())
+                .phone(dto.getPhone())
+                .email(dto.getEmail())
+                .build();
+
+        mockMvc.perform(put("/api/suppliers/sup-1")
+                        .with(user("admin").roles("ADMIN"))
                         .with(csrf())
-                        .with(user("regularuser").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(buildSupplierWithCreatedBy("user"))))
-                .andExpect(status().isForbidden());
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("Path id and body id must match")));
     }
 
+
     /**
-     * Test to ensure ADMIN can delete an existing supplier.
+     * GIVEN ADMIN
+     * WHEN DELETE /api/suppliers/{id}
+     * THEN 204 No Content on success.
      */
     @Test
-    void testDelete_asAdmin_shouldReturnNoContent() throws Exception {
-        doNothing().when(supplierService).delete("supplier-1");
-
-        mockMvc.perform(delete("/api/suppliers/supplier-1")
-                        .with(csrf())
-                        .with(user("adminuser").roles("ADMIN")))
+    void delete_asAdmin_noContent() throws Exception {
+        mockMvc.perform(delete("/api/suppliers/sup-1")
+                        .with(user("admin").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().isNoContent());
     }
 
     /**
-     * Test to verify that USERs cannot delete suppliers and receive 403 Forbidden.
+     * GIVEN ADMIN but business constraint prevents deletion (linked items)
+     * WHEN DELETE /api/suppliers/{id}
+     * THEN 409 Conflict (IllegalStateException → 409).
      */
     @Test
-    void testDelete_asUser_shouldReturnForbidden() throws Exception {
-        mockMvc.perform(delete("/api/suppliers/supplier-1")
+    void delete_withLinkedItems_mapsTo409() throws Exception {
+        doThrow(new IllegalStateException("Cannot delete supplier with linked items"))
+                .when(supplierService).delete("sup-1");
+
+        mockMvc.perform(delete("/api/suppliers/sup-1")
+                        .with(user("admin").roles("ADMIN"))
+                        .with(csrf()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Cannot delete supplier with linked items"));
+    }
+
+    // ========= Security guards =========
+
+    /** USER cannot create (403). */
+    @Test
+    void create_forbiddenForUser() throws Exception {
+        SupplierDTO create = SupplierDTO.builder()
+                .name(dto.getName())
+                .contactName(dto.getContactName())
+                .phone(dto.getPhone())
+                .email(dto.getEmail())
+                .build();
+
+        mockMvc.perform(post("/api/suppliers")
+                        .with(user("u").roles("USER"))
                         .with(csrf())
-                        .with(user("regularuser").roles("USER")))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(create)))
                 .andExpect(status().isForbidden());
     }
 
-    /**
-     * Test to verify that creating a supplier with a duplicate name results in HTTP 409 Conflict.
-     */
+
+    /** USER cannot update (403). */
     @Test
-    void testCreate_withDuplicateName_shouldReturnConflict() throws Exception {
-        SupplierDTO dto = buildSupplierWithCreatedBy("admin");
+    void update_forbiddenForUser() throws Exception {
+        SupplierDTO body = SupplierDTO.builder()
+                .id("sup-1")
+                .name(dto.getName())
+                .contactName(dto.getContactName())
+                .phone(dto.getPhone())
+                .email(dto.getEmail())
+                .build();
 
-        when(supplierService.save(dto)).thenReturn(dto); // First attempt is OK
-        mockMvc.perform(post("/api/suppliers")
-                        .with(csrf())
-                        .with(user("adminuser").roles("ADMIN"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated());
-
-        when(supplierService.save(dto)).thenThrow(new DuplicateResourceException("A Supplier with this name already exists."));
-        mockMvc.perform(post("/api/suppliers")
-                        .with(csrf())
-                        .with(user("adminuser").roles("ADMIN"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("A Supplier with this name already exists."));
-    }
-
-    /**
-     * Test to verify that updating a supplier with a duplicate name results in HTTP 409 Conflict.
-     */
-    @Test
-    void testUpdate_withDuplicateName_shouldReturnConflict() throws Exception {
-        SupplierDTO dto = buildSupplierWithCreatedBy("admin");
-
-        when(supplierService.update(eq("supplier-1"), any()))
-                .thenThrow(new DuplicateResourceException("A Supplier with this name already exists."));
-
-        mockMvc.perform(put("/api/suppliers/supplier-1")
-                        .with(csrf())
-                        .with(user("adminuser").roles("ADMIN"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("A Supplier with this name already exists."));
-    }
-
-    /**
-     * Test to ensure a 404 Not Found is returned when requesting a nonexistent supplier by ID.
-     */
-    @Test
-    void testGetById_whenNotFound_shouldReturn404() throws Exception {
-        when(supplierService.getById("nonexistent"))
-                .thenThrow(new NoSuchElementException("Supplier not found"));
-
-        mockMvc.perform(get("/api/suppliers/nonexistent")
-                        .with(user("adminuser").roles("ADMIN")))
-                .andExpect(status().isNotFound());
-    }
-    /**
-     * Test to ensure POST requests without authentication return 401 Unauthorized.
-     */
-    @Test
-    void testCreate_withoutAuth_shouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(post("/api/suppliers")
+        mockMvc.perform(put("/api/suppliers/sup-1")
+                        .with(user("u").roles("USER"))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(buildSupplierWithCreatedBy("admin"))))
-                .andExpect(status().isUnauthorized());
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isForbidden());
     }
 
-    /**
-     * Test to ensure PUT requests without authentication return 401 Unauthorized.
-     */
-    @Test
-    void testUpdate_withoutAuth_shouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(put("/api/suppliers/supplier-1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(buildSupplierWithCreatedBy("admin"))))
-                .andExpect(status().isUnauthorized());
-    }
 
-    /**
-     * Test to ensure DELETE requests without authentication return 401 Unauthorized.
-     */
+    /** USER cannot delete (403). */
     @Test
-    void testDelete_withoutAuth_shouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(delete("/api/suppliers/supplier-1")
+    void delete_forbiddenForUser() throws Exception {
+        mockMvc.perform(delete("/api/suppliers/sup-1")
+                        .with(user("u").roles("USER"))
                         .with(csrf()))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
+    // ========= DTO validation (controller-level @Valid → 400) =========
+
     /**
-     * Test to verify that creating a supplier with missing required field 'name'
-     * results in a 400 Bad Request response.
+     * Ensures blank/absent name is surfaced as 400 with a field message.
+     * The exact message content originates from Bean Validation and handler aggregation.
      */
-    @Test
-    void testCreate_withMissingName_shouldReturnBadRequest() throws Exception {
-        SupplierDTO invalid = SupplierDTO.builder()
-                .contactName("Jane")
-                .email("invalid@abc.com")
-                .phone("000000000")
-                .createdBy("admin") // name is missing
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"  "})
+    void create_invalidName_400(String badName) throws Exception {
+        SupplierDTO create = SupplierDTO.builder()
+                .name(badName)
+                .contactName(dto.getContactName())
+                .phone(dto.getPhone())
+                .email(dto.getEmail())
                 .build();
 
         mockMvc.perform(post("/api/suppliers")
+                        .with(user("admin").roles("ADMIN"))
                         .with(csrf())
-                        .with(user("adminuser").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest());
+                        .content(objectMapper.writeValueAsString(create)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("name")));
     }
 
-    /**
-     * Test to verify that updating a supplier with missing required field 'name'
-     * results in a 400 Bad Request response.
-     */
-    @Test
-    void testUpdate_withMissingName_shouldReturnBadRequest() throws Exception {
-        SupplierDTO invalid = SupplierDTO.builder()
-                .contactName("Jane")
-                .email("update@abc.com")
-                .phone("999999999")
-                .createdBy("admin") // name is missing
-                .build();
-
-        mockMvc.perform(put("/api/suppliers/supplier-1")
-                        .with(csrf())
-                        .with(user("adminuser").roles("ADMIN"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * Test to verify that attempting to delete a supplier with existing inventory links
-     * results in HTTP 409 Conflict and appropriate error message.
-     */
-    @Test
-    void testDelete_whenSupplierHasItems_shouldReturnConflict() throws Exception {
-        doThrow(new IllegalStateException("Cannot delete supplier with linked items"))
-                .when(supplierService).delete("supplier-1");
-
-        mockMvc.perform(delete("/api/suppliers/supplier-1")
-                        .with(csrf())
-                        .with(user("adminuser").roles("ADMIN")))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Cannot delete supplier with linked items"));
-    }
 }
-

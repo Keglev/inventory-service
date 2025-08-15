@@ -80,6 +80,7 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
 
     boolean existsByNameIgnoreCase(String name);
 
+    boolean existsBySuppliers_IdAndQuantityGreaterThan(String supplierId, int quantity);
 
 }
 

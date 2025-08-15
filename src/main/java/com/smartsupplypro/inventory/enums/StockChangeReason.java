@@ -22,6 +22,9 @@ public enum StockChangeReason {
     /** Manual correction performed by a user (e.g., discrepancy fix). */
     MANUAL_UPDATE,
 
+    /** manual correction performed by a user (e.g., new prices) */
+    PRICE_CHANGE,
+
     /** Stock was sold to a customer (outbound). */
     SOLD,
 

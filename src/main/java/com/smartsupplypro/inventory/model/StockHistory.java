@@ -18,11 +18,18 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
  * <p>Maps to the {@code STOCK_HISTORY} table in the database.
  */
 @Entity
-@Table(name = "STOCK_HISTORY")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(
+  name = "STOCK_HISTORY",
+  indexes = {
+    @Index(name = "ix_sh_item_ts",     columnList = "item_id, timestamp"),
+    @Index(name = "ix_sh_ts",          columnList = "timestamp"),
+    @Index(name = "ix_sh_supplier_ts", columnList = "supplier_id, timestamp")
+  }
+)
 public class StockHistory {
 
     /** Unique identifier for the stock history event (UUID or external key) */

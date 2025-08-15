@@ -5,34 +5,47 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Repository interface for managing {@link Supplier} entities.
+ * JPA repository for {@link Supplier} aggregate.
  *
- * <p>This interface provides data access methods for querying suppliers,
- * including name-based search and duplicate checks. It supports the Supplier
- * management UI, validation routines, and backend analytics filters.
+ * <p>Provides lookups required by the Supplier service and validator:
+ * <ul>
+ *   <li>Case-insensitive exact lookup for uniqueness checks</li>
+ *   <li>Case-insensitive contains filter for search endpoint</li>
+ * </ul>
+ *
+ * <p>Note: prefer returning {@code Optional<Supplier>} for exact lookups so the
+ * service/validator can include/exclude the current id on update.
  */
 @Repository
 public interface SupplierRepository extends JpaRepository<Supplier, String> {
 
     /**
-     * Searches suppliers by partial, case-insensitive name match.
+     * Case-insensitive exact match by name.
+     * <p>Used for uniqueness checks.</p>
      *
-     * <p>Useful for UI auto-complete features and flexible filter interfaces.
-     *
-     * @param name the partial name to match (case-insensitive)
-     * @return list of suppliers whose names contain the given substring
+     * @param name exact supplier name (case-insensitive)
+     * @return optional supplier
      */
-    List<Supplier> findByNameContainingIgnoreCase(String name);
+    Optional<Supplier> findByNameIgnoreCase(String name);
 
     /**
-     * Checks if a supplier with the given name already exists (case-insensitive).
+     * Case-insensitive substring search by name.
+     * <p>Used by /search endpoint.</p>
      *
-     * <p>Used to enforce uniqueness constraints in validation and form submissions.
+     * @param namePart substring to match (case-insensitive)
+     * @return suppliers whose name contains the substring
+     */
+    List<Supplier> findByNameContainingIgnoreCase(String namePart);
+
+    /**
+     * Convenience exists check (optional). If you prefer/need it, keep it;
+     * otherwise {@link #findByNameIgnoreCase(String)} is enough for uniqueness.
      *
-     * @param name the supplier name to check
-     * @return true if a supplier with the given name exists, false otherwise
+     * @param name exact supplier name (case-insensitive)
+     * @return true if a supplier with the name exists
      */
     boolean existsByNameIgnoreCase(String name);
 }

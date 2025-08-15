@@ -1,134 +1,112 @@
 package com.smartsupplypro.inventory.validation;
 
-import com.smartsupplypro.inventory.exception.DuplicateResourceException;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
-import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.dto.SupplierDTO;
-
-import org.springframework.test.context.ActiveProfiles;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+import com.smartsupplypro.inventory.model.Supplier;
+import com.smartsupplypro.inventory.repository.SupplierRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for {@link SupplierValidator}, verifying business rule enforcement and
- * input validation for supplier-related operations, such as creation, update, and deletion.
- * Covers all relevant edge cases including missing input, duplicate names, and deletion constraints.
+ * Unit tests for {@link SupplierValidator}.
+ *
+ * <p>Scope:
+ * <ul>
+ *   <li>Base DTO validation (null/blank name) → {@link InvalidRequestException}</li>
+ *   <li>Uniqueness guard via repository (case-insensitive) → {@link DuplicateResourceException}</li>
+ *   <li>Deletion precondition via boolean supplier (repo-agnostic) → {@link IllegalStateException}</li>
+ * </ul>
+ *
+ * <p>Notes:
+ * <ul>
+ *   <li>Delete guard is validated through a {@code BooleanSupplier} lambda, so tests do not depend on
+ *       a specific repository signature or schema shape (1‑N vs N‑N).</li>
+ *   <li>Audit fields like {@code createdBy} are server-managed and not enforced here.</li>
+ * </ul>
  */
 @ActiveProfiles("test")
-public class SupplierValidatorTest {
+class SupplierValidatorTest {
 
-    /**
-     * Ensures that deletion is blocked when inventory items are associated with the supplier.
-     */
+    // ---------- validateBase ----------
+
     @Test
-    void testValidateDeletable_withExistingInventory_shouldThrowException() {
-        InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-        when(mockRepo.existsBySupplier_Id("supplier-1")).thenReturn(true);
-
-        Exception ex = assertThrows(IllegalStateException.class, () ->
-                SupplierValidator.validateDeletable("supplier-1", mockRepo));
-
-        assertEquals("Cannot delete supplier with existing inventory items.", ex.getMessage());
+    void validateBase_nullDto_throws400() {
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
+                () -> SupplierValidator.validateBase(null));
+        assertTrue(ex.getMessage().toLowerCase().contains("must not be null"));
     }
 
-    /**
-     * Verifies that deletion is allowed when no inventory items are linked to the supplier.
-     */
     @Test
-    void testValidateDeletable_withNoInventory_shouldPass() {
-        InventoryItemRepository mockRepo = mock(InventoryItemRepository.class);
-        when(mockRepo.existsBySupplier_Id("supplier-1")).thenReturn(false);
+    void validateBase_blankName_throws400() {
+        SupplierDTO dto = SupplierDTO.builder().name("  ").build();
 
-        assertDoesNotThrow(() ->
-                SupplierValidator.validateDeletable("supplier-1", mockRepo));
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
+                () -> SupplierValidator.validateBase(dto));
+        assertTrue(ex.getMessage().toLowerCase().contains("name"));
     }
 
-    /**
-     * Confirms that trying to create a supplier with an existing name triggers a {@link DuplicateResourceException}.
-     */
     @Test
-    void testValidateSupplierExists_withExistingName_shouldThrowException() {
-        SupplierRepository mockRepo = mock(SupplierRepository.class);
-        when(mockRepo.existsByNameIgnoreCase("duplicate-supplier")).thenReturn(true);
-
-        Exception ex = assertThrows(DuplicateResourceException.class, () ->
-                SupplierValidator.validateSupplierExists("duplicate-supplier", mockRepo));
-
-        assertEquals("A Supplier with this name already exists.", ex.getMessage());
-    }
-
-    /**
-     * Ensures that validation passes when the supplier name is unique.
-     */
-    @Test
-    void testValidateSupplierExists_withUniqueName_shouldPass() {
-        SupplierRepository mockRepo = mock(SupplierRepository.class);
-        when(mockRepo.existsByNameIgnoreCase("unique-supplier")).thenReturn(false);
-
-        assertDoesNotThrow(() ->
-                SupplierValidator.validateSupplierExists("unique-supplier", mockRepo));
-    }
-
-    /**
-     * Verifies that null or blank supplier names are rejected during duplicate name validation.
-     */
-    @Test
-    void testValidateSupplierExists_withNullOrBlankName_shouldThrow() {
-        SupplierRepository mockRepo = mock(SupplierRepository.class);
-
-        Exception ex1 = assertThrows(IllegalArgumentException.class, () ->
-                SupplierValidator.validateSupplierExists(null, mockRepo));
-        assertEquals("Supplier name cannot be null or empty", ex1.getMessage());
-
-        Exception ex2 = assertThrows(IllegalArgumentException.class, () ->
-                SupplierValidator.validateSupplierExists(" ", mockRepo));
-        assertEquals("Supplier name cannot be null or empty", ex2.getMessage());
-    }
-
-    /**
-     * Ensures that supplier creation fails when the `name` field is null or blank.
-     */
-    @Test
-    void testValidateBase_withMissingName_shouldThrow() {
-        SupplierDTO dto = SupplierDTO.builder()
-                .name("  ")
-                .createdBy("admin")
-                .build();
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-                SupplierValidator.validateBase(dto));
-
-        assertEquals("Supplier name must be provided.", ex.getMessage());
-    }
-
-    /**
-     * Ensures that supplier creation fails when the `createdBy` field is missing.
-     */
-    @Test
-    void testValidateBase_withMissingCreatedBy_shouldThrow() {
-        SupplierDTO dto = SupplierDTO.builder()
-                .name("Test Supplier")
-                .createdBy(null)
-                .build();
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-                SupplierValidator.validateBase(dto));
-
-        assertEquals("CreatedBy must be provided.", ex.getMessage());
-    }
-
-    /**
-     * Validates that a complete and valid SupplierDTO passes base validation successfully.
-     */
-    @Test
-    void testValidateBase_withValidDTO_shouldPass() {
-        SupplierDTO dto = SupplierDTO.builder()
-                .name("Valid Supplier")
-                .createdBy("admin")
-                .build();
-
+    void validateBase_valid_passes() {
+        SupplierDTO dto = SupplierDTO.builder().name("Acme").build();
         assertDoesNotThrow(() -> SupplierValidator.validateBase(dto));
+    }
+
+    // ---------- assertUniqueName ----------
+
+    @Test
+    void assertUniqueName_duplicateOtherId_throws409() {
+        SupplierRepository repo = mock(SupplierRepository.class);
+        // existing supplier with different id owns the same name (case-insensitive)
+        Supplier existing = Supplier.builder().id("other-123").name("Acme").build();
+        when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(existing));
+
+        DuplicateResourceException ex = assertThrows(DuplicateResourceException.class,
+                () -> SupplierValidator.assertUniqueName(repo, "Acme", "current-999"));
+        assertEquals("Supplier already exists", ex.getMessage());
+    }
+
+    @Test
+    void assertUniqueName_sameRecord_update_ok() {
+        SupplierRepository repo = mock(SupplierRepository.class);
+        Supplier existing = Supplier.builder().id("same-123").name("Acme").build();
+        when(repo.findByNameIgnoreCase("Acme")).thenReturn(Optional.of(existing));
+
+        assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "Acme", "same-123"));
+    }
+
+    @Test
+    void assertUniqueName_noExisting_ok() {
+        SupplierRepository repo = mock(SupplierRepository.class);
+        when(repo.findByNameIgnoreCase("Unique")).thenReturn(Optional.empty());
+
+        assertDoesNotThrow(() -> SupplierValidator.assertUniqueName(repo, "Unique", null));
+    }
+
+    // ---------- assertDeletable (repo-agnostic via BooleanSupplier) ----------
+
+    @Test
+    void assertDeletable_blankId_throws400() {
+        InvalidRequestException ex = assertThrows(InvalidRequestException.class,
+                () -> SupplierValidator.assertDeletable("  ", () -> false));
+        assertTrue(ex.getMessage().toLowerCase().contains("id"));
+    }
+
+    @Test
+    void assertDeletable_whenHasAnyLinks_true_throws409() {
+        // simulate existence of at least one linked item with quantity > 0
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> SupplierValidator.assertDeletable("sup-1", () -> true));
+        assertEquals("Cannot delete supplier with linked items", ex.getMessage());
+    }
+
+    @Test
+    void assertDeletable_whenHasAnyLinks_false_ok() {
+        assertDoesNotThrow(() -> SupplierValidator.assertDeletable("sup-1", () -> false));
     }
 }

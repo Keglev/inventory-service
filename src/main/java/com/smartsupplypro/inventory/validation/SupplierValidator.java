@@ -1,82 +1,110 @@
 package com.smartsupplypro.inventory.validation;
 
 import com.smartsupplypro.inventory.dto.SupplierDTO;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
-import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+import com.smartsupplypro.inventory.repository.SupplierRepository;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 /**
- * Utility class for validating business rules related to {@link SupplierDTO} operations.
+ * Central validation utilities for Supplier operations.
  *
- * <p>This class ensures that all supplier-related data is complete, consistent, and
- * compliant with business rules before being processed or persisted.</p>
- *
- * <p><strong>Usage:</strong> This class is used primarily by the {@code SupplierService}
- * during CRUD operations to validate input and enforce constraints such as:</p>
+ * <p>Design goals:
  * <ul>
- *   <li>Uniqueness of supplier name</li>
- *   <li>Prevention of deletion when related inventory exists</li>
- *   <li>Enforcement of required fields like {@code name} and {@code createdBy}</li>
+ *   <li>Keep business rules close to the service layer while staying repo‑agnostic.</li>
+ *   <li>Surface exceptions that your GlobalExceptionHandler maps to 400/404/409.</li>
+ *   <li>Be resilient to schema differences (1‑N or N‑N item–supplier relations).</li>
  * </ul>
- *
- * <p>Implements the utility class pattern via a private constructor and static methods only.</p>
- *
- * @author
- * SmartSupplyPro Dev Team
  */
-public class SupplierValidator {
+public final class SupplierValidator {
+
+    private SupplierValidator() { }
 
     /**
-     * Private constructor to prevent instantiation of utility class.
-     */
-    private SupplierValidator() {}
-
-    /**
-     * Validates whether a supplier can be safely deleted.
-     * Prevents deletion if any inventory items are still associated with the supplier.
+     * Basic field validation invoked on create/update.
+     * <ul>
+     *   <li>name: required, non-blank</li>
+     * </ul>
      *
-     * @param supplierId the ID of the supplier to be deleted
-     * @param inventoryRepo the repository used to check inventory references
-     * @throws IllegalStateException if inventory items exist for the given supplier
-     */
-    public static void validateDeletable(String supplierId, InventoryItemRepository inventoryRepo) {
-        if (inventoryRepo.existsBySupplier_Id(supplierId)) {
-            throw new IllegalStateException("Cannot delete supplier with existing inventory items.");
-        }
-    }
-
-    /**
-     * Validates that a supplier with the given name does not already exist.
-     * Also enforces that the name is not null or empty.
-     *
-     * @param name the supplier name to check for existence
-     * @param supplierRepository the repository used to look up suppliers
-     * @throws DuplicateResourceException if a supplier with the same name already exists
-     * @throws IllegalArgumentException if the name is null or blank
-     */
-    public static void validateSupplierExists(String name, SupplierRepository supplierRepository) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Supplier name cannot be null or empty");
-        }
-        if (supplierRepository.existsByNameIgnoreCase(name)) {
-            throw new DuplicateResourceException("A Supplier with this name already exists.");
-        }
-    }
-
-    /**
-     * Validates core fields of a {@link SupplierDTO} before creation or update.
-     * Enforces non-null and non-empty values for required fields.
-     *
-     * @param dto the {@link SupplierDTO} to validate
-     * @throws IllegalArgumentException if required fields are missing
+     * @throws InvalidRequestException if dto or required fields are invalid
      */
     public static void validateBase(SupplierDTO dto) {
-        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Supplier name must be provided.");
+        if (dto == null) {
+            throw new InvalidRequestException("Supplier payload must not be null");
         }
-        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
-            throw new IllegalArgumentException("CreatedBy must be provided.");
+        if (isBlank(dto.getName())) {
+            throw new InvalidRequestException("Supplier name must not be blank");
+        }
+    }
+
+    /**
+     * Enforce unique, case-insensitive supplier name.
+     *
+     * @param repo       Supplier repository providing exact lookup by name
+     * @param name       desired supplier name (case-insensitive)
+     * @param excludeId  pass null for create; current id for update
+     * @throws DuplicateResourceException if another supplier already uses the name
+     */
+    public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
+        if (isBlank(name)) return; // validateBase already handles blank
+        String trimmed = name.trim();
+
+        Optional<?> existingOpt = repo.findByNameIgnoreCase(trimmed).map(s -> (Object) s);
+        if (existingOpt.isPresent()) {
+            // We cannot type Supplier here without importing your entity class; rely on repository's id getter at service level,
+            // but since we know repository returns the entity, do a safe cast:
+            var existing = repo.findByNameIgnoreCase(trimmed).orElse(null);
+            if (existing != null) {
+                // assuming your entity has getId()
+                String existingId = invokeGetId(existing);
+                if (!Objects.equals(existingId, excludeId)) {
+                    throw new DuplicateResourceException("Supplier already exists");
+                }
+            }
+        }
+    }
+
+    /**
+     * Prevent deletion when there are linked inventory items.
+     *
+     * <p>Repo-agnostic: the caller supplies a boolean check that returns true if any links exist
+     * (e.g., {@code () -> itemRepo.countBySupplierId(id) > 0} or
+     * {@code () -> supplierRepo.existsByIdAndItemsIsNotEmpty(id)}).</p>
+     *
+     * @param supplierId supplier identifier to validate
+     * @param hasAnyLinks boolean supplier that must return true iff links exist
+     * @throws InvalidRequestException if id is blank
+     * @throws IllegalStateException if links exist (mapped to 409 Conflict)
+     */
+    public static void assertDeletable(String supplierId, BooleanSupplier hasAnyLinks) {
+        if (isBlank(supplierId)) {
+            throw new InvalidRequestException("Supplier id must be provided for deletion");
+        }
+        if (hasAnyLinks != null && hasAnyLinks.getAsBoolean()) {
+            throw new IllegalStateException("Cannot delete supplier with linked items");
+        }
+    }
+
+    // ---- helpers ------------------------------------------------------------
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    /**
+     * Lightweight reflective accessor to avoid importing your entity type here.
+     * If your entity package changes, this method keeps the validator stable.
+     */
+    private static String invokeGetId(Object entity) {
+        try {
+            var m = entity.getClass().getMethod("getId");
+            Object v = m.invoke(entity);
+            return v != null ? v.toString() : null;
+        } catch (Exception ignore) {
+            return null;
         }
     }
 }
-// This code provides the SupplierValidator class, which enforces validation rules for supplier data.

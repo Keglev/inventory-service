@@ -4,6 +4,7 @@ import java.util.EnumSet;
 
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 
 /**
  * Utility class responsible for validating {@link StockHistoryDTO} instances and
@@ -45,24 +46,30 @@ public class StockHistoryValidator {
      * @throws IllegalArgumentException if any validation rule fails
      */
     public static void validate(StockHistoryDTO dto) {
-        if (dto.getItemId() == null || dto.getItemId().trim().isEmpty()) {
-            throw new IllegalArgumentException("Item ID cannot be null or empty");
-        }
-        if (dto.getChange() == 0) {
-            throw new IllegalArgumentException("Change amount must be non-zero");
-        }
-        if (dto.getReason() == null || dto.getReason().trim().isEmpty()) {
-            throw new IllegalArgumentException("Change reason is required");
-        }
-        try {
-            StockChangeReason.valueOf(dto.getReason());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unsupported change reason: " + dto.getReason());
-        }
-        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
-            throw new IllegalArgumentException("CreatedBy is required");
-        }
+    if (dto.getItemId() == null || dto.getItemId().isBlank()) {
+      throw new InvalidRequestException("Item ID cannot be null or empty");
     }
+
+    final StockChangeReason reason;
+    try {
+      reason = dto.getReason() == null ? null : StockChangeReason.valueOf(dto.getReason());
+    } catch (IllegalArgumentException ex) {
+      throw new InvalidRequestException("Invalid stock change reason: " + dto.getReason());
+    }
+    if (reason == null) throw new InvalidRequestException("Stock change reason is required");
+
+    // zero delta only for PRICE_CHANGE
+    if (dto.getChange() == 0 && reason != StockChangeReason.PRICE_CHANGE) {
+      throw new InvalidRequestException("Zero quantity change is only allowed for PRICE_CHANGE");
+    }
+
+    // optional: non-negative price for PRICE_CHANGE
+    if (reason == StockChangeReason.PRICE_CHANGE &&
+        dto.getPriceAtChange() != null &&
+        dto.getPriceAtChange().signum() < 0) {
+      throw new InvalidRequestException("priceAtChange must be >= 0 for PRICE_CHANGE");
+    }
+  }
 
     /**
      * Validates that the given {@link StockChangeReason} enum is part of the allowed set.

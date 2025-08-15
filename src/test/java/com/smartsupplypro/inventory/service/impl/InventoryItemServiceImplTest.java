@@ -67,7 +67,10 @@ class InventoryItemServiceImplTest {
         MockitoAnnotations.openMocks(this);
     
         // Explicit manual injection
-        service = new InventoryItemServiceImpl(repository, stockHistoryService, supplierRepository);
+        service = new InventoryItemServiceImpl(
+            repository, 
+            stockHistoryService, 
+            supplierRepository);
     
         validDto = InventoryItemDTO.builder()
                 .id("item-1")
@@ -263,5 +266,200 @@ class InventoryItemServiceImplTest {
         assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
         assertEquals("Users are only allowed to change quantity or price.", ex.getReason());
     }
+
+    // ===== ADD: imports if missing =====
+// import org.springframework.web.server.ResponseStatusException;
+// import org.springframework.http.HttpStatus;
+// import org.springframework.data.domain.PageImpl;
+// import org.springframework.data.domain.Page;
+// import org.springframework.data.domain.Pageable;
+// import java.util.Optional;
+// import java.math.BigDecimal;
+// import static org.mockito.Mockito.*;
+// import static org.junit.jupiter.api.Assertions.*;
+// import static org.mockito.ArgumentMatchers.*;
+
+// ===== Helpers if you don’t already have them =====
+private InventoryItemDTO dto(String id, String name, String supplierId, int qty, String createdBy) {
+    InventoryItemDTO d = new InventoryItemDTO();
+    d.setId(id);
+    d.setName(name);
+    d.setQuantity(qty);
+    d.setPrice(new BigDecimal("10.00"));
+    d.setSupplierId(supplierId);
+    d.setCreatedBy(createdBy);
+    return d;
+}
+
+private InventoryItem entityFromDto(InventoryItemDTO d) {
+    InventoryItem e = new InventoryItem();
+    e.setId(d.getId());
+    e.setName(d.getName());
+    e.setQuantity(d.getQuantity());
+    e.setPrice(d.getPrice());
+    e.setSupplierId(d.getSupplierId());
+    e.setCreatedBy(d.getCreatedBy());
+    return e;
+}
+
+// ===== 1) save/create: supplier missing -> IllegalArgumentException =====
+@Test
+void save_supplierDoesNotExist_throwsIllegalArgument() {
+    InventoryItemDTO req = dto(null, "New Item", "sup-missing", 5, "admin");
+    when(supplierRepository.existsById("sup-missing")).thenReturn(false);
+
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        () -> service.save(req));
+
+    assertTrue(ex.getMessage() != null && ex.getMessage().toLowerCase().contains("supplier"));
+    verify(supplierRepository).existsById("sup-missing");
+    verifyNoInteractions(stockHistoryService);
+}
+
+// ===== 2) update: supplier missing -> IllegalArgumentException =====
+@Test
+void update_supplierDoesNotExist_throwsIllegalArgument() {
+    InventoryItemDTO req = dto("i-1", "Item A", "sup-missing", 10, "admin");
+    when(repository.findById("i-1")).thenReturn(Optional.of(new InventoryItem()));
+    when(supplierRepository.existsById("sup-missing")).thenReturn(false);
+
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        () -> service.update("i-1", req));
+
+    assertTrue(ex.getMessage().toLowerCase().contains("supplier"));
+    verify(supplierRepository).existsById("sup-missing");
+}
+
+// ===== 3) save: duplicate -> (when you add it) DuplicateResourceException =====
+@Test
+void save_duplicateName_throwsDuplicateResourceException() {
+    // Arrange: simulate repository saying duplicate exists (adapt to your repo API)
+    InventoryItemDTO req = dto(null, "Duplicate", "sup-1", 3, "admin");
+    when(supplierRepository.existsById("sup-1")).thenReturn(true);
+    // Example approaches (pick what your impl uses):
+    when(repository.existsByNameIgnoreCase("Duplicate")).thenReturn(true);
+    // or: when(repository.findByNameIgnoreCase("Duplicate")).thenReturn(Optional.of(new InventoryItem()));
+
+    // Act + Assert
+    com.smartsupplypro.inventory.exception.DuplicateResourceException ex =
+        assertThrows(com.smartsupplypro.inventory.exception.DuplicateResourceException.class,
+            () -> service.save(req));
+
+    assertTrue(ex.getMessage().toLowerCase().contains("duplicate"));
+    verify(repository).existsByNameIgnoreCase("Duplicate");
+}
+
+// ===== 4) update: duplicate -> DuplicateResourceException =====
+@Test
+void update_duplicateName_throwsDuplicateResourceException() {
+    InventoryItemDTO req = dto("i-1", "Duplicate", "sup-1", 3, "admin");
+    InventoryItem existing = new InventoryItem();
+    existing.setId("i-1");
+    existing.setName("Old Name");
+    existing.setSupplierId("sup-1");
+
+    when(repository.findById("i-1")).thenReturn(Optional.of(existing));
+    when(supplierRepository.existsById("sup-1")).thenReturn(true);
+    when(repository.existsByNameIgnoreCase("Duplicate")).thenReturn(true);
+
+    com.smartsupplypro.inventory.exception.DuplicateResourceException ex =
+        assertThrows(com.smartsupplypro.inventory.exception.DuplicateResourceException.class,
+            () -> service.update("i-1", req));
+
+    assertTrue(ex.getMessage().toLowerCase().contains("duplicate"));
+    verify(repository).existsByNameIgnoreCase("Duplicate");
+}
+
+// ===== 5) delete: logs negative stock ONCE then deletes =====
+@Test
+void delete_logsHistoryThenDeletes() {
+    InventoryItem item = new InventoryItem();
+    item.setId("i-1");
+    item.setQuantity(7);
+    item.setCreatedBy("admin");
+
+    when(repository.findById("i-1")).thenReturn(Optional.of(item));
+
+    service.delete("i-1", com.smartsupplypro.inventory.enums.StockChangeReason.SCRAPPED);
+
+    verify(stockHistoryService, times(1))
+        .logStockChange(eq("i-1"), eq(-7), eq(com.smartsupplypro.inventory.enums.StockChangeReason.SCRAPPED), eq("admin"));
+    verify(repository, times(1)).deleteById("i-1");
+}
+
+// ===== 6) delete: not found -> IllegalArgumentException =====
+@Test
+void delete_notFound_throwsIllegalArgument() {
+    when(repository.findById("missing")).thenReturn(Optional.empty());
+
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        () -> service.delete("missing", com.smartsupplypro.inventory.enums.StockChangeReason.SCRAPPED));
+
+    assertTrue(ex.getMessage() != null && ex.getMessage().toLowerCase().contains("not found"));
+    verify(repository, never()).deleteById(anyString());
+    verifyNoInteractions(stockHistoryService);
+}
+
+// ===== 7) findByNameSortedByPrice: delegates to repository =====
+@Test
+void findByNameSortedByPrice_delegatesToRepository() {
+    Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+    when(repository.findByNameSortedByPrice("mon", pageable))
+        .thenReturn(new PageImpl<>(java.util.List.of(new InventoryItem())));
+
+    service.findByNameSortedByPrice("mon", pageable);
+
+    verify(repository).findByNameSortedByPrice("mon", pageable);
+}
+
+// ===== 8) getAll and getById happy/missing =====
+@Test
+void getAll_returnsMappedDTOs() {
+    InventoryItem e1 = entityFromDto(dto("i-1", "A", "sup-1", 1, "admin"));
+    InventoryItem e2 = entityFromDto(dto("i-2", "B", "sup-2", 2, "admin"));
+    when(repository.findAll()).thenReturn(java.util.List.of(e1, e2));
+
+    java.util.List<InventoryItemDTO> out = service.getAll();
+
+    assertEquals(2, out.size());
+    assertEquals("i-1", out.get(0).getId());
+}
+
+@Test
+void getById_found_returnsDTO() {
+    InventoryItem e = entityFromDto(dto("i-1", "A", "sup-1", 1, "admin"));
+    when(repository.findById("i-1")).thenReturn(Optional.of(e));
+
+    Optional<InventoryItemDTO> out = service.getById("i-1");
+
+    assertTrue(out.isPresent());
+    assertEquals("i-1", out.get().getId());
+}
+
+@Test
+void getById_missing_returnsEmpty() {
+    when(repository.findById("missing")).thenReturn(Optional.empty());
+    Optional<InventoryItemDTO> out = service.getById("missing");
+    assertTrue(out.isEmpty());
+}
+
+// ===== 9) update: optimistic lock surfacing (when you add @Version) =====
+@Test
+void update_optimisticLock_isSurfaced() {
+    InventoryItemDTO req = dto("i-1", "A", "sup-1", 2, "admin");
+    when(repository.findById("i-1")).thenReturn(Optional.of(new InventoryItem()));
+    when(supplierRepository.existsById("sup-1")).thenReturn(true);
+
+    org.springframework.orm.ObjectOptimisticLockingFailureException ole =
+        new org.springframework.orm.ObjectOptimisticLockingFailureException(InventoryItem.class, "i-1");
+    when(repository.save(any(InventoryItem.class))).thenThrow(ole);
+
+    org.springframework.orm.ObjectOptimisticLockingFailureException thrown =
+        assertThrows(org.springframework.orm.ObjectOptimisticLockingFailureException.class,
+            () -> service.update("i-1", req));
+
+    assertSame(ole, thrown);
+}
+
 
 }
