@@ -213,6 +213,7 @@ class SupplierControllerTest {
                 .contactName(dto.getContactName())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
+                .createdBy("admin")
                 .build();
 
          given(supplierService.create(any(SupplierDTO.class)))
@@ -240,6 +241,7 @@ class SupplierControllerTest {
                 .contactName(dto.getContactName())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
+                .createdBy("admin")
                 .build();
 
         given(supplierService.update(eq("sup-1"), any(SupplierDTO.class))).willReturn(body);
@@ -267,6 +269,7 @@ class SupplierControllerTest {
                 .contactName(dto.getContactName())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
+                .createdBy("admin")
                 .build();
 
         mockMvc.perform(put("/api/suppliers/sup-1")
@@ -319,6 +322,7 @@ class SupplierControllerTest {
                 .contactName(dto.getContactName())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
+                .createdBy("user")
                 .build();
 
         mockMvc.perform(post("/api/suppliers")
@@ -339,6 +343,7 @@ class SupplierControllerTest {
                 .contactName(dto.getContactName())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
+                .createdBy("user")
                 .build();
 
         mockMvc.perform(put("/api/suppliers/sup-1")
@@ -374,6 +379,7 @@ class SupplierControllerTest {
                 .contactName(dto.getContactName())
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
+                .createdBy("admin")
                 .build();
 
         mockMvc.perform(post("/api/suppliers")
