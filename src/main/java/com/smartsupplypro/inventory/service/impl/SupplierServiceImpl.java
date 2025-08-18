@@ -150,7 +150,7 @@ public class SupplierServiceImpl implements SupplierService {
     public void delete(String id) {
         SupplierValidator.assertDeletable(
             id, 
-            () -> inventoryItemRepository.existsBySuppliers_IdAndQuantityGreaterThan(id, 0)
+            () -> inventoryItemRepository.existsActiveStockForSupplier(id, 0)
         );
 
         if (!supplierRepository.existsById(id)) {

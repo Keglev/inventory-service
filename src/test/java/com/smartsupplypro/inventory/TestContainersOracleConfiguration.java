@@ -1,10 +1,10 @@
 package com.smartsupplypro.inventory;
 
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.oracle.OracleContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -19,7 +19,8 @@ import org.testcontainers.utility.DockerImageName;
  * </ul>
  */
 @TestConfiguration(proxyBeanMethods = false)
-@EnabledIfSystemProperty(named = "testcontainers.enabled", matches = "true")
+@ConditionalOnClass(OracleContainer.class)
+@ConditionalOnProperty(name = "spring.testcontainers.enabled", havingValue = "true")
 public class TestContainersOracleConfiguration {
 
     /**
@@ -29,7 +30,6 @@ public class TestContainersOracleConfiguration {
      */
     @Bean(destroyMethod = "stop")
     @ServiceConnection // Spring Boot will autostart the container and wire a DataSource for tests
-    @Conditional(EnableTestcontainersCondition.class)
     @SuppressWarnings("resource") // Spring owns the bean lifecycle; stop() called on context shutdown
     public OracleContainer oracleFreeContainer() {
         if (!DockerClientFactory.instance().isDockerAvailable()) {

@@ -17,22 +17,22 @@ import java.util.List;
 /**
  * Repository for managing {@link StockHistory} entities.
  *
- * <p>Responsibilities:
+ * <h2>Purpose</h2>
  * <ul>
  *   <li>Provide efficient access to stock movement audit data.</li>
  *   <li>Support dashboard/reporting filters and time-range queries.</li>
  *   <li>Offer ordered finders to avoid in-memory sorting in services.</li>
  * </ul>
  *
- * <p><strong>Notes:</strong>
+ * <h2>Dialect & Naming Notes</h2>
  * <ul>
- *   <li>{@code findFiltered(...)} uses a native query for flexibility across Oracle/H2.</li>
- *   <li>Because it is native, Pageable <em>sorting</em> is not injected automatically by Spring Data;
- *       we include a stable {@code ORDER BY s.timestamp DESC} in the query.</li>
- *   <li>Time bounds are inclusive (uses {@code >=} and {@code <=}).</li>
- *   <li>If your column is literally named {@code timestamp}, be mindful it's a SQL keyword in some dialects.
- *       This query works on Oracle/H2 as-is; if your schema quotes the column name,
- *       align the query accordingly or prefer a safer name like {@code changed_at} in future migrations.</li>
+ *   <li>The Java field is {@code timestamp}, but the DB column is {@code CREATED_AT}
+ *       (chosen to avoid reserved-word conflicts). JPQL/derived queries use the field name,
+ *       while <strong>native SQL must reference {@code CREATED_AT}</strong>.</li>
+ *   <li>Supplier filter uses the denormalized {@code SUPPLIER_ID} on {@code STOCK_HISTORY}
+ *       (added for index-friendly analytics). We still join {@code INVENTORY_ITEM} to filter by item name.</li>
+ *   <li>Bounds are inclusive ({@code >=}, {@code <=}); native query includes a stable
+ *       {@code ORDER BY} because Spring Data does not inject sort clauses into native SQL.</li>
  * </ul>
  */
 public interface StockHistoryRepository
@@ -41,33 +41,33 @@ public interface StockHistoryRepository
     /**
      * Paginated stock history entries with optional filters.
      *
-     * <p><strong>Sorting:</strong> A stable default ordering by {@code s.timestamp DESC} is applied
+     * <p><strong>Sorting:</strong> A stable default ordering by {@code CREATED_AT DESC} is applied
      * inside the native query because Spring Data does not inject sort clauses into native queries.</p>
      *
      * @param startDate optional start (inclusive)
      * @param endDate   optional end (inclusive)
      * @param itemName  optional partial match (case-insensitive) on item name
-     * @param supplierId optional exact supplier id
+     * @param supplierId optional exact supplier id (uses denormalized {@code s.SUPPLIER_ID})
      */
     @Query(
         value = """
             SELECT s.*
             FROM stock_history s
             JOIN inventory_item i ON s.item_id = i.id
-            WHERE (:startDate IS NULL OR s.timestamp >= :startDate)
-              AND (:endDate   IS NULL OR s.timestamp <= :endDate)
+            WHERE (:startDate IS NULL OR s.CREATED_AT >= :startDate)
+              AND (:endDate   IS NULL OR s.CREATED_AT <= :endDate)
               AND (:itemName  IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :itemName, '%')))
-              AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-            ORDER BY s.timestamp DESC
+              AND (:supplierId IS NULL OR s.SUPPLIER_ID = :supplierId)
+            ORDER BY s.CREATED_AT DESC
         """,
         countQuery = """
             SELECT COUNT(*)
             FROM stock_history s
             JOIN inventory_item i ON s.item_id = i.id
-            WHERE (:startDate IS NULL OR s.timestamp >= :startDate)
-              AND (:endDate   IS NULL OR s.timestamp <= :endDate)
+            WHERE (:startDate IS NULL OR s.CREATED_AT >= :startDate)
+              AND (:endDate   IS NULL OR s.CREATED_AT <= :endDate)
               AND (:itemName  IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :itemName, '%')))
-              AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
+              AND (:supplierId IS NULL OR s.SUPPLIER_ID = :supplierId)
         """,
         nativeQuery = true
     )
@@ -81,13 +81,13 @@ public interface StockHistoryRepository
 
     /**
      * Ordered finder for all records of an item (newest first).
-     * Prefer this over {@link #findByItemId(String)} to avoid in-memory sorting.
+     * <p>Uses the Java field name ({@code timestamp}); mapped to DB column {@code CREATED_AT}.</p>
      */
     List<StockHistory> findByItemIdOrderByTimestampDesc(String itemId);
 
     /**
      * Ordered finder for all records with the given reason (newest first).
-     * Prefer this over {@link #findByReason(StockChangeReason)} to avoid in-memory sorting.
+     * <p>Uses the Java field name ({@code timestamp}); mapped to DB column {@code CREATED_AT}.</p>
      */
     List<StockHistory> findByReasonOrderByTimestampDesc(StockChangeReason reason);
 
@@ -105,8 +105,9 @@ public interface StockHistoryRepository
 
     /**
      * Time-ordered price snapshots for a specific item within a range.
-     * <p>Only entries with non-null {@code priceAtChange} are included.</p>
-     * <p>Bounds are inclusive.</p>
+     * <p>Only entries with non-null {@code priceAtChange} are included. Bounds are inclusive.</p>
+     *
+     * <p>JPQL uses the entity field {@code timestamp}, which is safely mapped to DB column {@code CREATED_AT}.</p>
      */
     @Query("""
         SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)
@@ -122,13 +123,3 @@ public interface StockHistoryRepository
         @Param("end") LocalDateTime end
     );
 }
-
-/**
- * This repository interface provides methods for querying stock history data
- * with advanced filtering and aggregation capabilities, suitable for reporting
- * and dashboard visualizations.
- *
- * <p>Vendor-specific analytics that exceed JPQL are implemented in
- * {@link com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepositoryImpl}
- * to isolate dialect differences.</p>
- */

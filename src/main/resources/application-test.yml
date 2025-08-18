@@ -6,7 +6,7 @@
 
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb          # In-memory H2 database for fast, isolated testing     
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE          # In-memory H2 database for fast, isolated testing     
     driver-class-name: org.h2.Driver
     username: sa                    # Default username
     password:                       # No password required for in-memory use
@@ -18,6 +18,9 @@ spring:
     properties:
       hibernate:
         '[format_sql]': true      # Format SQL for easier reading in logs
+  sql:
+    init:
+      mode: never
 
   h2:
     console:
@@ -28,7 +31,7 @@ logging:
   file:
     name: logs/test-application.log  # Log file for test runs
   level:
-    root: DEBUG                    # Verbose logging for test diagnostics
+    root: INFO                    # Verbose logging for test diagnostics
 
 server:
   port: 8081                       # Ensure consistent port for testing environments

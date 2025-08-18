@@ -4,6 +4,7 @@ import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.mapper.StockHistoryMapper;
 import com.smartsupplypro.inventory.model.StockHistory;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 import com.smartsupplypro.inventory.validation.StockHistoryValidator;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,15 @@ import java.util.stream.Collectors;
 /**
  * Service class for managing historical stock movements in the inventory system.
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>Retrieve stock history entries (paged & filtered)</li>
- *   <li>Log validated stock changes with server-authoritative timestamps</li>
- *   <li>Capture price snapshots for analytics (priceAtChange)</li>
- * </ul>
- * Validation is performed via {@link StockHistoryValidator}.
+ * <h2>Denormalization Policy</h2>
+ * <p>When persisting a history record, this service resolves and stores the
+ * supplier identifier on the {@code StockHistory} row. This denormalization
+ * enables efficient supplier-centric analytics (index: SUPPLIER_ID, CREATED_AT)
+ * without requiring joins at query time.</p>
+ *
+ * <h2>Time Column Mapping</h2>
+ * <p>The domain field {@code timestamp} is persisted to the database column
+ * {@code CREATED_AT} to avoid reserved keyword conflicts across databases.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,22 @@ public class StockHistoryService {
 
     /** JPA repository for stock history persistence operations. */
     private final StockHistoryRepository repository;
+    private final InventoryItemRepository itemRepository;
+
+    /**
+    * Look up the supplier that owns the given item and return its ID.
+    * <p>Returns {@code null} if the item is missing or supplier is not set. The
+    * history row remains valid; supplier-based indexes simply won’t include it.</p>
+    *
+    * <p><b>Performance:</b> For high-throughput write paths, consider a repository
+    * projection returning only (id, supplierId) or passing supplierId directly from
+    * the caller if it is already known at the call site.</p>
+    */
+    private String resolveSupplierId(String itemId) {
+        return itemRepository.findById(itemId)
+                .map(item -> item.getSupplierId())
+                .orElse(null); // keep null-safe; index still works for present values
+    }
 
     /**
      * @return all stock history entries as DTOs.
@@ -124,10 +143,13 @@ public class StockHistoryService {
         // Business validation (e.g., zero allowed only for PRICE_CHANGE, etc.)
         StockHistoryValidator.validate(dto);
 
+        String supplierId = resolveSupplierId(itemId);
+
         // Persist entity with server-authoritative timestamp
         StockHistory history = StockHistory.builder()
                 .id("sh-" + itemId + "-" + System.currentTimeMillis())
                 .itemId(itemId)
+                .supplierId(supplierId)
                 .change(change)
                 .reason(reason)              // entity uses enum directly
                 .createdBy(createdBy)
@@ -146,10 +168,13 @@ public class StockHistoryService {
         // Validate DTO with domain rules
         StockHistoryValidator.validate(dto);
 
+        String supplierId = resolveSupplierId(dto.getItemId());
+
         // Map & persist
         StockHistory history = StockHistory.builder()
                 .id("sh-" + dto.getItemId() + "-" + System.currentTimeMillis())
                 .itemId(dto.getItemId())
+                .supplierId(supplierId)
                 .change(dto.getChange())
                 .reason(dto.getReason() != null
                         ? StockChangeReason.valueOf(dto.getReason())
