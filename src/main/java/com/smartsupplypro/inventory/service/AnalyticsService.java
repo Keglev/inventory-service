@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
 import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
 import com.smartsupplypro.inventory.dto.LowStockItemDTO;
 import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
@@ -102,5 +103,9 @@ public interface AnalyticsService {
     * @return list of {@link PriceTrendDTO} containing price history
     */
     List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end);
+
+
+    /** WAC summary (purchases, COGS, write-offs, returns, opening/ending) for [from..to]. */
+    FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId);
 }
 

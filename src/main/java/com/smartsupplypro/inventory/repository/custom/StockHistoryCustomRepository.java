@@ -2,6 +2,7 @@ package com.smartsupplypro.inventory.repository.custom;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 
@@ -102,5 +103,15 @@ public interface StockHistoryCustomRepository  {
      * 
      * */
     List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end);
+
+    /**
+    * Streams stock events up to a given timestamp (inclusive), ordered by item & time.
+    * Used by the WAC ledger to compute opening state and in-period totals.
+    *
+    * @param end        upper bound (inclusive)
+    * @param supplierId optional supplier filter (null = all)
+    * @return ordered event rows for cost-flow calculation
+    */
+    List<StockEventRowDTO> findEventsUpTo(LocalDateTime end, String supplierId);
 
 }

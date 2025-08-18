@@ -11,6 +11,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
+import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -351,6 +352,24 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
         return raw.stream()
                 .map(r -> new PriceTrendDTO((String) r[0], (BigDecimal) r[1]))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StockEventRowDTO> findEventsUpTo(LocalDateTime end, String supplierId) {
+        // JPQL uses entity property names (portable across H2 / Oracle)
+        String jpql = """
+            select new com.smartsupplypro.inventory.dto.StockEventRowDTO(
+                sh.itemId, sh.supplierId, sh.timestamp, sh.change, sh.priceAtChange, sh.reason
+            )
+            from StockHistory sh
+            where sh.timestamp <= :end
+              and (:supplierId is null or sh.supplierId = :supplierId)
+            order by sh.itemId asc, sh.timestamp asc
+        """;
+        return em.createQuery(jpql, StockEventRowDTO.class)
+                 .setParameter("end", end)
+                 .setParameter("supplierId", supplierId)
+                 .getResultList();
     }
 
 }

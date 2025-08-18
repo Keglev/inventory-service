@@ -1,10 +1,12 @@
 package com.smartsupplypro.inventory.controller;
 
 import com.smartsupplypro.inventory.dto.*;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.service.AnalyticsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,21 +16,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * REST controller responsible for exposing analytics and reporting endpoints.
- * 
- * <p>Endpoints provide aggregated insights over inventory data such as:
- * <ul>
- *     <li>Total stock values over time</li>
- *     <li>Supplier-based summaries</li>
- *     <li>Low stock warnings</li>
- *     <li>Historical item update activity</li>
- *     <li>Custom filtered stock movements</li>
- * </ul>
+ * REST endpoints for analytics and reporting over inventory data.
  *
- * <p>Designed for seamless frontend integration (charts, dashboards, exports).
+ * <p>Provides time-series, summaries, and filtered stock movement to power dashboards and charts.
+ * All endpoints are DB-agnostic (H2/Oracle differences are handled in the service/repository layers).</p>
  */
 @RestController
-@RequestMapping("/api/analytics")
+@RequestMapping(value = "/api/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
 public class AnalyticsController {
@@ -36,27 +30,26 @@ public class AnalyticsController {
     private final AnalyticsService analyticsService;
 
     /**
-     * Returns the total stock value between two dates.
-     * 
-     * @param start      start date (inclusive)
-     * @param end        end date (inclusive)
-     * @param supplierId optional filter by supplier
-     * @return list of time-series stock values
+     * Time series of total stock value between two dates (inclusive).
+     *
+     * @param start      inclusive start date (ISO yyyy-MM-dd)
+     * @param end        inclusive end date (ISO yyyy-MM-dd)
+     * @param supplierId optional supplier filter
+     * @return list of {@link StockValueOverTimeDTO} points
+     * @throws InvalidRequestException if start/end are missing or invalid (start > end)
      */
     @GetMapping("/stock-value")
     public ResponseEntity<List<StockValueOverTimeDTO>> getStockValueOverTime(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
+
+        validateDateRange(start, end, "start", "end");
         return ResponseEntity.ok(analyticsService.getTotalStockValueOverTime(start, end, supplierId));
     }
 
     /**
-     * Returns the total current stock per supplier.
-     * 
-     * <p>Useful for pie/bar chart generation.
-     * 
-     * @return list of supplier names and their total stock quantities
+     * Current total stock per supplier (e.g., for pie/bar charts).
      */
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
@@ -64,58 +57,53 @@ public class AnalyticsController {
     }
 
     /**
-     * Returns item update frequency for a given supplier.
-     * 
-     * <p>Used to identify most/least updated items in dashboards.
+     * Update frequency for items of a given supplier.
      *
      * @param supplierId required supplier identifier
-     * @return list of item names and update counts
      */
     @GetMapping("/item-update-frequency")
-    public List<ItemUpdateFrequencyDTO> getItemUpdateFrequency(@RequestParam(name = "supplierId") String supplierId) {
-        return analyticsService.getItemUpdateFrequency(supplierId);
+    public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency(
+            @RequestParam(name = "supplierId") String supplierId) {
+
+        requireNonBlank(supplierId, "supplierId");
+        return ResponseEntity.ok(analyticsService.getItemUpdateFrequency(supplierId));
     }
 
     /**
-     * Returns all items below their configured minimum stock threshold.
-     * 
-     * @param supplierId supplier ID to filter results
-     * @return list of items flagged as low in stock
+     * Items below their configured minimum stock threshold for a supplier.
+     *
+     * @param supplierId required supplier identifier
      */
     @GetMapping("/low-stock-items")
-    public List<LowStockItemDTO> getLowStockItems(@RequestParam(name = "supplierId") String supplierId) {
-        return analyticsService.getItemsBelowMinimumStock(supplierId);
+    public ResponseEntity<List<LowStockItemDTO>> getLowStockItems(
+            @RequestParam(name = "supplierId") String supplierId) {
+
+        requireNonBlank(supplierId, "supplierId");
+        return ResponseEntity.ok(analyticsService.getItemsBelowMinimumStock(supplierId));
     }
 
     /**
-     * Returns monthly net stock movement (additions and removals) in a given time window.
-     * 
-     * @param start      start date (inclusive)
-     * @param end        end date (inclusive)
-     * @param supplierId optional filter by supplier
-     * @return list of monthly stock movement aggregates
+     * Monthly net stock movement (additions/removals) in a date window (inclusive).
+     *
+     * @param start      inclusive start date (ISO yyyy-MM-dd)
+     * @param end        inclusive end date (ISO yyyy-MM-dd)
+     * @param supplierId optional supplier filter
      */
     @GetMapping("/monthly-stock-movement")
     public ResponseEntity<List<MonthlyStockMovementDTO>> getMonthlyStockMovement(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
+
+        validateDateRange(start, end, "start", "end");
         return ResponseEntity.ok(analyticsService.getMonthlyStockMovement(start, end, supplierId));
     }
 
     /**
-     * Flexible GET-based search endpoint for stock updates.
-     * 
-     * <p>Allows combination of time range, supplier, user, item name, and quantity delta filters.
+     * GET variant of filtered stock updates.
      *
-     * @param startDate  optional start datetime
-     * @param endDate    optional end datetime
-     * @param itemName   optional item filter
-     * @param supplierId optional supplier filter
-     * @param createdBy  optional creator filter
-     * @param minChange  optional minimum quantity change
-     * @param maxChange  optional maximum quantity change
-     * @return list of filtered stock history entries
+     * <p>If both {@code startDate} and {@code endDate} are null, defaults to the last 30 days
+     * ending at "now" to keep responses bounded and performant.</p>
      */
     @GetMapping("/stock-updates")
     public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesFromParams(
@@ -126,6 +114,19 @@ public class AnalyticsController {
             @RequestParam(required = false) String createdBy,
             @RequestParam(required = false) Integer minChange,
             @RequestParam(required = false) Integer maxChange) {
+
+        // Default window if both are absent
+        if (startDate == null && endDate == null) {
+            endDate = LocalDateTime.now();
+            startDate = endDate.minusDays(30);
+        }
+        // Validate date & numeric params
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new InvalidRequestException("startDate must be on or before endDate");
+        }
+        if (minChange != null && maxChange != null && minChange > maxChange) {
+            throw new InvalidRequestException("minChange must be <= maxChange");
+        }
 
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
         filter.setStartDate(startDate);
@@ -140,34 +141,28 @@ public class AnalyticsController {
     }
 
     /**
-     * POST-based variant of the stock updates filter, accepting a full JSON body.
-     * 
-     * <p>Recommended for frontend dashboards or complex filter UIs.
-     * 
-     * @param filter filter DTO with multiple optional fields
-     * @return list of matching stock updates
+     * POST variant of filtered stock updates, accepts full JSON filter.
      */
-    @PostMapping("/stock-updates/query")
+    @PostMapping(value = "/stock-updates/query", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesPost(
             @RequestBody @Valid StockUpdateFilterDTO filter) {
+
+        if (filter.getStartDate() != null && filter.getEndDate() != null
+                && filter.getStartDate().isAfter(filter.getEndDate())) {
+            throw new InvalidRequestException("startDate must be on or before endDate");
+        }
+        if (filter.getMinChange() != null && filter.getMaxChange() != null
+                && filter.getMinChange() > filter.getMaxChange()) {
+            throw new InvalidRequestException("minChange must be <= maxChange");
+        }
+
         return ResponseEntity.ok(analyticsService.getFilteredStockUpdates(filter));
     }
 
     /**
-     * Returns a dashboard-ready summary for a given period and/or supplier.
-     * 
-     * <p>Includes:
-     * <ul>
-     *     <li>Stock per supplier</li>
-     *     <li>Low stock warnings (up to 3 items)</li>
-     *     <li>Monthly stock movement</li>
-     *     <li>Top 5 frequently updated items</li>
-     * </ul>
+     * Dashboard-ready summary for a period and/or supplier.
      *
-     * @param supplierId optional supplier to focus analytics
-     * @param startDate  optional start datetime (defaults to -30 days)
-     * @param endDate    optional end datetime (defaults to now)
-     * @return consolidated summary DTO for dashboard rendering
+     * <p>Defaults to the last 30 days if no dates are provided.</p>
      */
     @GetMapping("/summary")
     public ResponseEntity<DashboardSummaryDTO> getDashboardSummary(
@@ -177,41 +172,80 @@ public class AnalyticsController {
 
         if (startDate == null) startDate = LocalDateTime.now().minusDays(30);
         if (endDate == null) endDate = LocalDateTime.now();
+        if (startDate.isAfter(endDate)) {
+            throw new InvalidRequestException("startDate must be on or before endDate");
+        }
 
         DashboardSummaryDTO summary = new DashboardSummaryDTO();
-
         summary.setStockPerSupplier(analyticsService.getTotalStockPerSupplier());
 
-        summary.setLowStockItems(supplierId != null ?
-                analyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList() :
-                List.of());
+        summary.setLowStockItems(supplierId != null && !supplierId.isBlank()
+                ? analyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList()
+                : List.of());
 
         summary.setMonthlyStockMovement(analyticsService.getMonthlyStockMovement(
                 startDate.toLocalDate(), endDate.toLocalDate(), supplierId));
 
-        summary.setTopUpdatedItems(supplierId != null ?
-                analyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList() :
-                List.of());
+        summary.setTopUpdatedItems(supplierId != null && !supplierId.isBlank()
+                ? analyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList()
+                : List.of());
 
         return ResponseEntity.ok(summary);
     }
+
     /**
-    * Returns historical price changes of an inventory item over time,
-    * optionally filtered by supplier.
-    *
-    * @param itemId the inventory item ID (required)
-    * @param supplierId optional supplier ID
-    * @param start start date (inclusive)
-    * @param end end date (inclusive)
-    * @return list of time-series {@link PriceTrendDTO} records
-    */
+     * Historical price changes for an item, optionally filtered by supplier.
+     *
+     * @param itemId     required inventory item id
+     * @param supplierId optional supplier id
+     * @param start      inclusive start date (ISO yyyy-MM-dd)
+     * @param end        inclusive end date (ISO yyyy-MM-dd)
+     */
     @GetMapping("/price-trend")
     public ResponseEntity<List<PriceTrendDTO>> getPriceTrend(
             @RequestParam String itemId,
             @RequestParam(required = false) String supplierId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+
+        requireNonBlank(itemId, "itemId");
+        validateDateRange(start, end, "start", "end");
         return ResponseEntity.ok(analyticsService.getPriceTrend(itemId, supplierId, start, end));
     }
 
+    /**
+    * Financial summary (WAC): purchases, COGS, write-offs, returns, opening/ending.
+    *
+    * <p>Dates are inclusive. Validates that {@code from <= to}.</p>
+    */
+    @GetMapping("/financial/summary")
+    public ResponseEntity<FinancialSummaryDTO> getFinancialSummary(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String supplierId) {
+
+        // reuse helper from earlier controller suggestion
+        validateDateRange(from, to, "from", "to");
+        return ResponseEntity.ok(analyticsService.getFinancialSummaryWAC(from, to, supplierId));
+    }
+
+    // ------------------------------------------------------------------------
+    // Helpers
+    // ------------------------------------------------------------------------
+
+    private static void validateDateRange(LocalDate start, LocalDate end,
+                                          String startName, String endName) {
+        if (start == null || end == null) {
+            throw new InvalidRequestException(startName + " and " + endName + " are required");
+        }
+        if (start.isAfter(end)) {
+            throw new InvalidRequestException(startName + " must be on or before " + endName);
+        }
+    }
+
+    private static void requireNonBlank(String value, String name) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new InvalidRequestException(name + " must not be blank");
+        }
+    }
 }
