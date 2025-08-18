@@ -4,20 +4,34 @@ import com.smartsupplypro.inventory.model.Supplier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration test class for {@link SupplierRepository} using H2 in-memory database.
- * <p>
- * Verifies supplier search, duplicate name checks, and case-insensitive behavior
- * for both autocomplete and validation operations.
+ * JPA slice tests for {@link SupplierRepository} backed by an in‑memory database.
+ *
+ * <p><strong>Purpose</strong></p>
+ * <ul>
+ *   <li>Verify case‑insensitive exact lookup via {@link SupplierRepository#findByNameIgnoreCase(String)}.</li>
+ *   <li>Verify case‑insensitive substring search via {@link SupplierRepository#findByNameContainingIgnoreCase(String)}.</li>
+ *   <li>Verify convenience existence checks via {@link SupplierRepository#existsByNameIgnoreCase(String)}.</li>
+ * </ul>
+ *
+ * <p><strong>Design</strong></p>
+ * <ul>
+ *   <li>Uses {@code @DataJpaTest} for fast, rollback‑per‑test JPA integration tests.</li>
+ *   <li>Forces H2 with {@code @AutoConfigureTestDatabase(replace = ANY)} to avoid external DB/Testcontainers.</li>
+ *   <li>Seeds via the repository to keep tests framework‑agnostic and portable.</li>
+ * </ul>
  */
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY) // force embedded
 @ActiveProfiles("test")
 class SupplierRepositoryTest {
 
@@ -25,91 +39,81 @@ class SupplierRepositoryTest {
     private SupplierRepository supplierRepository;
 
     /**
-     * Creates a reusable test supplier entity.
-     *
-     * @param name supplier name
-     * @return a valid Supplier instance
+     * Utility: persist a supplier with a unique, deterministic id.
+     * Other fields are optional for repository‑level tests.
      */
-    private Supplier createSupplier(String name) {
-        return Supplier.builder()
-                .id("sup-" + name.hashCode())
+    private Supplier save(String name) {
+        Supplier s = Supplier.builder()
+                .id("sup-" + UUID.randomUUID()) // avoid rare hash collisions
                 .name(name)
                 .contactName("John Doe")
-                .email("contact@" + name.toLowerCase() + ".com")
+                .email(("contact@" + name).toLowerCase() + ".com")
                 .phone("+49 123 456")
                 .createdBy("admin")
                 .build();
+        return supplierRepository.save(s);
     }
 
-    /**
-     * Verifies that a supplier can be found using partial case-insensitive name search.
-     */
-    @Test
-    @DisplayName("Should find suppliers by partial name (case-insensitive)")
-    void testFindByNameContainingIgnoreCase_shouldReturnMatches() {
-        // Arrange
-        supplierRepository.save(createSupplier("SuperCo"));
-        supplierRepository.save(createSupplier("SuperMart"));
-        supplierRepository.save(createSupplier("OtherCompany"));
+    // ---------------------------------------------------------------------
+    // findByNameIgnoreCase (exact, case-insensitive)
+    // ---------------------------------------------------------------------
 
-        // Act
+    @Test
+    @DisplayName("findByNameIgnoreCase → exact match only (case-insensitive)")
+    void findByNameIgnoreCase_exact_caseInsensitive() {
+        save("Acme GmbH");
+
+        assertTrue(supplierRepository.findByNameIgnoreCase("Acme GmbH").isPresent());
+        assertTrue(supplierRepository.findByNameIgnoreCase("acme gmbh").isPresent());
+        assertTrue(supplierRepository.findByNameIgnoreCase("ACME GMBH").isPresent());
+
+        // exact lookup should NOT match partials
+        assertTrue(supplierRepository.findByNameIgnoreCase("Acme").isEmpty());
+        assertTrue(supplierRepository.findByNameIgnoreCase("GmbH").isEmpty());
+    }
+
+    // ---------------------------------------------------------------------
+    // findByNameContainingIgnoreCase (contains, case-insensitive)
+    // ---------------------------------------------------------------------
+
+    @Test
+    @DisplayName("findByNameContainingIgnoreCase → returns suppliers containing substring (case-insensitive)")
+    void findByNameContainingIgnoreCase_shouldReturnMatches() {
+        save("SuperCo");
+        save("SuperMart");
+        save("OtherCompany");
+
         List<Supplier> results = supplierRepository.findByNameContainingIgnoreCase("super");
 
-        // Assert
         assertEquals(2, results.size(), "Expected two suppliers matching 'super'");
         assertTrue(results.stream().anyMatch(s -> s.getName().equals("SuperCo")));
         assertTrue(results.stream().anyMatch(s -> s.getName().equals("SuperMart")));
     }
 
-    /**
-     * Verifies that no results are returned if name doesn't match.
-     */
     @Test
-    @DisplayName("Should return empty list if no partial name match found")
-    void testFindByNameContainingIgnoreCase_noMatch() {
-        supplierRepository.save(createSupplier("UnrelatedName"));
+    @DisplayName("findByNameContainingIgnoreCase → returns empty when no matches")
+    void findByNameContainingIgnoreCase_noMatch() {
+        save("UnrelatedName");
 
         List<Supplier> results = supplierRepository.findByNameContainingIgnoreCase("missing");
 
         assertTrue(results.isEmpty(), "Expected no suppliers for unmatched name");
     }
 
-    /**
-     * Verifies that name uniqueness check works regardless of case.
-     */
+    // ---------------------------------------------------------------------
+    // existsByNameIgnoreCase (exact, case-insensitive)
+    // ---------------------------------------------------------------------
+
     @Test
-    @DisplayName("Should detect existing supplier name ignoring case")
-    void testExistsByNameIgnoreCase_trueWhenExists() {
-        supplierRepository.save(createSupplier("MegaSupply"));
+    @DisplayName("existsByNameIgnoreCase → true for existing name (any case), false otherwise")
+    void existsByNameIgnoreCase_trueFalseCases() {
+        save("MegaSupply");
 
-        boolean exists = supplierRepository.existsByNameIgnoreCase("megasupply");
+        assertTrue(supplierRepository.existsByNameIgnoreCase("megasupply"));
+        assertTrue(supplierRepository.existsByNameIgnoreCase("MEGASUPPLY"));
 
-        assertTrue(exists, "Expected true for existing name regardless of case");
-    }
-
-    /**
-     * Verifies that false is returned if supplier name doesn't exist.
-     */
-    @Test
-    @DisplayName("Should return false if name does not exist")
-    void testExistsByNameIgnoreCase_falseWhenNotExists() {
-        boolean exists = supplierRepository.existsByNameIgnoreCase("nonexistent");
-
-        assertFalse(exists, "Expected false for non-existent supplier name");
-    }
-
-    /**
-     * Verifies that exact name but different casing still triggers a match.
-     */
-    @Test
-    @DisplayName("Should return true even for different name casing")
-    void testExistsByNameIgnoreCase_caseInsensitiveMatch() {
-        supplierRepository.save(createSupplier("AlphaIndustries"));
-
-        boolean exists = supplierRepository.existsByNameIgnoreCase("alphaindustries");
-        assertTrue(exists, "Expected case-insensitive name match to be true");
-
-        exists = supplierRepository.existsByNameIgnoreCase("ALPHAINDUSTRIES");
-        assertTrue(exists, "Expected uppercase match to also return true");
+        // partials are not exact
+        assertFalse(supplierRepository.existsByNameIgnoreCase("mega"));
+        assertFalse(supplierRepository.existsByNameIgnoreCase("unknown"));
     }
 }

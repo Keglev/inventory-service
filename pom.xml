@@ -106,11 +106,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
+	    <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-testcontainers</artifactId>
 			<scope>test</scope>
-		</dependency>
+		</dependency> 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
@@ -120,18 +120,18 @@
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
-		</dependency>
+		</dependency> 
 		<!-- Spring Session for cookie serialization and cross-origin session handling -->
 		<dependency>
     		<groupId>org.springframework.session</groupId>
     		<artifactId>spring-session-core</artifactId>
 		</dependency>
 
-		<dependency>
+	    <dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>oracle-free</artifactId>
 			<scope>test</scope>
-		</dependency>
+		</dependency> 
 
   		<!-- JUnit 5 -->
   		<dependency>

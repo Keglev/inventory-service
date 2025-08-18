@@ -6,7 +6,7 @@
 
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=Oracle;DATABASE_TO_UPPER=false;DEFAULT_NULL_ORDERING=HIGH # Simulating Oracle Database for test purposes      
+    url: jdbc:h2:mem:testdb          # In-memory H2 database for fast, isolated testing     
     driver-class-name: org.h2.Driver
     username: sa                    # Default username
     password:                       # No password required for in-memory use
