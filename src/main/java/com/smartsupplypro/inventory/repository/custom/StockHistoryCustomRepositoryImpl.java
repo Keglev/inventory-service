@@ -1,20 +1,14 @@
 package com.smartsupplypro.inventory.repository.custom;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,111 +17,132 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Custom implementation for StockHistory native queries that require
- * database-specific SQL compatibility (e.g., TO_CHAR in Oracle vs FORMATDATETIME in H2).
- * <p>
- * This class isolates native query logic and supports conditional execution
- * based on the active Spring profile ("test"/"h2" vs "oracle").
+ * Custom repository implementation for analytics queries over <code>stock_history</code>.
+ *
+ * <p><strong>Purpose</strong><br>
+ * Encapsulates native SQL and JPQL required by analytics so we can:
+ * <ul>
+ *   <li>Support both H2 (test profile) and Oracle (prod) without leaking dialect specifics upward.</li>
+ *   <li>Keep controllers/services database-agnostic (they depend on entity property names or DTOs).</li>
+ *   <li>Centralize any future SQL tuning (indexes, hints, truncation functions, etc.).</li>
+ * </ul>
+ *
+ * <p><strong>Conventions</strong>
+ * <ul>
+ *   <li>Entity property <code>createdAt</code> is mapped to DB column <code>created_at</code>.</li>
+ *   <li>Entity property <code>quantityChange</code> is mapped to DB column <code>quantity_change</code>.</li>
+ *   <li>Native SQL uses column names; JPQL uses entity property names.</li>
+ *   <li>All parameters are bound (no string concatenation) to avoid SQL injection.</li>
+ * </ul>
+ *
+ * <p><strong>Return Shapes</strong>
+ * <ul>
+ *   <li>Most native methods return <code>List&lt;Object[]&gt;</code> for simple aggregations.</li>
+ *   <li>Event streaming for cost-flow (WAC) uses a constructor projection into
+ *       {@link com.smartsupplypro.inventory.dto.StockEventRowDTO} via JPQL.</li>
+ * </ul>
  */
 @Repository
 @RequiredArgsConstructor
 public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(StockHistoryCustomRepositoryImpl.class);
-
     @PersistenceContext
-    private final EntityManager em;
+    private EntityManager em;
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
+    /**
+     * Detects whether we should run H2-compatible SQL (test/h2 profiles) or Oracle SQL (default/prod).
+     */
     private boolean isH2() {
-        return Arrays.asList(environment.getActiveProfiles()).stream()
-                    .anyMatch(p -> p.equalsIgnoreCase("test") || p.equalsIgnoreCase("h2"));
+        return Arrays.stream(environment.getActiveProfiles())
+                .anyMatch(p -> p.equalsIgnoreCase("test") || p.equalsIgnoreCase("h2"));
     }
 
-    @PostConstruct
-    public void logDatabaseDetection() {
-        log.info("Active profiles: {}", Arrays.toString(environment.getActiveProfiles()));
-        log.info("[Database Detection] Using {} SQL syntax for analytics queries.",
-                 isH2() ? "H2-compatible" : "Oracle");
-    }
-
-
+    /**
+     * Monthly stock movement (stock-in / stock-out) over a time window.
+     *
+     * <p><strong>Output row format:</strong> [month_str (YYYY-MM), stock_in (Number), stock_out (Number)]</p>
+     *
+     * @param start inclusive lower bound (uses <code>created_at</code>)
+     * @param end   inclusive upper bound (uses <code>created_at</code>)
+     * @return aggregated rows ordered by month ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getMonthlyStockMovement(LocalDateTime start, LocalDateTime end) {
         final String sql;
         if (isH2()) {
-            // Fallback for H2: extract year and month separately, then concat
             sql = """
-                SELECT CONCAT(CAST(YEAR(sh.timestamp) AS VARCHAR), '-',
-                            LPAD(CAST(MONTH(sh.timestamp) AS VARCHAR), 2, '0')) AS month_str,
-                        SUM(CASE WHEN sh.change > 0 THEN sh.change ELSE 0 END) AS stock_in,
-                        SUM(CASE WHEN sh.change < 0 THEN ABS(sh.change) ELSE 0 END) AS stock_out
+                SELECT CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                              LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0')) AS month_str,
+                       SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
+                       SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
                 FROM stock_history sh
-                WHERE sh.timestamp BETWEEN :start AND :end
-                GROUP BY CONCAT(CAST(YEAR(sh.timestamp) AS VARCHAR), '-',
-                                LPAD(CAST(MONTH(sh.timestamp) AS VARCHAR), 2, '0'))
+                WHERE sh.created_at BETWEEN :start AND :end
+                GROUP BY CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                                LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'))
                 ORDER BY 1
             """;
         } else {
             sql = """
-                SELECT TO_CHAR(sh.timestamp, 'YYYY-MM') AS month_str,
-                        SUM(CASE WHEN sh.change > 0 THEN sh.change ELSE 0 END) AS stock_in,
-                        SUM(CASE WHEN sh.change < 0 THEN ABS(sh.change) ELSE 0 END) AS stock_out
+                SELECT TO_CHAR(sh.created_at, 'YYYY-MM') AS month_str,
+                       SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
+                       SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
                 FROM stock_history sh
-                WHERE sh.timestamp BETWEEN :start AND :end
-                GROUP BY TO_CHAR(sh.timestamp, 'YYYY-MM')
+                WHERE sh.created_at BETWEEN :start AND :end
+                GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM')
                 ORDER BY 1
             """;
         }
-
-        log.debug("Executing SQL for getMonthlyStockMovement (isH2={}): {}", isH2(), sql);
-
         Query nativeQuery = em.createNativeQuery(sql);
         nativeQuery.setParameter("start", start);
         nativeQuery.setParameter("end", end);
         return nativeQuery.getResultList();
     }
 
-
+    /**
+     * Monthly stock movement (stock-in / stock-out) filtered by supplier over a time window.
+     *
+     * <p><strong>Output row format:</strong> [month_str (YYYY-MM), stock_in (Number), stock_out (Number)]</p>
+     *
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier ID (case-insensitive for H2 branch)
+     * @return aggregated rows ordered by month ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getMonthlyStockMovementFiltered(LocalDateTime start, LocalDateTime end, String supplierId) {
         final String sql;
         if (isH2()) {
             sql = """
-                SELECT CONCAT(CAST(YEAR(sh.timestamp) AS VARCHAR), '-',
-                            LPAD(CAST(MONTH(sh.timestamp) AS VARCHAR), 2, '0')) AS month_str,
-                        SUM(CASE WHEN sh.change > 0 THEN sh.change ELSE 0 END) AS stock_in,
-                        SUM(CASE WHEN sh.change < 0 THEN ABS(sh.change) ELSE 0 END) AS stock_out
+                SELECT CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                              LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0')) AS month_str,
+                       SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
+                       SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
                 FROM stock_history sh
                 JOIN inventory_item i ON sh.item_id = i.id
-                WHERE sh.timestamp BETWEEN :start AND :end
-                    AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-                GROUP BY CONCAT(CAST(YEAR(sh.timestamp) AS VARCHAR), '-',
-                            LPAD(CAST(MONTH(sh.timestamp) AS VARCHAR), 2, '0'))
+                WHERE sh.created_at BETWEEN :start AND :end
+                  AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+                GROUP BY CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                                LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'))
                 ORDER BY 1
             """;
         } else {
             sql = """
-                SELECT TO_CHAR(sh.timestamp, 'YYYY-MM') AS month_str,
-                        SUM(CASE WHEN sh.change > 0 THEN sh.change ELSE 0 END) AS stock_in,
-                        SUM(CASE WHEN sh.change < 0 THEN ABS(sh.change) ELSE 0 END) AS stock_out
+                SELECT TO_CHAR(sh.created_at, 'YYYY-MM') AS month_str,
+                       SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
+                       SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
                 FROM stock_history sh
                 JOIN inventory_item i ON sh.item_id = i.id
-                WHERE sh.timestamp BETWEEN :start AND :end
-                    AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-                GROUP BY TO_CHAR(sh.timestamp, 'YYYY-MM')
+                WHERE sh.created_at BETWEEN :start AND :end
+                  AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
+                GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM')
                 ORDER BY 1
             """;
         }
-
-        log.debug("Executing SQL for getMonthlyStockMovementFiltered (isH2={}): {}", isH2(), sql);
-
         final String normalizedSupplier = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
-
         final Query nativeQuery = em.createNativeQuery(sql);
         nativeQuery.setParameter("start", start);
         nativeQuery.setParameter("end", end);
@@ -135,56 +150,66 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
         return nativeQuery.getResultList();
     }
 
+    /**
+     * Daily total stock value (quantity × price) for a time window, optionally filtered by supplier.
+     *
+     * <p>Returns a real DATE in column 1 to align with service mapping
+     * (<code>(Date) row[0]</code> → <code>toLocalDate()</code>), not a string.</p>
+     *
+     * <p><strong>Output row format:</strong> [day_date (DATE), total_value (Number)]</p>
+     *
+     * @param start      inclusive lower bound
+     * @param end        inclusive upper bound
+     * @param supplierId optional supplier filter (null or blank = all)
+     * @return rows ordered by day ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getStockValueGroupedByDateFiltered(LocalDateTime start, LocalDateTime end, String supplierId) {
-        String sql;
+        final String sql;
         if (isH2()) {
+            // H2: CAST/DATE() yields a DATE without time
             sql = """
-                SELECT CONCAT(CAST(YEAR(sh.timestamp) AS VARCHAR), '-',
-                            LPAD(CAST(MONTH(sh.timestamp) AS VARCHAR), 2, '0'), '-',
-                            LPAD(CAST(DAY(sh.timestamp) AS VARCHAR), 2, '0')) AS day_str,
-                        SUM(sh.change * i.price) AS total_value
+                SELECT CAST(sh.created_at AS DATE) AS day_date,
+                       SUM(sh.quantity_change * i.price) AS total_value
                 FROM stock_history sh
                 JOIN inventory_item i ON sh.item_id = i.id
-                WHERE sh.timestamp BETWEEN :start AND :end
-                    AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-                GROUP BY CONCAT(CAST(YEAR(sh.timestamp) AS VARCHAR), '-',
-                                LPAD(CAST(MONTH(sh.timestamp) AS VARCHAR), 2, '0'), '-',
-                                LPAD(CAST(DAY(sh.timestamp) AS VARCHAR), 2, '0'))
-                ORDER BY 1
+                WHERE sh.created_at BETWEEN :start AND :end
+                  AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+                GROUP BY CAST(sh.created_at AS DATE)
+                ORDER BY day_date
             """;
         } else {
+            // Oracle: TRUNC(date) returns DATE at midnight
             sql = """
-                SELECT TO_CHAR(sh.timestamp, 'YYYY-MM-DD') AS day_str,
-                        SUM(sh.change * i.price) AS total_value
+                SELECT TRUNC(sh.created_at) AS day_date,
+                       SUM(sh.quantity_change * i.price) AS total_value
                 FROM stock_history sh
                 JOIN inventory_item i ON sh.item_id = i.id
-                WHERE sh.timestamp BETWEEN :start AND :end
-                    AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-                GROUP BY TO_CHAR(sh.timestamp, 'YYYY-MM-DD')
-                ORDER BY 1
+                WHERE sh.created_at BETWEEN :start AND :end
+                  AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
+                GROUP BY TRUNC(sh.created_at)
+                ORDER BY day_date
             """;
         }
 
         final String normalizedSupplier = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
-        Query nativeQuery = em.createNativeQuery(sql);
+        final Query nativeQuery = em.createNativeQuery(sql);
         nativeQuery.setParameter("start", start);
         nativeQuery.setParameter("end", end);
         nativeQuery.setParameter("supplierId", normalizedSupplier);
         return nativeQuery.getResultList();
     }
- 
 
+    /**
+     * Current total stock quantity by supplier (simple dashboard pie/bar).
+     *
+     * <p><strong>Output row format:</strong> [supplier_name (String), total_quantity (Number)]</p>
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getTotalStockPerSupplier() {
-        List<Object[]> allSuppliers = em.createNativeQuery("SELECT id, name FROM supplier").getResultList();
-        log.debug("Suppliers table content:");
-        for (Object[] row : allSuppliers) {
-            log.debug("Supplier: id={}, name={}", row[0], row[1]);
-        }
-        String sql = """
+        final String sql = """
             SELECT s.name AS supplier_name, SUM(i.quantity) AS total_quantity
             FROM supplier s
             JOIN inventory_item i ON s.id = i.supplier_id
@@ -194,6 +219,13 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
         return em.createNativeQuery(sql).getResultList();
     }
 
+    /**
+     * Update frequency per item, optionally filtered by supplier.
+     *
+     * <p><strong>Output row format:</strong> [item_name (String), update_count (Number)]</p>
+     *
+     * @param supplierId optional supplier ID (case-insensitive for H2 branch)
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getUpdateCountPerItemFiltered(String supplierId) {
@@ -205,13 +237,19 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
             GROUP BY i.name
             ORDER BY update_count DESC
         """;
-
         final String normalizedSupplier = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
         final Query nativeQuery = em.createNativeQuery(sql);
         nativeQuery.setParameter("supplierId", normalizedSupplier);
         return nativeQuery.getResultList();
     }
 
+    /**
+     * Items currently below their minimum threshold, optionally filtered by supplier.
+     *
+     * <p><strong>Output row format:</strong> [name (String), quantity (Number), minimum_quantity (Number)]</p>
+     *
+     * @param supplierId optional supplier ID (case-insensitive for H2 branch)
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> findItemsBelowMinimumStockFiltered(String supplierId) {
@@ -219,28 +257,24 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
             SELECT name, quantity, minimum_quantity
             FROM inventory_item i
             WHERE quantity < minimum_quantity
-                AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
             ORDER BY quantity ASC
         """;
-
         final String normalizedSupplier = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
-        log.debug("Executing findItemsBelowMinimumStockFiltered with supplierId={}, normalizedSupplier={}", supplierId, normalizedSupplier);
-
-        // Debug: dump all items in table before filtering
-        List<Object[]> allItems = em.createNativeQuery("SELECT id, name, quantity, minimum_quantity, supplier_id FROM inventory_item ORDER BY name")
-                                    .getResultList();
-        log.debug("Inventory items before filter:");
-        for (Object[] row : allItems) {
-            log.debug("Item: id={}, name={}, qty={}, minQty={}, supplierId={}", row[0], row[1], row[2], row[3], row[4]);
-        }
-
         final Query nativeQuery = em.createNativeQuery(sql);
         nativeQuery.setParameter("supplierId", normalizedSupplier);
         return nativeQuery.getResultList();
     }
 
-    @Override
+    /**
+     * Flexible stock update search with time/supplier/item/user/quantity filters.
+     *
+     * <p><strong>Output row format:</strong>
+     * [item_name (String), supplier_name (String), quantity_change (Number),
+     *  reason (String or enum name), created_by (String), created_at (TIMESTAMP)]</p>
+     */
     @SuppressWarnings("unchecked")
+    @Override
     public List<Object[]> findFilteredStockUpdates(
             LocalDateTime startDate,
             LocalDateTime endDate,
@@ -251,55 +285,65 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
             Integer maxChange
     ) {
         final String sql;
-            if (isH2()) {
-                sql = """
-                    SELECT i.name AS item_name, s.name AS supplier_name, sh.change, sh.reason, sh.created_by, sh.timestamp
-                    FROM stock_history sh
-                    JOIN inventory_item i ON sh.item_id = i.id
-                    JOIN supplier s ON i.supplier_id = s.id
-                    WHERE (:startDate   IS NULL OR sh.timestamp >= :startDate)
-                        AND (:endDate     IS NULL OR sh.timestamp <= :endDate)
-                        AND (:itemPattern IS NULL OR LOWER(i.name) LIKE :itemPattern)
-                        AND (:supplierId  IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-                        AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
-                        AND (:minChange   IS NULL OR sh.change >= :minChange)
-                        AND (:maxChange   IS NULL OR sh.change <= :maxChange)
-                    ORDER BY sh.timestamp DESC
-                """;
-            } else {
-                // Oracle: use ||
-                sql = """
-                    SELECT i.name AS item_name, s.name AS supplier_name, sh.change, sh.reason, sh.created_by, sh.timestamp
-                    FROM stock_history sh
-                    JOIN inventory_item i ON sh.item_id = i.id
-                    JOIN supplier s ON i.supplier_id = s.id
-                    WHERE (:startDate   IS NULL OR sh.timestamp >= :startDate)
-                        AND (:endDate     IS NULL OR sh.timestamp <= :endDate)
-                        AND (:itemPattern IS NULL OR LOWER(i.name) LIKE :itemPattern)
-                        AND (:supplierId  IS NULL OR i.supplier_id = :supplierId)
-                        AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
-                        AND (:minChange   IS NULL OR sh.change >= :minChange)
-                        AND (:maxChange   IS NULL OR sh.change <= :maxChange)
-                    ORDER BY sh.timestamp DESC
-                """;
-            }
+        if (isH2()) {
+            sql = """
+                SELECT i.name AS item_name, s.name AS supplier_name, sh.quantity_change, sh.reason, sh.created_by, sh.created_at
+                FROM stock_history sh
+                JOIN inventory_item i ON sh.item_id = i.id
+                JOIN supplier s ON i.supplier_id = s.id
+                WHERE (:startDate     IS NULL OR sh.created_at >= :startDate)
+                  AND (:endDate       IS NULL OR sh.created_at <= :endDate)
+                  AND (:itemPattern   IS NULL OR LOWER(i.name) LIKE :itemPattern)
+                  AND (:supplierId    IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+                  AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
+                  AND (:minChange     IS NULL OR sh.quantity_change >= :minChange)
+                  AND (:maxChange     IS NULL OR sh.quantity_change <= :maxChange)
+                ORDER BY sh.created_at DESC
+            """;
+        } else {
+            sql = """
+                SELECT i.name AS item_name, s.name AS supplier_name, sh.quantity_change, sh.reason, sh.created_by, sh.created_at
+                FROM stock_history sh
+                JOIN inventory_item i ON sh.item_id = i.id
+                JOIN supplier s ON i.supplier_id = s.id
+                WHERE (:startDate     IS NULL OR sh.created_at >= :startDate)
+                  AND (:endDate       IS NULL OR sh.created_at <= :endDate)
+                  AND (:itemPattern   IS NULL OR LOWER(i.name) LIKE :itemPattern)
+                  AND (:supplierId    IS NULL OR i.supplier_id = :supplierId)
+                  AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
+                  AND (:minChange     IS NULL OR sh.quantity_change >= :minChange)
+                  AND (:maxChange     IS NULL OR sh.quantity_change <= :maxChange)
+                ORDER BY sh.created_at DESC
+            """;
+        }
 
-        final String itemPattern   = (itemName == null || itemName.isBlank()) ? null : "%"+itemName.toLowerCase() + "%";
-        final String normalizedSupplier = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
-        final String createdByNorm  = (createdBy == null || createdBy.isBlank()) ? null : createdBy.toLowerCase();
+        final String itemPattern     = (itemName == null || itemName.isBlank()) ? null : "%" + itemName.toLowerCase() + "%";
+        final String normalizedSupp  = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
+        final String createdByNorm   = (createdBy == null || createdBy.isBlank()) ? null : createdBy.toLowerCase();
 
-        final Query nativeQuery = em.createNativeQuery(sql);
-        nativeQuery.setParameter("startDate", startDate);
-        nativeQuery.setParameter("endDate", endDate);
-        nativeQuery.setParameter("itemPattern", itemPattern);
-        nativeQuery.setParameter("supplierId", normalizedSupplier);
-        nativeQuery.setParameter("createdByNorm", createdByNorm);
-        nativeQuery.setParameter("minChange", minChange);
-        nativeQuery.setParameter("maxChange", maxChange);
+        final Query q = em.createNativeQuery(sql);
+        q.setParameter("startDate", startDate);
+        q.setParameter("endDate", endDate);
+        q.setParameter("itemPattern", itemPattern);
+        q.setParameter("supplierId", normalizedSupp);
+        q.setParameter("createdByNorm", createdByNorm);
+        q.setParameter("minChange", minChange);
+        q.setParameter("maxChange", maxChange);
 
-        return nativeQuery.getResultList();
+        return q.getResultList();
     }
 
+    /**
+     * Average price trend per day for a specific item (optional supplier filter).
+     *
+     * <p><strong>Output row format:</strong> [day_str (String YYYY-MM-DD), price (BigDecimal)]</p>
+     *
+     * @param itemId     required item ID
+     * @param supplierId optional supplier ID (null/blank = all)
+     * @param start      inclusive lower bound (created_at)
+     * @param end        inclusive upper bound (created_at)
+     * @return list of day/price pairs ordered by day ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end) {
@@ -307,69 +351,78 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
         if (isH2()) {
             sql = """
                 SELECT CONCAT(
-                            CAST(YEAR(sh.timestamp) AS VARCHAR), '-',
-                            LPAD(CAST(MONTH(sh.timestamp) AS VARCHAR), 2, '0'), '-',
-                            LPAD(CAST(DAY(sh.timestamp) AS VARCHAR), 2, '0')
-                        ) AS day_str,
-                        AVG(sh.price_at_change) AS price
+                           CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                           LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
+                           LPAD(CAST(DAY(sh.created_at) AS VARCHAR), 2, '0')
+                       ) AS day_str,
+                       AVG(sh.price_at_change) AS price
                 FROM stock_history sh
                 JOIN inventory_item i ON sh.item_id = i.id
-                WHERE sh.timestamp BETWEEN :start AND :end
-                    AND sh.item_id = :itemId
-                    AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+                WHERE sh.created_at BETWEEN :start AND :end
+                  AND sh.item_id = :itemId
+                  AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
                 GROUP BY CONCAT(
-                            CAST(YEAR(sh.timestamp) AS VARCHAR), '-',
-                            LPAD(CAST(MONTH(sh.timestamp) AS VARCHAR), 2, '0'), '-',
-                            LPAD(CAST(DAY(sh.timestamp) AS VARCHAR), 2, '0')
-                        )
+                           CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                           LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'), '-',
+                           LPAD(CAST(DAY(sh.created_at) AS VARCHAR), 2, '0')
+                       )
                 ORDER BY 1
             """;
         } else {
             sql = """
-                SELECT TO_CHAR(sh.timestamp, 'YYYY-MM-DD') AS day_str,
-                        AVG(sh.price_at_change) AS price
+                SELECT TO_CHAR(sh.created_at, 'YYYY-MM-DD') AS day_str,
+                       AVG(sh.price_at_change) AS price
                 FROM stock_history sh
                 JOIN inventory_item i ON sh.item_id = i.id
-                WHERE sh.timestamp BETWEEN :start AND :end
-                    AND sh.item_id = :itemId
-                    AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-                GROUP BY TO_CHAR(sh.timestamp, 'YYYY-MM-DD')
+                WHERE sh.created_at BETWEEN :start AND :end
+                  AND sh.item_id = :itemId
+                  AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
+                GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM-DD')
                 ORDER BY 1
             """;
         }
 
-        // normalize supplierId so blank = null
         final String normalizedSupplier = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
 
-        Query nativeQuery = em.createNativeQuery(sql);
-        nativeQuery.setParameter("start", start);
-        nativeQuery.setParameter("end", end);
-        nativeQuery.setParameter("itemId", itemId);
-        nativeQuery.setParameter("supplierId", normalizedSupplier);
+        final Query q = em.createNativeQuery(sql);
+        q.setParameter("start", start);
+        q.setParameter("end", end);
+        q.setParameter("itemId", itemId);
+        q.setParameter("supplierId", normalizedSupplier);
 
-        // Manually map the result to PriceTrendDTO
-        final List<Object[]> raw = nativeQuery.getResultList();
+        final List<Object[]> raw = q.getResultList();
         return raw.stream()
                 .map(r -> new PriceTrendDTO((String) r[0], (BigDecimal) r[1]))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Streams events up to the given time (inclusive) using JPQL over entity properties.
+     *
+     * <p>Used by the WAC (weighted-average-cost) algorithm to:
+     * <ul>
+     *   <li>replay events before the analysis window to build opening inventory, and</li>
+     *   <li>aggregate purchases/COGS/write-offs/returns within the window.</li>
+     * </ul>
+     *
+     * @param end        inclusive upper bound (compared to entity property {@code createdAt})
+     * @param supplierId optional supplier filter (null = all)
+     * @return ordered rows projected into {@link StockEventRowDTO}
+     */
     @Override
     public List<StockEventRowDTO> findEventsUpTo(LocalDateTime end, String supplierId) {
-        // JPQL uses entity property names (portable across H2 / Oracle)
-        String jpql = """
+        final String jpql = """
             select new com.smartsupplypro.inventory.dto.StockEventRowDTO(
-                sh.itemId, sh.supplierId, sh.timestamp, sh.change, sh.priceAtChange, sh.reason
+                sh.itemId, sh.supplierId, sh.createdAt, sh.quantityChange, sh.priceAtChange, sh.reason
             )
             from StockHistory sh
-            where sh.timestamp <= :end
+            where sh.createdAt <= :end
               and (:supplierId is null or sh.supplierId = :supplierId)
-            order by sh.itemId asc, sh.timestamp asc
+            order by sh.itemId asc, sh.createdAt asc
         """;
         return em.createQuery(jpql, StockEventRowDTO.class)
                  .setParameter("end", end)
                  .setParameter("supplierId", supplierId)
                  .getResultList();
     }
-
 }

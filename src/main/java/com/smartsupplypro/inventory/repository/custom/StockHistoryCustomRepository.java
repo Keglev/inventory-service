@@ -105,8 +105,9 @@ public interface StockHistoryCustomRepository  {
     List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end);
 
     /**
-    * Streams stock events up to a given timestamp (inclusive), ordered by item & time.
+    * Streams stock events up to a given time (inclusive), ordered by item then createdAt.
     * Used by the WAC ledger to compute opening state and in-period totals.
+    * Uses entity property names (createdAt, quantityChange), portable across H2/Oracle.
     *
     * @param end        upper bound (inclusive)
     * @param supplierId optional supplier filter (null = all)

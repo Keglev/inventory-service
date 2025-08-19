@@ -24,17 +24,30 @@ import com.smartsupplypro.inventory.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Read-only implementation of {@link AnalyticsService}.
+ * Default read-only implementation of {@link AnalyticsService}.
  *
- * <p>Responsibilities:
+ * <p><strong>Responsibilities</strong></p>
  * <ul>
- *   <li>Validate inputs and enforce inclusive date ranges.</li>
- *   <li>Delegate to repositories/custom queries.</li>
- *   <li>Map raw query rows to stable DTOs using safe, cross-dialect casting.</li>
+ *   <li>Validate inputs and enforce inclusive date-range semantics.</li>
+ *   <li>Delegate to repositories and custom queries (native SQL/JPQL), remaining DB-agnostic
+ *       at the service boundary.</li>
+ *   <li>Map raw projection rows into stable DTOs, using safe cross-dialect casting.</li>
  * </ul>
  *
- * <p><strong>DB portability:</strong> Use {@code Number} when unboxing numeric columns; H2/Oracle
- * may return different numeric types (e.g., {@code BigDecimal}, {@code BigInteger}, {@code Long}).</p>
+ * <p><strong>Portability</strong></p>
+ * <ul>
+ *   <li>H2 (test) and Oracle (prod) may surface numeric results as different JVM types
+ *       (e.g., {@code BigDecimal}, {@code Long}). Always unbox via {@link Number}.</li>
+ *   <li>Entity properties are used in JPQL (e.g., {@code createdAt}, {@code quantityChange});
+ *       column names are used in native SQL (e.g., {@code created_at}, {@code quantity_change}).</li>
+ * </ul>
+ *
+ * <p><strong>Transactions</strong></p>
+ * <ul>
+ *   <li>All methods are read-only: {@code @Transactional(readOnly = true)}.</li>
+ *   <li>Any business-rule violations result in {@link InvalidRequestException}, which is expected
+ *       to be mapped to HTTP 400 via the global exception handler.</li>
+ * </ul>
  */
 @Service
 @RequiredArgsConstructor
@@ -45,11 +58,18 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final InventoryItemRepository inventoryItemRepository;
     private final StockHistoryCustomRepository stockHistoryCustomRepository;
 
-
     /**
-     * Daily total stock value between dates (inclusive).
+     * Retrieves the total inventory value (quantity × price) per day between two dates (inclusive),
+     * optionally filtered by supplier.
      *
-     * <p>Defaults: if any bound is null, uses last 30 days ending at today.</p>
+     * <p><strong>Defaults</strong>: if any bound is {@code null}, the window defaults to the last 30 days
+     * ending today. The service validates {@code startDate &le; endDate}.</p>
+     *
+     * @param startDate inclusive start date (nullable for defaulting)
+     * @param endDate   inclusive end date (nullable for defaulting)
+     * @param supplierId optional supplier filter; {@code null/blank} means all suppliers
+     * @return ordered list of daily points (ascending by date)
+     * @throws InvalidRequestException if {@code startDate} is after {@code endDate}
      */
     @Override
     public List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate,
@@ -67,15 +87,17 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return rows.stream()
                 .map(r -> new StockValueOverTimeDTO(
                         asLocalDate(r[0]),
-                        asNumber(r[1]).doubleValue()   // DTO uses double for charting
+                        asNumber(r[1]).doubleValue() // DTO uses double for charting
                 ))
                 .toList();
     }
 
     /**
-     * Current total stock grouped by supplier.
+     * Returns the current total item quantity grouped by supplier (for pie/bar charts).
      *
-     * <p>Backed by a custom query for performance. Returns display name + total quantity.</p>
+     * <p>Backed by a native aggregation for performance; displays supplier name and total quantity.</p>
+     *
+     * @return list of supplier totals ordered by quantity descending
      */
     @Override
     public List<StockPerSupplierDTO> getTotalStockPerSupplier() {
@@ -91,7 +113,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Per-item update frequency for a required supplier.
+     * Returns per-item update frequency for a required supplier.
+     *
+     * @param supplierId supplier identifier (must be non-blank)
+     * @return list ordered by update count descending
+     * @throws InvalidRequestException if {@code supplierId} is blank
      */
     @Override
     public List<ItemUpdateFrequencyDTO> getItemUpdateFrequency(String supplierId) {
@@ -109,7 +135,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Items below minimum threshold for a required supplier.
+     * Returns items below their configured minimum stock threshold for a required supplier.
+     *
+     * @param supplierId supplier identifier (must be non-blank)
+     * @return list of low-stock items ordered by ascending quantity
+     * @throws InvalidRequestException if {@code supplierId} is blank
      */
     @Override
     public List<LowStockItemDTO> getItemsBelowMinimumStock(String supplierId) {
@@ -128,9 +158,18 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Monthly stock movement (in/out) between dates (inclusive).
+     * Returns monthly stock movement (stock-in/stock-out) between two dates (inclusive),
+     * optionally filtered by supplier.
      *
-     * <p>Defaults: if bounds are null, uses last 30 days ending today.</p>
+     * <p><strong>Defaults</strong>: if bounds are {@code null}, the window defaults to the last 30 days
+     * ending today. The service validates {@code startDate &le; endDate}.</p>
+     *
+     * @param startDate inclusive start date (nullable for defaulting)
+     * @param endDate   inclusive end date (nullable for defaulting)
+     * @param supplierId optional supplier filter; {@code null/blank} means all suppliers
+     * @return list of monthly aggregates ordered by month ascending; each DTO contains
+     *         {@code monthKey (YYYY-MM)}, {@code stockIn}, {@code stockOut}
+     * @throws InvalidRequestException if {@code startDate} is after {@code endDate}
      */
     @Override
     public List<MonthlyStockMovementDTO> getMonthlyStockMovement(LocalDate startDate,
@@ -155,10 +194,21 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Filtered stock history with defaults and guardrails.
+     * Applies a flexible filter over stock updates with date/supplier/item/user/quantity bounds.
      *
-     * <p>Defaults: if both dates are null, last 30 days to now.</p>
-     * <p>Validation: start <= end, minChange <= maxChange (if both present).</p>
+     * <p><strong>Defaults</strong>:
+     * if both {@code startDate} and {@code endDate} are {@code null}, the window defaults to the
+     * last 30 days ending at the current time.</p>
+     *
+     * <p><strong>Validation</strong>:
+     * {@code startDate &le; endDate}; if {@code minChange} and {@code maxChange} are both present,
+     * then {@code minChange &le; maxChange}.</p>
+     *
+     * <p>Blank text filters are normalized to {@code null} to indicate "no filter".</p>
+     *
+     * @param filter filter object containing optional criteria
+     * @return list ordered by newest event first (createdAt DESC)
+     * @throws InvalidRequestException if validation fails or filter is {@code null}
      */
     @Override
     public List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter) {
@@ -192,7 +242,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 start, end, itemName, supplierId, createdBy, min, max
         );
 
-        // row = [itemName, supplierName, qtyChange, reason, createdBy, timestamp]
+        // row = [itemName, supplierName, qtyChange, reason, createdBy, createdAt]
         return rows.stream()
                 .map(r -> new StockUpdateResultDTO(
                         (String) r[0],
@@ -206,9 +256,18 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Price trend for an item between dates (inclusive), optional supplier filter.
+     * Returns the average unit price per day for a specific item within a date window (inclusive),
+     * optionally filtered by supplier.
      *
-     * <p>Delegates to custom repository implementation (may ignore supplier when null).</p>
+     * <p>Delegates to a custom repository method that aggregates by day using the entity's
+     * {@code createdAt} property / {@code created_at} column.</p>
+     *
+     * @param itemId     required inventory item identifier
+     * @param supplierId optional supplier filter; {@code null/blank} means all suppliers
+     * @param start      inclusive start date
+     * @param end        inclusive end date
+     * @return ordered list of day/price pairs (ascending by date)
+     * @throws InvalidRequestException if {@code itemId} is blank or {@code start} &gt; {@code end}
      */
     @Override
     public List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end) {
@@ -222,10 +281,44 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         LocalDateTime from = startOfDay(s);
         LocalDateTime to   = endOfDay(e);
 
-        // Custom repo method expected (supplierId may be applied inside)
         return stockHistoryRepository.getPriceTrend(iid, supplierId, from, to);
     }
 
+    /**
+     * Produces a financial summary for a period using the Weighted Average Cost (WAC) method.
+     *
+     * <p><strong>Computation model</strong></p>
+     * <ol>
+     *   <li><em>Opening inventory</em> is obtained by replaying all events strictly before {@code from}
+     *       to build per-item running quantity and moving average cost.</li>
+     *   <li>Within [{@code from}..{@code to}], events contribute to buckets:
+     *     <ul>
+     *       <li><em>Purchases</em>: positive changes with a unit price, plus optional {@code INITIAL_STOCK}.</li>
+     *       <li><em>Returns In</em>: positive changes with reason {@code RETURNED_BY_CUSTOMER}.</li>
+     *       <li><em>Write-offs</em>: negative changes with reasons
+     *           {@code DAMAGED}, {@code DESTROYED}, {@code SCRAPPED}, {@code EXPIRED}, {@code LOST}.</li>
+     *       <li><em>Return to Supplier</em>: negative changes with {@code RETURNED_TO_SUPPLIER}
+     *           (treated as negative purchases at current WAC).</li>
+     *       <li><em>COGS/Consumption</em>: all other negative changes valued at current WAC.</li>
+     *     </ul>
+     *   </li>
+     *   <li><em>Ending inventory</em> equals the final per-item state after processing all events up to {@code to}.</li>
+     * </ol>
+     *
+     * <p><strong>Notes</strong></p>
+     * <ul>
+     *   <li>If an inbound event lacks {@code priceAtChange}, the current moving average is used
+     *       to maintain cost continuity.</li>
+     *   <li>The algorithm guards against negative on-hand quantities caused by data issues by clamping at zero.</li>
+     *   <li>All values are computed with scale 4 and {@link RoundingMode#HALF_UP} for intermediate averages.</li>
+     * </ul>
+     *
+     * @param from       inclusive start date
+     * @param to         inclusive end date
+     * @param supplierId optional supplier filter (events for other suppliers are ignored when provided)
+     * @return WAC-based {@link FinancialSummaryDTO} with opening/ending, purchases, returns, COGS, and write-offs
+     * @throws InvalidRequestException if any bound is {@code null} or {@code from} &gt; {@code to}
+     */
     @Override
     public FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId) {
         if (from == null || to == null) throw new InvalidRequestException("from/to must be provided");
@@ -234,64 +327,65 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         LocalDateTime start = LocalDateTime.of(from, LocalTime.MIN);
         LocalDateTime end   = LocalDateTime.of(to,   LocalTime.MAX);
 
-        // Fetch all events up to 'end' (ordered by item, then time).
+        // Stream all events up to 'end' (ordered by item, then createdAt).
         var events = stockHistoryCustomRepository.findEventsUpTo(end, blankToNull(supplierId));
 
-        // Buckets
+        // Aggregate buckets
         long openingQty = 0, purchasesQty = 0, returnsInQty = 0, cogsQty = 0, writeOffQty = 0, endingQty = 0;
         BigDecimal openingValue = BigDecimal.ZERO, purchasesCost = BigDecimal.ZERO, returnsInCost = BigDecimal.ZERO,
                    cogsCost = BigDecimal.ZERO, writeOffCost = BigDecimal.ZERO, endingValue = BigDecimal.ZERO;
 
-        // State per item for WAC
+        // Per-item WAC state
         record State(long qty, BigDecimal avgCost) {}
         Map<String, State> state = new HashMap<>();
 
-        // Helper ops
+        // Tiny value objects for flows
         record Inbound(int qty, BigDecimal unitCost) {}
         record Issue(State state, BigDecimal cost) {}
 
-        // Apply inbound at given unit cost, recompute WAC
+        // Inbound (recompute WAC)
         var inbound = (java.util.function.BiFunction<State, Inbound, State>) (st, in) -> {
             long q0 = (st == null) ? 0 : st.qty();
             BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();
             long q1 = q0 + in.qty();
-            BigDecimal v0 = c0.multiply(BigDecimal.valueOf(q0));
+            BigDecimal v0  = c0.multiply(BigDecimal.valueOf(q0));
             BigDecimal vin = in.unitCost().multiply(BigDecimal.valueOf(in.qty()));
-            BigDecimal avg1 = (q1 == 0) ? BigDecimal.ZERO : v0.add(vin).divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);
+            BigDecimal avg1 = (q1 == 0)
+                    ? BigDecimal.ZERO
+                    : v0.add(vin).divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);
             return new State(q1, avg1);
         };
-        // Issue at current WAC
+
+        // Issue (consume at current WAC)
         var issueAt = (java.util.function.BiFunction<State, Integer, Issue>) (st, outQty) -> {
             long q0 = (st == null) ? 0 : st.qty();
             BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();
             long q1 = q0 - outQty;
-            if (q1 < 0) q1 = 0; // guard against negative due to data errors
+            if (q1 < 0) q1 = 0; // clamp to avoid negative stock due to data errors
             BigDecimal cost = c0.multiply(BigDecimal.valueOf(outQty));
             return new Issue(new State(q1, c0), cost);
         };
 
-        // Reason sets (from your enum)
-        // Inbound purchases = positive change with priceAtChange!=null (generic), plus INITIAL_STOCK
-        // Customer returns tracked separately
+        // Reason sets (align with enum)
         final Set<StockChangeReason> RETURNS_IN = Set.of(StockChangeReason.RETURNED_BY_CUSTOMER);
         final Set<StockChangeReason> WRITE_OFFS = Set.of(
                 StockChangeReason.DAMAGED, StockChangeReason.DESTROYED,
                 StockChangeReason.SCRAPPED, StockChangeReason.EXPIRED, StockChangeReason.LOST
         );
-        final Set<StockChangeReason> COGS_OUT = Set.of(StockChangeReason.SOLD); // extend if you have SHIPPED/CONSUMPTION
         final Set<StockChangeReason> RETURN_TO_SUPPLIER = Set.of(StockChangeReason.RETURNED_TO_SUPPLIER);
 
-        // 1) Build opening state (events strictly before 'start')
+        // 1) Opening state: replay events strictly before 'start'
         for (var e : events) {
-            if (e.timestamp().isBefore(start)) {
+            if (e.createdAt().isBefore(start)) {
                 State st = state.get(e.itemId());
-                if (e.change() > 0) {
-                    // treat as inbound; pick unit cost: if price missing, use current WAC
-                    BigDecimal unit = (e.priceAtChange() != null) ? e.priceAtChange() : (st == null ? BigDecimal.ZERO : st.avgCost());
-                    st = inbound.apply(st, new Inbound(e.change(), unit));
+                if (e.quantityChange() > 0) {
+                    BigDecimal unit = (e.priceAtChange() != null)
+                            ? e.priceAtChange()
+                            : (st == null ? BigDecimal.ZERO : st.avgCost());
+                    st = inbound.apply(st, new Inbound(e.quantityChange(), unit));
                     state.put(e.itemId(), st);
-                } else if (e.change() < 0) {
-                    var iss = issueAt.apply(st, Math.abs(e.change()));
+                } else if (e.quantityChange() < 0) {
+                    var iss = issueAt.apply(st, Math.abs(e.quantityChange()));
                     state.put(e.itemId(), iss.state());
                 }
             }
@@ -301,56 +395,58 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             openingValue = openingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));
         }
 
-        // 2) Aggregate within [start..end]
+        // 2) In-window aggregation: [start..end]
         for (var e : events) {
-            if (e.timestamp().isBefore(start)) continue;
+            if (e.createdAt().isBefore(start)) continue;
 
             State st = state.get(e.itemId());
 
-            if (e.change() > 0) {
-                BigDecimal unit = (e.priceAtChange() != null) ? e.priceAtChange() : (st == null ? BigDecimal.ZERO : st.avgCost());
-                State newSt = inbound.apply(st, new Inbound(e.change(), unit));
+            if (e.quantityChange() > 0) {
+                BigDecimal unit = (e.priceAtChange() != null)
+                        ? e.priceAtChange()
+                        : (st == null ? BigDecimal.ZERO : st.avgCost());
+                State newSt = inbound.apply(st, new Inbound(e.quantityChange(), unit));
                 state.put(e.itemId(), newSt);
 
                 if (RETURNS_IN.contains(e.reason())) {
-                    returnsInQty += e.change();
-                    // Returns back to inventory are valued at current WAC (approximation if price unknown)
-                    returnsInCost = returnsInCost.add(unit.multiply(BigDecimal.valueOf(e.change())));
+                    returnsInQty += e.quantityChange();
+                    returnsInCost = returnsInCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));
                 } else {
-                    // Treat as purchases if a unit price is provided or if INITIAL_STOCK
                     if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {
-                        purchasesQty += e.change();
-                        purchasesCost = purchasesCost.add(unit.multiply(BigDecimal.valueOf(e.change())));
+                        purchasesQty += e.quantityChange();
+                        purchasesCost = purchasesCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));
                     }
-                    // else: positive manual adjustments without price do affect WAC/qty but not counted as purchases
+                    // Positive manual adjustments without price affect WAC/qty but not purchases bucket.
                 }
 
-            } else if (e.change() < 0) {
-                var out = Math.abs(e.change());
+            } else if (e.quantityChange() < 0) {
+                int out = Math.abs(e.quantityChange());
 
                 if (RETURN_TO_SUPPLIER.contains(e.reason())) {
                     var iss = issueAt.apply(st, out);
                     state.put(e.itemId(), iss.state());
-                    // Option: treat as negative purchases (reduces net purchases)
+                    // Treat as negative purchases at current WAC
                     purchasesQty -= out;
                     purchasesCost = purchasesCost.subtract(iss.cost());
+
                 } else if (WRITE_OFFS.contains(e.reason())) {
                     var iss = issueAt.apply(st, out);
                     state.put(e.itemId(), iss.state());
                     writeOffQty += out;
                     writeOffCost = writeOffCost.add(iss.cost());
+
                 } else {
-                    // default: COGS / consumption
+                    // Default: COGS / consumption
                     var iss = issueAt.apply(st, out);
                     state.put(e.itemId(), iss.state());
                     cogsQty += out;
                     cogsCost = cogsCost.add(iss.cost());
                 }
             }
-            // ignore change==0 events (e.g., PRICE_CHANGE)
+            // quantityChange == 0 (e.g., price-only adjustments) are ignored here.
         }
 
-        // 3) Ending from final state
+        // 3) Ending inventory from final state
         for (var st : state.values()) {
             endingQty += st.qty();
             endingValue = endingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));
@@ -374,10 +470,19 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .endingValue(endingValue)
                 .build();
     }
+
     // ---------------------------------------------------------------------
     // Helpers (validation, casting, defaults)
     // ---------------------------------------------------------------------
 
+    /**
+     * Applies defaults for a date window (last 30 days ending today) and validates {@code start <= end}.
+     *
+     * @param start nullable inclusive start date
+     * @param end   nullable inclusive end date
+     * @return a 2-element array containing the effective start and end
+     * @throws InvalidRequestException if the effective start is after the effective end
+     */
     private static LocalDate[] defaultAndValidateDateWindow(LocalDate start, LocalDate end) {
         LocalDate s = (start == null) ? LocalDate.now().minusDays(30) : start;
         LocalDate e = (end == null) ? LocalDate.now() : end;
@@ -387,18 +492,22 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return new LocalDate[]{s, e};
     }
 
+    /** @return start of day (00:00:00.000000000) for the given date. */
     private static LocalDateTime startOfDay(LocalDate d) {
         return LocalDateTime.of(d, LocalTime.MIN);
     }
 
+    /** @return end of day (23:59:59.999999999) for the given date. */
     private static LocalDateTime endOfDay(LocalDate d) {
         return LocalDateTime.of(d, LocalTime.MAX);
     }
 
+    /** Normalizes a String to {@code null} if blank; otherwise returns a trimmed value. */
     private static String blankToNull(String s) {
         return (s == null || s.trim().isEmpty()) ? null : s.trim();
     }
 
+    /** Ensures a String is non-blank; returns trimmed value or throws {@link InvalidRequestException}. */
     private static String requireNonBlank(String v, String name) {
         if (v == null || v.trim().isEmpty()) {
             throw new InvalidRequestException(name + " must not be blank");
@@ -406,6 +515,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return v.trim();
     }
 
+    /** Ensures a reference is non-null; returns it or throws {@link InvalidRequestException}. */
     private static <T> T requireNonNull(T v, String name) {
         if (v == null) {
             throw new InvalidRequestException(name + " must not be null");
@@ -413,21 +523,39 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return v;
     }
 
+    /**
+     * Converts a date-like object to {@link LocalDate}.
+     * Accepts {@link LocalDate} or {@link java.sql.Date}.
+     *
+     * @throws IllegalStateException if the object type is unsupported
+     */
     private static LocalDate asLocalDate(Object o) {
         if (o instanceof LocalDate ld) return ld;
         if (o instanceof Date d) return d.toLocalDate();
         throw new IllegalStateException("Expected LocalDate or java.sql.Date but got: " + o);
     }
 
+    /**
+     * Converts a timestamp-like object to {@link LocalDateTime}.
+     * Accepts {@link LocalDateTime} or {@link java.sql.Timestamp}.
+     *
+     * @throws IllegalStateException if the object type is unsupported
+     */
     private static LocalDateTime asLocalDateTime(Object o) {
         if (o instanceof LocalDateTime ldt) return ldt;
         if (o instanceof Timestamp ts) return ts.toLocalDateTime();
         throw new IllegalStateException("Expected LocalDateTime or java.sql.Timestamp but got: " + o);
     }
 
+    /**
+     * Safely unboxes any numeric projection value via {@link Number}.
+     * This is resilient across H2/Oracle which may use different numeric classes.
+     *
+     * @throws IllegalStateException if the object is not a Number
+     */
     private static Number asNumber(Object o) {
         if (o instanceof Number n) return n;
-        if (o instanceof BigDecimal bd) return bd; // (covered by Number, but explicit for clarity)
+        if (o instanceof BigDecimal bd) return bd; // explicit for clarity
         throw new IllegalStateException("Expected numeric type but got: " + o);
     }
 }
