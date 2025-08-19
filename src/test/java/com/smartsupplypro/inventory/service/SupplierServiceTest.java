@@ -1,22 +1,29 @@
 package com.smartsupplypro.inventory.service;
 
+import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.smartsupplypro.inventory.dto.SupplierDTO;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.model.Supplier;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.impl.SupplierServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link SupplierServiceImpl}.
@@ -152,34 +159,58 @@ class SupplierServiceTest {
 
     // ---------- DELETE ----------
 
-    @Test
-    void delete_shouldThrow409_whenAnyLinkedItemHasQuantity_gt_0() {
-        String id = "sup-1";
-        when(inventoryItemRepository.existsBySuppliers_IdAndQuantityGreaterThan(id, 0)).thenReturn(true);
+/**
+ * When any inventory item linked to the supplier has positive on-hand quantity,
+ * deletion must be blocked with 409 (IllegalStateException from validator).
+ */
+@Test
+void delete_shouldThrow409_whenAnyLinkedItemHasQuantity_gt_0() {
+    String id = "sup-1";
 
-        assertThrows(IllegalStateException.class, () -> supplierService.delete(id));
-        verify(supplierRepository, never()).deleteById(any());
-    }
+    when(inventoryItemRepository.existsActiveStockForSupplier(eq(id), eq(0)))
+            .thenReturn(true);
 
-    @Test
-    void delete_shouldThrow404_whenSupplierMissing() {
-        String id = "missing";
-        when(inventoryItemRepository.existsBySuppliers_IdAndQuantityGreaterThan(id, 0)).thenReturn(false);
-        when(supplierRepository.existsById(id)).thenReturn(false);
+    IllegalStateException ex =
+            assertThrows(IllegalStateException.class, () -> supplierService.delete(id));
+    assertTrue(ex.getMessage().toLowerCase().contains("cannot delete"), "Expected business conflict message");
 
-        NoSuchElementException ex = assertThrows(NoSuchElementException.class, () -> supplierService.delete(id));
-        assertTrue(ex.getMessage().contains("Supplier not found"));
-        verify(supplierRepository, never()).deleteById(any());
-    }
+    verify(supplierRepository, never()).deleteById(any());
+}
 
-    @Test
-    void delete_shouldSucceed_whenNoActiveLinks_andExists() {
-        String id = "sup-1";
-        when(inventoryItemRepository.existsBySuppliers_IdAndQuantityGreaterThan(id, 0)).thenReturn(false);
-        when(supplierRepository.existsById(id)).thenReturn(true);
+/**
+ * When the supplier does not exist, we should get 404 (NoSuchElementException).
+ * Precondition: no active links for the supplier.
+ */
+@Test
+void delete_shouldThrow404_whenSupplierMissing() {
+    String id = "missing";
 
-        supplierService.delete(id);
+    when(inventoryItemRepository.existsActiveStockForSupplier(eq(id), eq(0)))
+            .thenReturn(false);
+    when(supplierRepository.existsById(id)).thenReturn(false);
 
-        verify(supplierRepository).deleteById(id);
-    }
+    NoSuchElementException ex =
+            assertThrows(NoSuchElementException.class, () -> supplierService.delete(id));
+    assertTrue(ex.getMessage().contains("Supplier not found"));
+
+    verify(supplierRepository, never()).deleteById(any());
+}
+
+/**
+ * Happy path: no active links and supplier exists -> deletion proceeds.
+ */
+@Test
+void delete_shouldSucceed_whenNoActiveLinks_andExists() {
+    String id = "sup-1";
+
+    when(inventoryItemRepository.existsActiveStockForSupplier(eq(id), eq(0)))
+            .thenReturn(false);
+    when(supplierRepository.existsById(id)).thenReturn(true);
+
+    supplierService.delete(id);
+
+    verify(supplierRepository).deleteById(id);
+}
+
+
 }
