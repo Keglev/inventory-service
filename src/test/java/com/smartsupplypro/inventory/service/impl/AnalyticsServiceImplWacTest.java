@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
@@ -40,15 +39,26 @@ class AnalyticsServiceImplWacTest {
 
     @SuppressWarnings("unused")
     @Mock private StockHistoryRepository stockHistoryRepository;
+
     @SuppressWarnings("unused")
     @Mock private InventoryItemRepository inventoryItemRepository;
+
     @Mock private StockHistoryCustomRepository stockHistoryCustomRepository;
 
     @InjectMocks private AnalyticsServiceImpl service;
 
     // ---------------------------------------------------------------------
-    // Happy paths
+    // Helpers
     // ---------------------------------------------------------------------
+
+    private static LocalDateTime at(int y,int m,int d,int H,int M) {
+        return LocalDateTime.of(y, m, d, H, M);
+    }
+    private static void assertMoneyEquals(String expected, BigDecimal actual) {
+        assertNotNull(actual, "actual BigDecimal was null");
+        BigDecimal exp = new BigDecimal(expected);
+        assertEquals(0, exp.compareTo(actual), () -> "Expected " + exp + " but was " + actual);
+    }
 
     /**
      * Basic scenario: purchase then sale.
@@ -60,12 +70,10 @@ class AnalyticsServiceImplWacTest {
     @Test
     void wac_basicPurchaseThenSale() {
         var events = List.of(
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,2,1,10,0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,2,2, 9,0), -4, null, StockChangeReason.SOLD)
+            new StockEventRowDTO("item1","sup1", at(2024,2,1,10,0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
+            new StockEventRowDTO("item1","sup1", at(2024,2,2, 9,0), -4, null, StockChangeReason.SOLD)  
         );
-        when(stockHistoryCustomRepository.findEventsUpTo(any(), eq("sup1"))).thenReturn(events);
+        when(stockHistoryCustomRepository.findEventsUpTo(any(), any())).thenReturn(events);
 
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
                 LocalDate.parse("2024-02-01"),
@@ -75,22 +83,23 @@ class AnalyticsServiceImplWacTest {
 
         assertEquals("WAC", dto.getMethod());
         // Opening
+        // Opening
         assertEquals(0, dto.getOpeningQty());
-        assertEquals(new BigDecimal("0.00"), dto.getOpeningValue());
+        assertMoneyEquals("0.00", dto.getOpeningValue());
         // Purchases
         assertEquals(10, dto.getPurchasesQty());
-        assertEquals(new BigDecimal("50.00"), dto.getPurchasesCost());
+        assertMoneyEquals("50.00", dto.getPurchasesCost());
         // COGS
         assertEquals(4, dto.getCogsQty());
-        assertEquals(new BigDecimal("20.00"), dto.getCogsCost());
+        assertMoneyEquals("20.00", dto.getCogsCost());
         // Returns/Write-offs
         assertEquals(0, dto.getReturnsInQty());
-        assertEquals(new BigDecimal("0.00"), dto.getReturnsInCost());
+        assertMoneyEquals("0.00", dto.getReturnsInCost());
         assertEquals(0, dto.getWriteOffQty());
-        assertEquals(new BigDecimal("0.00"), dto.getWriteOffCost());
+        assertMoneyEquals("0.00", dto.getWriteOffCost());
         // Ending
         assertEquals(6, dto.getEndingQty());
-        assertEquals(new BigDecimal("30.00"), dto.getEndingValue());
+        assertMoneyEquals("30.00", dto.getEndingValue());
     }
 
     /**
@@ -106,16 +115,12 @@ class AnalyticsServiceImplWacTest {
     @Test
     void wac_returns_writeOffs_returnToSupplier() {
         var events = List.of(
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,2,1,10,0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,2,3,12,0),  2, null,                     StockChangeReason.RETURNED_BY_CUSTOMER),
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,2,5,12,0), -3, null,                     StockChangeReason.DAMAGED),
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,2,7,12,0), -2, null,                     StockChangeReason.RETURNED_TO_SUPPLIER)
+            new StockEventRowDTO("item1","sup1", at(2024,2,1,10,0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
+            new StockEventRowDTO("item1","sup1", at(2024,2,3,12,0),  2, null,                  StockChangeReason.RETURNED_BY_CUSTOMER),
+            new StockEventRowDTO("item1","sup1", at(2024,2,5,12,0), -3, null,                     StockChangeReason.DAMAGED),
+            new StockEventRowDTO("item1","sup1", at(2024,2,7,12,0), -2, null,                     StockChangeReason.RETURNED_TO_SUPPLIER)
         );
-        when(stockHistoryCustomRepository.findEventsUpTo(any(), eq("sup1"))).thenReturn(events);
+        when(stockHistoryCustomRepository.findEventsUpTo(any(), any())).thenReturn(events);
 
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
                 LocalDate.parse("2024-02-01"),
@@ -125,47 +130,39 @@ class AnalyticsServiceImplWacTest {
 
         // Purchases net of return-to-supplier
         assertEquals(8, dto.getPurchasesQty());
-        assertEquals(new BigDecimal("40.00"), dto.getPurchasesCost());
+        assertMoneyEquals("40.00", dto.getPurchasesCost());
 
         // Returns from customer
         assertEquals(2, dto.getReturnsInQty());
-        assertEquals(new BigDecimal("10.00"), dto.getReturnsInCost());
+        assertMoneyEquals("10.00", dto.getReturnsInCost());
 
         // Write-offs
         assertEquals(3, dto.getWriteOffQty());
-        assertEquals(new BigDecimal("15.00"), dto.getWriteOffCost());
+        assertMoneyEquals("15.00", dto.getWriteOffCost());
 
         // COGS none here
         assertEquals(0, dto.getCogsQty());
-        assertEquals(new BigDecimal("0.00"), dto.getCogsCost());
+        assertMoneyEquals("0.00", dto.getCogsCost());
 
         // Ending
         assertEquals(7, dto.getEndingQty());
-        assertEquals(new BigDecimal("35.00"), dto.getEndingValue());
+        assertMoneyEquals("35.00", dto.getEndingValue());
     }
 
     /**
      * Opening inventory is built from events strictly before the window.
-     * Then in-window purchase changes WAC; a sale uses the new WAC.
-     * <ul>
-     *   <li>Jan 31: +5 @ 4.00 (opening 5 / 20.00)</li>
-     *   <li>Feb  1: +5 @ 6.00 =&gt; WAC = (5*4 + 5*6)/10 = 5.00</li>
-     *   <li>Feb  2: -4 =&gt; COGS 20.00, ending 6 / 30.00</li>
-     * </ul>
+     * Jan 31: +5 @ 4.00 => opening 5 / 20.00
+     * Feb  1: +5 @ 6.00 => WAC = (5*4 + 5*6)/10 = 5.00
+     * Feb  2: -4 => COGS 20.00, ending 6 / 30.00
      */
     @Test
     void wac_openingInventoryIsReplayed_thenPurchaseAndSale() {
         var events = List.of(
-            // before window → opening
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,1,31,23,0),  5, new BigDecimal("4.00"), StockChangeReason.INITIAL_STOCK),
-            // in window
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,2,1,10,0),   5, new BigDecimal("6.00"), StockChangeReason.SOLD),
-            new StockEventRowDTO("item1","sup1",
-                LocalDateTime.of(2024,2,2,10,0),  -4, null,                    StockChangeReason.SOLD)
+            new StockEventRowDTO("item1","sup1", at(2024,1,31,23,0),  5, new BigDecimal("4.00"), StockChangeReason.INITIAL_STOCK),
+            new StockEventRowDTO("item1","sup1", at(2024,2, 1,10,0),  5, new BigDecimal("6.00"), StockChangeReason.INITIAL_STOCK),
+            new StockEventRowDTO("item1","sup1", at(2024,2, 2,10,0), -4, null, StockChangeReason.SOLD)
         );
-        when(stockHistoryCustomRepository.findEventsUpTo(any(), eq("sup1"))).thenReturn(events);
+        when(stockHistoryCustomRepository.findEventsUpTo(any(), any())).thenReturn(events);
 
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
                 LocalDate.parse("2024-02-01"),
@@ -175,19 +172,19 @@ class AnalyticsServiceImplWacTest {
 
         // Opening
         assertEquals(5, dto.getOpeningQty());
-        assertEquals(new BigDecimal("20.00"), dto.getOpeningValue());
+        assertMoneyEquals("20.00", dto.getOpeningValue());
 
         // In-window purchases
         assertEquals(5, dto.getPurchasesQty());
-        assertEquals(new BigDecimal("30.00"), dto.getPurchasesCost());
+        assertMoneyEquals("30.00", dto.getPurchasesCost());
 
         // COGS after WAC becomes 5.00
         assertEquals(4, dto.getCogsQty());
-        assertEquals(new BigDecimal("20.00"), dto.getCogsCost());
+        assertMoneyEquals("20.00", dto.getCogsCost());
 
         // Ending
         assertEquals(6, dto.getEndingQty());
-        assertEquals(new BigDecimal("30.00"), dto.getEndingValue());
+        assertMoneyEquals("30.00", dto.getEndingValue());
     }
 
     // ---------------------------------------------------------------------
