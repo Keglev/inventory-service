@@ -1,236 +1,354 @@
 package com.smartsupplypro.inventory.service.impl;
 
-import com.smartsupplypro.inventory.dto.*;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
-import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Arrays;
 import java.util.Collections;
-import java.sql.Timestamp;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.isNull;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
+import com.smartsupplypro.inventory.dto.LowStockItemDTO;
+import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
+import com.smartsupplypro.inventory.dto.PriceTrendDTO;
+import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+import com.smartsupplypro.inventory.repository.StockHistoryRepository;
+import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
 
 /**
- * Unit tests for {@link AnalyticsServiceImpl}, ensuring correctness of business logic
- * related to stock analytics, inventory insights, and supplier-based metrics.
- * 
- * These tests simulate repository behavior using Mockito to validate transformations,
- * filtering logic, and default value handling in analytics scenarios.
+ * Unit tests for {@link AnalyticsServiceImpl}.
+ *
+ * <p><strong>Scope:</strong> input validation, defaulting, and mapping of repository
+ * projections to DTOs. Repository calls are mocked; SQL and controller concerns
+ * are intentionally out of scope.</p>
+ *
+ * <p><strong>Out of scope:</strong> WAC/financial summary algorithm (covered in a
+ * dedicated test class), web layer, and persistence-layer behavior.</p>
  */
-public class AnalyticsServiceImplTest {
+@ExtendWith(MockitoExtension.class)
+class AnalyticsServiceImplTest {
 
-    @Mock
-    private InventoryItemRepository inventoryItemRepository;
+    @Mock private StockHistoryRepository stockHistoryRepository;
+    @Mock private InventoryItemRepository inventoryItemRepository;
 
-    @Mock
-    private StockHistoryRepository stockHistoryRepository;
+    /** Required by the service constructor; unused in these tests. */
+    @SuppressWarnings("unused")
+    @Mock private StockHistoryCustomRepository stockHistoryCustomRepository;
 
-    @InjectMocks
-    private AnalyticsServiceImpl analyticsService;
+    @InjectMocks private AnalyticsServiceImpl service;
 
-    /**
-     * Initializes mocks before each test case using MockitoAnnotations.
-     */
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    // ---------------------------------------------------------------------
+    // Stock value over time
+    // ---------------------------------------------------------------------
 
     /**
-     * Tests that {@code getTotalStockPerSupplier} correctly maps data to DTOs when supplier records exist.
+     * Maps daily stock value rows where the first column is a DATE and the second is a numeric total.
      */
     @Test
-    void shouldReturnTotalStockPerSupplier() {
-        when(stockHistoryRepository.getTotalStockPerSupplier()).thenReturn(
-            Arrays.<Object[]>asList(
-                new Object[]{"Supplier A", BigDecimal.valueOf(100)}
-            )
+    void getTotalStockValueOverTime_mapsDateAndNumber() {
+        LocalDate start = LocalDate.parse("2024-02-01");
+        LocalDate end   = LocalDate.parse("2024-02-03");
+
+        List<Object[]> rows = Arrays.asList(
+            new Object[]{ Date.valueOf("2024-02-01"), new BigDecimal("10.50") },
+            new Object[]{ Date.valueOf("2024-02-02"), new BigDecimal("12.00") }
         );
+        when(stockHistoryRepository.getStockValueGroupedByDateFiltered(any(), any(), isNull()))
+            .thenReturn(rows);
 
-        List<StockPerSupplierDTO> result = analyticsService.getTotalStockPerSupplier();
+        List<StockValueOverTimeDTO> out = service.getTotalStockValueOverTime(start, end, null);
 
-        assertEquals(1, result.size());
-        assertEquals("Supplier A", result.get(0).getSupplierName());
+        assertEquals(2, out.size());
+        assertEquals(LocalDate.parse("2024-02-01"), out.get(0).getDate());
+        assertEquals(10.50, out.get(0).getTotalValue(), 1e-9);
+        assertEquals(LocalDate.parse("2024-02-02"), out.get(1).getDate());
+        assertEquals(12.00, out.get(1).getTotalValue(), 1e-9);
+
+        verify(stockHistoryRepository).getStockValueGroupedByDateFiltered(any(), any(), isNull());
     }
 
-    /**
-     * Verifies that {@code getTotalStockPerSupplier} returns an empty list when no data is present.
-     */
+    // ---------------------------------------------------------------------
+    // Stock per supplier
+    // ---------------------------------------------------------------------
+
+    /** Verifies supplier totals are unboxed to long regardless of underlying numeric type. */
     @Test
-    void shouldHandleEmptyStockPerSupplier() {
-        when(stockHistoryRepository.getTotalStockPerSupplier()).thenReturn(Collections.emptyList());
+    void getTotalStockPerSupplier_mapsQuantities() {
+        List<Object[]> rows = Arrays.asList(
+            new Object[]{ "Acme", new BigDecimal("42") },
+            new Object[]{ "Globex", 7 }
+        );
+        when(stockHistoryRepository.getTotalStockPerSupplier()).thenReturn(rows);
 
-        List<StockPerSupplierDTO> result = analyticsService.getTotalStockPerSupplier();
+        List<StockPerSupplierDTO> out = service.getTotalStockPerSupplier();
 
-        assertTrue(result.isEmpty());
+        assertEquals(2, out.size());
+        assertEquals("Acme", out.get(0).getSupplierName());
+        assertEquals(42L, out.get(0).getTotalQuantity());
+        assertEquals("Globex", out.get(1).getSupplierName());
+        assertEquals(7L, out.get(1).getTotalQuantity());
     }
 
-    /**
-     * Tests that {@code getItemsBelowMinimumStock} returns a list of low stock items
-     * when the repository returns matching records.
-     */
+    // ---------------------------------------------------------------------
+    // Item update frequency
+    // ---------------------------------------------------------------------
+
+    /** Requires non-blank supplierId; maps [itemName, updateCount]. */
     @Test
-    void shouldReturnLowStockItems() {
-        when(inventoryItemRepository.findItemsBelowMinimumStockFiltered("s1"))
-            .thenReturn(Arrays.<Object[]>asList(new Object[]{"Item X", BigDecimal.valueOf(5), BigDecimal.valueOf(10)}));
+    void getItemUpdateFrequency_requiresSupplierId_andMaps() {
+        List<Object[]> rows = Arrays.asList(
+            new Object[]{ "ItemA", new BigDecimal("5") },
+            new Object[]{ "ItemB", 2 }
+        );
+        when(stockHistoryRepository.getUpdateCountPerItemFiltered("S1")).thenReturn(rows);
 
-        List<LowStockItemDTO> result = analyticsService.getItemsBelowMinimumStock("s1");
+        List<ItemUpdateFrequencyDTO> out = service.getItemUpdateFrequency("S1");
 
-        assertEquals(1, result.size());
-        assertEquals("Item X", result.get(0).getItemName());
+        assertEquals(2, out.size());
+        assertEquals("ItemA", out.get(0).getItemName());
+        assertEquals(5L, out.get(0).getUpdateCount());
+        assertEquals("ItemB", out.get(1).getItemName());
+        assertEquals(2L, out.get(1).getUpdateCount());
     }
 
-    /**
-     * Ensures that an invalid supplier ID for low stock returns an empty list gracefully.
-     */
+    /** Blank supplierId must trigger InvalidRequestException. */
     @Test
-    void shouldReturnEmptyWhenSupplierIdIsInvalidForLowStock() {
-        when(inventoryItemRepository.findItemsBelowMinimumStockFiltered("invalid"))
-            .thenReturn(Collections.emptyList());
-
-        List<LowStockItemDTO> result = analyticsService.getItemsBelowMinimumStock("invalid");
-
-        assertTrue(result.isEmpty());
+    void getItemUpdateFrequency_blankSupplier_throws() {
+        InvalidRequestException ex =
+            assertThrows(InvalidRequestException.class, () -> service.getItemUpdateFrequency("  "));
+        assertNotNull(ex.getMessage());
     }
 
-    /**
-     * Verifies that {@code getItemUpdateFrequency} handles cases with no updates for a given supplier.
-     */
+    // ---------------------------------------------------------------------
+    // Low stock items
+    // ---------------------------------------------------------------------
+
+    /** Requires non-blank supplierId; maps [name, quantity, minimum_quantity]. */
     @Test
-    void shouldHandleEmptyItemUpdateFrequency() {
-        when(stockHistoryRepository.getUpdateCountPerItemFiltered("none"))
-            .thenReturn(Collections.emptyList());
+    void getItemsBelowMinimumStock_requiresSupplierId_andMaps() {
+        List<Object[]> rows = Arrays.asList(
+            new Object[]{ "ItemA", 3, 5 },
+            new Object[]{ "ItemB", new BigDecimal("1"), new BigDecimal("2") }
+        );
+        when(inventoryItemRepository.findItemsBelowMinimumStockFiltered("S1")).thenReturn(rows);
 
-        List<ItemUpdateFrequencyDTO> result = analyticsService.getItemUpdateFrequency("none");
+        List<LowStockItemDTO> out = service.getItemsBelowMinimumStock("S1");
 
-        assertTrue(result.isEmpty());
+        assertEquals(2, out.size());
+        assertEquals("ItemA", out.get(0).getItemName());
+        assertEquals(3, out.get(0).getQuantity());
+        assertEquals(5, out.get(0).getMinimumQuantity());
+        assertEquals("ItemB", out.get(1).getItemName());
+        assertEquals(1, out.get(1).getQuantity());
+        assertEquals(2, out.get(1).getMinimumQuantity());
     }
 
-    /**
-     * Verifies that {@code getMonthlyStockMovement} returns an empty list if no records are found for the filter.
-     */
+    /** Blank supplierId must trigger InvalidRequestException. */
     @Test
-    void shouldHandleEmptyMonthlyStockMovement() {
-        when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), eq("bad")))
-            .thenReturn(Collections.emptyList());
-
-        List<MonthlyStockMovementDTO> result = analyticsService.getMonthlyStockMovement(
-                LocalDate.now().minusMonths(2), LocalDate.now(), "bad");
-
-        assertTrue(result.isEmpty());
+    void getItemsBelowMinimumStock_blankSupplier_throws() {
+        InvalidRequestException ex =
+            assertThrows(InvalidRequestException.class, () -> service.getItemsBelowMinimumStock(""));
+        assertNotNull(ex.getMessage());
     }
 
+    // ---------------------------------------------------------------------
+    // Monthly stock movement
+    // ---------------------------------------------------------------------
+
+    /** Accepts mixed numeric types for in/out totals and maps to long. */
+    @Test
+    void getMonthlyStockMovement_mapsNumbers() {
+        LocalDate start = LocalDate.parse("2024-02-01");
+        LocalDate end   = LocalDate.parse("2024-03-31");
+
+        List<Object[]> rows = Arrays.asList(
+            new Object[]{ "2024-02", new BigDecimal("5"), 2 },
+            new Object[]{ "2024-03", 7, new BigDecimal("4") }
+        );
+        when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), isNull()))
+            .thenReturn(rows);
+
+        List<MonthlyStockMovementDTO> out = service.getMonthlyStockMovement(start, end, null);
+
+        assertEquals(2, out.size());
+        assertEquals("2024-02", out.get(0).getMonth());
+        assertEquals(5L, out.get(0).getStockIn());
+        assertEquals(2L, out.get(0).getStockOut());
+        assertEquals("2024-03", out.get(1).getMonth());
+        assertEquals(7L, out.get(1).getStockIn());
+        assertEquals(4L, out.get(1).getStockOut());
+    }
+
+    // ---------------------------------------------------------------------
+    // Filtered stock updates
+    // ---------------------------------------------------------------------
+
     /**
-     * Ensures that filtered stock updates return an empty result list when no matching entries are found.
+     * Verifies shape mapping for rows:
+     * [itemName, supplierName, qtyChange, reason, createdBy, createdAt(Timestamp)].
      */
     @Test
-    void shouldHandleEmptyFilteredStockUpdates() {
+    void getFilteredStockUpdates_mapsRowShape() {
+        LocalDateTime start = LocalDateTime.of(2024, 2, 1, 0, 0);
+        LocalDateTime end   = LocalDateTime.of(2024, 2, 28, 23, 59);
+        Timestamp ts        = Timestamp.valueOf(LocalDateTime.of(2024, 2, 10, 12, 0));
+
+         // Used singletonList to avoid varargs flattening
+        List<Object[]> rows = java.util.Collections.singletonList(
+            new Object[]{ "ItemA", "SuppA", 5, "SOLD", "alice", ts }
+        );
+        when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
+            .thenReturn(rows);
+
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
-        filter.setItemName("Invalid Item");
-        filter.setSupplierId("bad");
-        filter.setStartDate(LocalDateTime.now().minusDays(5));
-        filter.setEndDate(LocalDateTime.now());
+        filter.setStartDate(start);
+        filter.setEndDate(end);
+        filter.setItemName("Item");
+        filter.setSupplierId("S1");
+        filter.setCreatedBy("Alice");
+        filter.setMinChange(1);
+        filter.setMaxChange(10);
 
+        List<StockUpdateResultDTO> out = service.getFilteredStockUpdates(filter);
+
+        assertEquals(1, out.size());
+        StockUpdateResultDTO r = out.get(0);
+        assertEquals("ItemA", r.getItemName());
+        assertEquals("SuppA", r.getSupplierName());
+        assertEquals(5, r.getChange());       // <-- correct accessor
+        assertEquals("SOLD", r.getReason());
+        assertEquals("alice", r.getCreatedBy());
+        assertEquals(ts.toLocalDateTime(), r.getTimestamp()); // <-- correct accessor
+    }
+
+    /** Blank text filters are normalized to null before repository invocation. */
+    @Test
+    void getFilteredStockUpdates_normalizesBlanksToNulls() {
         when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
             .thenReturn(Collections.emptyList());
 
-        List<StockUpdateResultDTO> result = analyticsService.getFilteredStockUpdates(filter);
-
-        assertTrue(result.isEmpty());
-    }
-
-    /**
-     * Tests default behavior when {@code getFilteredStockUpdates} receives a filter with missing dates.
-     */
-    @Test
-    void shouldUseDefaultDatesIfMissingInStockUpdates() {
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
-        filter.setItemName("ItemX");
-        filter.setSupplierId("s1");
+        filter.setStartDate(null);
+        filter.setEndDate(null);
+        filter.setItemName("   ");   // blank
+        filter.setSupplierId(" ");   // blank
+        filter.setCreatedBy("");     // blank
 
-        List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
-            "ItemX", "s1", BigDecimal.valueOf(5), "SALE", "admin", Timestamp.valueOf(LocalDateTime.now())
-        });
+        service.getFilteredStockUpdates(filter);
 
-        when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(mockResult);
+        ArgumentCaptor<String> item = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> supp = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> who  = ArgumentCaptor.forClass(String.class);
 
-        List<StockUpdateResultDTO> result = analyticsService.getFilteredStockUpdates(filter);
+        verify(stockHistoryRepository).findFilteredStockUpdates(
+                any(), any(), item.capture(), supp.capture(), who.capture(), isNull(), isNull());
 
-        assertEquals(1, result.size());
-        assertEquals("ItemX", result.get(0).getItemName());
+        assertNull(item.getValue());
+        assertNull(supp.getValue());
+        assertNull(who.getValue());
     }
 
-    /**
-     * Ensures default behavior for null start/end dates when invoking {@code getMonthlyStockMovement}.
-     */
+    /** start > end must trigger InvalidRequestException. */
     @Test
-    void shouldUseDefaultDatesIfMissingInStockMovement() {
-        List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
-            "2024-01", BigDecimal.valueOf(10), BigDecimal.valueOf(5)
-        });
+    void getFilteredStockUpdates_rejectsInvalidRange() {
+        StockUpdateFilterDTO f = new StockUpdateFilterDTO();
+        f.setStartDate(LocalDateTime.of(2024, 2, 10, 0, 0));
+        f.setEndDate(LocalDateTime.of(2024, 2, 1, 0, 0));
 
-        when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), any()))
-            .thenReturn(mockResult);
-
-        List<MonthlyStockMovementDTO> result = analyticsService.getMonthlyStockMovement(null, null, "s1");
-
-        assertEquals(1, result.size());
-        assertEquals("2024-01", result.get(0).getMonth());
+        InvalidRequestException ex =
+            assertThrows(InvalidRequestException.class, () -> service.getFilteredStockUpdates(f));
+        assertNotNull(ex.getMessage());
     }
 
-    /**
-     * Validates that {@code getFilteredStockUpdates} handles a null supplier ID gracefully and defaults appropriately.
-     */
+    /** minChange > maxChange must trigger InvalidRequestException. */
     @Test
-    void shouldUseDefaultsAndHandleNullSupplierIdInStockUpdates() {
-        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
-        filter.setItemName("ItemX");
+    void getFilteredStockUpdates_rejectsMinGreaterThanMax() {
+        StockUpdateFilterDTO f = new StockUpdateFilterDTO();
+        f.setStartDate(LocalDateTime.of(2024, 2, 1, 0, 0));
+        f.setEndDate(LocalDateTime.of(2024, 2, 2, 0, 0));
+        f.setMinChange(10);
+        f.setMaxChange(5);
 
-        List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
-            "ItemX", null, BigDecimal.valueOf(5), "SALE", "admin", Timestamp.valueOf(LocalDateTime.now())
-        });
-
-        when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
-            .thenReturn(mockResult);
-
-        List<StockUpdateResultDTO> result = analyticsService.getFilteredStockUpdates(filter);
-
-        assertEquals(1, result.size());
+        InvalidRequestException ex =
+            assertThrows(InvalidRequestException.class, () -> service.getFilteredStockUpdates(f));
+        assertNotNull(ex.getMessage());
     }
 
-    /**
-     * Validates that {@code getMonthlyStockMovement} works with a null supplier ID and missing date range.
-     */
+    /** null filter must trigger InvalidRequestException. */
     @Test
-    void shouldUseDefaultsAndHandleNullSupplierInStockMovement() {
-        List<Object[]> mockResult = Arrays.<Object[]>asList(new Object[]{
-            "2024-02", BigDecimal.valueOf(20), BigDecimal.valueOf(7)
-        });
+    void getFilteredStockUpdates_nullFilter_throwsInvalidRequest() {
+        InvalidRequestException ex =
+            assertThrows(InvalidRequestException.class, () -> service.getFilteredStockUpdates(null));
+        assertNotNull(ex.getMessage());
+    }
 
-        when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), any()))
-            .thenReturn(mockResult);
+    // ---------------------------------------------------------------------
+    // Price trend
+    // ---------------------------------------------------------------------
 
-        List<MonthlyStockMovementDTO> result = analyticsService.getMonthlyStockMovement(null, null, null);
+    /** Delegates to repository and validates date inputs. */
+    @Test
+    void getPriceTrend_delegates() {
+        LocalDate start = LocalDate.parse("2024-02-01");
+        LocalDate end   = LocalDate.parse("2024-02-03");
 
-        assertEquals(1, result.size());
-        assertEquals("2024-02", result.get(0).getMonth());
+        List<PriceTrendDTO> expected = Arrays.asList(
+            new PriceTrendDTO("2024-02-01", new BigDecimal("4.25")),
+            new PriceTrendDTO("2024-02-02", new BigDecimal("4.40"))
+        );
+        when(stockHistoryRepository.getPriceTrend(eq("I1"), eq("S1"),
+                any(LocalDateTime.class), any(LocalDateTime.class)))
+            .thenReturn(expected);
+
+        List<PriceTrendDTO> out = service.getPriceTrend("I1", "S1", start, end);
+
+        assertEquals(expected, out);
+        verify(stockHistoryRepository).getPriceTrend(eq("I1"), eq("S1"),
+                any(LocalDateTime.class), any(LocalDateTime.class));
+    }
+
+    /** start > end must trigger InvalidRequestException. */
+    @Test
+    void getPriceTrend_invalidRange_throws() {
+        InvalidRequestException ex =
+            assertThrows(InvalidRequestException.class,
+                () -> service.getPriceTrend("I1", "S1",
+                        LocalDate.parse("2024-02-10"),
+                        LocalDate.parse("2024-02-01")));
+        assertNotNull(ex.getMessage());
+    }
+
+    /** blank itemId must trigger InvalidRequestException. */
+    @Test
+    void getPriceTrend_blankItem_throws() {
+        InvalidRequestException ex =
+            assertThrows(InvalidRequestException.class,
+                () -> service.getPriceTrend("  ", null,
+                        LocalDate.parse("2024-02-01"),
+                        LocalDate.parse("2024-02-02")));
+        assertNotNull(ex.getMessage());
     }
 }
-/**
- * This class contains unit tests for the AnalyticsServiceImpl class, focusing on
- * various scenarios including empty results, default values, and specific filtering logic.
- * Each test case is designed to validate a specific aspect of the analytics service's behavior.
- */
