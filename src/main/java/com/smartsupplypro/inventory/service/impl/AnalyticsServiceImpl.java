@@ -7,7 +7,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.*;
 
 import org.springframework.stereotype.Service;
@@ -335,36 +334,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         BigDecimal openingValue = BigDecimal.ZERO, purchasesCost = BigDecimal.ZERO, returnsInCost = BigDecimal.ZERO,
                    cogsCost = BigDecimal.ZERO, writeOffCost = BigDecimal.ZERO, endingValue = BigDecimal.ZERO;
 
-        // Per-item WAC state
-        record State(long qty, BigDecimal avgCost) {}
+        // Per-item state map (uses class-level record State to track quantity and average cost)
         Map<String, State> state = new HashMap<>();
-
-        // Tiny value objects for flows
-        record Inbound(int qty, BigDecimal unitCost) {}
-        record Issue(State state, BigDecimal cost) {}
-
-        // Inbound (recompute WAC)
-        var inbound = (java.util.function.BiFunction<State, Inbound, State>) (st, in) -> {
-            long q0 = (st == null) ? 0 : st.qty();
-            BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();
-            long q1 = q0 + in.qty();
-            BigDecimal v0  = c0.multiply(BigDecimal.valueOf(q0));
-            BigDecimal vin = in.unitCost().multiply(BigDecimal.valueOf(in.qty()));
-            BigDecimal avg1 = (q1 == 0)
-                    ? BigDecimal.ZERO
-                    : v0.add(vin).divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);
-            return new State(q1, avg1);
-        };
-
-        // Issue (consume at current WAC)
-        var issueAt = (java.util.function.BiFunction<State, Integer, Issue>) (st, outQty) -> {
-            long q0 = (st == null) ? 0 : st.qty();
-            BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();
-            long q1 = q0 - outQty;
-            if (q1 < 0) q1 = 0; // clamp to avoid negative stock due to data errors
-            BigDecimal cost = c0.multiply(BigDecimal.valueOf(outQty));
-            return new Issue(new State(q1, c0), cost);
-        };
 
         // Reason sets (align with enum)
         final Set<StockChangeReason> RETURNS_IN = Set.of(StockChangeReason.RETURNED_BY_CUSTOMER);
@@ -382,10 +353,10 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     BigDecimal unit = (e.priceAtChange() != null)
                             ? e.priceAtChange()
                             : (st == null ? BigDecimal.ZERO : st.avgCost());
-                    st = inbound.apply(st, new Inbound(e.quantityChange(), unit));
+                    st = applyInbound(st, e.quantityChange(), unit);
                     state.put(e.itemId(), st);
                 } else if (e.quantityChange() < 0) {
-                    var iss = issueAt.apply(st, Math.abs(e.quantityChange()));
+                    Issue iss = issueAt(st, Math.abs(e.quantityChange()));
                     state.put(e.itemId(), iss.state());
                 }
             }
@@ -405,7 +376,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 BigDecimal unit = (e.priceAtChange() != null)
                         ? e.priceAtChange()
                         : (st == null ? BigDecimal.ZERO : st.avgCost());
-                State newSt = inbound.apply(st, new Inbound(e.quantityChange(), unit));
+                State newSt = applyInbound(st, e.quantityChange(), unit);
                 state.put(e.itemId(), newSt);
 
                 if (RETURNS_IN.contains(e.reason())) {
@@ -423,21 +394,21 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 int out = Math.abs(e.quantityChange());
 
                 if (RETURN_TO_SUPPLIER.contains(e.reason())) {
-                    var iss = issueAt.apply(st, out);
+                    Issue iss = issueAt(st, out);
                     state.put(e.itemId(), iss.state());
                     // Treat as negative purchases at current WAC
                     purchasesQty -= out;
                     purchasesCost = purchasesCost.subtract(iss.cost());
 
                 } else if (WRITE_OFFS.contains(e.reason())) {
-                    var iss = issueAt.apply(st, out);
+                    Issue iss = issueAt(st, out);
                     state.put(e.itemId(), iss.state());
                     writeOffQty += out;
                     writeOffCost = writeOffCost.add(iss.cost());
 
                 } else {
                     // Default: COGS / consumption
-                    var iss = issueAt.apply(st, out);
+                    Issue iss = issueAt(st, out);
                     state.put(e.itemId(), iss.state());
                     cogsQty += out;
                     cogsCost = cogsCost.add(iss.cost());
@@ -558,4 +529,33 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         if (o instanceof BigDecimal bd) return bd; // explicit for clarity
         throw new IllegalStateException("Expected numeric type but got: " + o);
     }
+
+    /** Internal WAC state per item. */
+    private record State(long qty, BigDecimal avgCost) {}
+
+    private record Issue(State state, BigDecimal cost) {}
+
+    /** Apply inbound at a given unit cost and recompute moving average cost. */
+    private static State applyInbound(State st, int qtyIn, BigDecimal unitCost) {
+        long q0 = (st == null) ? 0 : st.qty();
+        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();
+        long q1 = q0 + qtyIn;
+        BigDecimal v0  = c0.multiply(BigDecimal.valueOf(q0));
+        BigDecimal vin = unitCost.multiply(BigDecimal.valueOf(qtyIn));
+        BigDecimal avg1 = (q1 == 0)
+                ? BigDecimal.ZERO
+                : v0.add(vin).divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);
+        return new State(q1, avg1);
+    }
+
+    /** Issue (consume) quantity at current WAC and return new state + cost of the issue. */
+    private static Issue issueAt(State st, int qtyOut) {
+        long q0 = (st == null) ? 0 : st.qty();
+        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();
+        long q1 = q0 - qtyOut;
+        if (q1 < 0) q1 = 0; // guard
+        BigDecimal cost = c0.multiply(BigDecimal.valueOf(qtyOut));
+        return new Issue(new State(q1, c0), cost);
+    }
+
 }
