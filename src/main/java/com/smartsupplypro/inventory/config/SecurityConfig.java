@@ -1,10 +1,9 @@
 package com.smartsupplypro.inventory.config;
 
-import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,9 +26,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.List;
+import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Global Spring Security configuration for the SmartSupplyPro backend application.
@@ -118,6 +120,7 @@ public class SecurityConfig {
                 // Allow OAuth2 endpoints and error page to avoid redirect loops
                 .requestMatchers("/oauth2/**", "/login/oauth2/**", "/login/**", "/error").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                .requestMatchers("/api/analytics/**").hasAnyRole("USER","ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
