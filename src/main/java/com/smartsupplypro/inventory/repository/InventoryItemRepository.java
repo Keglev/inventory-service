@@ -1,14 +1,15 @@
 package com.smartsupplypro.inventory.repository;
 
-import com.smartsupplypro.inventory.model.InventoryItem;
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigDecimal;
-import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
  * Repository interface for managing {@link InventoryItem} entities.
