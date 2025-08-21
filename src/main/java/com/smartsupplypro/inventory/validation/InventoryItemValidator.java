@@ -1,47 +1,47 @@
 package com.smartsupplypro.inventory.validation;
 
-import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.exception.DuplicateResourceException;
-import com.smartsupplypro.inventory.model.InventoryItem;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
-
 import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * Utility class responsible for validating InventoryItem-related input data.
- *
- * <p>Ensures that the data passed into service layers (especially during creation
- * or update operations) adheres to business rules such as:
- * <ul>
- *   <li>Non-null and non-empty names</li>
- *   <li>Non-negative quantities and prices</li>
- *   <li>Mandatory supplier ID and createdBy metadata</li>
- * </ul>
- *
- * <p><strong>Design Note:</strong> This class is intentionally non-instantiable
- * using a private constructor. It provides only static validation methods.</p>
- *
- * <p><strong>Usage:</strong> Typically called in {@code InventoryItemService} before persisting data.</p>
- *
- * @author
- * SmartSupplyPro Dev Team
- */
-public class InventoryItemValidator {
+import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.model.InventoryItem;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 
+/**
+* Utility class responsible for validating InventoryItem-related input data.
+*
+* <p>Ensures that the data passed into service layers (especially during creation
+* or update operations) adheres to business rules such as:
+* <ul>
+*   <li>Non-null and non-empty names</li>
+*   <li>Non-negative quantities and prices</li>
+*   <li>Mandatory supplier ID and createdBy metadata</li>
+* </ul>
+*
+* <p><strong>Design Note:</strong> This class is intentionally non-instantiable
+* using a private constructor. It provides only static validation methods.</p>
+*
+* <p><strong>Usage:</strong> Typically called in {@code InventoryItemService} before persisting data.</p>
+*
+* @author
+* SmartSupplyPro Dev Team
+*/
+public class InventoryItemValidator {
+    
     private InventoryItemValidator() {
         // Utility class - prevent instantiation
     }
-
+    
     /**
-     * Validates the fundamental fields of an {@link InventoryItemDTO}.
-     *
-     * @param dto the DTO representing the inventory item
-     * @throws IllegalArgumentException if any validation rule is violated
-     */
+    * Validates the fundamental fields of an {@link InventoryItemDTO}.
+    *
+    * @param dto the DTO representing the inventory item
+    * @throws IllegalArgumentException if any validation rule is violated
+    */
     public static void validateBase(InventoryItemDTO dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Product name cannot be null or empty");
@@ -59,97 +59,95 @@ public class InventoryItemValidator {
             throw new IllegalArgumentException("CreatedBy must be provided");
         }
     }
-
+    
     /**
-     * Validates that no inventory item with the same name and price already exists (for creation).
-     *
-     * @param name          the name of the inventory item
-     * @param price         the price of the inventory item
-     * @param inventoryRepo the inventory item repository
-     * @throws IllegalArgumentException if duplicate found
-     */
+    * Validates that no inventory item with the same name and price already exists (for creation).
+    *
+    * @param name          the name of the inventory item
+    * @param price         the price of the inventory item
+    * @param inventoryRepo the inventory item repository
+    * @throws IllegalArgumentException if duplicate found
+    */
     public static void validateInventoryItemNotExists(
-        String id, String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
-    List<InventoryItem> existingItems = inventoryRepo.findByNameIgnoreCase(name);
-    for (InventoryItem item : existingItems) {
-        if (!item.getId().equals(id) && item.getPrice().compareTo(price) == 0) {
-            throw new DuplicateResourceException(
+    String id, String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
+        List<InventoryItem> existingItems = inventoryRepo.findByNameIgnoreCase(name);
+        for (InventoryItem item : existingItems) {
+            if (!item.getId().equals(id) && item.getPrice().compareTo(price) == 0) {
+                throw new DuplicateResourceException(
                 "Another inventory item with this name and price already exists."
-            );
+                );
+            }
         }
     }
-}
-
+    
     /**
-     * Validates that no other inventory item (excluding the one with the same ID) has the same name and price.
-     * Used for updates to prevent duplication when changing name or price.
-     *
-     * @param id            the ID of the current inventory item (being updated)
-     * @param name          the proposed new name
-     * @param price         the proposed new price
-     * @param inventoryRepo the repository to check against
-     * @throws IllegalArgumentException if another item with same name and price exists
-     */
+    * Validates that no other inventory item (excluding the one with the same ID) has the same name and price.
+    * Used for updates to prevent duplication when changing name or price.
+    *
+    * @param id            the ID of the current inventory item (being updated)
+    * @param name          the proposed new name
+    * @param price         the proposed new price
+    * @param inventoryRepo the repository to check against
+    * @throws IllegalArgumentException if another item with same name and price exists
+    */
     public static void validateInventoryItemNotExists(
-        String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
-    List<InventoryItem> existingItems = inventoryRepo.findByNameIgnoreCase(name);
-    for (InventoryItem item : existingItems) {
-        if (item.getPrice().compareTo(price) == 0) {
-            throw new DuplicateResourceException(
+    String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
+        List<InventoryItem> existingItems = inventoryRepo.findByNameIgnoreCase(name);
+        for (InventoryItem item : existingItems) {
+            if (item.getPrice().compareTo(price) == 0) {
+                throw new DuplicateResourceException(
                 "An inventory item with this name and price already exists."
-            );
+                );
+            }
         }
     }
-}
-
-        /**
-     * Validates that an inventory item exists in the database by its ID.
-     *
-     * <p>This method abstracts the common repository lookup and throws a consistent
-     * exception when no item is found. It should be used before performing update or
-     * delete operations.</p>
-     *
-     * @param id             the ID of the inventory item
-     * @param inventoryRepo  the repository used for lookup
-     * @return the InventoryItem entity if found
-     * @throws IllegalArgumentException if the item does not exist
-     */
-    public static InventoryItem validateExists(String id, InventoryItemRepository inventoryRepo) {
-    return inventoryRepo.findById(id).orElseThrow(() ->
-        new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found: " + id)
-    );
-}
-
-
+    
     /**
-     * Validates that the resulting quantity after an operation is non-negative.
-     *
-     * @param resultingQuantity the quantity after applying a delta
-     * @throws IllegalArgumentException if resulting quantity is negative
-     */
+    * Validates that an inventory item exists in the database by its ID.
+    *
+    * <p>This method abstracts the common repository lookup and throws a consistent
+    * exception when no item is found. It should be used before performing update or
+    * delete operations.</p>
+    *
+    * @param id             the ID of the inventory item
+    * @param inventoryRepo  the repository used for lookup
+    * @return the InventoryItem entity if found
+    * @throws IllegalArgumentException if the item does not exist
+    */
+    public static InventoryItem validateExists(String id, InventoryItemRepository inventoryRepo) {
+        return inventoryRepo.findById(id).orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found: " + id)
+        );
+    }
+    
+    /**
+    * Validates that the resulting quantity after an operation is non-negative.
+    *
+    * @param resultingQuantity the quantity after applying a delta
+    * @throws IllegalArgumentException if resulting quantity is negative
+    */
     public static void assertFinalQuantityNonNegative(int resultingQuantity) {
-    if (resultingQuantity < 0) {
-        throw new ResponseStatusException(
+        if (resultingQuantity < 0) {
+            throw new ResponseStatusException(
             HttpStatus.UNPROCESSABLE_ENTITY,
             "Resulting stock cannot be negative"
-        );
+            );
+        }
     }
-}
-
+    
     /**
-     * Validates a price value for update/patch operations.
-     * Uses the same rule as validateBase: must be strictly greater than zero.
-     *
-     * @param price the price to validate
-     * @throws IllegalArgumentException if null or not strictly positive
-     */
+    * Validates a price value for update/patch operations.
+    * Uses the same rule as validateBase: must be strictly greater than zero.
+    *
+    * @param price the price to validate
+    * @throws IllegalArgumentException if null or not strictly positive
+    */
     public static void assertPriceValid(BigDecimal price) {
-    if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
-        throw new ResponseStatusException(
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ResponseStatusException(
             HttpStatus.UNPROCESSABLE_ENTITY,
             "Price must be greater than zero"
-        );
+            );
+        }
     }
-}
-
 }

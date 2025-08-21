@@ -1,14 +1,15 @@
 package com.smartsupplypro.inventory.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.smartsupplypro.inventory.config.TestSecurityConfig;
-import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
-import com.smartsupplypro.inventory.exception.DuplicateResourceException;
-import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
-import com.smartsupplypro.inventory.service.InventoryItemService;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import static org.hamcrest.Matchers.endsWith;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -16,19 +17,26 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
-import static org.hamcrest.Matchers.endsWith;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartsupplypro.inventory.config.TestSecurityConfig;
+import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
+import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
  * MVC slice tests for {@link InventoryItemController}.
@@ -284,55 +292,4 @@ class InventoryItemControllerTest {
             .param("price", "149.99"))
             .andExpect(status().isOk());
     }
-
-
-    /* ============================================================
-     * ===============  MIGRATION PARKING LOT  =====================
-     * ============================================================
-     * Paste any of your EXISTING business-rule-heavy controller tests
-     * below, but keep them commented. Each block is tagged with a
-     * suggested destination. When you move them, delete the block.
-     */
-
-    // ============================================================
-    // MOVE → InventoryItemServiceImplTest (business rules)
-    // ============================================================
-
-/*
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("[MOVE to Service] Duplicate name on save -> 409 (DuplicateResourceException)")
-    void save_duplicateName_conflict() {}
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("[MOVE to Service] Supplier doesn’t exist -> 422")
-    void save_supplierNotFound_unprocessable() {}
-
-    @Test
-    @WithMockUser(roles = "USER")
-    @DisplayName("[MOVE to Service] Negative resulting stock on adjust -> 422")
-    void adjustQuantity_negativeResultingStock_unprocessable() {}
-*/
-
-    // ============================================================
-    // MOVE → InventoryItemServiceImplTest (side-effects)
-    // ============================================================
-
-/*
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("[MOVE to Service] Delete writes one negative stock history entry before removal")
-    void delete_writesStockHistoryOnce() {}
-*/
-
-    // ============================================================
-    // MOVE → InventoryItemIntegrationTest (@SpringBootTest)
-    // ============================================================
-
-/*
-    @Test
-    @DisplayName("[MOVE to Integration] Create→Update→Delete happy path with H2/Testcontainers")
-    void happyPath_endToEnd() {}
-*/
 }

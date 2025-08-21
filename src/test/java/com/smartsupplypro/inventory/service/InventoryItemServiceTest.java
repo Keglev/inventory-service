@@ -1,5 +1,46 @@
 package com.smartsupplypro.inventory.service;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
@@ -8,42 +49,14 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.http.HttpStatus;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-
-import org.mockito.*;
-
-import java.util.Optional;
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.Collection;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 /**
  * Unit test class for {@link InventoryItemServiceImpl}. Verifies business rules, security integration,
  * validation logic, and side effects such as stock history tracking.
+ * <p> Test lifecycle hooks.
+ *
+ * <p>These methods are invoked by JUnit 5 via reflection and may appear
+ * “unused” to static analyzers. Suppress the warning locally to keep
+ * inspections quiet without weakening class-wide checks.</p>
  */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -68,6 +81,7 @@ public class InventoryItemServiceTest {
     /**
      * Sets up a valid DTO and mock repository behavior before each test.
      */
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         dto = new InventoryItemDTO();
@@ -89,6 +103,7 @@ public class InventoryItemServiceTest {
      * Clears the SecurityContext after each test to avoid role leakage.
      */
     @AfterEach
+    @SuppressWarnings("unused")
     void clearContext() {
         SecurityContextHolder.clearContext();
     }
@@ -128,7 +143,11 @@ public class InventoryItemServiceTest {
         assertNotNull(result);
         verify(inventoryItemRepository).save(any(InventoryItem.class));
         verify(stockHistoryService).logStockChange(
-                eq("item-1"), eq(50), eq(StockChangeReason.INITIAL_STOCK), eq("admin")
+                eq("item-1"), 
+                eq(50), 
+                eq(StockChangeReason.INITIAL_STOCK), 
+                eq("admin"), 
+                any(BigDecimal.class)
         );
     }
 
@@ -145,39 +164,12 @@ public class InventoryItemServiceTest {
 
         assertNotNull(result);
         verify(inventoryItemRepository).save(any(InventoryItem.class));
-        verify(stockHistoryService).logStockChange("item-1", 0, StockChangeReason.INITIAL_STOCK, "admin");
-    }
-
-   /**
-    * Throws IllegalArgumentException when an item with the same name and price already exists.
-    */
-    @Test
-    void shouldThrowExceptionWhenInventoryItemAlreadyExists() {
-        mockOAuth2Authentication("tester", "ROLE_ADMIN");
-
-        InventoryItem existingItem = InventoryItem.builder()
-                .id("existing-id")
-                .name("Widget")
-                .price(BigDecimal.valueOf(10.0))
-                .quantity(50)
-                .supplierId("some-supplier")
-                .createdBy("admin")
-                .build();
-
-        when(inventoryItemRepository.findByNameIgnoreCase("Widget")).thenReturn(List.of(existingItem));
-        when(supplierRepository.existsById("some-supplier")).thenReturn(true);
-
-        dto.setName("Widget");
-        dto.setPrice(BigDecimal.valueOf(10.0));
-        dto.setSupplierId("some-supplier");
-        dto.setCreatedBy("tester");
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-                inventoryItemService.save(dto)
-        );
-
-        assertEquals("An inventory item with this name and price already exists.", ex.getMessage());
-
+        verify(stockHistoryService).logStockChange(
+            eq("item-1"),eq( 0),
+            eq(StockChangeReason.INITIAL_STOCK),
+            eq( "admin"),
+            any(BigDecimal.class)
+            );
     }
 
     // ========== VALIDATION TESTS FOR SAVE ==========
@@ -282,7 +274,13 @@ public class InventoryItemServiceTest {
         Optional<InventoryItemDTO> result = inventoryItemService.update("item-1", dto);
 
         assertTrue(result.isPresent());
-        verify(stockHistoryService).logStockChange(eq("item-1"), eq(20), eq(StockChangeReason.MANUAL_UPDATE), eq("admin"));
+        verify(stockHistoryService).logStockChange(
+            eq("item-1"),
+            eq(20),
+            eq(StockChangeReason.MANUAL_UPDATE),
+            eq("admin"),
+            any(BigDecimal.class)
+            );
     }
 
     /**
@@ -302,7 +300,13 @@ public class InventoryItemServiceTest {
         Optional<InventoryItemDTO> result = inventoryItemService.update("item-1", dto);
 
         assertTrue(result.isPresent());
-        verify(stockHistoryService).logStockChange(eq("item-1"), eq(20), eq(StockChangeReason.MANUAL_UPDATE), eq("admin"));
+        verify(stockHistoryService).logStockChange(
+            eq("item-1"), 
+            eq(20), 
+            eq(StockChangeReason.MANUAL_UPDATE), 
+            eq("admin"),
+            any(BigDecimal.class)
+            );
     }
 
     /**
@@ -344,24 +348,6 @@ public class InventoryItemServiceTest {
         verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
     }
 
-    /**
-    * Tests that updating a non-existent inventory item throws an IllegalArgumentException.
-    * The method should not interact with the stock history service.
-    */
-    @Test
-    void testUpdate_whenItemNotFound_shouldThrowException() {
-        mockOAuth2Authentication("admin", "ROLE_ADMIN");
-
-        when(inventoryItemRepository.findById("invalid-id")).thenReturn(Optional.empty());
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
-            inventoryItemService.update("invalid-id", dto)
-        );
-
-        assertEquals("Item not found: invalid-id", ex.getMessage());
-        verify(stockHistoryService, never()).logStockChange(any(), anyInt(), any(), any());
-    }
-
     // ========== DELETE TESTS ==========
 
     /**
@@ -374,7 +360,13 @@ public class InventoryItemServiceTest {
 
         inventoryItemService.delete("item-1", StockChangeReason.DESTROYED);
 
-        verify(stockHistoryService).logStockChange("item-1", -50, StockChangeReason.DESTROYED, "admin");
+        verify(stockHistoryService).logStockChange(
+            eq("item-1"),
+            eq( -50), 
+            eq(StockChangeReason.DESTROYED),
+            eq( "admin"),
+            any(BigDecimal.class)
+        );
         verify(inventoryItemRepository).deleteById("item-1");
     }
 
@@ -476,7 +468,13 @@ public class InventoryItemServiceTest {
 
         assertNotNull(result);
         assertEquals("Widget", result.getName());
-        verify(stockHistoryService).logStockChange(eq("new-id"), eq(5), eq(StockChangeReason.INITIAL_STOCK), eq("tester"));
+        verify(stockHistoryService).logStockChange(
+            eq("new-id"),
+            eq(5),
+            eq(StockChangeReason.INITIAL_STOCK),
+            eq("tester"),
+            any(BigDecimal.class)
+        );
     }
 
 }

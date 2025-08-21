@@ -73,14 +73,30 @@ class InventoryItemRepositoryAnalyticsTest {
         em.flush();
         em.clear();
     }
-
+    /**
+     * Tests the native query that finds items below their minimum stock level,
+     * optionally filtered by supplier.
+     * 
+     * <p>Verifies that the query correctly returns items with quantity below minimum,
+     * and that it filters by supplier when provided.</p>
+     * 
+     * <p>Uses the native SQL query defined in
+     * * {@link InventoryItemRepository#findItemsBelowMinimumStockFiltered(String)}.</p>
+     **/
     @Test
     @DisplayName("S1: returns only items strictly below minimum (excludes == and above)")
     void s1_onlyBelowMinimum() {
         List<Object[]> result = repository.findItemsBelowMinimumStockFiltered("S1");
         assertEquals(1, result.size(), "S1 should return exactly one row below minimum");
     }
-
+    /**
+     * Tests the native query that finds items below their minimum stock level,
+     * optionally filtered by supplier.
+     * <p>Verifies that the query correctly returns items with quantity below minimum,
+     * and that it filters by supplier when provided.</p>
+     * <p>Uses the native SQL query defined in
+        * {@link InventoryItemRepository#findItemsBelowMinimumStockFiltered(String)}.</p>
+    **/
     @Test
     @DisplayName("S2: returns only items for the requested supplier")
     void s2_isolatedBySupplier() {
@@ -91,7 +107,14 @@ class InventoryItemRepositoryAnalyticsTest {
         assertEquals(1, s2.size(), "S2 should have one below-minimum row");
         assertTrue(s1 != s2, "Different suppliers should not share the same list instance");
     }
-
+    /**
+     * Tests the native query that finds items below their minimum stock level,
+     * optionally filtered by supplier.
+     * <p>Verifies that the query correctly returns items with quantity below minimum,
+     * and that it filters by supplier when provided.</p>
+     * <p>Uses the native SQL query defined in
+        * {@link InventoryItemRepository#findItemsBelowMinimumStockFiltered(String)}.</p>
+    **/
     @Test
     @DisplayName("Sanity: NULL supplierId returns all below-minimum rows across suppliers")
     void sanity_allSuppliers_whenNull() {
@@ -103,7 +126,15 @@ class InventoryItemRepositoryAnalyticsTest {
     // ---------- helpers ----------
 
     private void persist(InventoryItem i) { em.persist(i); }
-
+    /**
+     * Creates a new InventoryItem with the given parameters.
+     * @param id Optional ID; if null, a random UUID will be generated
+     * @param name Name of the item
+     * @param qty Current quantity of the item
+     * @param minQty Minimum quantity threshold for the item
+     * @param price Price of the item as a string
+     * @return A new InventoryItem instance with the specified properties
+     **/
     private static InventoryItem item(String id, String name,
                                       int qty, int minQty, String price) {
         InventoryItem i = new InventoryItem();
