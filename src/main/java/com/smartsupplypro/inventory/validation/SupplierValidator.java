@@ -1,13 +1,12 @@
 package com.smartsupplypro.inventory.validation;
 
+import java.util.Objects;
+import java.util.function.BooleanSupplier;
+
 import com.smartsupplypro.inventory.dto.SupplierDTO;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 /**
  * Central validation utilities for Supplier operations.
@@ -52,17 +51,12 @@ public final class SupplierValidator {
         if (isBlank(name)) return; // validateBase already handles blank
         String trimmed = name.trim();
 
-        Optional<?> existingOpt = repo.findByNameIgnoreCase(trimmed).map(s -> (Object) s);
-        if (existingOpt.isPresent()) {
-            // We cannot type Supplier here without importing your entity class; rely on repository's id getter at service level,
-            // but since we know repository returns the entity, do a safe cast:
-            var existing = repo.findByNameIgnoreCase(trimmed).orElse(null);
-            if (existing != null) {
-                // assuming your entity has getId()
-                String existingId = invokeGetId(existing);
-                if (!Objects.equals(existingId, excludeId)) {
-                    throw new DuplicateResourceException("Supplier already exists");
-                }
+        var existingOpt = repo.findByNameIgnoreCase(trimmed).map(s -> (Object) s);
+        var existing = existingOpt.orElse(null);
+        if (existing != null) {
+            String existingId = invokeGetId(existing);
+            if (!Objects.equals(existingId, excludeId)) {
+                throw new DuplicateResourceException("Supplier already exists");
             }
         }
     }
@@ -103,8 +97,8 @@ public final class SupplierValidator {
             var m = entity.getClass().getMethod("getId");
             Object v = m.invoke(entity);
             return v != null ? v.toString() : null;
-        } catch (Exception ignore) {
-            return null;
+        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException | SecurityException e) {
+            return null; // keep existing behavior: silently fall back
         }
     }
 }

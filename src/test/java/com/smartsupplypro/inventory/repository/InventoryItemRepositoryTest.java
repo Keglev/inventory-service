@@ -1,19 +1,22 @@
 package com.smartsupplypro.inventory.repository;
 
-import com.smartsupplypro.inventory.model.InventoryItem;
-import com.smartsupplypro.inventory.model.Supplier;
+import java.math.BigDecimal;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.smartsupplypro.inventory.model.InventoryItem;
+import com.smartsupplypro.inventory.model.Supplier;
 
 /**
  * Integration test class for {@link InventoryItemRepository} using H2 in-memory database.
@@ -38,6 +41,7 @@ class InventoryItemRepositoryTest {
      * Prepares test suppliers before each test method to link with inventory items.
      */
     @BeforeEach
+    @SuppressWarnings("unused")
     void setup() {
         supplier1 = supplierRepository.save(Supplier.builder()
                 .id("sup-1")
