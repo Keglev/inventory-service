@@ -1,9 +1,10 @@
 package com.smartsupplypro.inventory.repository;
 
-import com.smartsupplypro.inventory.model.AppUser;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import com.smartsupplypro.inventory.model.AppUser;
 
 /**
  * Repository interface for managing {@link AppUser} entities.
@@ -34,6 +35,7 @@ public interface AppUserRepository extends JpaRepository<AppUser, String> {
      *
      * @return user count
      */
+    @Override
     long count();
 }
 // This interface provides methods to interact with the AppUser entity in the database.

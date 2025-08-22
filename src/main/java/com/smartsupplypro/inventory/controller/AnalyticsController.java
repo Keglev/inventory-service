@@ -1,19 +1,35 @@
 package com.smartsupplypro.inventory.controller;
 
-import com.smartsupplypro.inventory.dto.*;
-import com.smartsupplypro.inventory.exception.InvalidRequestException;
-import com.smartsupplypro.inventory.service.AnalyticsService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import com.smartsupplypro.inventory.dto.DashboardSummaryDTO;
+import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
+import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
+import com.smartsupplypro.inventory.dto.LowStockItemDTO;
+import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
+import com.smartsupplypro.inventory.dto.PriceTrendDTO;
+import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+import com.smartsupplypro.inventory.service.AnalyticsService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 /**
  * REST endpoints for analytics and reporting over inventory data.
@@ -233,6 +249,15 @@ public class AnalyticsController {
     // Helpers
     // ------------------------------------------------------------------------
 
+    /**
+     * Validates that start and end dates are not null and that start is before or equal to end.
+     *
+     * @param start      the start date
+     * @param end        the end date
+     * @param startName  name of the start parameter for error messages
+     * @param endName    name of the end parameter for error messages
+     * @throws InvalidRequestException if validation fails
+     */
     private static void validateDateRange(LocalDate start, LocalDate end,
                                           String startName, String endName) {
         if (start == null || end == null) {
@@ -243,6 +268,13 @@ public class AnalyticsController {
         }
     }
 
+    /**
+     * Validates that a string is not null or blank.
+     *
+     * @param value the string to check
+     * @param name  the name of the parameter for error messages
+     * @throws InvalidRequestException if the string is blank
+     */
     private static void requireNonBlank(String value, String name) {
         if (value == null || value.trim().isEmpty()) {
             throw new InvalidRequestException(name + " must not be blank");

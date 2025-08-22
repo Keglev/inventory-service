@@ -1,11 +1,8 @@
 package com.smartsupplypro.inventory.security;
 
-import com.smartsupplypro.inventory.model.Role;
-import com.smartsupplypro.inventory.model.AppUser;
-import com.smartsupplypro.inventory.repository.AppUserRepository;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,11 +11,13 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
+import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.model.Role;
+import com.smartsupplypro.inventory.repository.AppUserRepository;
 
-import java.util.Optional;
-import java.util.logging.Logger;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * OAuth2LoginSuccessHandler handles user onboarding and redirection
@@ -47,8 +46,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Autowired
     private AppUserRepository userRepository;
 
-    private static final Logger LOGGER = Logger.getLogger(OAuth2LoginSuccessHandler.class.getName());
-
     /**
      * Callback method invoked after a successful OAuth2 authentication.
      *
@@ -75,7 +72,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String name = token.getPrincipal().getAttribute("name");
 
         if (email == null || name == null) {
-            LOGGER.severe("OAuth2 provider did not return email or name.");
             throw new IllegalStateException("Email or name not provided by OAuth2 provider");
         }
 
@@ -87,10 +83,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 newUser.setRole(Role.USER);
                 newUser.setCreatedAt(LocalDateTime.now());
                 userRepository.save(newUser);
-                LOGGER.info("New user registered via OAuth2: " + email);
             }
         } catch (DataIntegrityViolationException e) {
-            LOGGER.warning("Duplicate user detected during OAuth2 login: " + email);
             userRepository.findByEmail(email).orElseThrow(() ->
                     new IllegalStateException("User already exists but cannot be loaded."));
         }

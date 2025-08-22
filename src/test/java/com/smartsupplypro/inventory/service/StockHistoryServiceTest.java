@@ -1,4 +1,6 @@
 package com.smartsupplypro.inventory.service;
+import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -6,15 +8,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
-import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.StockHistory;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 /**
@@ -23,13 +32,18 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  * and input validation rules for audit logs.
  */
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class StockHistoryServiceTest {
 
     @Mock
     private StockHistoryRepository repository;
 
+    @Mock
+    private InventoryItemRepository itemRepository;
+
     @InjectMocks
-    private StockHistoryService stockHistoryService;
+    private StockHistoryService service;
 
     /**
      * Initializes mock objects before each test case.
@@ -37,7 +51,18 @@ public class StockHistoryServiceTest {
     @BeforeEach
     @SuppressWarnings("unused")
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // Default stubs used by most tests:
+        when(itemRepository.findById("item-1"))
+                 .thenReturn(Optional.of(mkItem("item-1", "S1")));
+        when(itemRepository.findById("new-id"))
+                 .thenReturn(Optional.of(mkItem("new-id", "S2")));
+    }
+
+    private static com.smartsupplypro.inventory.model.InventoryItem mkItem(String id, String supplierId) {
+        var it = new com.smartsupplypro.inventory.model.InventoryItem();
+        it.setId(id);
+        it.setSupplierId(supplierId);
+        return it;
     }
 
     /**
@@ -46,7 +71,7 @@ public class StockHistoryServiceTest {
      */
     @Test
     void testLogStockChange_withValidReason_shouldSaveStockHistory() {
-        stockHistoryService.logStockChange("item-1", 10, StockChangeReason.SOLD, "admin");
+        service.logStockChange("item-1", 10, StockChangeReason.SOLD, "admin");
 
         ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
         verify(repository).save(captor.capture());
@@ -66,9 +91,8 @@ public class StockHistoryServiceTest {
     @Test
     void testLogStockChange_withInvalidReason_shouldThrowException() {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
-            stockHistoryService.logStockChange("item-1", 5, null, "admin");
+            service.logStockChange("item-1", 5, null, "admin");
         });
-
         assertTrue(ex.getMessage().contains("Invalid stock change reason"));
     }
 
@@ -78,7 +102,7 @@ public class StockHistoryServiceTest {
      */
     @Test
     void testLogStockChange_withNegativeChange_shouldSaveNormally() {
-        stockHistoryService.logStockChange("item-1", -5, StockChangeReason.SCRAPPED, "admin");
+        service.logStockChange("item-1", -5, StockChangeReason.SCRAPPED, "admin");
 
         ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
         verify(repository).save(captor.capture());
@@ -91,29 +115,36 @@ public class StockHistoryServiceTest {
         assertNotNull(saved.getTimestamp());
     }
 
-    /**
-     * Verifies that the service throws an exception when the createdBy field is blank or empty.
-     */
     @Test
     void testLogStockChange_withBlankCreatedBy_shouldThrow() {
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            stockHistoryService.logStockChange("item-1", 5, StockChangeReason.SOLD, " ")
+        var ex = assertThrows(InvalidRequestException.class, () ->
+            service.logStockChange(
+                "item-1",
+                5,
+                StockChangeReason.MANUAL_UPDATE,
+                "  ",
+                new BigDecimal("120.00"))
         );
+        assertTrue(ex.getMessage().toLowerCase().contains("createdby"));
 
-        assertEquals("CreatedBy is required", ex.getMessage());
+        // ensure nothing was saved:
+        verifyNoInteractions(repository); // <-- fixed variable name
     }
 
     /**
-     * Verifies that a zero stock change (no quantity movement) is rejected
-     * as meaningless and results in an {@link IllegalArgumentException}.
+     * Verifies that a zero stock change (no quantity movement) is rejected.
      */
     @Test
     void testLogStockChange_withZeroChange_shouldThrow() {
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            stockHistoryService.logStockChange("item-1", 0, StockChangeReason.SOLD, "admin")
+        var ex = assertThrows(InvalidRequestException.class, () ->
+            service.logStockChange(
+                "item-1",
+                0,
+                StockChangeReason.MANUAL_UPDATE,
+                "admin",
+                new BigDecimal("120.00"))
         );
-
-        assertEquals("Change amount must be non-zero", ex.getMessage());
+        assertTrue(ex.getMessage().toLowerCase().contains("zero"));
     }
 
     /**
@@ -121,11 +152,15 @@ public class StockHistoryServiceTest {
      */
     @Test
     void testLogStockChange_withNullItemId_shouldThrow() {
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            stockHistoryService.logStockChange(" ", 5, StockChangeReason.SOLD, "admin")
+        var ex = assertThrows(InvalidRequestException.class, () ->
+            service.logStockChange(
+                null,
+                10,
+                StockChangeReason.MANUAL_UPDATE,
+                "admin",
+                new BigDecimal("120.00"))
         );
-
-        assertEquals("Item ID cannot be null or empty", ex.getMessage());
+        assertTrue(ex.getMessage().toLowerCase().contains("item id"));
     }
 
     /**
@@ -133,10 +168,10 @@ public class StockHistoryServiceTest {
      */
     @Test
     void testLogStockChange_withNullCreatedBy_shouldThrow() {
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
-            stockHistoryService.logStockChange("item-1", 5, StockChangeReason.SOLD, null)
+        var ex = assertThrows(InvalidRequestException.class, () ->
+            service.logStockChange("item-1", 5, StockChangeReason.SOLD, null)
         );
-        assertEquals("CreatedBy is required", ex.getMessage());
+        assertTrue(ex.getMessage().toLowerCase().contains("createdby"));
     }
 
     /**
@@ -145,7 +180,7 @@ public class StockHistoryServiceTest {
     */
     @Test
     void testDelete_shouldRecordDeletionInStockHistory() {
-        stockHistoryService.delete("item-1", StockChangeReason.RETURNED_TO_SUPPLIER, "admin");
+        service.delete("item-1", StockChangeReason.RETURNED_TO_SUPPLIER, "admin");
 
         ArgumentCaptor<StockHistory> captor = ArgumentCaptor.forClass(StockHistory.class);
         verify(repository).save(captor.capture());
@@ -157,5 +192,4 @@ public class StockHistoryServiceTest {
         assertEquals("admin", saved.getCreatedBy());
         assertNotNull(saved.getTimestamp());
     }
-
 }

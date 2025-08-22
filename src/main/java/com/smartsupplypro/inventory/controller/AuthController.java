@@ -1,20 +1,23 @@
 package com.smartsupplypro.inventory.controller;
 
-import com.smartsupplypro.inventory.model.AppUser;
-import com.smartsupplypro.inventory.repository.AppUserRepository;
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.Authentication;
+
+import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.repository.AppUserRepository;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.util.Collections;
 
 /**
  * Authentication utility endpoints.
@@ -64,7 +67,7 @@ public class AuthController {
         if (principal == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication provided");
         }
-
+        // Extract email from the OAuth2 principal
         String email = principal.getAttribute("email");
         if (email == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email not provided by OAuth2 provider");
@@ -93,7 +96,7 @@ public class AuthController {
         System.out.println(">>> /api/me-debug HIT");
         System.out.println("SESSION ID: " + (session != null ? session.getId() : "null"));
         System.out.println("AUTH: " + authentication);
-
+        // Print authentication details to console for debugging
         return authentication != null
                 ? ResponseEntity.ok(Collections.singletonMap("principal", authentication.getPrincipal()))
                 : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");

@@ -94,6 +94,7 @@ public class SecurityConfig {
                                             @NonNull FilterChain chain)
                     throws ServletException, IOException {
                 String accept = req.getHeader("Accept");
+                // Flag API requests that accept JSON, so we can handle them differently later
                 if (req.getRequestURI().startsWith("/api/")
                         && accept != null && accept.contains("application/json")) {
                     req.setAttribute("IS_API_REQUEST", true);
@@ -101,17 +102,17 @@ public class SecurityConfig {
                 chain.doFilter(req, res);
             }
         };
-
+        // Request matcher to identify API requests based on the custom attribute set by the filter
         RequestMatcher apiMatcher = request -> Boolean.TRUE.equals(request.getAttribute("IS_API_REQUEST"));
-
+        // Entry point for API requests that should return JSON 401 instead of redirecting
         AuthenticationEntryPoint apiEntry = (req, res, ex) -> {
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setContentType("application/json");
             res.getWriter().write("{\"message\":\"Unauthorized\"}");
         };
-
+        // Entry point for web requests that should redirect to the login page
         AuthenticationEntryPoint webEntry = new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google");
-
+        // Main security configuration
         http
             .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)
             .cors(Customizer.withDefaults())
@@ -128,7 +129,7 @@ public class SecurityConfig {
                 .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)         // JSON APIs -> 401 JSON
                 .defaultAuthenticationEntryPointFor(webEntry, request -> true)    // everything else -> redirect
             )
-            .oauth2Login(oauth -> oauth
+            .oauth2Login(oauth -> oauth // OAuth2 login configuration
                 .failureHandler(oauthFailureHandler())
                 .successHandler(successHandler)
             )
@@ -140,7 +141,7 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID", "SESSION")
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Use session only if needed
             )
             // Portfolio simplification: CSRF disabled. For production, enable CSRF and ignore for /api/**.
             .csrf(csrf -> csrf.disable());

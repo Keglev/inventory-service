@@ -63,6 +63,11 @@ public class StockHistoryValidator {
       throw new InvalidRequestException("Zero quantity change is only allowed for PRICE_CHANGE");
     }
 
+    // enforce createdBy is provided  ***
+    if (dto.getCreatedBy() == null || dto.getCreatedBy().isBlank()) {
+        throw new InvalidRequestException("CreatedBy must be provided");
+    }
+
     // optional: non-negative price for PRICE_CHANGE
     if (reason == StockChangeReason.PRICE_CHANGE &&
         dto.getPriceAtChange() != null &&
