@@ -49,10 +49,11 @@ class InventoryItemRepositoryAnalyticsTest {
         em.createNativeQuery("DELETE FROM supplier").executeUpdate();
 
         // Seed suppliers (guarantee IDs 'S1' and 'S2' exist)
-        em.createNativeQuery("INSERT INTO supplier (id, name, created_at) VALUES ('S1', 'Supplier One', CURRENT_TIMESTAMP)")
-          .executeUpdate();
-        em.createNativeQuery("INSERT INTO supplier (id, name, created_at) VALUES ('S2', 'Supplier Two', CURRENT_TIMESTAMP)")
-          .executeUpdate();
+        em.createNativeQuery("INSERT INTO supplier (id, name, created_at, created_by) VALUES ('S1', 'Supplier One', CURRENT_TIMESTAMP, 'test')")
+            .executeUpdate();
+        em.createNativeQuery("INSERT INTO supplier (id, name, created_at, created_by) VALUES ('S2', 'Supplier Two', CURRENT_TIMESTAMP, 'test')")
+            .executeUpdate();
+
 
         // Persist items via JPA (leave supplier_id null for now)
         InventoryItem s1low  = item(null, "S1-low",  3,  5, "1.00"); // below -> expect included for S1
@@ -133,17 +134,20 @@ class InventoryItemRepositoryAnalyticsTest {
      * @param qty Current quantity of the item
      * @param minQty Minimum quantity threshold for the item
      * @param price Price of the item as a string
+     * @param createdBy User who created the item (for audit purposes)
      * @return A new InventoryItem instance with the specified properties
      **/
     private static InventoryItem item(String id, String name,
-                                      int qty, int minQty, String price) {
+                                  int qty, int minQty, String price) {
         InventoryItem i = new InventoryItem();
         i.setId(id != null ? id : UUID.randomUUID().toString());
         i.setName(name);
         i.setQuantity(qty);
         i.setMinimumQuantity(minQty);
         i.setPrice(new BigDecimal(price));
-        // Do NOT set supplier/supplierId here; we set supplier_id via native UPDATE to avoid mapping issues
+        i.setCreatedBy("test");  // ensure NOT NULL column is satisfied
+        // It did not set supplier/supplierId here; we set supplier_id via native UPDATE to avoid mapping issues
         return i;
     }
+
 }

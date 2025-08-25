@@ -2,6 +2,8 @@ package com.smartsupplypro.inventory.model;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -54,7 +56,8 @@ public class Supplier {
     private String createdBy;
 
     /** Timestamp of when this supplier was added to the system */
-    @Column(name="CREATED_AT", nullable=false)
+    @CreationTimestamp
+    @Column(name="CREATED_AT", nullable=false, updatable=false)
     private LocalDateTime createdAt;
 }
 // This model is designed to be used in service layers where supplier information is managed,
