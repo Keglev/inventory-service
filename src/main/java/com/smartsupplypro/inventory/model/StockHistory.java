@@ -1,12 +1,25 @@
 package com.smartsupplypro.inventory.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.smartsupplypro.inventory.enums.StockChangeReason;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Domain entity representing a single stock movement (receive, sell, scrap, manual adjust).
@@ -42,8 +55,11 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 @Table(
     name = "STOCK_HISTORY",
     indexes = {
+        // itemId + timestamp lookups (common for item history views)
         @Index(name = "IX_SH_ITEM_TS",     columnList = "ITEM_ID, CREATED_AT"),
+        // timestamp range scans (recent activity)
         @Index(name = "IX_SH_TS",          columnList = "CREATED_AT"),
+        // supplier + timestamp analytics
         @Index(name = "IX_SH_SUPPLIER_TS", columnList = "SUPPLIER_ID, CREATED_AT")
     }
 )
@@ -51,6 +67,7 @@ public class StockHistory {
 
     /** Unique identifier for the stock history event (UUID or external key). */
     @Id
+    @Column(name="ID")
     private String id;
 
     /** Foreign key reference to the affected inventory item. */
@@ -68,7 +85,7 @@ public class StockHistory {
     /**
      * Quantity delta. Positive for increases (RECEIVED), negative for decreases (SOLD/SCRAPPED).
      */
-    @Column(name = "CHANGE", nullable = false)
+    @Column(name = "QUANTITY_CHANGE", nullable = false)
     private int change;
 
     /**
@@ -79,7 +96,7 @@ public class StockHistory {
     private StockChangeReason reason;
 
     /** Identifier of the user who initiated the stock change. */
-    @Column(name = "CREATED_BY")
+    @Column(name = "CREATED_BY", nullable = false)
     private String createdBy;
 
     /**

@@ -6,7 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,25 +30,31 @@ public class Supplier {
 
     /** Unique identifier for the supplier (UUID or custom code) */
     @Id
+    @Column(name="ID", nullable = false)
     private String id;
 
     /** Supplier's company name (must be unique and not null) */
+    @Column(name="NAME", nullable=false)
     private String name;
 
     /** Contact person's name at the supplier organization */
+    @Column(name="CONTACT_NAME")
     private String contactName;
 
     /** Contact phone number */
+     @Column(name="PHONE")
     private String phone;
 
     /** Contact email address */
+    @Column(name="EMAIL")
     private String email;
 
     /** Identifier of the user or system that created this record */
+    @Column(name="CREATED_BY", nullable=false)
     private String createdBy;
 
     /** Timestamp of when this supplier was added to the system */
-    @Column(name = "created_at")
+    @Column(name="CREATED_AT", nullable=false)
     private LocalDateTime createdAt;
 }
 // This model is designed to be used in service layers where supplier information is managed,

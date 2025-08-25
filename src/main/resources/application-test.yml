@@ -6,18 +6,22 @@
 
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE          # In-memory H2 database for fast, isolated testing     
+    # Oracle-compat mode + keep DB alive for the test JVM
+    url: jdbc:h2:mem:ssp;MODE=Oracle;DATABASE_TO_UPPER=true;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE     
     driver-class-name: org.h2.Driver
     username: sa                    # Default username
     password:                       # No password required for in-memory use
 
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect # Use H2 dialect for compatibility
     hibernate:
       ddl-auto: create-drop       # Create schema on startup, drop it on shutdown
     show-sql: true                # Log all executed SQL statements (useful for debugging)
     properties:
       hibernate:
         '[format_sql]': true      # Format SQL for easier reading in logs
+        '[globally_quoted_identifiers]': false # keep "CHANGE" / "TIMESTAMP" quoted
+        '[jdbc.time_zone]': UTC  # Ensure consistent timezone handling
   sql:
     init:
       mode: never
@@ -31,6 +35,8 @@ logging:
   file:
     name: logs/test-application.log  # Log file for test runs
   level:
+    '[org.hobernate.SQL]': DEBUG     # Detailed Hibernate SQL logging
+    '[org.hibernate.type.descriptor.sql]': trace # Log SQL parameter values
     root: INFO                    # Verbose logging for test diagnostics
 
 server:
@@ -45,5 +51,5 @@ management:
     health:
       show-details: always         # Always show detailed health info (for CI assertions)
 
-# Overrides schema for H2 tests (used in @Tavle(schema = "$(USERS_SCHEMA:ADMIN)")) 
+# Overrides schema for H2 tests (used in @Table(schema = "$(USERS_SCHEMA:ADMIN)")) 
 # warning: This is a placeholder and should be replaced with actual schema name in production.

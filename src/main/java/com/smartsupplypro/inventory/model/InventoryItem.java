@@ -1,10 +1,20 @@
 package com.smartsupplypro.inventory.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Entity representing a physical or digital item in inventory.
@@ -30,32 +40,31 @@ public class InventoryItem {
 
     /** Unique item identifier (UUID or business-generated) */
     @Id
-    private String id;
+    @Column(name = "ID") private String id;
 
     /** Unique name of the item (used for display and lookups) */
-    @Column(unique = true)
-    private String name;
+    @Column(name = "NAME", nullable=false) private String name;
 
     /** Quantity currently available in stock (non-negative) */
-    private int quantity;
+    @Column(name = "QUANTITY", nullable=false) private int quantity;
 
     /** Price per unit (used in total value and analytics) */
-    private BigDecimal price;
+    @Column(name = "PRICE", nullable=false) private BigDecimal price;
 
     /** Foreign key reference to the item's supplier */
     @Column(name = "supplier_id", insertable = false, updatable = false)
     private String supplierId;
 
     /** Username or email of the person who created this item */
-    @Column(name = "created_by")
+    @Column(name = "CREATED_BY", nullable=false)
     private String createdBy;
 
     /** Minimum acceptable quantity before considered "low stock" */
-    @Column(name = "minimum_quantity")
+    @Column(name = "minimum_quantity", nullable=false)
     private int minimumQuantity;
 
     /** Timestamp when the item was created (set automatically if not provided) */
-    @Column(name = "created_at")
+    @Column(name = "CREATED_AT", nullable=false)
     private LocalDateTime createdAt;
 
     /**
@@ -66,6 +75,9 @@ public class InventoryItem {
     protected void onCreate() {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
+        }
+        if (this.createdBy == null || this.createdBy.isBlank()) {
+            this.createdBy = "system"; // Default to 'system' if not provided
         }
     }
 

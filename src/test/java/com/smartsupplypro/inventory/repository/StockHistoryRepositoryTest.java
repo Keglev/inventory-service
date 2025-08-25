@@ -1,26 +1,32 @@
 package com.smartsupplypro.inventory.repository;
 
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ActiveProfiles;
+
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.model.Supplier;
 import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.*;
-import org.springframework.test.context.ActiveProfiles;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.time.*;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Integration test class for {@link StockHistoryRepository}, verifying filtering, reporting,
@@ -59,6 +65,7 @@ class StockHistoryRepositoryTest {
      * Preloads sample suppliers, inventory items, and stock history with fixed timestamps.
      */
     @BeforeEach
+    @SuppressWarnings("unused")
     void setup() {
         now = LocalDateTime.now(fixedClock);
 
@@ -69,6 +76,7 @@ class StockHistoryRepositoryTest {
                 .email("alice@alpha.com")
                 .phone("123456")
                 .createdBy("admin")
+                .createdAt(now)
                 .build());
 
         supplierB = supplierRepository.save(Supplier.builder()
@@ -78,6 +86,7 @@ class StockHistoryRepositoryTest {
                 .email("bob@beta.com")
                 .phone("654321")
                 .createdBy("admin")
+                .createdAt(now)
                 .build());
 
         item1 = inventoryItemRepository.save(InventoryItem.builder()
@@ -87,6 +96,7 @@ class StockHistoryRepositoryTest {
                 .quantity(100)
                 .minimumQuantity(10)
                 .supplier(supplierA)
+                .createdBy("admin")
                 .build());
 
         item2 = inventoryItemRepository.save(InventoryItem.builder()
@@ -96,6 +106,7 @@ class StockHistoryRepositoryTest {
                 .quantity(50)
                 .minimumQuantity(5)
                 .supplier(supplierB)
+                .createdBy("admin")
                 .build());
 
         InventoryItem item3 = inventoryItemRepository.save(InventoryItem.builder()
@@ -105,11 +116,13 @@ class StockHistoryRepositoryTest {
                 .quantity(80)
                 .minimumQuantity(10)
                 .supplier(supplierA) // Same supplier as item1
+                .createdBy("admin")
                 .build());
 
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-1")
                 .itemId(item1.getId())
+                .supplierId(item1.getSupplier().getId()) // Ensure supplier ID is set
                 .change(10)
                 .reason(StockChangeReason.INITIAL_STOCK)
                 .createdBy("admin")
@@ -120,6 +133,7 @@ class StockHistoryRepositoryTest {
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-2")
                 .itemId(item1.getId())
+                .supplierId(item1.getSupplier().getId()) // Ensure supplier ID is set
                 .change(-5)
                 .reason(StockChangeReason.SOLD)
                 .createdBy("admin")
@@ -131,6 +145,7 @@ class StockHistoryRepositoryTest {
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-3")
                 .itemId(item3.getId())
+                .supplierId(item3.getSupplier().getId())  // Ensure supplier ID is set (same supplier as item1)
                 .change(15)
                 .reason(StockChangeReason.MANUAL_UPDATE)
                 .createdBy("admin")
@@ -138,10 +153,11 @@ class StockHistoryRepositoryTest {
                 .priceAtChange(BigDecimal.valueOf(12))
                 .build());
 
-        // ADDED: Create stock history for item2 to support the low-stock test
+        // Create stock history for item2 to support the low-stock test
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-4")
                 .itemId(item2.getId())
+                .supplierId(item2.getSupplier().getId()) 
                 .change(-20)  // This will help with the movement tests
                 .reason(StockChangeReason.SOLD)
                 .createdBy("admin")
@@ -357,12 +373,10 @@ class StockHistoryRepositoryTest {
             String itemName = (String) row[0];
             long updateCount = ((Number) row[1]).longValue();
 
-            if (itemName.equals("Wrench")) {
-                assertEquals(2L, updateCount);
-            } else if (itemName.equals("Screwdriver")) {
-                assertEquals(1L, updateCount);
-            } else {
-                fail("Unexpected item: " + itemName);
+            switch (itemName) {
+                case "Wrench" -> assertEquals(2L, updateCount);
+                case "Screwdriver" -> assertEquals(1L, updateCount);
+                default -> fail("Unexpected item name: " + itemName);
             }
         }
     }
