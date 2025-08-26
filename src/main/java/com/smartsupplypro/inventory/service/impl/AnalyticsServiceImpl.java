@@ -7,12 +7,23 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.smartsupplypro.inventory.dto.*;
+import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
+import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
+import com.smartsupplypro.inventory.dto.LowStockItemDTO;
+import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
+import com.smartsupplypro.inventory.dto.PriceTrendDTO;
+import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
