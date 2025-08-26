@@ -455,7 +455,7 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     public List<StockEventRowDTO> findEventsUpTo(LocalDateTime end, String supplierId) {
         final String jpql = """
             select new com.smartsupplypro.inventory.dto.StockEventRowDTO(
-                sh.itemId, sh.supplierId, sh.timestamp, sh.quantity_change, sh.priceAtChange, sh.reason
+                sh.itemId, sh.supplierId, sh.timestamp, sh.change, sh.priceAtChange, sh.reason
             )
             from StockHistory sh
             where sh.timestamp <= :end

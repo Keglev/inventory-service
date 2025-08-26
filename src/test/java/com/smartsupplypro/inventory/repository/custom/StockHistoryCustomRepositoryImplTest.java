@@ -6,15 +6,16 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
+import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 
 import jakarta.persistence.EntityManager;
 
@@ -26,11 +27,39 @@ import jakarta.persistence.EntityManager;
  */
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(StockHistoryCustomRepositoryImpl.class)
 class StockHistoryCustomRepositoryImplTest {
 
     @Autowired private EntityManager em;
-    @Autowired private StockHistoryCustomRepository customRepo;
+    @Autowired private StockHistoryRepository customRepo;
+
+    @BeforeEach
+    @SuppressWarnings("unused")
+    void setUp() {
+        // clean in FK-safe order
+        em.createNativeQuery("DELETE FROM stock_history").executeUpdate();
+        em.createNativeQuery("DELETE FROM inventory_item").executeUpdate();
+        em.createNativeQuery("DELETE FROM supplier").executeUpdate();
+
+        // seed suppliers
+        em.createNativeQuery(
+            "INSERT INTO supplier (id, name, created_at, created_by) " +
+            "VALUES ('sup1','Supplier One', CURRENT_TIMESTAMP, 'test')"
+        ).executeUpdate();
+        em.createNativeQuery(
+            "INSERT INTO supplier (id, name, created_at, created_by) " +
+            "VALUES ('sup2','Supplier Two', CURRENT_TIMESTAMP, 'test')"
+        ).executeUpdate();
+
+        // seed inventory items
+        em.createNativeQuery(
+            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, created_at, created_by) " +
+            "VALUES ('itemA','Item A', 1.00, 0, 0, CURRENT_TIMESTAMP, 'test')"
+        ).executeUpdate();
+        em.createNativeQuery(
+            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, created_at, created_by) " +
+            "VALUES ('itemB','Item B', 1.00, 0, 0, CURRENT_TIMESTAMP, 'test')"
+        ).executeUpdate();
+    }
 
     @Test
     void findEventsUpTo_ordersByItemThenTime_andFiltersBySupplier() {
@@ -44,18 +73,18 @@ class StockHistoryCustomRepositoryImplTest {
         persist(sh("itemA", "sup2",
                 at(2024,2,1,11,0),  +1, bd("6.00"), StockChangeReason.INITIAL_STOCK)); // different supplier
 
-        em.flush(); em.clear();
+        em.flush();
+        em.clear();
 
         LocalDateTime endInclusive = at(2024,2,28,23,59);
         List<StockEventRowDTO> out = customRepo.findEventsUpTo(endInclusive, "sup1");
 
-        // Expect only sup1 records, ordered by itemId then createdAt.
+        // assertions unchanged …
         assertEquals(3, out.size());
         assertEquals("sup1", out.get(0).supplierId());
         assertEquals("sup1", out.get(1).supplierId());
         assertEquals("sup1", out.get(2).supplierId());
 
-        // Order: itemA (09:00), itemA (10:00), itemB (10:00 next day)
         assertEquals("itemA", out.get(0).itemId());
         assertEquals(at(2024,2,1, 9,0), out.get(0).createdAt());
         assertEquals(+5, out.get(0).quantityChange());
@@ -68,6 +97,7 @@ class StockHistoryCustomRepositoryImplTest {
         assertEquals(at(2024,2,2,10,0), out.get(2).createdAt());
         assertEquals(+3, out.get(2).quantityChange());
     }
+
 
     // ---- helpers ----------------------------------------------------------
 
@@ -96,6 +126,7 @@ class StockHistoryCustomRepositoryImplTest {
         e.setChange(quantityChange);
         e.setPriceAtChange(priceAtChange);
         e.setReason(reason);
+        e.setCreatedBy("test");
         // set other non-null fields if your entity requires them (e.g., createdBy)
         return e;
     }
