@@ -455,16 +455,29 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     public List<StockEventRowDTO> findEventsUpTo(LocalDateTime end, String supplierId) {
         final String jpql = """
             select new com.smartsupplypro.inventory.dto.StockEventRowDTO(
-                sh.itemId, sh.supplierId, sh.timestamp, sh.change, sh.priceAtChange, sh.reason
+                sh.itemId, 
+                coalesce(sh.supplierId, i.supplierId), 
+                sh.timestamp, 
+                sh.change,
+                sh.priceAtChange,
+                sh.reason
             )
-            from StockHistory sh
-            where sh.timestamp <= :end
-              and (:supplierId is null or sh.supplierId = :supplierId)
+            from StockHistory sh, InventoryItem i
+            where i.id = sh.itemId 
+                and sh.timestamp <= :end
+                and (
+                    :supplierIdNorm is null 
+                    or lower(sh.supplierId) = :supplierIdNorm
+                )
             order by sh.itemId asc, sh.timestamp asc
         """;
+
+        final String supplierIdNorm = 
+            (supplierId == null || supplierId.isBlank()) ? null : supplierId.trim().toLowerCase();
+
         return em.createQuery(jpql, StockEventRowDTO.class)
-        .setParameter("end", end)
-        .setParameter("supplierId", supplierId)
-        .getResultList();
+                .setParameter("end", end)
+                .setParameter("supplierIdNorm", supplierIdNorm)
+                .getResultList();
     }
 }

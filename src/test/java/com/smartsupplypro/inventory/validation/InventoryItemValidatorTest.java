@@ -1,15 +1,20 @@
 package com.smartsupplypro.inventory.validation;
 
-import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.model.InventoryItem;
-import com.smartsupplypro.inventory.repository.InventoryItemRepository;
-import org.springframework.test.context.ActiveProfiles;
-import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import org.springframework.test.context.ActiveProfiles;
+
+import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.model.InventoryItem;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 
 /**
  * Unit tests for {@link InventoryItemValidator}, verifying validation logic for
@@ -116,7 +121,7 @@ public class InventoryItemValidatorTest {
 
         when(mockRepo.findByNameIgnoreCase("DuplicateItem")).thenReturn(List.of(existingItem));
 
-        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+        Exception ex = assertThrows(DuplicateResourceException.class, () ->
             InventoryItemValidator.validateInventoryItemNotExists("new-id", "DuplicateItem", new BigDecimal("10.00"), mockRepo)
         );
 

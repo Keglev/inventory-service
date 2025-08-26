@@ -73,17 +73,16 @@
 		<dependency>
   			<groupId>com.oracle.database.security</groupId>
   			<artifactId>oraclepki</artifactId>
-  			<version>21.9.0.0</version>
 		</dependency>
 		<dependency>
   			<groupId>com.oracle.database.security</groupId>
   			<artifactId>osdt_core</artifactId>
-  			<version>21.9.0.0</version>
+			<version>21.19.0.0</version>
 		</dependency>
 		<dependency>
   			<groupId>com.oracle.database.security</groupId>
   			<artifactId>osdt_cert</artifactId>
-  			<version>21.9.0.0</version>
+			<version>21.19.0.0</version>
 		</dependency>
 
 		<dependency>
@@ -101,6 +100,8 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- Testing Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -134,35 +135,12 @@
 		</dependency> 
 
   		<!-- JUnit 5 -->
-  		<dependency>
-    		<groupId>org.junit.jupiter</groupId>
-    		<artifactId>junit-jupiter</artifactId>
-    		<version>5.10.0</version>
-    		<scope>test</scope>
-  		</dependency>
 		
 		<dependency>
     		<groupId>com.h2database</groupId>
     		<artifactId>h2</artifactId>
     		<scope>test</scope>
 		</dependency>
-
-  		<!-- Mockito Core -->
-  		<dependency>
-    		<groupId>org.mockito</groupId>
-    		<artifactId>mockito-core</artifactId>
-    		<version>5.11.0</version>
-    		<scope>test</scope>
-  		</dependency>
-
-  		<!-- Mockito JUnit 5 Extension -->
-  		<dependency>
-    		<groupId>org.mockito</groupId>
-    		<artifactId>mockito-junit-jupiter</artifactId>
-    		<version>5.11.0</version>
-    		<scope>test</scope>
-  		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -183,6 +161,31 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+			<plugin>
+  				<groupId>org.jacoco</groupId>
+  				<artifactId>jacoco-maven-plugin</artifactId>
+  				<version>0.8.12</version>
+  				<executions>
+    				<execution>
+      					<goals>
+        					<goal>prepare-agent</goal>
+      					</goals>
+    				</execution>
+    				<execution>
+      					<id>report</id>
+      					<phase>verify</phase>
+      					<goals>
+        					<goal>report</goal>
+      					</goals>
+						<configuration>
+							<!-- Force explicit paths so the HTML is always produced -->
+        					<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+        					<outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+						</configuration>
+    				</execution>
+  				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

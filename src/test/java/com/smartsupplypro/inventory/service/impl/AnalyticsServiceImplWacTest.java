@@ -43,8 +43,6 @@ class AnalyticsServiceImplWacTest {
     @SuppressWarnings("unused")
     @Mock private InventoryItemRepository inventoryItemRepository;
 
-    @Mock private StockHistoryCustomRepository stockHistoryCustomRepository;
-
     @InjectMocks private AnalyticsServiceImpl service;
 
     // ---------------------------------------------------------------------
@@ -73,7 +71,7 @@ class AnalyticsServiceImplWacTest {
             new StockEventRowDTO("item1","sup1", at(2024,2,1,10,0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
             new StockEventRowDTO("item1","sup1", at(2024,2,2, 9,0), -4, null, StockChangeReason.SOLD)  
         );
-        when(stockHistoryCustomRepository.findEventsUpTo(any(), any())).thenReturn(events);
+        when(stockHistoryRepository.findEventsUpTo(any(), any())).thenReturn(events);
 
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
                 LocalDate.parse("2024-02-01"),
@@ -120,7 +118,7 @@ class AnalyticsServiceImplWacTest {
             new StockEventRowDTO("item1","sup1", at(2024,2,5,12,0), -3, null,                     StockChangeReason.DAMAGED),
             new StockEventRowDTO("item1","sup1", at(2024,2,7,12,0), -2, null,                     StockChangeReason.RETURNED_TO_SUPPLIER)
         );
-        when(stockHistoryCustomRepository.findEventsUpTo(any(), any())).thenReturn(events);
+        when(stockHistoryRepository.findEventsUpTo(any(), any())).thenReturn(events);
 
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
                 LocalDate.parse("2024-02-01"),
@@ -162,7 +160,7 @@ class AnalyticsServiceImplWacTest {
             new StockEventRowDTO("item1","sup1", at(2024,2, 1,10,0),  5, new BigDecimal("6.00"), StockChangeReason.INITIAL_STOCK),
             new StockEventRowDTO("item1","sup1", at(2024,2, 2,10,0), -4, null, StockChangeReason.SOLD)
         );
-        when(stockHistoryCustomRepository.findEventsUpTo(any(), any())).thenReturn(events);
+        when(stockHistoryRepository.findEventsUpTo(any(), any())).thenReturn(events);
 
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
                 LocalDate.parse("2024-02-01"),
