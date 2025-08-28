@@ -28,7 +28,6 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
 import com.smartsupplypro.inventory.service.AnalyticsService;
 
 import lombok.RequiredArgsConstructor;
@@ -66,7 +65,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     private final StockHistoryRepository stockHistoryRepository;
     private final InventoryItemRepository inventoryItemRepository;
-    private final StockHistoryCustomRepository stockHistoryCustomRepository;
 
     /**
      * Retrieves the total inventory value (quantity × price) per day between two dates (inclusive),
@@ -338,7 +336,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         LocalDateTime end   = LocalDateTime.of(to,   LocalTime.MAX);
 
         // Stream all events up to 'end' (ordered by item, then createdAt).
-        var events = stockHistoryCustomRepository.findEventsUpTo(end, blankToNull(supplierId));
+        var events = stockHistoryRepository.findEventsUpTo(end, blankToNull(supplierId));
 
         // Aggregate buckets
         long openingQty = 0, purchasesQty = 0, returnsInQty = 0, cogsQty = 0, writeOffQty = 0, endingQty = 0;

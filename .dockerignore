@@ -16,9 +16,12 @@ target/
 
 # Ignore Maven wrapper directory if not needed
 .mvn/
+mvnw.cmd
+mvnw
 
 # Ignore Git repository metadata
 .git/
+**/.git
 
 # Ignore environment variable files (do NOT include secrets in Docker images)
 .env
@@ -43,6 +46,8 @@ test-output/
 # Ignore Node.js dependencies and configuration files (if applicable)
 node_modules/
 .vscode/
+**/.idea
+**/*.iml
 
 # Ignore frontend build artifacts (if using a separate frontend build)
 frontend/

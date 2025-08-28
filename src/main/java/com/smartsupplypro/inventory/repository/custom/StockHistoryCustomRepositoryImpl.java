@@ -6,16 +6,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Repository;
-
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import lombok.RequiredArgsConstructor;
 
 /**
 * Custom repository implementation for analytics queries over STOCK_HISTORY.
@@ -54,21 +50,20 @@ import lombok.RequiredArgsConstructor;
 *       {@link com.smartsupplypro.inventory.dto.StockEventRowDTO} via JPQL.</li>
 * </ul>
 */
-@Repository
-@RequiredArgsConstructor
 public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepository {
     
     @PersistenceContext
     private EntityManager em;
     
-    private final Environment environment;
+    @org.springframework.beans.factory.annotation.Autowired
+    private org.springframework.core.env.Environment environment;
     
     /**
     * Detects whether we should run H2-compatible SQL (test/h2 profiles) or Oracle SQL (default/prod).
     */
     private boolean isH2() {
         return Arrays.stream(environment.getActiveProfiles())
-        .anyMatch(p -> p.equalsIgnoreCase("test") || p.equalsIgnoreCase("h2"));
+            .anyMatch(p -> p.equalsIgnoreCase("test") || p.equalsIgnoreCase("h2"));
     }
     
     /**

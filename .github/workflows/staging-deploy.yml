@@ -63,10 +63,8 @@ jobs:
       #  *   - Two tags: 'prod' and the specific Git SHA (for traceability).
       #  */
       - name: Build Docker image (PROD and SHA)
-        working-directory: inventory-service
         run: |
           docker build --build-arg PROFILE=prod \
-            --build-arg ORACLE_WALLET_B64="${{ secrets.ORACLE_WALLET_PASSWORD }}" \
             -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:prod \
             -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
 
