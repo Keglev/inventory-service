@@ -12,7 +12,6 @@ FROM maven:3.9.9-eclipse-temurin-17 AS build
 ARG PROFILE=prod
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
 
-
 # Set working directory in the build container
 WORKDIR /app
 
@@ -103,7 +102,7 @@ USER appuser
 #  * Set Oracle Wallet environment variable for secure DB connection.
 #  * The TNS_ADMIN value must match the directory structure inside the extracted wallet.
 #  */
-ARG ORACLE_WALLET_B64
+# ARG ORACLE_WALLET_B64
 
 # /**
 #  * Define the startup command: extract Oracle wallet and launch Spring Boot.
@@ -125,8 +124,8 @@ CMD ["/app/start.sh"]
 #  * If your app exposes Actuator, prefer /actuator/health.
 #  * If you have a custom /health/db endpoint, use that here instead.
 #  */
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
- CMD wget --spider -q http://localhost:8081/health || exit 1
+# HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+#  CMD wget --spider -q http://localhost:8081/health || exit 1
 
 EXPOSE 8081
 # /**

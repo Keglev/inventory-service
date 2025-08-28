@@ -53,15 +53,6 @@ logging:
   level:
     '[com.smartsupplypro]': INFO                           # Application logs: keep informative, not verbose
     root: INFO                                             # Suppress framework-level noise unless needed
-    '[org.springframework.security]': DEBUG                # Enable security debug logs for troubleshooting
-    '[org.springframework.security.oauth2.client]': DEBUG  # OAuth2 specific debug logs
-    '[org.springframework.security.oauth2.client.registration]': DEBUG  # OAuth2 client registration logs
-    '[org.springframework.security.oauth2.client.endpoint]': DEBUG  # OAuth2 endpoint logs
-    '[org.springframework.boot.context.config]': DEBUG  # Boot config logs for debugging'
-    '[org.springframework.security.oauth2.core]': DEBUG    # Core OAuth2 logs'
-    '[org.springframework.web]': INFO                      # Web layer logs: keep at info level for production
-    '[org.springframework.web.client.RestTemplate]': DEBUG     # Enable RestTemplate debug logs for external calls
-    '[org.springframework.security.oauth2.client.endpoint.DefaultOAuth2AuthorizationCodeTokenResponseClient]': DEBUG  # OAuth2 token response client logs
 
 management:
   endpoints:
