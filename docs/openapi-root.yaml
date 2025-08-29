@@ -25,6 +25,8 @@ paths:
     $ref: ./paths/analytics/price-trend.yaml
   /analytics/monthly-stock-movement:
     $ref: ./paths/analytics/monthly-stock-movement.yaml
+  /analytics/summary:
+    $ref: ./paths/analytics/summary.yaml
 
 
 
@@ -44,5 +46,11 @@ components:
       $ref: ./components/schemas/StockUpdateFilterDTO.yaml
     StockUpdateResultDTO:
       $ref: ./components/schemas/StockUpdateResultDTO.yaml
+    DashboardSummaryDTO:
+      $ref: ./components/schemas/DashboardSummaryDTO.yaml
+    LowStockItemDTO:
+      $ref: ./components/schemas/LowStockItemDTO.yaml
+    ItemUpdateFrequencyDTO:
+      $ref: ./components/schemas/ItemUpdateFrequencyDTO.yaml
 
 

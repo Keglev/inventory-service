@@ -1,0 +1,28 @@
+type: object
+description: Aggregated, dashboard-ready analytics for the selected window/supplier.
+properties:
+  stockPerSupplier:
+    type: array
+    description: Current stock aggregated per supplier.
+    items:
+      $ref: ./StockPerSupplierDTO.yaml
+  lowStockItems:
+    type: array
+    description: Items below their minimum thresholds (may be empty if no supplier filter).
+    items:
+      $ref: ./LowStockItemDTO.yaml
+  monthlyStockMovement:
+    type: array
+    description: Monthly stock movement (stockIn/stockOut) across the date window.
+    items:
+      $ref: ./MonthlyStockMovementDTO.yaml
+  topUpdatedItems:
+    type: array
+    description: Items with the highest update frequency during the selected window.
+    items:
+      $ref: ./ItemUpdateFrequencyDTO.yaml
+required:
+  - stockPerSupplier
+  - lowStockItems
+  - monthlyStockMovement
+  - topUpdatedItems

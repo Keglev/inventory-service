@@ -18,15 +18,23 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DashboardSummaryDTO {
 
-    
+    /* 
+     * Total number of distinct items in inventory.
+     */
     private List<StockPerSupplierDTO> stockPerSupplier;
 
-
+    /* 
+     * Financial summary including total inventory value and recent changes.
+     */
     private List<LowStockItemDTO> lowStockItems;
 
-
+    /* 
+     * Price trend data for key items over time.
+     */
     private List<MonthlyStockMovementDTO> monthlyStockMovement;
 
-
+    /* 
+     * Items with the highest frequency of updates.
+     */
     private List<ItemUpdateFrequencyDTO> topUpdatedItems;
 }

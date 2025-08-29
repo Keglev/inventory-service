@@ -1,0 +1,12 @@
+type: object
+description: Update frequency for an inventory item.
+properties:
+  itemName:
+    type: string
+    example: "M8 Hex Bolt"
+  updateCount:
+    type: integer
+    format: int64
+    description: Number of update events recorded for this item.
+    example: 17
+required: [itemName, updateCount]

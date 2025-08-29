@@ -1,0 +1,31 @@
+get:
+  tags: [Analytics]
+  summary: Dashboard summary
+  description: >
+    Returns a dashboard-ready summary for the specified period and/or supplier.
+    If dates are omitted, the service defaults to the last 30 days ending "now".
+  parameters:
+    - in: query
+      name: supplierId
+      required: false
+      schema: { type: string }
+      description: Optional supplier filter.
+    - in: query
+      name: startDate
+      required: false
+      schema: { type: string, format: date-time }
+      description: Inclusive start timestamp (ISO-8601). Defaults to now-30 days if omitted.
+    - in: query
+      name: endDate
+      required: false
+      schema: { type: string, format: date-time }
+      description: Inclusive end timestamp (ISO-8601). Defaults to now if omitted.
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/DashboardSummaryDTO.yaml
+    "400": { description: Invalid request }
+    "401": { description: Unauthorized }
