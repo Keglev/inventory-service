@@ -25,3 +25,9 @@
   $ref: ./inventory/adjust-quantity.yaml
 /api/inventory/{id}/price:
   $ref: ./inventory/update-price.yaml
+responses:
+  '401':
+    $ref: ../../components/responses/UnauthorizedJson.yaml
+  '403':
+    $ref: ../../components/responses/ForbiddenJson.yaml
+

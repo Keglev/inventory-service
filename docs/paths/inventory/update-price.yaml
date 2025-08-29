@@ -26,3 +26,9 @@ patch:
             $ref: ../../components/schemas/InventoryItemDTO.yaml
     '400':
       description: Validation error
+    '404':
+      description: Not found
+    '401':
+      description: Unauthorized (missing/invalid token)
+    '403':
+      description: Forbidden (requires USER or ADMIN)

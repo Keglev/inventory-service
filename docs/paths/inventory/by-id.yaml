@@ -14,8 +14,12 @@ get:
         application/json:
           schema:
             $ref: ../../components/schemas/InventoryItemDTO.yaml
+    '401':
+      description: Unauthorized (missing/invalid token)
     '404':
       description: Not found
+    '403':
+      description: Forbidden (requires USER or ADMIN)
 put:
   tags: [Inventory]
   summary: Update item
@@ -35,8 +39,14 @@ put:
         application/json:
           schema:
             $ref: ../../components/schemas/InventoryItemDTO.yaml
+    '401':
+      description: Unauthorized (missing/invalid token)
+    '403': 
+      description: Forbidden (requires ADMIN)
     '404':
       description: Not found
+    '409': 
+      description: Conflict (e.g. SKU already exists)
 delete:
   tags: [Inventory]
   summary: Delete item (ADMIN)
@@ -51,6 +61,8 @@ delete:
   responses:
     '204':
       description: No Content
+    '401':
+      description: Unauthorized (missing/invalid token)
     '404':
       description: Not found
     '403':

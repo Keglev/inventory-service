@@ -9,6 +9,7 @@ properties:
   id:
     type: string
     description: Unique identifier (server-generated). Must be absent on create.
+    readOnly: true
     example: "a7b6c4a0-12ef-4e3a-98d0-8c6a22f5c111"
     nullable: true
   name:
@@ -52,7 +53,8 @@ properties:
     nullable: true
   supplierName:
     type: string
-    description: Supplier display name (projection/mapping).
+    description: Supplier display name (projection/mapping). Set by backend for audit
+    readOnly: true
     example: "ACME Tools GmbH"
     nullable: true
   minimumQuantity:
@@ -60,3 +62,5 @@ properties:
     format: int32
     description: Business-defined minimum threshold for low-stock checks.
     example: 5
+
+

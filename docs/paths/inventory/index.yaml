@@ -35,7 +35,9 @@ post:
             $ref: ../../components/schemas/InventoryItemDTO.yaml
     '400':
       description: Validation error
-    '409':
-      description: Duplicate/conflict
+    '401':
+      description: Unauthorized
     '403':
       description: Forbidden (requires ADMIN)
+    '409':
+      description: Duplicate/conflict

@@ -9,6 +9,8 @@ info:
 servers:
   - url: https://inventoryservice.fly.dev/api
     description: Production (Fly.io)
+  - url: http://localhost:8081
+    description: Local dev
 
 tags:
   - name: Analytics
@@ -27,3 +29,7 @@ paths:
 
 components:
   $ref: ./components/_index.yaml
+
+security:
+  - sessionCookie: []                 # satisfied if a valid session cookie is present
+  - oidc: [openid, email, profile]    # OR via Google OIDC scopes you actually request

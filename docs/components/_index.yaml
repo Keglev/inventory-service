@@ -1,3 +1,12 @@
+securitySchemes:
+  oidc:
+    type: openIdConnect
+    openIdConnectUrl: https://accounts.google.com/.well-known/openid-configuration
+  sessionCookie:
+    type: apiKey
+    in: cookie
+    name: JSESSIONID   # change if you use a different cookie name or SESSION if that’s what your server sets
+
 schemas:
   StockValueOverTimeDTO:
     $ref: ./schemas/StockValueOverTimeDTO.yaml
