@@ -1,0 +1,57 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema: { type: string }
+get:
+  tags: [Inventory]
+  summary: Get item by ID
+  operationId: getInventoryItem
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/InventoryItemDTO.yaml
+    '404':
+      description: Not found
+put:
+  tags: [Inventory]
+  summary: Update item
+  description: >
+    Full update. Server ignores any body.id to avoid mismatches (controller sets body.id = null).
+  operationId: updateInventoryItem
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/InventoryItemDTO.yaml
+  responses:
+    '200':
+      description: Updated
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/InventoryItemDTO.yaml
+    '404':
+      description: Not found
+delete:
+  tags: [Inventory]
+  summary: Delete item (ADMIN)
+  operationId: deleteInventoryItem
+  parameters:
+    - name: reason
+      in: query
+      required: true
+      schema:
+        $ref: ../../components/schemas/StockChangeReason.yaml
+      description: Audit reason for deletion.
+  responses:
+    '204':
+      description: No Content
+    '404':
+      description: Not found
+    '403':
+      description: Forbidden (requires ADMIN)

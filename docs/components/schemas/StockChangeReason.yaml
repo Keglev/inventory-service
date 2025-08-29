@@ -1,0 +1,27 @@
+type: string
+description: Business reason for stock changes.
+enum:
+  - INITIAL_STOCK
+  - MANUAL_UPDATE
+  - PRICE_CHANGE
+  - SOLD
+  - SCRAPPED
+  - DESTROYED
+  - DAMAGED
+  - EXPIRED
+  - LOST
+  - RETURNED_TO_SUPPLIER
+  - RETURNED_BY_CUSTOMER
+example: SOLD
+x-enumDescriptions:
+  INITIAL_STOCK: Initial quantity entered when item is first added to inventory.
+  MANUAL_UPDATE: Manual correction performed by a user (e.g., discrepancy fix).
+  PRICE_CHANGE: Manual correction performed by a user (e.g., new prices).
+  SOLD: Stock was sold to a customer (outbound).
+  SCRAPPED: Item was scrapped due to damage, policy, or internal decision.
+  DESTROYED: Item was destroyed beyond use (e.g., fire or critical damage).
+  DAMAGED: Item is damaged but not yet scrapped or returned.
+  EXPIRED: Item has passed its expiration date and is no longer sellable.
+  LOST: Item is missing or lost during handling, shipping, or storage.
+  RETURNED_TO_SUPPLIER: Stock was returned to the supplier (e.g., defective goods).
+  RETURNED_BY_CUSTOMER: Stock was returned by the customer (e.g., refund or exchange).

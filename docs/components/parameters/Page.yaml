@@ -1,0 +1,8 @@
+name: page
+in: query
+description: Zero-based page index.
+required: false
+schema:
+  type: integer
+  minimum: 0
+  default: 0

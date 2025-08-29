@@ -1,0 +1,33 @@
+schemas:
+  StockValueOverTimeDTO:
+    $ref: ./schemas/StockValueOverTimeDTO.yaml
+  StockPerSupplierDTO:
+    $ref: ./schemas/StockPerSupplierDTO.yaml
+  FinancialSummaryDTO:
+    $ref: ./schemas/FinancialSummaryDTO.yaml
+  PriceTrendDTO:
+    $ref: ./schemas/PriceTrendDTO.yaml
+  MonthlyStockMovementDTO:
+    $ref: ./schemas/MonthlyStockMovementDTO.yaml
+  StockUpdateFilterDTO:
+    $ref: ./schemas/StockUpdateFilterDTO.yaml
+  StockUpdateResultDTO:
+    $ref: ./schemas/StockUpdateResultDTO.yaml
+  DashboardSummaryDTO:
+    $ref: ./schemas/DashboardSummaryDTO.yaml
+  LowStockItemDTO:
+    $ref: ./schemas/LowStockItemDTO.yaml
+  ItemUpdateFrequencyDTO:
+    $ref: ./schemas/ItemUpdateFrequencyDTO.yaml
+  InventoryItemDTO:
+    $ref: ./schemas/InventoryItemDTO.yaml
+  StockChangeReason:
+    $ref: ./schemas/StockChangeReason.yaml
+
+parameters:
+  Page:
+    $ref: ./parameters/Page.yaml
+  Size:
+    $ref: ./parameters/Size.yaml
+  Sort:
+    $ref: ./parameters/Sort.yaml

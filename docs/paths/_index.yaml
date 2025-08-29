@@ -1,0 +1,27 @@
+/analytics/stock-value:
+  $ref: ./analytics/stock-value.yaml
+/analytics/stock-per-supplier:
+  $ref: ./analytics/stock-per-supplier.yaml
+/analytics/financial/summary:
+  $ref: ./analytics/financial-summary.yaml
+/analytics/price-trend:
+  $ref: ./analytics/price-trend.yaml
+/analytics/monthly-stock-movement:
+  $ref: ./analytics/monthly-stock-movement.yaml
+/analytics/summary:
+  $ref: ./analytics/summary.yaml
+/analytics/item-update-frequency:
+  $ref: ./analytics/item-update-frequency.yaml
+/analytics/low-stock-items:
+  $ref: ./analytics/low-stock-items.yaml
+
+/api/inventory:
+  $ref: ./inventory/index.yaml
+/api/inventory/{id}:
+  $ref: ./inventory/by-id.yaml
+/api/inventory/search:
+  $ref: ./inventory/search.yaml
+/api/inventory/{id}/quantity:
+  $ref: ./inventory/adjust-quantity.yaml
+/api/inventory/{id}/price:
+  $ref: ./inventory/update-price.yaml

@@ -1,0 +1,28 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema: { type: string }
+patch:
+  tags: [Inventory]
+  summary: Update unit price
+  operationId: updateInventoryPrice
+  parameters:
+    - name: price
+      in: query
+      required: true
+      description: New unit price (> 0)
+      schema:
+        type: number
+        format: double
+        minimum: 0.01
+      example: 24.50
+  responses:
+    '200':
+      description: Updated item
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/InventoryItemDTO.yaml
+    '400':
+      description: Validation error

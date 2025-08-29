@@ -1,0 +1,31 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema: { type: string }
+patch:
+  tags: [Inventory]
+  summary: Adjust quantity (±delta)
+  operationId: adjustInventoryQuantity
+  parameters:
+    - name: delta
+      in: query
+      required: true
+      schema:
+        type: integer
+        description: Positive to add stock; negative to remove.
+      example: -3
+    - name: reason
+      in: query
+      required: true
+      schema:
+        $ref: ../../components/schemas/StockChangeReason.yaml
+  responses:
+    '200':
+      description: Updated item
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/InventoryItemDTO.yaml
+    '400':
+      description: Business rule violation (e.g., negative final quantity)

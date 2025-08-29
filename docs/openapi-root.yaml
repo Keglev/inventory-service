@@ -13,49 +13,17 @@ servers:
 tags:
   - name: Analytics
     description: Read-only analytics and KPIs
+  - name: Inventory
+    description: CRUD and mutations for inventory items
 
+x-tagGroups:
+  - name: Analytics
+    tags: [Analytics]
+  - name: Inventory
+    tags: [Inventory]
+   
 paths:
-  /analytics/stock-value:
-    $ref: ./paths/analytics/stock-value.yaml
-  /analytics/stock-per-supplier:
-    $ref: ./paths/analytics/stock-per-supplier.yaml
-  /analytics/financial/summary:
-    $ref: ./paths/analytics/financial-summary.yaml
-  /analytics/price-trend:
-    $ref: ./paths/analytics/price-trend.yaml
-  /analytics/monthly-stock-movement:
-    $ref: ./paths/analytics/monthly-stock-movement.yaml
-  /analytics/summary:
-    $ref: ./paths/analytics/summary.yaml
-  /analytics/item-update-frequency:
-    $ref: ./paths/analytics/item-update-frequency.yaml
-  /analytics/low-stock-items:
-    $ref: ./paths/analytics/low-stock-items.yaml
-
-
-
+  $ref: ./paths/_index.yaml
 
 components:
-  schemas:
-    StockValueOverTimeDTO:
-      $ref: ./components/schemas/StockValueOverTimeDTO.yaml
-    StockPerSupplierDTO:
-      $ref: ./components/schemas/StockPerSupplierDTO.yaml
-    FinancialSummaryDTO:
-      $ref: ./components/schemas/FinancialSummaryDTO.yaml
-    PriceTrendDTO:
-      $ref: ./components/schemas/PriceTrendDTO.yaml
-    MonthlyStockMovementDTO:
-      $ref: ./components/schemas/MonthlyStockMovementDTO.yaml
-    StockUpdateFilterDTO:
-      $ref: ./components/schemas/StockUpdateFilterDTO.yaml
-    StockUpdateResultDTO:
-      $ref: ./components/schemas/StockUpdateResultDTO.yaml
-    DashboardSummaryDTO:
-      $ref: ./components/schemas/DashboardSummaryDTO.yaml
-    LowStockItemDTO:
-      $ref: ./components/schemas/LowStockItemDTO.yaml
-    ItemUpdateFrequencyDTO:
-      $ref: ./components/schemas/ItemUpdateFrequencyDTO.yaml
-
-
+  $ref: ./components/_index.yaml

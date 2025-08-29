@@ -1,0 +1,41 @@
+get:
+  tags: [Inventory]
+  summary: List all items (non-paginated)
+  description: For large datasets, prefer `/api/inventory/search`.
+  operationId: listInventoryItems
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/InventoryItemDTO.yaml
+post:
+  tags: [Inventory]
+  summary: Create item (ADMIN)
+  operationId: createInventoryItem
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/InventoryItemDTO.yaml
+  responses:
+    '201':
+      description: Created
+      headers:
+        Location:
+          description: URI of created resource
+          schema: { type: string, format: uri }
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/InventoryItemDTO.yaml
+    '400':
+      description: Validation error
+    '409':
+      description: Duplicate/conflict
+    '403':
+      description: Forbidden (requires ADMIN)
