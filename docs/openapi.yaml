@@ -233,6 +233,60 @@ paths:
           description: Invalid request
         '401':
           description: Unauthorized
+  /analytics/item-update-frequency:
+    get:
+      tags:
+        - Analytics
+      summary: Item update frequency (by supplier)
+      description: Returns update counts for items belonging to the specified supplier.
+      parameters:
+        - in: query
+          name: supplierId
+          required: true
+          schema:
+            type: string
+          description: Supplier identifier.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemUpdateFrequencyDTO'
+        '400':
+          description: Invalid request (e.g.
+          missing supplierId)": null
+        '401':
+          description: Unauthorized
+  /analytics/low-stock-items:
+    get:
+      tags:
+        - Analytics
+      summary: Low stock items (by supplier)
+      description: Items below their configured minimum threshold for the specified supplier.
+      parameters:
+        - in: query
+          name: supplierId
+          required: true
+          schema:
+            type: string
+          description: Supplier identifier.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LowStockItemDTO'
+        '400':
+          description: Invalid request (e.g.
+          missing supplierId)": null
+        '401':
+          description: Unauthorized
 components:
   schemas:
     StockValueOverTimeDTO:
