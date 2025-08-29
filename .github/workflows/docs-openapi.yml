@@ -35,29 +35,20 @@ jobs:
         run: npm run docs:lint || true
 
       - name: Bundle & build
-        run: npm run docs
+        run: npm run docs     # produces openapi.yaml and api.html inside ./docs
 
-      # === Option A: Commit the generated docs back to the repo (default) ===
+      # === Commit the generated docs back to the repo (default) ===
       - name: Commit generated artifacts
         run: |
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/openapi.yaml docs/api.html
+          git add openapi.yaml api.html
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
             git commit -m "chore(docs): bundle & build OpenAPI (api.html, openapi.yaml) [skip ci]"
             git push
           fi
-
-      # === Option B: Upload as artifact instead of committing back ===
-      # - name: Upload docs artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: openapi-docs
-      #     path: |
-      #       docs/index.html
-      #       docs/openapi.yaml
       - name: Reminder
         run: echo "::notice title=Docs Reminder::This job bundles & builds the docs. Keep path files and schemas tidy for recruiters."  
