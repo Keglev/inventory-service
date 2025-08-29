@@ -56,7 +56,7 @@ paths:
       tags:
         - Analytics
       summary: Current total stock per supplier
-      description: Aggregated stock value per supplier for dashboard charts.
+      description: Aggregated current stock quantity per supplier for dashboards.
       responses:
         '200':
           description: OK
@@ -73,7 +73,8 @@ paths:
       tags:
         - Analytics
       summary: Financial summary (WAC)
-      description: Purchases, COGS, write-offs, returns, opening and closing values for a date range (inclusive).
+      description: |
+        Purchases, COGS, returns, write-offs, opening and ending inventory for a date range (inclusive). The server calculates using the configured costing method.
       parameters:
         - in: query
           name: from
@@ -111,7 +112,7 @@ paths:
       tags:
         - Analytics
       summary: Item price trend
-      description: Historical price changes for an item, optionally filtered by supplier and date range (inclusive).
+      description: Historical unit purchase price for an item between two dates (inclusive).
       parameters:
         - in: query
           name: itemId
@@ -152,84 +153,249 @@ paths:
           description: Invalid request
         '401':
           description: Unauthorized
+  /analytics/monthly-stock-movement:
+    get:
+      tags:
+        - Analytics
+      summary: Monthly net stock movement
+      description: |
+        Returns monthly stock movement (stockIn and stockOut) between two dates. Optionally filter by supplier.
+      parameters:
+        - in: query
+          name: start
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (yyyy-MM-dd).
+        - in: query
+          name: end
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (yyyy-MM-dd).
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonthlyStockMovementDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
 components:
   schemas:
     StockValueOverTimeDTO:
       type: object
+      description: Total inventory value for a specific date.
       properties:
         date:
           type: string
           format: date
-          example: '2025-01-15'
-        value:
-          type: number
-          format: double
-          example: 1234.56
-      required:
-        - date
-        - value
-    StockPerSupplierDTO:
-      type: object
-      properties:
-        supplierId:
-          type: string
-          example: sup-123
-        supplierName:
-          type: string
-          example: ACME Tools GmbH
+          example: '2025-07-15'
         totalValue:
           type: number
           format: double
-          example: 98765.43
-      required:
-        - supplierId
-        - totalValue
-    FinancialSummaryDTO:
-      type: object
-      properties:
-        purchases:
-          type: number
-          format: double
-          example: 25000
-        cogs:
-          type: number
-          format: double
-          example: 17000
-        writeOffs:
-          type: number
-          format: double
-          example: 500
-        returns:
-          type: number
-          format: double
-          example: 300
-        openingValue:
-          type: number
-          format: double
-          example: 120000
-        closingValue:
-          type: number
-          format: double
-          example: 128000
-      required:
-        - purchases
-        - cogs
-        - openingValue
-        - closingValue
-    PriceTrendDTO:
-      type: object
-      properties:
-        date:
-          type: string
-          format: date
-          example: '2025-01-15'
-        price:
-          type: number
-          format: double
-          example: 4.99
-        currency:
-          type: string
-          example: EUR
+          example: 123456.78
       required:
         - date
+        - totalValue
+    StockPerSupplierDTO:
+      type: object
+      description: Current stock aggregated per supplier.
+      properties:
+        supplierName:
+          type: string
+          example: ACME Tools GmbH
+        totalQuantity:
+          type: integer
+          format: int64
+          example: 9876
+      required:
+        - supplierName
+        - totalQuantity
+    FinancialSummaryDTO:
+      type: object
+      description: Financial summary using the specified costing method (e.g., WAC).
+      properties:
+        method:
+          type: string
+          description: Costing method used for this summary.
+          example: WAC
+        fromDate:
+          type: string
+          format: date
+          description: Inclusive start date (yyyy-MM-dd).
+          example: '2025-07-01'
+        toDate:
+          type: string
+          format: date
+          description: Inclusive end date (yyyy-MM-dd).
+          example: '2025-07-31'
+        openingQty:
+          type: integer
+          format: int64
+          example: 12000
+        openingValue:
+          type: string
+          description: Monetary value as BigDecimal string to preserve precision.
+          example: '345678.90'
+        purchasesQty:
+          type: integer
+          format: int64
+          example: 4200
+        purchasesCost:
+          type: string
+          example: '83500.00'
+        returnsInQty:
+          type: integer
+          format: int64
+          example: 150
+        returnsInCost:
+          type: string
+          example: '1200.00'
+        cogsQty:
+          type: integer
+          format: int64
+          example: 3900
+        cogsCost:
+          type: string
+          example: '76000.00'
+        writeOffQty:
+          type: integer
+          format: int64
+          example: 35
+        writeOffCost:
+          type: string
+          example: '550.00'
+        endingQty:
+          type: integer
+          format: int64
+          example: 12415
+        endingValue:
+          type: string
+          example: '352828.90'
+      required:
+        - method
+        - fromDate
+        - toDate
+        - openingQty
+        - openingValue
+        - purchasesQty
+        - purchasesCost
+        - cogsQty
+        - cogsCost
+        - endingQty
+        - endingValue
+    PriceTrendDTO:
+      type: object
+      description: Historical unit purchase price point for an item.
+      properties:
+        timestamp:
+          type: string
+          format: date
+          description: Date recorded (yyyy-MM-dd), returned as string for DB compatibility.
+          example: '2025-07-15'
+        price:
+          type: string
+          description: Unit purchase price as BigDecimal string to preserve precision.
+          example: '4.99'
+      required:
+        - timestamp
         - price
+    MonthlyStockMovementDTO:
+      type: object
+      description: Monthly stock movement summary.
+      properties:
+        month:
+          type: string
+          description: 'The month for which the stock movement is reported (format: YYYY-MM).'
+          example: 2025-07
+        stockIn:
+          type: integer
+          format: int64
+          description: Total quantity of stock added (e.g., received, restocked).
+          example: 1200
+        stockOut:
+          type: integer
+          format: int64
+          description: Total quantity of stock removed (e.g., sold, scrapped). Represented as a positive value.
+          example: 800
+      required:
+        - month
+        - stockIn
+        - stockOut
+    StockUpdateFilterDTO:
+      type: object
+      description: Filter for querying stock updates.
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          description: Inclusive start timestamp (ISO-8601).
+          example: '2025-07-01T00:00:00'
+        endDate:
+          type: string
+          format: date-time
+          description: Inclusive end timestamp (ISO-8601).
+          example: '2025-07-31T23:59:59'
+        itemName:
+          type: string
+          example: M8 Hex Bolt
+        supplierId:
+          type: string
+          example: sup-123
+        createdBy:
+          type: string
+          example: carlo
+        minChange:
+          type: integer
+          format: int32
+          example: -50
+        maxChange:
+          type: integer
+          format: int32
+          example: 200
+    StockUpdateResultDTO:
+      type: object
+      description: A stock update event with human-readable fields.
+      properties:
+        itemName:
+          type: string
+          example: M8 Hex Bolt
+        supplierName:
+          type: string
+          example: ACME Tools GmbH
+        change:
+          type: integer
+          format: int32
+          description: Signed quantity delta (positive for additions, negative for removals).
+          example: 25
+        reason:
+          type: string
+          example: RECEIVED
+        createdBy:
+          type: string
+          example: carlo
+        timestamp:
+          type: string
+          format: date-time
+          example: '2025-07-15T10:32:00'
+      required:
+        - itemName
+        - supplierName
+        - change
+        - reason
+        - createdBy
+        - timestamp
