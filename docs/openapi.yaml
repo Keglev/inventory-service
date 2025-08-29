@@ -289,7 +289,6 @@ paths:
           missing supplierId)": null
         '401':
           description: Unauthorized
-<<<<<<< HEAD
   /api/inventory:
     get:
       tags:
@@ -513,8 +512,6 @@ paths:
                 $ref: '#/components/schemas/InventoryItemDTO'
         '400':
           description: Validation error
-=======
->>>>>>> 8e3604dc9e358b3a4c7328fa71323a8ab2e48b56
 components:
   schemas:
     StockValueOverTimeDTO:
