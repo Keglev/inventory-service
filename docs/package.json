@@ -1,0 +1,14 @@
+{
+  "name": "inventory-service-docs",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "docs:bundle": "redocly bundle openapi-root.yaml -o openapi.yaml --ext yaml",
+    "docs:build": "redocly build-docs openapi.yaml -o api.html",
+    "docs:lint": "redocly lint \"**/*.yaml\"",
+    "docs": "npm run docs:bundle && npm run docs:build"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^1.29.0"
+  }
+}

@@ -139,3 +139,4 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
+

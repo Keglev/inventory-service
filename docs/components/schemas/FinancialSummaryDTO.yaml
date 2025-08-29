@@ -1,0 +1,21 @@
+type: object
+properties:
+  purchases:
+    type: number
+    format: double
+  cogs:
+    type: number
+    format: double
+  writeOffs:
+    type: number
+    format: double
+  returns:
+    type: number
+    format: double
+  openingValue:
+    type: number
+    format: double
+  closingValue:
+    type: number
+    format: double
+required: [purchases, cogs, openingValue, closingValue]

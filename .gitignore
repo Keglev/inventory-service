@@ -87,6 +87,7 @@ oracle_wallet_b64.txt
 ###############################################################################
 /frontend/node_modules/
 /frontend/dist/
+/docs/node_modules/
 
 ###############################################################################
 # Java Class Files or Test Tools

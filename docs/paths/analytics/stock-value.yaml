@@ -1,0 +1,27 @@
+get:
+  tags: [Analytics]
+  summary: Get stock value over time
+  description: Returns daily stock value between two dates (inclusive), optionally filtered by supplier.
+  parameters:
+    - in: query
+      name: start
+      required: true
+      schema: { type: string, format: date }
+    - in: query
+      name: end
+      required: true
+      schema: { type: string, format: date }
+    - in: query
+      name: supplierId
+      schema: { type: string }
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/StockValueOverTimeDTO.yaml
+    "400": { description: Invalid request }
+    "401": { description: Unauthorized }

@@ -1,0 +1,25 @@
+get:
+  tags: [Analytics]
+  summary: Financial summary (WAC)
+  description: Purchases, COGS, write-offs, returns, opening/ending balances for a date range.
+  parameters:
+    - in: query
+      name: from
+      required: true
+      schema: { type: string, format: date }
+    - in: query
+      name: to
+      required: true
+      schema: { type: string, format: date }
+    - in: query
+      name: supplierId
+      schema: { type: string }
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/FinancialSummaryDTO.yaml
+    "400": { description: Invalid request }
+    "401": { description: Unauthorized }

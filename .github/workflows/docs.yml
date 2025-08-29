@@ -1,0 +1,59 @@
+name: Docs – OpenAPI bundle & build
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write    # needed to push changes back to the repo
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Lint OpenAPI (non-blocking)
+        run: npm run docs:lint || true
+
+      - name: Bundle & build
+        run: npm run docs
+
+      # === Option A: Commit the generated docs back to the repo (default) ===
+      - name: Commit generated docs
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/openapi.yaml docs/index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(docs): bundle & build OpenAPI [skip ci]"
+            git push
+          fi
+
+      # === Option B: Upload as artifact instead of committing back ===
+      # - name: Upload docs artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: openapi-docs
+      #     path: |
+      #       docs/index.html
+      #       docs/openapi.yaml
