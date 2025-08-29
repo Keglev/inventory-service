@@ -1,0 +1,23 @@
+post:
+  tags: [Analytics]
+  summary: Filtered stock updates (POST)
+  description: >
+    POST variant that accepts the full JSON filter object.
+    Validates that startDate <= endDate (when both provided) and minChange <= maxChange (when both provided).
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/StockUpdateFilterDTO.yaml
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/StockUpdateResultDTO.yaml
+    "400": { description: Invalid request }
+    "401": { description: Unauthorized }

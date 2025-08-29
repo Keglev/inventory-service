@@ -1,14 +1,14 @@
 type: object
+description: Historical unit purchase price point for an item.
 properties:
-  date:
+  timestamp:
     type: string
     format: date
-    example: "2025-01-15"
+    description: Date recorded (yyyy-MM-dd), returned as string for DB compatibility.
+    example: "2025-07-15"
   price:
-    type: number
-    format: double
-    example: 4.99
-  currency:
     type: string
-    example: "EUR"
-required: [date, price]
+    description: Unit purchase price as BigDecimal string to preserve precision.
+    example: "4.99"
+required: [timestamp, price]
+

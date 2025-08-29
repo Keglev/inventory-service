@@ -1,12 +1,14 @@
 type: object
+description: Total inventory value for a specific date.
 properties:
   date:
     type: string
     format: date
-    example: "2025-01-15"
-  value:
+    example: "2025-07-15"
+  totalValue:
     type: number
     format: double
-    example: 1234.56
-required: [date, value]
+    example: 123456.78
+required: [date, totalValue]
+
 

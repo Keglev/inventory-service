@@ -1,0 +1,19 @@
+type: object
+description: Monthly stock movement summary.
+properties:
+  month:
+    type: string
+    description: "The month for which the stock movement is reported (format: YYYY-MM)."
+    example: "2025-07"
+  stockIn:
+    type: integer
+    format: int64
+    description: Total quantity of stock added (e.g., received, restocked).
+    example: 1200
+  stockOut:
+    type: integer
+    format: int64
+    description: Total quantity of stock removed (e.g., sold, scrapped). Represented as a positive value.
+    example: 800
+required: [month, stockIn, stockOut]
+

@@ -1,0 +1,48 @@
+get:
+  tags: [Analytics]
+  summary: Filtered stock updates (GET)
+  description: >
+    Returns stock updates filtered by optional parameters.
+    If both startDate and endDate are omitted, the service defaults to the last 30 days ending at now.
+  parameters:
+    - in: query
+      name: startDate
+      required: false
+      schema: { type: string, format: date-time }
+      description: Inclusive start timestamp (ISO-8601).
+    - in: query
+      name: endDate
+      required: false
+      schema: { type: string, format: date-time }
+      description: Inclusive end timestamp (ISO-8601).
+    - in: query
+      name: itemName
+      required: false
+      schema: { type: string }
+    - in: query
+      name: supplierId
+      required: false
+      schema: { type: string }
+    - in: query
+      name: createdBy
+      required: false
+      schema: { type: string }
+    - in: query
+      name: minChange
+      required: false
+      schema: { type: integer, format: int32 }
+    - in: query
+      name: maxChange
+      required: false
+      schema: { type: integer, format: int32 }
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/StockUpdateResultDTO.yaml
+    "400": { description: Invalid request }
+    "401": { description: Unauthorized }

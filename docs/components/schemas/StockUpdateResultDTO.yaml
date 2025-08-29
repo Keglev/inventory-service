@@ -1,0 +1,25 @@
+type: object
+description: A stock update event with human-readable fields.
+properties:
+  itemName:
+    type: string
+    example: "M8 Hex Bolt"
+  supplierName:
+    type: string
+    example: "ACME Tools GmbH"
+  change:
+    type: integer
+    format: int32
+    description: Signed quantity delta (positive for additions, negative for removals).
+    example: 25
+  reason:
+    type: string
+    example: "RECEIVED"
+  createdBy:
+    type: string
+    example: "carlo"
+  timestamp:
+    type: string
+    format: date-time
+    example: "2025-07-15T10:32:00"
+required: [itemName, supplierName, change, reason, createdBy, timestamp]

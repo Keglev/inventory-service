@@ -1,27 +1,72 @@
 type: object
+description: Financial summary using the specified costing method (e.g., WAC).
 properties:
-  purchases:
-    type: number
-    format: double
-    example: 25000.0
-  cogs:
-    type: number
-    format: double
-    example: 17000.0
-  writeOffs:
-    type: number
-    format: double
-    example: 500.0
-  returns:
-    type: number
-    format: double
-    example: 300.0
+  method:
+    type: string
+    description: Costing method used for this summary.
+    example: "WAC"
+  fromDate:
+    type: string
+    format: date
+    description: Inclusive start date (yyyy-MM-dd).
+    example: "2025-07-01"
+  toDate:
+    type: string
+    format: date
+    description: Inclusive end date (yyyy-MM-dd).
+    example: "2025-07-31"
+  openingQty:
+    type: integer
+    format: int64
+    example: 12000
   openingValue:
-    type: number
-    format: double
-    example: 120000.0
-  closingValue:
-    type: number
-    format: double
-    example: 128000.0
-required: [purchases, cogs, openingValue, closingValue]
+    type: string
+    description: Monetary value as BigDecimal string to preserve precision.
+    example: "345678.90"
+  purchasesQty:
+    type: integer
+    format: int64
+    example: 4200
+  purchasesCost:
+    type: string
+    example: "83500.00"
+  returnsInQty:
+    type: integer
+    format: int64
+    example: 150
+  returnsInCost:
+    type: string
+    example: "1200.00"
+  cogsQty:
+    type: integer
+    format: int64
+    example: 3900
+  cogsCost:
+    type: string
+    example: "76000.00"
+  writeOffQty:
+    type: integer
+    format: int64
+    example: 35
+  writeOffCost:
+    type: string
+    example: "550.00"
+  endingQty:
+    type: integer
+    format: int64
+    example: 12415
+  endingValue:
+    type: string
+    example: "352828.90"
+required:
+  - method
+  - fromDate
+  - toDate
+  - openingQty
+  - openingValue
+  - purchasesQty
+  - purchasesCost
+  - cogsQty
+  - cogsCost
+  - endingQty
+  - endingValue

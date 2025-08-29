@@ -23,6 +23,9 @@ paths:
     $ref: ./paths/analytics/financial-summary.yaml
   /analytics/price-trend:
     $ref: ./paths/analytics/price-trend.yaml
+  /analytics/monthly-stock-movement:
+    $ref: ./paths/analytics/monthly-stock-movement.yaml
+
 
 
 components:
@@ -35,4 +38,11 @@ components:
       $ref: ./components/schemas/FinancialSummaryDTO.yaml
     PriceTrendDTO:
       $ref: ./components/schemas/PriceTrendDTO.yaml
+    MonthlyStockMovementDTO:
+      $ref: ./components/schemas/MonthlyStockMovementDTO.yaml
+    StockUpdateFilterDTO:
+      $ref: ./components/schemas/StockUpdateFilterDTO.yaml
+    StockUpdateResultDTO:
+      $ref: ./components/schemas/StockUpdateResultDTO.yaml
+
 

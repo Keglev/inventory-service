@@ -1,13 +1,11 @@
 type: object
+description: Current stock aggregated per supplier.
 properties:
-  supplierId:
-    type: string
-    example: "sup-123"
   supplierName:
     type: string
     example: "ACME Tools GmbH"
-  totalValue:
-    type: number
-    format: double
-    example: 98765.43
-required: [supplierId, totalValue]
+  totalQuantity:
+    type: integer
+    format: int64
+    example: 9876
+required: [supplierName, totalQuantity]

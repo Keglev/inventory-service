@@ -1,17 +1,17 @@
 get:
   tags: [Analytics]
-  summary: Financial summary (WAC)
+  summary: Monthly net stock movement
   description: >
-    Purchases, COGS, returns, write-offs, opening and ending inventory for a date range (inclusive).
-    The server calculates using the configured costing method.
+    Returns monthly stock movement (stockIn and stockOut) between two dates.
+    Optionally filter by supplier.
   parameters:
     - in: query
-      name: from
+      name: start
       required: true
       schema: { type: string, format: date }
       description: Inclusive start date (yyyy-MM-dd).
     - in: query
-      name: to
+      name: end
       required: true
       schema: { type: string, format: date }
       description: Inclusive end date (yyyy-MM-dd).
@@ -26,6 +26,8 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/FinancialSummaryDTO.yaml
+            type: array
+            items:
+              $ref: ../../components/schemas/MonthlyStockMovementDTO.yaml
     "400": { description: Invalid request }
     "401": { description: Unauthorized }

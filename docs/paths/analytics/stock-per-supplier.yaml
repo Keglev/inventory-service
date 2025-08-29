@@ -1,7 +1,7 @@
 get:
   tags: [Analytics]
   summary: Current total stock per supplier
-  description: Aggregated stock value per supplier for dashboard charts.
+  description: Aggregated current stock quantity per supplier for dashboards.
   responses:
     "200":
       description: OK
@@ -12,3 +12,4 @@ get:
             items:
               $ref: ../../components/schemas/StockPerSupplierDTO.yaml
     "401": { description: Unauthorized }
+
