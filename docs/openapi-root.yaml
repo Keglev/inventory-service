@@ -27,6 +27,11 @@ paths:
     $ref: ./paths/analytics/monthly-stock-movement.yaml
   /analytics/summary:
     $ref: ./paths/analytics/summary.yaml
+  /analytics/item-update-frequency:
+    $ref: ./paths/analytics/item-update-frequency.yaml
+  /analytics/low-stock-items:
+    $ref: ./paths/analytics/low-stock-items.yaml
+
 
 
 

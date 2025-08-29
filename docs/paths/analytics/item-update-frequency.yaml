@@ -1,0 +1,21 @@
+get:
+  tags: [Analytics]
+  summary: Item update frequency (by supplier)
+  description: Returns update counts for items belonging to the specified supplier.
+  parameters:
+    - in: query
+      name: supplierId
+      required: true
+      schema: { type: string }
+      description: Supplier identifier.
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/ItemUpdateFrequencyDTO.yaml
+    "400": { description: Invalid request (e.g., missing supplierId)" }
+    "401": { description: Unauthorized }
