@@ -194,6 +194,45 @@ paths:
           description: Invalid request
         '401':
           description: Unauthorized
+  /analytics/summary:
+    get:
+      tags:
+        - Analytics
+      summary: Dashboard summary
+      description: |
+        Returns a dashboard-ready summary for the specified period and/or supplier. If dates are omitted, the service defaults to the last 30 days ending "now".
+      parameters:
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+        - in: query
+          name: startDate
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Inclusive start timestamp (ISO-8601). Defaults to now-30 days if omitted.
+        - in: query
+          name: endDate
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Inclusive end timestamp (ISO-8601). Defaults to now if omitted.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummaryDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
 components:
   schemas:
     StockValueOverTimeDTO:
@@ -399,3 +438,68 @@ components:
         - reason
         - createdBy
         - timestamp
+    DashboardSummaryDTO:
+      type: object
+      description: Aggregated, dashboard-ready analytics for the selected window/supplier.
+      properties:
+        stockPerSupplier:
+          type: array
+          description: Current stock aggregated per supplier.
+          items:
+            $ref: '#/components/schemas/StockPerSupplierDTO'
+        lowStockItems:
+          type: array
+          description: Items below their minimum thresholds (may be empty if no supplier filter).
+          items:
+            $ref: '#/components/schemas/LowStockItemDTO'
+        monthlyStockMovement:
+          type: array
+          description: Monthly stock movement (stockIn/stockOut) across the date window.
+          items:
+            $ref: '#/components/schemas/MonthlyStockMovementDTO'
+        topUpdatedItems:
+          type: array
+          description: Items with the highest update frequency during the selected window.
+          items:
+            $ref: '#/components/schemas/ItemUpdateFrequencyDTO'
+      required:
+        - stockPerSupplier
+        - lowStockItems
+        - monthlyStockMovement
+        - topUpdatedItems
+    LowStockItemDTO:
+      type: object
+      description: Item currently below its configured minimum stock threshold.
+      properties:
+        itemName:
+          type: string
+          example: M8 Hex Bolt
+        quantity:
+          type: integer
+          format: int32
+          description: Current stock quantity available.
+          example: 12
+        minimumQuantity:
+          type: integer
+          format: int32
+          description: Business-defined minimum threshold for this item.
+          example: 25
+      required:
+        - itemName
+        - quantity
+        - minimumQuantity
+    ItemUpdateFrequencyDTO:
+      type: object
+      description: Update frequency for an inventory item.
+      properties:
+        itemName:
+          type: string
+          example: M8 Hex Bolt
+        updateCount:
+          type: integer
+          format: int64
+          description: Number of update events recorded for this item.
+          example: 17
+      required:
+        - itemName
+        - updateCount
