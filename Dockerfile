@@ -99,12 +99,6 @@ COPY --from=build --chown=appuser:appgroup /app/target/inventory-service-0.0.1-S
 USER appuser
 
 # /**
-#  * Set Oracle Wallet environment variable for secure DB connection.
-#  * The TNS_ADMIN value must match the directory structure inside the extracted wallet.
-#  */
-# ARG ORACLE_WALLET_B64
-
-# /**
 #  * Define the startup command: extract Oracle wallet and launch Spring Boot.
 #  */
 CMD ["/app/start.sh"]
@@ -116,20 +110,9 @@ CMD ["/app/start.sh"]
 # /**
 #  * Healthcheck endpoint must match the app’s actual mapping.
 #  * For Spring Boot Actuator defaults: /actuator/health on SERVER_PORT (8081 here).
-#  * Keep consistent with CI preflight checks to avoid false negatives.
-#  */
-
-# Healthcheck
-# /**
-#  * If your app exposes Actuator, prefer /actuator/health.
-#  * If you have a custom /health/db endpoint, use that here instead.
-#  */
-# HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-#  CMD wget --spider -q http://localhost:8081/health || exit 1
-
-EXPOSE 8081
-# /**
 #  * Health probing is handled by Fly.io (fly.toml). Dockerfile HEALTHCHECK
 #  * is optional and ignored by Fly. We omit it here to keep the image lean.
 #  */
+
+EXPOSE 8081
 

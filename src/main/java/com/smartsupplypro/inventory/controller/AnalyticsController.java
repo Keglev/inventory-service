@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(value = "/api/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
-public class AnalyticsController {
+public class AnalyticsController{
 
     private final AnalyticsService analyticsService;
 

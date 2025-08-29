@@ -1,41 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
+
 	<groupId>com.smartsupplypro</groupId>
 	<artifactId>inventory-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Inventory Service</name>
 	<description>Inventory Service Pro</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
 	<properties>
 		<java.version>17</java.version>
 	</properties>
-	<dependencies>
 
+	<dependencies>
+		<!-- Spring Boot starters -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -45,10 +36,9 @@
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 		<dependency>
-  			<groupId>org.springframework.boot</groupId>
-  			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
@@ -62,6 +52,7 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!-- Devtools (runtime only) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -69,7 +60,7 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!--Oracle JDBC--> 
+		<!-- Oracle JDBC / wallet support -->
 		<dependency>
   			<groupId>com.oracle.database.security</groupId>
   			<artifactId>oraclepki</artifactId>
@@ -84,12 +75,13 @@
   			<artifactId>osdt_cert</artifactId>
 			<version>21.19.0.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.oracle.database.jdbc</groupId>
 			<artifactId>ojdbc11</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<!-- Configuration processor & Lombok -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
@@ -101,7 +93,13 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- Testing Dependencies -->
+		<!-- Spring Session (cookie serialization / cross-origin session handling) -->
+		<dependency>
+    		<groupId>org.springframework.session</groupId>
+    		<artifactId>spring-session-core</artifactId>
+		</dependency>
+
+		<!-- Test deps -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -111,7 +109,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-testcontainers</artifactId>
 			<scope>test</scope>
-		</dependency> 
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
@@ -121,21 +119,12 @@
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
-		</dependency> 
-		<!-- Spring Session for cookie serialization and cross-origin session handling -->
-		<dependency>
-    		<groupId>org.springframework.session</groupId>
-    		<artifactId>spring-session-core</artifactId>
 		</dependency>
-
 	    <dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>oracle-free</artifactId>
 			<scope>test</scope>
-		</dependency> 
-
-  		<!-- JUnit 5 -->
-		
+		</dependency>
 		<dependency>
     		<groupId>com.h2database</groupId>
     		<artifactId>h2</artifactId>
@@ -145,10 +134,12 @@
 
 	<build>
 		<plugins>
+			<!-- Compiler (retain parameter names; useful for binding) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
+					<parameters>true</parameters>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
@@ -161,6 +152,8 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+
+			<!-- JaCoCo coverage  -->
 			<plugin>
   				<groupId>org.jacoco</groupId>
   				<artifactId>jacoco-maven-plugin</artifactId>
@@ -178,7 +171,6 @@
         					<goal>report</goal>
       					</goals>
 						<configuration>
-							<!-- Force explicit paths so the HTML is always produced -->
         					<dataFile>${project.build.directory}/jacoco.exec</dataFile>
         					<outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
 						</configuration>
@@ -186,6 +178,7 @@
   				</executions>
 			</plugin>
 
+			<!-- Spring Boot plugin (standard packaging) -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -200,5 +193,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

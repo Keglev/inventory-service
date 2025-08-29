@@ -116,6 +116,7 @@ public class SecurityConfig {
         http
             .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)
             .cors(Customizer.withDefaults())
+            // Authorization rules
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/actuator/**", "/health/**").permitAll()
                 // Allow OAuth2 endpoints and error page to avoid redirect loops

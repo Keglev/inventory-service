@@ -4,6 +4,13 @@
 # Used in deployment (e.g. Docker, cloud, prod server)
 # =============================================
 
+# Note: avoid hardcoding secrets here; use environment variables or secret management
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 spring:
   datasource:
     url: ${DB_URL}                             # Use environment variable for Oracle Wallet path
@@ -13,6 +20,7 @@ spring:
     hikari:
       connection-timeout: 5000                 # 5 seconds connection timeout
       validation-timeout: 3000                 # 3 seconds validation timeout
+
   jpa:
     hibernate:
       ddl-auto: update                         # Note: Use Flyway/Liquibase in real enterprise apps
@@ -62,3 +70,5 @@ management:
   endpoint:
     health:
       show-details: never                         # Hide internals in production for security reasons
+
+
