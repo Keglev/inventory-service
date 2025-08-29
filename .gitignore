@@ -94,3 +94,10 @@ oracle_wallet_b64.txt
 ###############################################################################
 OracleWalletConnectionTest.java
 *.class
+
+###############################################################################
+# Documentation
+###############################################################################
+/docs/openapi.yaml
+docs/api.html
+# /docs/architecture/security-overview.html
