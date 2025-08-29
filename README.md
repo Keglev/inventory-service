@@ -36,6 +36,9 @@ This project simulates a real-world software system for small-to-medium manufact
 
 All endpoints are documented manually via OpenAPI 3.0 YAML files and rendered using [Redoc](https://github.com/Redocly/redoc). This allows clear, secure API sharing without exposing runtime Swagger UI.
 
+- **API (ReDoc):** https://<user>.github.io/<repo>/api.html
+- **Security Overview:** https://<user>.github.io/<repo>/architecture/security-overview.md
+
 | Module                | OpenAPI Documentation |
 |-----------------------|------------------------|
 | 🔐 Auth (OAuth2 `/api/me`)         | [auth-api.yaml](https://keglev.github.io/inventory-service/auth-api.yaml) |
