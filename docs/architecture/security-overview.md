@@ -1,46 +1,45 @@
 # Security Overview
 
-This document summarizes how authentication, authorization, cookies, and CORS are implemented in the **Inventory Service** stack.
+This document summarizes how **authentication**, **authorization**, **cookies/sessions**, **CORS**, **CSRF**, **health endpoints**, and **testing** are implemented in the **Inventory Service** (SmartSupplyPro) stack.
 
 ---
 
-## 1 Authentication (Google OAuth2 + Spring Security)
+## 1) Authentication (Google OAuth2 + Spring Security)
 
-- **Flow**: Browser → Google OAuth (authorization code) → Backend exchanges code for tokens → App establishes **server session**.
-- **Framework**: Spring Security (OAuth2 Client).  
-- **User model**: First successful login triggers lightweight onboarding via `OAuth2LoginSuccessHandler`:
+- **Flow**: Browser → Google OAuth (authorization code) → Backend exchanges code for tokens → App establishes a **server session**.
+- **Framework**: Spring Security (OAuth2 Client).
+- **User model**: On first successful login:
   - Lookup `AppUser` by email.
   - Create if missing with role `USER`.
-  - No self-service signup flows; admin elevation is manual.
-- **Session**: Session cookie is used (no JWT). See “Cookies” below.
+  - No self-service signup; admin elevation is manual.
+- **Session**: Server-side session cookie (no JWT). See “Cookies & Sessions”.
 
 ### OAuth2 details
-- Authorization endpoint: `https://accounts.google.com/o/oauth2/v2/auth`
-- Token endpoint: `https://oauth2.googleapis.com/token`
+- Authorization endpoint: `https://accounts.google.com/o/oauth2/v2/auth`  
+- Token endpoint: `https://oauth2.googleapis.com/token`  
 - Scopes: `openid`, `profile`, `email`
 
-## 2 Authorization (Endpoint Access Rules)
-Access control is enforced centrally in SecurityConfig.
+---
 
-- **Public**
+## 2) Authorization (Endpoint Access Rules)
 
-- /
+Access control is enforced centrally in `SecurityConfig`.
 
-- /health/**, /actuator/**
+**Public**
+- `/`
+- `/health/**`, `/actuator/**`
+- OAuth routes: `/oauth2/**`, `/login/**`, `/login/oauth2/**`, `/error`
 
-- OAuth routes: /oauth2/**, /login/**, /login/oauth2/**, /error
+**Authenticated**
+- `/api/**` (valid session required)
 
-### Authenticated
+**Admin only**
+- `/api/admin/**` (requires `ADMIN` authority)
 
-- /api/** (valid session required)
+Method security is enabled with `@EnableMethodSecurity`, so you can gate methods like:
 
-### Admin only
-
-- /api/admin/** (requires ADMIN authority)
-
-- Method security is enabled with @EnableMethodSecurity, so you can gate methods like:
-
-## @PreAuthorize("hasAuthority('ADMIN')")
+```java
+@PreAuthorize("hasAuthority('ADMIN')")
 
 ## 3 Error Handling (API vs Browser)
 We return different responses based on request type:
@@ -121,7 +120,7 @@ Vary: Origin
 
   - Prefer enabling CSRF.
 
-  - Exempt pure REST routes (/api/**) or use CSRF tokens for browser-submitted forms.
+  - Exempt pure REST routes (/api/) or use CSRF tokens for browser-submitted forms.
 
   - Keep OAuth login and logout flows compatible with your CSRF model.
 
@@ -145,7 +144,7 @@ Focus on slice tests that load your real SecurityConfig but only stub controller
 
 ### What to verify
 
-- /api/admin/**:
+- /api/admin/:
 
   - ADMIN → 200
 
@@ -187,7 +186,6 @@ mvc.perform(options("/api/items")
    .andExpect(status().isOk())
    .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"))
    .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
-
 
 
  Each OpenAPI spec declares:

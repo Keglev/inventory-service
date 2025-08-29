@@ -33,9 +33,10 @@ jobs:
 
       - name: Lint (non-blocking)
         run: npm run docs:lint || true
-
+        
+      # produces openapi.yaml and api.html inside ./docs It also generates architecture/*.html files
       - name: Bundle & build
-        run: npm run docs     # produces openapi.yaml and api.html inside ./docs
+        run: npm run docs     
 
       # === Commit the generated docs back to the repo (default) ===
       - name: Commit generated artifacts
@@ -43,11 +44,11 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add openapi.yaml api.html
+          git add openapi.yaml api.html architecture/security-overview.html
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(docs): bundle & build OpenAPI (api.html, openapi.yaml) [skip ci]"
+            git commit -m "chore(docs): bundle & build OpenAPI (api.html, openapi.yaml) and Security Overview (HTML) [skip ci]"
             git push
           fi
       - name: Reminder

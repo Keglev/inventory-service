@@ -6,9 +6,11 @@
     "docs:bundle": "redocly bundle openapi-root.yaml -o openapi.yaml --ext yaml",
     "docs:build": "redocly build-docs openapi.yaml -o api.html",
     "docs:lint": "redocly lint \"**/*.yaml\"",
-    "docs": "npm run docs:bundle && npm run docs:build"
+    "docs:security": "node scripts/md2html.mjs architecture/security-overview.md architecture/security-overview.html",
+    "docs": "npm run docs:bundle && npm run docs:build && npm run docs:security"
   },
   "devDependencies": {
-    "@redocly/cli": "^1.29.0"
+    "@redocly/cli": "^1.29.0",
+    "marked": "^12.0.2"
   }
 }
