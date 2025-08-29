@@ -1,0 +1,10 @@
+apis:
+  main:
+    root: openapi-root.yaml
+
+# v2 uses "rules" (not "lint")
+rules:
+  operation-summary: { severity: warn }
+  no-unused-components: { severity: warn }
+  operation-operationId: { severity: off }
+  spec-strict-refs: { severity: warn }                # warns on unresolved refs early

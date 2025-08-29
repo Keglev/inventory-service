@@ -3,19 +3,25 @@ properties:
   purchases:
     type: number
     format: double
+    example: 25000.0
   cogs:
     type: number
     format: double
+    example: 17000.0
   writeOffs:
     type: number
     format: double
+    example: 500.0
   returns:
     type: number
     format: double
+    example: 300.0
   openingValue:
     type: number
     format: double
+    example: 120000.0
   closingValue:
     type: number
     format: double
+    example: 128000.0
 required: [purchases, cogs, openingValue, closingValue]

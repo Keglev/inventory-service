@@ -1,0 +1,14 @@
+get:
+  tags: [Analytics]
+  summary: Current total stock per supplier
+  description: Aggregated stock value per supplier for dashboard charts.
+  responses:
+    "200":
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/StockPerSupplierDTO.yaml
+    "401": { description: Unauthorized }

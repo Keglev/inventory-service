@@ -1,0 +1,235 @@
+openapi: 3.0.3
+info:
+  title: SmartSupplyPro API
+  version: 1.0.0
+  description: |
+    Source OpenAPI spec (manually maintained). The CI bundles this file into openapi.yaml and builds api.html (ReDoc).
+servers:
+  - url: https://inventoryservice.fly.dev/api
+    description: Production (Fly.io)
+tags:
+  - name: Analytics
+    description: Read-only analytics and KPIs
+paths:
+  /analytics/stock-value:
+    get:
+      tags:
+        - Analytics
+      summary: Get stock value over time
+      description: Returns daily stock value between two dates (inclusive), optionally filtered by supplier.
+      parameters:
+        - in: query
+          name: start
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (yyyy-MM-dd).
+        - in: query
+          name: end
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (yyyy-MM-dd).
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockValueOverTimeDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+  /analytics/stock-per-supplier:
+    get:
+      tags:
+        - Analytics
+      summary: Current total stock per supplier
+      description: Aggregated stock value per supplier for dashboard charts.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockPerSupplierDTO'
+        '401':
+          description: Unauthorized
+  /analytics/financial/summary:
+    get:
+      tags:
+        - Analytics
+      summary: Financial summary (WAC)
+      description: Purchases, COGS, write-offs, returns, opening and closing values for a date range (inclusive).
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (yyyy-MM-dd).
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (yyyy-MM-dd).
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialSummaryDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+  /analytics/price-trend:
+    get:
+      tags:
+        - Analytics
+      summary: Item price trend
+      description: Historical price changes for an item, optionally filtered by supplier and date range (inclusive).
+      parameters:
+        - in: query
+          name: itemId
+          required: true
+          schema:
+            type: string
+          description: Inventory item id.
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+        - in: query
+          name: start
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (yyyy-MM-dd).
+        - in: query
+          name: end
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (yyyy-MM-dd).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PriceTrendDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+components:
+  schemas:
+    StockValueOverTimeDTO:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2025-01-15'
+        value:
+          type: number
+          format: double
+          example: 1234.56
+      required:
+        - date
+        - value
+    StockPerSupplierDTO:
+      type: object
+      properties:
+        supplierId:
+          type: string
+          example: sup-123
+        supplierName:
+          type: string
+          example: ACME Tools GmbH
+        totalValue:
+          type: number
+          format: double
+          example: 98765.43
+      required:
+        - supplierId
+        - totalValue
+    FinancialSummaryDTO:
+      type: object
+      properties:
+        purchases:
+          type: number
+          format: double
+          example: 25000
+        cogs:
+          type: number
+          format: double
+          example: 17000
+        writeOffs:
+          type: number
+          format: double
+          example: 500
+        returns:
+          type: number
+          format: double
+          example: 300
+        openingValue:
+          type: number
+          format: double
+          example: 120000
+        closingValue:
+          type: number
+          format: double
+          example: 128000
+      required:
+        - purchases
+        - cogs
+        - openingValue
+        - closingValue
+    PriceTrendDTO:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2025-01-15'
+        price:
+          type: number
+          format: double
+          example: 4.99
+        currency:
+          type: string
+          example: EUR
+      required:
+        - date
+        - price

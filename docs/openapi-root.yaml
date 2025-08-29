@@ -2,9 +2,9 @@ openapi: 3.0.3
 info:
   title: SmartSupplyPro API
   version: 1.0.0
-  description: |
-    Manually maintained OpenAPI spec for SmartSupplyPro (Inventory Service).
-    Rendered with ReDoc. Split into per-path YAML files and bundled from this root.
+  description: >
+    Source OpenAPI spec (manually maintained). The CI bundles this file
+    into openapi.yaml and builds api.html (ReDoc).
 
 servers:
   - url: https://inventoryservice.fly.dev/api
@@ -12,57 +12,27 @@ servers:
 
 tags:
   - name: Analytics
-    description: Read-only analytics and KPIs.
-  - name: Inventory
-    description: CRUD and querying of inventory items.
-  - name: Suppliers
-    description: Supplier directory and lookups.
-  - name: Stock History
-    description: Stock movements and audit trail.
-  - name: Auth
-    description: Authentication & session endpoints.
-  - name: Health
-    description: Service health probes.
+    description: Read-only analytics and KPIs
 
 paths:
-  # --- Analytics ---
   /analytics/stock-value:
     $ref: ./paths/analytics/stock-value.yaml
   /analytics/stock-per-supplier:
     $ref: ./paths/analytics/stock-per-supplier.yaml
-  /analytics/stock-updates:
-    $ref: ./paths/analytics/stock-updates.yaml
   /analytics/financial/summary:
     $ref: ./paths/analytics/financial-summary.yaml
   /analytics/price-trend:
     $ref: ./paths/analytics/price-trend.yaml
-  /analytics/monthly-stock-movement:
-    $ref: ./paths/analytics/monthly-stock-movement.yaml
 
-  # --- Inventory ---
-  /inventory/items:
-    $ref: ./paths/inventory/items.yaml
-
-  # --- Suppliers ---
-  /suppliers:
-    $ref: ./paths/suppliers/suppliers.yaml
-
-  # --- Stock History ---
-  /stock-history:
-    $ref: ./paths/stock-history/stock-history.yaml
-
-  # --- Auth ---
-  /auth/login:
-    $ref: ./paths/auth/auth.yaml
-
-  # --- Health ---
-  /actuator/health:
-    $ref: ./paths/health/health.yaml
 
 components:
   schemas:
     StockValueOverTimeDTO:
       $ref: ./components/schemas/StockValueOverTimeDTO.yaml
+    StockPerSupplierDTO:
+      $ref: ./components/schemas/StockPerSupplierDTO.yaml
     FinancialSummaryDTO:
       $ref: ./components/schemas/FinancialSummaryDTO.yaml
-    # Add more DTOs as needed...
+    PriceTrendDTO:
+      $ref: ./components/schemas/PriceTrendDTO.yaml
+

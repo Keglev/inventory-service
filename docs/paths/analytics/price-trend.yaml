@@ -1,8 +1,18 @@
 get:
   tags: [Analytics]
-  summary: Get stock value over time
-  description: Returns daily stock value between two dates (inclusive), optionally filtered by supplier.
+  summary: Item price trend
+  description: Historical price changes for an item, optionally filtered by supplier and date range (inclusive).
   parameters:
+    - in: query
+      name: itemId
+      required: true
+      schema: { type: string }
+      description: Inventory item id.
+    - in: query
+      name: supplierId
+      required: false
+      schema: { type: string }
+      description: Optional supplier filter.
     - in: query
       name: start
       required: true
@@ -13,11 +23,6 @@ get:
       required: true
       schema: { type: string, format: date }
       description: Inclusive end date (yyyy-MM-dd).
-    - in: query
-      name: supplierId
-      required: false
-      schema: { type: string }
-      description: Optional supplier filter.
   responses:
     "200":
       description: OK
@@ -26,6 +31,6 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/StockValueOverTimeDTO.yaml
+              $ref: ../../components/schemas/PriceTrendDTO.yaml
     "400": { description: Invalid request }
     "401": { description: Unauthorized }

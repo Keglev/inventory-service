@@ -1,19 +1,23 @@
 get:
   tags: [Analytics]
   summary: Financial summary (WAC)
-  description: Purchases, COGS, write-offs, returns, opening/ending balances for a date range.
+  description: Purchases, COGS, write-offs, returns, opening and closing values for a date range (inclusive).
   parameters:
     - in: query
       name: from
       required: true
       schema: { type: string, format: date }
+      description: Inclusive start date (yyyy-MM-dd).
     - in: query
       name: to
       required: true
       schema: { type: string, format: date }
+      description: Inclusive end date (yyyy-MM-dd).
     - in: query
       name: supplierId
+      required: false
       schema: { type: string }
+      description: Optional supplier filter.
   responses:
     "200":
       description: OK

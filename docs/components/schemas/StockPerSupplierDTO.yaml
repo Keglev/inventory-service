@@ -1,0 +1,13 @@
+type: object
+properties:
+  supplierId:
+    type: string
+    example: "sup-123"
+  supplierName:
+    type: string
+    example: "ACME Tools GmbH"
+  totalValue:
+    type: number
+    format: double
+    example: 98765.43
+required: [supplierId, totalValue]

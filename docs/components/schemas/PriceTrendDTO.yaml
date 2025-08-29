@@ -4,9 +4,11 @@ properties:
     type: string
     format: date
     example: "2025-01-15"
-  value:
+  price:
     type: number
     format: double
-    example: 1234.56
-required: [date, value]
-
+    example: 4.99
+  currency:
+    type: string
+    example: "EUR"
+required: [date, price]
