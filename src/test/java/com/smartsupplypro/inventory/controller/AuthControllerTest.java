@@ -1,33 +1,34 @@
 package com.smartsupplypro.inventory.controller;
 
+import static java.util.Collections.singletonList;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import static org.mockito.Mockito.when;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Map;
-import java.util.Optional;
-
-import static java.util.Collections.singletonList;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import org.junit.jupiter.api.TestInstance;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 
 /**
  * Integration tests for {@link AuthController}, validating behavior of authenticated user info retrieval.
@@ -81,13 +82,17 @@ public class AuthControllerTest {
         user.setName("Test " + role.name());
         user.setRole(role);
 
-        when(appUserRepository.findById(email)).thenReturn(Optional.of(user));
+        /*  Mock repository to return the user when looked up by email */
+        when(appUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        mockMvc.perform(get("/api/me").with(authentication(buildAuthToken(email, role.name()))))
+        mockMvc.perform(get("/api/me")
+                        .with(authentication(buildAuthToken(email, role.name())))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(email))
                 .andExpect(jsonPath("$.name").value("Test " + role.name()))
-                .andExpect(jsonPath("$.role").value(role.name()));
+                // roles is an array; first element equals the role name 
+                .andExpect(jsonPath("$.roles[0]").value(role.name()));
     }
 
     /**
@@ -101,9 +106,12 @@ public class AuthControllerTest {
     void shouldReturn401WhenUserNotFound() throws Exception {
         String email = "nonexistent@example.com";
 
-        when(appUserRepository.findById(email)).thenReturn(Optional.empty());
+        /* repository lookup by email, not by ID */
+        when(appUserRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/me").with(authentication(buildAuthToken(email, "USER"))))
+        mockMvc.perform(get("/api/me")
+                        .with(authentication(buildAuthToken(email, "USER")))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("User not found"));
     }
@@ -127,7 +135,9 @@ public class AuthControllerTest {
         OAuth2AuthenticationToken authToken =
                 new OAuth2AuthenticationToken(principal, principal.getAuthorities(), "google");
 
-        mockMvc.perform(get("/api/me").with(authentication(authToken)))
+        mockMvc.perform(get("/api/me")
+                        .with(authentication(authToken))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Email not provided by OAuth2 provider"));
     }
@@ -140,7 +150,7 @@ public class AuthControllerTest {
     @DisplayName("Should return 401 when no authentication is provided")
     @Test
     void testGetCurrentUser_shouldReturn401_whenNoAuth() throws Exception {
-        mockMvc.perform(get("/api/me").header("Accept", "application/json"))
+        mockMvc.perform(get("/api/me").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value("Unauthorized"));
     }
@@ -161,12 +171,14 @@ public class AuthControllerTest {
         user.setName(null); // name is allowed to be null
         user.setRole(Role.USER);
 
-        when(appUserRepository.findById(email)).thenReturn(Optional.of(user));
+        when(appUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        mockMvc.perform(get("/api/me").with(authentication(buildAuthToken(email, "USER"))))
+        mockMvc.perform(get("/api/me")
+                        .with(authentication(buildAuthToken(email, "USER")))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(email))
-                .andExpect(jsonPath("$.role").value("USER"));
+                .andExpect(jsonPath("$.roles[0]").value("USER"));
     }
 }
 /**

@@ -62,9 +62,11 @@ public class TestSecurityConfig {
             )
             .exceptionHandling(ex -> ex
                 .defaultAuthenticationEntryPointFor(jsonEntryPoint, apiRequestMatcher)
+                .authenticationEntryPoint(jsonEntryPoint) // default for everything else in slice tests
             )
             .csrf(csrf -> csrf.disable())          // Disable CSRF for test context
-            .oauth2Login(oauth -> oauth.disable()); // Disable OAuth2 to allow simple mocking
+            .oauth2Login(oauth -> oauth.disable()) // Disable OAuth2 to allow simple mocking
+            .headers(headers -> headers.frameOptions(frame -> frame.disable())); // Allow H2 console if needed
 
         return http.build();
     }

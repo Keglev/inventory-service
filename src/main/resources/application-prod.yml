@@ -5,11 +5,6 @@
 # =============================================
 
 # Note: avoid hardcoding secrets here; use environment variables or secret management
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
 
 spring:
   datasource:
@@ -71,4 +66,13 @@ management:
     health:
       show-details: never                         # Hide internals in production for security reasons
 
+# -------- App-level (prod) --------
+app:
+  # Flip ON in Fly by setting APP_DEMO_READONLY="true" (kept off by default)
+  demo-readonly: ${APP_DEMO_READONLY:false}
 
+  frontend:
+    # Real frontend domain for recruiters
+    base-url: ${APP_FRONTEND_BASE_URL:https://inventoryfrontend.fly.dev}
+    # Your SPA login landing (matches your success handler)
+    landing-path: ${APP_FRONTEND_LANDING_PATH:/login}

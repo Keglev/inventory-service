@@ -19,9 +19,9 @@ spring:
     show-sql: true                # Log all executed SQL statements (useful for debugging)
     properties:
       hibernate:
-        '[format_sql]': true      # Format SQL for easier reading in logs
+        '[format_sql]': true                   # Format SQL for easier reading in logs
         '[globally_quoted_identifiers]': false # keep "CHANGE" / "TIMESTAMP" quoted
-        '[jdbc.time_zone]': UTC  # Ensure consistent timezone handling
+        '[jdbc.time_zone]': UTC                # Ensure consistent timezone handling
   sql:
     init:
       mode: never
@@ -35,7 +35,7 @@ logging:
   file:
     name: logs/test-application.log  # Log file for test runs
   level:
-    '[org.hobernate.SQL]': DEBUG     # Detailed Hibernate SQL logging
+    '[org.hibernate.SQL]': DEBUG     # Detailed Hibernate SQL logging
     '[org.hibernate.type.descriptor.sql]': trace # Log SQL parameter values
     root: INFO                    # Verbose logging for test diagnostics
 
@@ -50,6 +50,14 @@ management:
   endpoint:
     health:
       show-details: always         # Always show detailed health info (for CI assertions)
+
+# -------- App-level (test) --------
+app:
+  demo-readonly: false
+  frontend:
+    # No frontend needed: redirect to backend /api/me after Google login
+    base-url: http://localhost:8081
+    landing-path: /api/me
 
 # Overrides schema for H2 tests (used in @Table(schema = "$(USERS_SCHEMA:ADMIN)")) 
 # warning: This is a placeholder and should be replaced with actual schema name in production.

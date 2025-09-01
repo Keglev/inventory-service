@@ -5,8 +5,10 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -63,6 +65,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+@EnableConfigurationProperties(AppProperties.class)
 public class SecurityConfig {
 
     /**
@@ -71,6 +74,12 @@ public class SecurityConfig {
      */
     @Autowired
     private OAuth2LoginSuccessHandler successHandler;
+
+    @Autowired
+    private com.smartsupplypro.inventory.service.CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    private AppProperties props;
 
     /**
      * Main security filter chain wiring: CORS, endpoint rules, OAuth2 login, session and exception handling.
@@ -116,21 +125,35 @@ public class SecurityConfig {
         http
             .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)
             .cors(Customizer.withDefaults())
-            // Authorization rules
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/actuator/**", "/health/**").permitAll()
-                // Allow OAuth2 endpoints and error page to avoid redirect loops
-                .requestMatchers("/oauth2/**", "/login/oauth2/**", "/login/**", "/error").permitAll()
-                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                .requestMatchers("/api/analytics/**").hasAnyRole("USER","ADMIN")
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().authenticated()
-            )
+
+            // ---------- AUTHZ RULES (block form) ----------
+            .authorizeHttpRequests(auth -> {
+                // Public (always)
+                auth.requestMatchers(
+                        "/", "/actuator/**", "/health/**",
+                        "/oauth2/**", "/login/oauth2/**", "/login/**", "/error"
+                ).permitAll();
+
+                // Demo mode: allow read-only endpoints without login
+                if (props.isDemoReadonly()) { // using the getter (with parentheses)
+                    auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
+                    auth.requestMatchers("/api/analytics/**").permitAll();
+                }
+
+                // Secured (normal rules)
+                auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+                auth.requestMatchers("/api/analytics/**").hasAnyRole("USER","ADMIN");
+                auth.requestMatchers("/api/**").authenticated();
+                auth.anyRequest().authenticated();
+            })
+            // ----------------------------------------------
+
             .exceptionHandling(ex -> ex
-                .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)         // JSON APIs -> 401 JSON
-                .defaultAuthenticationEntryPointFor(webEntry, request -> true)    // everything else -> redirect
+                .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)      // JSON APIs -> 401 JSON
+                .defaultAuthenticationEntryPointFor(webEntry, request -> true) // everything else -> redirect
             )
-            .oauth2Login(oauth -> oauth // OAuth2 login configuration
+            .oauth2Login(oauth -> oauth
+                .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
                 .failureHandler(oauthFailureHandler())
                 .successHandler(successHandler)
             )
@@ -138,11 +161,10 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .invalidateHttpSession(true)
-                // Delete both cookies; Spring Session uses "SESSION", servlet container uses "JSESSIONID"
-                .deleteCookies("JSESSIONID", "SESSION")
+                .deleteCookies("JSESSIONID", "SESSION") // Spring Session uses "SESSION"
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Use session only if needed
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
             // Portfolio simplification: CSRF disabled. For production, enable CSRF and ignore for /api/**.
             .csrf(csrf -> csrf.disable());

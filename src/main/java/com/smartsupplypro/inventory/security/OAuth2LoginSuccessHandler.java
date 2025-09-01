@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
@@ -43,8 +43,13 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Autowired
-    private AppUserRepository userRepository;
+    private final AppProperties props;
+    private final AppUserRepository userRepository;
+
+    public OAuth2LoginSuccessHandler(AppProperties props, AppUserRepository userRepository) {
+        this.props = props;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Callback method invoked after a successful OAuth2 authentication.
@@ -85,11 +90,15 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 userRepository.save(newUser);
             }
         } catch (DataIntegrityViolationException e) {
+            // Concurrent insert safety: load the already-created user
             userRepository.findByEmail(email).orElseThrow(() ->
                     new IllegalStateException("User already exists but cannot be loaded."));
         }
         // TO DO: Make redirect URL configurable (e.g., via property "app.frontend.baseUrl").
         // Hardcoding https://localhost:5173 will not work on production (Fly).
+        // configurable post-login target
+        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
+        getRedirectStrategy().sendRedirect(request, response, target);
 
         // Important: Ensure redirect uses proper protocol and host
         response.sendRedirect("https://localhost:5173/login");

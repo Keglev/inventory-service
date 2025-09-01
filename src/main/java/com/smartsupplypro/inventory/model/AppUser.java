@@ -5,12 +5,11 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -74,7 +73,6 @@ public class AppUser {
         this.createdAt = LocalDateTime.now();
 
         // For debugging only — remove in production
-        System.out.println(">>> AppUser constructor: email=" + email + ", role=" + role);
     }
 
     /**
@@ -93,14 +91,6 @@ public class AppUser {
         return this.role;
     }
 
-    // Static block is primarily for debug purposes (can be removed)
-    static {
-        System.out.println(">>> ENUM CLASS = " + Role.class.getName());
-        System.out.println(">>> LOADED FROM = " + Role.class.getResource("/" + Role.class.getName().replace('.', '/') + ".class"));
-        for (Role r : Role.values()) {
-            System.out.println(">>> Role enum value: " + r.name());
-        }
-    }
 }
 /**
  * Enum representing user roles in the application.

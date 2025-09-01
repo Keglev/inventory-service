@@ -6,7 +6,9 @@
 
 spring:
   profiles:
-    active: dev                                 # Default profile (can be overridden via CLI or Docker ENV)
+    # Do NOT force a default active profile here.
+    # Let CI/Dev/Prod set SPRING_PROFILES_ACTIVE explicitly.
+    active: # none
 
   datasource:
     url: ${DB_URL}                              # Fallback (usually overridden by profile-specific config)
@@ -53,3 +55,14 @@ logging:
   level:
     '[org.springframework.jdbc.core]': DEBUG     # Enable detailed JDBC logs for dev/debugging
     '[org.hibernate.SQL]': DEBUG                 # Hibernate SQL logging (override in prod)
+
+# -------- App-level knobs used by SecurityConfig & SuccessHandler --------
+app:
+  # Global default: demo OFF. In PROD you can flip with APP_DEMO_READONLY=true
+  demo-readonly: ${APP_DEMO_READONLY:false}
+
+  frontend:
+    # Defaults make login testable WITHOUT a frontend:
+    # after Google login, redirect to backend /api/me which returns JSON profile.
+    base-url: ${APP_FRONTEND_BASE_URL:http://localhost:8080}
+    landing-path: ${APP_FRONTEND_LANDING_PATH:/api/me}
