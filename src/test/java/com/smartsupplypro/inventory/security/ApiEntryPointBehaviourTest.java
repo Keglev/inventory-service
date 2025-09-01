@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.security;
 
+
 import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,12 +9,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Verifies entry-point behavior:
@@ -41,6 +40,7 @@ class ApiEntryPointBehaviourTest {
 
     // -------- Tests --------
 
+    /* API JSON request (unauth) → 401 with JSON body */
     @Test
     @DisplayName("API JSON request (unauth) → 401 with JSON body")
     void apiJsonRequest_unauth_returns401Json() throws Exception {
@@ -50,6 +50,7 @@ class ApiEntryPointBehaviourTest {
                .andExpect(content().json("{\"message\":\"Unauthorized\"}"));
     }
 
+    /* Web request (unauth) → 302 redirect to /oauth2/authorization/google */
     @Test
     @DisplayName("Web request (unauth) → 302 redirect to /oauth2/authorization/google")
     void webRequest_unauth_redirectsToLogin() throws Exception {
@@ -58,6 +59,7 @@ class ApiEntryPointBehaviourTest {
                .andExpect(header().string("Location", containsString("/oauth2/authorization/google")));
     }
 
+    /* API without JSON Accept (unauth) behaves like web → 302 redirect */
     @Test
     @DisplayName("API without JSON Accept (unauth) behaves like web → 302 redirect")
     void apiWithoutJsonAccept_behavesLikeWeb_redirects() throws Exception {
@@ -68,6 +70,7 @@ class ApiEntryPointBehaviourTest {
 
     // -------- Minimal stub endpoints (never actually reached when unauthenticated) --------
 
+    /* API endpoint */
     @RestController
     @SuppressWarnings("unused") // never actually reached when unauthenticated
     static class StubController {
@@ -80,41 +83,60 @@ class ApiEntryPointBehaviourTest {
 
     // -------- Test-only security chain that mirrors your entry-point logic --------
 
+    /* API JSON request (unauth) → 401 with JSON body */
     @TestConfiguration
     @EnableMethodSecurity
     @SuppressWarnings("unused") // loaded via @Import; IDE cannot see direct calls 
     static class TestSecurityConfig {
 
-       @Bean
-        SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
-            // Match: path starts with /api/ AND Accept contains application/json
-            var apiJsonMatcher = (RequestMatcher) request -> {
+        /**
+         * API JSON request (unauth) → 401 with JSON body
+         */
+        @Bean
+        @Order(1)
+        SecurityFilterChain apiJsonChain(HttpSecurity http) throws Exception {
+            // Match /api/** using regex (no deprecated APIs)
+            RequestMatcher apiPath = new org.springframework.security.web.util.matcher.RegexRequestMatcher("^/api/.*", null);
+
+            // Match Accept header containing application/json
+            RequestMatcher acceptsJson = request -> {
                 String accept = request.getHeader("Accept");
-                String uri = request.getRequestURI();
-                return uri != null
-                        && uri.startsWith("/api/")
-                        && accept != null
-                        && accept.contains(MediaType.APPLICATION_JSON_VALUE);
+                return accept != null && accept.contains(org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
             };
 
-            AuthenticationEntryPoint apiEntry = (req, res, ex) -> {
-                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            // Combine both: /api/** AND Accept: application/json
+            RequestMatcher apiJson = new org.springframework.security.web.util.matcher.AndRequestMatcher(apiPath, acceptsJson);
+
+            // 401 JSON response
+            org.springframework.security.web.AuthenticationEntryPoint apiEntry = (req, res, ex) -> {
+                res.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                res.setContentType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
                 res.getWriter().write("{\"message\":\"Unauthorized\"}");
             };
 
-            AuthenticationEntryPoint webEntry =
-                new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google");
-
-            http
+            // 401 JSON response
+            return http
+                .securityMatcher(apiJson)                              // only API+JSON hits this chain
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .exceptionHandling(e -> e
-                    .defaultAuthenticationEntryPointFor(apiEntry, apiJsonMatcher) // /api/** + JSON → 401 JSON
-                    .authenticationEntryPoint(webEntry)                           // everything else → 302 redirect
-                )
-                .csrf(csrf -> csrf.disable());
+                .exceptionHandling(e -> e.authenticationEntryPoint(apiEntry)) // 401 JSON
+                .csrf(csrf -> csrf.disable())
+                .build();
+        }
 
-            return http.build();
+        /** Web request (unauth) → 302 redirect */
+        @Bean
+        @Order(2)
+        SecurityFilterChain webChain(HttpSecurity http) throws Exception {
+            var webEntry = new org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint(
+                    "/oauth2/authorization/google"
+            );
+
+            return http
+                .securityMatcher("/**")                                // everything else (incl. /api without JSON)
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .exceptionHandling(e -> e.authenticationEntryPoint(webEntry)) // 302 redirect
+                .csrf(csrf -> csrf.disable())
+                .build();
         }
     }
 }
