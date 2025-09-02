@@ -79,18 +79,19 @@ JAVA_OPTS="${JAVA_OPTS:-} \
  -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} \
  -Doracle.net.tns_admin=${TNS_ADMIN} \
  -Doracle.net.wallet_password=${ORACLE_WALLET_PASSWORD} \
+ -Dserver.forward-headers-strategy=framework \
  -XX:MaxRAMPercentage=75"
 
  # JKS flags only if present (many wallets do not include .jks)
-if [ -f "${TNS_ADMIN}/keystore.jks" ] && [ -f "${TNS_ADMIN}/truststore.jks" ]; then
-  JAVA_OPTS="$JAVA_OPTS \
-   -Djavax.net.ssl.keyStore=${TNS_ADMIN}/keystore.jks \
-   -Djavax.net.ssl.keyStoreType=JKS \
-   -Djavax.net.ssl.keyStorePassword=${ORACLE_WALLET_PASSWORD} \
-   -Djavax.net.ssl.trustStore=${TNS_ADMIN}/truststore.jks \
-   -Djavax.net.ssl.trustStoreType=JKS \
-   -Djavax.net.ssl.trustStorePassword=${ORACLE_WALLET_PASSWORD}"
-fi
+ #if [ -f "${TNS_ADMIN}/keystore.jks" ] && [ -f "${TNS_ADMIN}/truststore.jks" ]; then
+ # JAVA_OPTS="$JAVA_OPTS \
+  # -Djavax.net.ssl.keyStore=${TNS_ADMIN}/keystore.jks \
+  # -Djavax.net.ssl.keyStoreType=JKS \
+  # -Djavax.net.ssl.keyStorePassword=${ORACLE_WALLET_PASSWORD} \
+  # -Djavax.net.ssl.trustStore=${TNS_ADMIN}/truststore.jks \
+  # -Djavax.net.ssl.trustStoreType=JKS \
+  # -Djavax.net.ssl.trustStorePassword=${ORACLE_WALLET_PASSWORD}"
+# fi
 
 # Minimize exposure: we can safely unset the password env var after building JAVA_OPTS
 unset ORACLE_WALLET_PASSWORD
