@@ -1,33 +1,69 @@
 // src/pages/Auth.tsx
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { CircularProgress, Typography, Box } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import httpClient from '../api/httpClient';
 
-const Auth = () => {
-  const { setUser } = useAuth();
+/**
+ * Login page:
+ * - If already authenticated (session cookie present), redirect to /dashboard.
+ * - Otherwise, render a "Continue with Google" CTA that starts the OAuth2 flow.
+ *
+ * Notes:
+ *  - We do NOT redirect to /login on 401; this component IS the /login page.
+ *  - `withCredentials: true` is required so the browser sends/receives JSESSIONID.
+ */
+const Auth: React.FC = () => {
+  const { setUser, login } = useAuth();   // <-- `login` comes from the AuthContext
   const navigate = useNavigate();
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    let cancelled = false;
+
+    (async () => {
       try {
         const res = await httpClient.get('/api/me', { withCredentials: true });
-        setUser(res.data);
-        navigate('/dashboard');
-      } catch (err) {
-        console.error('Login failed or session invalid', err);
-        navigate('/login'); // optionally redirect to login or show message
+        if (!cancelled) {
+          setUser(res.data);
+          navigate('/dashboard', { replace: true });
+        }
+      } catch {
+        // Not authenticated -> show the login button instead of looping
+      } finally {
+        if (!cancelled) setChecking(false);
       }
-    };
+    })();
 
-    fetchUser();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, setUser]);
+
+  if (checking) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress />
+          <Typography variant="body2" sx={{ mt: 2 }}>
+            Verifying your login…
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
-    <Box className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <CircularProgress />
-      <Typography variant="body2" mt={2}>Verifying your login...</Typography>
+    <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+      <Box sx={{ textAlign: 'center' }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          Welcome to Smart Supply Pro
+        </Typography>
+        <Button variant="contained" onClick={login}>
+          Continue with Google
+        </Button>
+      </Box>
     </Box>
   );
 };

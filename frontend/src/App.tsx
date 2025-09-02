@@ -1,14 +1,11 @@
-
 import AppRouter from './routes/AppRouter';
 
 /**
  * Main application component.
- * Wraps the entire app in React Router for route handling.
- * Future layout and context providers can be added here.
+ * Houses global providers if needed in the future (theme, i18n, etc.).
  */
 function App() {
   return <AppRouter />;
 }
-
 export default App;
 

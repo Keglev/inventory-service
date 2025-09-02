@@ -16,11 +16,13 @@ const httpsConfig = useHttps
 
 export default defineConfig({
   server: {
-    https: httpsConfig, // Now it's either undefined or a proper object
+    https: httpsConfig,
     proxy: {
       '/api': 'https://inventoryservice.fly.dev',
       '/oauth2': 'https://inventoryservice.fly.dev',
       '/logout': 'https://inventoryservice.fly.dev',
+      // NEW: proxy health so dev & prod code paths match
+      '/health': 'https://inventoryservice.fly.dev',
     },
     port: 5173,
   },

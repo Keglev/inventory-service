@@ -1,6 +1,6 @@
 // src/components/Topbar.tsx
 import { AppBar, Box, Toolbar, Typography, Button } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 /**
  * Application top bar displaying branding, user info, and logout functionality.
