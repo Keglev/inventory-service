@@ -82,19 +82,16 @@ JAVA_OPTS="${JAVA_OPTS:-} \
  -Dserver.forward-headers-strategy=framework \
  -XX:MaxRAMPercentage=75"
 
- # JKS flags only if present (many wallets do not include .jks)
- #if [ -f "${TNS_ADMIN}/keystore.jks" ] && [ -f "${TNS_ADMIN}/truststore.jks" ]; then
- # JAVA_OPTS="$JAVA_OPTS \
-  # -Djavax.net.ssl.keyStore=${TNS_ADMIN}/keystore.jks \
-  # -Djavax.net.ssl.keyStoreType=JKS \
-  # -Djavax.net.ssl.keyStorePassword=${ORACLE_WALLET_PASSWORD} \
-  # -Djavax.net.ssl.trustStore=${TNS_ADMIN}/truststore.jks \
-  # -Djavax.net.ssl.trustStoreType=JKS \
-  # -Djavax.net.ssl.trustStorePassword=${ORACLE_WALLET_PASSWORD}"
-# fi
-
 # Minimize exposure: we can safely unset the password env var after building JAVA_OPTS
 unset ORACLE_WALLET_PASSWORD
+
+export SERVER_ERROR_INCLUDE_MESSAGE=ALWAYS
+export SERVER_ERROR_INCLUDE_STACKTRACE=ALWAYS
+export SERVER_ERROR_INCLUDE_BINDING_ERRORS=ALWAYS
+
+export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
+export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY_OAUTH2_CLIENT=DEBUG
+export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
 
 echo "Starting Spring Boot on port ${SERVER_PORT}..."
 echo "[start] Starting Inventory Service App..."
