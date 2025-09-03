@@ -29,8 +29,8 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID}         # Provided via secrets in CI/CD or vault
-            client-secret: ${GOOGLE_CLIENT_SECRET}
+            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}         # Provided via secrets in CI/CD or vault
+            client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
 
             scope:
@@ -73,6 +73,6 @@ app:
 
   frontend:
     # Real frontend domain for recruiters
-    base-url: ${APP_FRONTEND_BASE_URL:https://inventoryfrontend.fly.dev}
+    base-url: ${APP_FRONTEND_BASE_URL:https://localhost:5173}
     # Your SPA login landing (matches your success handler)
     landing-path: ${APP_FRONTEND_LANDING_PATH:/login}

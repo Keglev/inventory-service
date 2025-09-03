@@ -1,7 +1,9 @@
 package com.smartsupplypro.inventory.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,13 +17,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 /**
  * Global exception translator for REST controllers.
@@ -188,6 +190,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleNoSuchElement(NoSuchElementException ex) {
         return body(HttpStatus.NOT_FOUND, nonEmpty(ex.getMessage(), "Resource not found"));
     }
+
+    /**
+    * Static resource not found (e.g., bad URL for {@code /images/**}).
+    * <p>Mapped to <b>404 Not Found</b>.</p>
+    */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void notFound() { /* no body */ }
 
     /* =======================================================================
      * 409 Conflict

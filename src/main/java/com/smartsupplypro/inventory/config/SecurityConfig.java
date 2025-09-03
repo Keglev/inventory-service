@@ -162,8 +162,8 @@ public class SecurityConfig {
                     .authorizationRequestRepository(authRequestRepository())
                 )
                 .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-               // .failureHandler(oauthFailureHandler())
-                //.successHandler(successHandler)
+                .failureHandler(oauthFailureHandler())
+                .successHandler(successHandler)
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
@@ -274,5 +274,21 @@ public class SecurityConfig {
     public org.springframework.security.oauth2.client.web.AuthorizationRequestRepository<
             org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest> authRequestRepository() {
         return new com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository();
+    }
+    
+    /**
+     * OAuth2 login success handler that redirects to the frontend landing page.
+     *
+     * <p>The actual user onboarding is handled by {@link OAuth2LoginSuccessHandler}.</p>
+     *
+     * @param props application properties with frontend URL/path
+     * @return a configured {@link org.springframework.security.web.authentication.AuthenticationSuccessHandler}
+     */
+    @Bean
+    public org.springframework.security.web.authentication.AuthenticationSuccessHandler successHandler(AppProperties props) {
+        return (request, response, authentication) -> {
+            String to = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
+            response.sendRedirect(to);
+        };
     }
 }
