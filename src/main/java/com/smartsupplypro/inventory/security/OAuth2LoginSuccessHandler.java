@@ -98,9 +98,15 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Hardcoding https://localhost:5173 will not work on production (Fly).
         // configurable post-login target
         String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
+        // If something already wrote/redirected, bail
+        if (response.isCommitted()) {
+            return;
+        }
+
+        // ONE redirect only
         getRedirectStrategy().sendRedirect(request, response, target);
 
         // Important: Ensure redirect uses proper protocol and host
-        response.sendRedirect("https://localhost:5173/login");
+        // response.sendRedirect("https://localhost:5173/login");
     }
 }
