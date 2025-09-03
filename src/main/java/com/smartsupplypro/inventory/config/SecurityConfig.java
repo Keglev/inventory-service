@@ -161,7 +161,7 @@ public class SecurityConfig {
                     // can be processed by any instance (no sticky sessions required).
                     .authorizationRequestRepository(authRequestRepository())
                 )
-              //  .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
+                .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
                // .failureHandler(oauthFailureHandler())
                 //.successHandler(successHandler)
             )
