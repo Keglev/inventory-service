@@ -15,6 +15,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -28,6 +30,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
 import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
 
 import jakarta.servlet.FilterChain;
@@ -153,6 +156,11 @@ public class SecurityConfig {
                 .defaultAuthenticationEntryPointFor(webEntry, request -> true) // everything else -> redirect
             )
             .oauth2Login(oauth -> oauth
+                .authorizationEndpoint(ae -> ae
+                    // Store the outbound authorization request in a cookie so the callback
+                    // can be processed by any instance (no sticky sessions required).
+                    .authorizationRequestRepository(authRequestRepository())
+                )
                 .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
                 .failureHandler(oauthFailureHandler())
                 .successHandler(successHandler)
@@ -242,5 +250,29 @@ public class SecurityConfig {
             String encodedError = URLEncoder.encode(exception.getMessage(), "UTF-8");
             response.sendRedirect("/login?error=" + encodedError);
         };
+    }
+    /**
+    * OAuth2 authorization request persistence:
+    * <p>
+    * We store the OAuth2 AuthorizationRequest in an HttpOnly, SameSite=None cookie
+    * (see CookieOAuth2AuthorizationRequestRepository) rather than the default in-memory
+    * HttpSession. This avoids "authorization_request_not_found" errors when the user
+    * is redirected back to a different instance (stateless, no sticky session required).
+    * Session cookies remain configured via {@link #cookieSerializer()} for application use.
+    */
+    @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
+        return new CookieOAuth2AuthorizationRequestRepository();
+    }
+
+    /**
+     * OAuth2 authorization request repository.
+     *
+     * @return a configured {@link AuthorizationRequestRepository}
+     */
+    @Bean
+    public org.springframework.security.oauth2.client.web.AuthorizationRequestRepository<
+            org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest> authRequestRepository() {
+        return new com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository();
     }
 }
