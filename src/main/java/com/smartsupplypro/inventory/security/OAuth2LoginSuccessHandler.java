@@ -2,7 +2,6 @@ package com.smartsupplypro.inventory.security;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
@@ -73,8 +72,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+            // Prevent duplicate redirects if something triggers success twice in the same request
+        if (request.getAttribute("OAUTH2_SUCCESS_REDIRECT_DONE") != null) {
+            log.debug("Success redirect already performed; skipping.");
+            return;
+        }
+        request.setAttribute("OAUTH2_SUCCESS_REDIRECT_DONE", Boolean.TRUE);
 
+        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         String email = token.getPrincipal().getAttribute("email");
         String name = token.getPrincipal().getAttribute("name");
 
@@ -84,13 +89,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         try {
             // Register the user if they don't exist
-            Optional<AppUser> existing = userRepository.findById(email);
-            if (existing.isEmpty()) {
+            userRepository.findById(email).orElseGet(() -> {
                 AppUser newUser = new AppUser(email, name);
                 newUser.setRole(Role.USER);
                 newUser.setCreatedAt(LocalDateTime.now());
-                userRepository.save(newUser);
-            }
+                return userRepository.save(newUser);
+            });
         } catch (DataIntegrityViolationException e) {
             // Concurrent insert safety: load the already-created user
             userRepository.findByEmail(email).orElseThrow(() ->
@@ -102,12 +106,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
         log.info("OAuth2 success → redirecting to FE: {}", target);
         // If something already wrote/redirected, bail
-        if (!response.isCommitted()) {
-            getRedirectStrategy().sendRedirect(request, response, target);
-        }
 
+        setAlwaysUseDefaultTargetUrl(true);
+        setDefaultTargetUrl(target);
         // ONE redirect only
-        getRedirectStrategy().sendRedirect(request, response, target);
+        // Let the parent handler run the (single) redirect
+        super.onAuthenticationSuccess(request, response, authentication);
 
         // Important: Ensure redirect uses proper protocol and host
         // response.sendRedirect("https://localhost:5173/login");

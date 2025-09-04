@@ -17,20 +17,15 @@ import axios from 'axios';
  *   The default Accept header helps ensure consistent behavior.
  */
 
-const BACKEND_URL = import.meta.env.VITE_API_BASE; // MUST be set
-
-if (!BACKEND_URL) {
-  // Hard-fail loudly so this never silently falls back to window.origin
-  // You can remove this once your env is solid.
-  throw new Error("VITE_API_BASE is not defined");
-}
+export const API_BASE =
+  (import.meta.env.VITE_API_BASE && import.meta.env.VITE_API_BASE.trim()) ||
+  "https://inventoryservice.fly.dev";
 
 const httpClient = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: API_BASE,
   withCredentials: true,
   headers: {
-    Accept: 'application/json', // Ensure /api returns JSON (not HTML) on 401
-  },
+    Accept: 'application/json'}, // Ensure /api returns JSON (not HTML) on 401
 });
 
 export default httpClient;

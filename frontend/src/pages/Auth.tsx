@@ -18,7 +18,7 @@ const Auth: React.FC = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
-  const BACKEND_URL = import.meta.env.VITE_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE as string;
 
   useEffect(() => {
     let cancelled = false;
@@ -61,11 +61,9 @@ const Auth: React.FC = () => {
         <Typography variant="h5" sx={{ mb: 2 }}>
           Welcome to Smart Supply Pro
         </Typography>
-        <Button variant="contained" onClick={() => {
-                                  window.location.href = `${BACKEND_URL}/oauth2/authorization/google`;
-                                  }}
+        <Button variant="contained" onClick={() => { window.location.href = `${API_BASE}/oauth2/authorization/google`;}}
         >
-          Continue with Google
+          Login with Google
         </Button>
       </Box>
     </Box>
