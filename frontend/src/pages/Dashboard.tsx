@@ -1,27 +1,37 @@
-import { useEffect, useState } from 'react';
-import { testConnection } from '../api/testConnection';
-import { useAuth } from '../context/useAuth';
+// src/pages/Dashboard.tsx
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/useAuth";
+import { testConnection } from "../api/testConnection";
 
-const Dashboard = () => {
-  const [status, setStatus] = useState('');
+/**
+ * Dashboard
+ *
+ * Displays a quick confirmation of the authenticated session and a backend health probe.
+ * Assumes AuthCallback populated the auth context with { email, fullName, role }.
+ */
+const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const [status, setStatus] = useState<string>("Checking...");
 
   useEffect(() => {
+    let cancelled = false;
     testConnection()
-      .then(setStatus)
-      .catch(() => setStatus('Connection failed'));
+      .then((ok) => !cancelled && setStatus(ok ? "OK" : "Connection failed"))
+      .catch(() => !cancelled && setStatus("Connection failed"));
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
     <>
       <h2>Dashboard</h2>
-      <p>Login successful{user ? `, ${user.fullName}!` : '!'}</p>
+      <p>
+        Login successful{user?.fullName ? `, ${user.fullName}!` : "!"}
+      </p>
       <p>Backend status: {status}</p>
     </>
   );
 };
 
 export default Dashboard;
-
-
-

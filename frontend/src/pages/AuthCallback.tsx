@@ -1,48 +1,60 @@
-// src/pages/AuthCallback.tsx
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, CircularProgress, Typography } from '@mui/material';
-import httpClient from '../api/httpClient';
-import { useAuth } from '../context/useAuth';
+// pages/AuthCallback.tsx
+import React, { useEffect } from "react";
+import { Box, CircularProgress, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import httpClient from "../api/httpClient";
+import { useAuth } from "../context/useAuth";
 
 /**
- * OAuth2 callback handler:
- * - Invoked by the OAuth2 provider (Google) after user signs in and grants permissions.
- * - The backend has already processed the callback, created a session, and set a JSESSIONID cookie.
- * - This component verifies the session by calling /api/me, updates the auth context, and redirects to /dashboard.
- * - If verification fails, redirects to /login.
- * - While verifying, shows a loading spinner.
- * Notes:
- * 
- * - We do NOT redirect to /login on 401; this component IS the /login page.
- * - `withCredentials: true` is required so the browser sends/receives JSESSIONID.
- * /
- * @returns {JSX.Element}
+ * AuthCallback
+ *
+ * After a successful Google OAuth2 login, the backend redirects here (/auth).
+ * We verify the session via /api/me, populate the AuthContext, then go to /dashboard.
+ * NOTE: We only set { email, fullName, role } to match your current FE user type.
  */
-export default function AuthCallback() {
-  const { setUser } = useAuth();
+const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
-  // On mount, verify the session and fetch user info
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
-        const res = await httpClient.get('/api/me');
-        setUser(res.data);                  // { email, fullName, role }
-        navigate('/dashboard', { replace: true });
+        // Expected response shape from backend: { email, fullName, role, pictureUrl? }
+        const { data } = await httpClient.get("/api/me");
+
+        if (!cancelled) {
+          // Set ONLY the fields your current AuthContext type knows about
+          setUser({
+            email: data.email,
+            fullName: data.fullName,
+            role: data.role,
+          });
+          navigate("/dashboard", { replace: true });
+        }
       } catch {
-        navigate('/login', { replace: true });
+        if (!cancelled) {
+          navigate("/login?error=session", { replace: true });
+        }
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [navigate, setUser]);
 
-  // While verifying, show a loading spinner
+  // Lightweight loading UI while verifying the session
   return (
-    <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+    <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
       <Box textAlign="center">
         <CircularProgress />
-        <Typography variant="body2" mt={2}>Verifying your login…</Typography>
+        <Typography variant="body2" mt={2}>
+          Verifying your login…
+        </Typography>
       </Box>
     </Box>
   );
-}
+};
+
+export default AuthCallback;

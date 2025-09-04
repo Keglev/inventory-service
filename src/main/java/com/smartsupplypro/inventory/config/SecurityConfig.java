@@ -168,10 +168,17 @@ public class SecurityConfig {
                 .successHandler(successHandler)
             )
             .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+                .logoutSuccessHandler((req, res, auth) -> {
+                    Object isApi = req.getAttribute("IS_API_REQUEST"); // you already set this flag in your filter
+                    if (Boolean.TRUE.equals(isApi)) {
+                        res.setStatus(HttpServletResponse.SC_NO_CONTENT); // 204 for XHR
+                    } else {
+                        String target = props.getFrontend().getBaseUrl() + "/logout-success";
+                        res.sendRedirect(target);
+                    }
+                })
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID", "SESSION") // Spring Session uses "SESSION"
+                .deleteCookies("JSESSIONID", "SESSION") // servlet + Spring Session cookies
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -269,20 +276,4 @@ public class SecurityConfig {
     public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
         return new CookieOAuth2AuthorizationRequestRepository();
     }
-
-    /**
-     * OAuth2 login success handler that redirects to the frontend landing page.
-     *
-     * <p>The actual user onboarding is handled by {@link OAuth2LoginSuccessHandler}.</p>
-     *
-     * @param props application properties with frontend URL/path
-     * @return a configured {@link org.springframework.security.web.authentication.AuthenticationSuccessHandler}
-     */
-   // @Bean
-   // public org.springframework.security.web.authentication.AuthenticationSuccessHandler successHandler(AppProperties props) {
-   //     return (request, response, authentication) -> {
-   //         String to = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
-    //        response.sendRedirect(to);
-   //     };
-  //  }
 }

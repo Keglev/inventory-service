@@ -1,16 +1,20 @@
 package com.smartsupplypro.inventory.repository;
 
-import com.smartsupplypro.inventory.model.AppUser;
-import com.smartsupplypro.inventory.model.Role;
+import java.util.Optional;
+
+import org.hibernate.exception.ConstraintViolationException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.model.Role;
 
 /**
  * Integration test class for {@link AppUserRepository} using an in-memory H2 database.
@@ -95,9 +99,19 @@ class AppUserRepositoryTest {
         AppUser user2 = new AppUser("duplicate@example.com", "Other User");
         user2.setRole(Role.ADMIN);
 
-        assertThrows(Exception.class, () -> {
-            appUserRepository.saveAndFlush(user2);
-        }, "Expected exception due to duplicate email");
+        // Capture the exception to avoid "method result ignored" warning
+        DataIntegrityViolationException ex = assertThrows(
+            DataIntegrityViolationException.class,
+            () -> appUserRepository.saveAndFlush(user2),
+            "Expected DataIntegrityViolationException due to unique email constraint (uk_users_email)"
+        );
+
+        // Optional: sanity check on the root cause type/message (portable enough)
+        Throwable root = ex.getCause();
+        assertTrue(
+            root instanceof ConstraintViolationException || ex.getMostSpecificCause() != null,
+            "Root cause should indicate a constraint violation"
+        );
     }
 
     /**

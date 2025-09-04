@@ -17,7 +17,7 @@ import httpClient from '../api/httpClient';
 const Auth: React.FC = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
-  const [checking, setChecking] = useState(true);
+  const [ checking ] = useState(true);
   const API_BASE = import.meta.env.VITE_API_BASE as string;
 
   useEffect(() => {
@@ -25,21 +25,20 @@ const Auth: React.FC = () => {
 
     (async () => {
       try {
-        const res = await httpClient.get('/api/me', { withCredentials: true });
+        const { data } = await httpClient.get('/api/me');
         if (!cancelled) {
-          setUser(res.data);
+          setUser({
+            email: data.email,
+            fullName: data.fullName ?? data.name ?? data.email,
+            role: data.role ?? (data.authorities?.[0] ?? "USER"),
+          });
           navigate('/dashboard', { replace: true });
         }
       } catch {
-        // Not authenticated -> show the login button instead of looping
-      } finally {
-        if (!cancelled) setChecking(false);
-      }
+        /* stay on login */
+      } 
     })();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true;};
   }, [navigate, setUser]);
 
   if (checking) {

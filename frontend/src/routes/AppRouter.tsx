@@ -27,15 +27,17 @@ const AppRouter = () => {
       {user && <TopBar />}
 
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Auth />} />
 
-        {/* NEW: silent verifier after Google */}
+        {/*silent verifier after Google */}
         <Route path="/auth" element={<AuthCallback />} />
 
-        {/* Optional: show a friendly page after logout */}
+        {/*show a friendly page after logout */}
         <Route path="/logout-success" element={<LogoutSuccess />} />
 
+        {/* Protected routes (behind the RequireAuth) */}
         <Route
           path="/dashboard"
           element={
@@ -60,17 +62,11 @@ const AppRouter = () => {
             </RequireAuth>
           }
         />
-
-        <Route path="*" element={<NotFound />} />
+        {/* Fallback */}
+        <Route path="*" element={<Home />} />
       </Routes>
     </>
   );
 };
-
-const NotFound = () => (
-  <Box className="flex items-center justify-center h-screen">
-    <h1>404 - Page not found</h1>
-  </Box>
-);
 
 export default AppRouter;

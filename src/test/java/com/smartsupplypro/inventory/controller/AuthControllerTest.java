@@ -90,9 +90,8 @@ public class AuthControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(email))
-                .andExpect(jsonPath("$.name").value("Test " + role.name()))
-                // roles is an array; first element equals the role name 
-                .andExpect(jsonPath("$.roles[0]").value(role.name()));
+                .andExpect(jsonPath("$.fullName").value("Test " + role.name()))
+                .andExpect(jsonPath("$.role").value(role.name()));
     }
 
     /**
@@ -178,7 +177,7 @@ public class AuthControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(email))
-                .andExpect(jsonPath("$.roles[0]").value("USER"));
+                .andExpect(jsonPath("$.role").value("USER"));
     }
 }
 /**

@@ -1,8 +1,5 @@
 package com.smartsupplypro.inventory.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -22,93 +19,107 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Authentication utility endpoints.
+ * Authentication-related endpoints (current user profile; API-only logout).
  *
- * <p><b>Responsibilities</b>
+ * <p>Important contract for the front-end:
  * <ul>
- *   <li>Expose the authenticated user profile at <code>GET /api/me</code>.</li>
- *   <li>Optional debug endpoints for session/auth inspection (not for production).</li>
- * </ul>
- *
- * <p><b>Security</b>
- * <ul>
- *   <li>All endpoints are under <code>/api/**</code> and require authentication,
- *       except where explicitly opened in {@code SecurityConfig}.</li>
- *   <li>On missing/invalid authentication, the controller returns 401 with a JSON body
- *       (driven by the API entry point in {@code SecurityConfig}).</li>
- * </ul>
- *
- * <p><b>Notes</b>
- * <ul>
- *   <li>User lookup is by OAuth2-provided email. No self-enrollment UI is provided.</li>
- *   <li>Debug endpoints should be disabled in production builds.</li>
+ *   <li><b>GET /api/me</b> returns a minimal profile: {@code email}, {@code fullName}, {@code role} (single string),
+ *       and optional {@code pictureUrl}.</li>
+ *   <li><b>POST /logout</b> is handled by Spring Security (see SecurityConfig). Prefer that over the legacy API logout.</li>
  * </ul>
  */
 @RestController
 @RequestMapping("/api")
 public class AuthController {
 
-    @Autowired
-    private AppUserRepository appUserRepository;
+    private final AppUserRepository appUserRepository;
 
-    /* 
-    * DTO for authenticated user profile response.
-    * Exposes only non-sensitive fields.
-    */
-    public record AppUserProfileDTO(
-            String id, String email, String name, String pictureUrl, List<String> roles) {}
+    public AuthController(AppUserRepository appUserRepository) {
+        this.appUserRepository = appUserRepository;
+    }
 
     /**
-     * Retrieves the full authenticated user profile using the OAuth2 principal.
+     * DTO for authenticated user profile response.
+     * Exposes only non-sensitive fields, shaped exactly for the FE.
+     */
+    public record AppUserProfileDTO(
+            String email,
+            String fullName,
+            String role,
+            String pictureUrl
+    ) {}
+
+    /**
+     * Returns the authenticated user's profile.
      *
-     * <p>This endpoint:
-     * <ul>
-     *   <li>Requires the user to be authenticated via Google OAuth2</li>
-     *   <li>Extracts the user email from the OAuth2 principal</li>
-     *   <li>Fetches the full user profile from the internal {@code AppUserRepository}</li>
-     * </ul>
+     * <p>Source of truth for identity:
+     * <ol>
+     *   <li>Read Google's {@code email} from the OAuth2 principal.</li>
+     *   <li>Load our {@link AppUser} by email (created on first login in the success handler).</li>
+     *   <li>Shape the response as {@code { email, fullName, role, pictureUrl? }}.</li>
+     * </ol>
      *
-     * @param principal OAuth2 principal injected by Spring Security
-     * @return authenticated {@link AppUser} profile or HTTP 401 if authentication is missing
+     * <p>401 is returned if the principal is missing or the user is not found.</p>
      */
     @GetMapping("/me")
     public AppUserProfileDTO me(@AuthenticationPrincipal OAuth2User principal) {
-        if (principal == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication provided");
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication provided");
+        }
         String email = principal.getAttribute("email");
-        if (email == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email not provided by OAuth2 provider");
+        if (email == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email not provided by OAuth2 provider");
+        }
 
         AppUser user = appUserRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        return new AppUserProfileDTO(user.getId(), user.getEmail(), user.getName(), null,
-                List.of(user.getRole().name()));
+        // Optional: pull Google picture/ avatar if present
+        String picture = principal.getAttribute("picture");
+
+        return new AppUserProfileDTO(
+                user.getEmail(),
+                user.getName(),              // map to fullName
+                user.getRole().name(),       // single role string
+                picture
+        );
     }
 
     /**
-     * Logout endpoint to invalidate the user session.
-     * 
-     * <p>This endpoint:
-     * <ul>
-     *  <li>Invalidates the current HTTP session</li>
-     * <li>Clears the security context</li>
-     * <li>Removes session cookies</li>
-     * <li>Returns HTTP 204 No Content on success</li>
-     * </ul>
-     * </p>
-     * @param request  the incoming HTTP request
-     * @param response the outgoing HTTP response
-     * @return HTTP 204 No Content on successful logout
-     */
+     * API logout endpoint.
+     * Invalidates the Spring Security session and expires cookies.
+     * Intended for API clients (e.g. Postman); prefer the POST /logout handled by Spring Security for browsers.
+     * Returns 204 No Content.
+     * @param request  HTTP servlet request
+     * @param response HTTP servlet response
+     * @return ResponseEntity with no content
+     * @see org.springframework.security.web.authentication.logout.LogoutSuccessHandler
+     **/
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> apiLogout(HttpServletRequest request, HttpServletResponse response) {
+        // Invalidate Spring Security session
         new SecurityContextLogoutHandler().logout(request, response, null);
-        ResponseCookie jsess = ResponseCookie.from("JSESSIONID","").path("/").maxAge(0)
-                .httpOnly(true).secure(true).sameSite("None").build();
-        ResponseCookie session = ResponseCookie.from("SESSION","").path("/").maxAge(0)
-                .httpOnly(true).secure(true).sameSite("None").build();
-        response.addHeader("Set-Cookie", jsess.toString());
-        response.addHeader("Set-Cookie", session.toString());
-        return ResponseEntity.noContent().build(); // 204
-    }
 
+        // Expire session cookies explicitly for API clients (what the test expects)
+        ResponseCookie jsess = ResponseCookie.from("JSESSIONID", "")
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .maxAge(0)
+                .build();
+
+        ResponseCookie session = ResponseCookie.from("SESSION", "")
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.noContent()
+                .header("Set-Cookie", jsess.toString())
+                .header("Set-Cookie", session.toString())
+                .build();
+    }
 }

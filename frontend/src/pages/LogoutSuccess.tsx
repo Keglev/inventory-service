@@ -1,16 +1,36 @@
-import { Box, Button, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+// src/pages/LogoutSuccess.tsx
+import React from "react";
+import { Box, Button, Paper, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-export default function LogoutSuccess() {
+/**
+ * LogoutSuccess
+ *
+ * Simple confirmation page after logout with a clear CTA back to /login.
+ * This route must be PUBLIC (no auth guard), otherwise you'll bounce back to /login immediately.
+ */
+const LogoutSuccess: React.FC = () => {
   const navigate = useNavigate();
+
   return (
-    <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
-      <Box textAlign="center">
-        <Typography variant="h5" sx={{ mb: 2 }}>Logout successful</Typography>
-        <Button variant="contained" onClick={() => navigate('/login')}>
-          Back to Login
+    <Box sx={{ display: "grid", placeItems: "center", minHeight: "60vh", p: 2 }}>
+      <Paper sx={{ p: 4, maxWidth: 520, width: "100%" }} elevation={2}>
+        <Typography variant="h5" gutterBottom>
+          Logout successful
+        </Typography>
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          You have been signed out securely.
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => navigate("/login", { replace: true })}
+          sx={{ mt: 2 }}
+        >
+          Back to login
         </Button>
-      </Box>
+      </Paper>
     </Box>
   );
-}
+};
+
+export default LogoutSuccess;
