@@ -45,7 +45,7 @@ spring:
 
 server:
   port: 8081                                       # Override default port (if needed by reverse proxy/load balancer)
-  forward-headers-strategy: native                 # Use native strategy for handling forwarded headers
+  forward-headers-strategy: framework              # Use framework strategy to respect X-Forwarded-* headers from proxies
   servlet:
     session:
       cookie:

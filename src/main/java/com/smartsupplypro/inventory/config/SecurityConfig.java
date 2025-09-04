@@ -1,9 +1,9 @@
 package com.smartsupplypro.inventory.config;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.session.web.http.CookieSerializer;
@@ -123,7 +122,12 @@ public class SecurityConfig {
             res.getWriter().write("{\"message\":\"Unauthorized\"}");
         };
         // Entry point for web requests that should redirect to the login page
-        AuthenticationEntryPoint webEntry = new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/google");
+        AuthenticationEntryPoint webEntry = (req, res, ex) -> {
+            String target = props.getFrontend().getBaseUrl() + "/login";
+            if (!res.isCommitted()) {
+                res.sendRedirect(target);
+            }
+        };
         // Main security configuration
         http
             .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)
@@ -159,10 +163,10 @@ public class SecurityConfig {
                 .authorizationEndpoint(ae -> ae
                     // Store the outbound authorization request in a cookie so the callback
                     // can be processed by any instance (no sticky sessions required).
-                    .authorizationRequestRepository(authRequestRepository())
+                    .authorizationRequestRepository(authorizationRequestRepository())
                 )
                 .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-                .failureHandler(oauthFailureHandler())
+                .failureHandler(oauthFailureHandler(props))
                 .successHandler(successHandler)
             )
             .logout(logout -> logout
@@ -245,12 +249,17 @@ public class SecurityConfig {
      * @return a configured {@link AuthenticationFailureHandler}
      */
     @Bean
-    public AuthenticationFailureHandler oauthFailureHandler() {
+    public AuthenticationFailureHandler oauthFailureHandler(AppProperties props) {
         return (request, response, exception) -> {
-            String encodedError = URLEncoder.encode(exception.getMessage(), "UTF-8");
-            response.sendRedirect("/login?error=" + encodedError);
+            // Optional but useful log:
+            LoggerFactory.getLogger(SecurityConfig.class).warn("OAuth2 failure: {}", exception.toString());
+            String target = props.getFrontend().getBaseUrl() + "/login?error=oauth";
+            if (!response.isCommitted()) {
+                response.sendRedirect(target);
+            }
         };
-    }
+    };
+
     /**
     * OAuth2 authorization request persistence:
     * <p>
@@ -263,17 +272,6 @@ public class SecurityConfig {
     @Bean
     public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
         return new CookieOAuth2AuthorizationRequestRepository();
-    }
-
-    /**
-     * OAuth2 authorization request repository.
-     *
-     * @return a configured {@link AuthorizationRequestRepository}
-     */
-    @Bean
-    public org.springframework.security.oauth2.client.web.AuthorizationRequestRepository<
-            org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest> authRequestRepository() {
-        return new com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository();
     }
 
     /**

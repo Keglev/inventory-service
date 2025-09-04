@@ -43,6 +43,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);
     private final AppProperties props;
     private final AppUserRepository userRepository;
 
@@ -98,6 +100,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // Hardcoding https://localhost:5173 will not work on production (Fly).
         // configurable post-login target
         String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
+        log.info("OAuth2 success → redirecting to FE: {}", target);
         // If something already wrote/redirected, bail
         if (response.isCommitted()) {
             return;

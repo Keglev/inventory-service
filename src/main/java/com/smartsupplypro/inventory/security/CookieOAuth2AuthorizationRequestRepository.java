@@ -11,6 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
@@ -34,6 +37,8 @@ public class CookieOAuth2AuthorizationRequestRepository
     public static final String AUTH_REQUEST_COOKIE_NAME = "OAUTH2_AUTH_REQUEST";
     private static final int COOKIE_EXPIRE_SECONDS = 180; // 3 minutes
 
+    private static final Logger log = LoggerFactory.getLogger(CookieOAuth2AuthorizationRequestRepository.class);
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
@@ -56,11 +61,13 @@ public class CookieOAuth2AuthorizationRequestRepository
 
         Cookie cookie = new Cookie(AUTH_REQUEST_COOKIE_NAME, encoded);
         cookie.setHttpOnly(true);
-        cookie.setSecure(request.isSecure());
+        cookie.setSecure(isSecureOrForwardedHttps(request));
         cookie.setPath("/");
         cookie.setMaxAge(COOKIE_EXPIRE_SECONDS);
 
         addCookieWithSameSite(response, cookie, "None");
+        log.debug("Saved {} cookie. secure={}, maxAge={}, sameSite=None",
+            AUTH_REQUEST_COOKIE_NAME, cookie.getSecure(), cookie.getMaxAge());
     }
 
     /**
@@ -97,10 +104,11 @@ public class CookieOAuth2AuthorizationRequestRepository
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(AUTH_REQUEST_COOKIE_NAME, "");
         cookie.setHttpOnly(true);
-        cookie.setSecure(request.isSecure());
+        cookie.setSecure(isSecureOrForwardedHttps(request));
         cookie.setPath("/");
         cookie.setMaxAge(0);
         addCookieWithSameSite(response, cookie, "None");
+        log.debug("Deleted {} cookie.", AUTH_REQUEST_COOKIE_NAME);
     }
 
     /**
@@ -194,5 +202,11 @@ public class CookieOAuth2AuthorizationRequestRepository
         // Fallback: empty JSON; caller will still Base64 it
         return "{}";
         }
+    }
+
+    private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
+        if (request.isSecure()) return true;
+        String xfProto = request.getHeader("X-Forwarded-Proto");
+        return xfProto != null && xfProto.equalsIgnoreCase("https");
     }
 }
