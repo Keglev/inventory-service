@@ -25,7 +25,7 @@ const Topbar: React.FC = () => {
       // Ignore network errors; we still clear client state below
     }
     logout(); // your hook should clear context; if it doesn't navigate, we do it here:
-    window.location.assign("/logout-success");
+    window.location.assign(`${window.location.origin}/logout-success`);
   };
 
   return (

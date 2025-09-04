@@ -1,4 +1,4 @@
-// src/Home.tsx
+// src/pages/Home.tsx
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
@@ -11,7 +11,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate(user ? '/dashboard' : '/login');
+    navigate(user ? '/dashboard' : '/logout-success');
   }, [user, navigate]);
 
   return null;
