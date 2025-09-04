@@ -20,7 +20,7 @@ const httpClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE || '',
   withCredentials: true,
   headers: {
-    Accept: 'application/json',
+    Accept: 'application/json', // Ensure /api returns JSON (not HTML) on 401
   },
 });
 

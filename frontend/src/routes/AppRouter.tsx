@@ -5,13 +5,12 @@ import Inventory from '../pages/Inventory';
 import Suppliers from '../pages/Suppliers';
 import Auth from '../pages/Auth';
 import Home from '../pages/Home';
+import AuthCallback from '../pages/AuthCallback';
+import LogoutSuccess from '../pages/LogoutSuccess';
 import TopBar from '../components/Topbar';
 import RequireAuth from '../components/RequireAuth';
 import { CircularProgress, Box } from '@mui/material';
 
-/**
- * Defines all application routes, including fallback and auth protection.
- */
 const AppRouter = () => {
   const { user, loading } = useAuth();
 
@@ -30,6 +29,12 @@ const AppRouter = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Auth />} />
+
+        {/* NEW: silent verifier after Google */}
+        <Route path="/auth" element={<AuthCallback />} />
+
+        {/* Optional: show a friendly page after logout */}
+        <Route path="/logout-success" element={<LogoutSuccess />} />
 
         <Route
           path="/dashboard"
@@ -62,7 +67,6 @@ const AppRouter = () => {
   );
 };
 
-// Temporary 404 placeholder
 const NotFound = () => (
   <Box className="flex items-center justify-center h-screen">
     <h1>404 - Page not found</h1>
@@ -70,4 +74,3 @@ const NotFound = () => (
 );
 
 export default AppRouter;
-

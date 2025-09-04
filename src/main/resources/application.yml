@@ -65,4 +65,4 @@ app:
     # Defaults make login testable WITHOUT a frontend:
     # after Google login, redirect to backend /api/me which returns JSON profile.
     base-url: ${APP_FRONTEND_BASE_URL:https://localhost:5173}
-    landing-path: ${APP_FRONTEND_LANDING_PATH:/api/me}
+    landing-path: ${APP_FRONTEND_LANDING_PATH:/auth}  # After login, redirect here (frontend route)
