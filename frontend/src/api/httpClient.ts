@@ -16,8 +16,17 @@ import axios from 'axios';
  *   For `/api/**` endpoints, we expect JSON 401 responses when unauthenticated.
  *   The default Accept header helps ensure consistent behavior.
  */
+
+const BACKEND_URL = import.meta.env.VITE_API_BASE; // MUST be set
+
+if (!BACKEND_URL) {
+  // Hard-fail loudly so this never silently falls back to window.origin
+  // You can remove this once your env is solid.
+  throw new Error("VITE_API_BASE is not defined");
+}
+
 const httpClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || '',
+  baseURL: BACKEND_URL,
   withCredentials: true,
   headers: {
     Accept: 'application/json', // Ensure /api returns JSON (not HTML) on 401

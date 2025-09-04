@@ -45,6 +45,7 @@ spring:
 server:
   port: 8081                                     # Default server port
   address: 0.0.0.0                               # Listen on all interfaces
+  forward-headers-strategy: framework            # Respect X-Forwarded-* headers from proxies
   servlet:
     session:
       cookie: 
@@ -65,4 +66,4 @@ app:
     # Defaults make login testable WITHOUT a frontend:
     # after Google login, redirect to backend /api/me which returns JSON profile.
     base-url: ${APP_FRONTEND_BASE_URL:https://localhost:5173}
-    landing-path: ${APP_FRONTEND_LANDING_PATH:/auth}  # After login, redirect here (frontend route)
+    landing-path: /auth  # After login, redirect here (frontend route)

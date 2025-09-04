@@ -124,9 +124,7 @@ public class SecurityConfig {
         // Entry point for web requests that should redirect to the login page
         AuthenticationEntryPoint webEntry = (req, res, ex) -> {
             String target = props.getFrontend().getBaseUrl() + "/login";
-            if (!res.isCommitted()) {
-                res.sendRedirect(target);
-            }
+            res.sendRedirect(target);
         };
         // Main security configuration
         http
@@ -254,9 +252,7 @@ public class SecurityConfig {
             // Optional but useful log:
             LoggerFactory.getLogger(SecurityConfig.class).warn("OAuth2 failure: {}", exception.toString());
             String target = props.getFrontend().getBaseUrl() + "/login?error=oauth";
-            if (!response.isCommitted()) {
-                response.sendRedirect(target);
-            }
+            if (!response.isCommitted()) response.sendRedirect(target);
         };
     };
 

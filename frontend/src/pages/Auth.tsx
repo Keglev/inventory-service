@@ -15,9 +15,10 @@ import httpClient from '../api/httpClient';
  *  - `withCredentials: true` is required so the browser sends/receives JSESSIONID.
  */
 const Auth: React.FC = () => {
-  const { setUser, login } = useAuth();   // <-- `login` comes from the AuthContext
+  const { setUser } = useAuth();
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
+  const BACKEND_URL = import.meta.env.VITE_API_BASE;
 
   useEffect(() => {
     let cancelled = false;
@@ -60,7 +61,10 @@ const Auth: React.FC = () => {
         <Typography variant="h5" sx={{ mb: 2 }}>
           Welcome to Smart Supply Pro
         </Typography>
-        <Button variant="contained" onClick={login}>
+        <Button variant="contained" onClick={() => {
+                                  window.location.href = `${BACKEND_URL}/oauth2/authorization/google`;
+                                  }}
+        >
           Continue with Google
         </Button>
       </Box>

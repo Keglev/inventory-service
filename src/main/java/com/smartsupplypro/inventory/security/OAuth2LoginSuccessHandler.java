@@ -102,8 +102,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
         log.info("OAuth2 success → redirecting to FE: {}", target);
         // If something already wrote/redirected, bail
-        if (response.isCommitted()) {
-            return;
+        if (!response.isCommitted()) {
+            getRedirectStrategy().sendRedirect(request, response, target);
         }
 
         // ONE redirect only

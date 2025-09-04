@@ -75,4 +75,4 @@ app:
     # Real frontend domain for recruiters
     base-url: ${APP_FRONTEND_BASE_URL:https://localhost:5173}
     # Your SPA login landing (matches your success handler)
-    landing-path: ${APP_FRONTEND_LANDING_PATH:/auth}
+    landing-path: /auth  # After login, redirect here (frontend route)
