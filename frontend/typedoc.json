@@ -1,0 +1,16 @@
+{
+  "entryPoints": ["src/index.ts", "src/components", "src/pages", "src/context", "src/api"],
+  "out": "docs",
+  "tsconfig": "tsconfig.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "theme": "markdown",
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.stories.tsx",
+    "**/__mocks__/**"
+  ],
+  "readme": "none"
+}

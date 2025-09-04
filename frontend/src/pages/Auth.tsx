@@ -1,6 +1,6 @@
 // src/pages/Auth.tsx
-import React, { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, Button, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import httpClient from '../api/httpClient';
@@ -15,56 +15,43 @@ import httpClient from '../api/httpClient';
  *  - `withCredentials: true` is required so the browser sends/receives JSESSIONID.
  */
 const Auth: React.FC = () => {
-  const { setUser } = useAuth();
   const navigate = useNavigate();
-  const [ checking ] = useState(true);
-  const API_BASE = import.meta.env.VITE_API_BASE as string;
+  const { setUser } = useAuth();
 
   useEffect(() => {
     let cancelled = false;
-
     (async () => {
       try {
-        const { data } = await httpClient.get('/api/me');
+        const { data } = await httpClient.get("/api/me");
         if (!cancelled) {
-          setUser({
-            email: data.email,
-            fullName: data.fullName ?? data.name ?? data.email,
-            role: data.role ?? (data.authorities?.[0] ?? "USER"),
-          });
-          navigate('/dashboard', { replace: true });
+          setUser({ email: data.email, fullName: data.fullName, role: data.role });
+          navigate("/dashboard", { replace: true });
         }
       } catch {
-        /* stay on login */
-      } 
+        // stay on /login and show the button
+      }
     })();
-    return () => { cancelled = true;};
+    return () => { cancelled = true; };
   }, [navigate, setUser]);
 
-  if (checking) {
-    return (
-      <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
-        <Box sx={{ textAlign: 'center' }}>
-          <CircularProgress />
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            Verifying your login…
-          </Typography>
-        </Box>
-      </Box>
-    );
-  }
+  const onGoogleLogin = () => {
+    // Use the same base URL your httpClient uses
+    // If your httpClient has baseURL baked in, just hit the absolute backend host:
+    const API_BASE = (import.meta.env.VITE_API_BASE) || "https://inventoryservice.fly.dev";
+    window.location.href = `${API_BASE}/oauth2/authorization/google`;
+  };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
-      <Box sx={{ textAlign: 'center' }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Welcome to Smart Supply Pro
+    <Box sx={{ display: "grid", placeItems: "center", minHeight: "70vh", p: 2 }}>
+      <Paper sx={{ p: 4, maxWidth: 520, width: "100%", textAlign: "center" }} elevation={2}>
+        <Typography variant="h5" gutterBottom>Sign in</Typography>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Use your Google account to continue.
         </Typography>
-        <Button variant="contained" onClick={() => { window.location.href = `${API_BASE}/oauth2/authorization/google`;}}
-        >
+        <Button variant="contained" onClick={onGoogleLogin} sx={{ mt: 2 }}>
           Login with Google
         </Button>
-      </Box>
+      </Paper>
     </Box>
   );
 };
