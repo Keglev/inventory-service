@@ -78,11 +78,11 @@ jobs:
           set -e
           if koyeb service get "${KOYEB_APP}/${SERVICE_NAME}" >/dev/null 2>&1; then
             koyeb service update "${KOYEB_APP}/${SERVICE_NAME}" \
-              --image "docker.io/${{ env.IMAGE_NAME }}:${{ env.PR_TAG }}"
+              --docker "docker.io/${{ env.IMAGE_NAME }}:${{ env.PR_TAG }}"
           else
             koyeb service create "${SERVICE_NAME}" \
               --app "${KOYEB_APP}" \
-              --image "docker.io/${{ env.IMAGE_NAME }}:${{ env.PR_TAG }}" \
+              --docker "docker.io/${{ env.IMAGE_NAME }}:${{ env.PR_TAG }}" \
               --ports 8080:http \
               --env PORT=8080
           fi

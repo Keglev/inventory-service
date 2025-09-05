@@ -76,4 +76,6 @@ jobs:
           KOYEB_SERVICE: ${{ secrets.KOYEB_SERVICE }}
         run: |
           koyeb service update "${KOYEB_APP}/${KOYEB_SERVICE}" \
-            --image "docker.io/${{ env.IMAGE_NAME }}:latest"
+            --docker "docker.io/${{ env.IMAGE_NAME }}:latest"
+            koyeb services redeploy "${KOYEB_APP}/${KOYEB_SERVICE}"
+
