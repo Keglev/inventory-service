@@ -2,7 +2,7 @@
 FROM node:20-bullseye-slim AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci 
 COPY . .
 ARG VITE_API_BASE="https://inventoryservice.fly.dev"
 ENV VITE_API_BASE=$VITE_API_BASE
