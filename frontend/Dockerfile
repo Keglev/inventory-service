@@ -21,7 +21,9 @@ ENV VITE_API_BASE=$VITE_API_BASE
 FROM base AS test
 # Only run if you actually have a "test" script; otherwise this is harmless
 # Use --run to avoid watch mode (Vitest)
-RUN npm run test --if-present -- --run
+# Allow CI to skip tests here because we run them outside Docker for GitHub annotations
+ARG RUN_TESTS=true
+RUN if [ "$RUN_TESTS" = "true" ]; then npm run test --if-present -- --run; else echo "Skipping tests in Docker build"; fi
 
 # =========================
 # 3) Build stage (prod bundle)
@@ -35,8 +37,10 @@ RUN npm run build
 # 4) Runtime (Nginx)
 # =========================
 FROM nginx:1.27-alpine AS runtime
-# SPA-friendly server config (must exist in repo at frontend/nginx.conf)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy Nginx configs from ops/nginx into container
+COPY ../ops/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ../ops/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Copy only the built assets — no node_modules, no tests, no sources
 COPY --from=build /app/dist /usr/share/nginx/html
