@@ -100,8 +100,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             userRepository.findByEmail(email).orElseThrow(() ->
                     new IllegalStateException("User already exists but cannot be loaded."));
         }
-        // TO DO: Make redirect URL configurable (e.g., via property "app.frontend.baseUrl").
-        // Hardcoding https://localhost:5173 will not work on production (Fly).
         // configurable post-login target
         String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
         log.info("OAuth2 success → redirecting to FE: {}", target);
@@ -112,8 +110,5 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // ONE redirect only
         // Let the parent handler run the (single) redirect
         super.onAuthenticationSuccess(request, response, authentication);
-
-        // Important: Ensure redirect uses proper protocol and host
-        // response.sendRedirect("https://localhost:5173/login");
     }
 }

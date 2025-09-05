@@ -1,0 +1,96 @@
+name: Frontend Preview (Koyeb)
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-preview.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-frontend-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
+      VITE_API_BASE: https://inventoryservice.fly.dev
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_TAG: pr-${{ github.event.pull_request.number }} # will be set in a step
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Test (Vitest)
+        run: npm run test --if-present -- --run
+
+      - name: Compute preview tag
+        run: echo "PR_TAG=pr-${PR_NUMBER}" >> "$GITHUB_ENV"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & push preview image
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          file: frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.PR_TAG }}
+          build-args: |
+            VITE_API_BASE=${{ env.VITE_API_BASE }}
+
+      - name: Setup Koyeb CLI
+        uses: koyeb-community/koyeb-actions@v2
+        with:
+          api_token: ${{ secrets.KOYEB_TOKEN }}
+
+      - name: Create or update preview service
+        env:
+          KOYEB_APP: ${{ secrets.KOYEB_APP }}
+          SERVICE_NAME: frontend-pr-${{ github.event.pull_request.number }}
+        run: |
+          set -e
+          if koyeb service get "${KOYEB_APP}/${SERVICE_NAME}" >/dev/null 2>&1; then
+            koyeb service update "${KOYEB_APP}/${SERVICE_NAME}" \
+              --image "docker.io/${{ env.IMAGE_NAME }}:${{ env.PR_TAG }}"
+          else
+            koyeb service create "${SERVICE_NAME}" \
+              --app "${KOYEB_APP}" \
+              --image "docker.io/${{ env.IMAGE_NAME }}:${{ env.PR_TAG }}" \
+              --ports 8080:http \
+              --env PORT=8080
+          fi
+
+      - name: Grab preview URL & comment
+        env:
+          KOYEB_APP: ${{ secrets.KOYEB_APP }}
+          SERVICE_NAME: frontend-pr-${{ github.event.pull_request.number }}
+        run: |
+          URL=$(koyeb service get "${KOYEB_APP}/${SERVICE_NAME}" -o json | jq -r '.service.domains[0].name')
+          echo "Preview: https://${URL}"

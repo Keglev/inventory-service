@@ -210,7 +210,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
             "http://localhost:5173",               // Dev (Vite default)
             "https://localhost:5173",              // Dev over HTTPS (if used)
-            "https://inventoryfrontend.fly.dev"    // Prod frontend domain (adjust on go-live)
+            "https://inventory-service.koyeb.app"    // Prod frontend domain
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

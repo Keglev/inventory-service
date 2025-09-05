@@ -73,6 +73,6 @@ app:
 
   frontend:
     # Real frontend domain for recruiters
-    base-url: ${APP_FRONTEND_BASE_URL:https://localhost:5173}
+    base-url: ${APP_FRONTEND_BASE_URL:https://inventory-service.koyeb.app}
     # Your SPA login landing (matches your success handler)
     landing-path: /auth  # After login, redirect here (frontend route)
