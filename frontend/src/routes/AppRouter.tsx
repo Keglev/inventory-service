@@ -16,18 +16,6 @@ import Inventory from "../pages/Inventory";
 import Suppliers from "../pages/Suppliers";
 
 /**
- * PublicOnly
- *
- * Route guard that ONLY renders its children when there is NO authenticated user.
- * If a user is already authenticated, it redirects to /dashboard to avoid
- * showing login/landing screens again.
- */
-const PublicOnly: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { user } = useAuth();
-  return user ? <Navigate to="/dashboard" replace /> : <>{children}</>;
-};
-
-/**
  * AppRouter
  *
  * Top-level router for the SPA. Responsibilities:
@@ -64,7 +52,7 @@ const AppRouter: React.FC = () => {
          *  - "/auth" : OAuth2 callback (MUST remain public). It will set user and navigate to /dashboard or back to /login on failure.
          *  - "/logout-success" : friendly confirmation page after logout; also treated as public
          */}
-        <Route path="/" element={<PublicOnly><Home /></PublicOnly>} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Auth />} />
         <Route path="/auth" element={<AuthCallback />} />
         <Route path="/logout-success" element={<LogoutSuccess />} />
