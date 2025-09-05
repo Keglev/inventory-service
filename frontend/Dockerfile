@@ -1,19 +1,49 @@
-# --- Build stage ---
-FROM node:20-bullseye-slim AS build
+# =========================
+# 1) Base deps (cached)
+# =========================
+FROM node:20-bullseye-slim AS base
 WORKDIR /app
+
+# Install deps with good layer caching
 COPY package*.json ./
-RUN npm ci 
+RUN npm ci
+
+# Bring in the rest of the source code
 COPY . .
+
+# If you use Vite envs at build time, pass them as build args
 ARG VITE_API_BASE="https://inventoryservice.fly.dev"
 ENV VITE_API_BASE=$VITE_API_BASE
+
+# =========================
+# 2) Test stage (CI)
+# =========================
+FROM base AS test
+# Only run if you actually have a "test" script; otherwise this is harmless
+# Use --run to avoid watch mode (Vitest)
+RUN npm run test --if-present -- --run
+
+# =========================
+# 3) Build stage (prod bundle)
+# =========================
+FROM base AS build
+# Optional: TypeScript sanity (if you keep tsc in your build script)
+# RUN npm run typecheck --if-present
 RUN npm run build
 
-# --- Runtime stage (Chainguard NGINX, minimal CVEs) ---
-FROM cgr.dev/chainguard/nginx:latest
-# Chainguard expects nginx.conf at /etc/nginx/nginx.conf
-COPY nginx.conf /etc/nginx/nginx.conf
+# =========================
+# 4) Runtime (Nginx)
+# =========================
+FROM nginx:1.27-alpine AS runtime
+# SPA-friendly server config (must exist in repo at frontend/nginx.conf)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy only the built assets — no node_modules, no tests, no sources
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Koyeb/containers best practice: bind to $PORT (we listen on 8080)
 ENV PORT=8080
 EXPOSE 8080
-CMD ["/usr/sbin/nginx","-g","daemon off;"]
+
+CMD ["nginx", "-g", "daemon off;"]
+# =========================
