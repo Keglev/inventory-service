@@ -78,7 +78,7 @@ jobs:
         with:
           node-version: '20.19.0'
           cache: 'npm'
-          cache-dependency-path: '/frontend/package-lock.json'
+          cache-dependency-path: 'inventory-service/frontend/package-lock.json'
           
 
       # 3) Keep installing and testing in the same folder
