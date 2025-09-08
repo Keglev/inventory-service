@@ -123,7 +123,7 @@ COPY --chown=appuser:appgroup --chmod=0755 start.sh /app/start.sh
 #  * Normalize the final path to /app/app.jar as expected by start.sh.
 #  * We copy via wildcard to avoid hardcoding the artifact version.
 #  */
-COPY --from=build /app/target/*.jar /app/
+COPY --from=build /build/target/*.jar /app/
 RUN set -eux; \
     JAR="$(ls -1 /app/*.jar | head -n1)"; \
     mv "$JAR" /app/app.jar; \
