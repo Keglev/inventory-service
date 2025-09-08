@@ -138,18 +138,20 @@ jobs:
       # ----------------------------------------------------------------------
       - name: Install Koyeb CLI
         run: |
+          set -e
           curl -fsSL https://get.koyeb.com | sh
+          ~/.koyeb/bin/koyeb version   
           echo "$HOME/.koyeb/bin" >> $GITHUB_PATH
 
       - name: Authenticate Koyeb
-        run: koyeb auth login --token "${{ secrets.KOYEB_TOKEN }}"
+        run: ~/.koyeb/bin/koyeb auth login --token "${{ secrets.KOYEB_TOKEN }}"
 
       - name: Deploy to Koyeb (pin by digest)
         env:
           IMG_DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           FULL_REF="docker.io/${{ env.IMAGE_NAME }}@${IMG_DIGEST}"
-          koyeb service update "${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}" --docker "$FULL_REF"
+          ~/.koyeb/bin/koyeb service update "${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}" --docker "$FULL_REF"
 
       # ----------------------------------------------------------------------
       # 6) Post-deploy smoke test
