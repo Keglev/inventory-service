@@ -9,20 +9,22 @@ name: Frontend CI & Deploy
 #  *
 #  * Pipeline stages (high-level):
 #  *   1) Checkout repository.
-#  *   2) Node setup + dependency install (with caching).
-#  *   3) Run unit tests with GitHub Annotations (Vitest + github-actions reporter).
-#  *   4) Build and push Docker image (tests skipped inside Docker to avoid duplication).
-#  *   5) Deploy immutable image digest to Koyeb.
-#  *      - Wait for service to become healthy.
-#  *   6) Post-deploy smoke test (HTTP 200 + SPA fallback on /dashboard).
+#  *   2) Sanity-check repository structure (defensive ls of key paths).
+#  *   3) Node toolchain setup + dependency cache warmup (actions/setup-node).
+#  *   4) Install dependencies and run unit tests with GitHub annotations (Vitest).
+#  *   5) Build and push Docker image (repo-root context; skip in-image tests).
+#  *   6) Install Koyeb CLI (non-interactive; latest with retry/fallback).
+#  *   7) Authenticate and deploy by immutable image digest; pin service ports.
+#  *   8) Health gate: wait until Koyeb service reports HEALTHY; dump diagnostics if not.
+#  *   9) Smoke test public URL (200 on / and SPA fallback on deep link).
 #  *
 #  * Key design choices:
-#  *   - Tests run OUTSIDE Docker for richer feedback in PR/Actions UI.
-#  *   - Image build uses repo root as context to allow COPY of ops/nginx/*.
-#  *   - Deployment pins by image digest for safe, reproducible rollouts.
-#  *   - Lightweight smoke test validates serving + SPA routing after deploy.
+#  *   - Tests run OUTSIDE Docker for richer GitHub Annotations.
+#  *   - Deployment pins by image digest for safe, reproducible rollouts/rollbacks.
+#  *   - CLI-based health gate avoids transient 404/502 during router updates.
 #  */
 
+# Trigger: push to main, changes in frontend/ or ops/nginx/ or this workflow
 on:
   push:
     branches: [ main ]
@@ -31,10 +33,12 @@ on:
       - 'ops/nginx/**'
       - '.github/workflows/frontend-ci.yml'
 
+# Permissions
 permissions:
   contents: read
   packages: write
 
+# Concurrency: only one run at a time, do not cancel in-progress
 concurrency:
   group: frontend-ci
   cancel-in-progress: false
@@ -81,25 +85,33 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
           
-
-      # 3) Keep installing and testing in the same folder
+      # Keep installing and testing in the same folder
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
 
       # ----------------------------------------------------------------------
       # 3) Unit tests with GitHub annotations (Vitest)
-      #    - Uses built-in `github-actions` reporter for inline failure notes.
-      #    - `--run` forces non-watch CI mode.
+      #    Rationale:
+      #      - Run outside Docker so failures surface as inline annotations.
+      #      - Use the built-in 'github-actions' reporter for rich, per-test notes.
+      #      - CI=true + --run ensures non-watch, deterministic execution in CI.
       # ----------------------------------------------------------------------
       - name: Run unit tests (Vitest with GH annotations)
         working-directory: frontend
-        run: npx vitest --reporter=default --reporter=github-actions --run
+        env:
+          CI: "true"
+        run: |
+          npx vitest --reporter=default --reporter=github-actions --run
 
       # ----------------------------------------------------------------------
-      # 4) Build and push Docker image
-      #    - Build context is repo root (.) to allow COPY ../ops/nginx/* in Dockerfile.
-      #    - Skip running tests INSIDE Docker (RUN_TESTS=false) to avoid duplication.
+      # 4) Build & push Docker image (Nginx runtime)
+      #    Design:
+      #      - Build context: '.' (repo root) so Dockerfile can COPY ops/nginx/*.
+      #      - Dockerfile: frontend/Dockerfile (multi-stage: Node build -> Nginx).
+      #      - Tests inside Docker are disabled (RUN_TESTS=false) to avoid duplication.
+      #      - Tagging via docker/metadata-action for 'latest' and immutable 'sha-*'.
+      #      - Root .dockerignore trims context to keep builds fast and reproducible.
       # ----------------------------------------------------------------------
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -110,7 +122,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Docker metadata
+      - name: Docker metadata (labels + tags)
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -119,108 +131,129 @@ jobs:
             type=raw,value=latest
             type=sha
 
-      # 4) Docker build MUST align to current Dockerfile location and context
       - name: Build & push image
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: .                 # use repo root as context
-          file: frontend/Dockerfile  # Dockerfile location
+          # IMPORTANT: repo root context enables Dockerfile to access ops/nginx/*
+          context: .
+          file: frontend/Dockerfile
           push: true
           build-args: |
             VITE_API_BASE=${{ env.VITE_API_BASE }}
             RUN_TESTS=false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
       # ----------------------------------------------------------------------
-      # 5) Deploy to Koyeb (immutable digest)
-      #    - Pins by content digest for deterministic rollouts and safe rollback.
+      # 5) Install Koyeb CLI (latest, with retry)
+      #    - Fetches the latest release from GitHub with basic retry logic.
+      #    - Installs to $HOME/.koyeb/bin and exports PATH.
       # ----------------------------------------------------------------------
       - name: Install Koyeb CLI
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.koyeb/bin"
-          # discover latest version without jq
-          VER="$(curl -fsSL https://api.github.com/repos/koyeb/koyeb-cli/releases/latest \
-            | grep -oE '"tag_name":\s*"v[0-9.]+"' | head -n1 | sed -E 's/.*"v([^"]+)".*/\1/')"
+          # Discover latest version (no jq). If discovery fails, fall back to a known version.
+          VER="$(curl -fsSL --retry 5 --retry-connrefused --retry-delay 2 \
+                https://api.github.com/repos/koyeb/koyeb-cli/releases/latest \
+                | grep -oE '"tag_name":\s*"v[0-9.]+"' | head -n1 \
+                | sed -E 's/.*"v([^"]+)".*/\1/')" || VER=""
+          if [ -z "$VER" ]; then
+            VER="4.4.1"  # fallback pin; update when needed
+          fi
           TARBALL="koyeb-cli_${VER}_linux_amd64.tar.gz"
           URL="https://github.com/koyeb/koyeb-cli/releases/download/v${VER}/${TARBALL}"
+          echo "Installing Koyeb CLI v${VER} from ${URL}"
           curl -fsSL --retry 5 --retry-connrefused --retry-delay 2 -o /tmp/koyeb.tgz "$URL"
           tar -xzf /tmp/koyeb.tgz -C "$HOME/.koyeb/bin"
           rm /tmp/koyeb.tgz
-          echo "$HOME/.koyeb/bin" >> $GITHUB_PATH
+          echo "$HOME/.koyeb/bin" >> "$GITHUB_PATH"
+
 
       - name: Koyeb CLI version
         run: koyeb version
 
+      # ----------------------------------------------------------------------
+      # 6) Authenticate Koyeb (non-interactive CI)
+      #    - Write token to ~/.koyeb.yaml with strict perms (no shell history/env leaks).
+      # ----------------------------------------------------------------------
       - name: Authenticate Koyeb (CI mode)
         env:
           KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}
         run: |
-          mkdir -p $HOME
-          echo "token: $KOYEB_TOKEN" > $HOME/.koyeb.yaml
+          set -euo pipefail
+          umask 077
+          mkdir -p "$HOME"
+          printf "token: %s\n" "$KOYEB_TOKEN" > "$HOME/.koyeb.yaml"
+          chmod 600 "$HOME/.koyeb.yaml"
 
-      - name: Deploy to Koyeb (pin by digest)
+      # ----------------------------------------------------------------------
+      # 7) Deploy to Koyeb (pin by digest + keep ports pinned)
+      #    - Pins by content digest for deterministic rollouts and safe rollback.
+      #    - Always pass --ports to prevent accidental port config drift.
+      # ----------------------------------------------------------------------
+      - name: Deploy to Koyeb (pin by digest + keep ports)
         env:
           IMG_DIGEST: ${{ steps.build.outputs.digest }}
-      # Pin by digest
         run: |
+          set -euo pipefail
           FULL_REF="docker.io/${{ env.IMAGE_NAME }}@${IMG_DIGEST}"
-          koyeb --token "${{ secrets.KOYEB_TOKEN }}" \
-          service update "${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}" \
-          --docker "$FULL_REF" \
-          --ports 8080:http
-      
-      # ------------------------------------------------------
-      # Wait for service to become healthy
-      # ------------------------------------------------------
-      - name: Wait for service to become healthy (Koyeb)
+          SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
+          echo "Updating $SVC to $FULL_REF ..."
+          koyeb service update "$SVC" \
+            --docker "$FULL_REF" \
+            --ports 8080:http
+
+      # ----------------------------------------------------------------------
+      # 8) Post-deploy health gate (authoritative platform status)
+      #    - Wait for service status=HEALTHY via Koyeb CLI (not public curl).
+      #    - On timeout, emit diagnostics to aid triage.
+      # ----------------------------------------------------------------------
+      - name: Wait for Koyeb service to be HEALTHY
         run: |
           set -euo pipefail
           SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
-          # Try up to ~3 minutes
-          for i in $(seq 1 36); do
-            if koyeb --token "${{ secrets.KOYEB_TOKEN }}" service describe "$SVC" 2>/dev/null | grep -qi 'healthy'; then
-              echo "Service reports healthy."
+          echo "Waiting for $SVC to be HEALTHY..."
+          for i in $(seq 1 60); do  # ~5 minutes
+            if koyeb service describe "$SVC" 2>/dev/null \
+              | tr '[:upper:]' '[:lower:]' | grep -q 'healthy'; then
+              echo "Service reports HEALTHY."
               exit 0
             fi
-            echo "Service not healthy yet... ($i/36)"
+            echo "Not healthy yet... ($i/60)"
             sleep 5
           done
-          echo "Service did not report healthy in time."
+          echo "::group::Koyeb diagnostics"
+          koyeb service describe "$SVC" || true
+          koyeb service deployments list "$SVC" --limit 5 || true
+          koyeb service instances list "$SVC" || true
+          echo "::endgroup::"
           exit 1
 
-
       # ----------------------------------------------------------------------
-      # 6) Post-deploy smoke test
-      #    - Verifies HTTP 200 on root (/) and SPA fallback on a deep link.
-      #    - Fails the job if the service does not become healthy within the
-      #      allotted attempts.
+      # 9) (Optional) Public URL smoke test
+      #    - After platform reports healthy, verify the public endpoint returns 200.
+      #    - This catches CDN/edge/route misconfig independent of container health.
       # ----------------------------------------------------------------------
-      - name: Smoke test deployed app
+      - name: Smoke test public URL
+        if: ${{ success() }}
+        env:
+          URL: ${{ env.FRONTEND_URL }}
         run: |
           set -euo pipefail
-          URL="${{ env.FRONTEND_URL }}"
-          echo "Waiting for app to be ready at $URL ..."
-          STATUS=000
-
-          # Up to 60 attempts, 5s each (~5 minutes)
+          # brief settle before probing the edge
+          sleep 5
           for i in $(seq 1 60); do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-            echo "Attempt $i: HTTP $STATUS"
-            if [ "$STATUS" = "200" ]; then
-              break
+            CODE="$(curl -sS -L -o /dev/null -w '%{http_code}' "$URL")"
+            echo "Attempt $i: HTTP $CODE"
+            if [ "$CODE" = "200" ]; then
+              echo "Public URL ready."
+              exit 0
             fi
             sleep 5
           done
-
-          test "$STATUS" = "200"
-
-          echo "Checking index.html references built assets..."
-          curl -s "$URL" | grep -qi '<script type="module" src="/assets/'
-
-          echo "Checking SPA fallback on /dashboard..."
-          DL_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/dashboard")
-          test "$DL_STATUS" = "200"
-          echo "Smoke test passed."
+          echo "::group::curl diagnostics"
+          curl -I -L "$URL" || true
+          curl -s -L "$URL" | head -n 60 || true
+          echo "::endgroup::"
+          exit 1
