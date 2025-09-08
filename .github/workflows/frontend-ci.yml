@@ -86,8 +86,12 @@ jobs:
         with:
           node-version: '20.19.0'
           cache: 'npm'
-          cache-dependency-path: 'inventory-service/frontend/package-lock.json'
+          # Use multi-line to tolerate either layout; Actions accepts multiple entries
+          cache-dependency-path: |
+            inventory-service/frontend/package-lock.json
+            frontend/package-lock.json
 
+      # 3) Keep installing and testing in the same folder
       - name: Install dependencies
         working-directory: inventory-service/frontend
         run: npm ci
@@ -98,7 +102,7 @@ jobs:
       #    - `--run` forces non-watch CI mode.
       # ----------------------------------------------------------------------
       - name: Run unit tests (Vitest with GH annotations)
-        working-directory: frontend
+        working-directory: inventory-service/frontend
         run: npx vitest --reporter=default --reporter=github-actions --run
 
       # ----------------------------------------------------------------------
@@ -123,13 +127,13 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha
-
+      # 4) Docker build MUST align to current Dockerfile location and context
       - name: Build & push image
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: .                 # repo root => enables COPY ../ops/nginx/...
-          file: frontend/Dockerfile  # Dockerfile location
+          context: inventory-service           # repo root => enables COPY ../ops/nginx/...
+          file: inventory-service/frontend/Dockerfile  # Dockerfile location
           push: true
           build-args: |
             VITE_API_BASE=${{ env.VITE_API_BASE }}
