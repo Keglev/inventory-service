@@ -123,7 +123,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: inventory-service           # repo root => enables COPY ../ops/nginx/...
+          context: .                 # use repo root as context
           file: frontend/Dockerfile  # Dockerfile location
           push: true
           build-args: |

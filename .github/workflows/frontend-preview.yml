@@ -104,7 +104,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: inventory-service
+          context: .                 # use repo root as context
           file: inventory-service/frontend/Dockerfile
           push: true
           build-args: |
