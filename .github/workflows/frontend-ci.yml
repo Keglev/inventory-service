@@ -26,8 +26,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'inventory-service/frontend/**'
-      - 'inventory-service/ops/nginx/**'
+      - 'frontend/**'
+      - 'ops/nginx/**'
       - '.github/workflows/frontend-ci.yml'
 
 permissions:
@@ -63,20 +63,10 @@ jobs:
       # (Optional but recommended) Sanity check the expected tree
       - name: Sanity check list build context contents
         run: |
-          echo "== PWD =="
-          pwd
-          echo "== Top-level ==="
+          echo "PWD = $PWD"
           ls -la
-          echo "== inventory-service ==="
-          ls -la inventory-service || true
-          echo "== inventory-service/frontend =="
-          ls -la inventory-service/frontend || true
-          echo "== inventory-service/ops/nginx =="
-          ls -la inventory-service/ops/nginx || true
-          echo "== .dockerignore at context root (inventory-service/.dockerignore is used by build) =="
-          sed -n '1,200p' inventory-service/.dockerignore || true
-          echo "PWD: $(pwd)"
-          test -f inventory-service/frontend/package-lock.json
+          ls -la frontend || true
+          ls -la ops/nginx || true
 
       # ----------------------------------------------------------------------
       # 2) Node toolchain + dependency install
@@ -88,12 +78,12 @@ jobs:
         with:
           node-version: '20.19.0'
           cache: 'npm'
-          cache-dependency-path: 'inventory-service/frontend/package-lock.json'
+          cache-dependency-path: '/frontend/package-lock.json'
           
 
       # 3) Keep installing and testing in the same folder
       - name: Install dependencies
-        working-directory: inventory-service/frontend
+        working-directory: frontend
         run: npm ci
 
       # ----------------------------------------------------------------------
@@ -102,7 +92,7 @@ jobs:
       #    - `--run` forces non-watch CI mode.
       # ----------------------------------------------------------------------
       - name: Run unit tests (Vitest with GH annotations)
-        working-directory: inventory-service/frontend
+        working-directory: frontend
         run: npx vitest --reporter=default --reporter=github-actions --run
 
       # ----------------------------------------------------------------------
@@ -127,13 +117,14 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha
+
       # 4) Docker build MUST align to current Dockerfile location and context
       - name: Build & push image
         id: build
         uses: docker/build-push-action@v6
         with:
           context: inventory-service           # repo root => enables COPY ../ops/nginx/...
-          file: inventory-service/frontend/Dockerfile  # Dockerfile location
+          file: frontend/Dockerfile  # Dockerfile location
           push: true
           build-args: |
             VITE_API_BASE=${{ env.VITE_API_BASE }}

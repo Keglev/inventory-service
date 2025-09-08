@@ -21,8 +21,8 @@ on:
   pull_request:
     branches: [ main ]
     paths:
-      - 'inventory-service/frontend/**'
-      - 'inventory-service/ops/nginx/**'
+      - 'frontend/**'
+      - 'ops/nginx/**'
       - '.github/workflows/frontend-preview.yml'
 
 permissions:
@@ -55,12 +55,10 @@ jobs:
       # (Optional but recommended) Sanity check the expected tree
       - name: Sanity check list build context contents
         run: |
-          echo "== inventory-service/frontend =="
-          ls -la inventory-service/frontend || true
-          echo "== inventory-service/ops/nginx =="
-          ls -la inventory-service/ops/nginx || true
-          echo "PWD: $(pwd)"
-          test -f inventory-service/frontend/package-lock.json
+          echo "PWD = $PWD"
+          ls -la
+          ls -la frontend || true
+          ls -la ops/nginx || true
 
       # ----------------------------------------------------------------------
       # 2) Node toolchain + dependency install
@@ -70,10 +68,10 @@ jobs:
         with:
           node-version: '20.19.0'
           cache: 'npm'
-          cache-dependency-path: 'inventory-service/frontend/package-lock.json'
+          cache-dependency-path: '/frontend/package-lock.json'
 
       - name: Install dependencies
-        working-directory: 'inventory-service/frontend'
+        working-directory: 'frontend'
         run: npm ci
 
       # ----------------------------------------------------------------------

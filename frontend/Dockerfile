@@ -41,8 +41,9 @@ RUN npm run build
 FROM nginx:1.27-alpine AS runtime
 
 # Copy Nginx configs from ops/nginx into container
-COPY /ops/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY /ops/nginx/default.conf /etc/nginx/conf.d/default.conf
+# NOTE: Paths are relative to the build context, do NOT start with "/"
+COPY ops/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ops/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Copy only the built assets — no node_modules, no tests, no sources
 COPY --from=build /app/dist /usr/share/nginx/html
