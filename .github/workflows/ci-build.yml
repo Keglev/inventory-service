@@ -19,14 +19,34 @@ name: Inventory Service CI/CD - CI Build & Test & Docker Build
 on:
   push:
     branches: [ "main", "develop" ]
+    # Trigger ONLY when backend-relevant files change
     paths:
-      - 'inventory-service/**'
-      - '.github/workflows/ci-build.yml'
+      - 'inventory-service/pom.xml'
+      - 'inventory-service/src/**'
+      - 'inventory-service/Dockerfile'
+      - 'inventory-service/docker-compose.yml'
+      - 'inventory-service/mvnw'
+      - 'inventory-service/mvnw.cmd'
+      - 'inventory-service/.mvn/**'
+      - 'inventory-service/**/application*.yml'
+      - 'inventory-service/start.sh' # in case of changes to the startup script
+      - 'inventory-service/.env.example' # in case of changes to the example env file
+      - '.github/workflows/ci-build.yml'   # run when the workflow itself changes
   pull_request:
     branches: [ "main", "develop" ]
+    # Same filters for PRs
     paths:
-      - 'inventory-service/**'
+      - 'inventory-service/pom.xml'
+      - 'inventory-service/src/**'
+      - 'inventory-service/Dockerfile'
+      - 'inventory-service/docker-compose.yml'
+      - 'inventory-service/mvnw'
+      - 'inventory-service/mvnw.cmd'
+      - 'inventory-service/.mvn/**'
+      - 'inventory-service/**/application*.yml'
+      - 'inventory-service/.env.example' # in case of changes to the example env file
       - '.github/workflows/ci-build.yml'
+      - 'inventory-service/start.sh' # in case of changes to the startup script
 concurrency:
     group: ci-${{ github.ref }}
     cancel-in-progress: true
@@ -139,4 +159,10 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
+      
+      # --- Security scan: final image only (High/Critical gate) ---
+      - name: Scan image for CVEs (Docker Scout)
+        run: |
+          docker scout cves $IMAGE_NAME:$GIT_SHA --only-severity high,critical --exit-code 1
+
 

@@ -21,8 +21,8 @@ on:
   pull_request:
     branches: [ main ]
     paths:
-      - 'frontend/**'
-      - 'ops/nginx/**'
+      - 'inventory-service/frontend/**'
+      - 'inventory-service/ops/nginx/**'
       - '.github/workflows/frontend-preview.yml'
 
 permissions:
@@ -52,6 +52,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # (Optional but recommended) Sanity check the expected tree
+      - name: Sanity check list build context contents
+        run: |
+          echo "== inventory-service/frontend =="
+          ls -la inventory-service/frontend || true
+          echo "== inventory-service/ops/nginx =="
+          ls -la inventory-service/ops/nginx || true
+
       # ----------------------------------------------------------------------
       # 2) Node toolchain + dependency install
       # ----------------------------------------------------------------------
@@ -60,17 +68,17 @@ jobs:
         with:
           node-version: '20.19.0'
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: inventory-service/frontend/package-lock.json
 
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: inventory-service/frontend
         run: npm ci
 
       # ----------------------------------------------------------------------
       # 3) Unit tests with GitHub annotations (Vitest)
       # ----------------------------------------------------------------------
       - name: Run unit tests (Vitest with GH annotations)
-        working-directory: frontend
+        working-directory: inventory-service/frontend
         run: npx vitest --reporter=default --reporter=github-actions --run
 
       # ----------------------------------------------------------------------
@@ -96,8 +104,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: frontend/Dockerfile
+          context: inventory-service
+          file: inventory-service/frontend/Dockerfile
           push: true
           build-args: |
             VITE_API_BASE=${{ env.VITE_API_BASE }}

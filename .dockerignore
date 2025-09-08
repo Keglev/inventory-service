@@ -1,54 +1,94 @@
-# ===============================
-# Docker Ignore File (.dockerignore)
-# Used to prevent unnecessary files from being copied into the Docker build context.
-# This reduces image size and build time.
-# ===============================
+# =============================================================================
+# Smart Supply Pro — Monorepo Docker Ignore (inventory-service/.dockerignore)
+#
+# Purpose
+# - Keep Docker build context small, fast, and free of secrets.
+# - Work for BOTH backend and frontend images when context is `inventory-service/`.
+# - Avoid ignoring files that the Dockerfiles explicitly COPY (e.g., .mvn/, ops/nginx/).
+#
+# Important
+# - Do NOT add `frontend/**` or `ops/**` to ignores; the frontend image needs them.
+# - We intentionally keep `.mvn/` included because the backend Dockerfile COPYs it.
+# =============================================================================
 
-# Ignore compiled Java classes and build output
-target/
+# -----------------------------------------------------------------------------
+# VCS / repo metadata
+# -----------------------------------------------------------------------------
+.git
+.gitignore
 
-# Ignore IDE configuration files (JetBrains IntelliJ, Eclipse, etc.)
-.idea/
+# -----------------------------------------------------------------------------
+# IDE & local tooling
+# -----------------------------------------------------------------------------
+.vscode
+.idea
 *.iml
 *.classpath
 *.project
 .settings/
 
-# Ignore Maven wrapper directory if not needed
-.mvn/
-mvnw.cmd
-mvnw
+# -----------------------------------------------------------------------------
+# OS cruft
+# -----------------------------------------------------------------------------
+**/.DS_Store
+Thumbs.db
 
-# Ignore Git repository metadata
-.git/
-**/.git
-
-# Ignore environment variable files (do NOT include secrets in Docker images)
+# -----------------------------------------------------------------------------
+# Environment files & local secrets (NEVER bake secrets into images)
+# -----------------------------------------------------------------------------
 .env
+.env.*.local
 
-# Ignore logs (just in case log files are present locally)
-*.log
+# -----------------------------------------------------------------------------
+# Backend: build outputs & logs
+# -----------------------------------------------------------------------------
+target/
 logs/
-**/logs/
 log/
+**/logs/
 **/log/
-
-
-# Ignore Oracle Wallet directory (sensitive DB config; handled by CI/CD secrets)
-wallet/
-oracle_wallet/
-wallet.zip
-
-# Ignore test output directories (if generated during local testing)
+*.log
 out/
 test-output/
 
-# Ignore Node.js dependencies and configuration files (if applicable)
-node_modules/
-.vscode/
-**/.idea
-**/*.iml
+# -----------------------------------------------------------------------------
+# Backend: Maven wrapper — KEEP `.mvn/`, ignore wrapper launchers
+# Reason: Dockerfile COPY includes `.mvn/` to improve caching; don't ignore it.
+# -----------------------------------------------------------------------------
+mvnw
+mvnw.cmd
+# .mvn/   <-- DO NOT ignore this; required by Dockerfile COPY
 
-# Ignore frontend build artifacts (if using a separate frontend build)
-frontend/
-dist/
+# -----------------------------------------------------------------------------
+# Oracle Wallet & related sensitive artifacts (kept out of context)
+# -----------------------------------------------------------------------------
+wallet/
+oracle_wallet/
+wallet.zip
+*.zip
+*.pem
+tnsnames.ora
+sqlnet.ora
+cwallet.sso
+ewallet.p12
+
+# -----------------------------------------------------------------------------
+# Frontend: cache/artifacts we don't need as source
+# (The frontend image rebuilds `node_modules` and `dist` inside Docker.)
+# -----------------------------------------------------------------------------
+frontend/dist
+frontend/coverage
+frontend/cert
+
+# -----------------------------------------------------------------------------
+# Node caches ANYWHERE in the tree (frontend or otherwise)
+# -----------------------------------------------------------------------------
+**/node_modules
+**/npm-debug.log
+npm-debug.log*
+yarn-error.log*
+
+# -----------------------------------------------------------------------------
+# Local compose & misc (not needed inside images)
+# -----------------------------------------------------------------------------
+docker-compose.yml

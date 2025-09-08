@@ -85,14 +85,6 @@ JAVA_OPTS="${JAVA_OPTS:-} \
 # Minimize exposure: we can safely unset the password env var after building JAVA_OPTS
 unset ORACLE_WALLET_PASSWORD
 
-export SERVER_ERROR_INCLUDE_MESSAGE=ALWAYS
-export SERVER_ERROR_INCLUDE_STACKTRACE=ALWAYS
-export SERVER_ERROR_INCLUDE_BINDING_ERRORS=ALWAYS
-
-export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
-export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY_OAUTH2_CLIENT=DEBUG
-export LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
-
 echo "Starting Spring Boot on port ${SERVER_PORT}..."
 echo "[start] Starting Inventory Service App..."
 # Launch the Spring Boot app (the jar is part of the Docker image)
