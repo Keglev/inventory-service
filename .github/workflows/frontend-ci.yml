@@ -13,6 +13,7 @@ name: Frontend CI & Deploy
 #  *   3) Run unit tests with GitHub Annotations (Vitest + github-actions reporter).
 #  *   4) Build and push Docker image (tests skipped inside Docker to avoid duplication).
 #  *   5) Deploy immutable image digest to Koyeb.
+#  *      - Wait for service to become healthy.
 #  *   6) Post-deploy smoke test (HTTP 200 + SPA fallback on /dashboard).
 #  *
 #  * Key design choices:
@@ -163,9 +164,33 @@ jobs:
       - name: Deploy to Koyeb (pin by digest)
         env:
           IMG_DIGEST: ${{ steps.build.outputs.digest }}
+      # Pin by digest
         run: |
           FULL_REF="docker.io/${{ env.IMAGE_NAME }}@${IMG_DIGEST}"
-          ~/.koyeb/bin/koyeb service update "${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}" --docker "$FULL_REF"
+          koyeb --token "${{ secrets.KOYEB_TOKEN }}" \
+          service update "${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}" \
+          --docker "$FULL_REF" \
+          --ports 8080:http
+      
+      # ------------------------------------------------------
+      # Wait for service to become healthy
+      # ------------------------------------------------------
+      - name: Wait for service to become healthy (Koyeb)
+        run: |
+          set -euo pipefail
+          SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
+          # Try up to ~3 minutes
+          for i in $(seq 1 36); do
+            if koyeb --token "${{ secrets.KOYEB_TOKEN }}" service describe "$SVC" 2>/dev/null | grep -qi 'healthy'; then
+              echo "Service reports healthy."
+              exit 0
+            fi
+            echo "Service not healthy yet... ($i/36)"
+            sleep 5
+          done
+          echo "Service did not report healthy in time."
+          exit 1
+
 
       # ----------------------------------------------------------------------
       # 6) Post-deploy smoke test
@@ -177,19 +202,23 @@ jobs:
         run: |
           set -euo pipefail
           URL="${{ env.FRONTEND_URL }}"
-
           echo "Waiting for app to be ready at $URL ..."
           STATUS=000
-          for i in $(seq 1 30); do
+
+          # Up to 60 attempts, 5s each (~5 minutes)
+          for i in $(seq 1 60); do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
             echo "Attempt $i: HTTP $STATUS"
-            if [ "$STATUS" = "200" ]; then break; fi
+            if [ "$STATUS" = "200" ]; then
+              break
+            fi
             sleep 5
           done
+
           test "$STATUS" = "200"
 
           echo "Checking index.html references built assets..."
-          curl -s "$URL" | grep -qi '<script type="module" src="/assets/' 
+          curl -s "$URL" | grep -qi '<script type="module" src="/assets/'
 
           echo "Checking SPA fallback on /dashboard..."
           DL_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/dashboard")
