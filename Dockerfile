@@ -112,25 +112,16 @@ LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-servi
 # Application Setup
 # ==========================================================
 
-# /**
-#  * Copy the startup script with correct ownership and permissions in one step.
-#  * Using BuildKit’s --chmod/--chown avoids a separate chmod RUN that can fail under non-root.
-#  */
+# Startup script (handles wallet decode + JVM flags + app launch)
 COPY --chown=appuser:appgroup --chmod=0755 start.sh /app/start.sh
 
-# /**
-#  * Copy the built application JAR from the build stage.
-#  * Normalize the final path to /app/app.jar as expected by start.sh.
-#  * We copy via wildcard to avoid hardcoding the artifact version.
-#  */
-COPY --from=build /build/target/*.jar /app/
+# Copy packaged JAR from build stage with correct ownership
+COPY --from=build --chown=appuser:appgroup /build/target/*.jar /app/
+
+# Normalize to /app/app.jar (no chown here; already owned by appuser)
 RUN set -eux; \
     JAR="$(ls -1 /app/*.jar | head -n1)"; \
-    mv "$JAR" /app/app.jar; \
-    chown appuser:appgroup /app/app.jar
-
-# Set correct file ownership for the non-root user (covers /app and future wallet dir)
-RUN chown -R appuser:appgroup /app
+    mv "$JAR" /app/app.jar
 
 # Drop privileges
 USER appuser
