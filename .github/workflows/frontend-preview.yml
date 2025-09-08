@@ -1,5 +1,22 @@
 name: Frontend Preview (PR)
 
+# /**
+#  * Preview Pipeline for Smart Supply Pro — Frontend
+#  *
+#  * Triggers:
+#  *   - On pull requests targeting main.
+#  *   - Only when frontend/, ops/nginx/, or this workflow change.
+#  *
+#  * Goal:
+#  *   - Build a PR-specific Docker image and deploy an ephemeral Koyeb service
+#  *     (e.g., ssp-frontend-pr-123) to provide a live review URL.
+#  *
+#  * Key notes:
+#  *   - Tests run OUTSIDE Docker to surface inline annotations in the PR.
+#  *   - Docker build skips tests inside the image (RUN_TESTS=false).
+#  *   - Service is created on first run and updated on subsequent pushes.
+#  */
+
 on:
   pull_request:
     branches: [ main ]
@@ -17,18 +34,27 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # Base image repo (Docker Hub)
   IMAGE_BASE: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
+  # Backend API base baked into the Vite build
   VITE_API_BASE: https://inventoryservice.fly.dev
-  KOYEB_APP: ${{ secrets.KOYEB_APP }}  # same app, separate service per PR
+  # Koyeb target app (preview services are separate per PR)
+  KOYEB_APP: ${{ secrets.KOYEB_APP }}
 
 jobs:
   build-and-preview:
     runs-on: ubuntu-latest
+
     steps:
+      # ----------------------------------------------------------------------
+      # 1) Source checkout
+      # ----------------------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Tests with annotations for PRs
+      # ----------------------------------------------------------------------
+      # 2) Node toolchain + dependency install
+      # ----------------------------------------------------------------------
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -36,14 +62,20 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install deps
+      - name: Install dependencies
         working-directory: frontend
         run: npm ci
 
-      - name: Run unit tests with GitHub annotations (Vitest)
+      # ----------------------------------------------------------------------
+      # 3) Unit tests with GitHub annotations (Vitest)
+      # ----------------------------------------------------------------------
+      - name: Run unit tests (Vitest with GH annotations)
         working-directory: frontend
-        run: npx vitest --reporter=github --run
+        run: npx vitest --reporter=default --reporter=github-actions --run
 
+      # ----------------------------------------------------------------------
+      # 4) Build and push PR-specific image (tests skipped inside Docker)
+      # ----------------------------------------------------------------------
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -60,7 +92,7 @@ jobs:
           echo "TAG=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "IMG=docker.io/${{ env.IMAGE_BASE }}:pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
 
-      - name: Build & push preview image (skip tests inside Docker)
+      - name: Build & push preview image
         id: build
         uses: docker/build-push-action@v6
         with:
@@ -72,12 +104,17 @@ jobs:
             RUN_TESTS=false
           tags: ${{ steps.vars.outputs.IMG }}
 
+      # ----------------------------------------------------------------------
+      # 5) Deploy / Update preview service on Koyeb
+      #    - Creates a unique service per PR (idempotent).
+      #    - Exposes HTTP on port 8080.
+      # ----------------------------------------------------------------------
       - name: Install Koyeb CLI
         run: |
           curl -fsSL https://get.koyeb.com | sh
           echo "$HOME/.koyeb/bin" >> $GITHUB_PATH
 
-      - name: Auth Koyeb
+      - name: Authenticate Koyeb
         run: koyeb auth login --token "${{ secrets.KOYEB_TOKEN }}"
 
       - name: Create or update preview service
@@ -85,8 +122,14 @@ jobs:
           SERVICE_NAME: ssp-frontend-pr-${{ steps.vars.outputs.PR }}
           IMAGE: ${{ steps.vars.outputs.IMG }}
         run: |
+          set -e
           if koyeb service describe "${{ env.KOYEB_APP }}/${SERVICE_NAME}" > /dev/null 2>&1; then
             koyeb service update "${{ env.KOYEB_APP }}/${SERVICE_NAME}" --docker "docker.io/${IMAGE#docker.io/}"
           else
             koyeb service create "${{ env.KOYEB_APP }}/${SERVICE_NAME}" --docker "docker.io/${IMAGE#docker.io/}" --ports 8080:http
           fi
+
+      - name: Show preview URL
+        env:
+          SERVICE_NAME: ssp-frontend-pr-${{ steps.vars.outputs.PR }}
+        run: koyeb service describe "${{ env.KOYEB_APP }}/${SERVICE_NAME}"

@@ -1,5 +1,27 @@
 name: Frontend CI & Deploy
 
+# /**
+#  * CI/CD Pipeline for Smart Supply Pro — Frontend (React + Vite + Nginx)
+#  *
+#  * Triggers:
+#  *   - On push to main.
+#  *   - Only when files under frontend/, ops/nginx/, or this workflow change.
+#  *
+#  * Pipeline stages (high-level):
+#  *   1) Checkout repository.
+#  *   2) Node setup + dependency install (with caching).
+#  *   3) Run unit tests with GitHub Annotations (Vitest + github-actions reporter).
+#  *   4) Build and push Docker image (tests skipped inside Docker to avoid duplication).
+#  *   5) Deploy immutable image digest to Koyeb.
+#  *   6) Post-deploy smoke test (HTTP 200 + SPA fallback on /dashboard).
+#  *
+#  * Key design choices:
+#  *   - Tests run OUTSIDE Docker for richer feedback in PR/Actions UI.
+#  *   - Image build uses repo root as context to allow COPY of ops/nginx/*.
+#  *   - Deployment pins by image digest for safe, reproducible rollouts.
+#  *   - Lightweight smoke test validates serving + SPA routing after deploy.
+#  */
+
 on:
   push:
     branches: [ main ]
@@ -17,37 +39,57 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  # Docker image repository (Docker Hub)
   IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
+  # Backend API base baked into the Vite build
   VITE_API_BASE: https://inventoryservice.fly.dev
-  KOYEB_APP: ${{ secrets.KOYEB_APP }}          # e.g. "inventory-service"
-  KOYEB_SERVICE: ${{ secrets.KOYEB_SERVICE }}  # e.g. "frontend"
+  # Koyeb target (set as repo secrets)
+  KOYEB_APP: ${{ secrets.KOYEB_APP }}          # e.g., "inventory-service"
+  KOYEB_SERVICE: ${{ secrets.KOYEB_SERVICE }}  # e.g., "frontend"
+  # Public URL of the deployed service (used by smoke test)
+  FRONTEND_URL: https://inventory-service.koyeb.app
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # ----------------------------------------------------------------------
+      # 1) Source checkout
+      # ----------------------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-      #  Run tests outside Docker to get annotations. Can be skipped since this already run tests inside Docker.
+      # ----------------------------------------------------------------------
+      # 2) Node toolchain + dependency install
+      #    - We install deps here (outside Docker) to run tests with annotations.
+      #    - Cache: speeds up repeated installs across runs.
+      # ----------------------------------------------------------------------
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-           node-version: '20.19.0'
-           cache: 'npm'
-           cache-dependency-path: frontend/package-lock.json
+          node-version: '20.19.0'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
-      - name: Install deps & test
+      - name: Install dependencies
         working-directory: frontend
-        run: |
-           npm ci
-           npm test --if-present
+        run: npm ci
 
-      - name: Run unit tests with GitHub annotations (Vitest)
+      # ----------------------------------------------------------------------
+      # 3) Unit tests with GitHub annotations (Vitest)
+      #    - Uses built-in `github-actions` reporter for inline failure notes.
+      #    - `--run` forces non-watch CI mode.
+      # ----------------------------------------------------------------------
+      - name: Run unit tests (Vitest with GH annotations)
         working-directory: frontend
-        run: npx vitest --reporter=github --run
+        run: npx vitest --reporter=default --reporter=github-actions --run
 
+      # ----------------------------------------------------------------------
+      # 4) Build and push Docker image
+      #    - Build context is repo root (.) to allow COPY ../ops/nginx/* in Dockerfile.
+      #    - Skip running tests INSIDE Docker (RUN_TESTS=false) to avoid duplication.
+      # ----------------------------------------------------------------------
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -70,7 +112,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: .                 # repo root => allows COPY ../ops/nginx/...
+          context: .                 # repo root => enables COPY ../ops/nginx/...
           file: frontend/Dockerfile  # Dockerfile location
           push: true
           build-args: |
@@ -79,18 +121,50 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      # ----------------------------------------------------------------------
+      # 5) Deploy to Koyeb (immutable digest)
+      #    - Pins by content digest for deterministic rollouts and safe rollback.
+      # ----------------------------------------------------------------------
       - name: Install Koyeb CLI
         run: |
           curl -fsSL https://get.koyeb.com | sh
           echo "$HOME/.koyeb/bin" >> $GITHUB_PATH
 
-      - name: Auth Koyeb
+      - name: Authenticate Koyeb
         run: koyeb auth login --token "${{ secrets.KOYEB_TOKEN }}"
 
       - name: Deploy to Koyeb (pin by digest)
         env:
           IMG_DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          # Use the immutable digest for safe rollouts
           FULL_REF="docker.io/${{ env.IMAGE_NAME }}@${IMG_DIGEST}"
           koyeb service update "${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}" --docker "$FULL_REF"
+
+      # ----------------------------------------------------------------------
+      # 6) Post-deploy smoke test
+      #    - Verifies HTTP 200 on root (/) and SPA fallback on a deep link.
+      #    - Fails the job if the service does not become healthy within the
+      #      allotted attempts.
+      # ----------------------------------------------------------------------
+      - name: Smoke test deployed app
+        run: |
+          set -euo pipefail
+          URL="${{ env.FRONTEND_URL }}"
+
+          echo "Waiting for app to be ready at $URL ..."
+          STATUS=000
+          for i in $(seq 1 30); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then break; fi
+            sleep 5
+          done
+          test "$STATUS" = "200"
+
+          echo "Checking index.html references built assets..."
+          curl -s "$URL" | grep -qi '<script type="module" src="/assets/' 
+
+          echo "Checking SPA fallback on /dashboard..."
+          DL_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/dashboard")
+          test "$DL_STATUS" = "200"
+          echo "Smoke test passed."
