@@ -75,6 +75,8 @@ jobs:
           ls -la inventory-service/ops/nginx || true
           echo "== .dockerignore at context root (inventory-service/.dockerignore is used by build) =="
           sed -n '1,200p' inventory-service/.dockerignore || true
+          echo "PWD: $(pwd)"
+          test -f inventory-service/frontend/package-lock.json
 
       # ----------------------------------------------------------------------
       # 2) Node toolchain + dependency install
@@ -86,10 +88,8 @@ jobs:
         with:
           node-version: '20.19.0'
           cache: 'npm'
-          # Use multi-line to tolerate either layout; Actions accepts multiple entries
-          cache-dependency-path: |
-            inventory-service/frontend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: 'inventory-service/frontend/package-lock.json'
+          
 
       # 3) Keep installing and testing in the same folder
       - name: Install dependencies

@@ -59,6 +59,8 @@ jobs:
           ls -la inventory-service/frontend || true
           echo "== inventory-service/ops/nginx =="
           ls -la inventory-service/ops/nginx || true
+          echo "PWD: $(pwd)"
+          test -f inventory-service/frontend/package-lock.json
 
       # ----------------------------------------------------------------------
       # 2) Node toolchain + dependency install
