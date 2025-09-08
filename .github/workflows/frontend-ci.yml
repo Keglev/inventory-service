@@ -154,7 +154,9 @@ jobs:
         run: koyeb version
 
       - name: Authenticate Koyeb
-        run: ~/.koyeb/bin/koyeb auth login --token "${{ secrets.KOYEB_TOKEN }}"
+        env:
+          KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}
+        run: koyeb login --token "$KOYEB_TOKEN"
 
       - name: Deploy to Koyeb (pin by digest)
         env:
