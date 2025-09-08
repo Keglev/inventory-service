@@ -153,10 +153,12 @@ jobs:
       - name: Koyeb CLI version
         run: koyeb version
 
-      - name: Authenticate Koyeb
+      - name: Authenticate Koyeb (CI mode)
         env:
           KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}
-        run: koyeb login --token "$KOYEB_TOKEN"
+        run: |
+          mkdir -p $HOME
+          echo "token: $KOYEB_TOKEN" > $HOME/.koyeb.yaml
 
       - name: Deploy to Koyeb (pin by digest)
         env:
