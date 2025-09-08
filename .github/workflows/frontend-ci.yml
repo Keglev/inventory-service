@@ -138,10 +138,20 @@ jobs:
       # ----------------------------------------------------------------------
       - name: Install Koyeb CLI
         run: |
-          set -e
-          curl -fsSL https://get.koyeb.com | sh
-          ~/.koyeb/bin/koyeb version   
+          set -euo pipefail
+          mkdir -p "$HOME/.koyeb/bin"
+          # discover latest version without jq
+          VER="$(curl -fsSL https://api.github.com/repos/koyeb/koyeb-cli/releases/latest \
+            | grep -oE '"tag_name":\s*"v[0-9.]+"' | head -n1 | sed -E 's/.*"v([^"]+)".*/\1/')"
+          TARBALL="koyeb-cli_${VER}_linux_amd64.tar.gz"
+          URL="https://github.com/koyeb/koyeb-cli/releases/download/v${VER}/${TARBALL}"
+          curl -fsSL --retry 5 --retry-connrefused --retry-delay 2 -o /tmp/koyeb.tgz "$URL"
+          tar -xzf /tmp/koyeb.tgz -C "$HOME/.koyeb/bin"
+          rm /tmp/koyeb.tgz
           echo "$HOME/.koyeb/bin" >> $GITHUB_PATH
+
+      - name: Koyeb CLI version
+        run: koyeb version
 
       - name: Authenticate Koyeb
         run: ~/.koyeb/bin/koyeb auth login --token "${{ secrets.KOYEB_TOKEN }}"
