@@ -86,10 +86,10 @@ jobs:
         with:
           node-version: '20.19.0'
           cache: 'npm'
-          cache-dependency-path: inventory-service/frontend/package-lock.json
+          cache-dependency-path: 'inventory-service/frontend/package-lock.json'
 
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: inventory-service/frontend
         run: npm ci
 
       # ----------------------------------------------------------------------
