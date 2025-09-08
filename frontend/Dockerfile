@@ -5,11 +5,13 @@ FROM node:20-bullseye-slim AS base
 WORKDIR /app
 
 # Install deps with good layer caching
-COPY package*.json ./
+# NOTE: Build context is repo root (.) in CI, so we must copy from frontend/
+COPY frontend/package*.json ./
 RUN npm ci
 
 # Bring in the rest of the source code
-COPY . .
+# NOTE: Copy the frontend/ subtree into /app
+COPY frontend/ .
 
 # If you use Vite envs at build time, pass them as build args
 ARG VITE_API_BASE="https://inventoryservice.fly.dev"
