@@ -1,11 +1,15 @@
+/**
+ * @file App.tsx
+ * @description
+ * Root application component. Delegates routing to `AppRouter`. Keep this file
+ * intentionally small—global providers (theme, query client) live higher in the tree
+ * or inside AppShell to avoid tight coupling at the root.
+ */
+
 import AppRouter from './routes/AppRouter';
 
-/**
- * Main application component.
- * Houses global providers if needed in the future (theme, i18n, etc.).
- */
-function App() {
+export default function App() {
   return <AppRouter />;
 }
-export default App;
+
 

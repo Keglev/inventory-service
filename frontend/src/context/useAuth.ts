@@ -1,15 +1,22 @@
-// src/context/useAuth.ts
+/**
+ * @file useAuth.ts
+ * @description
+ * Convenience hook for accessing the authentication context.
+ */
+
 import { useContext } from 'react';
 import { AuthContext } from './AuthContext';
 import type { AuthContextType } from './authTypes';
 
 /**
- * Hook for accessing the global authentication context.
- * Ensures consumers are wrapped in <AuthProvider>.
+ * Access the global authentication context.
+ * @throws Error if used outside of <AuthProvider>.
  */
 export const useAuth = (): AuthContextType => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
+  if (!ctx) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return ctx;
 };
 

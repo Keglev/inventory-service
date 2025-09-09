@@ -1,0 +1,21 @@
+{
+  "app": { "title": "Smart Supply Pro" },
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "suppliers": "Suppliers",
+    "orders": "Purchase Orders",
+    "analytics": "Analytics",
+    "logout": "Logout"
+  },
+  "actions": {
+    "toggleDensity": "Toggle compact density",
+    "toggleLanguage": "Switch language"
+  },
+  "toast": {
+    "densityStatic": "Density is set via theme defaults."
+  },
+  "profile": {
+    "soon": "Profile (soon)"
+  }
+}

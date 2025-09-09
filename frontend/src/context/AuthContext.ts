@@ -1,55 +1,94 @@
-// src/context/AuthContext.tsx
-import React, { createContext, useEffect, useMemo, useState } from "react";
-import type { AuthContextType, AppUser } from "./authTypes";
-import httpClient from "../api/httpClient";
+/**
+ * @file AuthContext.tsx
+ * @description
+ * Authentication context for Smart Supply Pro.
+ *
+ * @responsibilities
+ * - Hydrate session state on app start (GET /api/me).
+ * - Expose { user, setUser, login, logout, loading } to the app.
+ * - Provide a single source of truth for the authenticated user.
+ *
+ * @nonGoals
+ * - No HTTP logout here (that is handled by the dedicated LogoutPage).
+ * - No routing here (consumers navigate as needed).
+ *
+ * @enterprise
+ * - Uses the same API base as the HTTP client for OAuth redirects.
+ * - Supports cross-tab logout via a `localStorage` broadcast flag.
+ */
+
+import React, { createContext, useEffect, useMemo, useState } from 'react';
+import type { AuthContextType, AppUser } from './authTypes';
+import httpClient, { API_BASE } from '../api/httpClient';
+
+const STORAGE_FLAG = 'ssp:forceLogout';
 
 /**
- * AuthContext (front-end)
- *
- * - Hydrates the session once via GET /api/me.
- * - Exposes { user, setUser, login, logout, loading }.
- * - login(): full-page redirect to backend /oauth2/authorization/google.
- * - logout(): client-only clear; caller performs API logout + navigation.
+ * Global authentication context.
+ * @public
  */
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * AuthProvider component.
+ * Wrap your application with this provider to access auth state via `useAuth()`.
+ */
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // One-time session hydration on app load
+  /**
+   * One-time session hydration on app load.
+   * - Attempts to fetch /api/me; on success, sets `user`.
+   * - On 401/offline, user stays null.
+   * - Uses AbortController for unmount safety.
+   */
   useEffect(() => {
-    let cancelled = false;
+    const ac = new AbortController();
+
     (async () => {
       try {
-        const { data } = await httpClient.get("/api/me");
-        if (!cancelled) {
-          setUser({ email: data.email, fullName: data.fullName, role: data.role });
-        }
+        const { data } = await httpClient.get<AppUser>('/api/me', {
+          signal: ac.signal, // axios passes this through to fetch adapter
+        });
+        setUser({ email: data.email, fullName: data.fullName, role: data.role });
       } catch {
-        // unauthenticated/offline — remain null
+        // unauthenticated or network issue → user remains null
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+
+    return () => ac.abort();
   }, []);
 
-  /** Starts Google OAuth2 via backend. */
+  /**
+   * Initiates Google OAuth2 on the backend (full-page redirect).
+   * Uses the same base URL as the HTTP client to avoid mismatches.
+   */
   const login = () => {
-    // Prefer the same base your httpClient uses.
-    const base = (import.meta as ImportMeta).env?.VITE_API_BASE || "https://inventoryservice.fly.dev";
-    window.location.href = `${base}/oauth2/authorization/google`;
+    window.location.href = `${API_BASE}/oauth2/authorization/google`;
   };
 
-  /** Clear only the client-side user state (no HTTP, no navigation). */
-  const logout = () => setUser(null);
+  /**
+   * Clears only the client-side user state.
+   * - Does not call the server and does not navigate.
+   * - Broadcasts a logout signal to other tabs.
+   */
+  const logout = () => {
+    try {
+      localStorage.setItem(STORAGE_FLAG, '1');
+      localStorage.removeItem(STORAGE_FLAG); // keep storage clean
+    } catch {
+      // ignore storage failures
+    }
+    setUser(null);
+  };
 
   const value = useMemo<AuthContextType>(
     () => ({ user, setUser, login, logout, loading }),
     [user, loading]
   );
 
-  // using createElement keeps eslint react-refresh rule quiet in some setups
   return React.createElement(AuthContext.Provider, { value }, children);
 };

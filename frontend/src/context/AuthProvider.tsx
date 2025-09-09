@@ -1,7 +1,7 @@
-// src/context/AuthProvider.tsx
-
 /**
- * Thin re-export to keep imports stable.
- * The actual provider implementation lives in AuthContext.tsx.
+ * @file AuthProvider.tsx
+ * @description
+ * Thin re-export so consumers can `import AuthProvider from '.../context/AuthProvider'`.
+ * The implementation lives in `AuthContext.tsx`.
  */
-export { AuthProvider as default } from "./AuthContext";
+export { AuthProvider as default } from './AuthContext';
