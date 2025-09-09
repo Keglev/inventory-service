@@ -54,12 +54,14 @@ export default function LoginPage() {
             <TextField
               label={t('email')}
               autoComplete="email"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <MailOutlineIcon fontSize="small" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <MailOutlineIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
               error={!!errors.email}
               helperText={errors.email?.message}
@@ -69,12 +71,14 @@ export default function LoginPage() {
               label={t('password')}
               type="password"
               autoComplete="current-password"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockOutlinedIcon fontSize="small" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
               }}
               error={!!errors.password}
               helperText={errors.password?.message}

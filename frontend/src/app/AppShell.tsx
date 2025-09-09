@@ -50,7 +50,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useTranslation } from 'react-i18next';
 import { useSessionTimeout } from '../features/auth/hooks/useSessionTimeout';
 import { ToastContext } from '../app/ToastContext';
-
 import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
 import i18n from '../i18n';
