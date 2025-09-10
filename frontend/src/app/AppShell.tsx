@@ -225,7 +225,13 @@ export default function AppShell() {
               {/* Language toggle: 🇩🇪 <-> 🇺🇸 */}
               <Tooltip title={t('actions.toggleLanguage')}>
                 <IconButton onClick={toggleLocale}>
-                  <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>
+                  <span
+                    style={{ 
+                      fontFamily: 'Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, emoji',
+                      fontSize: '1.2rem',
+                      lineHeight: 1,
+                    }}
+                  >
                     {locale === 'de' ? '🇩🇪' : '🇺🇸'}
                   </span>
                 </IconButton>

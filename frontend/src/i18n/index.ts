@@ -22,6 +22,8 @@ import Backend from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+console.log('[i18n] boot file loaded')
+
 /** LocalStorage key used by i18next to persist the selected language. */
 export const I18N_LS_KEY = 'i18nextLng';
 

@@ -20,9 +20,22 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './App';
 import AuthProvider from './context/AuthProvider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Global CSS entry. Keep `index.css` minimal; it should only import `styles/global.css`.
 import './index.css';
+
+// React Query client instance. Shared across the app via context provider.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // sensible defaults
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 60_000,
+    },
+  },
+});
 
 /**
  * DOM container root element. The exclamation mark (`!`) asserts the element exists.
@@ -37,11 +50,14 @@ ReactDOM.createRoot(root).render(
   <React.StrictMode>
     {/* Client-side routing. For server deployments, ensure the backend serves index.html for unknown routes. */}
     <BrowserRouter>
-      {/* Auth context (session state, user profile, guards). Placed high to be available to routes/shell. */}
-      <AuthProvider>
-        {/* App component composes routes and the application shell. */}
-        <App />
-      </AuthProvider>
+    {/* Provide React Query context so useQueryClient() works in LogoutPage */}
+      <QueryClientProvider client={queryClient}>
+        {/* Auth context (session state, user profile, guards). Placed high to be available to routes/shell. */}
+        <AuthProvider>
+          {/* App component composes routes and the application shell. */}
+          <App />
+        </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

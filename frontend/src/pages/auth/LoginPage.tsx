@@ -89,7 +89,7 @@ export default function LoginPage() {
             </Button>
             <Divider>
               <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
-                {t('ssoHint')}
+                {t('or')}
               </Typography>
             </Divider>
             <Button
