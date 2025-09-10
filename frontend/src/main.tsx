@@ -11,6 +11,9 @@
  *   calls in AppShell or pages can rely on an initialized i18next instance.
  */
 
+// Side-effect import: initializes i18n (language detection + resources + persistence).
+// IMPORTANT: Must be imported before any component that calls `useTranslation()`.
+import './i18n';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -20,10 +23,6 @@ import AuthProvider from './context/AuthProvider';
 
 // Global CSS entry. Keep `index.css` minimal; it should only import `styles/global.css`.
 import './index.css';
-
-// Side-effect import: initializes i18n (language detection + resources + persistence).
-// IMPORTANT: Must be imported before any component that calls `useTranslation()`.
-import './i18n';
 
 /**
  * DOM container root element. The exclamation mark (`!`) asserts the element exists.

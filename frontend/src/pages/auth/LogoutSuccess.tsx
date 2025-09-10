@@ -19,7 +19,7 @@ import httpClient from '../../api/httpClient';
 import { useAuth } from '../../context/useAuth';
 
 const LogoutSuccess: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const { search } = useLocation();
   const params = new URLSearchParams(search);

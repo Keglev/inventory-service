@@ -19,7 +19,7 @@ import { useAuth } from '../../context/useAuth';
 const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
 
   // On mount, verify the session by calling /api/me
   useEffect(() => {

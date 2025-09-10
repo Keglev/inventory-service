@@ -36,7 +36,7 @@ type FormValues = z.infer<typeof schema>;
 const SSO_URL = `${API_BASE}/oauth2/authorization/google`;
 
 export default function LoginPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
   const { register, handleSubmit, formState: { errors, isSubmitting } } =
     useForm<FormValues>({ resolver: zodResolver(schema) });
 
@@ -88,8 +88,8 @@ export default function LoginPage() {
               {t('signIn')}
             </Button>
             <Divider>
-              <Typography variant="caption" color="text.secondary">
-                {t('or')}
+              <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+                {t('ssoHint')}
               </Typography>
             </Divider>
             <Button

@@ -3,6 +3,11 @@
  * @description
  * Type augmentation for i18next to provide compile-time safety when using `t('...')`.
  * This ties your translation keys to the structure you define in your resources.
+ * - We `useTranslation('<ns>')` accepts 'common' | 'auth' | 'system'
+ * and keys are type-checked.
+ *
+ * IMPORTANT: We augment 'react-i18next' (the library that exports the hook types),
+ * not 'i18next'. This is because the `useTranslation` hook is defined there.
  *
  * @enterprise
  * - Keeps your i18n usage self-documenting and safe during refactors.
@@ -35,7 +40,7 @@ declare module 'i18next' {
      *   (assuming your DE file contains the superset of keys).
      */
     resources: {
-      translation: {
+      common: {
         app: { title: string };
         nav: {
           dashboard: string;
@@ -45,32 +50,30 @@ declare module 'i18next' {
           analytics: string;
           logout: string;
         };
-        auth: {
-          signIn: string;
-          signInGoogle: string;
-          welcome: string;
-          email: string;
-          password: string;
-          or: string;
-          ssoHint: string;
-          logoutTitle: string;   
-          logoutBody: string;
-        };
         actions: {
           toggleDensity: string;
           toggleLanguage: string;
         };
-        toast: {
-          densityStatic: string;
-        };
-        profile: {
-          soon: string;
-        };
-        system: {
-          notFound: {
-            title: string;
-            body: string;
-          };
+        toast: { densityStatic: string };
+        profile: { soon: string };
+      };
+      auth: {
+        signIn: string;
+        signInGoogle: string;
+        welcome: string;
+        email: string;
+        password: string;
+        or: string;
+        ssoHint: string;
+        logoutTitle: string;
+        logoutBody: string;
+        // Optional key used in AuthCallback defaultValue:
+        verifying?: string;
+      };
+      system: {
+        notFound: {
+          title: string;
+          body: string;
         };
       };
     };

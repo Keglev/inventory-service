@@ -34,6 +34,9 @@ export const I18N_NAMESPACES = ['common', 'auth', 'system'] as const;
  */
 const saved = typeof window !== 'undefined' ? localStorage.getItem(I18N_LS_KEY) : null;
 const initialLng = saved || 'de';
+if (!saved && typeof window !== 'undefined') {
+  localStorage.setItem(I18N_LS_KEY, 'de'); // <- guarantees German-first
+}
 
 i18n
   // Load /locales/{{lng}}/{{ns}}.json at runtime
@@ -42,6 +45,8 @@ i18n
   .use(LanguageDetector)
   // React integration (context + hooks)
   .use(initReactI18next)
+
+  // Initialization options
   .init({
     // German-first unless a saved choice exists
     lng: initialLng,
@@ -57,7 +62,7 @@ i18n
     defaultNS: 'common',
 
     // Backend configuration (Vite serves /public as web root)
-    backend: { loadPath: '/locales/{{lng}}/{{ns}}.json' },
+    backend: { loadPath: `${import.meta.env.BASE_URL}locales/{{lng}}/{{ns}}.json` },
 
     // Detection & persistence (localStorage first so prior choice wins)
     detection: {
@@ -68,7 +73,24 @@ i18n
 
     // React already escapes values
     interpolation: { escapeValue: false },
+
+    // Disable suspense mode (handle loading/error states ourselves)
+    react: { useSuspense: false },
   });
+  
+  // Explicitly ensure all namespaces are loaded (might be async)
+  i18n.loadNamespaces(I18N_NAMESPACES as unknown as string[]);
+
+  // TEMP: expose for debugging in dev (remove later)
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).i18next = i18n;
+
+    // Helpful logs to confirm load order
+  i18n.on('initialized', (opts) => console.log('[i18n] initialized', opts?.lng, opts));
+  i18n.on('loaded', (loaded) => console.log('[i18n] bundles loaded', loaded));
+  i18n.on('languageChanged', (lng) => console.log('[i18n] languageChanged →', lng));
+  }
 
 export default i18n;
 

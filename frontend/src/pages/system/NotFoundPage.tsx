@@ -17,9 +17,13 @@ import { useAuth } from '../../context/useAuth';
 import { useTranslation } from 'react-i18next';
 
 const NotFoundPage: React.FC = () => {
-  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // One t() per namespace keeps typing precise and avoids prefixing "system."
+  const { t } = useTranslation('system');
+  const { t: tCommon } = useTranslation('common');
+  const { t: tAuth } = useTranslation('auth');
 
   const primaryAction = () => {
     navigate(user ? '/dashboard' : '/login', { replace: true });
@@ -29,16 +33,13 @@ const NotFoundPage: React.FC = () => {
     <Box sx={{ minHeight: '70vh', display: 'grid', placeItems: 'center', px: 3 }}>
       <Box sx={{ textAlign: 'center', maxWidth: 560 }}>
         <Typography variant="h4" gutterBottom>
-          {t('system.notFound.title', 'Seite nicht gefunden')}
+          {t('notFound.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary" gutterBottom>
-          {t(
-            'system.notFound.body',
-            'Die von Ihnen aufgerufene Seite existiert nicht oder wurde verschoben.'
-          )}
+          {t('notFound.body')}
         </Typography>
         <Button variant="contained" sx={{ mt: 2 }} onClick={primaryAction}>
-          {user ? t('nav.dashboard', 'Übersicht') : t('auth.signIn', 'Anmelden')}
+          {user ? tCommon('nav.dashboard') : tAuth('signIn')}
         </Button>
       </Box>
     </Box>

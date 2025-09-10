@@ -52,7 +52,6 @@ import { useSessionTimeout } from '../features/auth/hooks/useSessionTimeout';
 import { ToastContext } from '../app/ToastContext';
 import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
-import i18n from '../i18n';
 import { useAuth } from '../context/useAuth';
 
 /* Layout constants */
@@ -95,18 +94,21 @@ const Fallback: React.FC = () => (
 );
 
 export default function AppShell() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation('common');
   const navigate = useNavigate();
   const { user } = useAuth();
 
   // Initialize locale from i18n/localStorage and keep theme in sync with i18n changes.
-  const initial = normalize(localStorage.getItem(LS_KEY) || i18n.resolvedLanguage);
+  const initial = normalize(localStorage.getItem(LS_KEY) || i18n.resolvedLanguage || 'de');
   const [locale, setLocale] = React.useState<SupportedLocale>(initial);
   React.useEffect(() => {
+    // Keep locale state in sync with i18n (in case language was changed elsewhere).
     const handler = (lng: string) => setLocale(normalize(lng));
     i18n.on('languageChanged', handler);
-    return () => i18n.off('languageChanged', handler);
-  }, []);
+    return () => { i18n.off('languageChanged', handler); };
+  }, [i18n]);
+
+  // Update MUI theme when locale changes.
   const theme = React.useMemo(() => buildTheme(locale), [locale]);
 
     // Session timeout/ping (see hook for details).
@@ -135,6 +137,9 @@ export default function AppShell() {
   const toggleLocale = () => {
     const next: SupportedLocale = locale === 'de' ? 'en' : 'de';
     localStorage.setItem(LS_KEY, next);
+    // optional: optimistic state update so UI (e.g., flag) flips immediately
+    setLocale(next);
+    // inform i18n (triggers `languageChanged` event that our effect listens to)
     i18n.changeLanguage(next);
     setToast({
       open: true,
@@ -149,7 +154,7 @@ export default function AppShell() {
    * - Later: introduce `/logout` page that clears caches (React Query) and invalidates session, then redirects.
    */
   const handleLogout = () => {
-    navigate('/logout-success?auto=1', { replace: true });
+    navigate('/logout', { replace: true });
   };
 
   const toggleDrawer = () => setMobileOpen((v) => !v);
@@ -164,11 +169,11 @@ export default function AppShell() {
       <Divider />
       <Box sx={{ flex: 1, py: 1 }}>
         <List>
-          <NavItem to="/dashboard" icon={<DashboardIcon />} label={t('nav.dashboard', 'Dashboard')} />
-          <NavItem to="/inventory" icon={<InventoryIcon />} label={t('nav.inventory', 'Inventory')} />
-          <NavItem to="/suppliers" icon={<LocalShippingIcon />} label={t('nav.suppliers', 'Suppliers')} />
-          <NavItem to="/orders" icon={<ReceiptLongIcon />} label={t('nav.orders', 'Purchase Orders')} />
-          <NavItem to="/analytics" icon={<InsightsIcon />} label={t('nav.analytics', 'Analytics')} />
+          <NavItem to="/dashboard" icon={<DashboardIcon />} label={t('nav.dashboard')} />
+          <NavItem to="/inventory" icon={<InventoryIcon />} label={t('nav.inventory')} />
+          <NavItem to="/suppliers" icon={<LocalShippingIcon />} label={t('nav.suppliers')} />
+          <NavItem to="/orders" icon={<ReceiptLongIcon />} label={t('nav.orders')} />
+          <NavItem to="/analytics" icon={<InsightsIcon />} label={t('nav.analytics')} />
         </List>
       </Box>
       <Divider />
@@ -177,7 +182,7 @@ export default function AppShell() {
           <ListItemIcon sx={{ minWidth: 36 }}>
             <LogoutIcon />
           </ListItemIcon>
-          <ListItemText primary={t('nav.logout', 'Logout')} />
+          <ListItemText primary={t('nav.logout')} />
         </ListItemButton>
       </Box>
     </Box>
@@ -197,17 +202,17 @@ export default function AppShell() {
               </IconButton>
 
               <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>
-                {t('app.title', 'Smart Supply Pro')}
+                {t('app.title')}
               </Typography>
 
               {/* Density (informational for now) */}
-              <Tooltip title={t('actions.toggleDensity', 'Toggle compact density')}>
+              <Tooltip title={t('actions.toggleDensity')}>
                 <span>
                   <IconButton
                     onClick={() =>
                       setToast({
                         open: true,
-                        msg: t('toast.densityStatic', 'Density is set via theme defaults.'),
+                        msg: t('toast.densityStatic'),
                         severity: 'info',
                       })
                     }
@@ -218,7 +223,7 @@ export default function AppShell() {
               </Tooltip>
 
               {/* Language toggle: 🇩🇪 <-> 🇺🇸 */}
-              <Tooltip title={t('actions.toggleLanguage', 'Switch language')}>
+              <Tooltip title={t('actions.toggleLanguage')}>
                 <IconButton onClick={toggleLocale}>
                   <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>
                     {locale === 'de' ? '🇩🇪' : '🇺🇸'}
@@ -237,7 +242,7 @@ export default function AppShell() {
                   {/* Example: "Ada Lovelace (ADMIN)" */}
                   {user ? `${user.fullName} (${user.role})` : '—'}
                 </MenuItem>
-                <MenuItem onClick={handleLogout}>{t('nav.logout', 'Logout')}</MenuItem>
+                <MenuItem onClick={handleLogout}>{t('nav.logout')}</MenuItem>
               </Menu>
             </Toolbar>
           </AppBar>

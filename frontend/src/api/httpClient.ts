@@ -37,14 +37,7 @@ const httpClient = axios.create({
 httpClient.interceptors.response.use(
   (res) => res,
   (error: AxiosError) => {
-    // If server says "Unauthorized", route to /logout (LogoutPage does cleanup).
-    const status = error.response?.status;
-    if (status === 401) {
-      // Avoid loops if we're already on /logout
-      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/logout')) {
-        window.location.replace('/logout');
-      }
-    }
+    // Let route guards (RequireAuth) and feature code decide what to do.
     return Promise.reject(error);
   }
 );
