@@ -1,47 +1,79 @@
 /**
  * @file LogoutPage.tsx
  * @description
- * Protected route that performs logout:
- *  - POST /api/auth/logout (idempotent; ignores errors)
- *  - Clears React Query caches and AuthContext
+ * Public route that performs logout:
+ *  - POST /logout (idempotent; ignores 4xx/5xx)
+ *  - Clears React Query cache and AuthContext
  *  - Redirects user to `/logout-success`
  *
  * @enterprise
- * - Keeps logout side effects separate from the confirmation page.
- * - Ensures navigation flows are consistent whether logout is manual or automatic.
+ * - Separates side effects from the confirmation screen.
+ * - Provides visible progress and retry on failure (network or CSRF edge cases).
+ *
+ * @i18n
+ * - Uses 'auth' namespace keys: logoutSigningOut, logoutFailed, errorTryAgain.
  */
 
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import httpClient from '../../api/httpClient';
 import { useAuth } from '../../context/useAuth';
+import { Box, CircularProgress, Button, Typography, Stack } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const LogoutPage: React.FC = () => {
+  const { t } = useTranslation('auth');
   const { logout } = useAuth();
   const queryClient = useQueryClient();
-  const [done, setDone] = React.useState(false);
+
+  const [done, setDone] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const runLogout = async () => {
+    setFailed(false);
+    try {
+      // IMPORTANT: public endpoint as per Spring Security default
+      await httpClient.post('/logout');
+    } catch {
+      // Network/CSRF issues shouldn't trap the user
+      setFailed(true);
+    } finally {
+      queryClient.clear();
+      logout();
+      setDone(true);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        await httpClient.post('/api/auth/logout');
-      } catch {
-        // Intentionally ignore errors; logout is idempotent
-      } finally {
-        queryClient.clear(); // clear cached queries
-        logout();            // clear auth context
-        setDone(true);
-      }
-    })();
+    void runLogout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (done) return <Navigate to="/logout-success" replace />;
-  return null;
-  // Immediately redirect to confirmation page.
-  return <Navigate to="/logout-success" replace />;
+  if (done && !failed) return <Navigate to="/logout-success" replace />;
+
+  // If call failed, still clean local state and offer retry (rare edge)
+  if (done && failed) {
+    return (
+      <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '60vh', px: 3 }}>
+        <Stack spacing={2} sx={{ textAlign: 'center' }}>
+          <Typography variant="h6">{t('logoutFailed')}</Typography>
+          <Button variant="outlined" onClick={runLogout}>{t('errorTryAgain')}</Button>
+        </Stack>
+      </Box>
+    );
+  }
+
+  // In-flight
+  return (
+    <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '60vh', px: 3 }}>
+      <Stack spacing={2} sx={{ textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography variant="body2" color="text.secondary">{t('logoutSigningOut')}</Typography>
+      </Stack>
+    </Box>
+  );
 };
 
 export default LogoutPage;
