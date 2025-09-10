@@ -32,18 +32,23 @@ const schema = z.object({
   password: z.string().min(6),
 });
 type FormValues = z.infer<typeof schema>;
-
-const SSO_URL = `${API_BASE}/oauth2/authorization/google`;
+/**
+ * Begin the OAuth2 flow and tell the backend where to send us back.
+ * The backend will whitelist this origin and redirect to `${origin}/auth` after success.
+ */
+function beginSso() {
+  const origin = window.location.origin; // e.g., https://localhost:5173
+  const url = `${API_BASE}/oauth2/authorization/google?return=${encodeURIComponent(origin)}`;
+  window.location.assign(url);
+}
 
 export default function LoginPage() {
   const { t } = useTranslation('auth');
   const { register, handleSubmit, formState: { errors, isSubmitting } } =
     useForm<FormValues>({ resolver: zodResolver(schema) });
 
-  const onSubmit = async () => {
-    // Local login not implemented → go to SSO
-    window.location.href = SSO_URL;
-  };
+  // Local login not implemented → go to SSO
+  const onSubmit = async () => beginSso();
 
   return (
     <Box sx={{ minHeight: 'calc(100dvh - 64px)', display: 'grid', placeItems: 'center' }}>
@@ -84,22 +89,26 @@ export default function LoginPage() {
               helperText={errors.password?.message}
               {...register('password')}
             />
+
             <Button type="submit" variant="contained" disabled={isSubmitting}>
               {t('signIn')}
             </Button>
+
             <Divider>
               <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
                 {t('or')}
               </Typography>
             </Divider>
+
             <Button
               type="button"
               variant="outlined"
               startIcon={<GoogleIcon />}
-              onClick={() => (window.location.href = SSO_URL)}
+              onClick={beginSso}  // ← use helper
             >
               {t('signInGoogle')}
             </Button>
+
             <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
               {t('ssoHint')}
             </Typography>

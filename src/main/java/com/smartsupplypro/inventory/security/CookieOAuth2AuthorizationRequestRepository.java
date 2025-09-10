@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.security;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,29 @@ public class CookieOAuth2AuthorizationRequestRepository
             // Clear cookie if saving null
             deleteCookie(request, response);
             return;
+        }
+
+        // NEW: capture optional return origin and set backend cookie for success handler
+        String ret = request.getParameter("return");
+        if (ret != null && !ret.isBlank()) {
+            // Whitelist: only allow localhost:5173 and your prod FE
+            List<String> allowed = List.of(
+                "http://localhost:5173",
+                "https://localhost:5173",
+                // You can read props via @Component variant, but here we keep static list
+                "https://inventory-service.koyeb.app"
+            );
+            if (allowed.contains(ret)) {
+                Cookie r = new Cookie("SSP_RETURN", ret);
+                r.setHttpOnly(false);
+                r.setSecure(isSecureOrForwardedHttps(request));
+                r.setPath("/");
+                r.setMaxAge(300); // 5 minutes
+                addCookieWithSameSite(response, r, "None");
+                log.debug("Set SSP_RETURN cookie for {}", ret);
+            } else {
+                log.warn("Ignored non-whitelisted return origin: {}", ret);
+            }
         }
         String json = writeJson(authorizationRequest);
         String encoded = Base64.getUrlEncoder()

@@ -12,7 +12,7 @@
  * - Avoid circular dependencies by not importing from outside src/api/
  * - See https://axios-http.com/docs/interceptors for more on interceptors
  */
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 /**
  * API base URL.
@@ -33,13 +33,40 @@ const httpClient = axios.create({
   timeout: 30_000,                       // sane client timeout
 });
 
-// ---- Response interceptor: centralize 401 handling ----
+// Safe 401 handling: do NOT force redirects on public routes or /api/me
 httpClient.interceptors.response.use(
   (res) => res,
-  (error: AxiosError) => {
-    // Let route guards (RequireAuth) and feature code decide what to do.
+  (error) => {
+    const resp = error?.response;
+    if (!resp) return Promise.reject(error);
+
+    if (resp.status === 401) {
+      // Current SPA route (not the request URL)
+      const path = window.location.pathname;
+
+      // Public routes (let the page render; don't bounce)
+      const onPublic =
+        path === '/' ||
+        path.startsWith('/login') ||
+        path.startsWith('/auth') ||
+        path.startsWith('/logout');
+
+      // Probe endpoint: a 401 is expected when not logged in
+      const isMeProbe =
+        typeof resp.config?.url === 'string' && resp.config.url.includes('/api/me');
+
+      if (onPublic || isMeProbe) {
+        return Promise.reject(error); // just surface the 401 to caller
+      }
+
+      // Otherwise, user tried to hit a protected API while not authenticated → go to login
+      window.location.assign('/login');
+      return; // stop promise chain
+    }
+
     return Promise.reject(error);
   }
 );
+
 
 export default httpClient;

@@ -21,7 +21,7 @@ public class AppProperties {
   // Nested class for frontend properties
   public static class Frontend {
     private String baseUrl = "http://localhost:8081";
-    private String landingPath = "/api/me";
+    private String landingPath = "/auth";
     public String getBaseUrl() { return baseUrl; }
     public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
     public String getLandingPath() { return landingPath; }
