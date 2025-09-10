@@ -61,6 +61,8 @@ const AppRouter: React.FC = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/auth" element={<AuthCallback />} />
       <Route path="/logout-success" element={<LogoutSuccess />} />
+      {/* Make /logout public: it's safe & avoids RequireAuth race during cleanup */}
+      <Route path="/logout" element={<LogoutPage />} />
 
       {/**
        * AUTHENTICATED ROUTES (inside AppShell)

@@ -59,6 +59,10 @@ httpClient.interceptors.response.use(
         return Promise.reject(error); // just surface the 401 to caller
       }
 
+      if (error?.response?.status === 401) {
+      console.debug('[401]', error?.config?.url);
+      }
+
       // Otherwise, user tried to hit a protected API while not authenticated → go to login
       window.location.assign('/login');
       return; // stop promise chain
