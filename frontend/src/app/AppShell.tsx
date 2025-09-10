@@ -53,6 +53,8 @@ import { ToastContext } from '../app/ToastContext';
 import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
 import { useAuth } from '../context/useAuth';
+import deFlag from '/flags/de.svg';
+import usFlag from '/flags/us.svg';
 
 /* Layout constants */
 const drawerWidth = 248;
@@ -225,15 +227,12 @@ export default function AppShell() {
               {/* Language toggle: 🇩🇪 <-> 🇺🇸 */}
               <Tooltip title={t('actions.toggleLanguage')}>
                 <IconButton onClick={toggleLocale}>
-                  <span
-                    style={{ 
-                      fontFamily: 'Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, emoji',
-                      fontSize: '1.2rem',
-                      lineHeight: 1,
-                    }}
-                  >
-                    {locale === 'de' ? '🇩🇪' : '🇺🇸'}
-                  </span>
+                   <img
+                    src={locale === 'de' ? deFlag : usFlag}
+                    alt={locale === 'de' ? 'Deutsch' : 'English'}
+                    width={20}
+                    height={20}
+                  />
                 </IconButton>
               </Tooltip>
 
