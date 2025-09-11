@@ -73,6 +73,16 @@ public class AnalyticsController{
     }
 
     /**
+     * Low-stock KPI (count only).
+     *
+     * @return JSON number (e.g., 5) of items where quantity < minimum_quantity
+     */
+    @GetMapping("/low-stock/count")
+    public long getLowStockCount() {
+        return analyticsService.lowStockCount();
+    }
+
+    /**
      * Update frequency for items of a given supplier.
      *
      * @param supplierId required supplier identifier

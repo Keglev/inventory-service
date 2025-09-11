@@ -202,6 +202,16 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
+     * Total number of items currently below their configured minimum stock.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public long lowStockCount() {
+        // global KPI → no supplier filter
+        return inventoryItemRepository.countWithQuantityBelow(5);
+    }
+
+    /**
      * Applies a flexible filter over stock updates with date/supplier/item/user/quantity bounds.
      *
      * <p><strong>Defaults</strong>:

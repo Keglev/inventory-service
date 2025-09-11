@@ -147,6 +147,7 @@ public class SecurityConfig {
                 if (props.isDemoReadonly()) { // using the getter (with parentheses)
                     auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").permitAll();
                 }
 
                 // Secured (normal rules)

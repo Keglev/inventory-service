@@ -21,11 +21,12 @@
 
 import 'i18next';
 
+// Augment the i18next module to add custom type options
 declare module 'i18next' {
   interface CustomTypeOptions {
     /** @default 'common' */
     defaultNS: 'common';
-
+/** Declare the available namespaces and their keys here */
     resources: {
       common: {
         app: { title: string };
@@ -43,8 +44,24 @@ declare module 'i18next' {
         };
         toast: { densityStatic: string };
         profile: { soon: string };
+
+      /** Keys used in Dashboard and StatCard */
+      dashboard: {
+          title: string;
+          kpi: {
+            totalItems: string;
+            suppliers: string;
+            lowStock: string;
+          };
+          actions: {
+            manageInventory: string;
+            manageSuppliers: string;
+            viewAnalytics: string;
+          };
+        };
       };
 
+      /** Keys used in LoginPage and LogoutSuccess */
       auth: {
         signIn: string;
         signInGoogle: string;
@@ -68,6 +85,7 @@ declare module 'i18next' {
         verifying?: string;
       };
 
+      /** Keys used in System pages (e.g., 404) */
       system: {
         notFound: {
           title: string;

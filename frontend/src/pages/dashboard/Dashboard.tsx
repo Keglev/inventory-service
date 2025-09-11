@@ -1,63 +1,69 @@
 /**
  * @file Dashboard.tsx
  * @description
- * Minimal post-login landing. Confirms session and shows a backend health probe.
- * Future: KPI cards and analytics previews.
- * @enterprise
- * - Keep this page simple until Analytics/KPIs are ready.
- * Includes a visible TODO checklist so reviewers see whats's next
+ * Dashboard foundation with KPI cards and action shortcuts. KPIs are resilient:
+ * if endpoints are missing/not ready, cards show "—" instead of breaking.
+ *
+ * @i18n
+ * Uses 'common' namespace: dashboard.title, dashboard.kpi.*, dashboard.actions.*
  */
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { Box, Typography, Chip, Stack, Divider } from '@mui/material';
-import { useAuth } from '../../context/useAuth';
-import { testConnection } from '../../api/testConnection';
+import { Box, Grid, Button, Stack, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { getInventoryCount, getSuppliersCount, getLowStockCount } from '../../api/metrics';
+import StatCard from '../../components/ui/StatCard';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
-  const [status, setStatus] = useState<'checking' | 'ok' | 'fail'>('checking');
+  const { t } = useTranslation('common');
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const ok = await testConnection().catch(() => false);
-      if (!cancelled) setStatus(ok ? 'ok' : 'fail');
-    })();
-    return () => { cancelled = true; };
-  }, []);
+  const invQ = useQuery({ queryKey: ['kpi', 'inventoryCount'], queryFn: getInventoryCount });
+  const supQ = useQuery({ queryKey: ['kpi', 'suppliersCount'], queryFn: getSuppliersCount });
+  const lowQ = useQuery({ queryKey: ['kpi', 'lowStockCount'], queryFn: getLowStockCount });
 
   return (
-    <Box sx={{ px: { xs: 2, md: 3 }, py: 2 }}>
-      <Typography variant="h4" gutterBottom>Dashboard</Typography>
-      <Typography variant="body1" gutterBottom>
-        Login successful{user?.fullName ? `, ${user.fullName}!` : '!'}
+    <Box sx={{ p: { xs: 2, md: 3 } }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        {t('dashboard.title')}
       </Typography>
 
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ my: 1 }}>
-        <Typography variant="body2">Backend status:</Typography>
-        <Chip
-          size="small"
-          label={status === 'checking' ? 'Checking…' : status === 'ok' ? 'OK' : 'Connection failed'}
-          color={status === 'ok' ? 'success' : status === 'fail' ? 'error' : 'default'}
-          variant="outlined"
-        />
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <StatCard
+            title={t('dashboard.kpi.totalItems')}
+            value={invQ.data}
+            loading={invQ.isLoading}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <StatCard
+            title={t('dashboard.kpi.suppliers')}
+            value={supQ.data}
+            loading={supQ.isLoading}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <StatCard
+            title={t('dashboard.kpi.lowStock')}
+            value={lowQ.data}
+            loading={lowQ.isLoading}
+          />
+        </Grid>
+      </Grid>
+
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+        <Button variant="contained" onClick={() => navigate('/inventory')}>
+          {t('dashboard.actions.manageInventory')}
+        </Button>
+        <Button variant="outlined" onClick={() => navigate('/suppliers')}>
+          {t('dashboard.actions.manageSuppliers')}
+        </Button>
+        <Button variant="outlined" onClick={() => navigate('/analytics')}>
+          {t('dashboard.actions.viewAnalytics')}
+        </Button>
       </Stack>
-
-      <Divider sx={{ my: 3 }} />
-
-      {/* ------------------------------------------------------------------
-         TODO: First implementation batch (Phase 2 shell + KPIs)
-         - [ ] Replace this page with SAP/Fiori-style overview (KPI cards + mini charts)
-         - [ ] Header actions already live in AppShell (language, density, profile)
-         - [ ] Wire stub data for 3 KPI cards (Inventory, Suppliers)
-         - [ ] Add /analytics stubs for deep-dive pages
-         ------------------------------------------------------------------ */}
-      <Typography variant="overline" color="text.secondary">
-        Coming soon
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        KPI cards and analytics previews will appear here.
-      </Typography>
     </Box>
   );
 };

@@ -107,5 +107,12 @@ public interface AnalyticsService {
 
     /** WAC summary (purchases, COGS, write-offs, returns, opening/ending) for [from..to]. */
     FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId);
+
+    /**
+     * @return total number of items below their minimum stock across all suppliers.
+     * items where quantity < 5 (absolute KPI threshold)
+     */
+    long lowStockCount();
+
 }
 

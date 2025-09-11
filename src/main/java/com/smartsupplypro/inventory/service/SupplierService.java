@@ -1,9 +1,9 @@
 package com.smartsupplypro.inventory.service;
 
-import com.smartsupplypro.inventory.dto.SupplierDTO;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.smartsupplypro.inventory.dto.SupplierDTO;
 
 /**
  * Application service boundary for Supplier use-cases.
@@ -30,6 +30,11 @@ public interface SupplierService {
      * @return immutable list of suppliers
      */
     List<SupplierDTO> findAll();
+
+    /**
+    * @return total number of suppliers (KPI).
+    */
+    long countSuppliers();
 
     /**
      * Retrieve a supplier by its ID.

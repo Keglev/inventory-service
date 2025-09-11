@@ -1,5 +1,17 @@
 package com.smartsupplypro.inventory.service.impl;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
@@ -10,17 +22,6 @@ import com.smartsupplypro.inventory.service.InventoryItemService;
 import com.smartsupplypro.inventory.service.StockHistoryService;
 import com.smartsupplypro.inventory.validation.InventoryItemSecurityValidator;
 import com.smartsupplypro.inventory.validation.InventoryItemValidator;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 import static com.smartsupplypro.inventory.validation.InventoryItemValidator.assertFinalQuantityNonNegative;
 import static com.smartsupplypro.inventory.validation.InventoryItemValidator.assertPriceValid;
 
@@ -77,6 +78,15 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public Page<InventoryItemDTO> findByNameSortedByPrice(String name, Pageable pageable) {
         Page<InventoryItem> page = repository.findByNameSortedByPrice(name, pageable);
         return page == null ? Page.empty() : page.map(InventoryItemMapper::toDTO);
+    }
+
+    /**
+    * Total number of inventory items (KPI).
+    */
+    @Override
+    @Transactional(readOnly = true)
+    public long countItems() {
+        return repository.count();
     }
 
     /**

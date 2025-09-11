@@ -1,7 +1,19 @@
 {
   "app": { "title": "Smart Supply Pro" },
   "nav": {
-    "dashboard": "Übersicht",
+    "dashboard": {
+      "title": "Übersicht",
+      "kpi": {
+        "totalItems": "Artikel gesamt",
+        "suppliers": "Lieferanten",
+        "lowStock": "Artikel mit niedrigem Bestand"
+      },
+      "actions": {
+      "manageInventory": "Bestand verwalten",
+      "manageSuppliers": "Lieferanten verwalten",
+      "viewAnalytics": "Analysen ansehen"
+      }
+    },
     "inventory": "Inventar",
     "suppliers": "Lieferanten",
     "orders": "Bestellungen",

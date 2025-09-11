@@ -1,7 +1,19 @@
 {
   "app": { "title": "Smart Supply Pro" },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": {
+      "title": "Dashboard",
+      "kpi": {
+        "totalItems": "Total items",
+        "suppliers": "Suppliers",
+        "lowStock": "Low-stock items"
+      },
+      "actions": {
+      "manageInventory": "Manage inventory",
+      "manageSuppliers": "Manage suppliers",
+      "viewAnalytics": "View analytics"
+      }
+    },
     "inventory": "Inventory",
     "suppliers": "Suppliers",
     "orders": "Purchase Orders",

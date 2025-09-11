@@ -1,21 +1,23 @@
 package com.smartsupplypro.inventory.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.List; // <-- adjust package if your entity lives elsewhere
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // static methods used directly
+
 import com.smartsupplypro.inventory.dto.SupplierDTO;
-import com.smartsupplypro.inventory.model.Supplier; // <-- adjust package if your entity lives elsewhere
+import com.smartsupplypro.inventory.mapper.SupplierMapper;
+import com.smartsupplypro.inventory.model.Supplier;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 import com.smartsupplypro.inventory.service.SupplierService;
 import com.smartsupplypro.inventory.validation.SupplierValidator;
-import com.smartsupplypro.inventory.mapper.SupplierMapper; // static methods used directly
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Default {@link SupplierService} implementation.
@@ -157,5 +159,14 @@ public class SupplierServiceImpl implements SupplierService {
             throw new NoSuchElementException("Supplier not found: " + id);
         }
         supplierRepository.deleteById(id);
+    }
+
+    /**
+    * Total number of suppliers (KPI).
+    */
+    @Override
+    @Transactional(readOnly = true)
+    public long countSuppliers() {
+        return supplierRepository.count();
     }
 }

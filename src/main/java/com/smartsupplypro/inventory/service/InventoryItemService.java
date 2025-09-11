@@ -1,13 +1,14 @@
 package com.smartsupplypro.inventory.service;
 
-import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
 
 /**
  * High-level business operations for inventory items.
@@ -52,4 +53,10 @@ public interface InventoryItemService {
      * with {@code change = 0} and {@code priceAtChange = newPrice}.
      */
     InventoryItemDTO updatePrice(String id, BigDecimal newPrice);
+
+    /**
+    * @return total number of inventory items (KPI).
+    */
+    long countItems();
+
 }

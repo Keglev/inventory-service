@@ -95,6 +95,34 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     List<Object[]> findItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
 
     /**
+     * Counts items below their minimum stock threshold.
+     *
+     * <p>Native SQL for performance over large tables. Optional supplier filter
+     * keeps parity with {@code findItemsBelowMinimumStockFiltered}.</p>
+     *
+     * @param supplierId optional supplier filter (nullable)
+     * @return number of items where quantity < minimum_quantity
+     */
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM inventory_item
+        WHERE quantity < minimum_quantity
+            AND (:supplierId IS NULL OR supplier_id = :supplierId)
+        """, nativeQuery = true)
+    long countItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
+
+    /**
+     * Counts items whose on-hand quantity is below a fixed KPI threshold.
+     * Null quantities are treated as 0 so they also flag as low stock.
+    */
+    @Query("""
+        SELECT COUNT(i)
+        FROM InventoryItem i
+        WHERE COALESCE(i.quantity, 0) < :threshold
+        """)
+    long countWithQuantityBelow(@Param("threshold") int threshold);
+
+    /**
      * Finds all inventory items with an exact name match (case-insensitive).
      *
      * <p>Used to verify potential duplicates with identical names but different prices.</p>
