@@ -36,6 +36,7 @@ import Dashboard from '../pages/dashboard/Dashboard';
 import Inventory from '../pages/inventory/Inventory';            
 import Suppliers from '../pages/suppliers/Suppliers';             
 import LogoutPage from '../pages/auth/LogoutPage';
+import Analytics from '../pages/analytics/Analytics';
 
 const LoadingScreen: React.FC = () => (
   <Box sx={{ display: 'grid', placeItems: 'center', height: '100dvh' }}>
@@ -91,6 +92,14 @@ const AppRouter: React.FC = () => {
           element={
             <RequireAuth>
               <Suppliers />
+            </RequireAuth>
+          }
+        />
+        <Route 
+          path="/analytics" 
+          element={
+            <RequireAuth>
+              <Analytics />
             </RequireAuth>
           }
         />

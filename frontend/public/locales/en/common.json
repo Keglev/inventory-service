@@ -29,5 +29,14 @@
   },
   "profile": {
     "soon": "Profile (soon)"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "cards": {
+      "stockValue": "Stock value over time",
+      "monthlyMovement": "Monthly stock movement",
+      "priceTrend": "Price trend"
+    },
+    "item": "Item"
   }
 }

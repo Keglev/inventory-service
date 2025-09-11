@@ -29,5 +29,14 @@
   },
   "profile": {
     "soon": "Profil (bald)"
+  },
+  "analytics": {
+    "title": "Analysen",
+    "cards": {
+      "stockValue": "Bestandswert im Zeitverlauf",
+      "monthlyMovement": "Monatliche Bestandsbewegungen",
+      "priceTrend": "Preisentwicklung"
+    },
+    "item": "Artikel"
   }
 }

@@ -59,6 +59,17 @@ declare module 'i18next' {
             viewAnalytics: string;
           };
         };
+
+        /** Keys used in Analytics page (kept under common namespace) */
+        analytics: {
+          title: string;
+          cards: {
+            stockValue: string;
+            monthlyMovement: string;
+            priceTrend: string;
+          };
+          item: string;
+        };
       };
 
       /** Keys used in LoginPage and LogoutSuccess */
