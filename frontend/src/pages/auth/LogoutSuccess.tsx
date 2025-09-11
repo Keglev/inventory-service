@@ -2,7 +2,7 @@
  * @file LogoutSuccess.tsx
  * @description
  * Public confirmation screen shown after a successful logout.
- * No side-effects here; the actual logout happens in LogoutPage.
+ * Side-effects happen exclusively in LogoutPage.
  *
  * @responsibilities
  * - Display a confirmation message after successful logout.
@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const LogoutSuccess: React.FC = () => {
-  const { t } = useTranslation('auth');
+  const { t } = useTranslation<'auth'>('auth');
   const navigate = useNavigate();
 
   return (

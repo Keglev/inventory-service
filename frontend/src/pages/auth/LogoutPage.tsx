@@ -1,76 +1,61 @@
 /**
  * @file LogoutPage.tsx
  * @description
- * Public route that performs logout:
- *  - POST /logout (idempotent; ignores 4xx/5xx)
- *  - Clears React Query cache and AuthContext
- *  - Redirects user to `/logout-success`
+ * Public route that performs logout without XHR:
+ *  - Clears React Query cache and AuthContext immediately (client-side).
+ *  - Submits a top-level POST form to `${API_BASE}/logout?return=<origin>/logout-success`.
+ *  - Avoids CORS/XHR redirect issues and guarantees server-side session invalidation.
  *
  * @enterprise
- * - Separates side effects from the confirmation screen.
- * - Provides visible progress and retry on failure (network or CSRF edge cases).
+ * - Uses form POST navigation to bypass CORS on /logout.
+ * - Works when CSRF is disabled. If CSRF is enabled in future, allow GET logout
+ *   or include the CSRF token as a hidden field.
  *
  * @i18n
- * - Uses 'auth' namespace keys: logoutSigningOut, logoutFailed, errorTryAgain.
+ * - Uses 'auth' namespace: logoutSigningOut.
  */
 
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import httpClient from '../../api/httpClient';
 import { useAuth } from '../../context/useAuth';
-import { Box, CircularProgress, Button, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { API_BASE } from '../../api/httpClient';
 
 const LogoutPage: React.FC = () => {
-  const { t } = useTranslation('auth');
-  const { logout } = useAuth();
+  const { t } = useTranslation<'auth'>('auth');
   const queryClient = useQueryClient();
-
-  const [done, setDone] = useState(false);
-  const [failed, setFailed] = useState(false);
-
-  const runLogout = async () => {
-    setFailed(false);
-    try {
-      // IMPORTANT: public endpoint as per Spring Security default
-      await httpClient.post('/logout');
-    } catch {
-      // Network/CSRF issues shouldn't trap the user
-      setFailed(true);
-    } finally {
-      queryClient.clear();
-      logout();
-      setDone(true);
-    }
-  };
+  const { logout } = useAuth();
 
   useEffect(() => {
-    void runLogout();
+    // 1) Clear client-side state immediately
+    queryClient.clear();
+    logout();
+
+    // 2) Submit a real form POST to /logout with a return URL
+    const form = document.createElement('form');
+    form.method = 'POST';
+    const returnUrl = `${window.location.origin}/logout-success`;
+    form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
+    form.style.display = 'none';
+    document.body.appendChild(form);
+    form.submit();
+
+    return () => {
+      try { document.body.removeChild(form); } catch { /* noop */ }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (done && !failed) return <Navigate to="/logout-success" replace />;
-
-  // If call failed, still clean local state and offer retry (rare edge)
-  if (done && failed) {
-    return (
-      <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '60vh', px: 3 }}>
-        <Stack spacing={2} sx={{ textAlign: 'center' }}>
-          <Typography variant="h6">{t('logoutFailed')}</Typography>
-          <Button variant="outlined" onClick={runLogout}>{t('errorTryAgain')}</Button>
-        </Stack>
-      </Box>
-    );
-  }
-
-  // In-flight
+  // Progress UI while navigation occurs
   return (
     <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '60vh', px: 3 }}>
       <Stack spacing={2} sx={{ textAlign: 'center' }}>
         <CircularProgress />
-        <Typography variant="body2" color="text.secondary">{t('logoutSigningOut')}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t('logoutSigningOut')}
+        </Typography>
       </Stack>
     </Box>
   );

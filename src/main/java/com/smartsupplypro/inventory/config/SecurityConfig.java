@@ -133,6 +133,10 @@ public class SecurityConfig {
 
             // ---------- AUTHZ RULES (block form) ----------
             .authorizeHttpRequests(auth -> {
+
+                // Allow preflight requests to pass through the security filter
+                auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // allow preflight requests globally
+                auth.requestMatchers("/logout").permitAll();
                 // Public (always)
                 auth.requestMatchers(
                         "/", "/actuator/**", "/health/**",
@@ -142,7 +146,7 @@ public class SecurityConfig {
                 // Demo mode: allow read-only endpoints without login
                 if (props.isDemoReadonly()) { // using the getter (with parentheses)
                     auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
-                    auth.requestMatchers("/api/analytics/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll();
                 }
 
                 // Secured (normal rules)
@@ -168,17 +172,25 @@ public class SecurityConfig {
                 .successHandler(successHandler)
             )
             .logout(logout -> logout
+                .logoutUrl("/logout")
                 .logoutSuccessHandler((req, res, auth) -> {
-                    Object isApi = req.getAttribute("IS_API_REQUEST"); // you already set this flag in your filter
-                    if (Boolean.TRUE.equals(isApi)) {
-                        res.setStatus(HttpServletResponse.SC_NO_CONTENT); // 204 for XHR
-                    } else {
-                        String target = props.getFrontend().getBaseUrl() + "/logout-success";
-                        res.sendRedirect(target);
+                    boolean isApi = Boolean.TRUE.equals(req.getAttribute("IS_API_REQUEST"));
+                    if (isApi) {
+                        res.setStatus(HttpServletResponse.SC_NO_CONTENT); // 204 for XHR/API
+                        return;
                     }
+                    // Support FE form-post with ?return=<absolute-url>, but guard against open redirects
+                    String base = props.getFrontend().getBaseUrl();                  // e.g., https://your-fe.example
+                    String ret  = req.getParameter("return");                  // e.g., https://your-fe.example/logout-success
+                    String target = base + "/logout-success";
+                    if (ret != null && ret.startsWith(base)) {                     // simple allowlist: must start with FE base
+                        target = ret;
+                    }
+                        res.sendRedirect(target);
                 })
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID", "SESSION") // servlet + Spring Session cookies
+                .deleteCookies("JSESSIONID", "SESSION")
+                .permitAll() // explicit: anyone can hit /logout (it only clears if there is a session)
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
@@ -208,9 +220,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-            "http://localhost:5173",               // Dev (Vite default)
-            "https://localhost:5173",              // Dev over HTTPS (if used)
-            "https://inventory-service.koyeb.app"    // Prod frontend domain
+            // Dev (Vite default)
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            // Dev over HTTPS (only if actually use mkcert/HTTPS locally)
+            "https://localhost:5173",             
+            // Production Frontend (in this case, Koyeb frontend domain)
+            "https://inventory-service.koyeb.app"   
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
