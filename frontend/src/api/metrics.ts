@@ -13,7 +13,7 @@ export async function getItemCount(): Promise<number> {
 }
 
 // Fetch total suppliers count from the backend
-export async function getSuppliersCount(): Promise<number> {
+export async function getSupplierCount(): Promise<number> {
     const { data } = await http.get<number>('/api/suppliers/count');
     return Number(data ?? 0);
 }
@@ -23,3 +23,11 @@ export async function getLowStockCount(): Promise<number> {
     const { data } = await http.get<number>('/api/analytics/low-stock/count');
     return Number(data ?? 0);
 }
+
+/* -------------------------------------------------------------------------- */
+/* Aliases to match existing imports in Dashboard.tsx                         */
+/* -------------------------------------------------------------------------- */
+
+// Keep Dashboard.tsx unchanged by re-exporting aliases:
+export const getInventoryCount = getItemCount;
+export const getSuppliersCount = getSupplierCount;
