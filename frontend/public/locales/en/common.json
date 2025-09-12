@@ -22,9 +22,13 @@
     "viewAnalytics": "View analytics"
   }
 },
-  "actions": { "toggleDensity": "Toggle compact density", "toggleLanguage": "Switch language"},
-  "toast": { "densityStatic": "Density is set via theme defaults."},
-  "profile": { "soon": "Profile (soon)"},
+  "actions": {
+    "toggleDensity": "Toggle compact density",
+    "toggleLanguage": "Switch language",
+    "backToDashboard": "Back to dashboard"
+  },
+  "toast": { "densityStatic": "Density is set via theme defaults." },
+  "profile": { "soon": "Profile (soon)" },
   "analytics": {
     "title": "Analytics",
     "cards": {

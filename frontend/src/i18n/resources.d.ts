@@ -41,6 +41,7 @@ declare module 'i18next' {
         actions: {
           toggleDensity: string;
           toggleLanguage: string;
+          backToDashboard: string;
         };
         toast: { densityStatic: string };
         profile: { soon: string };
@@ -67,6 +68,7 @@ declare module 'i18next' {
             stockValue: string;
             monthlyMovement: string;
             priceTrend: string;
+            backToDashboard: string;
           };
           item: string;
         };

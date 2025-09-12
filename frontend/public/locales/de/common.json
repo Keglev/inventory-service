@@ -23,7 +23,12 @@
     }
   },
 
-  "actions": { "toggleDensity": "Kompakte Dichte umschalten", "toggleLanguage": "Sprache wechseln" },
+  "actions": {
+    "toggleDensity": "Kompakte Dichte umschalten",
+    "toggleLanguage": "Sprache wechseln",
+    "backToDashboard": "Zurück zur Übersicht"
+  },
+  
   "toast": { "densityStatic": "Dichte ist in den Theme-Defaults festgelegt." },
   "profile": { "soon": "Profil (bald)" },
   "analytics": {

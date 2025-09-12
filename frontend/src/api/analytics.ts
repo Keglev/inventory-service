@@ -3,11 +3,14 @@
  * @description
  * API helpers for analytics charts. These functions are resilient:
  * they return [] on errors/404 so charts render gracefully.
+ * Fetches aggregated stock value over time (last 6 months by default).
+ * Normalizes backend date/value field variants into `{ date, totalValue }`.
+ * @returns Array of points suitable for a LineChart.
  */
 import http from './httpClient';
 
 export type StockValuePoint = { date: string; value: number };
-export type MonthlyMovementPoint = { month: string; inbound: number; outbound: number };
+export type MonthlyMovementPoint = { month: string; stockIn: number; stockOut: number };
 export type PricePoint = { date: string; price: number };
 export type ItemRef = { id: string; name: string };
 
@@ -17,6 +20,14 @@ type InventoryRow = {
   itemId?: number | string;
   name?: string;
   itemName?: string;
+};
+/** Backend variants seen for stock-value aggregation. */
+type BackendStockValueDTO = {
+  date?: string;
+  timestamp?: string;
+  totalValue?: number;
+  total_value?: number;
+  value?: number;
 };
 
 // Price trend API returns "timestamp" and "price" (BigDecimal serialized)
@@ -35,16 +46,27 @@ const defaultRange = () => {
 };
 
 // --- API functions ---
-// Stock value over time
+/**
+ * Fetches aggregated stock value over time (last 6 months by default).
+ * Normalizes backend field variants into `{ date, totalValue }`.
+ */
 export async function getStockValueOverTime(): Promise<StockValuePoint[]> {
   const { start, end } = defaultRange();
   try {
-    // BE: GET /api/analytics/stock-value?start=YYYY-MM-DD&end=YYYY-MM-DD[&supplierId=...]
-    const { data } = await http.get<StockValuePoint[]>('/api/analytics/stock-value', {
-      params: { start, end },
-    });
-    return Array.isArray(data) ? data : [];
-  } catch { return []; }
+    const { data } = await http.get<BackendStockValueDTO[]>(
+      '/api/analytics/stock-value',
+      { params: { start, end } }
+    );
+    if (!Array.isArray(data)) return [];
+    return data
+      .map((row) => ({
+        date: String(row.date ?? row.timestamp ?? ''),
+        value: Number(row.totalValue ?? row.total_value ?? row.value ?? 0),
+      }))
+      .filter((d) => d.date);
+  } catch {
+    return [];
+  }
 }
 
 // Monthly movement: inbound vs outbound stock

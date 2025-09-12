@@ -6,32 +6,20 @@
  */
 import http from './httpClient';
 
-// Fetch total inventory item count from the backend
-export async function getInventoryCount(): Promise<number | null> {
-  try {
+// Fetch total Inventory item count from the backend
+export async function getItemCount(): Promise<number> {
     const { data } = await http.get<number>('/api/inventory/count');
-    return data ?? null;
-  } catch {
-    return null;
-  }
+    return Number(data ?? 0);
 }
 
 // Fetch total suppliers count from the backend
-export async function getSuppliersCount(): Promise<number | null> {
-  try {
+export async function getSuppliersCount(): Promise<number> {
     const { data } = await http.get<number>('/api/suppliers/count');
-    return data ?? null;
-  } catch {
-    return null;
-  }
+    return Number(data ?? 0);
 }
 
 // Fetch count of items that are low in stock from the backend
-export async function getLowStockCount(): Promise<number | null> {
-  try {
+export async function getLowStockCount(): Promise<number> {
     const { data } = await http.get<number>('/api/analytics/low-stock/count');
-    return data ?? null;
-  } catch {
-    return null;
-  }
+    return Number(data ?? 0);
 }
