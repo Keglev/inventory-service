@@ -1,35 +1,30 @@
 {
   "app": { "title": "Smart Supply Pro" },
   "nav": {
-    "dashboard": {
-      "title": "Dashboard",
-      "kpi": {
-        "totalItems": "Total items",
-        "suppliers": "Suppliers",
-        "lowStock": "Low-stock items"
-      },
-      "actions": {
-      "manageInventory": "Manage inventory",
-      "manageSuppliers": "Manage suppliers",
-      "viewAnalytics": "View analytics"
-      }
-    },
+    "dashboard": "Dashboard",
     "inventory": "Inventory",
     "suppliers": "Suppliers",
     "orders": "Purchase Orders",
     "analytics": "Analytics",
     "logout": "Logout"
   },
-  "actions": {
-    "toggleDensity": "Toggle compact density",
-    "toggleLanguage": "Switch language"
-  },
-  "toast": {
-    "densityStatic": "Density is set via theme defaults."
-  },
-  "profile": {
-    "soon": "Profile (soon)"
-  },
+
+  "dashboard": {
+    "title": "Dashboard",
+    "kpi": {
+      "totalItems": "Total items",
+      "suppliers": "Suppliers",
+      "lowStock": "Low-stock items"
+    },
+    "actions": {
+    "manageInventory": "Manage inventory",
+    "manageSuppliers": "Manage suppliers",
+    "viewAnalytics": "View analytics"
+  }
+},
+  "actions": { "toggleDensity": "Toggle compact density", "toggleLanguage": "Switch language"},
+  "toast": { "densityStatic": "Density is set via theme defaults."},
+  "profile": { "soon": "Profile (soon)"},
   "analytics": {
     "title": "Analytics",
     "cards": {

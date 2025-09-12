@@ -1,42 +1,35 @@
 {
   "app": { "title": "Smart Supply Pro" },
   "nav": {
-    "dashboard": {
-      "title": "Übersicht",
-      "kpi": {
-        "totalItems": "Artikel gesamt",
-        "suppliers": "Lieferanten",
-        "lowStock": "Artikel mit niedrigem Bestand"
-      },
-      "actions": {
-      "manageInventory": "Bestand verwalten",
-      "manageSuppliers": "Lieferanten verwalten",
-      "viewAnalytics": "Analysen ansehen"
-      }
-    },
+    "dashboard": "Übersicht",
     "inventory": "Inventar",
     "suppliers": "Lieferanten",
     "orders": "Bestellungen",
     "analytics": "Analytik",
     "logout": "Abmelden"
   },
-  "actions": {
-    "toggleDensity": "Kompakte Dichte umschalten",
-    "toggleLanguage": "Sprache wechseln"
+
+  "dashboard": {
+    "title": "Übersicht",
+    "kpi": {
+      "totalItems": "Artikel gesamt",
+      "suppliers": "Lieferanten",
+      "lowStock": "Artikel mit niedrigem Bestand"
+    },
+    "actions": {
+      "manageInventory": "Bestand verwalten",
+      "manageSuppliers": "Lieferanten verwalten",
+      "viewAnalytics": "Analysen ansehen"
+    }
   },
-  "toast": {
-    "densityStatic": "Dichte ist in den Theme-Defaults festgelegt."
-  },
-  "profile": {
-    "soon": "Profil (bald)"
-  },
+
+  "actions": { "toggleDensity": "Kompakte Dichte umschalten", "toggleLanguage": "Sprache wechseln" },
+  "toast": { "densityStatic": "Dichte ist in den Theme-Defaults festgelegt." },
+  "profile": { "soon": "Profil (bald)" },
   "analytics": {
     "title": "Analysen",
-    "cards": {
-      "stockValue": "Bestandswert im Zeitverlauf",
-      "monthlyMovement": "Monatliche Bestandsbewegungen",
-      "priceTrend": "Preisentwicklung"
-    },
+    "cards": { "stockValue": "Bestandswert im Zeitverlauf", "monthlyMovement": "Monatliche Bestandsbewegungen", "priceTrend": "Preisentwicklung" },
     "item": "Artikel"
   }
 }
+

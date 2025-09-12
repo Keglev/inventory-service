@@ -1,47 +1,102 @@
 /**
  * @file Analytics.tsx
- * @description
- * Starter analytics dashboard with three charts:
+ * @description Starter analytics dashboard with three charts:
  *  1) Stock value over time (Line)
- *  2) Monthly stock movement (Bar: inbound vs outbound)
+ *  2) Monthly stock movement (Bar: stockIn vs stockOut)
  *  3) Price trend for a selected item (Line)
  *
- * Charts remain stable even if endpoints return [].
+ * Charts render safely even if endpoints return empty arrays.
  */
+
 import * as React from 'react';
-import { Box, Typography, Card, CardContent, Stack, MenuItem, TextField, Skeleton } from '@mui/material';
+import type { JSX } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Stack,
+  Skeleton,
+  Button,
+  TextField,
+  MenuItem,
+} from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import {
-  getStockValueOverTime, getMonthlyStockMovement, getTopItems, getPriceTrend,
+  getStockValueOverTime,
+  getMonthlyStockMovement,
+  getTopItems,
+  getPriceTrend,
+  type PricePoint,
+  type ItemRef,
 } from '../../api/analytics';
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
 
-export default function Analytics() {
+/**
+ * Analytics page component.
+ * @returns JSX element rendering analytics cards and charts.
+ */
+export default function Analytics(): JSX.Element {
   const { t } = useTranslation<'common'>('common');
+  const navigate = useNavigate();
 
-  const stockValueQ = useQuery({ queryKey: ['analytics','stockValue'], queryFn: getStockValueOverTime });
-  const movementQ   = useQuery({ queryKey: ['analytics','movement'],   queryFn: getMonthlyStockMovement });
-  const itemsQ      = useQuery({ queryKey: ['analytics','items'],      queryFn: getTopItems });
-
-  const [itemId, setItemId] = React.useState<string | null>(null);
-  const priceQ = useQuery({
-    queryKey: ['analytics','priceTrend', itemId],
-    queryFn: () => getPriceTrend(itemId || ''),
-    enabled: !!itemId,
+  /** Stock value over time (last 6 months by default). */
+  const stockValueQ = useQuery({
+    queryKey: ['analytics', 'stockValue'],
+    queryFn: getStockValueOverTime,
   });
 
+  /** Monthly stock movement (stockIn vs stockOut). */
+  const movementQ = useQuery({
+    queryKey: ['analytics', 'movement'],
+    queryFn: getMonthlyStockMovement,
+  });
+
+  /** Item list for driving the price trend selector. */
+  const itemsQ = useQuery<ItemRef[]>({
+    queryKey: ['analytics', 'items'],
+    queryFn: getTopItems,
+  });
+
+  /** Currently selected item for price trend. */
+  const [selectedItemId, setSelectedItemId] = React.useState<string>('');
+
+  /** Price trend for the selected item (enabled only when an itemId exists). */
+  const priceQ = useQuery<PricePoint[]>({
+    queryKey: ['analytics', 'priceTrend', selectedItemId],
+    queryFn: () => getPriceTrend(selectedItemId),
+    enabled: !!selectedItemId,
+  });
+
+  // Pick the first item automatically once items are loaded.
   React.useEffect(() => {
-    if (!itemId && itemsQ.data && itemsQ.data.length > 0) {
-      setItemId(itemsQ.data[0].id);
+    if (!selectedItemId && itemsQ.data && itemsQ.data.length > 0) {
+      setSelectedItemId(itemsQ.data[0].id);
     }
-  }, [itemsQ.data, itemId]);
+  }, [itemsQ.data, selectedItemId]);
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>{t('analytics.title')}</Typography>
+      {/* Header + "Back to Dashboard" */}
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+        <Typography variant="h5">{t('analytics.title')}</Typography>
+        <Button variant="text" onClick={() => navigate('/dashboard')}>
+          {t('nav.dashboard')}
+        </Button>
+      </Stack>
 
       <Stack spacing={2}>
         {/* Stock value over time */}
@@ -55,12 +110,12 @@ export default function Analytics() {
             ) : (
               <Box sx={{ height: 260 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={stockValueQ.data}>
+                  <LineChart data={stockValueQ.data ?? []}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
                     <YAxis />
                     <Tooltip />
-                    <Line type="monotone" dataKey="value" />
+                    <Line type="monotone" dataKey="totalValue" />
                   </LineChart>
                 </ResponsiveContainer>
               </Box>
@@ -79,14 +134,14 @@ export default function Analytics() {
             ) : (
               <Box sx={{ height: 260 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={movementQ.data}>
+                  <BarChart data={movementQ.data ?? []}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="inbound" />
-                    <Bar dataKey="outbound" />
+                    <Bar dataKey="stockIn" />
+                    <Bar dataKey="stockOut" />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
@@ -97,24 +152,35 @@ export default function Analytics() {
         {/* Price trend for selected item */}
         <Card>
           <CardContent>
-            <Stack direction={{ xs: 'column', sm: 'row' }} alignItems="center" spacing={2} sx={{ mb: 1 }}>
-              <Typography variant="subtitle1" sx={{ flex: 1 }}>
-                {t('analytics.cards.priceTrend')}
-              </Typography>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={2}
+              alignItems="center"
+              justifyContent="space-between"
+              sx={{ mb: 1 }}
+            >
+              <Typography variant="subtitle1">{t('analytics.cards.priceTrend')}</Typography>
+
               <TextField
-                size="small"
                 select
+                size="small"
                 label={t('analytics.item')}
-                value={itemId ?? ''}
-                onChange={(e) => setItemId(e.target.value)}
-                sx={{ minWidth: 220 }}
+                value={selectedItemId}
+                onChange={(e) => setSelectedItemId(e.target.value)}
+                sx={{ minWidth: 260 }}
+                disabled={itemsQ.isLoading || itemsQ.isError}
               >
                 {(itemsQ.data ?? []).map((it) => (
-                  <MenuItem key={it.id} value={it.id}>{it.name}</MenuItem>
+                  <MenuItem key={it.id} value={it.id}>
+                    {it.name}
+                  </MenuItem>
                 ))}
               </TextField>
             </Stack>
-            {priceQ.isFetching ? (
+
+            {!selectedItemId ? (
+              <Skeleton variant="rounded" height={220} />
+            ) : priceQ.isLoading ? (
               <Skeleton variant="rounded" height={220} />
             ) : (
               <Box sx={{ height: 260 }}>
