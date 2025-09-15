@@ -5,9 +5,11 @@
  *  2) Monthly stock movement (Bar: stockIn vs stockOut)
  *  3) Price trend for a selected item (Line)
  *
- * Charts render safely even if endpoints return empty arrays.
+ * Implementation notes:
+ * - Charts render safely even if endpoints return empty arrays.
+ * - The stock-value series is sorted by date ascending and uses an explicit stroke color to avoid theme-related invisibility.
+ * - Price-trend series also uses an explicit stroke color for consistency.
  */
-
 import * as React from 'react';
 import type { JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -63,6 +65,15 @@ export default function Analytics(): JSX.Element {
     staleTime: 60_000 // 1 minute
   });
 
+  /**
+   * Stock-value data sorted by date ascending to ensure a stable path
+   * and correct left→right drawing order in Recharts.
+   */
+  const stockValueData = React.useMemo(
+    () => [...(stockValueQ.data ?? [])].sort((a, b) => a.date.localeCompare(b.date)),
+    [stockValueQ.data]
+  );
+
   /** Monthly stock movement (stockIn vs stockOut). */
   const movementQ = useQuery({
     queryKey: ['analytics', 'movement'],
@@ -111,21 +122,33 @@ export default function Analytics(): JSX.Element {
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               {t('analytics.cards.stockValue')}
             </Typography>
+
             {stockValueQ.isLoading ? (
               <Skeleton variant="rounded" height={220} />
-            ) : stockValueQ.isError ? (
-              <Box sx={{ height: 260, display: 'grid', placeItems:'center', color: 'text.secondary' }}>
-                {t('common:noData', 'No data available')}
+            ) : (stockValueData.length === 0) ? (
+              <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+                {t('common:noData', 'No data')}
               </Box>
             ) : (
               <Box sx={{ height: 260 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={stockValueQ.data ?? []}>
+                  {/* Explicit margins to avoid clipping axes/ticks in compact layouts */}
+                  <LineChart data={stockValueData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
-                    <YAxis />
+                    <YAxis domain={['auto', 'auto']} />
                     <Tooltip />
-                    <Line type="monotone" dataKey="totalValue" />
+                    {/* Explicit stroke to avoid theme transparency; small dots to aid discovery */}
+                    <Line
+                      type="monotone"
+                      dataKey="totalValue"
+                      stroke={muiTheme.palette.primary.main}
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      activeDot={{ r: 4 }}
+                      connectNulls
+                      isAnimationActive={false}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </Box>
@@ -201,13 +224,16 @@ export default function Analytics(): JSX.Element {
             ) : (
               <Box sx={{ height: 260 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={priceQ.data ?? []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="price" />
-                  </LineChart>
+                  <Line
+                    type="monotone"
+                    dataKey="price"
+                    stroke={muiTheme.palette.primary.main}
+                    strokeWidth={2}
+                    dot={{ r: 2 }}
+                    activeDot={{ r: 4 }}
+                    connectNulls
+                    isAnimationActive={false}
+                  />
                 </ResponsiveContainer>
               </Box>
             )}
