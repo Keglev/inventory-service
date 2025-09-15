@@ -133,24 +133,26 @@ export default function Filters(props: FiltersProps): JSX.Element {
         inputProps={{ 'aria-label': 'to' }}
       />
 
-      {/* Supplier */}
-      <TextField
-        select
-        size="small"
-        label={t('analytics:filters.supplier')}
-        value={value.supplierId || ''}
-        onChange={(e) => onSupplier(e.target.value)}
-        disabled={disabled}
-        sx={{ minWidth: 220 }}
-      >
-        <MenuItem value="">{t('analytics:filters.clear')}</MenuItem>
-        {suppliers.map((s) => (
-          <MenuItem key={s.id} value={s.id}>
-            {s.name}
-          </MenuItem>
-        ))}
-      </TextField>
-
+      {/* Supplier (auto-hidden if blocked/empty) */}
+      {suppliers.length > 0 && (
+        <TextField
+          select
+          size="small"
+          label={t('analytics:filters.supplier')}
+          value={value.supplierId || ''}
+          onChange={(e) => onSupplier(e.target.value)}
+          disabled={disabled}
+          sx={{ minWidth: 220 }}
+        >
+          <MenuItem value="">{t('analytics:filters.clear')}</MenuItem>
+          {suppliers.map((s) => (
+            <MenuItem key={s.id} value={s.id}>
+              {s.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      )}
+      
       {/* Clear */}
       <Button size="small" variant="text" onClick={clear} disabled={disabled}>
         {t('analytics:filters.clear')}

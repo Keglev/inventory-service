@@ -50,14 +50,22 @@ function asNumber(v: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Normalizes FE filter parameters to the BE’s expected query params.
+ * BE expects `start`/`end` (LocalDate) and `supplierId` (String/Long).
+ */
 function paramClean(p?: AnalyticsParams): Record<string, string> {
   const out: Record<string, string> = {};
   if (!p) return out;
-  if (p.from) out.from = p.from;
-  if (p.to) out.to = p.to;
+
+  // Map FE → BE
+  if (p.from) out.start = p.from;
+  if (p.to) out.end = p.to;
   if (p.supplierId) out.supplierId = p.supplierId;
+
   return out;
 }
+
 
 // ---------------------------------------------------------------------------
 // API functions (resilient)
