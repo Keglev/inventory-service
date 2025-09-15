@@ -64,7 +64,7 @@ public class InventoryItemController {
      *  @return the item
      *  @throws ResponseStatusException 404 if not found (handled by GlobalExceptionHandler)
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public InventoryItemDTO getById(@PathVariable String id) {
         return inventoryItemService.getById(id)
@@ -72,7 +72,7 @@ public class InventoryItemController {
     }
 
     /** Retrieve all items (non‑paginated). Prefer /search for large datasets. */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public List<InventoryItemDTO> getAll() {
         return inventoryItemService.getAll();
@@ -82,7 +82,7 @@ public class InventoryItemController {
     * Returns the total number of inventory items.
     * @return JSON number (e.g., 123)
     */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/count")
     public long countItems() {
         return inventoryItemService.countItems();
@@ -95,7 +95,7 @@ public class InventoryItemController {
      *  @param pageable Spring pageable (page,size,sort)
      *  @return page of items
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/search")
     public Page<InventoryItemDTO> search(
         @RequestParam String name, 
@@ -133,7 +133,7 @@ public class InventoryItemController {
      *  @response 400 if path ID and payload ID differ
      *  @response 404 if the item does not exist
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     public InventoryItemDTO update(
             @PathVariable String id,
@@ -164,7 +164,7 @@ public class InventoryItemController {
      *  @return the updated item
      *  @response 400 if delta violates business rules (validator/service)
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}/quantity")
     public InventoryItemDTO adjustQuantity(@PathVariable String id,
                                        @RequestParam int delta,
@@ -176,7 +176,7 @@ public class InventoryItemController {
      *  @param price new price; must be > 0
      *  @return the updated item
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}/price")
     public InventoryItemDTO updatePrice(@PathVariable String id,
                                     @RequestParam @jakarta.validation.constraints.Positive BigDecimal price) {

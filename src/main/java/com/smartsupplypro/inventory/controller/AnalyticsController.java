@@ -55,7 +55,7 @@ public class AnalyticsController{
      * @return list of {@link StockValueOverTimeDTO} points
      * @throws InvalidRequestException if start/end are missing or invalid (start > end)
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/stock-value")
     public ResponseEntity<List<StockValueOverTimeDTO>> getStockValueOverTime(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
@@ -69,7 +69,7 @@ public class AnalyticsController{
     /**
      * Current total stock per supplier (e.g., for pie/bar charts).
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
         return ResponseEntity.ok(analyticsService.getTotalStockPerSupplier());
@@ -80,7 +80,7 @@ public class AnalyticsController{
      *
      * @return JSON number (e.g., 5) of items where quantity < minimum_quantity
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/low-stock/count")
     public long getLowStockCount() {
         return analyticsService.lowStockCount();
@@ -91,7 +91,7 @@ public class AnalyticsController{
      *
      * @param supplierId required supplier identifier
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/item-update-frequency")
     public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency(
             @RequestParam(name = "supplierId") String supplierId) {
@@ -105,7 +105,7 @@ public class AnalyticsController{
      *
      * @param supplierId required supplier identifier
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/low-stock-items")
     public ResponseEntity<List<LowStockItemDTO>> getLowStockItems(
             @RequestParam(name = "supplierId") String supplierId) {
@@ -121,7 +121,7 @@ public class AnalyticsController{
      * @param end        inclusive end date (ISO yyyy-MM-dd)
      * @param supplierId optional supplier filter
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/monthly-stock-movement")
     public ResponseEntity<List<MonthlyStockMovementDTO>> getMonthlyStockMovement(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
@@ -138,7 +138,7 @@ public class AnalyticsController{
      * <p>If both {@code startDate} and {@code endDate} are null, defaults to the last 30 days
      * ending at "now" to keep responses bounded and performant.</p>
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/stock-updates")
     public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesFromParams(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -177,7 +177,7 @@ public class AnalyticsController{
     /**
      * POST variant of filtered stock updates, accepts full JSON filter.
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/stock-updates/query", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesPost(
             @RequestBody @Valid StockUpdateFilterDTO filter) {
@@ -199,7 +199,7 @@ public class AnalyticsController{
      *
      * <p>Defaults to the last 30 days if no dates are provided.</p>
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/summary")
     public ResponseEntity<DashboardSummaryDTO> getDashboardSummary(
             @RequestParam(required = false) String supplierId,
@@ -237,7 +237,7 @@ public class AnalyticsController{
      * @param start      inclusive start date (ISO yyyy-MM-dd)
      * @param end        inclusive end date (ISO yyyy-MM-dd)
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/price-trend")
     public ResponseEntity<List<PriceTrendDTO>> getPriceTrend(
             @RequestParam String itemId,
@@ -255,7 +255,7 @@ public class AnalyticsController{
     *
     * <p>Dates are inclusive. Validates that {@code from <= to}.</p>
     */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/financial/summary")
     public ResponseEntity<FinancialSummaryDTO> getFinancialSummary(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
