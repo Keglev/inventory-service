@@ -187,13 +187,13 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
             """;
         } else {
             sql = """
-               SELECT TRUNC(sh.created_at) AS day_date,
+               SELECT (TRUNC(sh.created_at) AS DATE) AS day_date,
                        SUM(sh.quantity_change * i.price) AS total_value
                 FROM stock_history sh
                 JOIN inventory_item i ON sh.item_id = i.id
                 WHERE sh.created_at BETWEEN :start AND :end
                   AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-                GROUP BY TRUNC(sh.created_at)
+                GROUP BY CAST (TRUNC(sh.created_at) AS DATE)
                 ORDER BY day_date
             """;
         }

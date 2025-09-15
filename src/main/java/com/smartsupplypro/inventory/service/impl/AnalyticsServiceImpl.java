@@ -2,7 +2,6 @@ package com.smartsupplypro.inventory.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -514,15 +513,44 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Converts a date-like object to {@link LocalDate}.
-     * Accepts {@link LocalDate} or {@link java.sql.Date}.
-     *
-     * @throws IllegalStateException if the object type is unsupported
-     */
+    * Converts a date-like value to {@link LocalDate}.
+    *
+    * <p>Accepts:
+    * <ul>
+    *   <li>{@link LocalDate}</li>
+    *   <li>{@link java.sql.Date} (converted via {@code toLocalDate()})</li>
+    *   <li>{@link java.sql.Timestamp} (converted via {@code toLocalDateTime().toLocalDate()})</li>
+    *   <li>{@link CharSequence} in formats starting with {@code yyyy-MM-dd}, e.g. {@code "2025-03-15 00:00:00.0"}</li>
+    * </ul>
+    * Falls back to parsing the first 10 characters as {@code yyyy-MM-dd} for vendor-specific projections.
+    *
+    * @param o raw value from native projections (DATE/TIMESTAMP/STRING)
+    * @return the corresponding {@link LocalDate}
+    * @throws IllegalStateException if the value cannot be interpreted as a date
+    */
     private static LocalDate asLocalDate(Object o) {
         if (o instanceof LocalDate ld) return ld;
-        if (o instanceof Date d) return d.toLocalDate();
-        throw new IllegalStateException("Expected LocalDate or java.sql.Date but got: " + o);
+
+        if (o instanceof java.sql.Date d) return d.toLocalDate();
+
+        if (o instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().toLocalDate();
+
+        if (o instanceof CharSequence cs) {
+            String s = cs.toString();
+            if (s.length() >= 10) {
+            // e.g. "2025-03-15 00:00:00.0" → "2025-03-15"
+            return LocalDate.parse(s.substring(0, 10));
+            }
+        }
+
+        // Last resort: try toString().substring(0,10) if it looks like a timestamp literal
+        String s = String.valueOf(o);
+        if (s != null && s.length() >= 10 && s.charAt(4) == '-' && s.charAt(7) == '-') {
+            return LocalDate.parse(s.substring(0, 10));
+        }
+
+        throw new IllegalStateException("Expected LocalDate/Date/ Timestamp/String but got: " +
+                (o == null ? "null" : o.getClass().getName() + " -> " + o));
     }
 
     /**
