@@ -1,0 +1,71 @@
+{
+  "title": "Analytics",
+  "cards": {
+    "stockValue": "Stock Value Over Time",
+    "monthlyMovement": "Monthly Stock Movement",
+    "priceTrend": "Price Trend",
+    "noData": "No data available for the selected filters.",
+    "noItems": "No items found."
+  },
+  "item": "Item",
+  "filters": {
+    "dateRange": "Date range",
+    "quick": {
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "180d": "Last 180 days",
+      "custom": "Custom"
+    },
+    "supplier": "Supplier",
+    "clear": "Clear filters",
+    "apply": "Apply"
+  },
+  "lowStock": {
+    "title": "Low-stock items",
+    "columns": {
+      "item": "Item",
+      "quantity": "Quantity",
+      "minQty": "Minimum",
+      "supplier": "Supplier",
+      "actions": "Actions"
+    },
+    "viewItem": "View item",
+    "empty": "No low-stock items for the current filters."
+  },
+  "stockPerSupplier": {
+    "title": "Stock per supplier",
+    "metricToggle": {
+      "quantity": "Quantity",
+      "value": "Value"
+    },
+    "empty": "No supplier data for the current filters."
+  },
+  "updateFrequency": {
+    "title": "Item update frequency",
+    "columns": {
+      "item": "Item",
+      "updates": "Updates",
+      "lastUpdate": "Last update"
+    },
+    "empty": "No updates in the selected range."
+  },
+  "stockUpdates": {
+    "title": "Stock updates",
+    "columns": {
+      "datetime": "Date/Time",
+      "item": "Item",
+      "change": "Change",
+      "reason": "Reason",
+      "supplier": "Supplier",
+      "note": "Note"
+    },
+    "exportCsv": "Export CSV",
+    "empty": "No stock updates match the filters."
+  },
+  "state": {
+    "loading": "Loading…",
+    "empty": "Nothing to show.",
+    "error": "Something went wrong.",
+    "retry": "Retry"
+  }
+}

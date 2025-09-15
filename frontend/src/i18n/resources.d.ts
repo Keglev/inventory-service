@@ -4,107 +4,51 @@
  * Type augmentation for i18next to provide compile-time safety when using `t('...')`.
  * This ties your translation keys to the structure you define in your resources.
  *
- * Namespaces supported:
- * - 'common'
- * - 'auth'
- * - 'system'
+ * Keep this file in sync with actual JSON namespaces under:
+ *   public/locales/{en,de}/...json
  *
  * IMPORTANT:
  * - We augment 'i18next' directly here because we are typing the CustomTypeOptions.
  * - This ensures `useTranslation('<ns>')` only accepts your declared namespaces,
- *   and keys inside `t('...')` are validated.
+ *   and keys inside `t('...')` are validated at compile time.
  *
  * @enterprise
  * - Keeps i18n usage self-documenting and safe during refactors.
- * - When adding new translation keys, update this file to keep TS in sync.
+ * - When adding new translation keys/namespaces, update this file to keep TS in sync.
  */
 
 import 'i18next';
 
-// Augment the i18next module to add custom type options
+// Import JSONs (EN versions are enough for typing) so their shapes become the source of truth.
+import common from '../../public/locales/en/common.json';
+import analytics from '../../public/locales/en/analytics.json';
+import auth from '../../public/locales/en/auth.json';
+import system from '../../public/locales/en/system.json';
+
 declare module 'i18next' {
   interface CustomTypeOptions {
-    /** @default 'common' */
+    /** Default namespace if not passed to useTranslation */
     defaultNS: 'common';
-/** Declare the available namespaces and their keys here */
+
+    /**
+     * Declare all namespaces and their key shapes.
+     * NOTE:
+     *  - We keep `common` typed via the actual JSON (safer than hand-written shapes).
+     *  - We expose `analytics` as a dedicated namespace.
+     */
     resources: {
-      common: {
-        app: { title: string };
-        nav: {
-          dashboard: string;
-          inventory: string;
-          suppliers: string;
-          orders: string;
-          analytics: string;
-          logout: string;
-        };
-        actions: {
-          toggleDensity: string;
-          toggleLanguage: string;
-          backToDashboard: string;
-        };
-        toast: { densityStatic: string };
-        profile: { soon: string };
+      /** Shared/global keys (navigation, basic actions, dashboard, etc.) */
+      common: typeof common;
 
-      /** Keys used in Dashboard and StatCard */
-      dashboard: {
-          title: string;
-          kpi: {
-            totalItems: string;
-            suppliers: string;
-            lowStock: string;
-          };
-          actions: {
-            manageInventory: string;
-            manageSuppliers: string;
-            viewAnalytics: string;
-          };
-        };
+      /** dedicated namespace for analytics UI */
+      analytics: typeof analytics;
 
-        /** Keys used in Analytics page (kept under common namespace) */
-        analytics: {
-          title: string;
-          cards: {
-            stockValue: string;
-            monthlyMovement: string;
-            priceTrend: string;
-            backToDashboard: string;
-          };
-          item: string;
-        };
-      };
+      /** dedicated namespace for auth screens */
+      auth: typeof auth;
 
-      /** Keys used in LoginPage and LogoutSuccess */
-      auth: {
-        signIn: string;
-        signInGoogle: string;
-        welcome: string;
-        email: string;
-        password: string;
-        or: string;
-        ssoHint: string;
+      /** dedicated namespace for system-level screens */
+      system: typeof system;
 
-        // Current keys (used across login/logout flows)
-        errorTitle: string;
-        errorTryAgain: string;
-        logoutSigningOut: string;
-        logoutFailed: string;
-        logoutSuccessTitle: string;
-        logoutSuccessBody: string;
-        signInAgain: string;
-        backToHome: string;
-
-        // Optional (used in AuthCallback defaultValue)
-        verifying?: string;
-      };
-
-      /** Keys used in System pages (e.g., 404) */
-      system: {
-        notFound: {
-          title: string;
-          body: string;
-        };
-      };
     };
   }
 }

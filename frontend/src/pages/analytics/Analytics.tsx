@@ -9,6 +9,10 @@
  * - Charts render safely even if endpoints return empty arrays.
  * - The stock-value series is explicitly sorted ascending by `date`.
  * - Lines use explicit theme colors so they never inherit a transparent stroke.
+ *
+ * i18n:
+ * - Labels now come from the dedicated "analytics" namespace.
+ * - Shared UI actions (e.g., "Back to Dashboard") remain under "common".
  */
 
 import * as React from 'react';
@@ -50,7 +54,8 @@ import {
 import { useTranslation } from 'react-i18next';
 
 export default function Analytics(): JSX.Element {
-  const { t } = useTranslation<'common'>('common');
+  // Load both namespaces: "analytics" for local labels, "common" for shared actions.
+  const { t } = useTranslation(['analytics', 'common']);
   const navigate = useNavigate();
   const muiTheme = useMuiTheme();
 
@@ -120,9 +125,9 @@ export default function Analytics(): JSX.Element {
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* Header + "Back to Dashboard" */}
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-        <Typography variant="h5">{t('analytics.title')}</Typography>
+        <Typography variant="h5">{t('analytics:title')}</Typography>
         <Button variant="text" onClick={() => navigate('/dashboard')}>
-          {t('actions.backToDashboard')}
+          {t('common:actions.backToDashboard')}
         </Button>
       </Stack>
 
@@ -133,18 +138,18 @@ export default function Analytics(): JSX.Element {
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              {t('analytics.cards.stockValue')}
+              {t('analytics:cards.stockValue')}
             </Typography>
 
             {stockValueQ.isLoading ? (
               <Skeleton variant="rounded" height={220} />
             ) : stockValueQ.isError ? (
               <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-                {t('noData', 'No data')}
+                {t('analytics:cards.noData')}
               </Box>
             ) : stockValueData.length === 0 ? (
               <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-                {t('noData', 'No data')}
+                {t('analytics:cards.noData')}
               </Box>
             ) : (
               <Box sx={{ height: 260 }}>
@@ -178,7 +183,7 @@ export default function Analytics(): JSX.Element {
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              {t('analytics.cards.monthlyMovement')}
+              {t('analytics:cards.monthlyMovement')}
             </Typography>
 
             {movementQ.isLoading ? (
@@ -213,12 +218,12 @@ export default function Analytics(): JSX.Element {
               justifyContent="space-between"
               sx={{ mb: 1 }}
             >
-              <Typography variant="subtitle1">{t('analytics.cards.priceTrend')}</Typography>
+              <Typography variant="subtitle1">{t('analytics:cards.priceTrend')}</Typography>
 
               <TextField
                 select
                 size="small"
-                label={t('analytics.item')}
+                label={t('analytics:item')}
                 value={selectedItemId}
                 onChange={(e) => setSelectedItemId(e.target.value)}
                 sx={{ minWidth: 260 }}
@@ -226,7 +231,7 @@ export default function Analytics(): JSX.Element {
               >
                 {!itemsQ.data || itemsQ.data.length === 0 ? (
                   <MenuItem disabled value="">
-                    {t('noItems', 'No items available')}
+                    {t('analytics:cards.noItems')}
                   </MenuItem>
                 ) : (
                   itemsQ.data.map((it) => (
@@ -243,11 +248,11 @@ export default function Analytics(): JSX.Element {
               <Skeleton variant="rounded" height={220} />
             ) : priceQ.isError ? (
               <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-                {t('noData', 'No data')}
+                {t('analytics:cards.noData')}
               </Box>
             ) : priceTrendData.length === 0 ? (
               <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-                {t('noData', 'No data')}
+                {t('analytics:cards.noData')}
               </Box>
             ) : (
               <Box sx={{ height: 260 }}>

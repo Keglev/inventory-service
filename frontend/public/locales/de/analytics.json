@@ -1,0 +1,71 @@
+{
+  "title": "Analysen",
+  "cards": {
+    "stockValue": "Bestandswert im Zeitverlauf",
+    "monthlyMovement": "Monatliche Bestandsbewegung",
+    "priceTrend": "Preisverlauf",
+    "noData": "Keine Daten für die ausgewählten Filter.",
+    "noItems": "Keine Artikel gefunden."
+  },
+  "item": "Artikel",
+  "filters": {
+    "dateRange": "Zeitraum",
+    "quick": {
+      "30d": "Letzte 30 Tage",
+      "90d": "Letzte 90 Tage",
+      "180d": "Letzte 180 Tage",
+      "custom": "Benutzerdefiniert"
+    },
+    "supplier": "Lieferant",
+    "clear": "Filter zurücksetzen",
+    "apply": "Übernehmen"
+  },
+  "lowStock": {
+    "title": "Artikel mit niedrigem Bestand",
+    "columns": {
+      "item": "Artikel",
+      "quantity": "Menge",
+      "minQty": "Minimum",
+      "supplier": "Lieferant",
+      "actions": "Aktionen"
+    },
+    "viewItem": "Artikel anzeigen",
+    "empty": "Keine Artikel mit niedrigem Bestand für die aktuellen Filter."
+  },
+  "stockPerSupplier": {
+    "title": "Bestand je Lieferant",
+    "metricToggle": {
+      "quantity": "Menge",
+      "value": "Wert"
+    },
+    "empty": "Keine Lieferantendaten für die aktuellen Filter."
+  },
+  "updateFrequency": {
+    "title": "Aktualisierungshäufigkeit je Artikel",
+    "columns": {
+      "item": "Artikel",
+      "updates": "Aktualisierungen",
+      "lastUpdate": "Letzte Aktualisierung"
+    },
+    "empty": "Keine Aktualisierungen im ausgewählten Zeitraum."
+  },
+  "stockUpdates": {
+    "title": "Bestandsänderungen",
+    "columns": {
+      "datetime": "Datum/Zeit",
+      "item": "Artikel",
+      "change": "Änderung",
+      "reason": "Grund",
+      "supplier": "Lieferant",
+      "note": "Notiz"
+    },
+    "exportCsv": "CSV exportieren",
+    "empty": "Keine Bestandsänderungen für die Filter vorhanden."
+  },
+  "state": {
+    "loading": "Wird geladen…",
+    "empty": "Nichts anzuzeigen.",
+    "error": "Es ist ein Fehler aufgetreten.",
+    "retry": "Erneut versuchen"
+  }
+}
