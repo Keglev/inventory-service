@@ -165,6 +165,12 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     *
     * <p><strong>Output row format:</strong> [day_date (DATE), total_value (Number)]</p>
     *
+    * <p>Definition of “daily value”:
+    * For each item on a given calendar day, compute the <em>closing quantity</em> as the
+    * cumulative sum of {@code quantity_change} up to the last event of that day, then multiply
+    * by the price at that change (fallback to {@code inventory_item.price} when null).
+    * Sum across items for that day.</p>
+    *
     * @param start      inclusive lower bound
     * @param end        inclusive upper bound
     * @param supplierId optional supplier filter (null or blank = all)
@@ -172,45 +178,97 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     */
     @SuppressWarnings("unchecked")
     @Override
-    public List<Object[]> getStockValueGroupedByDateFiltered(LocalDateTime start, LocalDateTime end, String supplierId) {
+    public List<Object[]> getStockValueGroupedByDateFiltered(
+    LocalDateTime start, LocalDateTime end, String supplierId) {
+        
         final String sql;
         if (isH2()) {
+            // H2: CAST to DATE; window functions are supported in H2 2.x
             sql = """
-                 SELECT CAST(sh.created_at AS DATE) AS day_date,
-                       SUM(sh.quantity_change * i.price) AS total_value
+            WITH events AS (
+                SELECT
+                    CAST(sh.created_at AS DATE) AS day_date,
+                    sh.item_id                  AS item_id,
+                    sh.created_at               AS created_at,
+                    sh.quantity_change          AS quantity_change,
+                    sh.price_at_change          AS price_at_change,
+                    /* Running balance per item up to the current row = closing qty at day's last row */
+                    SUM(sh.quantity_change) OVER (
+                        PARTITION BY sh.item_id
+                        ORDER BY sh.created_at
+                        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                    )                           AS qty_after,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY CAST(sh.created_at AS DATE), sh.item_id
+                        ORDER BY sh.created_at DESC
+                    )                           AS rn
                 FROM stock_history sh
-                JOIN inventory_item i ON sh.item_id = i.id
+                JOIN inventory_item i ON i.id = sh.item_id
                 WHERE sh.created_at BETWEEN :start AND :end
                   AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
-                GROUP BY CAST(sh.created_at AS DATE)
-                ORDER BY day_date
-            """;
+            )
+            SELECT
+                e.day_date,
+                SUM(
+                    COALESCE(e.qty_after, 0) * COALESCE(e.price_at_change, i.price, 0)
+                ) AS total_value
+            FROM events e
+            JOIN inventory_item i ON i.id = e.item_id
+            WHERE e.rn = 1
+            GROUP BY e.day_date
+            ORDER BY e.day_date
+        """;
         } else {
+            // Oracle: TRUNC to day, cast to DATE for clarity; analytic SUM works the same
             sql = """
-               SELECT (TRUNC(sh.created_at) AS DATE) AS day_date,
-                       SUM(sh.quantity_change * i.price) AS total_value
+            WITH events AS (
+                SELECT
+                    CAST(TRUNC(sh.created_at) AS DATE) AS day_date,
+                    sh.item_id                           AS item_id,
+                    sh.created_at                        AS created_at,
+                    sh.quantity_change                   AS quantity_change,
+                    sh.price_at_change                   AS price_at_change,
+                    SUM(sh.quantity_change) OVER (
+                        PARTITION BY sh.item_id
+                        ORDER BY sh.created_at
+                    )                                    AS qty_after,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY TRUNC(sh.created_at), sh.item_id
+                        ORDER BY sh.created_at DESC
+                    )                                    AS rn
                 FROM stock_history sh
-                JOIN inventory_item i ON sh.item_id = i.id
+                JOIN inventory_item i ON i.id = sh.item_id
                 WHERE sh.created_at BETWEEN :start AND :end
                   AND (:supplierId IS NULL OR i.supplier_id = :supplierId)
-                GROUP BY CAST (TRUNC(sh.created_at) AS DATE)
-                ORDER BY day_date
-            """;
+            )
+            SELECT
+                e.day_date,
+                SUM(
+                    COALESCE(e.qty_after, 0) * COALESCE(e.price_at_change, i.price, 0)
+                ) AS total_value
+            FROM events e
+            JOIN inventory_item i ON i.id = e.item_id
+            WHERE e.rn = 1
+            GROUP BY e.day_date
+            ORDER BY e.day_date
+        """;
         }
         
-        final String normalizedSupplier = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
-
-        // Use Timestamps to match driver expectations
+        final String normalizedSupplier =
+        (supplierId == null || supplierId.isBlank()) ? null : supplierId.trim();
+        
+        // Use Timestamps explicitly for both H2 and Oracle drivers
         final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);
         final java.sql.Timestamp endTs   = java.sql.Timestamp.valueOf(end);
-
-
+        
         final Query nativeQuery = em.createNativeQuery(sql);
         nativeQuery.setParameter("start", startTs);
         nativeQuery.setParameter("end", endTs);
         nativeQuery.setParameter("supplierId", normalizedSupplier);
+        
         return nativeQuery.getResultList();
     }
+    
     
     /**
     * Current total stock quantity by supplier (simple dashboard pie/bar).

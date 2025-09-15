@@ -567,13 +567,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
     /**
      * Safely unboxes any numeric projection value via {@link Number}.
-     * This is resilient across H2/Oracle which may use different numeric classes.
-     *
-     * @throws IllegalStateException if the object is not a Number
-     */
+     * Accepts {@code null} (treated as zero), {@link Number}, and {@link BigDecimal}.
+    */
     private static Number asNumber(Object o) {
+        if (o == null) return java.math.BigDecimal.ZERO;
         if (o instanceof Number n) return n;
-        if (o instanceof BigDecimal bd) return bd; // explicit for clarity
+        if (o instanceof java.math.BigDecimal bd) return bd;
         throw new IllegalStateException("Expected numeric type but got: " + o);
     }
 
