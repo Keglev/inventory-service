@@ -1,23 +1,20 @@
 /**
  * @file Analytics.tsx
- * @description Starter analytics dashboard with three charts:
+ * @description
+ * Analytics landing page with global filters + three charts:
  *  1) Stock value over time (Line)
  *  2) Monthly stock movement (Bar: stockIn vs stockOut)
  *  3) Price trend for a selected item (Line)
  *
- * Implementation notes:
- * - Charts render safely even if endpoints return empty arrays.
- * - The stock-value series is explicitly sorted ascending by `date`.
- * - Lines use explicit theme colors so they never inherit a transparent stroke.
- *
- * i18n:
- * - Labels now come from the dedicated "analytics" namespace.
- * - Shared UI actions (e.g., "Back to Dashboard") remain under "common".
+ * Phase A (A1/A2):
+ * - Adds a top filter bar (quick 30/90/180 + custom dates + supplier)
+ * - Pushes filter state to URL (?from=&to=&supplierId=)
+ * - Hydrates state from URL on load / navigation
  */
 
 import * as React from 'react';
 import type { JSX } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -36,8 +33,10 @@ import {
   getMonthlyStockMovement,
   getTopItems,
   getPriceTrend,
+  getSuppliersLite,
   type PricePoint,
   type ItemRef,
+  type SupplierRef,
 } from '../../api/analytics';
 import {
   LineChart,
@@ -52,45 +51,84 @@ import {
   Legend,
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
+import Filters, { type AnalyticsFilters } from './components/Filters';
+import { readParams, writeParams } from '../../utils/urlState';
 
 export default function Analytics(): JSX.Element {
-  // Load both namespaces: "analytics" for local labels, "common" for shared actions.
   const { t } = useTranslation(['analytics', 'common']);
   const navigate = useNavigate();
   const muiTheme = useMuiTheme();
 
   // ---------------------------------------------------------------------------
-  // Queries
+  // URL <-> State
   // ---------------------------------------------------------------------------
 
-  // Stock value over time (last 6 months by default).
-  // Fail fast on errors and keep data fresh for 1 minute.
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Read initial filters from URL once (controlled state hereafter).
+  const [filters, setFilters] = React.useState<AnalyticsFilters>(() => {
+    const m = readParams(searchParams.toString(), ['from', 'to', 'supplierId']);
+    const initial: AnalyticsFilters = {
+      from: m.from,
+      to: m.to,
+      supplierId: m.supplierId,
+      quick: m.from && m.to ? 'custom' : undefined,
+    };
+    return initial;
+  });
+
+  // Whenever filters change, reflect them in the URL (debounced via microtask).
+  React.useEffect(() => {
+    const next = writeParams(searchParams.toString(), {
+      from: filters.from,
+      to: filters.to,
+      supplierId: filters.supplierId,
+    });
+    // Only update if changed (avoid infinite loops)
+    if (next !== (searchParams.toString() ? `?${searchParams.toString()}` : '')) {
+      setSearchParams(new URLSearchParams(next));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.from, filters.to, filters.supplierId]);
+
+  // ---------------------------------------------------------------------------
+  // Queries (now keyed by filters so caching respects changes)
+  // ---------------------------------------------------------------------------
+
+  // Suppliers for dropdown
+  const suppliersQ = useQuery<SupplierRef[]>({
+    queryKey: ['analytics', 'suppliers'],
+    queryFn: getSuppliersLite,
+    staleTime: 5 * 60_000,
+  });
+
+  // Stock value over time
   const stockValueQ = useQuery({
-    queryKey: ['analytics', 'stockValue'],
-    queryFn: getStockValueOverTime,
+    queryKey: ['analytics', 'stockValue', filters.from, filters.to, filters.supplierId],
+    queryFn: () => getStockValueOverTime(filters),
     retry: 0,
     staleTime: 60_000,
   });
 
-  // Monthly stock movement (stockIn vs stockOut).
+  // Monthly stock movement
   const movementQ = useQuery({
-    queryKey: ['analytics', 'movement'],
-    queryFn: getMonthlyStockMovement,
+    queryKey: ['analytics', 'movement', filters.from, filters.to, filters.supplierId],
+    queryFn: () => getMonthlyStockMovement(filters),
   });
 
-  // Item list (for the price-trend dropdown).
+  // Item list (for price-trend dropdown)
   const itemsQ = useQuery<ItemRef[]>({
     queryKey: ['analytics', 'items'],
     queryFn: getTopItems,
   });
 
-  // Currently selected item for price trend.
+  // Selected item for price trend (keep stable across filter changes)
   const [selectedItemId, setSelectedItemId] = React.useState<string>('');
 
-  // Price trend for the selected item (only when an item is selected).
+  // Price trend for the selected item (filters apply)
   const priceQ = useQuery<PricePoint[]>({
-    queryKey: ['analytics', 'priceTrend', selectedItemId],
-    queryFn: () => getPriceTrend(selectedItemId),
+    queryKey: ['analytics', 'priceTrend', selectedItemId, filters.from, filters.to],
+    queryFn: () => getPriceTrend(selectedItemId, filters),
     enabled: !!selectedItemId,
   });
 
@@ -102,16 +140,14 @@ export default function Analytics(): JSX.Element {
   }, [itemsQ.data, selectedItemId]);
 
   // ---------------------------------------------------------------------------
-  // Derived data (sorted arrays so Recharts draws predictably)
+  // Derived data (sorted arrays so Recharts draw predictably)
   // ---------------------------------------------------------------------------
 
-  // Sort stock-value series left→right by date. Using nullish coalescing to stay defensive.
   const stockValueData = React.useMemo(
     () => [...(stockValueQ.data ?? [])].sort((a, b) => (a?.date ?? '').localeCompare(b?.date ?? '')),
     [stockValueQ.data]
   );
 
-  // Sort price trend by date as well (in case backend returns gaps/out-of-order rows).
   const priceTrendData = React.useMemo(
     () => [...(priceQ.data ?? [])].sort((a, b) => (a?.date ?? '').localeCompare(b?.date ?? '')),
     [priceQ.data]
@@ -130,6 +166,16 @@ export default function Analytics(): JSX.Element {
           {t('common:actions.backToDashboard')}
         </Button>
       </Stack>
+
+      {/* Filters */}
+      <Box sx={{ mb: 2 }}>
+        <Filters
+          value={filters}
+          onChange={setFilters}
+          suppliers={suppliersQ.data ?? []}
+          disabled={suppliersQ.isLoading}
+        />
+      </Box>
 
       <Stack spacing={2}>
         {/* ------------------------------------------------------------------- */}
@@ -159,7 +205,6 @@ export default function Analytics(): JSX.Element {
                     <XAxis dataKey="date" />
                     <YAxis domain={['auto', 'auto']} />
                     <Tooltip />
-                    {/* Explicit stroke to avoid theme-side invisibility */}
                     <Line
                       type="monotone"
                       dataKey="totalValue"
@@ -243,14 +288,13 @@ export default function Analytics(): JSX.Element {
               </TextField>
             </Stack>
 
-            {/* Skeleton while loading; otherwise either show "no data" or the chart */}
             {(!selectedItemId || priceQ.isLoading) ? (
               <Skeleton variant="rounded" height={220} />
             ) : priceQ.isError ? (
               <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
                 {t('analytics:cards.noData')}
               </Box>
-            ) : priceTrendData.length === 0 ? (
+            ) : (priceQ.data?.length ?? 0) === 0 ? (
               <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
                 {t('analytics:cards.noData')}
               </Box>
@@ -260,7 +304,7 @@ export default function Analytics(): JSX.Element {
                   <LineChart
                     data={priceTrendData}
                     margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
-                    key={selectedItemId} // force a fresh line when item changes
+                    key={selectedItemId}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />

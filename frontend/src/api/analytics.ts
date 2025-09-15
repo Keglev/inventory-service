@@ -6,180 +6,160 @@
  * - Normalize server field variants so the FE can rely on stable shapes.
  *
  * Endpoints covered:
- * - GET /api/analytics/stock-value           → { date, totalValue }[]
- * - GET /api/analytics/monthly-stock-movement → { month, stockIn, stockOut }[]
- * - GET /api/inventory                        → used to build a small item list for the price trend
- * - GET /api/analytics/price-trend            → { date, price }[] (from { timestamp, price })
+ * - GET /api/analytics/stock-value              → { date, totalValue }[]
+ * - GET /api/analytics/monthly-stock-movement  → { month, stockIn, stockOut }[]
+ * - GET /api/inventory                         → used to build a small item list for the price trend
+ * - GET /api/analytics/price-trend             → { date, price }[] (from { timestamp, price })
+ * - GET /api/suppliers                         → minimal supplier list for filters
  */
 
 import http from './httpClient';
 
+// ---------------------------------------------------------------------------
+// Types (public)
+// ---------------------------------------------------------------------------
+
+/** Filter params accepted by most analytics endpoints. All optional. */
+export type AnalyticsParams = {
+  from?: string;        // ISO yyyy-MM-dd
+  to?: string;          // ISO yyyy-MM-dd
+  supplierId?: string;  // string (kept string to match URLSearchParams)
+};
+
+// Public DTOs used by charts
 export type StockValuePoint = { date: string; totalValue: number };
-export type MonthlyMovementPoint = { month: string; stockIn: number; stockOut: number };
+export type MonthlyMovement = { month: string; stockIn: number; stockOut: number };
 export type PricePoint = { date: string; price: number };
 export type ItemRef = { id: string; name: string };
+export type SupplierRef = { id: string; name: string };
 
-// --- Backend DTO shapes (minimal, just what we consume) ---
+// ---------------------------------------------------------------------------
+// Internal helpers / backend DTO shapes
+// ---------------------------------------------------------------------------
 
-type InventoryRow = {
-  id?: number | string;
-  itemId?: number | string;
-  name?: string;
-  itemName?: string;
-};
+type BackendStockValueDTO = { date?: string; totalValue?: unknown };
+type BackendMonthlyMovementDTO = { month?: string; stockIn?: unknown; stockOut?: unknown };
+type BackendPriceTrendDTO = { timestamp?: string; price?: unknown };
+type BackendItemDTO = { id?: string; itemId?: string; name?: string; itemName?: string };
+type BackendSupplierDTO = { id?: string | number; name?: string };
 
-// Price trend API returns "timestamp" and "price" (BigDecimal serialized)
-type BackendPriceTrendDTO = {
-  timestamp: string;       // e.g., "2025-06-01"
-  price: number | string;  // BigDecimal serialized as string
-};
-
-// --- Date helpers ------------------------------------------------------------
-
-/** Formats a Date into 'YYYY-MM-DD'. */
-const fmt = (d: Date) => d.toISOString().slice(0, 10);
-
-/**
- * Default 6-month window ending today.
- * Many analytics screens benefit from a bounded window by default.
- */
-const defaultRange = () => {
-  const end = new Date();
-  const start = new Date();
-  start.setMonth(start.getMonth() - 6);
-  return { start: fmt(start), end: fmt(end) };
-};
-
-// --- Internal normalizers (type-safe, no `any`) ------------------------------
-
-/**
- * Picks the first defined property from a record by trying multiple keys.
- * Useful when BE variants exist (e.g., totalValue | total_value | value).
- */
-function pickFirst<K extends string>(
-  rec: Record<string, unknown>,
-  keys: readonly K[],
-  fallback: unknown = undefined
-): unknown {
-  for (const k of keys) {
-    if (k in rec && rec[k] != null) return rec[k];
-  }
-  return fallback;
-}
-
-/** Coerces an unknown value into string. */
-function asString(v: unknown): string {
-  if (typeof v === 'string') return v;
-  if (v == null) return '';
-  return String(v);
-}
-
-/** Coerces an unknown value into number (NaN becomes 0). */
 function asNumber(v: unknown): number {
-  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+  if (v == null) return 0;
+  if (typeof v === 'number') return v;
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
 }
 
-/** Type guard for filtering nullable points. */
-function isStockValuePoint(x: StockValuePoint | null): x is StockValuePoint {
-  return !!x;
+function paramClean(p?: AnalyticsParams): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!p) return out;
+  if (p.from) out.from = p.from;
+  if (p.to) out.to = p.to;
+  if (p.supplierId) out.supplierId = p.supplierId;
+  return out;
 }
 
-// --- API functions -----------------------------------------------------------
+// ---------------------------------------------------------------------------
+// API functions (resilient)
+// ---------------------------------------------------------------------------
 
 /**
- * Fetches aggregated stock value over time (last 6 months by default) and
- * normalizes all backend variants into `{ date, totalValue }`.
- *
- * Accepted input variants:
- * - date keys:       'date' | 'timestamp' | 'day' | 'day_str'
- * - total value keys:'totalValue' | 'total_value' | 'value' | 'sum'
+ * Fetches total stock value series.
+ * @returns Sorted ascending by date.
  */
-export async function getStockValueOverTime(): Promise<StockValuePoint[]> {
-  const { start, end } = defaultRange();
+export async function getStockValueOverTime(
+  p?: AnalyticsParams
+): Promise<StockValuePoint[]> {
   try {
-    const { data } = await http.get<unknown[]>('/api/analytics/stock-value', {
-      params: { start, end },
-      withCredentials: true, // ensure session cookie is included when needed
+    const { data } = await http.get<unknown>('/api/analytics/stock-value', {
+      params: paramClean(p),
     });
-
     if (!Array.isArray(data)) return [];
-
-    return data
-      .map((row: unknown): StockValuePoint | null => {
-        if (!row || typeof row !== 'object') return null;
-        const rec = row as Record<string, unknown>;
-
-        const dateRaw = pickFirst(rec, ['date', 'timestamp', 'day', 'day_str'], '');
-        const totalRaw = pickFirst(rec, ['totalValue', 'total_value', 'value', 'sum'], 0);
-
-        const date = asString(dateRaw);
-        if (!date) return null; // drop malformed rows early
-
-        const totalValue = asNumber(totalRaw);
-        return { date, totalValue };
-      })
-      .filter(isStockValuePoint);
+    const rows = (data as BackendStockValueDTO[]).map((d) => ({
+      date: String(d.date ?? ''),
+      totalValue: asNumber(d.totalValue),
+    }));
+    // keep charts predictable
+    rows.sort((a, b) => a.date.localeCompare(b.date));
+    return rows;
   } catch {
     return [];
   }
 }
 
 /**
- * Monthly movement: inbound vs outbound stock.
- * Normalized BE shape already matches FE needs.
+ * Fetches monthly stock movement (stockIn vs stockOut).
  */
-export async function getMonthlyStockMovement(): Promise<MonthlyMovementPoint[]> {
-  const { start, end } = defaultRange();
+export async function getMonthlyStockMovement(
+  p?: AnalyticsParams
+): Promise<MonthlyMovement[]> {
   try {
-    // BE: GET /api/analytics/monthly-stock-movement?start=...&end=...[&supplierId=...]
     const { data } = await http.get<unknown>('/api/analytics/monthly-stock-movement', {
-      params: { start, end },
+      params: paramClean(p),
     });
-    return Array.isArray(data) ? (data as MonthlyMovementPoint[]) : [];
+    if (!Array.isArray(data)) return [];
+    return (data as BackendMonthlyMovementDTO[]).map((d) => ({
+      month: String(d.month ?? ''),
+      stockIn: asNumber(d.stockIn),
+      stockOut: asNumber(d.stockOut),
+    }));
   } catch {
     return [];
   }
 }
 
 /**
- * Returns a small list of selectable items for the Price Trend card.
- * Uses the inventory list (id/name) as a pragmatic source of options.
+ * Returns a small item list (id + name) for the price trend dropdown.
+ * Implementation is generous with BE variants: {id|itemId, name|itemName}.
  */
 export async function getTopItems(): Promise<ItemRef[]> {
   try {
-    const { data } = await http.get<unknown>('/api/inventory');
+    const { data } = await http.get<unknown>('/api/inventory', { params: { limit: 20 } });
     if (!Array.isArray(data)) return [];
-    return (data as InventoryRow[])
-      .map((it) => ({
-        id: String(it.id ?? it.itemId ?? ''),
-        name: String(it.name ?? it.itemName ?? ''),
-      }))
-      .filter((x) => x.id && x.name)
-      .slice(0, 20);
+    return (data as BackendItemDTO[]).map((d) => ({
+      id: String(d.id ?? d.itemId ?? ''),
+      name: String(d.name ?? d.itemName ?? ''),
+    })).filter((it) => it.id && it.name);
   } catch {
     return [];
   }
 }
 
 /**
- * Price trend for a selected item within the default window.
- * Maps `{ timestamp, price }` into `{ date, price }`.
+ * Fetches the price trend series for an item, honoring optional date range.
  */
-export async function getPriceTrend(itemId: string): Promise<PricePoint[]> {
+export async function getPriceTrend(
+  itemId: string,
+  p?: AnalyticsParams
+): Promise<PricePoint[]> {
   if (!itemId) return [];
-  const { start, end } = defaultRange();
   try {
-    // BE: GET /api/analytics/price-trend?itemId=&start=&end=
     const { data } = await http.get<unknown>('/api/analytics/price-trend', {
-      params: { itemId, start, end },
+      params: { itemId, ...paramClean(p) },
     });
     if (!Array.isArray(data)) return [];
-    return (data as BackendPriceTrendDTO[]).map((d) => ({
-      date: d.timestamp,
+    const rows = (data as BackendPriceTrendDTO[]).map((d) => ({
+      date: String(d.timestamp ?? ''),
       price: asNumber(d.price),
     }));
+    rows.sort((a, b) => a.date.localeCompare(b.date));
+    return rows;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Minimal supplier list for the filters dropdown.
+ */
+export async function getSuppliersLite(): Promise<SupplierRef[]> {
+  try {
+    const { data } = await http.get<unknown>('/api/suppliers', { params: { limit: 200 } });
+    if (!Array.isArray(data)) return [];
+    return (data as BackendSupplierDTO[]).map((s) => ({
+      id: String(s.id ?? ''),
+      name: String(s.name ?? ''),
+    })).filter((s) => s.id && s.name);
   } catch {
     return [];
   }
