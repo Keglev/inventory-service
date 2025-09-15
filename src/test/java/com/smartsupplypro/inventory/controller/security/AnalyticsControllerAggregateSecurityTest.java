@@ -80,5 +80,6 @@ class AnalyticsControllerAggregateSecurityTest extends AbstractAnalyticsControll
                         .with(user("u").roles(USER)))
                .andExpect(status().isOk());
     }
+
 }
 

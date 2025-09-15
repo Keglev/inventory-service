@@ -134,7 +134,7 @@ public class SecurityConfig {
             // ---------- AUTHZ RULES (block form) ----------
             .authorizeHttpRequests(auth -> {
 
-                // Allow preflight requests to pass through the security filter
+                // 1) Allow CORS preflight requests to pass through the security filter
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // allow preflight requests globally
                 auth.requestMatchers("/logout").permitAll();
                 // Public (always)
@@ -143,17 +143,25 @@ public class SecurityConfig {
                         "/oauth2/**", "/login/oauth2/**", "/login/**", "/error"
                 ).permitAll();
 
-                // Demo mode: allow read-only endpoints without login
+                // 2) Demo mode: allow read-only endpoints without login
                 if (props.isDemoReadonly()) { // using the getter (with parentheses)
                     auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").permitAll();
                 }
 
-                // Secured (normal rules)
+                // 3) Default (non-demo): any signed-in user may READ these resources
+                auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated();
+                auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").authenticated();
+                auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").authenticated();
+
+                // 4) Admin-only area stays role-protected
                 auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
-                auth.requestMatchers("/api/analytics/**").hasAnyRole("USER","ADMIN");
+
+                // 5) Everything else under /api/** must at least be authenticated
                 auth.requestMatchers("/api/**").authenticated();
+
+                // 6) Anything else authenticated as well (e.g., app shell)
                 auth.anyRequest().authenticated();
             })
             // ----------------------------------------------

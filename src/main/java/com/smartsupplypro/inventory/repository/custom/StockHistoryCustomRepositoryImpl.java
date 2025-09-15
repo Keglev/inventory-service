@@ -199,9 +199,15 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
         }
         
         final String normalizedSupplier = (supplierId == null || supplierId.isBlank()) ? null : supplierId;
+
+        // Use Timestamps to match driver expectations
+        final java.sql.Timestamp startTs = java.sql.Timestamp.valueOf(start);
+        final java.sql.Timestamp endTs   = java.sql.Timestamp.valueOf(end);
+
+
         final Query nativeQuery = em.createNativeQuery(sql);
-        nativeQuery.setParameter("start", start);
-        nativeQuery.setParameter("end", end);
+        nativeQuery.setParameter("start", startTs);
+        nativeQuery.setParameter("end", endTs);
         nativeQuery.setParameter("supplierId", normalizedSupplier);
         return nativeQuery.getResultList();
     }

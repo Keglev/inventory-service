@@ -1,35 +1,44 @@
 package com.smartsupplypro.inventory.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.smartsupplypro.inventory.config.TestSecurityConfig;
-import com.smartsupplypro.inventory.dto.*;
-import com.smartsupplypro.inventory.service.AnalyticsService;
-import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Collections;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartsupplypro.inventory.config.TestSecurityConfig;
+import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
+import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
+import com.smartsupplypro.inventory.dto.LowStockItemDTO;
+import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
+import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
+import com.smartsupplypro.inventory.service.AnalyticsService;
 /**
 * Integration tests for the {@link com.smartsupplypro.inventory.controller.AnalyticsController}.
 * <p>
@@ -178,7 +187,20 @@ public class AnalyticsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].itemName").value("ItemX"));
         }
-        
+
+        /**
+         * Verifies that the stock value endpoint returns 200 OK and JSON content
+         */
+        @WithMockUser // no roles on purpose; should still be authenticated
+        @Test
+        void stockValue_ok_withAuthenticatedUser() throws Exception {
+                mockMvc.perform(get("/api/analytics/stock-value")
+                     .param("start", "2025-08-01")
+                     .param("end", "2025-08-31"))
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        }
+
         /**
         * Tests that filtered stock update results are returned correctly using GET parameters.
         * Ensures that both ADMIN and USER roles receive valid data with proper filtering.

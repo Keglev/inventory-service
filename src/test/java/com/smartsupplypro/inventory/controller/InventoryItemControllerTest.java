@@ -292,4 +292,17 @@ class InventoryItemControllerTest {
             .param("price", "149.99"))
             .andExpect(status().isOk());
     }
+
+    /**
+     * Test that the inventory count endpoint is accessible to any authenticated user,
+     * regardless of their role.
+     * 
+     * @throws Exception if the request fails
+     */
+    @WithMockUser // signed-in user, no role
+    @Test
+    void inventoryCount_accessibleToAuthenticatedUser() throws Exception {
+        mockMvc.perform(get("/api/inventory/count"))
+            .andExpect(status().isOk());
+    }
 }
