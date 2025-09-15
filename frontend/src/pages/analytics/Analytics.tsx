@@ -7,9 +7,10 @@
  *
  * Implementation notes:
  * - Charts render safely even if endpoints return empty arrays.
- * - The stock-value series is sorted by date ascending and uses an explicit stroke color to avoid theme-related invisibility.
- * - Price-trend series also uses an explicit stroke color for consistency.
+ * - The stock-value series is explicitly sorted ascending by `date`.
+ * - Lines use explicit theme colors so they never inherit a transparent stroke.
  */
+
 import * as React from 'react';
 import type { JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +25,7 @@ import {
   TextField,
   MenuItem,
 } from '@mui/material';
-import {useTheme as useMuiTheme } from '@mui/material/styles';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import {
   getStockValueOverTime,
@@ -48,48 +49,40 @@ import {
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
 
-/**
- * Analytics page component.
- * @returns JSX element rendering analytics cards and charts.
- */
 export default function Analytics(): JSX.Element {
   const { t } = useTranslation<'common'>('common');
   const navigate = useNavigate();
   const muiTheme = useMuiTheme();
 
-  /** Stock value over time (last 6 months by default). */
+  // ---------------------------------------------------------------------------
+  // Queries
+  // ---------------------------------------------------------------------------
+
+  // Stock value over time (last 6 months by default).
+  // Fail fast on errors and keep data fresh for 1 minute.
   const stockValueQ = useQuery({
     queryKey: ['analytics', 'stockValue'],
     queryFn: getStockValueOverTime,
-    retry: 0, // fail fast if endpoint is down
-    staleTime: 60_000 // 1 minute
+    retry: 0,
+    staleTime: 60_000,
   });
 
-  /**
-   * Stock-value data sorted by date ascending to ensure a stable path
-   * and correct left→right drawing order in Recharts.
-   */
-  const stockValueData = React.useMemo(
-    () => [...(stockValueQ.data ?? [])].sort((a, b) => a.date.localeCompare(b.date)),
-    [stockValueQ.data]
-  );
-
-  /** Monthly stock movement (stockIn vs stockOut). */
+  // Monthly stock movement (stockIn vs stockOut).
   const movementQ = useQuery({
     queryKey: ['analytics', 'movement'],
     queryFn: getMonthlyStockMovement,
   });
 
-  /** Item list for driving the price trend selector. */
+  // Item list (for the price-trend dropdown).
   const itemsQ = useQuery<ItemRef[]>({
     queryKey: ['analytics', 'items'],
     queryFn: getTopItems,
   });
 
-  /** Currently selected item for price trend. */
+  // Currently selected item for price trend.
   const [selectedItemId, setSelectedItemId] = React.useState<string>('');
 
-  /** Price trend for the selected item (enabled only when an itemId exists). */
+  // Price trend for the selected item (only when an item is selected).
   const priceQ = useQuery<PricePoint[]>({
     queryKey: ['analytics', 'priceTrend', selectedItemId],
     queryFn: () => getPriceTrend(selectedItemId),
@@ -103,6 +96,26 @@ export default function Analytics(): JSX.Element {
     }
   }, [itemsQ.data, selectedItemId]);
 
+  // ---------------------------------------------------------------------------
+  // Derived data (sorted arrays so Recharts draws predictably)
+  // ---------------------------------------------------------------------------
+
+  // Sort stock-value series left→right by date. Using nullish coalescing to stay defensive.
+  const stockValueData = React.useMemo(
+    () => [...(stockValueQ.data ?? [])].sort((a, b) => (a?.date ?? '').localeCompare(b?.date ?? '')),
+    [stockValueQ.data]
+  );
+
+  // Sort price trend by date as well (in case backend returns gaps/out-of-order rows).
+  const priceTrendData = React.useMemo(
+    () => [...(priceQ.data ?? [])].sort((a, b) => (a?.date ?? '').localeCompare(b?.date ?? '')),
+    [priceQ.data]
+  );
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* Header + "Back to Dashboard" */}
@@ -114,9 +127,9 @@ export default function Analytics(): JSX.Element {
       </Stack>
 
       <Stack spacing={2}>
-        {/* Stock value over time */}
-        {/* Using `unknown` as data type and normalizing fields in the API function,}
-        {/* to handle possible variants from different backends. */}
+        {/* ------------------------------------------------------------------- */}
+        {/* Stock value over time                                               */}
+        {/* ------------------------------------------------------------------- */}
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -125,20 +138,23 @@ export default function Analytics(): JSX.Element {
 
             {stockValueQ.isLoading ? (
               <Skeleton variant="rounded" height={220} />
-            ) : (stockValueData.length === 0) ? (
+            ) : stockValueQ.isError ? (
               <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-                {t('common:noData', 'No data')}
+                {t('noData', 'No data')}
+              </Box>
+            ) : stockValueData.length === 0 ? (
+              <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+                {t('noData', 'No data')}
               </Box>
             ) : (
               <Box sx={{ height: 260 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  {/* Explicit margins to avoid clipping axes/ticks in compact layouts */}
                   <LineChart data={stockValueData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
                     <YAxis domain={['auto', 'auto']} />
                     <Tooltip />
-                    {/* Explicit stroke to avoid theme transparency; small dots to aid discovery */}
+                    {/* Explicit stroke to avoid theme-side invisibility */}
                     <Line
                       type="monotone"
                       dataKey="totalValue"
@@ -156,14 +172,15 @@ export default function Analytics(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Monthly movements */}
-        {/** Using `unknown` as data type and normalizing fields in the API function,}
-        {/* to handle possible variants from different backends. */}
+        {/* ------------------------------------------------------------------- */}
+        {/* Monthly stock movement                                              */}
+        {/* ------------------------------------------------------------------- */}
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               {t('analytics.cards.monthlyMovement')}
             </Typography>
+
             {movementQ.isLoading ? (
               <Skeleton variant="rounded" height={220} />
             ) : (
@@ -184,7 +201,9 @@ export default function Analytics(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Price trend for selected item */}
+        {/* ------------------------------------------------------------------- */}
+        {/* Price trend for selected item                                       */}
+        {/* ------------------------------------------------------------------- */}
         <Card>
           <CardContent>
             <Stack
@@ -205,35 +224,54 @@ export default function Analytics(): JSX.Element {
                 sx={{ minWidth: 260 }}
                 disabled={itemsQ.isLoading || itemsQ.isError}
               >
-                {(!itemsQ.data || itemsQ.data.length === 0) ? (
+                {!itemsQ.data || itemsQ.data.length === 0 ? (
                   <MenuItem disabled value="">
-                    {t('common:noItems', 'No items available')}
+                    {t('noItems', 'No items available')}
                   </MenuItem>
                 ) : (
                   itemsQ.data.map((it) => (
-                    <MenuItem key={it.id} value={it.id}>{it.name}</MenuItem>
-                ))
+                    <MenuItem key={it.id} value={it.id}>
+                      {it.name}
+                    </MenuItem>
+                  ))
                 )}
               </TextField>
             </Stack>
 
-            {!selectedItemId ? (
+            {/* Skeleton while loading; otherwise either show "no data" or the chart */}
+            {(!selectedItemId || priceQ.isLoading) ? (
               <Skeleton variant="rounded" height={220} />
-            ) : priceQ.isLoading ? (
-              <Skeleton variant="rounded" height={220} />
+            ) : priceQ.isError ? (
+              <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+                {t('noData', 'No data')}
+              </Box>
+            ) : priceTrendData.length === 0 ? (
+              <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+                {t('noData', 'No data')}
+              </Box>
             ) : (
               <Box sx={{ height: 260 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <Line
-                    type="monotone"
-                    dataKey="price"
-                    stroke={muiTheme.palette.primary.main}
-                    strokeWidth={2}
-                    dot={{ r: 2 }}
-                    activeDot={{ r: 4 }}
-                    connectNulls
-                    isAnimationActive={false}
-                  />
+                  <LineChart
+                    data={priceTrendData}
+                    margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
+                    key={selectedItemId} // force a fresh line when item changes
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={['auto', 'auto']} />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="price"
+                      stroke={muiTheme.palette.primary.main}
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      activeDot={{ r: 4 }}
+                      connectNulls
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
                 </ResponsiveContainer>
               </Box>
             )}
@@ -243,4 +281,3 @@ export default function Analytics(): JSX.Element {
     </Box>
   );
 }
-
