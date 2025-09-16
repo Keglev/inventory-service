@@ -17,6 +17,7 @@ import type { JSX } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box,
+  Container,
   Typography,
   Card,
   CardContent,
@@ -182,7 +183,7 @@ export default function Analytics(): JSX.Element {
   // ---------------------------------------------------------------------------
 
   return (
-    <Box sx={{ p: { xs: 2, md: 3 } }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 } }}>
       {/* Header + "Back to Dashboard" */}
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
         <Typography variant="h5">{t('analytics:title')}</Typography>
@@ -201,7 +202,21 @@ export default function Analytics(): JSX.Element {
         />
       </Box>
 
-      <Stack spacing={2}>
+      {/* Responsive cards grid:
+         - 1 column on phones
+         - 2 columns on small/medium screens
+         - 3 columns on large screens and up */}
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 2,
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+          },
+        }}
+      > 
         {/* ------------------------------------------------------------------- */}
         {/* Stock value over time                                               */}
         {/* ------------------------------------------------------------------- */}
@@ -350,7 +365,7 @@ export default function Analytics(): JSX.Element {
             )}
           </CardContent>
         </Card>
-      </Stack>
-    </Box>
+      </Box>
+    </Container>
   );
 }
