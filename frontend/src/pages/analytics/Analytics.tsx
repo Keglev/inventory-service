@@ -60,6 +60,25 @@ export default function Analytics(): JSX.Element {
   const muiTheme = useMuiTheme();
 
   // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  /** Returns today's date (local) formatted as yyyy-MM-dd. */
+  function todayIso(): string {
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  /** Utility: returns YYYY-MM-DD for N days ago, local time. */
+  function daysAgoIso(n: number): string {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  // ---------------------------------------------------------------------------
   // URL <-> State
   // ---------------------------------------------------------------------------
 
@@ -68,13 +87,17 @@ export default function Analytics(): JSX.Element {
   // Read initial filters from URL once (controlled state hereafter).
   const [filters, setFilters] = React.useState<AnalyticsFilters>(() => {
     const m = readParams(searchParams.toString(), ['from', 'to', 'supplierId']);
-    const initial: AnalyticsFilters = {
-      from: m.from,
-      to: m.to,
+    // If URL lacks from/to, default to last 180 days so BE gets required start/end.
+    const haveRange = !!(m.from && m.to);
+    const fallbackFrom = daysAgoIso(180);
+    const fallbackTo = todayIso();
+
+    return {
+      from: haveRange ? m.from : fallbackFrom,
+      to: haveRange ? m.to : fallbackTo,
       supplierId: m.supplierId,
-      quick: m.from && m.to ? 'custom' : undefined,
+      quick: haveRange ? 'custom' : '180',
     };
-    return initial;
   });
 
   // Whenever filters change, reflect them in the URL (debounced via microtask).
@@ -99,6 +122,7 @@ export default function Analytics(): JSX.Element {
   const suppliersQ = useQuery<SupplierRef[]>({
     queryKey: ['analytics', 'suppliers'],
     queryFn: getSuppliersLite,
+    retry: 0,               // don't keep poking the server
     staleTime: 5 * 60_000,
   });
 

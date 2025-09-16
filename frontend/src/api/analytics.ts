@@ -53,19 +53,38 @@ function asNumber(v: unknown): number {
 /**
  * Normalizes FE filter parameters to the BE’s expected query params.
  * BE expects `start`/`end` (LocalDate) and `supplierId` (String/Long).
+ * If caller omits dates, we default to the last 180 days.
  */
 function paramClean(p?: AnalyticsParams): Record<string, string> {
   const out: Record<string, string> = {};
-  if (!p) return out;
 
-  // Map FE → BE
-  if (p.from) out.start = p.from;
-  if (p.to) out.end = p.to;
-  if (p.supplierId) out.supplierId = p.supplierId;
+  const from = p?.from ?? daysAgoIso(180);
+  const to   = p?.to   ?? todayIso();
+
+  out.start = from;
+  out.end = to;
+
+  if (p?.supplierId) out.supplierId = p.supplierId;
 
   return out;
 }
 
+// Utility functions to get local dates as YYYY-MM-DD -------------------------
+
+/** Returns local date as YYYY-MM-DD (today). */
+function todayIso(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** Returns local date as YYYY-MM-DD for N days ago. */
+function daysAgoIso(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 
 // ---------------------------------------------------------------------------
 // API functions (resilient)
