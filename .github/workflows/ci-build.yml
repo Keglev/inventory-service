@@ -22,18 +22,35 @@ name: Inventory Service CI/CD - CI Build & Test & Docker Build
 
 on:
   push:
-    branches: [ "main", "develop" ]
-    # Include only backend-relevant paths (exclude non-backend subtrees/files).         
-  pull_request:
-    branches: [ "main", "develop" ]
     paths:
-      - 'inventory-service/**'
-      - '!inventory-service/frontend/**'       # embedded frontend (handled by its own pipeline)
-      - '!inventory-service/docs/**'           # documentation site / assets
-      - '!inventory-service/lib/**'            # non-backend libs/cache
-      - '!inventory-service/logs/**'           # local logs
-      - '!inventory-service/oracle_wallet/**'  # secrets/material never used in CI context
-      - '!inventory-service/fly.toml'          # infra meta; not required to build/test the JAR
+      # --- backend allow-list (edit as needed) ---
+      - 'inventory-service/pom.xml'
+      - 'inventory-service/mvnw'
+      - 'inventory-service/mvnw.cmd'
+      - 'inventory-service/.mvn/**'
+      - 'inventory-service/src/**'
+      - 'inventory-service/Dockerfile'
+      - 'inventory-service/.dockerignore'
+      - 'inventory-service/docker-compose.yml'
+      - 'inventory-service/.env.example'
+      - 'inventory-service/start.sh'
+      - 'inventory-service/README.md'
+      # also trigger when THIS workflow changes
+      - '.github/workflows/ci-build.yml'
+  pull_request:
+    paths:
+      - 'inventory-service/pom.xml'
+      - 'inventory-service/mvnw'
+      - 'inventory-service/mvnw.cmd'
+      - 'inventory-service/.mvn/**'
+      - 'inventory-service/src/**'
+      - 'inventory-service/Dockerfile'
+      - 'inventory-service/.dockerignore'
+      - 'inventory-service/docker-compose.yml'
+      - 'inventory-service/.env.example'
+      - 'inventory-service/start.sh'
+      - 'inventory-service/README.md'
+      - '.github/workflows/ci-build.yml'
   workflow_dispatch:
 
 concurrency:
