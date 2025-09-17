@@ -229,7 +229,7 @@ jobs:
           format: 'table'
           scanners: 'vuln'          # faster: no secret/IaC scans here
           vuln-type: 'os,library'
-          severity: 'CRITICAL'
+          severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
           exit-code: '1'
 
