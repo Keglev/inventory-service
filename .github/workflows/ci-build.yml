@@ -23,7 +23,9 @@ name: Inventory Service CI/CD - CI Build & Test & Docker Build
 on:
   push:
     branches: [ "main", "develop" ]
-    # Include only backend-relevant paths (exclude non-backend subtrees/files).
+    # Include only backend-relevant paths (exclude non-backend subtrees/files).         
+  pull_request:
+    branches: [ "main", "develop" ]
     paths:
       - 'inventory-service/**'
       - '!inventory-service/frontend/**'       # embedded frontend (handled by its own pipeline)
@@ -32,16 +34,6 @@ on:
       - '!inventory-service/logs/**'           # local logs
       - '!inventory-service/oracle_wallet/**'  # secrets/material never used in CI context
       - '!inventory-service/fly.toml'          # infra meta; not required to build/test the JAR
-  pull_request:
-    branches: [ "main", "develop" ]
-    paths:
-      - 'inventory-service/**'
-      - '!inventory-service/frontend/**'
-      - '!inventory-service/docs/**'
-      - '!inventory-service/lib/**'
-      - '!inventory-service/logs/**'
-      - '!inventory-service/oracle_wallet/**'
-      - '!inventory-service/fly.toml'
   workflow_dispatch:
 
 concurrency:
