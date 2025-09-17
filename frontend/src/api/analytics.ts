@@ -8,9 +8,11 @@
  * Endpoints covered:
  * - GET /api/analytics/stock-value              → { date, totalValue }[]
  * - GET /api/analytics/monthly-stock-movement  → { month, stockIn, stockOut }[]
- * - GET /api/inventory                         → used to build a small item list for the price trend
- * - GET /api/analytics/price-trend             → { date, price }[] (from { timestamp, price })
- * - GET /api/suppliers                         → minimal supplier list for filters
+ * - GET /api/inventory                         → item list for price trend dropdown
+ * - GET /api/analytics/price-trend             → { date, price }[]
+ * - GET /api/suppliers                         → minimal supplier list
+ * - GET /api/analytics/low-stock-items         → { itemName, quantity, minimumQuantity }[]
+ * - GET /api/analytics/stock-per-supplier      → { supplierName, totalQuantity, totalValue }[]
  */
 
 import http from './httpClient';
@@ -32,6 +34,8 @@ export type MonthlyMovement = { month: string; stockIn: number; stockOut: number
 export type PricePoint = { date: string; price: number };
 export type ItemRef = { id: string; name: string };
 export type SupplierRef = { id: string; name: string };
+export type LowStockRow = { itemName: string; quantity: number; minimumQuantity: number };
+export type StockPerSupplierPoint = { supplierName: string; totalQuantity: number; totalValue: number };
 
 // ---------------------------------------------------------------------------
 // Internal helpers / backend DTO shapes
@@ -42,6 +46,26 @@ type BackendMonthlyMovementDTO = { month?: string; stockIn?: unknown; stockOut?:
 type BackendPriceTrendDTO = { timestamp?: string; price?: unknown };
 type BackendItemDTO = { id?: string; itemId?: string; name?: string; itemName?: string };
 type BackendSupplierDTO = { id?: string | number; name?: string };
+type BackendLowStockDTO = { itemName?: string; quantity?: unknown; minimumQuantity?: unknown };
+type BackendSpsDTO = {
+  supplierId?: string | number;
+  supplierName?: string;
+  totalQuantity?: unknown;
+  totalValue?: unknown;
+};
+
+// Date helpers (local time → YYYY-MM-DD)
+function todayIso(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function daysAgoIso(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 
 function asNumber(v: unknown): number {
   if (v == null) return 0;
@@ -57,43 +81,18 @@ function asNumber(v: unknown): number {
  */
 function paramClean(p?: AnalyticsParams): Record<string, string> {
   const out: Record<string, string> = {};
-
   const from = p?.from ?? daysAgoIso(180);
   const to   = p?.to   ?? todayIso();
-
   out.start = from;
   out.end = to;
-
   if (p?.supplierId) out.supplierId = p.supplierId;
-
   return out;
-}
-
-// Utility functions to get local dates as YYYY-MM-DD -------------------------
-
-/** Returns local date as YYYY-MM-DD (today). */
-function todayIso(): string {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
-/** Returns local date as YYYY-MM-DD for N days ago. */
-function daysAgoIso(n: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 // ---------------------------------------------------------------------------
 // API functions (resilient)
 // ---------------------------------------------------------------------------
 
-/**
- * Fetches total stock value series.
- * @returns Sorted ascending by date.
- */
 export async function getStockValueOverTime(
   p?: AnalyticsParams
 ): Promise<StockValuePoint[]> {
@@ -106,7 +105,6 @@ export async function getStockValueOverTime(
       date: String(d.date ?? ''),
       totalValue: asNumber(d.totalValue),
     }));
-    // keep charts predictable
     rows.sort((a, b) => a.date.localeCompare(b.date));
     return rows;
   } catch {
@@ -114,9 +112,6 @@ export async function getStockValueOverTime(
   }
 }
 
-/**
- * Fetches monthly stock movement (stockIn vs stockOut).
- */
 export async function getMonthlyStockMovement(
   p?: AnalyticsParams
 ): Promise<MonthlyMovement[]> {
@@ -135,10 +130,6 @@ export async function getMonthlyStockMovement(
   }
 }
 
-/**
- * Returns a small item list (id + name) for the price trend dropdown.
- * Implementation is generous with BE variants: {id|itemId, name|itemName}.
- */
 export async function getTopItems(): Promise<ItemRef[]> {
   try {
     const { data } = await http.get<unknown>('/api/inventory', { params: { limit: 20 } });
@@ -152,9 +143,6 @@ export async function getTopItems(): Promise<ItemRef[]> {
   }
 }
 
-/**
- * Fetches the price trend series for an item, honoring optional date range.
- */
 export async function getPriceTrend(
   itemId: string,
   p?: AnalyticsParams
@@ -176,9 +164,6 @@ export async function getPriceTrend(
   }
 }
 
-/**
- * Minimal supplier list for the filters dropdown.
- */
 export async function getSuppliersLite(): Promise<SupplierRef[]> {
   try {
     const { data } = await http.get<unknown>('/api/suppliers', { params: { limit: 200 } });
@@ -187,6 +172,44 @@ export async function getSuppliersLite(): Promise<SupplierRef[]> {
       id: String(s.id ?? ''),
       name: String(s.name ?? ''),
     })).filter((s) => s.id && s.name);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Low-stock list for a required supplierId.
+ * Returns [] if supplierId is empty or if the backend rejects.
+ */
+export async function getLowStockItems(supplierId: string): Promise<LowStockRow[]> {
+  if (!supplierId) return [];
+  try {
+    const { data } = await http.get<unknown>('/api/analytics/low-stock-items', {
+      params: { supplierId },
+    });
+    if (!Array.isArray(data)) return [];
+    return (data as BackendLowStockDTO[]).map((d) => ({
+      itemName: String(d.itemName ?? ''),
+      quantity: asNumber(d.quantity),
+      minimumQuantity: asNumber(d.minimumQuantity),
+    })).filter((r) => r.itemName);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Current snapshot of totals per supplier (no date filters in the API).
+ */
+export async function getStockPerSupplier(): Promise<StockPerSupplierPoint[]> {
+  try {
+    const { data } = await http.get<unknown>('/api/analytics/stock-per-supplier');
+    if (!Array.isArray(data)) return [];
+    return (data as BackendSpsDTO[]).map((d) => ({
+      supplierName: String(d.supplierName ?? ''),
+      totalQuantity: asNumber(d.totalQuantity),
+      totalValue: asNumber(d.totalValue),
+    })).filter((r) => r.supplierName);
   } catch {
     return [];
   }

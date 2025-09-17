@@ -53,6 +53,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import Filters, { type AnalyticsFilters } from './components/Filters';
 import { readParams, writeParams } from '../../utils/urlState';
+import LowStockTable from './blocks/LowStockTable';
+import StockPerSupplier from './blocks/StockPerSupplier';
 
 export default function Analytics(): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
@@ -361,6 +363,25 @@ export default function Analytics(): JSX.Element {
                 </ResponsiveContainer>
               </Box>
             )}
+          </CardContent>
+        </Card>
+        {/* Low-stock items (requires supplier) */}
+        <Card>
+          <CardContent>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              {t('analytics:lowStock.title')}
+            </Typography>
+            <LowStockTable supplierId={filters.supplierId} />
+          </CardContent>
+        </Card>
+
+        {/* Stock per supplier (snapshot) */}
+        <Card>
+          <CardContent>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              {t('analytics:stockPerSupplier.title')}
+            </Typography>
+            <StockPerSupplier />
           </CardContent>
         </Card>
       </Box>
