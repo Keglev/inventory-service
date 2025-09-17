@@ -2,7 +2,6 @@ package com.smartsupplypro.inventory.service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -75,7 +74,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
-
+        /*
+         * Email is required for user identification and must be provided by the OAuth2 provider.
+         * If not present, authentication cannot proceed.
+         */
         if (email == null) {
             throw new OAuth2AuthenticationException("Email not found in OAuth2 provider");
         }
@@ -111,7 +113,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         attributes.put("appRole", roleName);
 
         return new DefaultOAuth2User(
-                List.of(new SimpleGrantedAuthority(toAuthority(roleName))),
+                java.util.Collections.singletonList(new SimpleGrantedAuthority(toAuthority(roleName))),
                 attributes,
                 "email"  // Use email as the principal name
         );
