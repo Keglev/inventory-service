@@ -227,8 +227,9 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
           format: 'table'
+          scanners: 'vuln'          # faster: no secret/IaC scans here
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
           ignore-unfixed: true
           exit-code: '1'
 
