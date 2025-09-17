@@ -54,8 +54,65 @@ env:
   # Public URL of the deployed service (used by smoke test)
   FRONTEND_URL: https://inventory-service.koyeb.app
 
+# Define jobs
+# Each job runs in a fresh instance of the specified virtual environment.
 jobs:
+  changes:
+    name: Detect changed areas
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.compute.outputs.frontend_changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # /**
+      #  * Computes which files have changed in the current push or pull request.
+      #  * Sets output flags to indicate if frontend-related files were modified.
+      #  */
+      - name: Compute changed files (linter-safe)
+        id: compute
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          BASE_REF: ${{ github.base_ref }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          # Determine the base for diff:
+          # - For PRs, diff against the base branch ref
+          # - For pushes, diff against the "before" commit SHA
+          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "$BASE_REF" ]; then
+            git fetch --no-tags --depth=1 origin "$BASE_REF"
+            BASE="origin/$BASE_REF"
+          else
+            git fetch --no-tags --depth=50 origin
+            BASE="$BEFORE"
+            # Fallback: if BEFORE is empty (e.g., very first push), compare against the previous commit
+            if [ -z "$BASE" ]; then
+              BASE="$(git rev-parse HEAD~1 || true)"
+            fi
+          fi
+
+          echo "BASE: $BASE"
+          echo "HEAD: $SHA"
+
+          CHANGED="$(git diff --name-only "$BASE" "$SHA" || true)"
+          echo "Changed files:"
+          echo "$CHANGED" | sed 's/^/  - /' || true
+
+          fe_changed=false
+          echo "$CHANGED" | grep -E '^(frontend/|ops/nginx/|\.github/workflows/frontend-ci\.yml$)' >/dev/null && fe_changed=true || true
+
+          echo "frontend_changed=$fe_changed" >> "$GITHUB_OUTPUT"
+
+  # /**
+  #  * Main job: Build, test, and Dockerize the frontend service.
+  #  * Runs only if frontend-related files were changed.
+  #  */
   build-and-deploy:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend_changed == 'true' }}
     runs-on: ubuntu-latest
 
     steps:

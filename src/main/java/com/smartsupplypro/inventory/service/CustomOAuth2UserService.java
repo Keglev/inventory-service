@@ -2,11 +2,12 @@ package com.smartsupplypro.inventory.service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -15,7 +16,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
@@ -54,6 +54,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private AppUserRepository userRepository;
 
     /**
+     * Normalize a Role enum (or DB string) to a Spring Security ROLE_* authority.
+     * Guarantees exactly one "ROLE_" prefix.
+     */
+    private static String toAuthority(String roleName) {
+        if (roleName == null || roleName.isBlank()) return "ROLE_USER";
+        return roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
+    }
+
+    /**
      * Loads and processes the authenticated OAuth2 user.
      *
      * @param userRequest the request containing OAuth2 provider and token info
@@ -87,6 +96,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
             try {
                 user = userRepository.save(newUser);
+                if (user.getRole() == null) user.setRole(Role.USER);
             } catch (DataIntegrityViolationException ex) {
                 // Duplicate detected — fallback to fetch existing user
                 System.err.println(">>> Detected duplicate user insert (already exists): " + email);
@@ -96,13 +106,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
 
         Map<String, Object> attributes = new HashMap<>(oauthUser.getAttributes());
-        attributes.put("appRole", user.getRole().name());
+        // Expose the app role to clients without the ROLE_ prefix for display/logic if needed:
+        final String roleName = user.getRole().name();
+        attributes.put("appRole", roleName);
 
         return new DefaultOAuth2User(
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())),
+                List.of(new SimpleGrantedAuthority(toAuthority(roleName))),
                 attributes,
                 "email"  // Use email as the principal name
         );
     }
+
 }
 // This code handles the OAuth2 login success scenario, registering new users if they do not exist in the database.

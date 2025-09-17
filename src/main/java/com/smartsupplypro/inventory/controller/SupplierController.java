@@ -35,7 +35,7 @@ public class SupplierController {
     /**
      * List all suppliers (USER/ADMIN).
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<SupplierDTO>> listAll() {
         return ResponseEntity.ok(supplierService.findAll());
@@ -53,7 +53,7 @@ public class SupplierController {
     /**
      * Get one supplier by id (USER/ADMIN).
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<SupplierDTO> getById(@PathVariable String id) {
         return supplierService.findById(id)
@@ -64,7 +64,7 @@ public class SupplierController {
     /**
      * Search by (partial) name (USER/ADMIN).
      */
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/search")
     public ResponseEntity<List<SupplierDTO>> search(@RequestParam String name) {
         return ResponseEntity.ok(supplierService.findByName(name));

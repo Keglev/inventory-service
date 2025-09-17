@@ -51,8 +51,65 @@ concurrency:
     group: ci-${{ github.ref }}
     cancel-in-progress: true
 
+# Define jobs
+# Each job runs in a fresh instance of the specified virtual environment.
 jobs:
+  changes:
+    name: Detect changed areas
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.compute.outputs.backend_changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # /**
+      #  * Computes which files have changed in the current push or pull request.
+      #  * Sets output flags to indicate if backend-related files were modified.
+      #  */
+      - name: Compute changed files (linter-safe)
+        id: compute
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          BASE_REF: ${{ github.base_ref }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          # Determine the correct base for diff
+          # For PRs, use the target branch (BASE_REF)
+          # For pushes, use the commit before the push (BEFORE)
+          # Fallback to HEAD~1 if BEFORE is not available (e.g., first commit)
+          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "$BASE_REF" ]; then
+            git fetch --no-tags --depth=1 origin "$BASE_REF"
+            BASE="origin/$BASE_REF"
+          else
+            git fetch --no-tags --depth=50 origin
+            BASE="$BEFORE"
+            # Fallback: if BEFORE is empty (e.g., very first push), compare against the previous commit
+            if [ -z "$BASE" ]; then
+              BASE="$(git rev-parse HEAD~1 || true)"
+            fi
+          fi
+
+          echo "BASE: $BASE"
+          echo "HEAD: $SHA"
+          # List changed files between BASE and current commit (SHA)
+          CHANGED="$(git diff --name-only "$BASE" "$SHA" || true)"
+          echo "Changed files:"
+          echo "$CHANGED" | sed 's/^/  - /' || true
+          # Determine if backend-related files changed
+          be_changed=false
+          echo "$CHANGED" | grep -E '^(inventory-service/|\.github/workflows/ci-build\.yml$)' >/dev/null && be_changed=true || true
+
+          echo "backend_changed=$be_changed" >> "$GITHUB_OUTPUT"
+  # /**
+  #  * Main job: Build, test, and Dockerize the backend service.
+  #  * Runs only if backend-related files were changed.
+  #  */
   build-and-test:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend_changed == 'true' }}
     runs-on: ubuntu-latest
 
     env:

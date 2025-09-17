@@ -53,8 +53,8 @@ public class AppUser {
 
     /** Role of the user: USER or ADMIN (stored as STRING in DB) */
     @Enumerated(EnumType.STRING)
-    @Column(name = "ROLE")
-    private Role role;
+    @Column(name = "ROLE", nullable = false, length = 16)
+    private Role role = Role.USER; // default for new users
 
     /** Timestamp when the user was registered in the system */
     private LocalDateTime createdAt = LocalDateTime.now();
