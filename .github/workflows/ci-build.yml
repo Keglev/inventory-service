@@ -157,7 +157,11 @@ jobs:
       #  * Used to tag Docker images for traceability.
       #  */
       - name: Set Git SHA
-        run: echo "GIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        id: vars
+        run: |
+          GIT_SHA=$(git rev-parse --short HEAD)
+          echo "GIT_SHA=$GIT_SHA" >> "$GITHUB_ENV"     # keeps your existing $GIT_SHA for shell steps
+          echo "sha_short=$GIT_SHA" >> "$GITHUB_OUTPUT" # linter-safe output for expressions
 
       # /**
       #  * Runs unit and integration tests using the 'test' Spring profile.
@@ -218,8 +222,14 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
       
       # --- Security scan: final image only (High/Critical gate) ---
-      - name: Scan image for CVEs (Docker Scout)
-        run: |
-          docker scout cves $IMAGE_NAME:$GIT_SHA --only-severity high,critical --exit-code 1
+      - name: Scan image for CVEs (Trivy)
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
+          format: 'table'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          exit-code: '1'
 
 
