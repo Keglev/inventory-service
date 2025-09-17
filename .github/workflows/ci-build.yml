@@ -1,22 +1,30 @@
 name: Inventory Service CI/CD - CI Build & Test & Docker Build
 
-# ============================================================================
+# =============================================================================
 # Smart Supply Pro — Backend (Inventory Service) CI/CD
 #
-# Triggers:
-#   • push / pull_request on ANY branch, but ONLY when the backend allow-list changes
-#   • manual run via workflow_dispatch
+# Purpose
+# - Build & test the Spring Boot backend
+# - Build and push Docker images (:dev and :<commit sha>)
+# - Scan images with Trivy; fail on HIGH/CRITICAL issues
 #
-# Key points:
-#   • No step outputs / no complicated conditionals (keeps linters quiet)
-#   • Maven runs from inventory-service/ *if present*, else falls back to repo root
-#   • Docker always builds with context = inventory-service/ (so COPY paths behave)
-#   • Trivy gates on HIGH/CRITICAL CVEs
-# ============================================================================
+# Trigger Model (Backend-Only)
+# - Fires ONLY when backend files change (supports both layouts):
+#     A) backend at repo root (pom.xml, src/**, Dockerfile in root)
+#     B) backend under ./inventory-service/
+# - Also fires when this workflow file changes (so you can test pipeline edits)
+#
+# Lint/Schema Friendliness
+# - Avoids step outputs/contexts in conditionals (no "context might be invalid")
+# - Avoids passing env vars to hashFiles(); uses static patterns instead
+# =============================================================================
 
 on:
   push:
+    branches: [ "main", "develop" ]
+    # Allow-list of backend paths (both repo-root and inventory-service/ layouts)
     paths:
+      # --- monorepo-style backend ---
       - 'inventory-service/pom.xml'
       - 'inventory-service/mvnw'
       - 'inventory-service/mvnw.cmd'
@@ -28,8 +36,22 @@ on:
       - 'inventory-service/.env.example'
       - 'inventory-service/start.sh'
       - 'inventory-service/README.md'
-      - '.github/workflows/ci-build.yml'   # run when this file changes
+      # --- repo-root backend ---
+      - 'pom.xml'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.mvn/**'
+      - 'src/**'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'docker-compose.yml'
+      - '.env.example'
+      - 'start.sh'
+      - 'README.md'
+      # Run when this workflow changes
+      - '.github/workflows/ci-build.yml'
   pull_request:
+    branches: [ "main", "develop" ]
     paths:
       - 'inventory-service/pom.xml'
       - 'inventory-service/mvnw'
@@ -42,6 +64,17 @@ on:
       - 'inventory-service/.env.example'
       - 'inventory-service/start.sh'
       - 'inventory-service/README.md'
+      - 'pom.xml'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.mvn/**'
+      - 'src/**'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'docker-compose.yml'
+      - '.env.example'
+      - 'start.sh'
+      - 'README.md'
       - '.github/workflows/ci-build.yml'
   workflow_dispatch:
 
@@ -54,21 +87,51 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Docker repo to push backend images to
+      # Docker repo where backend images are pushed
       IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/inventory-service
       # Pin image tag to the exact commit for traceability
       IMAGE_TAG_SHA: ${{ github.sha }}
 
     steps:
-      # -----------------------------------------------------------------------
+      # ---------------------------------------------------------------------
       # 1) Checkout repository
-      # -----------------------------------------------------------------------
+      # ---------------------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # -----------------------------------------------------------------------
-      # 2) Toolchain: JDK 17 + Maven cache
-      # -----------------------------------------------------------------------
+      # ---------------------------------------------------------------------
+      # 2) Resolve backend directory (repo root vs ./inventory-service)
+      #    Exports:
+      #      BACKEND_DIR   - folder containing pom.xml & Dockerfile
+      #      POM_PATH      - resolved pom path (for logs only)
+      # ---------------------------------------------------------------------
+      - name: Resolve backend paths
+        id: be
+        run: |
+          set -euo pipefail
+
+          if [ -f "inventory-service/pom.xml" ]; then
+            DIR="inventory-service"
+          elif [ -f "pom.xml" ]; then
+            DIR="."
+          else
+            echo "::error::Could not find pom.xml at repo root or inventory-service/."
+            exit 1
+          fi
+
+          echo "Detected backend directory: $DIR"
+          echo "BACKEND_DIR=$DIR" >> "$GITHUB_ENV"
+          if [ "$DIR" = "." ]; then
+            echo "POM_PATH=pom.xml" >> "$GITHUB_ENV"
+          else
+            echo "POM_PATH=$DIR/pom.xml" >> "$GITHUB_ENV"
+          fi
+
+      # ---------------------------------------------------------------------
+      # 3) Toolchain: JDK 17 + Maven cache
+      #    NOTE: hashFiles() cannot reliably consume env vars; use static patterns
+      #    to cover both layouts. This keeps linters & schema validators happy.
+      # ---------------------------------------------------------------------
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -80,23 +143,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('inventory-service/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'inventory-service/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # -----------------------------------------------------------------------
-      # 3) Build & test (test profile)
-      #    -U refreshes metadata to honor patched BOMs when we bump versions
-      #    Works whether backend lives in /inventory-service or repo root.
-      # -----------------------------------------------------------------------
+      # ---------------------------------------------------------------------
+      # 4) Build & test (test profile)
+      #    '-U' refreshes metadata to honor patched BOMs when we bump versions.
+      #    Testcontainers disabled for CI simplicity.
+      # ---------------------------------------------------------------------
       - name: Build and Test with Maven
         run: |
           set -euo pipefail
-          if [ -d "inventory-service" ]; then
-            cd inventory-service
-          else
-            echo "WARNING: 'inventory-service' directory not found; running Maven in repo root."
-          fi
+          cd "$BACKEND_DIR"
           mvn -U clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
         env:
           DB_URL: ${{ secrets.DB_URL }}
@@ -109,37 +168,38 @@ jobs:
       - name: Show Spring core & Security versions
         run: |
           set -euo pipefail
-          if [ -d "inventory-service" ]; then cd inventory-service; fi
+          cd "$BACKEND_DIR"
           mvn -q dependency:list -DincludeGroupIds=org.springframework,org.springframework.security | \
             grep -E 'spring-core|spring-security-core' || true
 
-      # -----------------------------------------------------------------------
-      # 4) Docker login
-      # -----------------------------------------------------------------------
+      # ---------------------------------------------------------------------
+      # 5) Docker login
+      # ---------------------------------------------------------------------
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # -----------------------------------------------------------------------
-      # 5) Build image (tagged :dev and :<sha>)
-      #    Build CONTEXT is the 'inventory-service' folder so Dockerfile COPYs work.
-      #    '--no-cache' guarantees the fresh JAR is embedded; remove later for speed.
-      # -----------------------------------------------------------------------
+      # ---------------------------------------------------------------------
+      # 6) Build image (tagged :dev and :<sha>)
+      #    Build CONTEXT is the BACKEND_DIR so Dockerfile COPYs work for both layouts.
+      #    '--no-cache' guarantees a fresh JAR is embedded; remove later for speed.
+      # ---------------------------------------------------------------------
       - name: Build Docker image
         run: |
           set -euo pipefail
-          if [ ! -d "inventory-service" ]; then
-            echo "::error::inventory-service directory not found; cannot build image."
+          if [ ! -f "$BACKEND_DIR/Dockerfile" ]; then
+            echo "::error::Dockerfile not found at $BACKEND_DIR/Dockerfile"
             exit 1
           fi
+
           docker build --no-cache \
             --build-arg PROFILE=dev \
             --build-arg ORACLE_WALLET_B64="${{ secrets.ORACLE_WALLET_B64 }}" \
             -t $IMAGE_REPO:dev \
             -t $IMAGE_REPO:${IMAGE_TAG_SHA} \
-            inventory-service
+            "$BACKEND_DIR"
 
       # Sanity: quick inspection (non-blocking)
       - name: Inspect image (start.sh excerpt + env)
@@ -154,17 +214,17 @@ jobs:
             printenv TNS_ADMIN || true
           '
 
-      # -----------------------------------------------------------------------
-      # 6) Push both tags
-      # -----------------------------------------------------------------------
+      # ---------------------------------------------------------------------
+      # 7) Push both tags
+      # ---------------------------------------------------------------------
       - name: Push Docker images
         run: |
           docker push $IMAGE_REPO:dev
           docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
 
-      # -----------------------------------------------------------------------
-      # 7) Trivy vulnerability scan — gate on HIGH/CRITICAL
-      # -----------------------------------------------------------------------
+      # ---------------------------------------------------------------------
+      # 8) Trivy vulnerability scan — gate on HIGH/CRITICAL
+      # ---------------------------------------------------------------------
       - name: Scan image for CVEs (Trivy)
         uses: aquasecurity/trivy-action@0.20.0
         with:
