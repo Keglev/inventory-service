@@ -61,6 +61,22 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <!-- ===== CVE pin overrides (take precedence over BOM) ===== -->
+      <!-- Force Spring Security core to 6.5.4 (fixes CVE-2025-41248) -->
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>6.5.4</version>
+      </dependency>
+
+      <!-- Force Spring Framework core to 6.2.11 (fixes CVE-2025-41249) -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>6.2.11</version>
+      </dependency>
+      <!-- ============================================================== -->
     </dependencies>
   </dependencyManagement>
 
