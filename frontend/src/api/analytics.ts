@@ -35,7 +35,7 @@ export type PricePoint = { date: string; price: number };
 export type ItemRef = { id: string; name: string };
 export type SupplierRef = { id: string; name: string };
 export type LowStockRow = { itemName: string; quantity: number; minimumQuantity: number };
-export type StockPerSupplierPoint = { supplierName: string; totalQuantity: number; totalValue: number };
+export type StockPerSupplierPoint = { supplierName: string; totalQuantity: number };
 
 // ---------------------------------------------------------------------------
 // Internal helpers / backend DTO shapes
@@ -51,7 +51,6 @@ type BackendSpsDTO = {
   supplierId?: string | number;
   supplierName?: string;
   totalQuantity?: unknown;
-  totalValue?: unknown;
 };
 
 // Date helpers (local time → YYYY-MM-DD)
@@ -208,7 +207,6 @@ export async function getStockPerSupplier(): Promise<StockPerSupplierPoint[]> {
     return (data as BackendSpsDTO[]).map((d) => ({
       supplierName: String(d.supplierName ?? ''),
       totalQuantity: asNumber(d.totalQuantity),
-      totalValue: asNumber(d.totalValue),
     })).filter((r) => r.supplierName);
   } catch {
     return [];
