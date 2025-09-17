@@ -1,37 +1,39 @@
 package com.smartsupplypro.inventory.controller;
 
-import com.smartsupplypro.inventory.config.TestSecurityConfig;
-import com.smartsupplypro.inventory.dto.StockHistoryDTO;
-import com.smartsupplypro.inventory.enums.StockChangeReason;
-import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
-import com.smartsupplypro.inventory.service.StockHistoryService;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.smartsupplypro.inventory.config.TestSecurityConfig;
+import com.smartsupplypro.inventory.dto.StockHistoryDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
+import com.smartsupplypro.inventory.service.StockHistoryService;
 
 /**
  * Web MVC tests for {@link StockHistoryController}.
@@ -58,6 +60,7 @@ class StockHistoryControllerTest {
 
     /** Reusable sample DTO. */
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         history = StockHistoryDTO.builder()
                 .id("sh-1")
