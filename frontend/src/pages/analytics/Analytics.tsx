@@ -365,13 +365,22 @@ export default function Analytics(): JSX.Element {
             )}
           </CardContent>
         </Card>
-        {/* Low-stock items (requires supplier) */}
+        {/* ------------------------------------------------------------------- */}
+        {/* Low stock items (per supplier)                                      */}
+        {/* ------------------------------------------------------------------- */}
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              {t('analytics:lowStock.title')}
+              {t('analytics.cards.lowStock', 'Low stock items')}
             </Typography>
-            <LowStockTable supplierId={filters.supplierId} />
+            
+            {/* If you keep Filters in this component, replace filters.* with your actual state */}
+            <LowStockTable
+              supplierId={filters.supplierId ?? ''}
+              from={filters.from}
+              to={filters.to}
+              limit={12}
+            />
           </CardContent>
         </Card>
 
