@@ -1,125 +1,81 @@
 name: Inventory Service CI/CD - CI Build & Test & Docker Build
 
-# /**
-#  * CI/CD Pipeline for Smart Supply Pro - Inventory Microservice (Spring Boot)
-#  *
-#  * Trigger:
-#  *   - Automatically runs on push and pull requests to the 'main' branch.
-#  *   - Executes only if changes occur within inventory-service/ or this CI config file.
-#  *
-#  * Jobs:
-#  *   1. Checkout and prepare the backend repository.
-#  *   2. Configure Java and Maven environment.
-#  *   3. Decode Oracle Wallet for secure Oracle DB connection.
-#  *   4. Run full Maven build and tests with Spring 'test' profile (without Docker).
-#  *   5. Build Docker image tagged with both 'dev' and current Git SHA.
-#  *   6. Push Docker images to DockerHub.
-#  */
+# =============================================================================
+# Smart Supply Pro — Backend (Inventory Service) CI/CD
+#
+# Purpose
+#   - Build + test the Spring Boot backend.
+#   - Build and push a Docker image tagged `:dev` and with the commit SHA.
+#   - Gate on HIGH/CRITICAL vulnerabilities via Trivy (image scan).
+#
+# Trigger Model (monorepo-aware)
+#   - This backend lives in `inventory-service/`, but that folder ALSO contains
+#     non-backend content (e.g., `frontend/`, `docs/`, `lib/`, `logs/`, `oracle_wallet/`).
+#   - We therefore use event-level path filters with explicit EXCLUDES to ensure
+#     that frontend-only or docs-only commits DO NOT fire this workflow.
+#
+# Design Notes
+#   - No job/step-level conditions or custom outputs — avoids linter “context might
+#     be invalid” warnings in VS Code.
+#   - All heavy commands run with clear, enterprise-grade comments for maintainability.
+# =============================================================================
 
 on:
   push:
     branches: [ "main", "develop" ]
+    # Include only backend-relevant paths (exclude non-backend subtrees/files).
+    paths:
+      - 'inventory-service/**'
+      - '!inventory-service/frontend/**'       # embedded frontend (handled by its own pipeline)
+      - '!inventory-service/docs/**'           # documentation site / assets
+      - '!inventory-service/lib/**'            # non-backend libs/cache
+      - '!inventory-service/logs/**'           # local logs
+      - '!inventory-service/oracle_wallet/**'  # secrets/material never used in CI context
+      - '!inventory-service/fly.toml'          # infra meta; not required to build/test the JAR
   pull_request:
     branches: [ "main", "develop" ]
-    # Same filters for PRs
     paths:
-      - 'inventory-service/pom.xml'
-      - 'inventory-service/src/**'
-      - 'inventory-service/Dockerfile'
-      - 'inventory-service/docker-compose.yml'
-      - 'inventory-service/mvnw'
-      - 'inventory-service/mvnw.cmd'
-      - 'inventory-service/.mvn/**'
-      - 'inventory-service/**/application*.yml'
-      - 'inventory-service/.env.example' # in case of changes to the example env file
-      - '.github/workflows/ci-build.yml'
-      - 'inventory-service/start.sh' # in case of changes to the startup script
+      - 'inventory-service/**'
+      - '!inventory-service/frontend/**'
+      - '!inventory-service/docs/**'
+      - '!inventory-service/lib/**'
+      - '!inventory-service/logs/**'
+      - '!inventory-service/oracle_wallet/**'
+      - '!inventory-service/fly.toml'
+  workflow_dispatch:
+
 concurrency:
-    group: ci-${{ github.ref }}
-    cancel-in-progress: true
+  # Prevent overlapping runs per branch — newest build cancels prior one.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
-# Define jobs
-# Each job runs in a fresh instance of the specified virtual environment.
 jobs:
-  changes:
-    name: Detect changed areas
-    runs-on: ubuntu-latest
-    outputs:
-      backend_changed: ${{ steps.compute.outputs.backend_changed }}
-    steps:
-      - uses: actions/checkout@v4
-
-      # /**
-      #  * Computes which files have changed in the current push or pull request.
-      #  * Sets output flags to indicate if backend-related files were modified.
-      #  */
-      - name: Compute changed files (linter-safe)
-        id: compute
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          BEFORE: ${{ github.event.before }}
-          BASE_REF: ${{ github.base_ref }}
-          SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-
-          # Determine the correct base for diff
-          # For PRs, use the target branch (BASE_REF)
-          # For pushes, use the commit before the push (BEFORE)
-          # Fallback to HEAD~1 if BEFORE is not available (e.g., first commit)
-          if [ "$EVENT_NAME" = "pull_request" ] && [ -n "$BASE_REF" ]; then
-            git fetch --no-tags --depth=1 origin "$BASE_REF"
-            BASE="origin/$BASE_REF"
-          else
-            git fetch --no-tags --depth=50 origin
-            BASE="$BEFORE"
-            # Fallback: if BEFORE is empty (e.g., very first push), compare against the previous commit
-            if [ -z "$BASE" ]; then
-              BASE="$(git rev-parse HEAD~1 || true)"
-            fi
-          fi
-
-          echo "BASE: $BASE"
-          echo "HEAD: $SHA"
-          # List changed files between BASE and current commit (SHA)
-          CHANGED="$(git diff --name-only "$BASE" "$SHA" || true)"
-          echo "Changed files:"
-          echo "$CHANGED" | sed 's/^/  - /' || true
-          # Determine if backend-related files changed
-          be_changed=false
-          echo "$CHANGED" | grep -E '^(inventory-service/|\.github/workflows/ci-build\.yml$)' >/dev/null && be_changed=true || true
-
-          echo "backend_changed=$be_changed" >> "$GITHUB_OUTPUT"
-  # /**
-  #  * Main job: Build, test, and Dockerize the backend service.
-  #  * Runs only if backend-related files were changed.
-  #  */
   build-and-test:
-    needs: changes
-    if: ${{ needs.changes.outputs.backend_changed == 'true' }}
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/inventory-service
+      # Centralized image repo reference; used by build/push/scan steps.
+      IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/inventory-service
+      # Pin outputs (image tag) to the exact commit SHA for traceability & scans.
+      IMAGE_TAG_SHA: ${{ github.sha }}
 
     steps:
-      # /**
-      #  * Enables debug output to print all shell commands during execution.
-      #  * Helps with troubleshooting build failures.
-      #  */
+      # -----------------------------------------------------------------------
+      # 0) Diagnostics (verbose shell helps when triaging failures)
+      # -----------------------------------------------------------------------
       - name: Enable debug output
         run: set -x
 
-      # /**
-      #  * Checks out the repository's code so that the workflow can access it.
-      #  */
+      # -----------------------------------------------------------------------
+      # 1) Checkout source
+      # -----------------------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # /**
-      #  * Configures Java Development Kit (JDK 17) using Eclipse Temurin distribution.
-      #  * Required for building and running Spring Boot applications.
-      #  */
+      # -----------------------------------------------------------------------
+      # 2) Toolchain: JDK 17 + Maven cache
+      #    - Cache is keyed on pom.xml hashes across the repo; adjust if needed.
+      # -----------------------------------------------------------------------
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -127,10 +83,6 @@ jobs:
           java-version: '17'
           cache: maven
 
-      # /**
-      #  * Caches Maven dependencies (~/.m2) across workflow runs.
-      #  * Speeds up builds by avoiding repeated downloads.
-      #  */
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -139,23 +91,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # /**
-      #  * Stores the current short Git commit SHA in an environment variable.
-      #  * Used to tag Docker images for traceability.
-      #  */
-      - name: Set Git SHA
-        id: vars
-        run: |
-          GIT_SHA=$(git rev-parse --short HEAD)
-          echo "GIT_SHA=$GIT_SHA" >> "$GITHUB_ENV"     # keeps your existing $GIT_SHA for shell steps
-          echo "sha_short=$GIT_SHA" >> "$GITHUB_OUTPUT" # linter-safe output for expressions
-
-      # /**
-      #  * Runs unit and integration tests using the 'test' Spring profile.
-      #  * Skips Testcontainers usage to avoid Docker-in-Docker complexity in CI.
-      #  */
-      - name: Build and Test with Maven (Test Profile)
-        run: mvn clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
+      # -----------------------------------------------------------------------
+      # 3) Maven build & test
+      #    - '-U' refreshes dependency metadata to pick up patched BOMs.
+      #    - Testcontainers disabled to avoid Docker-in-Docker complexity in CI.
+      # -----------------------------------------------------------------------
+      - name: Build and Test with Maven (test profile)
+        working-directory: inventory-service
+        run: mvn -U clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
         env:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
@@ -163,61 +106,75 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
-      # /**
-      #  * Logs into DockerHub using GitHub Secrets credentials.
-      #  * Required to push Docker images to your DockerHub repository.
-      #  */
-      - name: Login to DockerHub
+      # (Informational) show which Spring artifacts/versions were actually resolved
+      - name: Show Spring core & Security versions (non-blocking)
+        working-directory: inventory-service
+        run: |
+          mvn -q dependency:list -DincludeGroupIds=org.springframework,org.springframework.security | \
+            grep -E 'spring-core|spring-security-core' || true
+
+      # -----------------------------------------------------------------------
+      # 4) Docker login
+      # -----------------------------------------------------------------------
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # /**
-      # Build the Docker image with:
-      # - dev tag for staging/testing environments.
-      # - Git SHA tag for traceability and rollbacks.
-      # Uses build-arg PROFILE=dev to inject Spring profile.
-      #  */
-      - name: Build Docker image (DEV and SHA)
+      # -----------------------------------------------------------------------
+      # 5) Build container image
+      #    - The build context is `inventory-service/`.
+      #    - `--no-cache` guarantees the JAR in the image matches this build.
+      #      Once things stabilize, you can remove `--no-cache` for faster builds.
+      # -----------------------------------------------------------------------
+      - name: Build Docker image (dev and sha tags)
+        working-directory: inventory-service
         run: |
-          docker build --build-arg PROFILE=dev \
-                       --build-arg ORACLE_WALLET_B64="${{ secrets.ORACLE_WALLET_B64 }}" \
-                       -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev \
-                       -t ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA .
+          docker build --no-cache \
+            --build-arg PROFILE=dev \
+            --build-arg ORACLE_WALLET_B64="${{ secrets.ORACLE_WALLET_B64 }}" \
+            -t $IMAGE_REPO:dev \
+            -t $IMAGE_REPO:${IMAGE_TAG_SHA} \
+            .
 
-      # --- sanity Check for image before the docker run step ---
-      - name: "Sanity check show start.sh inside the image"
-        shell: bash
+      # -----------------------------------------------------------------------
+      # 6) Sanity: inspect image content quickly (non-blocking)
+      #    - Helps confirm the baked artifacts and environment.
+      # -----------------------------------------------------------------------
+      - name: Inspect image (start.sh excerpt + env)
         run: |
-          echo "Image: $IMAGE_NAME:$GIT_SHA"
-          docker run --rm $IMAGE_NAME:$GIT_SHA sh -c '
+          echo "Image (sha): $IMAGE_REPO:${IMAGE_TAG_SHA}"
+          docker run --rm $IMAGE_REPO:${IMAGE_TAG_SHA} sh -c '
             set -e
             echo "----- /app/start.sh (first 120 lines) -----"
             sed -n "1,120p" /app/start.sh || true
             echo "-------------------------------------------"
-            echo "Default TNS_ADMIN baked into image:"
+            echo "TNS_ADMIN in container:"
             printenv TNS_ADMIN || true
           '
 
-      # /**
-      #  * Push Docker images (dev & SHA).
-      #  */
+      # -----------------------------------------------------------------------
+      # 7) Push both tags (dev + commit sha)
+      # -----------------------------------------------------------------------
       - name: Push Docker images
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:dev
-          docker push ${{ secrets.DOCKER_USERNAME }}/inventory-service:$GIT_SHA
-      
-      # --- Security scan: final image only (High/Critical gate) ---
+          docker push $IMAGE_REPO:dev
+          docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
+
+      # -----------------------------------------------------------------------
+      # 8) Trivy scan — gate on HIGH/CRITICAL only
+      #    - Scans the SHA-tagged image we just pushed.
+      #    - If you want to relax the gate temporarily, change `severity` to
+      #      'CRITICAL' or set `exit-code: 0` (not recommended long-term).
+      # -----------------------------------------------------------------------
       - name: Scan image for CVEs (Trivy)
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
+          image-ref: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG_SHA }}
           format: 'table'
-          scanners: 'vuln'          # faster: no secret/IaC scans here
+          scanners: 'vuln'          # faster: vulnerability scan only
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
           exit-code: '1'
-
-
