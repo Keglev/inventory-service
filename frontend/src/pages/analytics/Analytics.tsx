@@ -86,31 +86,37 @@ export default function Analytics(): JSX.Element {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Read initial filters from URL once (controlled state hereafter).
+  /**
+   * Seed filters from the URL once on mount.
+   * - Defaults to last 180 days if range absent (BE requires start/end).
+   * - `readParams` is robust to `supplierid` (lowercase) and strips quotes.
+   */
   const [filters, setFilters] = React.useState<AnalyticsFilters>(() => {
     const m = readParams(searchParams.toString(), ['from', 'to', 'supplierId']);
     // If URL lacks from/to, default to last 180 days so BE gets required start/end.
     const haveRange = !!(m.from && m.to);
-    const fallbackFrom = daysAgoIso(180);
-    const fallbackTo = todayIso();
-
     return {
-      from: haveRange ? m.from : fallbackFrom,
-      to: haveRange ? m.to : fallbackTo,
-      supplierId: m.supplierId,
+      from: haveRange ? m.from : daysAgoIso(180),
+      to: haveRange ? m.to : todayIso(),
+      supplierId: m.supplierId, // already sanitized by readParams
       quick: haveRange ? 'custom' : '180',
     };
   });
 
-  // Whenever filters change, reflect them in the URL (debounced via microtask).
+  /**
+   * Keep the URL in sync with filter state so deep-links/bookmarks work.
+   * - Uses a minimal diff (`writeParams`) to avoid churn.
+   * - Avoids loops by comparing with the current search string.
+   */
   React.useEffect(() => {
     const next = writeParams(searchParams.toString(), {
       from: filters.from,
       to: filters.to,
-      supplierId: filters.supplierId,
+      supplierId: filters.supplierId, // canonical casing
     });
-    // Only update if changed (avoid infinite loops)
-    if (next !== (searchParams.toString() ? `?${searchParams.toString()}` : '')) {
+    const current = searchParams.toString();
+    const canonicalCurrent = current ? `?${current}` : '';
+    if (next !== canonicalCurrent) {
       setSearchParams(new URLSearchParams(next));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -374,7 +380,11 @@ export default function Analytics(): JSX.Element {
               {t('analytics.cards.lowStock', 'Low stock items')}
             </Typography>
             
-            {/* If you keep Filters in this component, replace filters.* with your actual state */}
+            {/*
+              LowStockTable only fires its query when `supplierId` is truthy.
+              With the hardened urlState helpers + Filters, this will now light up
+              as soon as a supplier is selected and URL shows `?supplierId=<id>`.
+            */}
             <LowStockTable
               supplierId={filters.supplierId ?? ''}
               from={filters.from}

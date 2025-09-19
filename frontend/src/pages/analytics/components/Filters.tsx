@@ -16,67 +16,104 @@ import { Stack, TextField, MenuItem, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 
+/**
+ * Serializable filter state mirrored to the URL.
+ * Dates are ISO `yyyy-MM-dd` (local calendar).
+ * @public
+ */
 export type AnalyticsFilters = {
-  from?: string;        // ISO yyyy-MM-dd
-  to?: string;          // ISO yyyy-MM-dd
-  supplierId?: string;  // string to match URLSearchParams
+  /** Inclusive lower bound date (ISO, `yyyy-MM-dd`). */
+  from?: string;
+  /** Inclusive upper bound date (ISO, `yyyy-MM-dd`). */
+  to?: string;
+  /** Selected supplier identifier (string ID; canonical URL key is `supplierId`). */
+  supplierId?: string;
+  /** Quick-range selector: `'30' | '90' | '180' | 'custom'`. */
   quick?: '30' | '90' | '180' | 'custom';
 };
 
+/** Lightweight supplier reference (for dropdown options). */
 export type SupplierRef = { id: string; name: string };
 
+/**
+ * Props for {@link Filters}.
+ * @public
+ */
 export type FiltersProps = {
-  /** Current value (controlled by the parent) */
+  /** Current value (controlled by the parent). */
   value: AnalyticsFilters;
-  /** Supplier options for the dropdown (id + name) */
+  /** Supplier options for the dropdown (id + name). */
   suppliers: SupplierRef[];
-  /** Called when the user changes anything */
+  /** Called when the user changes anything. */
   onChange: (next: AnalyticsFilters) => void;
-  /** Optional: disables inputs while loading */
+  /** Optional: disables inputs while loading. */
   disabled?: boolean;
 };
 
-/**
- * Returns today's date (local) formatted as yyyy-MM-dd for <input type="date">.
- */
+/** @internal Returns today's date in `yyyy-MM-dd` for `<input type="date">`. */
 function todayIsoDate(): string {
   return dayjs().format('YYYY-MM-DD');
 }
 
-/**
- * Utility: returns YYYY-MM-DD for N days ago, local time.
- */
+/** @internal Returns the date `n` days ago in `yyyy-MM-dd`. */
 function daysAgoIso(n: number): string {
   return dayjs().subtract(n, 'day').format('YYYY-MM-DD');
 }
 
+/**
+ * Filters component.
+ * @remarks
+ * - Keeps state minimal and URL-friendly.
+ * - Ensures supplierId is stored as a *raw* string (no quotes).
+ */
 export default function Filters(props: FiltersProps): JSX.Element {
   const { value, onChange, suppliers, disabled } = props;
   const { t } = useTranslation(['analytics']);
 
-  // Local helpers -------------------------------------------------------------
-
+  /** Apply one of the predefined quick ranges (30/90/180 days). */
   const applyQuick = (q: '30' | '90' | '180') => {
     const from = daysAgoIso(Number(q));
     const to = todayIsoDate();
     onChange({ ...value, quick: q, from, to });
   };
 
+  /** Update a custom date field and mark quick as 'custom'. */
   const onCustomDate = (key: 'from' | 'to', v: string) => {
     const next = { ...value, [key]: v, quick: 'custom' as const };
     onChange(next);
   };
 
+  /**
+   * Update the supplier. Ensures we store a raw, de-quoted string ID.
+   * Passing an empty value clears `supplierId`.
+   */
   const onSupplier = (v: string) => {
-    onChange({ ...value, supplierId: v || undefined });
+    const raw = (v ?? '').replace(/^"+|"+$/g, '');
+    onChange({ ...value, supplierId: raw || undefined });
   };
 
+  /** Reset all filters. */
   const clear = () => {
     onChange({});
   };
 
-  // Render --------------------------------------------------------------------
-
+  /**
+   * Render the full filter bar.
+   * - Quick picks (30/90/180 days)
+   * - Custom date range (from/to)
+   * - Supplier dropdown (if options provided)
+   * - Clear button
+   * @remarks
+   * - Responsive layout: horizontal on desktop, vertical on mobile.
+   * - Uses MUI components for consistency with the rest of the app.
+   * - i18n support via react-i18next.
+   * - Accessibility: proper labels and keyboard navigation.
+   * - Disabled state support while loading.
+   * - Auto-hides supplier dropdown if no suppliers provided.
+   * - Ensures controlled inputs with empty strings for undefined values.
+   * - Minimal inline styles; prefers MUI system props.
+   * - Clear button resets all filters to default state.
+   */
   return (
     <Stack
       direction={{ xs: 'column', md: 'row' }}
@@ -152,7 +189,7 @@ export default function Filters(props: FiltersProps): JSX.Element {
           ))}
         </TextField>
       )}
-      
+
       {/* Clear */}
       <Button size="small" variant="text" onClick={clear} disabled={disabled}>
         {t('analytics:filters.clear')}
