@@ -203,14 +203,24 @@ export async function getMonthlyStockMovement(p?: AnalyticsParams): Promise<Mont
 }
 
 /**
- * Fetches a small list of items for price-trend dropdowns.
+ * Fetches a small list of items for dropdowns.
  *
+ * @param opts Optional filters:
+ *  - `supplierId`: when provided, the BE may scope items to that supplier.
+ *  - `limit`: max items (default 20).
  * @returns Array of `{ id, name }`.
- * @public
+ *
+ * @enterprise
+ * - Defensive: if the backend ignores `supplierId`, we still return the full list.
+ * - Stable DTO: coerces `{ id, name }` from common backend variants.
  */
-export async function getTopItems(): Promise<ItemRef[]> {
+export async function getTopItems(opts?: { supplierId?: string; limit?: number }): Promise<ItemRef[]> {
+  const limit = opts?.limit ?? 20;
   try {
-    const { data } = await http.get<unknown>('/api/inventory', { params: { limit: 20 } });
+    const params: Record<string, string | number> = { limit };
+    if (opts?.supplierId) params.supplierId = opts.supplierId;
+
+    const { data } = await http.get<unknown>('/api/inventory', { params });
     if (!Array.isArray(data)) return [];
     return (data as BackendItemDTO[])
       .map((d) => ({

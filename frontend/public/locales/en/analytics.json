@@ -7,6 +7,11 @@
     "noData": "No data available for the selected filters.",
     "noItems": "No items found."
   },
+  "priceTrend": {
+    "selectSupplier": "Select a supplier to choose an item",
+    "selectSupplierShort": "Select a supplier",
+    "noItemsForSupplier": "No items for this supplier"
+  },
   "item": "Item",
   "filters": {
     "dateRange": "Date range",
@@ -29,6 +34,7 @@
       "supplier": "Supplier",
       "actions": "Actions"
     },
+    "noneForSupplier": "No items below minimum for this supplier",
     "viewItem": "View item",
     "empty": "No low-stock items for the current filters."
   },

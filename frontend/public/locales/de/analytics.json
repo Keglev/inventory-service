@@ -7,6 +7,11 @@
     "noData": "Keine Daten für die ausgewählten Filter.",
     "noItems": "Keine Artikel gefunden."
   },
+  "priceTrend": {
+    "selectSupplier": "Wähle einen Lieferanten, um einen Artikel auszuwählen",
+    "selectSupplierShort": "Lieferant auswählen",
+    "noItemsForSupplier": "Keine Artikel für diesen Lieferanten"
+  },
   "item": "Artikel",
   "filters": {
     "dateRange": "Zeitraum",
@@ -29,6 +34,7 @@
       "supplier": "Lieferant",
       "actions": "Aktionen"
     },
+    "noneForSupplier": "Keine Artikel unter Mindestbestand für diesen Lieferanten",
     "viewItem": "Artikel anzeigen",
     "empty": "Keine Artikel mit niedrigem Bestand für die aktuellen Filter."
   },

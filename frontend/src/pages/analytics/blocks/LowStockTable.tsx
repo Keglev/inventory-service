@@ -148,8 +148,8 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   if (visible.length === 0) {
     return (
       <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-        {t('noData', 'No data')}
-      </Box>
+      {t('analytics.lowStock.noneForSupplier', 'No items below minimum for this supplier')}
+    </Box>
     );
   }
 

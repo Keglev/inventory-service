@@ -144,10 +144,15 @@ export default function Analytics(): JSX.Element {
     queryFn: () => getMonthlyStockMovement(filters),
   });
 
-  // Item list (for price-trend dropdown)
+  // Item list (scoped to supplier when selected)
   const itemsQ = useQuery<ItemRef[]>({
-    queryKey: ['analytics', 'items'],
-    queryFn: getTopItems,
+    queryKey: ['analytics', 'items', filters.supplierId ?? null],
+    queryFn: () => getTopItems({
+      supplierId: filters.supplierId || undefined,
+      limit: 200, // give users a meaningful list per supplier
+    }),
+    enabled: true, // we render hints in the card when supplier not selected
+    staleTime: 60_000,
   });
 
   // Selected item for price trend (keep stable across filter changes)
@@ -306,37 +311,49 @@ export default function Analytics(): JSX.Element {
             >
               <Typography variant="subtitle1">{t('analytics:cards.priceTrend')}</Typography>
 
-              <TextField
-                select
-                size="small"
-                label={t('analytics:item')}
-                value={selectedItemId}
-                onChange={(e) => setSelectedItemId(e.target.value)}
-                sx={{ minWidth: 260 }}
-                disabled={itemsQ.isLoading || itemsQ.isError}
-              >
-                {!itemsQ.data || itemsQ.data.length === 0 ? (
-                  <MenuItem disabled value="">
-                    {t('analytics:cards.noItems')}
-                  </MenuItem>
-                ) : (
-                  itemsQ.data.map((it) => (
-                    <MenuItem key={it.id} value={it.id}>
-                      {it.name}
+              {/* Item selector (scoped to supplier) */}
+              {(!filters.supplierId) ? (
+                <Typography variant="body2" color="text.secondary">
+                  {t('analytics:priceTrend.selectSupplier', 'Select a supplier to choose an item')}
+                </Typography>
+              ) : (
+                <TextField
+                  select
+                  size="small"
+                  label={t('analytics:item')}
+                  value={selectedItemId}
+                  onChange={(e) => setSelectedItemId(e.target.value)}
+                  sx={{ minWidth: 260 }}
+                  disabled={itemsQ.isLoading || itemsQ.isError}
+                >
+                  {!itemsQ.data || itemsQ.data.length === 0 ? (
+                    <MenuItem disabled value="">
+                      {t('analytics:priceTrend.noItemsForSupplier', 'No items for this supplier')}
                     </MenuItem>
-                  ))
-                )}
-              </TextField>
+                  ) : (
+                    itemsQ.data.map((it) => (
+                      <MenuItem key={it.id} value={it.id}>
+                        {it.name}
+                      </MenuItem>
+                    ))
+                  )}
+                </TextField>
+              )}
             </Stack>
 
-            {(!selectedItemId || priceQ.isLoading) ? (
+            {/* Chart area */}
+            {(!filters.supplierId) ? (
+              <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+                {t('analytics:priceTrend.selectSupplierShort', 'Select a supplier')}
+              </Box>
+            ) : (!selectedItemId || itemsQ.isLoading) ? (
               <Skeleton variant="rounded" height={220} />
             ) : priceQ.isError ? (
-              <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+              <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
                 {t('analytics:cards.noData')}
               </Box>
             ) : (priceQ.data?.length ?? 0) === 0 ? (
-              <Box sx={{ height: 260, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
+              <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
                 {t('analytics:cards.noData')}
               </Box>
             ) : (
