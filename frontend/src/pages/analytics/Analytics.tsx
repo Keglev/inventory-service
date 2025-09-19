@@ -52,7 +52,7 @@ import {
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import Filters, { type AnalyticsFilters } from './components/Filters';
-import { readParams, writeParams } from '../../utils/urlState';
+import { readParams  } from '../../utils/urlState';
 import LowStockTable from './blocks/LowStockTable';
 import StockPerSupplier from './blocks/StockPerSupplier';
 
@@ -105,20 +105,16 @@ export default function Analytics(): JSX.Element {
 
   /**
    * Keep the URL in sync with filter state so deep-links/bookmarks work.
-   * - Uses a minimal diff (`writeParams`) to avoid churn.
    * - Avoids loops by comparing with the current search string.
    */
   React.useEffect(() => {
-    const next = writeParams(searchParams.toString(), {
-      from: filters.from,
-      to: filters.to,
-      supplierId: filters.supplierId, // canonical casing
-    });
-    const current = searchParams.toString();
-    const canonicalCurrent = current ? `?${current}` : '';
-    if (next !== canonicalCurrent) {
-      setSearchParams(new URLSearchParams(next));
-    }
+    const next: Record<string, string> = {};
+    if (filters.from) next.from = filters.from;
+    if (filters.to) next.to = filters.to;
+    if (filters.supplierId) next.supplierId = filters.supplierId;
+
+    // This replaces the whole query string with exactly these keys.
+    setSearchParams(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.from, filters.to, filters.supplierId]);
 
