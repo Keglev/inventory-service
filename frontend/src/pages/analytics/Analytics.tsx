@@ -371,23 +371,6 @@ export default function Analytics(): JSX.Element {
             )}
           </CardContent>
         </Card>
-        
-        {/*
-           Filters bar (controlled).
-           - onChange={setFilters} updates `filters` (supplierId/from/to).
-           - Our URL-sync effect mirrors those to the query string.
-           - LowStockTable enables its fetch when supplierId is truthy.
-        */}
-        <Card sx={{ mb: 2 }}>
-          <CardContent>
-            <Filters
-              value={filters}
-              suppliers={suppliersQ.data ?? []}
-              onChange={setFilters}
-              disabled={suppliersQ.isLoading}
-            />
-          </CardContent>
-        </Card>
 
         {/* ------------------------------------------------------------------- */}
         {/* Low stock items (per supplier)                                      */}
