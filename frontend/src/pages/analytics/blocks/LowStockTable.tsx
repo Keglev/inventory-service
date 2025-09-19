@@ -96,6 +96,11 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   // ---------------------------------------------------------------------------
   const enabled = Boolean(supplierId);
 
+  /**
+   * React Query:
+   * - Keyed by endpoint + supplierId + date window so caching is correct.
+   * - `enabled` prevents calls when supplierId is empty.
+   */
   const q = useQuery<LowStockRow[], Error>({
     queryKey: ['analytics', 'lowStock', supplierId, from ?? null, to ?? null],
     queryFn: () => getLowStockItems(supplierId, narrowParams({ from, to })),

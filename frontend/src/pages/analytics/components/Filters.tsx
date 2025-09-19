@@ -84,9 +84,10 @@ export default function Filters(props: FiltersProps): JSX.Element {
   };
 
   /**
-   * Update the supplier. Ensures we store a raw, de-quoted string ID.
-   * Passing an empty value clears `supplierId`.
-   */
+  * Update the supplier.
+  * Stores a raw, de-quoted string ID in `supplierId` (canonical URL key).
+  * Passing an empty value clears the filter.
+  */
   const onSupplier = (v: string) => {
     const raw = (v ?? '').replace(/^"+|"+$/g, '');
     onChange({ ...value, supplierId: raw || undefined });
