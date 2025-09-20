@@ -16,7 +16,7 @@
  * - Price Trend item selector is a supplier-scoped **type-ahead**:
  *     - We fetch items for the selected supplier (`getItemsForSupplier`).
  *     - We debounce a text query and filter client-side to show only matches.
- *     - This avoids giant dropdowns and guarantees items belong to that supplier.
+ *     - Avoids giant dropdowns and guarantees items belong to that supplier.
  */
 
 import * as React from 'react';
@@ -81,9 +81,9 @@ function daysAgoIso(n: number): string {
 
 /**
  * Debounce a string value by `ms` milliseconds.
- * @param value - Current value
- * @param ms - Debounce delay in ms (default 250)
- * @returns Debounced value
+ * @param value Current value.
+ * @param ms Debounce delay in ms (default 250).
+ * @returns Debounced value.
  * @internal
  */
 function useDebounced(value: string, ms = 250): string {
@@ -122,10 +122,7 @@ export default function Analytics(): JSX.Element {
     };
   });
 
-  /**
-   * Keep the URL in sync with filter state so deep-links/bookmarks work.
-   * Replaces the whole query string with the current canonical set.
-   */
+  /** Keep the URL in sync with filter state so deep-links/bookmarks work. */
   React.useEffect(() => {
     const next: Record<string, string> = {};
     if (filters.from) next.from = filters.from;
@@ -174,8 +171,7 @@ export default function Analytics(): JSX.Element {
 
   /**
    * Fetch the **supplier's items only**.
-   * - If BE supports it, `getItemsForSupplier` returns the scoped list.
-   * - We then client-filter by the debounced query to drive the type-ahead.
+   * If BE supports it, `getItemsForSupplier` returns the scoped list.
    */
   const itemsForSupplierQ = useQuery<ItemRef[]>({
     queryKey: ['analytics', 'itemsBySupplier', filters.supplierId ?? null],
@@ -187,9 +183,7 @@ export default function Analytics(): JSX.Element {
 
   /**
    * Client-side filter over the supplier's items using the debounced query.
-   * @enterprise
-   * - Starts-with / contains match keeps it simple; can be swapped to a fuzzy match later.
-   * - We limit to 50 shown options for snappy UX.
+   * @enterprise Simple `includes` search; can be swapped for fuzzy later.
    */
   const itemOptions: ItemRef[] = React.useMemo(() => {
     const base = itemsForSupplierQ.data ?? [];
@@ -204,11 +198,7 @@ export default function Analytics(): JSX.Element {
     setSelectedItemId('');
   }, [filters.supplierId]);
 
-  /**
-   * Auto-pick the first available option when:
-   * - there's no current selection, and
-   * - the (filtered) options list becomes non-empty.
-   */
+  /** Auto-pick first available option when list becomes non-empty and none selected. */
   React.useEffect(() => {
     if (!selectedItemId && itemOptions.length > 0) {
       setSelectedItemId(itemOptions[0].id);
@@ -219,11 +209,11 @@ export default function Analytics(): JSX.Element {
   const priceQ = useQuery<PricePoint[]>({
     queryKey: ['analytics', 'priceTrend', selectedItemId, filters.from, filters.to],
     queryFn: () => getPriceTrend(selectedItemId, filters),
-    enabled: !!selectedItemId, // chart only fetches once an item is chosen/auto-picked
+    enabled: !!selectedItemId,
   });
 
   // ---------------------------------------------------------------------------
-  // Derived data (sorted arrays so Recharts draw predictably)
+  // Derived data (sorted so Recharts draw predictably)
   // ---------------------------------------------------------------------------
 
   const stockValueData = React.useMemo(
@@ -260,10 +250,7 @@ export default function Analytics(): JSX.Element {
         />
       </Box>
 
-      {/* Responsive cards grid:
-          - 1 column on phones
-          - 2 columns on small/medium screens
-          - 3 columns on large screens and up */}
+      {/* Responsive cards grid */}
       <Box
         sx={{
           display: 'grid',
@@ -272,9 +259,7 @@ export default function Analytics(): JSX.Element {
           alignItems: 'stretch',
         }}
       >
-        {/* ------------------------------------------------------------------- */}
-        {/* Stock value over time                                               */}
-        {/* ------------------------------------------------------------------- */}
+        {/* Stock value over time */}
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -316,9 +301,7 @@ export default function Analytics(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* ------------------------------------------------------------------- */}
-        {/* Monthly stock movement                                              */}
-        {/* ------------------------------------------------------------------- */}
+        {/* Monthly stock movement */}
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -345,9 +328,7 @@ export default function Analytics(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* ------------------------------------------------------------------- */}
-        {/* Price trend for selected item                                       */}
-        {/* ------------------------------------------------------------------- */}
+        {/* Price trend for selected item */}
         <Card>
           <CardContent>
             <Stack
@@ -375,8 +356,8 @@ export default function Analytics(): JSX.Element {
                   }
                   inputValue={itemQuery}
                   onInputChange={(_e: React.SyntheticEvent, val: string) => setItemQuery(val)}
-                  // server/our memo already filtered
-                  filterOptions={(x: ItemRef[]) => x}
+                  // Already filtered via memo; disable additional client filtering.
+                  filterOptions={(x) => x}
                   renderInput={(params: AutocompleteRenderInputParams) => (
                     <TextField
                       {...params}
@@ -438,16 +419,13 @@ export default function Analytics(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* ------------------------------------------------------------------- */}
-        {/* Low stock items (per supplier)                                      */}
-        {/* ------------------------------------------------------------------- */}
+        {/* Low stock items (per supplier) */}
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               {t('analytics.cards.lowStock', 'Low stock items')}
             </Typography>
 
-            {/* LowStockTable fetch is gated by a truthy supplierId */}
             <LowStockTable
               supplierId={filters.supplierId ?? ''}
               from={filters.from}
@@ -457,9 +435,7 @@ export default function Analytics(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* ------------------------------------------------------------------- */}
-        {/* Stock per supplier (snapshot)                                       */}
-        {/* ------------------------------------------------------------------- */}
+        {/* Stock per supplier (snapshot) */}
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>

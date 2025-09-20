@@ -10,13 +10,13 @@
  *
  * @remarks
  * Covered endpoints
- * - `GET /api/analytics/stock-value`              → { date, totalValue }[]
- * - `GET /api/analytics/monthly-stock-movement`   → { month, stockIn, stockOut }[]
- * - `GET /api/inventory`                          → top items (id + name) for dropdowns
- * - `GET /api/analytics/price-trend`              → { date, price }[]
- * - `GET /api/suppliers`                          → suppliers (id + name)
- * - `GET /api/analytics/low-stock-items`          → { itemName, quantity, minimumQuantity }[]
- * - `GET /api/analytics/stock-per-supplier`       → { supplierName, totalQuantity }[]
+ * - GET /api/analytics/stock-value              → { date, totalValue }[]
+ * - GET /api/analytics/monthly-stock-movement   → { month, stockIn, stockOut }[]
+ * - GET /api/inventory                          → items (top list; also used for fallbacks)
+ * - GET /api/analytics/price-trend              → { date, price }[]
+ * - GET /api/suppliers                          → suppliers (id + name)
+ * - GET /api/analytics/low-stock-items          → { itemName, quantity, minimumQuantity }[]
+ * - GET /api/analytics/stock-per-supplier       → { supplierName, totalQuantity }[]
  */
 
 import http from './httpClient';
@@ -37,10 +37,7 @@ export type AnalyticsParams = {
   supplierId?: string;
 };
 
-/**
- * Canonical chart/table DTOs exposed to the UI.
- * @public
- */
+/** Canonical chart/table DTOs exposed to the UI. @public */
 export type StockValuePoint = { date: string; totalValue: number };
 export type MonthlyMovement = { month: string; stockIn: number; stockOut: number };
 export type PricePoint = { date: string; price: number };
@@ -63,14 +60,11 @@ export type FiltersState = {
 // Backend DTO Shims (narrow, tolerant)
 // ============================================================================
 
-/**
- * Minimal shapes the backend might return. Marked `unknown` for numeric fields
- * so we can coerce safely without `any`.
- */
+/** Minimal shapes the backend might return. */
 type BackendStockValueDTO = { date?: string; totalValue?: unknown };
 type BackendMonthlyMovementDTO = { month?: string; stockIn?: unknown; stockOut?: unknown };
 type BackendPriceTrendDTO = { timestamp?: string; price?: unknown };
-type BackendItemDTO = { id?: string; itemId?: string; name?: string; itemName?: string };
+type BackendItemDTO = { id?: string | number; itemId?: string | number; name?: string; itemName?: string };
 type BackendSupplierDTO = { id?: string | number; name?: string };
 type BackendSpsDTO = { supplierId?: string | number; supplierName?: string; totalQuantity?: unknown };
 
@@ -105,17 +99,14 @@ function asNumber(v: unknown): number {
 
 /** @internal */
 type Rec = Record<string, unknown>;
-
 /** @internal */
 function isRecord(x: unknown): x is Rec {
   return !!x && typeof x === 'object' && !Array.isArray(x);
 }
-
 /** @internal */
 function isArrayOfRecords(x: unknown): x is Rec[] {
   return Array.isArray(x) && x.every(isRecord);
 }
-
 /** @internal */
 function pickString(r: Rec, keys: string[]): string {
   for (const k of keys) {
@@ -125,7 +116,6 @@ function pickString(r: Rec, keys: string[]): string {
   }
   return '';
 }
-
 /** @internal */
 function pickNumber(r: Rec, keys: string[]): number {
   for (const k of keys) {
@@ -135,7 +125,7 @@ function pickNumber(r: Rec, keys: string[]): number {
 }
 
 /**
- * Normalizes FE filter parameters to BE query params.
+ * Normalize FE filter parameters to BE query params.
  * BE expects `start` / `end` (LocalDate), optional `supplierId`.
  *
  * If the caller omits dates, default to the last 180 days.
@@ -156,17 +146,14 @@ function paramClean(p?: AnalyticsParams): Record<string, string> {
 // ============================================================================
 
 /**
- * Fetches total inventory value over time.
- *
- * @param p - Optional date/supplier filters.
+ * Fetch total inventory value over time.
+ * @param p Optional date/supplier filters.
  * @returns Array of `{ date, totalValue }`, sorted by date ascending.
  * @public
  */
 export async function getStockValueOverTime(p?: AnalyticsParams): Promise<StockValuePoint[]> {
   try {
-    const { data } = await http.get<unknown>('/api/analytics/stock-value', {
-      params: paramClean(p),
-    });
+    const { data } = await http.get<unknown>('/api/analytics/stock-value', { params: paramClean(p) });
     if (!Array.isArray(data)) return [];
     const rows = (data as BackendStockValueDTO[]).map((d) => ({
       date: String(d.date ?? ''),
@@ -180,9 +167,8 @@ export async function getStockValueOverTime(p?: AnalyticsParams): Promise<StockV
 }
 
 /**
- * Fetches monthly stock movement (in/out).
- *
- * @param p - Optional date/supplier filters.
+ * Fetch monthly stock movement (in/out).
+ * @param p Optional date/supplier filters.
  * @returns Array of `{ month, stockIn, stockOut }`.
  * @public
  */
@@ -203,16 +189,15 @@ export async function getMonthlyStockMovement(p?: AnalyticsParams): Promise<Mont
 }
 
 /**
- * Fetches a small list of items for dropdowns.
+ * Fetch a small list of items (generic dropdowns).
  *
- * @param opts Optional filters:
- *  - `supplierId`: when provided, the BE may scope items to that supplier.
+ * @param opts Optional filters.
+ *  - `supplierId`: when provided, BE may scope items to that supplier.
  *  - `limit`: max items (default 20).
  * @returns Array of `{ id, name }`.
  *
  * @enterprise
- * - Defensive: if the backend ignores `supplierId`, we still return the full list.
- * - Stable DTO: coerces `{ id, name }` from common backend variants.
+ * Defensive: if the backend ignores `supplierId`, we still return the list; the UI must scope.
  */
 export async function getTopItems(opts?: { supplierId?: string; limit?: number }): Promise<ItemRef[]> {
   const limit = opts?.limit ?? 20;
@@ -223,10 +208,7 @@ export async function getTopItems(opts?: { supplierId?: string; limit?: number }
     const { data } = await http.get<unknown>('/api/inventory', { params });
     if (!Array.isArray(data)) return [];
     return (data as BackendItemDTO[])
-      .map((d) => ({
-        id: String(d.id ?? d.itemId ?? ''),
-        name: String(d.name ?? d.itemName ?? ''),
-      }))
+      .map((d) => ({ id: String(d.id ?? d.itemId ?? ''), name: String(d.name ?? d.itemName ?? '') }))
       .filter((it) => it.id && it.name);
   } catch {
     return [];
@@ -234,34 +216,26 @@ export async function getTopItems(opts?: { supplierId?: string; limit?: number }
 }
 
 /**
- * Fetch items that belong to a specific supplier.
+ * Fetch items that belong to a specific supplier (strict scope).
  *
  * Tries, in order:
  *  1) GET /api/suppliers/{supplierId}/items?limit=N
  *  2) GET /api/inventory?supplierId=...&limit=N
  *
- * If the backend doesn't support either shape, returns [].
- * Returned DTO is stabilized to `{ id, name }[]`.
+ * If unsupported, returns [].
+ * @public
  */
-export async function getItemsForSupplier(
-  supplierId: string,
-  limit: number = 500
-): Promise<ItemRef[]> {
+export async function getItemsForSupplier(supplierId: string, limit: number = 500): Promise<ItemRef[]> {
   if (!supplierId) return [];
 
-  // Helper to normalize arrays defensively
-  // from either endpoint.
-  const normalize = (data: unknown): ItemRef[] => {
-    if (!Array.isArray(data)) return [];
-    return (data as BackendItemDTO[])
-      .map((d) => ({
-        id: String(d.id ?? d.itemId ?? ''),
-        name: String(d.name ?? d.itemName ?? ''),
-      }))
-      .filter((it) => it.id && it.name);
-  };
+  const normalize = (data: unknown): ItemRef[] =>
+    Array.isArray(data)
+      ? (data as BackendItemDTO[])
+          .map((d) => ({ id: String(d.id ?? d.itemId ?? ''), name: String(d.name ?? d.itemName ?? '') }))
+          .filter((it) => it.id && it.name)
+      : [];
 
-  // 1) Preferred: nested supplier endpoint
+  // Preferred nested endpoint
   try {
     const { data } = await http.get<unknown>(`/api/suppliers/${encodeURIComponent(supplierId)}/items`, {
       params: { limit },
@@ -269,10 +243,10 @@ export async function getItemsForSupplier(
     const rows = normalize(data);
     if (rows.length) return rows;
   } catch {
-    /* fall through */
+    /* continue */
   }
 
-  // 2) Fallback: inventory endpoint that accepts supplierId as a filter
+  // Fallback flat endpoint
   try {
     const { data } = await http.get<unknown>('/api/inventory', {
       params: { supplierId, limit },
@@ -283,12 +257,56 @@ export async function getItemsForSupplier(
   }
 }
 
+/**
+ * Search items belonging to a supplier (type-ahead).
+ *
+ * Tries:
+ *  1) /api/suppliers/{supplierId}/items?search=<q>&limit=N
+ *  2) /api/inventory?supplierId=<id>&search=<q>&limit=N
+ *
+ * Returns [] if unsupported.
+ * @public
+ */
+export async function searchItemsForSupplier(
+  supplierId: string,
+  q: string,
+  limit: number = 50
+): Promise<ItemRef[]> {
+  if (!supplierId || !q) return [];
+
+  const normalize = (data: unknown): ItemRef[] =>
+    Array.isArray(data)
+      ? (data as BackendItemDTO[])
+          .map((d) => ({ id: String(d.id ?? d.itemId ?? ''), name: String(d.name ?? d.itemName ?? '') }))
+          .filter((it) => it.id && it.name)
+      : [];
+
+  // Preferred nested endpoint with search
+  try {
+    const { data } = await http.get<unknown>(`/api/suppliers/${encodeURIComponent(supplierId)}/items`, {
+      params: { search: q, limit },
+    });
+    const rows = normalize(data);
+    if (rows.length) return rows;
+  } catch {
+    /* continue */
+  }
+
+  // Fallback flat endpoint with search
+  try {
+    const { data } = await http.get<unknown>('/api/inventory', {
+      params: { supplierId, search: q, limit },
+    });
+    return normalize(data);
+  } catch {
+    return [];
+  }
+}
 
 /**
- * Fetches an item's price trend in a time window.
- *
- * @param itemId - Required item identifier (string).
- * @param p - Optional date filters.
+ * Fetch an item's price trend in a time window.
+ * @param itemId Required item identifier.
+ * @param p Optional date/supplier filters.
  * @returns Array of `{ date, price }`, sorted by date ascending.
  * @public
  */
@@ -311,8 +329,7 @@ export async function getPriceTrend(itemId: string, p?: AnalyticsParams): Promis
 }
 
 /**
- * Fetches a lightweight supplier list.
- *
+ * Fetch a lightweight supplier list.
  * @returns Array of `{ id, name }`.
  * @public
  */
@@ -321,10 +338,7 @@ export async function getSuppliersLite(): Promise<SupplierRef[]> {
     const { data } = await http.get<unknown>('/api/suppliers', { params: { limit: 200 } });
     if (!Array.isArray(data)) return [];
     return (data as BackendSupplierDTO[])
-      .map((s) => ({
-        id: String(s.id ?? ''),
-        name: String(s.name ?? ''),
-      }))
+      .map((s) => ({ id: String(s.id ?? ''), name: String(s.name ?? '') }))
       .filter((s) => s.id && s.name);
   } catch {
     return [];
@@ -332,80 +346,19 @@ export async function getSuppliersLite(): Promise<SupplierRef[]> {
 }
 
 /**
- * Search items belonging to a supplier (type-ahead).
- *
- * Tries, in order:
- *  1) GET /api/suppliers/{supplierId}/items?search=<q>&limit=N
- *  2) GET /api/inventory?supplierId=<id>&search=<q>&limit=N
- *
- * If neither is supported, returns [].
- * @enterprise Defensive: normalizes to `{ id, name }[]`.
- */
-export async function searchItemsForSupplier(
-  supplierId: string,
-  q: string,
-  limit: number = 50
-): Promise<ItemRef[]> {
-  if (!supplierId || !q) return [];
-
-  const normalize = (data: unknown): ItemRef[] =>
-    Array.isArray(data)
-      ? (data as BackendItemDTO[])
-          .map(d => ({
-            id: String(d.id ?? d.itemId ?? ''),
-            name: String(d.name ?? d.itemName ?? ''),
-          }))
-          .filter(it => it.id && it.name)
-      : [];
-
-  // 1) Preferred nested endpoint
-  try {
-    const { data } = await http.get<unknown>(`/api/suppliers/${encodeURIComponent(supplierId)}/items`, {
-      params: { search: q, limit },
-    });
-    const rows = normalize(data);
-    if (rows.length) return rows;
-  } catch { /* ignore */ }
-
-  // 2) Fallback flat endpoint
-  try {
-    const { data } = await http.get<unknown>('/api/inventory', {
-      params: { supplierId, search: q, limit },
-    });
-    return normalize(data);
-  } catch {
-    return [];
-  }
-}
-
-
-/**
- * Fetches low-stock rows for a given supplier, optionally bounded by dates.
+ * Fetch low-stock rows for a given supplier, optionally bounded by dates.
  *
  * @remarks
  * - Tolerates minor field variations (e.g., `name` vs `itemName`, `minQty` vs `minimumQuantity`).
  * - Returns rows **sorted by deficit (minimum - quantity) descending**.
  * - Returns `[]` if `supplierId` is empty or on any server/network error.
  *
- * @param supplierId - Required supplier identifier.
- * @param p - Optional date filters (aligned with other analytics calls).
- * @returns Array of `{ itemName, quantity, minimumQuantity }`.
- * Fetches low-stock rows for a given supplier, optionally bounded by dates.
- *
- * @remarks
- * - Tolerates minor field variations (e.g., `name` vs `itemName`, `minQty` vs `minimumQuantity`).
- * - Returns rows **sorted by deficit (minimum - quantity) descending**.
- * - Returns `[]` if `supplierId` is empty or on any server/network error.
- *
- * @param supplierId - Required supplier identifier.
- * @param p - Optional date filters (aligned with other analytics calls).
+ * @param supplierId Required supplier identifier.
+ * @param p Optional date filters (aligned with other analytics calls).
  * @returns Array of `{ itemName, quantity, minimumQuantity }`.
  * @public
  */
-export async function getLowStockItems(
-  supplierId: string,
-  p?: AnalyticsParams
-): Promise<LowStockRow[]> {
+export async function getLowStockItems(supplierId: string, p?: AnalyticsParams): Promise<LowStockRow[]> {
   if (!supplierId) return [];
   try {
     const { data } = await http.get<unknown>('/api/analytics/low-stock-items', {
@@ -414,11 +367,8 @@ export async function getLowStockItems(
 
     // Accept either a direct array or an envelope with `.items` array.
     let rawList: Rec[] = [];
-    if (isArrayOfRecords(data)) {
-      rawList = data;
-    } else if (isRecord(data) && isArrayOfRecords(data.items)) {
-      rawList = data.items;
-    }
+    if (isArrayOfRecords(data)) rawList = data;
+    else if (isRecord(data) && isArrayOfRecords((data as Rec).items as unknown)) rawList = (data as Rec).items as Rec[];
 
     const rows: LowStockRow[] = rawList
       .map((rec) => {
@@ -438,9 +388,7 @@ export async function getLowStockItems(
 }
 
 /**
- * Fetches a current snapshot of totals per supplier.
- * (No date filters in the current API variant.)
- *
+ * Fetch a current snapshot of totals per supplier. (No date filters.)
  * @returns Array of `{ supplierName, totalQuantity }`.
  * @public
  */
@@ -449,10 +397,7 @@ export async function getStockPerSupplier(): Promise<StockPerSupplierPoint[]> {
     const { data } = await http.get<unknown>('/api/analytics/stock-per-supplier');
     if (!Array.isArray(data)) return [];
     return (data as BackendSpsDTO[])
-      .map((d) => ({
-        supplierName: String(d.supplierName ?? ''),
-        totalQuantity: asNumber(d.totalQuantity),
-      }))
+      .map((d) => ({ supplierName: String(d.supplierName ?? ''), totalQuantity: asNumber(d.totalQuantity) }))
       .filter((r) => r.supplierName);
   } catch {
     return [];

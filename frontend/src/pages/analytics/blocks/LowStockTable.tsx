@@ -1,6 +1,6 @@
 /**
  * @file LowStockTable.tsx
- * @module Analytics/Blocks/LowStockTable
+ * @module pages/analytics/blocks/LowStockTable
  * @category Analytics
  *
  * @summary
@@ -13,7 +13,7 @@
  * - Query is disabled when no supplierId is provided (via React Query `enabled`).
  * - DTOs are normalized in the API layer; this component assumes:
  *   `{ itemName: string, quantity: number, minimumQuantity: number }`.
- * - No dependency on MUI X; uses plain MUI Table for portability.
+ * - Uses plain MUI Table for portability.
  */
 
 import type { JSX } from 'react';
@@ -33,14 +33,10 @@ import {
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-
-// NOTE: path is from pages/analytics/blocks -> src/api/analytics.ts
 import { getLowStockItems, type LowStockRow, type AnalyticsParams } from '../../../api/analytics';
-
 
 /**
  * Props accepted by {@link LowStockTable}.
- *
  * @public
  */
 export type LowStockTableProps = {
@@ -54,19 +50,13 @@ export type LowStockTableProps = {
   limit?: number;
 };
 
-/**
- * Formats a number for table cells. Falls back to "0" for invalid values.
- * @internal
- */
+/** Format a number for table cells. Falls back to "0" for invalid values. @internal */
 function fmt(n: number | undefined | null): string {
   const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
   return String(v);
 }
 
-/**
- * Narrows down filter params to only the allowed keys for low-stock endpoint.
- * @internal
- */
+/** Narrow filter params to only allowed keys for the low-stock endpoint. @internal */
 function narrowParams(p: Pick<AnalyticsParams, 'from' | 'to'>): AnalyticsParams {
   const out: AnalyticsParams = {};
   if (p.from) out.from = p.from;
@@ -89,12 +79,10 @@ function narrowParams(p: Pick<AnalyticsParams, 'from' | 'to'>): AnalyticsParams 
  */
 export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   const { supplierId, from, to, limit = 12 } = props;
-  const { t } = useTranslation(['analytics','common']);
+  const { t } = useTranslation(['analytics', 'common']);
   const muiTheme = useMuiTheme();
 
-  // ---------------------------------------------------------------------------
   // Data fetching (Hooks MUST be unconditioned; gate with `enabled`)
-  // ---------------------------------------------------------------------------
   const enabled = Boolean(supplierId);
 
   /**
@@ -105,19 +93,16 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   const q = useQuery<LowStockRow[], Error>({
     queryKey: ['analytics', 'lowStock', supplierId, from ?? null, to ?? null],
     queryFn: () => getLowStockItems(supplierId, narrowParams({ from, to })),
-    enabled,             // prevents fetch when supplier not selected
-    staleTime: 60_000,   // 60s: avoids refetching on minor re-renders
+    enabled,
+    staleTime: 60_000,
   });
 
-  // ---------------------------------------------------------------------------
-  // Conditional rendering (safe; Hooks above are unconditional)
-  // ---------------------------------------------------------------------------
+  // Conditional UI states
 
-  // If no supplier chosen yet, show a friendly hint panel.
   if (!enabled) {
     return (
       <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-        {t('analytics.selectSupplier', 'Select a supplier to see low stock')}
+        {t('analytics:selectSupplier', 'Select a supplier to see low stock')}
       </Box>
     );
   }
@@ -129,7 +114,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   if (q.isError) {
     return (
       <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-        {t('error', 'Error')}
+        {t('common:error', 'Error')}
       </Box>
     );
   }
@@ -149,8 +134,8 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   if (visible.length === 0) {
     return (
       <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-      {t('analytics.lowStock.noneForSupplier', 'No items below minimum for this supplier')}
-    </Box>
+        {t('analytics:lowStock.noneForSupplier', 'No items below minimum for this supplier')}
+      </Box>
     );
   }
 
@@ -159,16 +144,16 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
       <Table size="small" stickyHeader>
         <TableHead>
           <TableRow>
-            <TableCell>{t('analytics.lowStock.columns.item', 'Item')}</TableCell>
-            <TableCell align="right">{t('analytics.lowStock.columns.quantity', 'Quantity')}</TableCell>
-            <TableCell align="right">{t('analytics.lowStock.columns.minimum', 'Minimum')}</TableCell>
-            <TableCell align="right">{t('analytics.lowStock.columns.deficit', 'Deficit')}</TableCell>
-            <TableCell align="left">{t('analytics.lowStock.columns.status', 'Status')}</TableCell>
+            <TableCell>{t('analytics:lowStock.columns.item', 'Item')}</TableCell>
+            <TableCell align="right">{t('analytics:lowStock.columns.quantity', 'Quantity')}</TableCell>
+            <TableCell align="right">{t('analytics:lowStock.columns.minimum', 'Minimum')}</TableCell>
+            <TableCell align="right">{t('analytics:lowStock.columns.deficit', 'Deficit')}</TableCell>
+            <TableCell align="left">{t('analytics:lowStock.columns.status', 'Status')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {visible.map((r) => {
-            const critical = r.deficit >= 5;              // tweak threshold policy as needed
+            const critical = r.deficit >= 5; // tweak policy if needed
             const warning = r.deficit > 0 && r.deficit < 5;
 
             return (
@@ -193,11 +178,11 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
                 </TableCell>
                 <TableCell align="left">
                   {critical ? (
-                    <Chip size="small" color="error" label={t('analytics.lowStock.status.critical', 'Critical')} />
+                    <Chip size="small" color="error" label={t('analytics:lowStock.status.critical', 'Critical')} />
                   ) : warning ? (
-                    <Chip size="small" color="warning" label={t('analytics.lowStock.status.warning', 'Warning')} />
+                    <Chip size="small" color="warning" label={t('analytics:lowStock.status.warning', 'Warning')} />
                   ) : (
-                    <Chip size="small" color="success" label={t('analytics.lowStock.status.ok', 'OK')} />
+                    <Chip size="small" color="success" label={t('analytics:lowStock.status.ok', 'OK')} />
                   )}
                 </TableCell>
               </TableRow>
@@ -208,7 +193,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
       {limit > 0 && rows.length > limit && (
         <Box sx={{ p: 1.5, color: 'text.secondary' }}>
           <Typography variant="caption">
-            {t('analytics.lowStock.shownNOfM', 'Showing {{n}} of {{m}} items', {
+            {t('analytics:lowStock.shownNOfM', 'Showing {{n}} of {{m}} items', {
               n: visible.length,
               m: rows.length,
             })}
