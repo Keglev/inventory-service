@@ -4,6 +4,7 @@
     "stockValue": "Bestandswert im Zeitverlauf",
     "monthlyMovement": "Monatliche Bestandsbewegung",
     "priceTrend": "Preisverlauf",
+    "lowStock": "Artikel mit niedrigem Bestand",
     "noData": "Keine Daten für die ausgewählten Filter.",
     "noItems": "Keine Artikel gefunden."
   },
@@ -25,16 +26,23 @@
     "clear": "Filter zurücksetzen",
     "apply": "Übernehmen"
   },
+  "selectSupplier": "Wähle einen Lieferanten, um niedrige Bestände zu sehen",
   "lowStock": {
     "title": "Artikel mit niedrigem Bestand",
     "columns": {
       "item": "Artikel",
       "quantity": "Menge",
-      "minQty": "Minimum",
-      "supplier": "Lieferant",
-      "actions": "Aktionen"
+      "minimum": "Mindestbestand",
+      "deficit": "Defizit",
+      "status": "Status"
+    },
+    "status": {
+      "critical": "Kritisch",
+      "warning": "Warnung",
+      "ok": "OK"
     },
     "noneForSupplier": "Keine Artikel unter Mindestbestand für diesen Lieferanten",
+    "shownNOfM": "Zeige {{n}} von {{m}} Artikeln",
     "viewItem": "Artikel anzeigen",
     "empty": "Keine Artikel mit niedrigem Bestand für die aktuellen Filter."
   },

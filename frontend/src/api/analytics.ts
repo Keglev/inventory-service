@@ -234,6 +234,57 @@ export async function getTopItems(opts?: { supplierId?: string; limit?: number }
 }
 
 /**
+ * Fetch items that belong to a specific supplier.
+ *
+ * Tries, in order:
+ *  1) GET /api/suppliers/{supplierId}/items?limit=N
+ *  2) GET /api/inventory?supplierId=...&limit=N
+ *
+ * If the backend doesn't support either shape, returns [].
+ * Returned DTO is stabilized to `{ id, name }[]`.
+ */
+export async function getItemsForSupplier(
+  supplierId: string,
+  limit: number = 500
+): Promise<ItemRef[]> {
+  if (!supplierId) return [];
+
+  // Helper to normalize arrays defensively
+  // from either endpoint.
+  const normalize = (data: unknown): ItemRef[] => {
+    if (!Array.isArray(data)) return [];
+    return (data as BackendItemDTO[])
+      .map((d) => ({
+        id: String(d.id ?? d.itemId ?? ''),
+        name: String(d.name ?? d.itemName ?? ''),
+      }))
+      .filter((it) => it.id && it.name);
+  };
+
+  // 1) Preferred: nested supplier endpoint
+  try {
+    const { data } = await http.get<unknown>(`/api/suppliers/${encodeURIComponent(supplierId)}/items`, {
+      params: { limit },
+    });
+    const rows = normalize(data);
+    if (rows.length) return rows;
+  } catch {
+    /* fall through */
+  }
+
+  // 2) Fallback: inventory endpoint that accepts supplierId as a filter
+  try {
+    const { data } = await http.get<unknown>('/api/inventory', {
+      params: { supplierId, limit },
+    });
+    return normalize(data);
+  } catch {
+    return [];
+  }
+}
+
+
+/**
  * Fetches an item's price trend in a time window.
  *
  * @param itemId - Required item identifier (string).

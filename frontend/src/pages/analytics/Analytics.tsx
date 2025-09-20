@@ -31,12 +31,12 @@ import { useQuery } from '@tanstack/react-query';
 import {
   getStockValueOverTime,
   getMonthlyStockMovement,
-  getTopItems,
   getPriceTrend,
   getSuppliersLite,
   type PricePoint,
   type ItemRef,
   type SupplierRef,
+  getItemsForSupplier,
 } from '../../api/analytics';
 import {
   LineChart,
@@ -146,12 +146,12 @@ export default function Analytics(): JSX.Element {
 
   // Item list (scoped to supplier when selected)
   const itemsQ = useQuery<ItemRef[]>({
-    queryKey: ['analytics', 'items', filters.supplierId ?? null],
-    queryFn: () => getTopItems({
-      supplierId: filters.supplierId || undefined,
-      limit: 200, // give users a meaningful list per supplier
-    }),
-    enabled: true, // we render hints in the card when supplier not selected
+    queryKey: ['analytics', 'itemsBySupplier', filters.supplierId ?? null],
+    queryFn: () => 
+      filters.supplierId
+        ? getItemsForSupplier(filters.supplierId, 500)
+        : Promise.resolve([]),
+    enabled: !!filters.supplierId, // don’t fetch until a supplier is chosen
     staleTime: 60_000,
   });
 
@@ -310,9 +310,9 @@ export default function Analytics(): JSX.Element {
               sx={{ mb: 1 }}
             >
               <Typography variant="subtitle1">{t('analytics:cards.priceTrend')}</Typography>
-
+              
               {/* Item selector (scoped to supplier) */}
-              {(!filters.supplierId) ? (
+              {!filters.supplierId ? (
                 <Typography variant="body2" color="text.secondary">
                   {t('analytics:priceTrend.selectSupplier', 'Select a supplier to choose an item')}
                 </Typography>
@@ -326,7 +326,11 @@ export default function Analytics(): JSX.Element {
                   sx={{ minWidth: 260 }}
                   disabled={itemsQ.isLoading || itemsQ.isError}
                 >
-                  {!itemsQ.data || itemsQ.data.length === 0 ? (
+                  {itemsQ.isLoading ? (
+                    <MenuItem disabled value="">
+                      {t('common:loading', 'Loading...')}
+                    </MenuItem>
+                  ) : !itemsQ.data || itemsQ.data.length === 0 ? (
                     <MenuItem disabled value="">
                       {t('analytics:priceTrend.noItemsForSupplier', 'No items for this supplier')}
                     </MenuItem>
@@ -342,11 +346,11 @@ export default function Analytics(): JSX.Element {
             </Stack>
 
             {/* Chart area */}
-            {(!filters.supplierId) ? (
+            {!filters.supplierId ? (
               <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
                 {t('analytics:priceTrend.selectSupplierShort', 'Select a supplier')}
               </Box>
-            ) : (!selectedItemId || itemsQ.isLoading) ? (
+            ) : !selectedItemId || priceQ.isLoading ? (
               <Skeleton variant="rounded" height={220} />
             ) : priceQ.isError ? (
               <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
@@ -368,22 +372,22 @@ export default function Analytics(): JSX.Element {
                     <XAxis dataKey="date" />
                     <YAxis domain={['auto', 'auto']} />
                     <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="price"
-                      stroke={muiTheme.palette.primary.main}
-                      strokeWidth={2}
-                      dot={{ r: 2 }}
-                      activeDot={{ r: 4 }}
-                      connectNulls
-                      isAnimationActive={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Box>
-            )}
-          </CardContent>
-        </Card>
+                  <Line
+                    type="monotone"
+                    dataKey="price"
+                    stroke={muiTheme.palette.primary.main}
+                    strokeWidth={2}
+                    dot={{ r: 2 }}
+                    activeDot={{ r: 4 }}
+                    connectNulls
+                    isAnimationActive={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
 
         {/* ------------------------------------------------------------------- */}
         {/* Low stock items (per supplier)                                      */}

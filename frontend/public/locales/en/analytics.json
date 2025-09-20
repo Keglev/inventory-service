@@ -4,6 +4,7 @@
     "stockValue": "Stock Value Over Time",
     "monthlyMovement": "Monthly Stock Movement",
     "priceTrend": "Price Trend",
+    "lowStock": "Low-stock items",
     "noData": "No data available for the selected filters.",
     "noItems": "No items found."
   },
@@ -25,16 +26,23 @@
     "clear": "Clear filters",
     "apply": "Apply"
   },
+  "selectSupplier": "Select a supplier to see low stock",
   "lowStock": {
     "title": "Low-stock items",
     "columns": {
       "item": "Item",
       "quantity": "Quantity",
-      "minQty": "Minimum",
-      "supplier": "Supplier",
-      "actions": "Actions"
+      "minimum": "Minimum",
+      "deficit": "Deficit",
+      "status": "Status"
+    },
+    "status": {
+      "critical": "Critical",
+      "warning": "Warning",
+      "ok": "OK"
     },
     "noneForSupplier": "No items below minimum for this supplier",
+    "shownNOfM": "Showing {{n}} of {{m}} items",
     "viewItem": "View item",
     "empty": "No low-stock items for the current filters."
   },
