@@ -332,6 +332,64 @@ export async function getSuppliersLite(): Promise<SupplierRef[]> {
 }
 
 /**
+ * Search items belonging to a supplier (type-ahead).
+ *
+ * Tries, in order:
+ *  1) GET /api/suppliers/{supplierId}/items?search=<q>&limit=N
+ *  2) GET /api/inventory?supplierId=<id>&search=<q>&limit=N
+ *
+ * If neither is supported, returns [].
+ * @enterprise Defensive: normalizes to `{ id, name }[]`.
+ */
+export async function searchItemsForSupplier(
+  supplierId: string,
+  q: string,
+  limit: number = 50
+): Promise<ItemRef[]> {
+  if (!supplierId || !q) return [];
+
+  const normalize = (data: unknown): ItemRef[] =>
+    Array.isArray(data)
+      ? (data as BackendItemDTO[])
+          .map(d => ({
+            id: String(d.id ?? d.itemId ?? ''),
+            name: String(d.name ?? d.itemName ?? ''),
+          }))
+          .filter(it => it.id && it.name)
+      : [];
+
+  // 1) Preferred nested endpoint
+  try {
+    const { data } = await http.get<unknown>(`/api/suppliers/${encodeURIComponent(supplierId)}/items`, {
+      params: { search: q, limit },
+    });
+    const rows = normalize(data);
+    if (rows.length) return rows;
+  } catch { /* ignore */ }
+
+  // 2) Fallback flat endpoint
+  try {
+    const { data } = await http.get<unknown>('/api/inventory', {
+      params: { supplierId, search: q, limit },
+    });
+    return normalize(data);
+  } catch {
+    return [];
+  }
+}
+
+
+/**
+ * Fetches low-stock rows for a given supplier, optionally bounded by dates.
+ *
+ * @remarks
+ * - Tolerates minor field variations (e.g., `name` vs `itemName`, `minQty` vs `minimumQuantity`).
+ * - Returns rows **sorted by deficit (minimum - quantity) descending**.
+ * - Returns `[]` if `supplierId` is empty or on any server/network error.
+ *
+ * @param supplierId - Required supplier identifier.
+ * @param p - Optional date filters (aligned with other analytics calls).
+ * @returns Array of `{ itemName, quantity, minimumQuantity }`.
  * Fetches low-stock rows for a given supplier, optionally bounded by dates.
  *
  * @remarks

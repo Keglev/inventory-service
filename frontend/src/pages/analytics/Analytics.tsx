@@ -1,15 +1,22 @@
 /**
  * @file Analytics.tsx
- * @description
- * Analytics landing page with global filters + three charts:
+ * @module pages/analytics/Analytics
+ *
+ * @summary
+ * Analytics landing page with:
  *  1) Stock value over time (Line)
  *  2) Monthly stock movement (Bar: stockIn vs stockOut)
  *  3) Price trend for a selected item (Line)
+ *  4) Low-stock table (per supplier)
+ *  5) Stock per supplier (snapshot)
  *
- * Phase A (A1/A2):
- * - Adds a top filter bar (quick 30/90/180 + custom dates + supplier)
- * - Pushes filter state to URL (?from=&to=&supplierId=)
- * - Hydrates state from URL on load / navigation
+ * @remarks
+ * - Global Filters bar (quick 30/90/180 + custom dates + supplier) controls all cards.
+ * - Filters are mirrored to the URL (`?from=&to=&supplierId=`) and hydrated on load.
+ * - Price Trend item selector is a supplier-scoped **type-ahead**:
+ *     - We fetch items for the selected supplier (`getItemsForSupplier`).
+ *     - We debounce a text query and filter client-side to show only matches.
+ *     - This avoids giant dropdowns and guarantees items belong to that supplier.
  */
 
 import * as React from 'react';
@@ -24,8 +31,9 @@ import {
   Skeleton,
   Button,
   TextField,
-  MenuItem,
 } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -33,10 +41,10 @@ import {
   getMonthlyStockMovement,
   getPriceTrend,
   getSuppliersLite,
+  getItemsForSupplier,
   type PricePoint,
   type ItemRef,
   type SupplierRef,
-  getItemsForSupplier,
 } from '../../api/analytics';
 import {
   LineChart,
@@ -52,33 +60,45 @@ import {
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import Filters, { type AnalyticsFilters } from './components/Filters';
-import { readParams  } from '../../utils/urlState';
+import { readParams } from '../../utils/urlState';
 import LowStockTable from './blocks/LowStockTable';
 import StockPerSupplier from './blocks/StockPerSupplier';
+
+/** Returns today's date (local) formatted as `yyyy-MM-dd`. @internal */
+function todayIso(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** Returns `yyyy-MM-dd` for N days ago (local). @internal */
+function daysAgoIso(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/**
+ * Debounce a string value by `ms` milliseconds.
+ * @param value - Current value
+ * @param ms - Debounce delay in ms (default 250)
+ * @returns Debounced value
+ * @internal
+ */
+function useDebounced(value: string, ms = 250): string {
+  const [v, setV] = React.useState(value);
+  React.useEffect(() => {
+    const h = setTimeout(() => setV(value), ms);
+    return () => clearTimeout(h);
+  }, [value, ms]);
+  return v;
+}
 
 export default function Analytics(): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
   const navigate = useNavigate();
   const muiTheme = useMuiTheme();
-
-  // ---------------------------------------------------------------------------
-  // Helpers
-  // ---------------------------------------------------------------------------
-
-  /** Returns today's date (local) formatted as yyyy-MM-dd. */
-  function todayIso(): string {
-    const d = new Date();
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  }
-
-  /** Utility: returns YYYY-MM-DD for N days ago, local time. */
-  function daysAgoIso(n: number): string {
-    const d = new Date();
-    d.setDate(d.getDate() - n);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  }
 
   // ---------------------------------------------------------------------------
   // URL <-> State
@@ -89,48 +109,45 @@ export default function Analytics(): JSX.Element {
   /**
    * Seed filters from the URL once on mount.
    * - Defaults to last 180 days if range absent (BE requires start/end).
-   * - `readParams` is robust to `supplierid` (lowercase) and strips quotes.
+   * - `readParams` is robust to `supplierid` (lowercase) and strips accidental quotes.
    */
   const [filters, setFilters] = React.useState<AnalyticsFilters>(() => {
     const m = readParams(searchParams.toString(), ['from', 'to', 'supplierId']);
-    // If URL lacks from/to, default to last 180 days so BE gets required start/end.
     const haveRange = !!(m.from && m.to);
     return {
       from: haveRange ? m.from : daysAgoIso(180),
       to: haveRange ? m.to : todayIso(),
-      supplierId: m.supplierId, // already sanitized by readParams
+      supplierId: m.supplierId,
       quick: haveRange ? 'custom' : '180',
     };
   });
 
   /**
    * Keep the URL in sync with filter state so deep-links/bookmarks work.
-   * - Avoids loops by comparing with the current search string.
+   * Replaces the whole query string with the current canonical set.
    */
   React.useEffect(() => {
     const next: Record<string, string> = {};
     if (filters.from) next.from = filters.from;
     if (filters.to) next.to = filters.to;
     if (filters.supplierId) next.supplierId = filters.supplierId;
-
-    // This replaces the whole query string with exactly these keys.
     setSearchParams(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.from, filters.to, filters.supplierId]);
 
   // ---------------------------------------------------------------------------
-  // Queries (now keyed by filters so caching respects changes)
+  // Queries (keyed by filters so caching respects changes)
   // ---------------------------------------------------------------------------
 
-  // Suppliers for dropdown
+  /** Supplier options for the global dropdown. */
   const suppliersQ = useQuery<SupplierRef[]>({
     queryKey: ['analytics', 'suppliers'],
     queryFn: getSuppliersLite,
-    retry: 0,               // don't keep poking the server
+    retry: 0,
     staleTime: 5 * 60_000,
   });
 
-  // Stock value over time
+  /** Stock value over time (range + supplier-aware). */
   const stockValueQ = useQuery({
     queryKey: ['analytics', 'stockValue', filters.from, filters.to, filters.supplierId],
     queryFn: () => getStockValueOverTime(filters),
@@ -138,39 +155,72 @@ export default function Analytics(): JSX.Element {
     staleTime: 60_000,
   });
 
-  // Monthly stock movement
+  /** Monthly stock movement (range + supplier-aware). */
   const movementQ = useQuery({
     queryKey: ['analytics', 'movement', filters.from, filters.to, filters.supplierId],
     queryFn: () => getMonthlyStockMovement(filters),
   });
 
-  // Item list (scoped to supplier when selected)
-  const itemsQ = useQuery<ItemRef[]>({
+  // ---------------------------------------------------------------------------
+  // Price Trend: supplier-scoped type-ahead for items
+  // ---------------------------------------------------------------------------
+
+  /** Controlled text the user types in the item search box. */
+  const [itemQuery, setItemQuery] = React.useState<string>('');
+  const debouncedQuery = useDebounced(itemQuery, 250);
+
+  /** Selected item id for the Price Trend chart. */
+  const [selectedItemId, setSelectedItemId] = React.useState<string>('');
+
+  /**
+   * Fetch the **supplier's items only**.
+   * - If BE supports it, `getItemsForSupplier` returns the scoped list.
+   * - We then client-filter by the debounced query to drive the type-ahead.
+   */
+  const itemsForSupplierQ = useQuery<ItemRef[]>({
     queryKey: ['analytics', 'itemsBySupplier', filters.supplierId ?? null],
-    queryFn: () => 
-      filters.supplierId
-        ? getItemsForSupplier(filters.supplierId, 500)
-        : Promise.resolve([]),
-    enabled: !!filters.supplierId, // don’t fetch until a supplier is chosen
+    queryFn: () =>
+      filters.supplierId ? getItemsForSupplier(filters.supplierId, 500) : Promise.resolve([]),
+    enabled: !!filters.supplierId,
     staleTime: 60_000,
   });
 
-  // Selected item for price trend (keep stable across filter changes)
-  const [selectedItemId, setSelectedItemId] = React.useState<string>('');
+  /**
+   * Client-side filter over the supplier's items using the debounced query.
+   * @enterprise
+   * - Starts-with / contains match keeps it simple; can be swapped to a fuzzy match later.
+   * - We limit to 50 shown options for snappy UX.
+   */
+  const itemOptions: ItemRef[] = React.useMemo(() => {
+    const base = itemsForSupplierQ.data ?? [];
+    const q = debouncedQuery.trim().toLowerCase();
+    if (!q) return base.slice(0, 50);
+    return base.filter((it) => it.name.toLowerCase().includes(q)).slice(0, 50);
+  }, [itemsForSupplierQ.data, debouncedQuery]);
 
-  // Price trend for the selected item (filters apply)
+  /** Reset search + selection whenever the supplier changes. */
+  React.useEffect(() => {
+    setItemQuery('');
+    setSelectedItemId('');
+  }, [filters.supplierId]);
+
+  /**
+   * Auto-pick the first available option when:
+   * - there's no current selection, and
+   * - the (filtered) options list becomes non-empty.
+   */
+  React.useEffect(() => {
+    if (!selectedItemId && itemOptions.length > 0) {
+      setSelectedItemId(itemOptions[0].id);
+    }
+  }, [itemOptions, selectedItemId]);
+
+  /** Price trend for the selected item (range-aware). */
   const priceQ = useQuery<PricePoint[]>({
     queryKey: ['analytics', 'priceTrend', selectedItemId, filters.from, filters.to],
     queryFn: () => getPriceTrend(selectedItemId, filters),
-    enabled: !!selectedItemId,
+    enabled: !!selectedItemId, // chart only fetches once an item is chosen/auto-picked
   });
-
-  // Pick the first item automatically once items are loaded.
-  React.useEffect(() => {
-    if (!selectedItemId && itemsQ.data && itemsQ.data.length > 0) {
-      setSelectedItemId(itemsQ.data[0].id);
-    }
-  }, [itemsQ.data, selectedItemId]);
 
   // ---------------------------------------------------------------------------
   // Derived data (sorted arrays so Recharts draw predictably)
@@ -200,7 +250,7 @@ export default function Analytics(): JSX.Element {
         </Button>
       </Stack>
 
-      {/* Filters */}
+      {/* Filters (global) */}
       <Box sx={{ mb: 2 }}>
         <Filters
           value={filters}
@@ -211,19 +261,17 @@ export default function Analytics(): JSX.Element {
       </Box>
 
       {/* Responsive cards grid:
-         - 1 column on phones
-         - 2 columns on small/medium screens
-         - 3 columns on large screens and up */}
+          - 1 column on phones
+          - 2 columns on small/medium screens
+          - 3 columns on large screens and up */}
       <Box
         sx={{
-        display: 'grid',
+          display: 'grid',
           gap: 2,
-          // Auto-fit stretches cards to fill the row and collapses gaps naturally
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           alignItems: 'stretch',
         }}
       >
-        
         {/* ------------------------------------------------------------------- */}
         {/* Stock value over time                                               */}
         {/* ------------------------------------------------------------------- */}
@@ -310,38 +358,39 @@ export default function Analytics(): JSX.Element {
               sx={{ mb: 1 }}
             >
               <Typography variant="subtitle1">{t('analytics:cards.priceTrend')}</Typography>
-              
-              {/* Item selector (scoped to supplier) */}
+
               {!filters.supplierId ? (
                 <Typography variant="body2" color="text.secondary">
-                  {t('analytics:priceTrend.selectSupplier', 'Select a supplier to choose an item')}
+                  {t('analytics:priceTrend.selectSupplier')}
                 </Typography>
               ) : (
-                <TextField
-                  select
-                  size="small"
-                  label={t('analytics:item')}
-                  value={selectedItemId}
-                  onChange={(e) => setSelectedItemId(e.target.value)}
-                  sx={{ minWidth: 260 }}
-                  disabled={itemsQ.isLoading || itemsQ.isError}
-                >
-                  {itemsQ.isLoading ? (
-                    <MenuItem disabled value="">
-                      {t('common:loading', 'Loading...')}
-                    </MenuItem>
-                  ) : !itemsQ.data || itemsQ.data.length === 0 ? (
-                    <MenuItem disabled value="">
-                      {t('analytics:priceTrend.noItemsForSupplier', 'No items for this supplier')}
-                    </MenuItem>
-                  ) : (
-                    itemsQ.data.map((it) => (
-                      <MenuItem key={it.id} value={it.id}>
-                        {it.name}
-                      </MenuItem>
-                    ))
+                <Autocomplete<ItemRef, false, false, false>
+                  sx={{ minWidth: 320 }}
+                  options={itemOptions}
+                  getOptionLabel={(o: ItemRef) => o.name}
+                  loading={itemsForSupplierQ.isLoading}
+                  value={itemOptions.find((it) => it.id === selectedItemId) || null}
+                  onChange={(_e: React.SyntheticEvent, val: ItemRef | null) =>
+                    setSelectedItemId(val?.id ?? '')
+                  }
+                  inputValue={itemQuery}
+                  onInputChange={(_e: React.SyntheticEvent, val: string) => setItemQuery(val)}
+                  // server/our memo already filtered
+                  filterOptions={(x: ItemRef[]) => x}
+                  renderInput={(params: AutocompleteRenderInputParams) => (
+                    <TextField
+                      {...params}
+                      size="small"
+                      label={t('analytics:item')}
+                      placeholder={t('analytics:priceTrend.selectSupplierShort')}
+                    />
                   )}
-                </TextField>
+                  noOptionsText={
+                    debouncedQuery
+                      ? t('analytics:priceTrend.noItemsForSupplier')
+                      : t('analytics:priceTrend.selectSupplierShort')
+                  }
+                />
               )}
             </Stack>
 
@@ -372,22 +421,22 @@ export default function Analytics(): JSX.Element {
                     <XAxis dataKey="date" />
                     <YAxis domain={['auto', 'auto']} />
                     <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="price"
-                    stroke={muiTheme.palette.primary.main}
-                    strokeWidth={2}
-                    dot={{ r: 2 }}
-                    activeDot={{ r: 4 }}
-                    connectNulls
-                    isAnimationActive={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
+                    <Line
+                      type="monotone"
+                      dataKey="price"
+                      stroke={muiTheme.palette.primary.main}
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      activeDot={{ r: 4 }}
+                      connectNulls
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
 
         {/* ------------------------------------------------------------------- */}
         {/* Low stock items (per supplier)                                      */}
@@ -397,12 +446,8 @@ export default function Analytics(): JSX.Element {
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               {t('analytics.cards.lowStock', 'Low stock items')}
             </Typography>
-            
-            {/*
-              LowStockTable only fires its query when `supplierId` is truthy.
-              With the hardened urlState helpers + Filters, this will now light up
-              as soon as a supplier is selected and URL shows `?supplierId=<id>`.
-            */}
+
+            {/* LowStockTable fetch is gated by a truthy supplierId */}
             <LowStockTable
               supplierId={filters.supplierId ?? ''}
               from={filters.from}
@@ -412,7 +457,9 @@ export default function Analytics(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Stock per supplier (snapshot) */}
+        {/* ------------------------------------------------------------------- */}
+        {/* Stock per supplier (snapshot)                                       */}
+        {/* ------------------------------------------------------------------- */}
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>

@@ -37,6 +37,7 @@ import { useTranslation } from 'react-i18next';
 // NOTE: path is from pages/analytics/blocks -> src/api/analytics.ts
 import { getLowStockItems, type LowStockRow, type AnalyticsParams } from '../../../api/analytics';
 
+
 /**
  * Props accepted by {@link LowStockTable}.
  *
@@ -88,7 +89,7 @@ function narrowParams(p: Pick<AnalyticsParams, 'from' | 'to'>): AnalyticsParams 
  */
 export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   const { supplierId, from, to, limit = 12 } = props;
-  const { t } = useTranslation<'common'>('common');
+  const { t } = useTranslation(['analytics','common']);
   const muiTheme = useMuiTheme();
 
   // ---------------------------------------------------------------------------
