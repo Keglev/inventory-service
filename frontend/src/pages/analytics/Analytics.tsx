@@ -423,7 +423,7 @@ export default function Analytics(): JSX.Element {
         <Card>
           <CardContent>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              {t('analytics.cards.lowStock', 'Low stock items')}
+              {t('analytics:cards.lowStock')}
             </Typography>
 
             <LowStockTable

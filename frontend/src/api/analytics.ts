@@ -235,7 +235,7 @@ export async function getItemsForSupplier(supplierId: string, limit: number = 50
           .filter((it) => it.id && it.name)
       : [];
 
-  // Preferred nested endpoint
+  // 1) Preferred nested endpoint
   try {
     const { data } = await http.get<unknown>(`/api/suppliers/${encodeURIComponent(supplierId)}/items`, {
       params: { limit },
@@ -246,12 +246,15 @@ export async function getItemsForSupplier(supplierId: string, limit: number = 50
     /* continue */
   }
 
-  // Fallback flat endpoint
+  // 2) Fallback: inventory endpoint that accepts supplierId as a filter
   try {
     const { data } = await http.get<unknown>('/api/inventory', {
       params: { supplierId, limit },
     });
-    return normalize(data);
+    const rows = normalize(data);
+
+    // Defensive: filter out items that clearly don't belong
+    return rows.filter((it) => it.id && it.name);
   } catch {
     return [];
   }
