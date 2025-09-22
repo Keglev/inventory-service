@@ -17,14 +17,14 @@ import { getSuppliersLite, type SupplierRef } from '../../api/analytics/supplier
 
 // Blocks
 import StockValueCard from './blocks/StockValueCard';
-import MonthlyMovementCard from './blocks/MonthlyMovementCard';
 import PriceTrendCard from './blocks/PriceTrendCard';
 import LowStockTable from './blocks/LowStockTable';
-import StockPerSupplier from './blocks/StockPerSupplier';
+import StockPerSupplierDonut from './blocks/StockPerSupplierDonut';
 import AnalyticsNav, { type AnalyticsSection } from './components/AnalyticsNav';
 import FinancialSummaryCard from './blocks/FinancialSummaryCard';
 import ItemUpdateFrequencyCard from './blocks/ItemUpdateFrequencyCard';
 import StockUpdatesTable from './blocks/StockUpdatesTable';
+import MovementLineCard from './blocks/MovementLineCard';
 
 // Filters UI
 import Filters, { type AnalyticsFilters } from './components/Filters';
@@ -98,8 +98,8 @@ export default function Analytics(): JSX.Element {
             {/* A1 */}
             <StockValueCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
 
-            {/* A2 */}
-            <MonthlyMovementCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+            {/* A2 (Line) */}
+            <MovementLineCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
           </>
         )}
 
@@ -115,8 +115,8 @@ export default function Analytics(): JSX.Element {
             {/* A4 — Low stock table (fetch gated by supplier) */}
             <LowStockTable supplierId={filters.supplierId ?? ''} from={filters.from} to={filters.to} limit={12} />
 
-            {/* A4 — Stock per supplier snapshot */}
-            <StockPerSupplier />
+            {/* A4 — Stock per supplier (donut) */}
+            <StockPerSupplierDonut />
           </>
         )}
         {section === 'finance' && (
