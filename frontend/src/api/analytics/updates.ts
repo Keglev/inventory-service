@@ -39,8 +39,8 @@ export async function getStockUpdates(filter?: StockUpdatesFilter): Promise<Stoc
             
                 const delta = pickNumber(rec, ['delta', 'quantityChange', 'change']);
                 const reason = pickString(rec, ['reason', 'note', 'type']);
-                const user = pickString(rec, ['user', 'username', 'performedBy']);
-            
+                const user = pickString(rec, ['user', 'username', 'performedBy', 'createdBy']);
+
                 // Build a value conforming to StockUpdateRow (optional fields included only as needed)
                 const row: StockUpdateRow = {
                     timestamp,

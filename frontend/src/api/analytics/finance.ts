@@ -10,7 +10,7 @@
 
 
 import http from '../httpClient';
-import { paramClean, isRecord, pickNumber } from './util';
+import { isRecord, pickNumber } from './util';
 import type { Rec } from './util';
 
 /** Canonical FE shape for financial summary (numbers are always defined). */
@@ -34,15 +34,24 @@ const ZERO_FINANCE: FinancialSummary = {
 };
 
 /**
- * Fetch financial summary for a window. Backend endpoint:
- * GET /api/analytics/financial/summary?start&end[&supplierId]
- * Accept either a direct object or an envelope (e.g., { summary } or { data }).
+ * Fetch financial summary for a window.
+ * Backend: GET /api/analytics/financial/summary?from&to[&supplierId]
+ *
+ * @enterprise
+ * - Finance endpoint uses `from/to` (not `start/end` like other analytics).
+ * - Accepts either a direct object or an envelope (e.g., { summary } or { data }).
+ * - Returns a fully-populated zero object on any error.
  */
 export async function getFinancialSummary(
   p?: { from?: string; to?: string; supplierId?: string }
 ): Promise<FinancialSummary> {
   try {
-    const { data } = await http.get<unknown>('/api/analytics/financial/summary', { params: paramClean(p) });
+    const params: Record<string, string> = {};
+    if (p?.from) params.from = p.from;
+    if (p?.to) params.to = p.to;
+    if (p?.supplierId) params.supplierId = p.supplierId;
+
+    const { data } = await http.get<unknown>('/api/analytics/financial/summary', { params });
 
     // Accept direct object or envelope
     const pickPayload = (x: unknown): Rec | null => {
@@ -56,15 +65,16 @@ export async function getFinancialSummary(
     if (!body) return ZERO_FINANCE;
 
     return {
-      purchases: pickNumber(body, ['purchases', 'totalPurchases', 'purchaseTotal']),
-      cogs: pickNumber(body, ['cogs', 'costOfGoodsSold']),
-      writeOffs: pickNumber(body, ['writeOffs', 'writeoffs', 'write_offs']),
-      returns: pickNumber(body, ['returns', 'salesReturns', 'returnsTotal']),
-      openingValue: pickNumber(body, ['openingValue', 'opening', 'startValue']),
+      purchases:   pickNumber(body, ['purchases', 'totalPurchases', 'purchaseTotal']),
+      cogs:        pickNumber(body, ['cogs', 'costOfGoodsSold']),
+      writeOffs:   pickNumber(body, ['writeOffs', 'writeoffs', 'write_offs']),
+      returns:     pickNumber(body, ['returns', 'salesReturns', 'returnsTotal']),
+      openingValue:pickNumber(body, ['openingValue', 'opening', 'startValue']),
       endingValue: pickNumber(body, ['endingValue', 'ending', 'endValue']),
     };
   } catch {
     return ZERO_FINANCE;
   }
 }
+
 
