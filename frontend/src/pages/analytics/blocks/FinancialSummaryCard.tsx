@@ -20,11 +20,12 @@ export type FinancialSummaryCardProps = { from?: string; to?: string; supplierId
 export default function FinancialSummaryCard({ from, to, supplierId }: FinancialSummaryCardProps) {
     const { t } = useTranslation(['analytics']);
     const muiTheme = useMuiTheme();
+    const enabled = !!supplierId; // finance endpoint errors without supplier
 
-    
     const q = useQuery<FinancialSummary>({
         queryKey: ['analytics', 'financialSummary', from, to, supplierId ?? null],
         queryFn: () => getFinancialSummary({ from, to, supplierId: supplierId ?? undefined }),
+        enabled, // disable query when no supplier
     });
     const data = React.useMemo(() => {
         const s = q.data;
@@ -48,10 +49,16 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
         muiTheme.palette.info.main,    // Returns
     ];
 
+    if (!enabled) {
     return (
         <Card>
             <CardContent>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>{t('analytics:finance.title', 'Financial summary')}</Typography>
+                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                    {t('analytics:finance.title', 'Financial summary')}
+                </Typography>
+                <Box sx={{ color: 'text.secondary' }}>
+                    {t('analytics:frequency.selectSupplier', 'Select a supplier to view')}
+                </Box>
                 {q.isLoading ? (
                     <Skeleton variant="rounded" height={220} />
                 ) : allZero ? (
@@ -87,7 +94,7 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
                 )}
             </CardContent>
         </Card>
-    );
+    )};
 }
 
 function Kpi({ label, value }: { label: string; value?: number }) {

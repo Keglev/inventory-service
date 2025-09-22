@@ -65,13 +65,14 @@ export async function getFinancialSummary(
     if (!body) return ZERO_FINANCE;
 
     return {
-      purchases:   pickNumber(body, ['purchases', 'totalPurchases', 'purchaseTotal']),
-      cogs:        pickNumber(body, ['cogs', 'costOfGoodsSold']),
-      writeOffs:   pickNumber(body, ['writeOffs', 'writeoffs', 'write_offs']),
-      returns:     pickNumber(body, ['returns', 'salesReturns', 'returnsTotal']),
-      openingValue:pickNumber(body, ['openingValue', 'opening', 'startValue']),
-      endingValue: pickNumber(body, ['endingValue', 'ending', 'endValue']),
+        purchases:    pickNumber(body, ['purchases', 'purchasesCost', 'totalPurchases', 'purchaseTotal']),
+        cogs:         pickNumber(body, ['cogs', 'cogsCost', 'costOfGoodsSold']),
+        writeOffs:    pickNumber(body, ['writeOffs', 'writeOffCost', 'writeoffs', 'write_offs']),
+        returns:      pickNumber(body, ['returns', 'returnsInCost', 'returnsCost', 'salesReturns', 'returnsTotal']),
+        openingValue: pickNumber(body, ['openingValue', 'opening', 'startValue']),
+        endingValue:  pickNumber(body, ['endingValue', 'ending', 'endValue']),
     };
+
   } catch {
     return ZERO_FINANCE;
   }
