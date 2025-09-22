@@ -20,7 +20,7 @@ import { Tabs, Tab, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-export type AnalyticsSection = 'overview' | 'pricing' | 'inventory';
+export type AnalyticsSection = 'overview' | 'pricing' | 'inventory' | 'finance';
 
 export type AnalyticsNavProps = {
   /** Current section (parsed from the URL). */
@@ -41,6 +41,7 @@ export default function AnalyticsNav({ section }: AnalyticsNavProps) {
         <Tab value="overview"  label={t('analytics.nav.overview', 'Overview')} />
         <Tab value="pricing"   label={t('analytics.nav.pricing', 'Pricing')} />
         <Tab value="inventory" label={t('analytics.nav.inventory', 'Inventory health')} />
+        <Tab value="finance"   label={t('analytics.nav.finance', 'Finance')} />
       </Tabs>
     </Box>
   );

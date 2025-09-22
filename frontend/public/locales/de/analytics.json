@@ -11,12 +11,35 @@
   "nav": {
     "overview": "Übersicht",
     "pricing": "Preise",
-    "inventory": "Bestandsgesundheit"
+    "inventory": "Bestandsgesundheit",
+    "finance": "Finanzen"
   },
   "priceTrend": {
     "selectSupplier": "Wähle einen Lieferanten, um einen Artikel auszuwählen",
     "selectSupplierShort": "Lieferant auswählen",
     "noItemsForSupplier": "Keine Artikel für diesen Lieferanten"
+  },
+  "finance": {
+    "title": "Finanzübersicht",
+    "purchases": "Einkäufe",
+    "cogs": "Warenaufwand",
+    "writeOffs": "Abschreibungen",
+    "returns": "Rückgaben",
+    "opening": "Anfangsbestand",
+    "ending": "Endbestand"
+  },
+  "frequency": {
+    "title": "Am häufigsten aktualisierte Artikel",
+    "selectSupplier": "Wähle einen Lieferanten zur Ansicht"
+  },
+  "updates": {
+    "title": "Kürzliche Bestandsaktualisierungen",
+    "empty": "Keine Aktualisierungen in diesem Zeitraum.",
+    "when": "Wann",
+    "item": "Artikel",
+    "delta": "Δ Menge",
+    "reason": "Grund",
+    "user": "Benutzer"
   },
   "item": "Artikel",
   "filters": {

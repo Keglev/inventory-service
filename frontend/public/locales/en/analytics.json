@@ -11,12 +11,35 @@
     "nav": {
     "overview": "Overview",
     "pricing": "Pricing",
-    "inventory": "Inventory health"
+    "inventory": "Inventory health",
+    "finance": "Finance"
   },
   "priceTrend": {
     "selectSupplier": "Select a supplier to choose an item",
     "selectSupplierShort": "Select a supplier",
     "noItemsForSupplier": "No items for this supplier"
+  },
+  "finance": {
+    "title": "Financial summary",
+    "purchases": "Purchases",
+    "cogs": "COGS",
+    "writeOffs": "Write-offs",
+    "returns": "Returns",
+    "opening": "Opening",
+    "ending": "Ending"
+  },
+  "frequency": {
+    "title": "Top updated items",
+    "selectSupplier": "Select a supplier to view"
+  },
+  "updates": {
+    "title": "Recent stock updates",
+    "empty": "No updates in this period.",
+    "when": "When",
+    "item": "Item",
+    "delta": "Δ Qty",
+    "reason": "Reason",
+    "user": "User"
   },
   "item": "Item",
   "filters": {

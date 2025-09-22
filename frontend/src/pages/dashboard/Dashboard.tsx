@@ -12,6 +12,7 @@ import { Box, Grid, Button, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getInventoryCount, getSuppliersCount, getLowStockCount } from '../../api/metrics';
+import MonthlyMovementMini from './blocks/MonthlyMovementMini';
 import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,6 +53,10 @@ const Dashboard: React.FC = () => {
           />
         </Grid>
       </Grid>
+      {/* Compact chart: Monthly movement (90d) */}
+      <Box sx={{ mb: 3 }}>
+        <MonthlyMovementMini />
+      </Box>
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
         <Button variant="contained" onClick={() => navigate('/inventory')}>
@@ -60,7 +65,7 @@ const Dashboard: React.FC = () => {
         <Button variant="outlined" onClick={() => navigate('/suppliers')}>
           {t('dashboard.actions.manageSuppliers')}
         </Button>
-        <Button variant="outlined" onClick={() => navigate('/analytics')}>
+        <Button variant="outlined" onClick={() => navigate('/analytics/overview')}>
           {t('dashboard.actions.viewAnalytics')}
         </Button>
       </Stack>

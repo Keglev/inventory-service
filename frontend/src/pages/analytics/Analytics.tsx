@@ -22,6 +22,9 @@ import PriceTrendCard from './blocks/PriceTrendCard';
 import LowStockTable from './blocks/LowStockTable';
 import StockPerSupplier from './blocks/StockPerSupplier';
 import AnalyticsNav, { type AnalyticsSection } from './components/AnalyticsNav';
+import FinancialSummaryCard from './blocks/FinancialSummaryCard';
+import ItemUpdateFrequencyCard from './blocks/ItemUpdateFrequencyCard';
+import StockUpdatesTable from './blocks/StockUpdatesTable';
 
 // Filters UI
 import Filters, { type AnalyticsFilters } from './components/Filters';
@@ -36,7 +39,9 @@ export default function Analytics(): JSX.Element {
     // Read section from route: /analytics/:section?
   const { section: rawSection } = useParams();
   const section: AnalyticsSection =
-    rawSection === 'pricing' || rawSection === 'inventory' ? rawSection : 'overview';
+    rawSection === 'pricing' || rawSection === 'inventory' || rawSection === 'finance'
+      ? (rawSection as AnalyticsSection)
+      : 'overview';
   
   // URL ↔ state
   const [searchParams, setSearchParams] = useSearchParams();
@@ -112,6 +117,18 @@ export default function Analytics(): JSX.Element {
 
             {/* A4 — Stock per supplier snapshot */}
             <StockPerSupplier />
+          </>
+        )}
+        {section === 'finance' && (
+          <>
+            {/* Finance — WAC summary (period + supplier) */}
+            <FinancialSummaryCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+
+            {/* Operations — top updated items (requires supplier) */}
+            <ItemUpdateFrequencyCard supplierId={filters.supplierId} />
+
+            {/* Operations — recent stock updates (period + supplier) */}
+            <StockUpdatesTable from={filters.from} to={filters.to} supplierId={filters.supplierId} />
           </>
         )}
       </Box>
