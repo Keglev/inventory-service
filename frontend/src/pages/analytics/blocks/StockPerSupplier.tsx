@@ -45,7 +45,7 @@ export default function StockPerSupplier(): JSX.Element {
   return (
     <Box sx={{ height: 260 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data}>
+        <BarChart data={data} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="supplierName" interval={0} angle={-20} height={60} textAnchor="end" />
           <YAxis />

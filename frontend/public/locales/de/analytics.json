@@ -17,7 +17,8 @@
   "priceTrend": {
     "selectSupplier": "Wähle einen Lieferanten, um einen Artikel auszuwählen",
     "selectSupplierShort": "Lieferant auswählen",
-    "noItemsForSupplier": "Keine Artikel für diesen Lieferanten"
+    "noItemsForSupplier": "Keine Artikel für diesen Lieferanten",
+    "typeToSearch": "Tippe zum Suchen…"
   },
   "finance": {
     "title": "Finanzübersicht",
@@ -26,7 +27,8 @@
     "writeOffs": "Abschreibungen",
     "returns": "Rückgaben",
     "opening": "Anfangsbestand",
-    "ending": "Endbestand"
+    "ending": "Endbestand",
+    "empty": "Keine finanzielle Aktivität in diesem Zeitraum."
   },
   "frequency": {
     "title": "Am häufigsten aktualisierte Artikel",

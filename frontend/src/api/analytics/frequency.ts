@@ -34,7 +34,7 @@ export async function getItemUpdateFrequency(
     return (data as Array<Record<string, unknown>>)
       .map((r) => {
         const [item] = normalizeItemsList([r]);
-        const updates = pickNumber(r, ['updates', 'count', 'changes']); // tolerate different field names
+        const updates = pickNumber(r, ['updates', 'updatesCount', 'updateCount', 'count', 'changes']); // tolerate different field names
         return item ? { id: item.id, name: item.name, updates } : null;
       })
       .filter((x): x is ItemUpdateFrequencyPoint => x !== null)

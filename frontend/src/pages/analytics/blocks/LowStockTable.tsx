@@ -140,15 +140,40 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   }
 
   return (
-    <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 360 }}>
-      <Table size="small" stickyHeader>
+    <TableContainer 
+      component={Paper} 
+      variant="outlined" 
+      sx={{ 
+          maxHeight: 360,
+          overflowX: 'auto', // Allow Horizontal scroll instead of clipping
+          pr: 1,            // tiny right gutter so chips and tooltips do not get cut off
+        }}
+    >
+      <Table 
+        size="small" 
+        stickyHeader
+        sx={{
+        minWidth: 640,     // avoids cramped columns on small breakpoints
+        tableLayout: 'fixed', // predictable column widths; text can ellipsis
+        }}
+      >
         <TableHead>
           <TableRow>
-            <TableCell>{t('analytics:lowStock.columns.item', 'Item')}</TableCell>
-            <TableCell align="right">{t('analytics:lowStock.columns.quantity', 'Quantity')}</TableCell>
-            <TableCell align="right">{t('analytics:lowStock.columns.minimum', 'Minimum')}</TableCell>
-            <TableCell align="right">{t('analytics:lowStock.columns.deficit', 'Deficit')}</TableCell>
-            <TableCell align="left">{t('analytics:lowStock.columns.status', 'Status')}</TableCell>
+            <TableCell sx={{ width: '40%' }}>
+              {t('analytics:lowStock.columns.item', 'Item')}
+            </TableCell>
+            <TableCell align="right" sx={{ width: '15%' }}>
+              {t('analytics:lowStock.columns.quantity', 'Quantity')}
+            </TableCell>
+            <TableCell align="right" sx={{ width: '15%' }}>
+              {t('analytics:lowStock.columns.minimum', 'Minimum')}
+            </TableCell>
+            <TableCell align="right" sx={{ width: '15%' }}>
+              {t('analytics:lowStock.columns.deficit', 'Deficit')}
+            </TableCell>
+            <TableCell align="left" sx={{ width: '15%', whiteSpace: 'nowrap' }}>
+              {t('analytics:lowStock.columns.status', 'Status')}
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -158,7 +183,11 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
 
             return (
               <TableRow key={r.itemName}>
-                <TableCell component="th" scope="row">
+                <TableCell 
+                  component="th" 
+                  scope="row"
+                  sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                >
                   {r.itemName}
                 </TableCell>
                 <TableCell align="right">{fmt(r.quantity)}</TableCell>
@@ -176,7 +205,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
                 >
                   {fmt(r.deficit)}
                 </TableCell>
-                <TableCell align="left">
+                <TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>
                   {critical ? (
                     <Chip size="small" color="error" label={t('analytics:lowStock.status.critical', 'Critical')} />
                   ) : warning ? (

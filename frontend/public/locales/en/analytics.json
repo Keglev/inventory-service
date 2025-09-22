@@ -1,23 +1,24 @@
 {
   "title": "Analytics",
   "cards": {
-    "stockValue": "Stock Value Over Time",
-    "monthlyMovement": "Monthly Stock Movement",
-    "priceTrend": "Price Trend",
+    "stockValue": "Stock value over time",
+    "monthlyMovement": "Monthly stock movement",
+    "priceTrend": "Price trend",
     "lowStock": "Low-stock items",
-    "noData": "No data available for the selected filters.",
+    "noData": "No data for the selected filters.",
     "noItems": "No items found."
   },
-    "nav": {
+  "nav": {
     "overview": "Overview",
     "pricing": "Pricing",
     "inventory": "Inventory health",
     "finance": "Finance"
   },
   "priceTrend": {
-    "selectSupplier": "Select a supplier to choose an item",
-    "selectSupplierShort": "Select a supplier",
-    "noItemsForSupplier": "No items for this supplier"
+    "selectSupplier": "Choose a supplier to pick an item",
+    "selectSupplierShort": "Select supplier",
+    "noItemsForSupplier": "No items for this supplier",
+    "typeToSearch": "Start typing to search…"
   },
   "finance": {
     "title": "Financial summary",
@@ -26,7 +27,8 @@
     "writeOffs": "Write-offs",
     "returns": "Returns",
     "opening": "Opening",
-    "ending": "Ending"
+    "ending": "Ending",
+    "empty": "No financial activity in this period."
   },
   "frequency": {
     "title": "Top updated items",
@@ -83,16 +85,16 @@
     "empty": "No supplier data for the current filters."
   },
   "updateFrequency": {
-    "title": "Item update frequency",
+    "title": "Update frequency per item",
     "columns": {
       "item": "Item",
       "updates": "Updates",
       "lastUpdate": "Last update"
     },
-    "empty": "No updates in the selected range."
+    "empty": "No updates in the selected period."
   },
   "stockUpdates": {
-    "title": "Stock updates",
+    "title": "Stock changes",
     "columns": {
       "datetime": "Date/Time",
       "item": "Item",
@@ -102,12 +104,12 @@
       "note": "Note"
     },
     "exportCsv": "Export CSV",
-    "empty": "No stock updates match the filters."
+    "empty": "No stock changes for the current filters."
   },
   "state": {
     "loading": "Loading…",
     "empty": "Nothing to show.",
-    "error": "Something went wrong.",
+    "error": "An error occurred.",
     "retry": "Retry"
   }
 }

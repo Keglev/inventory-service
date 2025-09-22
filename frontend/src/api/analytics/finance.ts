@@ -11,6 +11,7 @@
 
 import http from '../httpClient';
 import { paramClean, isRecord, pickNumber } from './util';
+import type { Rec } from './util';
 
 /** Canonical FE shape for financial summary (numbers are always defined). */
 export type FinancialSummary = {
@@ -33,22 +34,37 @@ const ZERO_FINANCE: FinancialSummary = {
 };
 
 /**
-* Fetch financial summary for a window. Backend endpoint:
-* GET /api/analytics/financial/summary?start&end[&supplierId]
-*/
-export async function getFinancialSummary(p?: { from?: string; to?: string; supplierId?: string }): Promise<FinancialSummary> {
-    try {
-        const { data } = await http.get<unknown>('/api/analytics/financial/summary', { params: paramClean(p) });
-        if (!isRecord(data)) return ZERO_FINANCE;
-        return {
-            purchases: pickNumber(data, ['purchases', 'totalPurchases', 'purchaseTotal']),
-            cogs: pickNumber(data, ['cogs', 'costOfGoodsSold']),
-            writeOffs: pickNumber(data, ['writeOffs', 'writeoffs', 'write_offs']),
-            returns: pickNumber(data, ['returns', 'salesReturns', 'returnsTotal']),
-            openingValue: pickNumber(data, ['openingValue', 'opening', 'startValue']),
-            endingValue: pickNumber(data, ['endingValue', 'ending', 'endValue']),
-        } satisfies FinancialSummary;
-    } catch {
-        return ZERO_FINANCE;
-    }
+ * Fetch financial summary for a window. Backend endpoint:
+ * GET /api/analytics/financial/summary?start&end[&supplierId]
+ * Accept either a direct object or an envelope (e.g., { summary } or { data }).
+ */
+export async function getFinancialSummary(
+  p?: { from?: string; to?: string; supplierId?: string }
+): Promise<FinancialSummary> {
+  try {
+    const { data } = await http.get<unknown>('/api/analytics/financial/summary', { params: paramClean(p) });
+
+    // Accept direct object or envelope
+    const pickPayload = (x: unknown): Rec | null => {
+      if (!isRecord(x)) return null;
+      if (isRecord(x.summary)) return x.summary as Rec;
+      if (isRecord(x.data)) return x.data as Rec;
+      return x as Rec;
+    };
+
+    const body = pickPayload(data);
+    if (!body) return ZERO_FINANCE;
+
+    return {
+      purchases: pickNumber(body, ['purchases', 'totalPurchases', 'purchaseTotal']),
+      cogs: pickNumber(body, ['cogs', 'costOfGoodsSold']),
+      writeOffs: pickNumber(body, ['writeOffs', 'writeoffs', 'write_offs']),
+      returns: pickNumber(body, ['returns', 'salesReturns', 'returnsTotal']),
+      openingValue: pickNumber(body, ['openingValue', 'opening', 'startValue']),
+      endingValue: pickNumber(body, ['endingValue', 'ending', 'endValue']),
+    };
+  } catch {
+    return ZERO_FINANCE;
+  }
 }
+

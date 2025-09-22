@@ -7,6 +7,7 @@
 * as Analytics (A2) and defaults to the last 90 days.
 */
 import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
@@ -19,7 +20,8 @@ export default function MonthlyMovementMini() {
     const { t } = useTranslation('common');
     const from = daysAgoIso(90);
     const to = todayIso();
-    
+    const muiTheme = useMuiTheme();
+
     const q = useQuery({
         queryKey: ['dashboard', 'movementMini', from, to],
         queryFn: () => getMonthlyStockMovement({ from, to }),
@@ -41,6 +43,8 @@ export default function MonthlyMovementMini() {
                                 <Legend />
                                 <Bar dataKey="stockIn" />
                                 <Bar dataKey="stockOut" />
+                                <Bar dataKey="stockIn"  fill={muiTheme.palette.success.main} />
+                                <Bar dataKey="stockOut" fill={muiTheme.palette.error.main} />
                             </BarChart>
                         </ResponsiveContainer>
                     </Box>
