@@ -102,9 +102,8 @@ function useDebounced(value: string, ms = 250): string {
 /**
  * Local narrow type that extends ItemRef with an optional supplierId.
  * @enterprise
- * - We use this **only** inside the page to apply client-side scoping by supplier
- *   even if the backend ignores the filter and returns a full list.
- * - Does not require changes to the API module.
+ * - Used only inside the page to enforce client scoping by supplier,
+ *   even if the backend ignores the filter and returns a wide list.
  */
 type ItemWithSupplier = ItemRef & { supplierId?: string | null };
 
@@ -190,7 +189,7 @@ export default function Analytics(): JSX.Element {
    *
    * @enterprise
    * - This avoids loading 500+ items lists and guarantees relevance.
-   * - If your BE ignores filters, we still apply client scoping below.
+   * - If the BE ignores filters, we still apply client scoping in `itemOptions`.
    */
   const itemSearchQ = useQuery<ItemRef[]>({
     queryKey: ['analytics', 'itemSearch', filters.supplierId ?? null, debouncedQuery],
@@ -198,10 +197,12 @@ export default function Analytics(): JSX.Element {
       if (!debouncedQuery) return [];
       if (filters.supplierId) {
         return searchItemsForSupplier(filters.supplierId, debouncedQuery, 50);
+        // NOTE: Your BE currently returns a wide list even with supplierId.
+        // We enforce scoping below in `itemOptions`.
       }
       return searchItemsGlobal(debouncedQuery, 50);
     },
-    enabled: debouncedQuery.length >= 1, // user must type to trigger search
+    enabled: debouncedQuery.length >= 1,
     staleTime: 30_000,
   });
 
@@ -212,38 +213,31 @@ export default function Analytics(): JSX.Element {
   }, [filters.supplierId]);
 
   /**
-   * Final options shown in the Price Trend type-ahead.
-   * We *always* scope by supplierId when present, and we *always* filter
-   * by the debounced query on the client, because the backend may ignore
-   * these filters and return a wide list.
-   *
-   * @enterprise
-   * - This guarantees correctness without BE changes.
-   * - We slice to 50 to keep popover responsive.
+   * Final options for the type-ahead:
+   * - Start from the async results (global or supplier-scoped).
+   * - If supplierId is set → filter again on the client by supplierId.
+   * - Always apply the debounced text filter on the client too.
+   * @enterprise This guarantees correctness even if the backend returns a wide list.
    */
   const itemOptions: ItemWithSupplier[] = React.useMemo(() => {
-    const raw = (itemSearchQ.data ?? []) as ItemWithSupplier[];
+    const base = (itemSearchQ.data ?? []) as ItemWithSupplier[];
     const sid = filters.supplierId ?? '';
     const q = debouncedQuery.trim().toLowerCase();
 
-    // BE may ignore supplierId; we enforce it here if present.
-    const bySupplier = sid ? raw.filter((it) => (it.supplierId ?? '') === sid) : raw;
-
-    // BE may ignore search; we enforce contains match here.
-    const byQuery = q ? bySupplier.filter((it) => it.name.toLowerCase().includes(q)) : bySupplier;
+    const bySupplier = sid ? base.filter(it => (it.supplierId ?? '') === sid) : base;
+    const byQuery = q ? bySupplier.filter(it => it.name.toLowerCase().includes(q)) : bySupplier;
 
     return byQuery.slice(0, 50);
   }, [itemSearchQ.data, filters.supplierId, debouncedQuery]);
 
   /**
-   * Safeguard: if the current selection is no longer present in the options
-   * (e.g., supplier changed, query changed, or BE returned different data),
-   * clear the selection and the input to avoid stale state.
+   * Safeguard: if the currently selected item disappears from the available options
+   * (supplier changed or query filtered it out), clear it to avoid stale state.
    */
   React.useEffect(() => {
-    if (selectedItemId && !itemOptions.some((it) => it.id === selectedItemId)) {
+    if (selectedItemId && !itemOptions.some(it => it.id === selectedItemId)) {
       setSelectedItemId('');
-      setItemQuery('');
+      // preserve typed text; the user is still searching
     }
   }, [itemOptions, selectedItemId]);
 
@@ -251,9 +245,7 @@ export default function Analytics(): JSX.Element {
   const priceQ = useQuery<PricePoint[]>({
     queryKey: ['analytics', 'priceTrend', selectedItemId, filters.from, filters.to],
     queryFn: () => getPriceTrend(selectedItemId, filters),
-    // Important: do NOT reference itemOptions here (would create TDZ if placed after);
-    // the safeguard effect above already ensures we only keep valid selections.
-    enabled: !!selectedItemId,
+    enabled: !!selectedItemId, // fetch only after explicit selection
   });
 
   // ---------------------------------------------------------------------------
@@ -390,32 +382,25 @@ export default function Analytics(): JSX.Element {
             >
               <Typography variant="subtitle1">{t('analytics:cards.priceTrend')}</Typography>
 
-              {/*
-                Supplier-scoped item selector (type-ahead).
-                @enterprise
-                - Always a text-capable Autocomplete (not a plain <select>).
-                - Global or supplier-scoped search is decided by presence of supplierId.
-                - Server may return a wide list; we still narrow on the client (itemOptions).
-              */}
-              <Autocomplete<ItemWithSupplier, false, false, false>
+              {/* Supplier-aware type-ahead (always text-capable) */}
+              <Autocomplete<ItemRef, false, false, false>
                 sx={{ minWidth: 320 }}
                 options={itemOptions}
-                getOptionLabel={(o: ItemWithSupplier) => o.name}
+                getOptionLabel={(o: ItemRef) => o.name}
                 loading={itemSearchQ.isLoading}
-                value={itemOptions.find((it) => it.id === selectedItemId) || null}
-                onChange={(_e: React.SyntheticEvent, val: ItemWithSupplier | null) =>
-                  setSelectedItemId(val?.id ?? '')
-                }
+                value={itemOptions.find(it => it.id === selectedItemId) || null}
+                onChange={(_e, val) => setSelectedItemId(val?.id ?? '')}
                 // Controlled input text → this is what the user types into
                 inputValue={itemQuery}
                 onInputChange={(_e: React.SyntheticEvent, val: string) => setItemQuery(val)}
-                // Do not re-filter client-side via MUI; we already do it in itemOptions
-                filterOptions={(x) => x}
-                isOptionEqualToValue={(o, v) => o.id === v.id}
+                // Search UX
                 forcePopupIcon={false}
                 clearOnBlur={false}
                 selectOnFocus
                 handleHomeEndKeys
+                // Do not re-filter client-side via MUI; we already do it in itemOptions
+                filterOptions={(x) => x}
+                isOptionEqualToValue={(o, v) => o.id === v.id}
                 renderInput={(params: AutocompleteRenderInputParams) => {
                   const typed = debouncedQuery.trim().length > 0;
                   const showNoMatches = !!filters.supplierId && typed && itemOptions.length === 0;

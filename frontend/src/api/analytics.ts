@@ -46,7 +46,7 @@ export type PricePoint = { date: string; price: number };
  * `supplierId` is optional but, when present, allows client-side scoping
  * when the backend ignores supplier filters.
  */
-export type ItemRef = { id: string; name: string; supplierId?: string };
+export type ItemRef = { id: string; name: string; supplierId?: string | null };
 export type SupplierRef = { id: string; name: string };
 export type LowStockRow = { itemName: string; quantity: number; minimumQuantity: number };
 export type StockPerSupplierPoint = { supplierName: string; totalQuantity: number };
@@ -58,7 +58,7 @@ export type StockPerSupplierPoint = { supplierName: string; totalQuantity: numbe
 export type FiltersState = {
   from?: string;
   to?: string;
-  supplierId?: string;
+  supplierId?: string | null;
 };
 
 // We cache which query param your BE actually supports to avoid trial calls each keystroke.
