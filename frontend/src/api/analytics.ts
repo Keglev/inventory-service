@@ -56,6 +56,9 @@ export type FiltersState = {
   supplierId?: string;
 };
 
+// We cache which query param your BE actually supports to avoid trial calls each keystroke.
+let INVENTORY_SEARCH_PARAM: 'search' | 'q' | 'query' | 'name' | null = null;
+
 // ============================================================================
 // Backend DTO Shims (narrow, tolerant)
 // ============================================================================
@@ -123,6 +126,25 @@ function pickNumber(r: Rec, keys: string[]): number {
   }
   return 0;
 }
+
+/** @internal Normalize backend rows into `{ id, name }[]` safely. */
+function normalizeItemsList(data: unknown): ItemRef[] {
+  if (!Array.isArray(data)) return [];
+  return (data as Array<{ id?: string | number; itemId?: string | number; name?: string; itemName?: string }>)
+    .map((d) => ({
+      id: String(d.id ?? d.itemId ?? ''),
+      name: String(d.name ?? d.itemName ?? ''),
+    }))
+    .filter((it) => it.id && it.name);
+}
+
+/** @internal Client-side filter as a safety net if the BE ignores search params. */
+function clientFilter(items: ItemRef[], q: string, limit: number): ItemRef[] {
+  const needle = q.trim().toLowerCase();
+  if (!needle) return items.slice(0, limit);
+  return items.filter((it) => it.name.toLowerCase().includes(needle)).slice(0, limit);
+}
+
 
 /**
  * Normalize FE filter parameters to BE query params.
@@ -217,27 +239,57 @@ export async function getTopItems(opts?: { supplierId?: string; limit?: number }
 
 /**
  * Global item search (no supplier filter).
- * @param q Search text (required, trimmed server-side).
- * @param limit Max rows to return (default 50).
- * @returns Array of `{ id, name }` or `[]` on any error.
+ *
+ * Strategy:
+ *  1) Try `/api/inventory` with the remembered working param (if any).
+ *  2) Otherwise, probe common param keys in order: `search`, `q`, `query`, `name`.
+ *  3) If BE returns results that match, cache the param key for next time.
+ *  4) Always apply client-side filtering as a last-resort safety net.
+ *
+ * @param q      Search text (required).
+ * @param limit  Max rows to return (default 50).
+ * @returns `{ id, name }[]` or `[]` on any error.
  */
 export async function searchItemsGlobal(q: string, limit: number = 50): Promise<ItemRef[]> {
-  if (!q) return [];
-  try {
-    const { data } = await http.get<unknown>('/api/inventory', {
-      params: { search: q, limit },
-    });
-    if (!Array.isArray(data)) return [];
-    return (data as Array<{ id?: string | number; itemId?: string | number; name?: string; itemName?: string }>)
-      .map((d) => ({
-        id: String(d.id ?? d.itemId ?? ''),
-        name: String(d.name ?? d.itemName ?? ''),
-      }))
-      .filter((it) => it.id && it.name);
-  } catch {
-    return [];
+  const text = q.trim();
+  if (!text) return [];
+
+  // Helper to call /api/inventory with a given param name.
+  const callWith = async (paramKey: 'search' | 'q' | 'query' | 'name'): Promise<ItemRef[]> => {
+    try {
+      const params: Record<string, string | number> = { limit };
+      params[paramKey] = text;
+      const { data } = await http.get<unknown>('/api/inventory', { params });
+      const rows = normalizeItemsList(data);
+      if (rows.length > 0) {
+        // Narrow via client filtering in case BE ignored search.
+        const narrowed = clientFilter(rows, text, limit);
+        if (narrowed.length > 0) {
+          INVENTORY_SEARCH_PARAM = paramKey; // remember what worked
+        }
+        return narrowed;
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  };
+
+  // If we've learned a working key, try it first.
+  if (INVENTORY_SEARCH_PARAM) {
+    const rows = await callWith(INVENTORY_SEARCH_PARAM);
+    if (rows.length > 0) return rows;
   }
+
+  // Probe likely parameter names in order.
+  for (const key of ['search', 'q', 'query', 'name'] as const) {
+    const rows = await callWith(key);
+    if (rows.length > 0) return rows;
+  }
+
+  return [];
 }
+
 
 /**
  * Fetch items that belong to a specific supplier (strict scope).
@@ -285,49 +337,59 @@ export async function getItemsForSupplier(supplierId: string, limit: number = 50
 }
 
 /**
- * Search items belonging to a supplier (type-ahead).
+ * Supplier-scoped item search.
  *
- * Tries:
- *  1) /api/suppliers/{supplierId}/items?search=<q>&limit=N
- *  2) /api/inventory?supplierId=<id>&search=<q>&limit=N
+ * Strategy:
+ *  - Your nested endpoint `/api/suppliers/{id}/items?search=...` 404s in prod,
+ *    so we *always* use `/api/inventory` and pass `supplierId` + search param.
+ *  - We auto-detect which search param key works and cache it (same cache as global).
+ *  - We apply client-side filtering as a safety net.
  *
- * Returns [] if unsupported.
- * @public
+ * @param supplierId Required supplier id.
+ * @param q          Search text (required).
+ * @param limit      Max rows to return (default 50).
+ * @returns `{ id, name }[]` or `[]` on error/empty.
  */
 export async function searchItemsForSupplier(
   supplierId: string,
   q: string,
   limit: number = 50
 ): Promise<ItemRef[]> {
-  if (!supplierId || !q) return [];
+  const text = q.trim();
+  if (!supplierId || !text) return [];
 
-  const normalize = (data: unknown): ItemRef[] =>
-    Array.isArray(data)
-      ? (data as BackendItemDTO[])
-          .map((d) => ({ id: String(d.id ?? d.itemId ?? ''), name: String(d.name ?? d.itemName ?? '') }))
-          .filter((it) => it.id && it.name)
-      : [];
+  const callWith = async (paramKey: 'search' | 'q' | 'query' | 'name'): Promise<ItemRef[]> => {
+    try {
+      const params: Record<string, string | number> = { supplierId, limit };
+      params[paramKey] = text;
+      const { data } = await http.get<unknown>('/api/inventory', { params });
+      const rows = normalizeItemsList(data);
+      if (rows.length > 0) {
+        const narrowed = clientFilter(rows, text, limit);
+        if (narrowed.length > 0) {
+          INVENTORY_SEARCH_PARAM = paramKey;
+        }
+        return narrowed;
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  };
 
-  // Preferred nested endpoint with search
-  try {
-    const { data } = await http.get<unknown>(`/api/suppliers/${encodeURIComponent(supplierId)}/items`, {
-      params: { search: q, limit },
-    });
-    const rows = normalize(data);
-    if (rows.length) return rows;
-  } catch {
-    /* continue */
+  // Prefer a previously-discovered working param if we have one.
+  if (INVENTORY_SEARCH_PARAM) {
+    const rows = await callWith(INVENTORY_SEARCH_PARAM);
+    if (rows.length > 0) return rows;
   }
 
-  // Fallback flat endpoint with search
-  try {
-    const { data } = await http.get<unknown>('/api/inventory', {
-      params: { supplierId, search: q, limit },
-    });
-    return normalize(data);
-  } catch {
-    return [];
+  // Probe likely parameter names in order.
+  for (const key of ['search', 'q', 'query', 'name'] as const) {
+    const rows = await callWith(key);
+    if (rows.length > 0) return rows;
   }
+
+  return [];
 }
 
 /**
