@@ -216,6 +216,30 @@ export async function getTopItems(opts?: { supplierId?: string; limit?: number }
 }
 
 /**
+ * Global item search (no supplier filter).
+ * @param q Search text (required, trimmed server-side).
+ * @param limit Max rows to return (default 50).
+ * @returns Array of `{ id, name }` or `[]` on any error.
+ */
+export async function searchItemsGlobal(q: string, limit: number = 50): Promise<ItemRef[]> {
+  if (!q) return [];
+  try {
+    const { data } = await http.get<unknown>('/api/inventory', {
+      params: { search: q, limit },
+    });
+    if (!Array.isArray(data)) return [];
+    return (data as Array<{ id?: string | number; itemId?: string | number; name?: string; itemName?: string }>)
+      .map((d) => ({
+        id: String(d.id ?? d.itemId ?? ''),
+        name: String(d.name ?? d.itemName ?? ''),
+      }))
+      .filter((it) => it.id && it.name);
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Fetch items that belong to a specific supplier (strict scope).
  *
  * Tries, in order:

@@ -6,18 +6,19 @@
  * Analytics landing page with:
  *  1) Stock value over time (Line)
  *  2) Monthly stock movement (Bar: stockIn vs stockOut)
- *  3) Price trend for a selected item (Line) — with **supplier-scoped type-ahead**
+ *  3) Price trend for a selected item (Line) — with **type-ahead**
+ *     - If NO supplier is selected → global search (DB-wide) on typed text.
+ *     - If a supplier IS selected → supplier-scoped search on typed text.
  *  4) Low-stock table (per supplier)
  *  5) Stock per supplier (snapshot)
  *
  * @remarks
- * - Global Filters bar (quick 30/90/180 + custom dates + supplier) controls all cards.
- * - Filters are mirrored to the URL (`?from=&to=&supplierId=`) and hydrated on load.
- * - The Price Trend item selector is a **true type-ahead**:
- *     - No preloading of huge item lists.
- *     - Queries only after the user types.
- *     - Server search is scoped by the currently selected supplier.
- *     - No auto-selection to avoid “random first item” issues.
+ * - Global filter bar (quick 30/90/180, custom dates, supplier) drives the cards.
+ * - Filters mirror into the URL (`?from=&to=&supplierId=`) for deep-links.
+ * - Price Trend:
+ *    - Uses MUI Autocomplete in **type-ahead** mode (user types to search).
+ *    - No huge preloaded lists; queries the server after a short debounce.
+ *    - No auto-selection (prevents “random first item” problems).
  */
 
 import * as React from 'react';
@@ -42,7 +43,8 @@ import {
   getMonthlyStockMovement,
   getPriceTrend,
   getSuppliersLite,
-  searchItemsForSupplier, // ← supplier-scoped search API for type-ahead
+  searchItemsForSupplier, 
+  searchItemsGlobal,
   type PricePoint,
   type ItemRef,
   type SupplierRef,
@@ -83,13 +85,13 @@ function daysAgoIso(n: number): string {
 /**
  * Debounce a string value by `ms` milliseconds.
  * @param value Current value.
- * @param ms Debounce delay in ms (default 250).
+ * @param ms Debounce delay (default 250ms).
  * @returns Debounced value.
  * @internal
  */
 function useDebounced(value: string, ms = 250): string {
   const [v, setV] = React.useState(value);
-  React.useEffect((): (() => void) => {
+  React.useEffect(() => {
     const h = setTimeout(() => setV(value), ms);
     return () => clearTimeout(h);
   }, [value, ms]);
@@ -108,9 +110,9 @@ export default function Analytics(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams();
 
   /**
-   * Seed filters from the URL once on mount.
+   * Hydrate filters from the URL once on mount.
    * - Defaults to last 180 days if range absent (BE requires start/end).
-   * - `readParams` is robust to `supplierid` (lowercase) and strips accidental quotes.
+   * - `readParams` is robust to key variants and stray quotes.
    */
   const [filters, setFilters] = React.useState<AnalyticsFilters>(() => {
     const m = readParams(searchParams.toString(), ['from', 'to', 'supplierId']);
@@ -123,7 +125,7 @@ export default function Analytics(): JSX.Element {
     };
   });
 
-  /** Keep the URL in sync with filter state so deep-links/bookmarks work. */
+  /** Keep URL in sync with canonical filter keys. */
   React.useEffect(() => {
     const next: Record<string, string> = {};
     if (filters.from) next.from = filters.from;
@@ -160,31 +162,36 @@ export default function Analytics(): JSX.Element {
   });
 
   // ---------------------------------------------------------------------------
-  // Price Trend: supplier-scoped **type-ahead** (no preloaded global list)
+  // Price Trend: **type-ahead** (global if no supplier, scoped if supplier set)
   // ---------------------------------------------------------------------------
 
   /** Controlled text the user types in the item search box. */
   const [itemQuery, setItemQuery] = React.useState<string>('');
-
-  /** Debounced version to avoid hammering the API. */
-  const debouncedQuery = useDebounced(itemQuery, 250);
-
   /** The selected item's id; the chart fetch depends on this. */
   const [selectedItemId, setSelectedItemId] = React.useState<string>('');
+  /** Debounced input to prevent extra network calls as the user types. */
+  const debouncedQuery = useDebounced(itemQuery, 250);
 
   /**
-   * Supplier-scoped item search.
-   * - Only runs when a supplier is selected **and** the user types at least 1 char.
-   * - Uses the server to narrow results. No client-side mega filtering needed.
-   * - If BE ignores the supplier filter, results may be empty, which is safer than misleading.
+   * Search items:
+   *  - If supplierId present → supplier-scoped endpoint
+   *  - Else → global inventory search
+   * **No request until the user types at least 1 character** (enabled gate).
+   *
+   * @enterprise
+   * - This avoids loading 500+ items lists and guarantees relevance.
+   * - If your BE ignores filters, returning [] is safer than misleading data.
    */
   const itemSearchQ = useQuery<ItemRef[]>({
     queryKey: ['analytics', 'itemSearch', filters.supplierId ?? null, debouncedQuery],
-    queryFn: () =>
-      (filters.supplierId && debouncedQuery)
-        ? searchItemsForSupplier(filters.supplierId, debouncedQuery, 50)
-        : Promise.resolve([]),
-    enabled: !!filters.supplierId && debouncedQuery.length >= 1, // no options until user starts typing
+    queryFn: async () => {
+      if (!debouncedQuery) return [];
+      if (filters.supplierId) {
+        return searchItemsForSupplier(filters.supplierId, debouncedQuery, 50);
+      }
+      return searchItemsGlobal(debouncedQuery, 50);
+    },
+    enabled: debouncedQuery.length >= 1, // user must type to trigger search
     staleTime: 30_000,
   });
 
@@ -322,7 +329,7 @@ export default function Analytics(): JSX.Element {
         </Card>
 
         {/* ------------------------------------------------------------------- */}
-        {/* Price trend for selected item                                       */}
+        {/* Price trend for selected item — type-ahead                           */}
         {/* ------------------------------------------------------------------- */}
         <Card>
           <CardContent>
@@ -335,51 +342,54 @@ export default function Analytics(): JSX.Element {
             >
               <Typography variant="subtitle1">{t('analytics:cards.priceTrend')}</Typography>
 
-              {/* Enterprise UX:
-                 - If no supplier is selected, we ask the user to pick one.
-                 - Once a supplier is selected, we provide a supplier-scoped type-ahead.
-                 - We do NOT auto-select any item to avoid misleading charts. */}
-              {!filters.supplierId ? (
-                <Typography variant="body2" color="text.secondary">
-                  {t('analytics:priceTrend.selectSupplier')}
-                </Typography>
-              ) : (
-                <Autocomplete<ItemRef, false, false, false>
-                  sx={{ minWidth: 320 }}
-                  options={itemSearchQ.data ?? []} // results come from supplier-scoped server search
-                  getOptionLabel={(o: ItemRef) => o.name}
-                  loading={itemSearchQ.isLoading}
-                  value={(itemSearchQ.data ?? []).find((it) => it.id === selectedItemId) || null}
-                  onChange={(_e: React.SyntheticEvent, val: ItemRef | null) => setSelectedItemId(val?.id ?? '')}
-                  inputValue={itemQuery}
-                  onInputChange={(_e: React.SyntheticEvent, val: string) => setItemQuery(val)}
-                  openOnFocus
-                  // Disable client refiltering: the server already narrowed options by supplier + search text.
-                  filterOptions={(x) => x}
-                  isOptionEqualToValue={(o, v) => o.id === v.id}
-                  renderInput={(params: AutocompleteRenderInputParams) => (
-                    <TextField
-                      {...params}
-                      size="small"
-                      label={t('analytics:item')}
-                      placeholder={t('analytics:priceTrend.selectSupplierShort')}
-                    />
-                  )}
-                  noOptionsText={
-                    debouncedQuery
-                      ? t('analytics:priceTrend.noItemsForSupplier')
-                      : t('analytics:priceTrend.selectSupplierShort')
-                  }
-                />
-              )}
+              {/* UX:
+                 - Always render a **text-capable** Autocomplete (not a <select>).
+                 - If no supplierId → global search on typed text.
+                 - If supplierId → supplier-scoped search on typed text.
+                 - We do NOT auto-select any item. User must pick one explicitly. */}
+              <Autocomplete<ItemRef, false, false, false>
+                sx={{ minWidth: 320 }}
+                // Drive options from the async query (global or scoped)
+                options={itemSearchQ.data ?? []}
+                getOptionLabel={(o: ItemRef) => o.name}
+                loading={itemSearchQ.isLoading}
+                value={(itemSearchQ.data ?? []).find((it) => it.id === selectedItemId) || null}
+                onChange={(_e: React.SyntheticEvent, val: ItemRef | null) =>
+                  setSelectedItemId(val?.id ?? '')
+                }
+                // Controlled input text → this is what user types into
+                inputValue={itemQuery}
+                onInputChange={(_e: React.SyntheticEvent, val: string) => setItemQuery(val)}
+                // UI/behavior tweaks to make it feel like a search box
+                forcePopupIcon={false}
+                clearOnBlur={false}
+                selectOnFocus
+                handleHomeEndKeys
+                // Do not re-filter client-side; server already applies search
+                filterOptions={(x) => x}
+                isOptionEqualToValue={(o, v) => o.id === v.id}
+                renderInput={(params: AutocompleteRenderInputParams) => (
+                  <TextField
+                    {...params}
+                    size="small"
+                    label={t('analytics:item')}
+                    placeholder={
+                      !filters.supplierId
+                        ? t('analytics:priceTrend.selectSupplierShort') // “Select a supplier” hint for global search
+                        : t('analytics:priceTrend.selectSupplierShort')
+                    }
+                  />
+                )}
+                noOptionsText={
+                  debouncedQuery
+                    ? t('analytics:priceTrend.noItemsForSupplier')
+                    : t('analytics:priceTrend.selectSupplierShort')
+                }
+              />
             </Stack>
 
             {/* Chart area */}
-            {!filters.supplierId ? (
-              <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
-                {t('analytics:priceTrend.selectSupplierShort', 'Select a supplier')}
-              </Box>
-            ) : !selectedItemId || priceQ.isLoading ? (
+            {!selectedItemId || priceQ.isLoading ? (
               <Skeleton variant="rounded" height={220} />
             ) : priceQ.isError ? (
               <Box sx={{ height: 220, display: 'grid', placeItems: 'center', color: 'text.secondary' }}>
