@@ -41,7 +41,12 @@ export type AnalyticsParams = {
 export type StockValuePoint = { date: string; totalValue: number };
 export type MonthlyMovement = { month: string; stockIn: number; stockOut: number };
 export type PricePoint = { date: string; price: number };
-export type ItemRef = { id: string; name: string };
+/**
+ * Lightweight item reference used by type-ahead and dropdowns.
+ * `supplierId` is optional but, when present, allows client-side scoping
+ * when the backend ignores supplier filters.
+ */
+export type ItemRef = { id: string; name: string; supplierId?: string };
 export type SupplierRef = { id: string; name: string };
 export type LowStockRow = { itemName: string; quantity: number; minimumQuantity: number };
 export type StockPerSupplierPoint = { supplierName: string; totalQuantity: number };
@@ -67,7 +72,14 @@ let INVENTORY_SEARCH_PARAM: 'search' | 'q' | 'query' | 'name' | null = null;
 type BackendStockValueDTO = { date?: string; totalValue?: unknown };
 type BackendMonthlyMovementDTO = { month?: string; stockIn?: unknown; stockOut?: unknown };
 type BackendPriceTrendDTO = { timestamp?: string; price?: unknown };
-type BackendItemDTO = { id?: string | number; itemId?: string | number; name?: string; itemName?: string };
+type BackendItemDTO = {
+  id?: string | number;
+  itemId?: string | number;
+  name?: string;
+  itemName?: string;
+  /** Some endpoints include it, some don’t; we normalize if present. */
+  supplierId?: string | number | null;
+};
 type BackendSupplierDTO = { id?: string | number; name?: string };
 type BackendSpsDTO = { supplierId?: string | number; supplierName?: string; totalQuantity?: unknown };
 
@@ -229,9 +241,16 @@ export async function getTopItems(opts?: { supplierId?: string; limit?: number }
 
     const { data } = await http.get<unknown>('/api/inventory', { params });
     if (!Array.isArray(data)) return [];
-    return (data as BackendItemDTO[])
-      .map((d) => ({ id: String(d.id ?? d.itemId ?? ''), name: String(d.name ?? d.itemName ?? '') }))
-      .filter((it) => it.id && it.name);
+      return (data as BackendItemDTO[])
+        .map((d) => ({
+          id: String(d.id ?? d.itemId ?? ''),
+          name: String(d.name ?? d.itemName ?? ''),
+          supplierId:
+            typeof d.supplierId === 'string' || typeof d.supplierId === 'number'
+              ? String(d.supplierId)
+              : undefined,
+        }))
+        .filter((it) => it.id && it.name);
   } catch {
     return [];
   }
@@ -304,12 +323,19 @@ export async function searchItemsGlobal(q: string, limit: number = 50): Promise<
 export async function getItemsForSupplier(supplierId: string, limit: number = 500): Promise<ItemRef[]> {
   if (!supplierId) return [];
 
-  const normalize = (data: unknown): ItemRef[] =>
-    Array.isArray(data)
-      ? (data as BackendItemDTO[])
-          .map((d) => ({ id: String(d.id ?? d.itemId ?? ''), name: String(d.name ?? d.itemName ?? '') }))
-          .filter((it) => it.id && it.name)
-      : [];
+  const normalize = (data: unknown): ItemRef[] => {
+    if (!Array.isArray(data)) return [];
+    return (data as BackendItemDTO[])
+      .map((d) => ({
+        id: String(d.id ?? d.itemId ?? ''),
+        name: String(d.name ?? d.itemName ?? ''),
+        supplierId:
+          typeof d.supplierId === 'string' || typeof d.supplierId === 'number'
+            ? String(d.supplierId)
+            : undefined,
+      }))
+      .filter((it) => it.id && it.name);
+  };
 
   // 1) Preferred nested endpoint
   try {
