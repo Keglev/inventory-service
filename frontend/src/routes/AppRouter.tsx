@@ -96,7 +96,7 @@ const AppRouter: React.FC = () => {
           }
         />
         <Route 
-          path="/analytics" 
+          path="/analytics/:section?" 
           element={
             <RequireAuth>
               <Analytics />

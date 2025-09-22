@@ -8,6 +8,11 @@
     "noData": "Keine Daten für die ausgewählten Filter.",
     "noItems": "Keine Artikel gefunden."
   },
+  "nav": {
+    "overview": "Übersicht",
+    "pricing": "Preise",
+    "inventory": "Bestandsgesundheit"
+  },
   "priceTrend": {
     "selectSupplier": "Wähle einen Lieferanten, um einen Artikel auszuwählen",
     "selectSupplierShort": "Lieferant auswählen",

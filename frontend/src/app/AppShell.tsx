@@ -175,7 +175,7 @@ export default function AppShell() {
           <NavItem to="/inventory" icon={<InventoryIcon />} label={t('nav.inventory')} />
           <NavItem to="/suppliers" icon={<LocalShippingIcon />} label={t('nav.suppliers')} />
           <NavItem to="/orders" icon={<ReceiptLongIcon />} label={t('nav.orders')} />
-          <NavItem to="/analytics" icon={<InsightsIcon />} label={t('nav.analytics')} />
+          <NavItem to="/analytics/overview" icon={<InsightsIcon />} label={t('nav.analytics')} />
         </List>
       </Box>
       <Divider />

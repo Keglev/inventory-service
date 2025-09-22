@@ -8,6 +8,11 @@
     "noData": "No data available for the selected filters.",
     "noItems": "No items found."
   },
+    "nav": {
+    "overview": "Overview",
+    "pricing": "Pricing",
+    "inventory": "Inventory health"
+  },
   "priceTrend": {
     "selectSupplier": "Select a supplier to choose an item",
     "selectSupplierShort": "Select a supplier",
