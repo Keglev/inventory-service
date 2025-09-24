@@ -82,7 +82,7 @@ public class InventoryItemController {
     * Returns the total number of inventory items.
     * @return JSON number (e.g., 123)
     */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/count")
     public long countItems() {
         return inventoryItemService.countItems();
@@ -95,7 +95,7 @@ public class InventoryItemController {
      *  @param pageable Spring pageable (page,size,sort)
      *  @return page of items
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/search")
     public Page<InventoryItemDTO> search(
         @RequestParam String name, 
