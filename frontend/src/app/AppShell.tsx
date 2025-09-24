@@ -5,16 +5,17 @@
  * Authenticated pages render inside this shell via <Outlet />.
  *
  * @enterprise
-* Single source of truth for chrome (no duplicated Topbar).
-* Language toggle (🇩🇪/🇺🇸) persists in localStorage and syncs with i18next + MUI theme locale.
-* Toast context for lightweight notifications (replace with notistack later if desired).
-* Drawer supports temporary (mobile) and permanent (desktop) variants.
-* 
-* @routing
-* Links point to authenticated routes (/dashboard, /inventory, /suppliers, /orders, /analytics).
-* Logout action currently navigates to /logout-success (friendly confirmation page).
-* You can later introduce a dedicated /logout route that clears caches and then redirects to /logout-success.
-**/
+ * - Single source of truth for chrome (no duplicated Topbar).
+ * - Language toggle (🇩🇪/🇺🇸) persists in localStorage and syncs with i18next + MUI theme locale.
+ * - Toast context for lightweight notifications (replace with notistack later if desired).
+ * - Drawer supports temporary (mobile) and permanent (desktop) variants.
+ * - **Demo mode UX:** shows a DEMO badge in the AppBar, an inline info banner
+ *   (“changes disabled”), and disables CRUD nav items via Drawer tooltips.
+ *
+ * @routing
+ * Links point to authenticated routes (/dashboard, /inventory, /suppliers, /orders, /analytics).
+ * Logout action currently navigates to /logout (redirects to /logout-success).
+ */
 import * as React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -37,6 +38,7 @@ import {
   MenuItem,
   Avatar,
   CircularProgress,
+  Chip, // 👈 NEW
 } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -70,20 +72,33 @@ const normalize = (lng?: string): SupportedLocale => (lng?.startsWith('en') ? 'e
 
 /**
  * Side navigation item (highlights when current path matches).
+ * Accepts optional `disabled` and `tooltip` for demo-readonly UX.
  */
-const NavItem: React.FC<{ to: string; icon: React.ReactNode; label: string }> = ({
-  to,
-  icon,
-  label,
-}) => {
+const NavItem: React.FC<{
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+  disabled?: boolean;
+  tooltip?: string;
+}> = ({ to, icon, label, disabled, tooltip }) => {
   const location = useLocation();
-  const selected = location.pathname === to || (to !== '/' && location.pathname.startsWith(to));
-  return (
-    <ListItemButton component={Link} to={to} selected={selected} sx={{ borderRadius: 1, mx: 1 }}>
+  const selected =
+    location.pathname === to || (to !== '/' && location.pathname.startsWith(to));
+
+  const button = (
+    <ListItemButton
+      component={Link}
+      to={to}
+      selected={selected}
+      sx={{ borderRadius: 1, mx: 1 }}
+      disabled={disabled}
+    >
       <ListItemIcon sx={{ minWidth: 36 }}>{icon}</ListItemIcon>
       <ListItemText primary={label} />
     </ListItemButton>
   );
+
+  return tooltip ? <Tooltip title={tooltip}>{button}</Tooltip> : button;
 };
 
 /**
@@ -96,9 +111,10 @@ const Fallback: React.FC = () => (
 );
 
 export default function AppShell() {
-  const { t, i18n } = useTranslation('common');
+  const { t, i18n } = useTranslation(['common', 'auth']);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isDemo = Boolean(user?.isDemo);
 
   // Initialize locale from i18n/localStorage and keep theme in sync with i18n changes.
   const initial = normalize(localStorage.getItem(LS_KEY) || i18n.resolvedLanguage || 'de');
@@ -107,13 +123,15 @@ export default function AppShell() {
     // Keep locale state in sync with i18n (in case language was changed elsewhere).
     const handler = (lng: string) => setLocale(normalize(lng));
     i18n.on('languageChanged', handler);
-    return () => { i18n.off('languageChanged', handler); };
+    return () => {
+      i18n.off('languageChanged', handler);
+    };
   }, [i18n]);
 
   // Update MUI theme when locale changes.
   const theme = React.useMemo(() => buildTheme(locale), [locale]);
 
-    // Session timeout/ping (see hook for details).
+  // Session timeout/ping (see hook for details).
   useSessionTimeout({
     pingEndpoint: '/api/me',
     pingIntervalMs: 60_000,
@@ -139,9 +157,7 @@ export default function AppShell() {
   const toggleLocale = () => {
     const next: SupportedLocale = locale === 'de' ? 'en' : 'de';
     localStorage.setItem(LS_KEY, next);
-    // optional: optimistic state update so UI (e.g., flag) flips immediately
-    setLocale(next);
-    // inform i18n (triggers `languageChanged` event that our effect listens to)
+    setLocale(next); // optimistic
     i18n.changeLanguage(next);
     setToast({
       open: true,
@@ -152,8 +168,8 @@ export default function AppShell() {
 
   /**
    * Logout UX:
-   * - Navigate to `/logout-success` (current flow)
-   * - Later: introduce `/logout` page that clears caches (React Query) and invalidates session, then redirects.
+   * - Navigate to `/logout` (page handles server/demo-specific flows),
+   *   which then redirects to `/logout-success`.
    */
   const handleLogout = () => {
     navigate('/logout', { replace: true });
@@ -172,10 +188,33 @@ export default function AppShell() {
       <Box sx={{ flex: 1, py: 1 }}>
         <List>
           <NavItem to="/dashboard" icon={<DashboardIcon />} label={t('nav.dashboard')} />
-          <NavItem to="/inventory" icon={<InventoryIcon />} label={t('nav.inventory')} />
-          <NavItem to="/suppliers" icon={<LocalShippingIcon />} label={t('nav.suppliers')} />
-          <NavItem to="/orders" icon={<ReceiptLongIcon />} label={t('nav.orders')} />
-          <NavItem to="/analytics/overview" icon={<InsightsIcon />} label={t('nav.analytics')} />
+          {/* In demo mode, disable CRUD routes with an explanatory tooltip */}
+          <NavItem
+            to="/inventory"
+            icon={<InventoryIcon />}
+            label={t('nav.inventory')}
+            disabled={isDemo}
+            tooltip={isDemo ? t('auth:demoNotice') : undefined}
+          />
+          <NavItem
+            to="/suppliers"
+            icon={<LocalShippingIcon />}
+            label={t('nav.suppliers')}
+            disabled={isDemo}
+            tooltip={isDemo ? t('auth:demoNotice') : undefined}
+          />
+          <NavItem
+            to="/orders"
+            icon={<ReceiptLongIcon />}
+            label={t('nav.orders')}
+            disabled={isDemo}
+            tooltip={isDemo ? t('auth:demoNotice') : undefined}
+          />
+          <NavItem
+            to="/analytics/overview"
+            icon={<InsightsIcon />}
+            label={t('nav.analytics')}
+          />
         </List>
       </Box>
       <Divider />
@@ -189,7 +228,8 @@ export default function AppShell() {
       </Box>
     </Box>
   );
-    return (
+
+  return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ToastContext.Provider
@@ -203,9 +243,22 @@ export default function AppShell() {
                 <MenuIcon />
               </IconButton>
 
-              <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 {t('app.title')}
               </Typography>
+
+              {/* DEMO badge (right next to the title) */}
+              {isDemo && (
+                <Chip
+                  size="small"
+                  label={t('auth:demoBadge', 'DEMO')}
+                  color="warning"
+                  variant="outlined"
+                  sx={{ ml: 1 }}
+                />
+              )}
+
+              <Box sx={{ flex: 1 }} />
 
               {/* Density (informational for now) */}
               <Tooltip title={t('actions.toggleDensity')}>
@@ -227,7 +280,7 @@ export default function AppShell() {
               {/* Language toggle: 🇩🇪 <-> 🇺🇸 */}
               <Tooltip title={t('actions.toggleLanguage')}>
                 <IconButton onClick={toggleLocale}>
-                   <img
+                  <img
                     src={locale === 'de' ? deFlag : usFlag}
                     alt={locale === 'de' ? 'Deutsch' : 'English'}
                     width={20}
@@ -251,7 +304,7 @@ export default function AppShell() {
               </Menu>
             </Toolbar>
           </AppBar>
-        
+
           {/* Side nav */}
           <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
             {/* Mobile drawer */}
@@ -283,11 +336,28 @@ export default function AppShell() {
           {/* Content */}
           <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, ml: { md: `${drawerWidth}px` } }}>
             <Toolbar />
+
+            {/* Demo notice banner (non-blocking, subtle) */}
+            {isDemo && (
+              <Alert
+                severity="info"
+                icon={false}
+                sx={{
+                  mb: 2,
+                  borderLeft: (theme) => `4px solid ${theme.palette.info.main}`,
+                  bgcolor: (theme) => theme.palette.info.light,
+                }}
+              >
+                {t('auth:demoNotice', 'You are browsing in demo mode. Changes are disabled.')}
+              </Alert>
+            )}
+
             <React.Suspense fallback={<Fallback />}>
               <Outlet />
             </React.Suspense>
           </Box>
         </Box>
+
         {/* Toasts */}
         <Snackbar
           open={!!toast?.open}

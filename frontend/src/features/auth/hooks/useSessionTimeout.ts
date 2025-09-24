@@ -30,6 +30,8 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import httpClient from '../../../api/httpClient';
+import { useAuth } from '../../../context/useAuth';
+
 
 type UseSessionTimeoutOptions = {
   /** Endpoint returning 200/OK when the session is valid (e.g., GET /api/me). */
@@ -53,10 +55,13 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   } = options;
 
   const navigate = useNavigate();
+  const { user } = useAuth(); // to reset timers on user change
 
   // ---- Heartbeat: detect server-side invalidation ----
   React.useEffect(() => {
     let timer: number | null = null;
+    // DEMO sessions have no server cookie/token; skip heartbeat entirely
+    if (user?.isDemo) return;
 
     const ping = async () => {
       try {
@@ -95,11 +100,13 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
       document.removeEventListener('visibilitychange', handleVisibility);
       stop();
     };
-  }, [pingEndpoint, pingIntervalMs, navigate]);
+  }, [user?.isDemo, pingEndpoint, pingIntervalMs, navigate]);
 
   // ---- Idle timeout (optional) ----
   React.useEffect(() => {
-    if (!enableIdleTimeout) return;
+
+    // Skip idle logic for demo too
+    if (!enableIdleTimeout || user?.isDemo) return;
 
     let idleTimer: number;
 
@@ -119,7 +126,7 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
       if (idleTimer) window.clearTimeout(idleTimer);
       events.forEach((e) => window.removeEventListener(e, resetIdle));
     };
-  }, [enableIdleTimeout, idleTimeoutMs, navigate]);
+  }, [enableIdleTimeout, idleTimeoutMs, user?.isDemo, navigate]);
 
   // ---- Cross-tab sync for logout ----
   React.useEffect(() => {

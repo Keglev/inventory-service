@@ -23,6 +23,7 @@ export const API_BASE =
   (import.meta.env.VITE_API_BASE && import.meta.env.VITE_API_BASE.trim()) ||
   'https://inventoryservice.fly.dev';
 
+/* Create the HTTP client */
 const httpClient = axios.create({
   baseURL: API_BASE.replace(/\/+$/, ''), // normalize trailing slash
   withCredentials: true,                 // send/receive session cookies
@@ -33,6 +34,14 @@ const httpClient = axios.create({
   timeout: 30_000,                       // sane client timeout
 });
 
+// Check if this is a demo session (no redirect on 401)
+function isDemoSession(): boolean {
+  try {
+    const raw = localStorage.getItem('ssp.demo.session');
+    return !!raw && JSON.parse(raw)?.isDemo === true;
+  } catch { return false; }
+}
+
 // Safe 401 handling: do NOT force redirects on public routes or /api/me
 httpClient.interceptors.response.use(
   (res) => res,
@@ -41,6 +50,8 @@ httpClient.interceptors.response.use(
     if (!resp) return Promise.reject(error);
 
     if (resp.status === 401) {
+      // In demo mode, just surface the 401 to caller
+      if (isDemoSession()) return Promise.reject(error);
       // Current SPA route (not the request URL)
       const path = window.location.pathname;
 
