@@ -60,7 +60,7 @@ logging:
 # -------- App-level knobs used by SecurityConfig & SuccessHandler --------
 app:
   # Global default: demo OFF. In PROD you can flip with APP_DEMO_READONLY=true
-  demo-readonly: ${APP_DEMO_READONLY:false}
+  demo-readonly: ${APP_DEMO_READONLY:true}
 
   frontend:
     # Defaults make login testable WITHOUT a frontend:

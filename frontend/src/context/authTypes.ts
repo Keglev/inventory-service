@@ -1,7 +1,7 @@
 /**
  * @file authTypes.ts
- * @description
- * Types for authentication context and user profile.
+ * @enterprise
+ * Core authentication shapes for SmartSupplyPro.
  */
 
 /**
@@ -11,14 +11,10 @@
 export interface AppUser {
   email: string;
   fullName: string;
-  role: string;
+  role: string;       // e.g., "USER", "ADMIN", or "DEMO"
+  /** True when this is a client-only demo session (no server token). */
+  isDemo?: boolean;
 }
-
-/**
- * Back-compat alias for older imports; remove once callers migrate.
- * @deprecated Use {@link AppUser}.
- */
-export type AuthUser = AppUser;
 
 /**
  * Value exposed by the AuthContext to the rest of the app.
@@ -30,6 +26,8 @@ export interface AuthContextType {
   setUser: (u: AppUser | null) => void;
   /** Start OAuth2 login (full-page redirect). */
   login: () => void;
+  /** Begin a local demo session (no server request). */
+  loginAsDemo: () => void;
   /** Clear client-side state only (no HTTP, no navigation). */
   logout: () => void;
   /** True while hydrating the session on app startup. */

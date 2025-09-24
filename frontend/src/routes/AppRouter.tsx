@@ -74,7 +74,7 @@ const AppRouter: React.FC = () => {
         <Route
           path="/dashboard"
           element={
-            <RequireAuth>
+            <RequireAuth allowDemo>
               <Dashboard />
             </RequireAuth>
           }
@@ -98,7 +98,7 @@ const AppRouter: React.FC = () => {
         <Route 
           path="/analytics/:section?" 
           element={
-            <RequireAuth>
+            <RequireAuth allowDemo>
               <Analytics />
             </RequireAuth>
           }

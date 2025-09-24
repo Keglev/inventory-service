@@ -69,7 +69,7 @@ management:
 # -------- App-level (prod) --------
 app:
   # Flip ON in Fly by setting APP_DEMO_READONLY="true" (kept off by default)
-  demo-readonly: ${APP_DEMO_READONLY:false}
+  demo-readonly: ${APP_DEMO_READONLY:true}
 
   frontend:
     # Real frontend domain for recruiters

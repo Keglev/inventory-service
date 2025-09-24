@@ -7,11 +7,11 @@
  * @features
  * - Google SSO button that redirects to backend OAuth2 endpoint.
  * - Error banner if `?error=` is present (e.g., user canceled consent).
- * - Responsive, enterprise-grade layout with MUI; accessible labels and focus handling.
+ * - Optional: “Continue in Demo Mode” (client-only, read-only KPIs/Analytics).
  *
  * @i18n
  * - Uses react-i18next ('auth' namespace). See /public/locales for JSON files.
- * - Keys used: signIn, welcome, or, signInGoogle, ssoHint, errorTitle.
+ * - Keys used: signIn, welcome, or, signInGoogle, ssoHint, errorTitle, continueDemo.
  */
 
 import {
@@ -20,8 +20,9 @@ import {
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE } from '../../api/httpClient';
+import { useAuth } from '../../context/useAuth';
 
 /**
  * Begin the OAuth2 Google SSO flow.
@@ -38,6 +39,14 @@ export default function LoginPage() {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const oauthError = params.get('error');
+
+  const { loginAsDemo } = useAuth();
+  const navigate = useNavigate();
+
+  const handleDemo = () => {
+    loginAsDemo();
+    navigate('/analytics/overview', { replace: true });
+  };
 
   return (
     <Box sx={{ minHeight: 'calc(100dvh - 64px)', display: 'grid', placeItems: 'center', px: 2 }}>
@@ -66,6 +75,11 @@ export default function LoginPage() {
                 {t('or')}
               </Typography>
             </Divider>
+
+            {/* Demo entry (client-only, read-only) */}
+            <Button variant="text" onClick={handleDemo}>
+              {t('continueDemo', 'Continue in Demo Mode')}
+            </Button>
 
             <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
               {t('ssoHint')}
