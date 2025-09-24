@@ -72,7 +72,7 @@ public class InventoryItemController {
     }
 
     /** Retrieve all items (non‑paginated). Prefer /search for large datasets. */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly()")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping
     public List<InventoryItemDTO> getAll() {
         return inventoryItemService.getAll();
@@ -82,7 +82,7 @@ public class InventoryItemController {
     * Returns the total number of inventory items.
     * @return JSON number (e.g., 123)
     */
-    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly()")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/count")
     public long countItems() {
         return inventoryItemService.countItems();
@@ -95,7 +95,7 @@ public class InventoryItemController {
      *  @param pageable Spring pageable (page,size,sort)
      *  @return page of items
      */
-    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/search")
     public Page<InventoryItemDTO> search(
         @RequestParam String name, 
