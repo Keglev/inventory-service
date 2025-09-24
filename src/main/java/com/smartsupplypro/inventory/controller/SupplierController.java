@@ -35,7 +35,7 @@ public class SupplierController {
     /**
      * List all suppliers (USER/ADMIN).
      */
-    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly()")
     @GetMapping
     public ResponseEntity<List<SupplierDTO>> listAll() {
         return ResponseEntity.ok(supplierService.findAll());
@@ -45,7 +45,7 @@ public class SupplierController {
     * Returns the total number of suppliers.
     * @return JSON number (e.g., 12)
     */
-    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly()")
     @GetMapping("/count")
     public long countSuppliers() {
         return supplierService.countSuppliers();
@@ -65,7 +65,7 @@ public class SupplierController {
     /**
      * Search by (partial) name (USER/ADMIN).
      */
-    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly()")
     @GetMapping("/search")
     public ResponseEntity<List<SupplierDTO>> search(@RequestParam String name) {
         return ResponseEntity.ok(supplierService.findByName(name));

@@ -61,7 +61,16 @@ import jakarta.servlet.http.HttpServletResponse;
  *   <li>{@link com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler} – user bootstrap + post-login redirect.</li>
  *   <li>{@link com.smartsupplypro.inventory.config.TestSecurityConfig} – simplified test-only chain for controller tests.</li>
  * </ul>
- *
+ * 
+ * 
+ * Demo Mode Security
+ * In Demo, web-layer rules `permitAll()` for read-only GET endpoints are complemented
+ * by method-level checks that allow access via SpEL:
+ *     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
+ * To make the SpEL work, we expose an alias bean named "appProperties" that returns
+ * the same instance managed by @EnableConfigurationProperties(AppProperties.class).
+ * Mutating endpoints remain authenticated-only.
+ * <p>See also {@link SecuritySpelBridgeConfig}.</p>
  * @since 2025-08
  */
 @Configuration
