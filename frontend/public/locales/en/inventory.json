@@ -1,0 +1,30 @@
+{
+  "app": { "title": "Smart Supply Pro" },
+  "nav": { "inventory": "Inventory" },
+  "actions": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "edit": "Edit",
+    "apply": "Apply",
+    "update": "Update"
+  },
+  "inventory": {
+    "title": "Inventory Management",
+    "name": "Item",
+    "code": "Code / SKU",
+    "codeHint": "Optional for now",
+    "supplier": "Supplier",
+    "onHand": "On-hand",
+    "minQty": "Min Qty",
+    "updated": "Updated",
+    "empty": "No items found for the current filters.",
+    "newItem": "Add new item",
+    "editItem": "Edit item",
+    "adjustQty": "Adjust quantity",
+    "delta": "Delta",
+    "reason": "Reason",
+    "changePrice": "Change price",
+    "newPrice": "New price"
+  }
+}

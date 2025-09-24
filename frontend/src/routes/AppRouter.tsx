@@ -79,6 +79,10 @@ const AppRouter: React.FC = () => {
             </RequireAuth>
           }
         />
+        {/**
+         * Inventory route (read-only in demo – nav is disabled by AppShell).
+         * @enterprise Guarded route: requires auth (and optionally allowDemo if you want).
+        */}
         <Route
           path="/inventory"
           element={

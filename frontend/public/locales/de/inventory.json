@@ -1,0 +1,18 @@
+{
+  "title": "Bestandsverwaltung",
+  "name": "Artikel",
+  "code": "Code / SKU",
+  "codeHint": "Derzeit optional",
+  "supplier": "Lieferant",
+  "onHand": "Bestand",
+  "minQty": "Mindestmenge",
+  "updated": "Aktualisiert",
+  "empty": "Keine Einträge für die aktuellen Filter gefunden.",
+  "newItem": "Neuen Artikel anlegen",
+  "editItem": "Artikel bearbeiten",
+  "adjustQty": "Menge anpassen",
+  "delta": "Differenz",
+  "reason": "Grund",
+  "changePrice": "Preis ändern",
+  "newPrice": "Neuer Preis"
+}

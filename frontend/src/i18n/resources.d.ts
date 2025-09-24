@@ -24,6 +24,7 @@ import common from '../../public/locales/en/common.json';
 import analytics from '../../public/locales/en/analytics.json';
 import auth from '../../public/locales/en/auth.json';
 import system from '../../public/locales/en/system.json';
+import inventory from '../../public/locales/en/inventory.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -48,6 +49,9 @@ declare module 'i18next' {
 
       /** dedicated namespace for system-level screens */
       system: typeof system;
+
+      /** dedicated namespace for inventory screens */
+      inventory: typeof inventory;
 
     };
   }
