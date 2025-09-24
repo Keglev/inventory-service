@@ -37,6 +37,13 @@ import lombok.RequiredArgsConstructor;
  *
  * <p>Provides time-series, summaries, and filtered stock movement to power dashboards and charts.
  * All endpoints are DB-agnostic (H2/Oracle differences are handled in the service/repository layers).</p>
+ *
+ * Security note:
+ * For read-only endpoints we allow requests when Demo mode is enabled:
+ * {@code @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")}.
+ * This complements the web-layer `permitAll()` in {@link SecurityConfig}
+ * and avoids 403 responses in Demo (no server-side session).
+ * Mutating endpoints (POST/PUT/PATCH/DELETE) remain authenticated only.
  */
 @RestController
 @RequestMapping(value = "/api/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,7 +62,7 @@ public class AnalyticsController{
      * @return list of {@link StockValueOverTimeDTO} points
      * @throws InvalidRequestException if start/end are missing or invalid (start > end)
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/stock-value")
     public ResponseEntity<List<StockValueOverTimeDTO>> getStockValueOverTime(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
@@ -69,7 +76,7 @@ public class AnalyticsController{
     /**
      * Current total stock per supplier (e.g., for pie/bar charts).
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
         return ResponseEntity.ok(analyticsService.getTotalStockPerSupplier());
@@ -80,7 +87,7 @@ public class AnalyticsController{
      *
      * @return JSON number (e.g., 5) of items where quantity < minimum_quantity
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/low-stock/count")
     public long getLowStockCount() {
         return analyticsService.lowStockCount();
@@ -91,7 +98,7 @@ public class AnalyticsController{
      *
      * @param supplierId required supplier identifier
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/item-update-frequency")
     public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency(
             @RequestParam(name = "supplierId") String supplierId) {
@@ -105,7 +112,7 @@ public class AnalyticsController{
      *
      * @param supplierId required supplier identifier
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/low-stock-items")
     public ResponseEntity<List<LowStockItemDTO>> getLowStockItems(
             @RequestParam(name = "supplierId") String supplierId) {
@@ -121,7 +128,7 @@ public class AnalyticsController{
      * @param end        inclusive end date (ISO yyyy-MM-dd)
      * @param supplierId optional supplier filter
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/monthly-stock-movement")
     public ResponseEntity<List<MonthlyStockMovementDTO>> getMonthlyStockMovement(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
@@ -138,7 +145,7 @@ public class AnalyticsController{
      * <p>If both {@code startDate} and {@code endDate} are null, defaults to the last 30 days
      * ending at "now" to keep responses bounded and performant.</p>
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/stock-updates")
     public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesFromParams(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -199,7 +206,7 @@ public class AnalyticsController{
      *
      * <p>Defaults to the last 30 days if no dates are provided.</p>
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/summary")
     public ResponseEntity<DashboardSummaryDTO> getDashboardSummary(
             @RequestParam(required = false) String supplierId,
@@ -237,7 +244,7 @@ public class AnalyticsController{
      * @param start      inclusive start date (ISO yyyy-MM-dd)
      * @param end        inclusive end date (ISO yyyy-MM-dd)
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/price-trend")
     public ResponseEntity<List<PriceTrendDTO>> getPriceTrend(
             @RequestParam String itemId,
@@ -255,7 +262,7 @@ public class AnalyticsController{
     *
     * <p>Dates are inclusive. Validates that {@code from <= to}.</p>
     */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.isDemoReadonly()")
     @GetMapping("/financial/summary")
     public ResponseEntity<FinancialSummaryDTO> getFinancialSummary(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
