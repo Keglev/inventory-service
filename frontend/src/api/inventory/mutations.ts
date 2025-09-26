@@ -218,32 +218,33 @@ export async function changePrice(req: ChangePriceRequest): Promise<boolean> {
 
 /**
  * Supplier list for pickers (tolerant).
- * Accepts multiple server envelope variants:
- * - { items: [...] }  or  { content: [...] }  or raw array (rare)
+ * Accepts: raw array OR envelopes { items: [...] } / { content: [...] }.
  */
 export async function listSuppliers(): Promise<SupplierOptionDTO[]> {
   try {
     const resData = resDataOrEmpty(await http.get(SUPPLIERS_BASE, { params: { pageSize: 1000 } }));
-    const candidates = extractArray(resData, ['items', 'content']);
+    const candidates: unknown[] = Array.isArray(resData)
+      ? resData
+      : extractArray(resData, ['items', 'content']);
 
     const out: SupplierOptionDTO[] = [];
     for (const entry of candidates) {
       if (!isRecord(entry)) continue;
-      const id =
+
+      const idStr =
         pickString(entry, 'id') ??
         pickString(entry, 'supplierId') ??
         pickString(entry, 'supplier_id');
+
       const idNum = pickNumber(entry, 'supplierId');
-      const resolvedId: string | number | null = id ?? (typeof idNum === 'number' ? idNum : null);
+      const id: string | number | null = idStr ?? (typeof idNum === 'number' ? idNum : null);
 
       const name =
         pickString(entry, 'name') ??
         pickString(entry, 'supplierName') ??
         pickString(entry, 'supplier');
 
-      if (resolvedId != null && name) {
-        out.push({ id: resolvedId, name });
-      }
+      if (id != null && name) out.push({ id, name });
     }
     return out;
   } catch {
