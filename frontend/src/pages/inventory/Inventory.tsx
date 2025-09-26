@@ -13,12 +13,12 @@
 
 import * as React from 'react';
 import { Box, Paper, Typography, LinearProgress, Stack, Button } from '@mui/material';
+import { FormControlLabel, Checkbox } from '@mui/material';
 import {
   DataGrid,
   type GridPaginationModel,
   type GridSortModel,
   type GridColDef,
-  type GridRowParams,
 } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 
@@ -80,6 +80,15 @@ const Inventory: React.FC = () => {
   const [supplierOptions, setSupplierOptions] = React.useState<SupplierOption[]>([]);
   const [supplierLoading, setSupplierLoading] = React.useState(false);
 
+  /**
+   * Show only items that are below their minimum quantity.
+   * @enterprise
+   * - When enabled, we filter rows on the client for the current page.
+   * - We switch the grid to client pagination so counts stay accurate.
+   */
+  const [belowMinOnly, setBelowMinOnly] = React.useState(false);
+
+
   // -----------------------------
   // Single selection via row click (no GridRowSelectionModel, no Sets)
   // -----------------------------
@@ -114,9 +123,18 @@ const Inventory: React.FC = () => {
     setLoading(false);
   }, [serverPage, paginationModel.pageSize, debouncedQ, supplierId, serverSort]);
 
+  /**
+   * Only fetch when supplierId is set.
+   * Enterprise: prevents loading hundreds of items across all suppliers.
+   */
   React.useEffect(() => {
-    void load();
-  }, [load]);
+    if (supplierId) void load();
+    else {
+      // Clear grid when supplier is cleared
+      setServer((s) => ({ ...s, items: [], total: 0 }));
+    }
+  }, [supplierId, load]);
+
 
   // -----------------------------
   // Suppliers for filter (tolerant)
@@ -176,6 +194,23 @@ const Inventory: React.FC = () => {
     ];
   }, [t]);
 
+  /**
+   * Client-side filter for "below min" rows.
+   * @enterprise
+   * - We consider rows where minQty > 0 and onHand < minQty.
+   * - This filter applies to the current page of data (not server-wide),
+   *   which keeps backend complexity low and UX snappy.
+   */
+  const filteredItems = React.useMemo(() => {
+    if (!belowMinOnly) return server.items;
+    return server.items.filter((r) => {
+      const min = Number(r.minQty ?? 0);
+      if (!Number.isFinite(min) || min <= 0) return false;
+      const onHand = Number(r.onHand ?? 0);
+      return onHand < min;
+    });
+  }, [belowMinOnly, server.items]);
+
   // -----------------------------
   // Render
   // -----------------------------
@@ -201,42 +236,104 @@ const Inventory: React.FC = () => {
         </Stack>
       </Stack>
 
+      {/* Filters */}
       <Paper variant="outlined" sx={{ p: 1.5 }}>
         <InventoryFilters
           q={q}
           onQChange={setQ}
           supplierId={supplierId}
-          onSupplierChange={setSupplierId}
-          supplierOptions={supplierOptions}
-          supplierLoading={supplierLoading}
-        />
-      </Paper>
+          onSupplierChange={(next) => {
+          // When supplier changes, reset paging & selection, and clear search
+          setSupplierId(next);
+          setSelectedId(null);
+          setQ('');
+          setPaginationModel((m) => ({ ...m, page: 0 }));
+        }}
+        supplierOptions={supplierOptions}
+        supplierLoading={supplierLoading}
+        /** Enterprise: search is supplier-scoped; disabled until supplier is chosen. */
+        disableSearchUntilSupplier
+      />
 
-      <Paper variant="outlined" sx={{ height: 560, position: 'relative' }}>
-        {loading && (
-          <LinearProgress sx={{ position: 'absolute', left: 0, right: 0, top: 0 }} />
-        )}
-        <DataGrid
-          rows={server.items}
-          columns={columns}
-          rowCount={server.total}
-          paginationMode="server"
-          sortingMode="server"
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          sortModel={sortModel}
-          onSortModelChange={setSortModel}
-          getRowId={(r) => r.id}
-          // Single row id tracking via click; avoids selection model type differences across versions
-          onRowClick={(params: GridRowParams) => setSelectedId(String(params.id))}
-          slots={{
-            noRowsOverlay: () => (
-              <Box sx={{ p: 2, textAlign: 'center' }}>
-                {t('inventory.empty', 'No items found for the current filters.')}
-              </Box>
-            ),
-          }}
+      {/* Below-Min toggle (only active once a supplier is chosen) */}
+      <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={belowMinOnly}
+              onChange={(e) => {
+                setBelowMinOnly(e.target.checked);
+                // Reset to first page so user sees results immediately in client mode
+                setPaginationModel((m) => ({ ...m, page: 0 }));
+              }}
+              disabled={!supplierId}
+            />
+          }
+          label={t('inventory.belowMinOnly', 'Below min only')}
         />
+      </Box>
+    </Paper>
+
+      {/* Content area */}
+      <Paper variant="outlined" sx={{ height: 560, position: 'relative', p: supplierId ? 0 : 2 }}>
+        {/* Supplier gate: block the grid until a supplier is selected */}
+        {!supplierId ? (
+          <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
+            <Typography variant="body1" color="text.secondary">
+              {t('inventory.selectSupplierPrompt', 'Select a supplier to view their items.')}
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            {loading && (
+              <LinearProgress sx={{ position: 'absolute', left: 0, right: 0, top: 0 }} />
+            )}
+
+            <DataGrid
+              /**
+               * Server-driven list *only* after supplier is chosen.
+               * We pass both { supplierId, q } to the backend so search is supplier-scoped.
+               */
+              rows={filteredItems}
+              columns={columns}
+              rowCount={belowMinOnly ? filteredItems.length : server.total}
+              paginationMode={belowMinOnly ? 'client' : 'server'} 
+              sortingMode="server"
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              sortModel={sortModel}
+              onSortModelChange={setSortModel}
+              getRowId={(r) => r.id}
+              /**
+               * Single-selection via click to avoid selection model type drift between MUI versions.
+               */
+              onRowClick={(params) => setSelectedId(String(params.id))}
+              /**
+               * Empty state text.
+               */
+              slots={{
+                noRowsOverlay: () => (
+                  <Box sx={{ p: 2, textAlign: 'center' }}>
+                    {q
+                      ? t('inventory.emptySearch', 'No matching items for this supplier.')
+                      : t('inventory.empty', 'No items found for this supplier.')}
+                  </Box>
+                ),
+              }}
+              /**
+               * Row-level styles for low stock (warning/critical).
+               */
+              sx={{
+                '& .low-stock-warning': (theme) => ({
+                  bgcolor: theme.palette.warning.light,
+                }),
+                '& .low-stock-critical': (theme) => ({
+                  bgcolor: theme.palette.error.light,
+                }),
+              }}
+            />
+          </>
+        )}
       </Paper>
 
       {/* Dialogs */}
@@ -253,7 +350,7 @@ const Inventory: React.FC = () => {
             id: selectedRow.id,
             name: selectedRow.name,
             code: selectedRow.code ?? '',
-            supplierId: selectedRow.supplierId ?? '',
+            supplierId: selectedRow.supplierId ?? supplierId ?? '',
             minQty: selectedRow.minQty ?? 0,
             notes: '',
           }}

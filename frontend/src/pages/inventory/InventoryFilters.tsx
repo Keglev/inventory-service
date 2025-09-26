@@ -33,6 +33,8 @@ export interface InventoryFiltersProps {
   supplierOptions: SupplierOption[];
   /** Loading flag for supplier options (optional). */
   supplierLoading?: boolean;
+  /** If true, disables the search box until a supplier is selected. */
+  disableSearchUntilSupplier?: boolean;
 }
 
 export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
@@ -42,6 +44,7 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
   onSupplierChange,
   supplierOptions,
   supplierLoading,
+  disableSearchUntilSupplier,
 }) => {
   const { t } = useTranslation(['common', 'analytics', 'auth']);
 
@@ -53,10 +56,19 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
       <TextField
         size="small"
         label={t('filters.search', 'Search')}
-        placeholder={t('filters.searchPlaceholder', 'Name or code')}
+        placeholder={t('filters.searchPlaceholder', 'Name')}
         value={q}
         onChange={(e) => onQChange(e.target.value)}
         inputProps={{ 'aria-label': t('filters.search', 'Search') }}
+        /**
+         * Enterprise: search is supplier-scoped; keep disabled until supplierId exists.
+         */
+        disabled={!!disableSearchUntilSupplier && (supplierId === null || supplierId === undefined || supplierId === '')}
+        helperText={
+          !!disableSearchUntilSupplier && (supplierId === null || supplierId === undefined || supplierId === '')
+            ? t('inventory.selectSupplierFirst', 'Select a supplier to enable search.')
+            : undefined
+        }
       />
 
       <Autocomplete

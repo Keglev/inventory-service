@@ -1,14 +1,4 @@
 {
-  "app": { "title": "Smart Supply Pro" },
-  "nav": { "inventory": "Inventory" },
-  "actions": {
-    "cancel": "Cancel",
-    "create": "Create",
-    "save": "Save",
-    "edit": "Edit",
-    "apply": "Apply",
-    "update": "Update"
-  },
   "inventory": {
     "title": "Inventory Management",
     "name": "Item",
@@ -25,6 +15,10 @@
     "delta": "Delta",
     "reason": "Reason",
     "changePrice": "Change price",
-    "newPrice": "New price"
+    "newPrice": "New price",
+    "selectSupplierPrompt": "Select a supplier to view their items.",
+    "selectSupplierFirst": "Select a supplier to enable search.",
+    "emptySearch": "No matching items for this supplier.",
+    "belowMinOnly": "Below min only"
   }
 }

@@ -1,18 +1,25 @@
 {
-  "title": "Bestandsverwaltung",
-  "name": "Artikel",
-  "code": "Code / SKU",
-  "codeHint": "Derzeit optional",
-  "supplier": "Lieferant",
-  "onHand": "Bestand",
-  "minQty": "Mindestmenge",
-  "updated": "Aktualisiert",
-  "empty": "Keine Einträge für die aktuellen Filter gefunden.",
-  "newItem": "Neuen Artikel anlegen",
-  "editItem": "Artikel bearbeiten",
-  "adjustQty": "Menge anpassen",
-  "delta": "Differenz",
-  "reason": "Grund",
-  "changePrice": "Preis ändern",
-  "newPrice": "Neuer Preis"
+  "inventory": {
+    "title": "Bestandsverwaltung",
+    "name": "Artikel",
+    "code": "Code / SKU",
+    "codeHint": "Derzeit optional",
+    "supplier": "Lieferant",
+    "onHand": "Bestand",
+    "minQty": "Mindestmenge",
+    "updated": "Aktualisiert",
+    "empty": "Keine Einträge für die aktuellen Filter gefunden.",
+    "newItem": "Neuen Artikel anlegen",
+    "editItem": "Artikel bearbeiten",
+    "adjustQty": "Menge anpassen",
+    "delta": "Differenz",
+    "reason": "Grund",
+    "changePrice": "Preis ändern",
+    "newPrice": "Neuer Preis",
+    "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen.",
+    "selectSupplierFirst": "Bitte wählen Sie zuerst einen Lieferanten, um die Suche zu aktivieren.",
+    "emptySearch": "Keine passenden Artikel für diesen Lieferanten.",
+    "belowMinOnly": "Nur unter Mindestmenge"
+  }
 }
+
