@@ -363,6 +363,8 @@ const Inventory: React.FC = () => {
               }}
               /**
                * Row-level styles for low stock (warning/critical).
+               * @enterprise
+               * - Default threshold 5 when minQty is 0/undefined.    
                */
               sx={{
                 '& .low-stock-warning': (theme) => ({
