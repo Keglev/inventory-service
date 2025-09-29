@@ -86,6 +86,25 @@ public class AuthController {
     }
 
     /**
+     * Returns the authenticated user's granted authorities as a list of strings.
+     * Primarily for debugging and testing; not used by the front-end.
+     *
+     * <p>401 is returned if the principal is missing.</p>
+     */
+    @GetMapping("/me/authorities")
+    public java.util.List<String> meAuthorities(
+            @org.springframework.security.core.annotation.AuthenticationPrincipal
+            org.springframework.security.core.Authentication auth) {
+        if (auth == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+            org.springframework.http.HttpStatus.UNAUTHORIZED, "No authentication");
+        }
+        return auth.getAuthorities().stream()
+            .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+            .toList();
+    }
+
+    /**
      * API logout endpoint.
      * Invalidates the Spring Security session and expires cookies.
      * Intended for API clients (e.g. Postman); prefer the POST /logout handled by Spring Security for browsers.
