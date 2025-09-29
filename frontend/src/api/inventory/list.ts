@@ -81,6 +81,7 @@ function toInventoryRow(raw: unknown): InventoryRow | null {
   const minQty =
     pickNumber(raw, 'minQty') ??
     pickNumber(raw, 'min_quantity') ??
+    pickNumber(raw, 'minimumQuantity') ??
     null;
 
   const updatedAt =

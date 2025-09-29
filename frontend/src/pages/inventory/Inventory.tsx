@@ -88,6 +88,12 @@ const Inventory: React.FC = () => {
    */
   const [belowMinOnly, setBelowMinOnly] = React.useState(false);
 
+  /**
+   * Client paging is needed whenever we filter locally:
+   * - supplier filtering (backend currently returns cross-supplier rows),
+   * - or "below min only" is enabled.
+   */
+  const useClientPaging = Boolean(supplierId) || belowMinOnly;
 
   // -----------------------------
   // Single selection via row click (no GridRowSelectionModel, no Sets)
@@ -195,6 +201,16 @@ const Inventory: React.FC = () => {
   }, [t]);
 
   /**
+   * Filter rows by selected supplier (client-side fallback).
+   * We use string comparison as IDs can be string/number.
+   */
+  const supplierFiltered = React.useMemo(() => {
+    if (!supplierId) return server.items;
+    const sid = String(supplierId);
+    return server.items.filter(r => String(r.supplierId ?? '') === sid);
+  }, [server.items, supplierId]);
+
+  /**
    * Client-side filter for "below min" rows.
    * @enterprise
    * - We consider rows where minQty > 0 and onHand < minQty.
@@ -202,14 +218,14 @@ const Inventory: React.FC = () => {
    *   which keeps backend complexity low and UX snappy.
    */
   const filteredItems = React.useMemo(() => {
-    if (!belowMinOnly) return server.items;
-    return server.items.filter((r) => {
-      const min = Number(r.minQty ?? 0);
-      if (!Number.isFinite(min) || min <= 0) return false;
-      const onHand = Number(r.onHand ?? 0);
-      return onHand < min;
-    });
-  }, [belowMinOnly, server.items]);
+  if (!belowMinOnly) return supplierFiltered;
+  return supplierFiltered.filter((r) => {
+    const min = Number(r.minQty ?? 0);
+    if (!Number.isFinite(min) || min <= 0) return false;
+    const onHand = Number(r.onHand ?? 0);
+    return onHand < min;
+  });
+}, [belowMinOnly, supplierFiltered]);
 
   // -----------------------------
   // Render
@@ -296,8 +312,8 @@ const Inventory: React.FC = () => {
                */
               rows={filteredItems}
               columns={columns}
-              rowCount={belowMinOnly ? filteredItems.length : server.total}
-              paginationMode={belowMinOnly ? 'client' : 'server'} 
+              rowCount={useClientPaging ? filteredItems.length : server.total}
+              paginationMode={useClientPaging ? 'client' : 'server'}
               sortingMode="server"
               paginationModel={paginationModel}
               onPaginationModelChange={setPaginationModel}
@@ -308,6 +324,7 @@ const Inventory: React.FC = () => {
                * Single-selection via click to avoid selection model type drift between MUI versions.
                */
               onRowClick={(params) => setSelectedId(String(params.id))}
+
               /**
                * Empty state text.
                */
@@ -330,6 +347,16 @@ const Inventory: React.FC = () => {
                 '& .low-stock-critical': (theme) => ({
                   bgcolor: theme.palette.error.light,
                 }),
+              }}
+              getRowClassName={(params) => {
+                const r = params.row as InventoryRow;
+                const min = Number(r.minQty ?? 0);
+                if (!Number.isFinite(min) || min <= 0) return '';
+                const onHand = Number(r.onHand ?? 0);
+                const deficit = min - onHand;
+                if (deficit >= 5) return 'low-stock-critical';
+                if (deficit > 0) return 'low-stock-warning';
+                return '';
               }}
             />
           </>
