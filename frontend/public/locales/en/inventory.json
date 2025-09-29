@@ -18,6 +18,12 @@
   "selectSupplierPrompt": "Select a supplier to view their items.",
   "selectSupplierFirst": "Select a supplier to enable search.",
   "emptySearch": "No matching items for this supplier.",
-  "belowMinOnly": "Below min only"
+  "belowMinOnly": "Below min only",
+  "notes": "Notes",
+  "formSaved": "Item saved successfully.",
+  "validationFailed": "Please fix the highlighted fields.",
+  "duplicateName": "An item with this name already exists.",
+  "duplicateCode": "An item with this code already exists.",
+  "serverError": "Something went wrong. Please try again."
 }
 

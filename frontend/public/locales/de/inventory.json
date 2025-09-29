@@ -18,7 +18,13 @@
   "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen.",
   "selectSupplierFirst": "Bitte wählen Sie zuerst einen Lieferanten, um die Suche zu aktivieren.",
   "emptySearch": "Keine passenden Artikel für diesen Lieferanten.",
-  "belowMinOnly": "Nur unter Mindestmenge"
+  "belowMinOnly": "Nur unter Mindestmenge",
+  "notes": "Notizen",
+  "formSaved": "Artikel wurde erfolgreich gespeichert.",
+  "validationFailed": "Bitte korrigieren Sie die markierten Felder.",
+  "duplicateName": "Ein Artikel mit diesem Namen existiert bereits.",
+  "duplicateCode": "Ein Artikel mit diesem Code existiert bereits.",
+  "serverError": "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
 }
 
 
