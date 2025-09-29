@@ -19,7 +19,13 @@
     "actions": {
       "manageInventory": "Bestand verwalten",
       "manageSuppliers": "Lieferanten verwalten",
-      "viewAnalytics": "Analysen ansehen"
+      "viewAnalytics": "Analysen ansehen",
+      "cancel": "Abbrechen",
+      "create": "Erstellen",
+      "save": "Speichern",
+      "edit": "Bearbeiten",
+      "apply": "Anwenden",
+      "update": "Aktualisieren"
     }
   },
   "actions": {

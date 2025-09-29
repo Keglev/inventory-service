@@ -19,7 +19,13 @@
     "actions": {
     "manageInventory": "Manage inventory",
     "manageSuppliers": "Manage suppliers",
-    "viewAnalytics": "View analytics"
+    "viewAnalytics": "View analytics",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "edit": "Edit",
+    "apply": "Apply",
+    "update": "Update"
   }
 },
   "actions": {

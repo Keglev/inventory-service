@@ -45,6 +45,18 @@ function useDebounced<T>(value: T, delayMs: number): T {
   return v;
 }
 
+/**
+ * Narrower type guard to read an optional createdAt without using `any`.
+ * @enterprise Avoids coupling the grid to backend-specific fields.
+ */
+function getMaybeCreatedAt(row: unknown): string | null {
+  if (typeof row === 'object' && row !== null && 'createdAt' in row) {
+    const v = (row as { createdAt?: unknown }).createdAt;
+    return typeof v === 'string' ? v : null;
+  }
+  return null;
+}
+
 const DEFAULT_PAGE_SIZE = 10;
 
 const Inventory: React.FC = () => {
@@ -93,7 +105,7 @@ const Inventory: React.FC = () => {
    * - supplier filtering (backend currently returns cross-supplier rows),
    * - or "below min only" is enabled.
    */
-  const useClientPaging = Boolean(supplierId) || belowMinOnly;
+  const useClientPaging = Boolean(supplierId) || debouncedQ.trim().length > 0 || belowMinOnly;
 
   // -----------------------------
   // Single selection via row click (no GridRowSelectionModel, no Sets)
@@ -116,6 +128,18 @@ const Inventory: React.FC = () => {
   const serverSort =
     sortModel.length ? `${sortModel[0].field},${sortModel[0].sort ?? 'asc'}` : 'name,asc';
 
+  /**
+   * Load a page of inventory from the backend.
+   * Depends on supplierId, debouncedQ, paginationModel, sortModel.
+   * If supplierId is null, the caller should avoid loading.
+   * Sets loading state.
+   * On error, sets an empty page.
+   * @enterprise
+   * - We always pass supplierId and q to the backend so search is supplier-scoped.
+   * - We do not reset pagination when filters change; the user can navigate back.
+   * - We do not clear selection when the list reloads; the user can see what they selected.
+   * - We use useCallback so the effect below only triggers when dependencies change.
+   */
   const load = React.useCallback(async () => {
     setLoading(true);
     const res = await getInventoryPage({
@@ -177,25 +201,24 @@ const Inventory: React.FC = () => {
         width: 140,
         valueGetter: (_value: unknown, row: InventoryRow) => row.code ?? '—',
       },
-      {
-        field: 'supplierName',
-        headerName: t('inventory.supplier', 'Supplier'),
-        width: 180,
-        valueGetter: (_value: unknown, row: InventoryRow) => row.supplierName ?? '—',
-      },
+      // Supplier column removed (supplier is selected in the filter)
       { field: 'onHand', headerName: t('inventory.onHand', 'On-hand'), type: 'number', width: 120 },
       {
         field: 'minQty',
         headerName: t('inventory.minQty', 'Min Qty'),
         type: 'number',
         width: 120,
-        valueGetter: (_value: unknown, row: InventoryRow) => row.minQty ?? 0,
+        valueGetter: (_value: unknown, row: InventoryRow) => {
+          // Show the server-provided min qty; might be 0 (no threshold)
+          const n = Number(row.minQty ?? 0);
+          return Number.isFinite(n) ? n : 0;
+        },
       },
       {
         field: 'updatedAt',
         headerName: t('inventory.updated', 'Updated'),
         width: 180,
-        valueGetter: (_value: unknown, row: InventoryRow) => row.updatedAt ?? '—',
+        valueGetter: (_value: unknown, row: InventoryRow) => row.updatedAt ?? getMaybeCreatedAt(row) ?? '—',
       },
     ];
   }, [t]);
@@ -207,25 +230,37 @@ const Inventory: React.FC = () => {
   const supplierFiltered = React.useMemo(() => {
     if (!supplierId) return server.items;
     const sid = String(supplierId);
-    return server.items.filter(r => String(r.supplierId ?? '') === sid);
+    return server.items.filter((r) => String(r.supplierId ?? '') === sid);
   }, [server.items, supplierId]);
 
   /**
    * Client-side filter for "below min" rows.
    * @enterprise
    * - We consider rows where minQty > 0 and onHand < minQty.
-   * - This filter applies to the current page of data (not server-wide),
-   *   which keeps backend complexity low and UX snappy.
+   * - Search is case-insensitive, simple `includes` on `name`.
+   * - No extra network requests; keeps DB load stable.
    */
   const filteredItems = React.useMemo(() => {
-  if (!belowMinOnly) return supplierFiltered;
-  return supplierFiltered.filter((r) => {
-    const min = Number(r.minQty ?? 0);
-    if (!Number.isFinite(min) || min <= 0) return false;
-    const onHand = Number(r.onHand ?? 0);
-    return onHand < min;
-  });
-}, [belowMinOnly, supplierFiltered]);
+    let rows = supplierFiltered;
+
+    // name search
+    const qTrim = debouncedQ.trim().toLowerCase();
+    if (qTrim.length > 0) {
+      rows = rows.filter((r) => (r.name ?? '').toLowerCase().includes(qTrim));
+    }
+
+    // below min
+    if (belowMinOnly) {
+      rows = rows.filter((r) => {
+        const minRaw = Number(r.minQty ?? 0);
+        // Default threshold 5 when backend sends 0 → matches your UX note
+        const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 5;
+        const onHand = Number(r.onHand ?? 0);
+        return onHand < min;
+      });
+    }
+    return rows;
+  }, [supplierFiltered, debouncedQ, belowMinOnly]);
 
   // -----------------------------
   // Render
@@ -314,7 +349,7 @@ const Inventory: React.FC = () => {
               columns={columns}
               rowCount={useClientPaging ? filteredItems.length : server.total}
               paginationMode={useClientPaging ? 'client' : 'server'}
-              sortingMode="server"
+              sortingMode={useClientPaging ? 'client' : 'server'}
               paginationModel={paginationModel}
               onPaginationModelChange={setPaginationModel}
               sortModel={sortModel}

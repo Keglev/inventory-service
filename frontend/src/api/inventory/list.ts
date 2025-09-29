@@ -88,6 +88,7 @@ function toInventoryRow(raw: unknown): InventoryRow | null {
     pickString(raw, 'updatedAt') ??
     pickString(raw, 'updated_at') ??
     pickString(raw, 'lastUpdate') ??
+    pickString(raw, 'createdAt') ??
     null;
 
   return {
