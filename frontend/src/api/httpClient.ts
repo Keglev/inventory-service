@@ -16,12 +16,12 @@ import axios from 'axios';
 
 /**
  * API base URL.
- * - Preferred: set `VITE_API_BASE` in your env (e.g., https://inventoryservice.fly.dev).
- * - Fallback: your current production URL (kept for compatibility).
+ * @enterprise
+ * - Empty string ("") means "same origin" (useful when Nginx proxies /api to backend).
+ * - Only fall back to the remote host when the env var is truly undefined.
  */
-export const API_BASE =
-  (import.meta.env.VITE_API_BASE && import.meta.env.VITE_API_BASE.trim()) ||
-  'https://inventoryservice.fly.dev';
+const RAW_BASE = import.meta.env.VITE_API_BASE;
+export const API_BASE = RAW_BASE === undefined ? 'https://inventoryservice.fly.dev' : RAW_BASE.trim();
 
 /* Create the HTTP client */
 const httpClient = axios.create({

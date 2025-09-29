@@ -14,7 +14,10 @@ RUN npm ci
 COPY frontend/ .
 
 # If you use Vite envs at build time, pass them as build args
-ARG VITE_API_BASE="https://inventoryservice.fly.dev"
+# @enterprise
+# - Default to same-origin `/api` so the SPA hits Nginx (which reverse-proxies to Fly).
+# - In Koyeb, you can override this ARG at build time if needed, but `/api` is the stable prod default.
+ARG VITE_API_BASE="/api"
 ENV VITE_API_BASE=$VITE_API_BASE
 
 # =========================
@@ -51,6 +54,9 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Koyeb/containers best practice: bind to $PORT (we listen on 8080)
 ENV PORT=8080
 EXPOSE 8080
+
+# Lightweight container healthcheck: index should be reachable
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -q -O- http://127.0.0.1:8080/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
 # =========================
