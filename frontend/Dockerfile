@@ -43,6 +43,9 @@ RUN npm run build
 # =========================
 FROM nginx:1.27-alpine AS runtime
 
+# Ensure TLS to upstream works (CA bundle for HTTPS proxy_pass)
+RUN apk add --no-cache ca-certificates && update-ca-certificates
+
 # Copy Nginx configs from ops/nginx into container
 # NOTE: Paths are relative to the build context, do NOT start with "/" but context must be repo root (`.` in CI)
 COPY ops/nginx/nginx.conf /etc/nginx/nginx.conf
