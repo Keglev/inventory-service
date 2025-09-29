@@ -194,29 +194,18 @@ const Inventory: React.FC = () => {
   // -----------------------------
   const columns = React.useMemo<GridColDef<InventoryRow>[]>(() => {
     return [
-      { field: 'name', headerName: t('inventory.name', 'Item'), flex: 1, minWidth: 180 },
+      { field: 'name', headerName: t('inventory:name', 'Item'), flex: 1, minWidth: 180 },
       {
         field: 'code',
-        headerName: t('inventory.code', 'Code / SKU'),
+        headerName: t('inventory:code', 'Code / SKU'),
         width: 140,
         valueGetter: (_value: unknown, row: InventoryRow) => row.code ?? '—',
       },
       // Supplier column removed (supplier is selected in the filter)
-      { field: 'onHand', headerName: t('inventory.onHand', 'On-hand'), type: 'number', width: 120 },
-      {
-        field: 'minQty',
-        headerName: t('inventory.minQty', 'Min Qty'),
-        type: 'number',
-        width: 120,
-        valueGetter: (_value: unknown, row: InventoryRow) => {
-          // Show the server-provided min qty; might be 0 (no threshold)
-          const n = Number(row.minQty ?? 0);
-          return Number.isFinite(n) ? n : 0;
-        },
-      },
+      { field: 'onHand', headerName: t('inventory:onHand', 'On-hand'), type: 'number', width: 120 },
       {
         field: 'updatedAt',
-        headerName: t('inventory.updated', 'Updated'),
+        headerName: t('inventory:updated', 'Updated'),
         width: 180,
         valueGetter: (_value: unknown, row: InventoryRow) => row.updatedAt ?? getMaybeCreatedAt(row) ?? '—',
       },
@@ -269,20 +258,20 @@ const Inventory: React.FC = () => {
     <Box sx={{ display: 'grid', gap: 1 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {t('inventory.title', 'Inventory Management')}
+          {t('inventory:title', 'Inventory Management')}
         </Typography>
         <Stack direction="row" spacing={1}>
           <Button variant="contained" onClick={() => setOpenNew(true)}>
-            {t('inventory.newItem', 'Add new item')}
+            {t('inventory:newItem', 'Add new item')}
           </Button>
           <Button disabled={!selectedRow} onClick={() => setOpenEdit(true)}>
             {t('actions.edit', 'Edit')}
           </Button>
           <Button disabled={!selectedRow} onClick={() => setOpenAdjust(true)}>
-            {t('inventory.adjustQty', 'Adjust quantity')}
+            {t('inventory:adjustQty', 'Adjust quantity')}
           </Button>
           <Button disabled={!selectedRow} onClick={() => setOpenPrice(true)}>
-            {t('inventory.changePrice', 'Change price')}
+            {t('inventory:changePrice', 'Change price')}
           </Button>
         </Stack>
       </Stack>
@@ -320,7 +309,7 @@ const Inventory: React.FC = () => {
               disabled={!supplierId}
             />
           }
-          label={t('inventory.belowMinOnly', 'Below min only')}
+          label={t('inventory:belowMinOnly', 'Below min only')}
         />
       </Box>
     </Paper>
@@ -331,7 +320,7 @@ const Inventory: React.FC = () => {
         {!supplierId ? (
           <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
             <Typography variant="body1" color="text.secondary">
-              {t('inventory.selectSupplierPrompt', 'Select a supplier to view their items.')}
+              {t('inventory:selectSupplierPrompt', 'Select a supplier to view their items.')}
             </Typography>
           </Box>
         ) : (
@@ -367,8 +356,8 @@ const Inventory: React.FC = () => {
                 noRowsOverlay: () => (
                   <Box sx={{ p: 2, textAlign: 'center' }}>
                     {q
-                      ? t('inventory.emptySearch', 'No matching items for this supplier.')
-                      : t('inventory.empty', 'No items found for this supplier.')}
+                      ? t('inventory:emptySearch', 'No matching items for this supplier.')
+                      : t('inventory:empty', 'No items found for this supplier.')}
                   </Box>
                 ),
               }}
@@ -385,8 +374,8 @@ const Inventory: React.FC = () => {
               }}
               getRowClassName={(params) => {
                 const r = params.row as InventoryRow;
-                const min = Number(r.minQty ?? 0);
-                if (!Number.isFinite(min) || min <= 0) return '';
+                const minRaw = Number(r.minQty ?? 0);
+                const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 5; // default to 5
                 const onHand = Number(r.onHand ?? 0);
                 const deficit = min - onHand;
                 if (deficit >= 5) return 'low-stock-critical';
