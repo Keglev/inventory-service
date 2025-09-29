@@ -81,19 +81,26 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         if (email == null) {
             throw new OAuth2AuthenticationException("Email not found in OAuth2 provider");
         }
+        final boolean shouldBeAdmin = "ckbuzin1@gmail.com".equalsIgnoreCase(email);
 
-         Optional<AppUser> optionalUser = userRepository.findByEmail(email);
+        Optional<AppUser> optionalUser = userRepository.findByEmail(email);
 
         AppUser user;
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
+            // Synchronize role every login (fixes historical USER records for your admin email)
+            final Role desired = shouldBeAdmin ? Role.ADMIN : Role.USER;
+            if (user.getRole() != desired) {
+                user.setRole(desired);
+                userRepository.save(user);
+            }
         } else {
             if (userRepository.count() >= 10) {
                 throw new OAuth2AuthenticationException("User limit reached");
             }
 
             AppUser newUser = new AppUser(email, name);
-            newUser.setRole(email.equals("ckbuzin1@gmail.com") ? Role.ADMIN : Role.USER);
+             newUser.setRole(shouldBeAdmin ? Role.ADMIN : Role.USER);
             newUser.setCreatedAt(LocalDateTime.now());
 
             try {
@@ -104,9 +111,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 System.err.println(">>> Detected duplicate user insert (already exists): " + email);
                 user = userRepository.findByEmail(email).orElseThrow(() ->
                         new OAuth2AuthenticationException("User already exists but cannot be loaded"));
+                // Ensure desired role even on the duplicate path
+                final Role desired = shouldBeAdmin ? Role.ADMIN : Role.USER;
+                if (user.getRole() != desired) {
+                    user.setRole(desired);
+                    userRepository.save(user);
+                }
             }
         }
-
+        // Build authorities from the final role
         Map<String, Object> attributes = new HashMap<>(oauthUser.getAttributes());
         // Expose the app role to clients without the ROLE_ prefix for display/logic if needed:
         final String roleName = user.getRole().name();

@@ -28,7 +28,8 @@
 import * as React from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, Box, Autocomplete, Alert, Tooltip
+  TextField, Button, Box, Autocomplete, Alert, Tooltip, FormControl,
+  InputLabel, Select, MenuItem
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -99,6 +100,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
     clearErrors,
     formState: { errors, isSubmitting },
     reset,
+    watch,
   } = useForm<UpsertItemForm>({
     resolver: zodResolver(upsertItemSchema) as Resolver<UpsertItemForm>,
     defaultValues: {
@@ -106,10 +108,18 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
       name: initial?.name ?? '',
       code: initial?.code ?? '',
       supplierId: initial?.supplierId ?? '',
+      // We keep the same form key, but label shows "Qty"
       minQty: initial?.minQty ?? 0,
+      // "notes" carries create-reason until backend exposes a dedicated field
       notes: initial?.notes ?? '',
     },
   });
+
+  /** Allowed reasons for *create* flow only (server enum-compatible). */
+  const CREATE_REASON_OPTIONS = [
+    { value: 'INITIAL_STOCK', i18nKey: 'reasons.initial_stock' },
+    { value: 'MANUAL_UPDATE', i18nKey: 'reasons.manual_update' },
+  ] as const;
 
   /** Supplier options fetched from server. */
   const [suppliers, setSuppliers] = React.useState<SupplierOptionDTO[]>([]);
@@ -265,16 +275,18 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
           />
 
           {/* Code / SKU */}
-          <TextField
-            label={t('inventory.code', 'Code / SKU')}
-            {...register('code')}
-            helperText={t('inventory.codeHint', 'Optional for now')}
-            error={!!errors.code}
-          />
+          <Tooltip title={t('inventory:codeReadOnlyHint', 'Optional for now')}>
+            <TextField
+              label={t('inventory:code', 'Code / SKU')}
+              {...register('code')}
+              InputProps={{ readOnly: true }}
+              error={!!errors.code}
+            />
+          </Tooltip>
 
           {/* Minimum Quantity */}
           <TextField
-            label={t('inventory.minQty', 'Min Qty')}
+            label={t('inventory.minQty', 'Qty')}
             type="number"
             inputProps={{ min: 0 }}
             {...register('minQty')}
@@ -283,14 +295,27 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
           />
 
           {/* Notes */}
-          <TextField
-            label={t('inventory.notes', 'Notes')}
-            multiline
-            minRows={2}
-            {...register('notes')}
-            error={!!errors.notes}
-            helperText={errors.notes?.message}
-          />
+          {/* Reason dropdown on CREATE only */}
+          {!initial?.id && (
+            <FormControl error={!!errors.notes}>
+              <InputLabel id="reason-label">{t('inventory:reason', 'Reason')}</InputLabel>
+              <Select
+                labelId="reason-label"
+                label={t('inventory:reason', 'Reason')}
+                value={watch('notes') ?? ''}
+                onChange={(e) => setValue('notes', e.target.value as UpsertItemForm['notes'], { shouldValidate: true })}
+              >
+                {CREATE_REASON_OPTIONS.map(opt => (
+                  <MenuItem key={opt.value} value={opt.value}>
+                    {t(`inventory:${opt.i18nKey}`, opt.value)}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.notes?.message && (
+                <Box sx={{ mt: 0.5, color: 'error.main', fontSize: 12 }}>{errors.notes.message}</Box>
+              )}
+            </FormControl>
+          )}
         </Box>
       </DialogContent>
 
@@ -305,7 +330,9 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
           {/* span wrapper: Tooltip needs an enabled element even if the button is disabled */}
           <span>
             <Button onClick={onSubmit} disabled={isSubmitting || readOnly} variant="contained">
-              {initial?.id ? t('common.save', 'Save') : t('common.create', 'Create')}
+              {initial?.id
+                ? t('inventory.save', 'Save')
+                : t('inventory.create', 'Create')}
             </Button>
           </span>
         </Tooltip>

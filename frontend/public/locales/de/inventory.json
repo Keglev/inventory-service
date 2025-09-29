@@ -13,6 +13,12 @@
   "adjustQty": "Menge anpassen",
   "delta": "Differenz",
   "reason": "Grund",
+  "codeReadOnlyHint": "Derzeit nur lesbar",
+  "qty": "Menge",
+  "reasons": {
+    "initial_stock": "Anfangsbestand",
+    "manual_update": "Manuelle Anpassung"
+  },
   "changePrice": "Preis ändern",
   "newPrice": "Neuer Preis",
   "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen.",

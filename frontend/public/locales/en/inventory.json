@@ -13,6 +13,8 @@
   "adjustQty": "Adjust quantity",
   "delta": "Delta",
   "reason": "Reason",
+  "qty": "Qty",
+  "codeReadOnlyHint": "Optional for now",
   "changePrice": "Change price",
   "newPrice": "New price",
   "selectSupplierPrompt": "Select a supplier to view their items.",
@@ -24,6 +26,10 @@
   "validationFailed": "Please fix the highlighted fields.",
   "duplicateName": "An item with this name already exists.",
   "duplicateCode": "An item with this code already exists.",
-  "serverError": "Something went wrong. Please try again."
+  "serverError": "Something went wrong. Please try again.",
+  "reasons": {
+    "initial_stock": "Initial stock",
+    "manual_update": "Manual update"
+  }
 }
 
