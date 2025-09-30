@@ -54,7 +54,11 @@ httpClient.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  */
 httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const u = typeof config.url === 'string' ? config.url : '';
-  if (u.startsWith('/api/')) config.url = u.replace(/^\/api\//, '/');
+  // Only strip if baseURL is *exactly* '/api'
+  const base = (httpClient.defaults.baseURL || '').replace(/\/+$/, '');
+  if (base === '/api' && u.startsWith('/api/')) {
+    config.url = u.slice(4); // '/api/foo' -> '/foo'
+  }
   return config;
 });
 
