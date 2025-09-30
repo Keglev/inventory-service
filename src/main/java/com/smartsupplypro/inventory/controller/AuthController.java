@@ -3,7 +3,6 @@ package com.smartsupplypro.inventory.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -85,22 +84,28 @@ public class AuthController {
                 picture
         );
     }
-
     /**
-     * Returns the authenticated user's granted authorities as a list of strings.
-     * Primarily for debugging and testing; not used by the front-end.
+     * Returns the caller's granted authorities (e.g., ROLE_USER, ROLE_ADMIN).
      *
-     * <p>401 is returned if the principal is missing.</p>
+     * <p>We inject the authenticated principal ({@link OAuth2User}) directly via
+     * {@link org.springframework.security.core.annotation.AuthenticationPrincipal}.
+     * This is the correct way to access authorities for the current user in a controller;
+     * using {@code @AuthenticationPrincipal Authentication} will typically resolve to {@code null}.</p>
+     *
+     * @return list of authority strings (never {@code null})
+     * @throws ResponseStatusException 401 if no authenticated principal is present
      */
     @GetMapping("/me/authorities")
-    public java.util.List<String> meAuthorities(Authentication auth) {
-        if (auth == null) {
-            throw new org.springframework.web.server.ResponseStatusException(
-            org.springframework.http.HttpStatus.UNAUTHORIZED, "No authentication");
+    public java.util.List<String> meAuthorities(
+            @AuthenticationPrincipal OAuth2User principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication");
         }
-        return auth.getAuthorities().stream()
-            .map(org.springframework.security.core.GrantedAuthority::getAuthority)
-            .toList();
+        return principal.getAuthorities().stream()
+                .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     /**
