@@ -1,11 +1,14 @@
 package com.smartsupplypro.inventory.service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -21,116 +24,94 @@ import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
- * Custom implementation of {@link OAuth2UserService} that integrates OAuth2 login
- * with internal user management and role assignment logic.
- * <p>
- * This class is responsible for loading user details from an OAuth2 provider (e.g. Google),
- * and mapping them to the system's internal {@link AppUser} entity, with role management,
- * user persistence, and constraint enforcement (e.g. user limits).
- * </p>
+ * OAuth2 user service that:
  *
- * <p>
- * If the user logs in for the first time, a new record is created unless the system
- * already has the maximum number of allowed users. The first admin user is determined
- * by email.
- * </p>
- *
- * <h3>Responsibilities:</h3>
  * <ul>
- *   <li>Retrieve authenticated OAuth2 user details</li>
- *   <li>Create or reuse internal {@link AppUser} entity</li>
- *   <li>Assign appropriate {@link Role} (ADMIN or USER)</li>
- *   <li>Enforce a maximum of 10 registered users</li>
- *   <li>Inject system roles into the Spring Security context</li>
+ *   <li>Loads the upstream OAuth2 user (e.g., Google) and extracts email/name.</li>
+ *   <li>Finds or creates a local {@link AppUser} record on first login.</li>
+ *   <li>Assigns {@code ROLE_ADMIN} if the user's email is present in the configured allow-list
+ *       (environment variable {@code APP_ADMIN_EMAILS}, comma-separated, case-insensitive);
+ *       otherwise assigns {@code ROLE_USER}.</li>
+ *   <li>Exposes a Spring Security authority of the form {@code ROLE_*} so that
+ *       {@code hasRole('ADMIN')} and {@code hasRole('USER')} continue to work unchanged.</li>
+ *   <li>Adds an {@code appRole} attribute to the principal's attributes for frontend display if needed.</li>
  * </ul>
  *
- * @author SmartSupply
+ * <p><strong>Rationale:</strong> This keeps your existing controller annotations and tests intact.
+ * You can grant yourself (or others) admin rights operationally via an environment variable,
+ * avoiding hard-coding emails in source code.</p>
  */
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    @Autowired
-    private AppUserRepository userRepository;
+    private final AppUserRepository userRepository;
+
+    public CustomOAuth2UserService(AppUserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     /**
-     * Normalize a Role enum (or DB string) to a Spring Security ROLE_* authority.
-     * Guarantees exactly one "ROLE_" prefix.
+     * Reads a comma-separated admin list from {@code APP_ADMIN_EMAILS}.
+     * Trims whitespace and lower-cases entries for case-insensitive matching.
      */
-    private static String toAuthority(String roleName) {
+    private static Set<String> readAdminAllowlist() {
+        String raw = System.getenv().getOrDefault("APP_ADMIN_EMAILS", "");
+        if (raw == null || raw.isBlank()) return Collections.emptySet();
+        return Arrays.stream(raw.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .map(String::toLowerCase)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    /** Normalizes a role name to a Spring Security ROLE_* authority. */
+    private static String toRoleAuthority(String roleName) {
         if (roleName == null || roleName.isBlank()) return "ROLE_USER";
         return roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
     }
 
-    /**
-     * Loads and processes the authenticated OAuth2 user.
-     *
-     * @param userRequest the request containing OAuth2 provider and token info
-     * @return a {@link DefaultOAuth2User} enriched with application-specific role information
-     * @throws OAuth2AuthenticationException if the user cannot be loaded or violates constraints
-     */
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(userRequest);
+    public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
+        OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(request);
 
-        String email = oauthUser.getAttribute("email");
-        String name = oauthUser.getAttribute("name");
-        /*
-         * Email is required for user identification and must be provided by the OAuth2 provider.
-         * If not present, authentication cannot proceed.
-         */
-        if (email == null) {
-            throw new OAuth2AuthenticationException("Email not found in OAuth2 provider");
+        final String email = oauthUser.getAttribute("email");
+        final String name  = oauthUser.getAttribute("name");
+
+        if (email == null || email.isBlank()) {
+            throw new OAuth2AuthenticationException("Email not provided by OAuth2 provider.");
         }
-        final boolean shouldBeAdmin = "ckbuzin1@gmail.com".equalsIgnoreCase(email);
 
-        Optional<AppUser> optionalUser = userRepository.findByEmail(email);
+        // Decide role from env allow-list (minimal change; no AppProperties wiring needed)
+        final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());
 
-        AppUser user;
-        if (optionalUser.isPresent()) {
-            user = optionalUser.get();
-            // Synchronize role every login (fixes historical USER records for your admin email)
-            final Role desired = shouldBeAdmin ? Role.ADMIN : Role.USER;
-            if (user.getRole() != desired) {
-                user.setRole(desired);
-                userRepository.save(user);
-            }
-        } else {
-            if (userRepository.count() >= 10) {
-                throw new OAuth2AuthenticationException("User limit reached");
-            }
-
-            AppUser newUser = new AppUser(email, name);
-             newUser.setRole(shouldBeAdmin ? Role.ADMIN : Role.USER);
-            newUser.setCreatedAt(LocalDateTime.now());
-
+        // Find or create local user
+        AppUser user = userRepository.findById(email).orElseGet(() -> {
+            AppUser u = new AppUser(email, (name == null || name.isBlank()) ? email : name);
+            u.setRole(isAdmin ? Role.ADMIN : Role.USER);
+            u.setCreatedAt(LocalDateTime.now());
             try {
-                user = userRepository.save(newUser);
-                if (user.getRole() == null) user.setRole(Role.USER);
-            } catch (DataIntegrityViolationException ex) {
-                // Duplicate detected — fallback to fetch existing user
-                System.err.println(">>> Detected duplicate user insert (already exists): " + email);
-                user = userRepository.findByEmail(email).orElseThrow(() ->
-                        new OAuth2AuthenticationException("User already exists but cannot be loaded"));
-                // Ensure desired role even on the duplicate path
-                final Role desired = shouldBeAdmin ? Role.ADMIN : Role.USER;
-                if (user.getRole() != desired) {
-                    user.setRole(desired);
-                    userRepository.save(user);
-                }
+                return userRepository.save(u);
+            } catch (DataIntegrityViolationException e) {
+                // In case of race: re-fetch
+                return userRepository.findById(email).orElseThrow(() -> e);
             }
+        });
+
+        // Heal role if the allow-list changed since last login (idempotent)
+        final Role desired = isAdmin ? Role.ADMIN : Role.USER;
+        if (user.getRole() != desired) {
+            user.setRole(desired);
+            userRepository.save(user);
         }
-        // Build authorities from the final role
-        Map<String, Object> attributes = new HashMap<>(oauthUser.getAttributes());
-        // Expose the app role to clients without the ROLE_ prefix for display/logic if needed:
+
+        // Build ROLE_* authority so hasRole(...) checks keep working
         final String roleName = user.getRole().name();
+        final SimpleGrantedAuthority roleAuthority = new SimpleGrantedAuthority(toRoleAuthority(roleName));
+
+        // Copy provider attributes and add a helpful "appRole" for the frontend
+        Map<String, Object> attributes = new HashMap<>(oauthUser.getAttributes());
         attributes.put("appRole", roleName);
 
-        return new DefaultOAuth2User(
-                java.util.Collections.singletonList(new SimpleGrantedAuthority(toAuthority(roleName))),
-                attributes,
-                "email"  // Use email as the principal name
-        );
+        return new DefaultOAuth2User(Collections.singletonList(roleAuthority), attributes, "email");
     }
-
 }
-// This code handles the OAuth2 login success scenario, registering new users if they do not exist in the database.
