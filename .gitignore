@@ -76,11 +76,25 @@ oracle_wallet/**/*.sso
 *.p12
 *.sso
 *.jks
-.env
-*.env
 *.zip
 oracle_wallet.zip
 oracle_wallet_b64.txt
+
+# keep env files private by default
+.env
+*.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
 
 ###############################################################################
 # Node.js Frontend Output
