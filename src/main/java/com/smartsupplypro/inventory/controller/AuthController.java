@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -92,9 +93,7 @@ public class AuthController {
      * <p>401 is returned if the principal is missing.</p>
      */
     @GetMapping("/me/authorities")
-    public java.util.List<String> meAuthorities(
-            @org.springframework.security.core.annotation.AuthenticationPrincipal
-            org.springframework.security.core.Authentication auth) {
+    public java.util.List<String> meAuthorities(Authentication auth) {
         if (auth == null) {
             throw new org.springframework.web.server.ResponseStatusException(
             org.springframework.http.HttpStatus.UNAUTHORIZED, "No authentication");
