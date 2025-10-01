@@ -225,12 +225,11 @@ public class SecurityConfig {
                     if (ret != null && ret.startsWith(base)) {                     // simple allowlist: must start with FE base
                         target = ret;
                     }
-                        res.sendRedirect(target);
+                    res.sendRedirect(target);
                 })
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID", "SESSION")
                 .permitAll() // explicit: anyone can hit /logout (it only clears if there is a session)
-                .logoutRequestMatcher(request -> "/logout".equals(request.getRequestURI()) && "GET".equalsIgnoreCase(request.getMethod()))
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
