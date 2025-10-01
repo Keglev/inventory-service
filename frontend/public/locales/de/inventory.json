@@ -5,6 +5,7 @@
   "codeHint": "Derzeit optional",
   "supplier": "Lieferant",
   "price": "Preis",
+  "quantity": "Anfangsbestand",
   "onHand": "Bestand",
   "minQty": "Mindestmenge",
   "updated": "Aktualisiert",

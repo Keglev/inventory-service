@@ -5,6 +5,7 @@
   "codeHint": "Optional for now",
   "supplier": "Supplier",
   "price": "Price",
+  "quantity": "Initial Stock",
   "onHand": "On-hand",
   "minQty": "Min Qty",
   "updated": "Updated",
