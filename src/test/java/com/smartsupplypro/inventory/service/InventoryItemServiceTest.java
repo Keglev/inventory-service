@@ -244,16 +244,17 @@ public class InventoryItemServiceTest {
     }
 
     /**
-     * Validates that an empty or null `createdBy` field causes a validation failure.
+     * Validates that createdBy is automatically populated during save operations.
      */
     @Test
-    void testSave_withEmptyCreatedBy_shouldThrowException() {
+    void testSave_withEmptyCreatedBy_shouldSucceed() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
         dto.setCreatedBy(null);
 
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> inventoryItemService.save(dto));
-
-        assertEquals("CreatedBy must be provided", ex.getMessage());
+        // Should succeed since service auto-populates createdBy from authenticated user before validation
+        InventoryItemDTO result = inventoryItemService.save(dto);
+        assertNotNull(result);
+        assertEquals("admin", result.getCreatedBy());
     }
     // ========== UPDATE TESTS ==========
 

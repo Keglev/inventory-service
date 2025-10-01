@@ -94,6 +94,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Override
     @Transactional
     public InventoryItemDTO save(InventoryItemDTO dto) {
+        // Ensure createdBy is populated from authenticated user before validation
+        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {
+            dto.setCreatedBy(currentUsername());
+        }
+        
         InventoryItemValidator.validateBase(dto);
         InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
         validateSupplierExists(dto.getSupplierId());
