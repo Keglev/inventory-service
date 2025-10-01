@@ -236,7 +236,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
             // For production, prefer enabling CSRF and ignoring it for /api/** only:
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/actuator/**"))
             .addFilterAfter(authTraceFilter(), AnonymousAuthenticationFilter.class);
         return http.build();
     }
