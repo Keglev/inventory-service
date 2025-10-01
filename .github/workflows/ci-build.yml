@@ -158,6 +158,7 @@ jobs:
           cd "$BACKEND_DIR"
           mvn -U clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
         env:
+          # yamllint disable-line rule:line-length
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
