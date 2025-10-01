@@ -85,15 +85,17 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());
 
         // Find or create local user
-        AppUser user = userRepository.findById(email).orElseGet(() -> {
-            AppUser u = new AppUser(email, (name == null || name.isBlank()) ? email : name);
+        AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
+            AppUser u = new AppUser();                           // use no-arg ctor; id stays a UUID
+            u.setEmail(email);
+            u.setName((name == null || name.isBlank()) ? email : name);
             u.setRole(isAdmin ? Role.ADMIN : Role.USER);
             u.setCreatedAt(LocalDateTime.now());
             try {
                 return userRepository.save(u);
             } catch (DataIntegrityViolationException e) {
-                // In case of race: re-fetch
-                return userRepository.findById(email).orElseThrow(() -> e);
+                // If unique(email) tripped, fetch the existing row by EMAIL
+                return userRepository.findByEmail(email).orElseThrow(() -> e);
             }
         });
 

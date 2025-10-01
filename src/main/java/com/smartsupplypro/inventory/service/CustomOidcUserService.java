@@ -1,16 +1,12 @@
 package com.smartsupplypro.inventory.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -51,10 +47,7 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
 @Service
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
-    private static final Logger log = LoggerFactory.getLogger(CustomOidcUserService.class);
-
     private final AppUserRepository userRepository;
-    private final OidcUserService delegate = new OidcUserService();
 
     public CustomOidcUserService(AppUserRepository userRepository) {
         this.userRepository = userRepository;
@@ -72,53 +65,57 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
     }
 
     private static String toRoleAuthority(Role role) {
-        return "ROLE_" + (role == null ? Role.USER.name() : role.name());
+        String name = (role == null) ? "USER" : role.name();
+        return name.startsWith("ROLE_") ? name : "ROLE_" + name;
     }
 
     @Override
-    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-        // 1) Load provider user (ID token + optional userinfo + default authorities)
-        OidcUser oidcUser = delegate.loadUser(userRequest);
+    public OidcUser loadUser(OidcUserRequest request) throws OAuth2AuthenticationException {
+        // Delegate to the default loader first
+        OidcUser oidc = new OidcUserService().loadUser(request);
 
-        // 2) Extract email / name from OIDC claims
-        final String email = (String) oidcUser.getAttributes().get("email");
-        final String name  = (String) oidcUser.getAttributes().getOrDefault("name", email);
+        final String email = oidc.getEmail(); // same as oidc.getAttribute("email")
+        final String name  = oidc.getFullName(); // falls back to "name" claim if present
+
         if (email == null || email.isBlank()) {
-            throw new OAuth2AuthenticationException("OIDC provider did not supply an email claim.");
+            throw new OAuth2AuthenticationException("Email not provided by OAuth2 provider.");
         }
 
-        // 3) Map to local AppUser + decide role from allow-list
+        // Decide role from env allow-list (same helper you already use)
         final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());
-        AppUser user = userRepository.findById(email).orElseGet(() -> {
-            AppUser u = new AppUser(email, (name == null || name.isBlank()) ? email : name);
+
+        // ---- FIND OR CREATE BY *EMAIL* (not by id) ----
+        AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
+            AppUser u = new AppUser();                           // let JPA manage UUID id
+            u.setEmail(email);
+            u.setName((name == null || name.isBlank()) ? email : name);
             u.setRole(isAdmin ? Role.ADMIN : Role.USER);
             u.setCreatedAt(LocalDateTime.now());
             try {
                 return userRepository.save(u);
             } catch (DataIntegrityViolationException e) {
-                return userRepository.findById(email).orElseThrow(() -> e);
+                // Another request created it concurrently, or it already existed -> re-fetch by EMAIL
+                return userRepository.findByEmail(email).orElseThrow(() -> e);
             }
         });
 
-        Role desired = isAdmin ? Role.ADMIN : Role.USER;
+        // Heal role if the allow-list changed since last login
+        final Role desired = isAdmin ? Role.ADMIN : Role.USER;
         if (user.getRole() != desired) {
             user.setRole(desired);
             userRepository.save(user);
         }
 
-        // 4) Merge authorities (keep provider authorities + add ROLE_*)
-        List<GrantedAuthority> authorities = new ArrayList<>(oidcUser.getAuthorities());
+        // Merge ROLE_* into authorities so hasRole(...) works across the app
+        var authorities = new java.util.ArrayList<GrantedAuthority>(oidc.getAuthorities());
         authorities.add(new SimpleGrantedAuthority(toRoleAuthority(user.getRole())));
 
-        // 5) Build a new OidcUser using email as the name attribute key
-        OidcUser mapped = (oidcUser.getUserInfo() != null)
-            ? new DefaultOidcUser(authorities, oidcUser.getIdToken(), oidcUser.getUserInfo(), "email")
-            : new DefaultOidcUser(authorities, oidcUser.getIdToken(), "email");
-
-        log.info("OIDC login: email={} assignedRole={} authorities={}",
-                email, user.getRole().name(),
-                authorities.stream().map(GrantedAuthority::getAuthority).sorted().toList());
-
-        return mapped;
+        // Prefer "email" as the principal name (so logs & SecurityContext name show the email)
+        return new DefaultOidcUser(
+            authorities,
+            oidc.getIdToken(),
+            oidc.getUserInfo(),
+            "email"
+        );
     }
 }
