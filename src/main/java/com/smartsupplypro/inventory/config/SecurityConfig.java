@@ -3,6 +3,7 @@ package com.smartsupplypro.inventory.config;
 import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -15,10 +16,14 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -166,6 +171,14 @@ public class SecurityConfig {
 
                 // 4) Admin-only area stays role-protected
                 auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+                auth.requestMatchers(HttpMethod.POST, "/api/inventory/**").hasRole("ADMIN");
+                auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**").hasRole("ADMIN");
+                auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**").hasRole("ADMIN");
+                auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasRole("ADMIN");
+                auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**").hasRole("ADMIN");
+                auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**").hasRole("ADMIN");
+                auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**").hasRole("ADMIN");
+                auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**").hasRole("ADMIN");
 
                 // 5) Everything else under /api/** must at least be authenticated
                 auth.requestMatchers("/api/**").authenticated();
@@ -213,9 +226,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
-            // Portfolio simplification: CSRF disabled. For production, enable CSRF and ignore for /api/**.
-            .csrf(csrf -> csrf.disable());
-
+            // For production, prefer enabling CSRF and ignoring it for /api/** only:
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            .addFilterAfter(authTraceFilter(), AnonymousAuthenticationFilter.class);
         return http.build();
     }
 
@@ -310,4 +323,45 @@ public class SecurityConfig {
     public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
         return new CookieOAuth2AuthorizationRequestRepository();
     }
-}
+
+   /**
+    * Lightweight request tracer to log the authenticated user and authorities
+    * on every /api/** request. Useful to see what the backend actually receives
+    * during a failing POST (e.g., does it carry ROLE_ADMIN?).
+    *
+    * Remove this bean after troubleshooting to keep logs clean.
+    */
+    @Bean
+    public OncePerRequestFilter authTraceFilter() {
+        return new OncePerRequestFilter() {
+            private final Logger log = LoggerFactory.getLogger("AuthTrace");
+
+            @Override
+            protected void doFilterInternal(
+                @NonNull HttpServletRequest request,
+                @NonNull HttpServletResponse response,
+                @NonNull FilterChain filterChain
+            ) throws ServletException, java.io.IOException {
+
+            final String uri = request.getRequestURI();
+            if (uri.startsWith("/api/")) {
+                final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                final String who = (auth == null) ? "<none>" : String.valueOf(auth.getName());
+                final String authorities =
+                    (auth == null || auth.getAuthorities() == null)
+                        ? "[]"
+                        : auth.getAuthorities().stream()
+                              .map(GrantedAuthority::getAuthority)
+                              .sorted()
+                              .reduce((a, b) -> a + "," + b)
+                              .orElse("");
+
+                log.info("AUTH TRACE method={} uri={} user={} authorities=[{}]",
+                        request.getMethod(), uri, who, authorities);
+            }
+
+             filterChain.doFilter(request, response);
+            }
+        };
+    }
+};
