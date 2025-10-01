@@ -53,6 +53,9 @@ class InventoryItemRepositoryAnalyticsTest {
             .executeUpdate();
         em.createNativeQuery("INSERT INTO supplier (id, name, created_at, created_by) VALUES ('S2', 'Supplier Two', CURRENT_TIMESTAMP, 'test')")
             .executeUpdate();
+        // Create the default supplier that @PrePersist method expects
+        em.createNativeQuery("INSERT INTO supplier (id, name, created_at, created_by) VALUES ('default-supplier', 'Default Supplier', CURRENT_TIMESTAMP, 'test')")
+            .executeUpdate();
 
 
         // Persist items via JPA (leave supplier_id null for now)

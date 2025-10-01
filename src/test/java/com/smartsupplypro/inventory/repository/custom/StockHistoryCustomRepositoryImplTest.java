@@ -40,7 +40,7 @@ class StockHistoryCustomRepositoryImplTest {
         em.createNativeQuery("DELETE FROM inventory_item").executeUpdate();
         em.createNativeQuery("DELETE FROM supplier").executeUpdate();
 
-        // seed suppliers
+        // seed suppliers (including default-supplier for @PrePersist)
         em.createNativeQuery(
             "INSERT INTO supplier (id, name, created_at, created_by) " +
             "VALUES ('sup1','Supplier One', CURRENT_TIMESTAMP, 'test')"
@@ -49,15 +49,19 @@ class StockHistoryCustomRepositoryImplTest {
             "INSERT INTO supplier (id, name, created_at, created_by) " +
             "VALUES ('sup2','Supplier Two', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
-
-        // seed inventory items
         em.createNativeQuery(
-            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, created_at, created_by) " +
-            "VALUES ('itemA','Item A', 1.00, 0, 0, CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO supplier (id, name, created_at, created_by) " +
+            "VALUES ('default-supplier','Default Supplier', CURRENT_TIMESTAMP, 'test')"
+        ).executeUpdate();
+
+        // seed inventory items with supplier_id column
+        em.createNativeQuery(
+            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) " +
+            "VALUES ('itemA','Item A', 1.00, 0, 0, 'sup1', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
         em.createNativeQuery(
-            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, created_at, created_by) " +
-            "VALUES ('itemB','Item B', 1.00, 0, 0, CURRENT_TIMESTAMP, 'test')"
+            "INSERT INTO inventory_item (id, name, price, quantity, minimum_quantity, supplier_id, created_at, created_by) " +
+            "VALUES ('itemB','Item B', 1.00, 0, 0, 'sup2', CURRENT_TIMESTAMP, 'test')"
         ).executeUpdate();
     }
 

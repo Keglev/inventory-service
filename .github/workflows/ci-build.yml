@@ -1,7 +1,7 @@
 name: Inventory Service CI/CD - CI Build & Test & Docker Build
 
 # =============================================================================
-# Smart Supply Pro — Backend (Inventory Service) CI/CD
+# Smart Supply Pro - Backend (Inventory Service) CI/CD
 #
 # Purpose
 # - Build & test the Spring Boot backend
@@ -161,8 +161,8 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: ${{ secrets.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID }}
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: ${{ secrets.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET }}
 
       # Optional: show resolved Spring versions (non-blocking)
       - name: Show Spring core & Security versions
@@ -223,7 +223,7 @@ jobs:
           docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
 
       # ---------------------------------------------------------------------
-      # 8) Trivy vulnerability scan — gate on HIGH/CRITICAL
+      # 8) Trivy vulnerability scan - gate on HIGH/CRITICAL
       # ---------------------------------------------------------------------
       - name: Scan image for CVEs (Trivy)
         uses: aquasecurity/trivy-action@0.20.0

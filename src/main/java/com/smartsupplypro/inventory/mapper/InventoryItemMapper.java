@@ -1,9 +1,9 @@
 package com.smartsupplypro.inventory.mapper;
 
+import java.math.BigDecimal;
+
 import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.model.InventoryItem;
-
-import java.math.BigDecimal;
 
 /**
  * Utility class for converting between {@link InventoryItem} entities
@@ -36,6 +36,8 @@ public class InventoryItemMapper {
                 .price(item.getPrice())
                 .totalValue(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .supplierId(item.getSupplierId())
+                .supplierName(item.getSupplier() != null ? item.getSupplier().getName() : null)
+                .minimumQuantity(item.getMinimumQuantity())
                 .createdBy(item.getCreatedBy())
                 .createdAt(item.getCreatedAt())
                 .build();
@@ -54,8 +56,9 @@ public class InventoryItemMapper {
                 .quantity(dto.getQuantity())
                 .price(dto.getPrice())
                 .supplierId(dto.getSupplierId())
-                .createdBy(dto.getCreatedBy())
-                .createdAt(dto.getCreatedAt())
+                .minimumQuantity(dto.getMinimumQuantity())
+                .createdBy(dto.getCreatedBy())    // will be overwritten in service if null
+                .createdAt(dto.getCreatedAt())    // PrePersist covers nulls
                 .build();
     }
 }

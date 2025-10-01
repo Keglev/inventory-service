@@ -119,6 +119,47 @@ This project includes a standalone Java utility to manually test the Oracle Wall
 
 ---
 
+## 🚀 Deployment
+
+### CI/CD Pipeline
+- **Backend CI**: Automatic build, test, and Docker image push on backend file changes
+- **Frontend CI**: Automatic build, test, and deployment to Koyeb on frontend file changes
+- **Manual Production Deploy**: Due to Oracle free tier IP restrictions, backend deployment requires manual execution
+
+### Production Deployment Workflow
+
+1. **Push backend changes** → Triggers CI build → Docker image built and pushed
+2. **Manual deployment** from local machine (required for Oracle IP whitelist):
+   
+   **Option A: Using helper script**
+   ```bash
+   # Linux/Mac
+   ./deploy-local.sh [optional-image-tag]
+   
+   # Windows
+   deploy-local.bat [optional-image-tag]
+   ```
+   
+   **Option B: Manual commands**
+   ```bash
+   # 1. Update Oracle IP whitelist with your current IP
+   curl https://ipinfo.io/ip  # Get your current IP
+   
+   # 2. Deploy using latest image
+   fly deploy --image username/inventory-service:$(git rev-parse --short HEAD)
+   ```
+
+3. **Verify deployment**:
+   - Backend: https://inventoryservice.fly.dev
+   - Frontend: https://inventory-service.koyeb.app
+
+### Environment Variables
+- **Production**: Uses `application-prod.yml` profile
+- **Oracle Database**: Requires IP whitelisting in Oracle Cloud Console
+- **Secrets**: Managed via GitHub Secrets and Fly.io secrets
+
+---
+
 ## 👀 Coming Next
 - Frontend React dashboard
 - Jenkins-based parallel CI pipeline (optional)

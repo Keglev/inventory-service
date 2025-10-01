@@ -1,9 +1,13 @@
 package com.smartsupplypro.inventory.service.impl;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,6 +34,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -129,6 +138,7 @@ class InventoryItemServiceImplTest {
     @DisplayName("save: returns saved item and logs INITIAL_STOCK with priceAtChange")
     void save_shouldReturnSavedItem() {
         // given
+        mockOAuth2Authentication("admin", "ROLE_ADMIN");
         InventoryItem toPersist = InventoryItemMapper.toEntity(baseDto);
         InventoryItem saved = copyOf(toPersist);
         saved.setId("item-1");
@@ -466,5 +476,27 @@ class InventoryItemServiceImplTest {
         if (dto.getCreatedBy() == null || dto.getCreatedBy().isBlank()) {
             dto.setCreatedBy("admin");
         }
+    }
+
+    /**
+     * Helper method to mock OAuth2 authentication in the security context.
+     * This allows tests to simulate authenticated users without full integration setup.
+     *
+     * @param email the email/username for the authenticated user
+     * @param roles the roles to assign to the user (e.g., "ROLE_ADMIN", "ROLE_USER")
+     */
+    private void mockOAuth2Authentication(String email, String... roles) {
+        Map<String, Object> attributes = Map.of("email", email);
+
+        Collection<GrantedAuthority> authorities = Arrays.stream(roles)
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toList());
+
+        OAuth2User oauth2User = new DefaultOAuth2User(authorities, attributes, "email");
+
+        Authentication auth = new TestingAuthenticationToken(oauth2User, null, authorities);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
     }
 }

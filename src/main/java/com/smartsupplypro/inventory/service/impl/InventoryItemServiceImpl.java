@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,10 +62,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     /** {@inheritDoc} */
     @Override
     public List<InventoryItemDTO> getAll() {
-        return repository.findAll()
-                .stream()
-                .map(InventoryItemMapper::toDTO)
-                .toList();
+        return repository.findAll().stream().map(InventoryItemMapper::toDTO).toList();
     }
 
     /** {@inheritDoc} */
@@ -94,6 +92,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      * Also records a stock history entry with the initial quantity and current unit price snapshot.
      */
     @Override
+    @Transactional
     public InventoryItemDTO save(InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);
         InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);
@@ -101,11 +100,16 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         InventoryItem entity = InventoryItemMapper.toEntity(dto);
 
+        // Ensure server-side fields
+        if (entity.getId() == null || entity.getId().isBlank()) {
+            entity.setId(UUID.randomUUID().toString());
+        }
+        entity.setCreatedBy(currentUsername()); // authoritative source
         if (entity.getCreatedAt() == null) {
             entity.setCreatedAt(LocalDateTime.now());
         }
         if (entity.getMinimumQuantity() <= 0) {
-            entity.setMinimumQuantity(10); // sensible default
+            entity.setMinimumQuantity(10);
         }
 
         InventoryItem saved = repository.save(entity);
@@ -115,8 +119,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 saved.getId(),
                 saved.getQuantity(),
                 StockChangeReason.INITIAL_STOCK,
-                actorUsername(saved.getCreatedBy()),
-                saved.getPrice() // priceAtChange snapshot
+                currentUsername(),
+                saved.getPrice()
         );
 
         return InventoryItemMapper.toDTO(saved);
@@ -130,16 +134,16 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      * </ul>
      */
     @Override
+    @Transactional
     public Optional<InventoryItemDTO> update(String id, InventoryItemDTO dto) {
         InventoryItemValidator.validateBase(dto);
         validateSupplierExists(dto.getSupplierId());
 
         InventoryItem existing = InventoryItemValidator.validateExists(id, repository);
 
-        // Enforce role-based rules (e.g., only admin can update name/supplier)
         InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);
 
-        boolean nameChanged = !existing.getName().equalsIgnoreCase(dto.getName());
+        boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());
         boolean priceChanged = !existing.getPrice().equals(dto.getPrice());
         if (nameChanged || priceChanged) {
             InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);
@@ -149,22 +153,25 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         existing.setName(dto.getName());
         existing.setQuantity(dto.getQuantity());
+        existing.setSupplierId(dto.getSupplierId());
+        if (dto.getMinimumQuantity() > 0) {
+            existing.setMinimumQuantity(dto.getMinimumQuantity());
+        }
         if (priceChanged) {
             assertPriceValid(dto.getPrice());
             existing.setPrice(dto.getPrice());
         }
-        existing.setSupplierId(dto.getSupplierId());
-        existing.setCreatedBy(dto.getCreatedBy());
+        // DO NOT overwrite createdBy on update
+        // existing.setCreatedBy(...);
 
         InventoryItem updated = repository.save(existing);
 
-        // Log quantity movement (if any) with current price snapshot
         if (quantityDiff != 0) {
             stockHistoryService.logStockChange(
                     updated.getId(),
                     quantityDiff,
                     StockChangeReason.MANUAL_UPDATE,
-                    actorUsername(updated.getCreatedBy()),
+                    currentUsername(),
                     updated.getPrice()
             );
         }
@@ -177,6 +184,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      * Allowed reasons: SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER.
      */
     @Override
+    @Transactional
     public void delete(String id, StockChangeReason reason) {
         if (reason != StockChangeReason.SCRAPPED &&
             reason != StockChangeReason.DESTROYED &&
@@ -195,7 +203,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 item.getId(),
                 -item.getQuantity(),
                 reason,
-                actorUsername(item.getCreatedBy()),
+                currentUsername(),
                 item.getPrice()
         );
 
@@ -206,6 +214,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      * Adjusts quantity by delta (positive or negative). Writes a history entry with price snapshot.
      */
     @Override
+    @Transactional
     public InventoryItemDTO adjustQuantity(String id, int delta, StockChangeReason reason) {
         InventoryItem item = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found"));
@@ -220,7 +229,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 saved.getId(),
                 delta,
                 reason,
-                actorUsername(saved.getCreatedBy()),
+                currentUsername(),
                 saved.getPrice()
         );
 
@@ -231,21 +240,22 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      * Updates unit price and writes a PRICE_CHANGE history entry with change=0 and price snapshot.
      */
     @Override
+    @Transactional
     public InventoryItemDTO updatePrice(String id, BigDecimal newPrice) {
         assertPriceValid(newPrice);
 
-        InventoryItem item = loadOrThrow(id);
+        InventoryItem item = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
         item.setPrice(newPrice);
         InventoryItem saved = repository.save(item);
 
         stockHistoryService.logStockChange(
                 id,
-                0, // zero quantity for price events
+                0,
                 StockChangeReason.PRICE_CHANGE,
                 currentUsername(),
                 newPrice
         );
-
         return InventoryItemMapper.toDTO(saved);
     }
 
@@ -255,19 +265,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         if (!supplierRepository.existsById(supplierId)) {
             throw new IllegalArgumentException("Supplier does not exist");
         }
-    }
-
-    private InventoryItem loadOrThrow(String id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
-    }
-
-    /**
-     * Prefer a non-null, meaningful actor for audit trails:
-     * - If the entity has 'createdBy', use it; otherwise fall back to the security principal.
-     */
-    private String actorUsername(String createdBy) {
-        return (createdBy != null && !createdBy.isBlank()) ? createdBy : currentUsername();
     }
 
     private String currentUsername() {

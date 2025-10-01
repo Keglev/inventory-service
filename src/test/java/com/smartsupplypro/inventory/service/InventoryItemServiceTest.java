@@ -304,7 +304,7 @@ public class InventoryItemServiceTest {
             eq("item-1"), 
             eq(20), 
             eq(StockChangeReason.MANUAL_UPDATE), 
-            eq("admin"),
+            eq("user"),
             any(BigDecimal.class)
             );
     }
