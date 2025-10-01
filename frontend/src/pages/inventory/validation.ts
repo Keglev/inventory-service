@@ -26,6 +26,7 @@ export const upsertItemSchema = z.object({
   name: z.string().min(2, 'Name is required'),
   code: z.string().trim().optional().nullable(),
   supplierId: supplierIdSchema,
+  price: z.coerce.number().positive('Price must be greater than 0'),
   minQty: z.coerce.number().nonnegative('Min qty must be ≥ 0').optional(),
   notes: z.string().optional().nullable(),
 });

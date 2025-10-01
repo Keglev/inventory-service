@@ -108,6 +108,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
       name: initial?.name ?? '',
       code: initial?.code ?? '',
       supplierId: initial?.supplierId ?? '',
+      price: initial?.price ?? 0,
       // We keep the same form key, but label shows "Qty"
       minQty: initial?.minQty ?? 0,
       // "notes" carries create-reason until backend exposes a dedicated field
@@ -292,6 +293,19 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
             {...register('minQty')}
             error={!!errors.minQty}
             helperText={errors.minQty?.message}
+          />
+
+          {/* Price */}
+          <TextField
+            label={t('inventory.price', 'Price')}
+            type="number"
+            inputProps={{ min: 0.01, step: 0.01 }}
+            {...register('price')}
+            error={!!errors.price}
+            helperText={errors.price?.message}
+            InputProps={{
+              startAdornment: <span style={{ marginRight: '8px' }}>€</span>,
+            }}
           />
 
           {/* Notes */}

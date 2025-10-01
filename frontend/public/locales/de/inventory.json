@@ -4,6 +4,7 @@
   "code": "Code / SKU",
   "codeHint": "Derzeit optional",
   "supplier": "Lieferant",
+  "price": "Preis",
   "onHand": "Bestand",
   "minQty": "Mindestmenge",
   "updated": "Aktualisiert",
@@ -15,6 +16,8 @@
   "reason": "Grund",
   "codeReadOnlyHint": "Derzeit nur lesbar",
   "qty": "Menge",
+  "save": "Speichern",
+  "create": "Erstellen",
   "reasons": {
     "initial_stock": "Anfangsbestand",
     "manual_update": "Manuelle Anpassung"

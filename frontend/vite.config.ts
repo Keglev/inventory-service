@@ -18,6 +18,23 @@ const httpsConfig = useHttps
   : undefined;
 
 export default defineConfig({
+  build: {
+    chunkSizeWarningLimit: 800, // Set to 800KB to allow MUI chunk but warn for others
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split vendor libraries
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-mui': ['@mui/material', '@mui/icons-material', '@mui/x-data-grid'],
+          'vendor-routing': ['react-router-dom'],
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'vendor-charts': ['recharts'],
+          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector', 'i18next-http-backend'],
+          'vendor-utils': ['axios', '@tanstack/react-query', 'dayjs'],
+        },
+      },
+    },
+  },
   server: {
     https: httpsConfig,
     proxy: {
