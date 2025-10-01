@@ -124,38 +124,37 @@ This project includes a standalone Java utility to manually test the Oracle Wall
 ### CI/CD Pipeline
 - **Backend CI**: Automatic build, test, and Docker image push on backend file changes
 - **Frontend CI**: Automatic build, test, and deployment to Koyeb on frontend file changes
-- **Manual Production Deploy**: Due to Oracle free tier IP restrictions, backend deployment requires manual execution
+- **Manual Production Deploy**: Due to Oracle free tier IP restrictions, backend deployment requires manual execution from local machine
 
 ### Production Deployment Workflow
 
 1. **Push backend changes** → Triggers CI build → Docker image built and pushed
 2. **Manual deployment** from local machine (required for Oracle IP whitelist):
    
-   **Option A: Using helper script**
    ```bash
-   # Linux/Mac
-   ./deploy-local.sh [optional-image-tag]
-   
-   # Windows
-   deploy-local.bat [optional-image-tag]
+   # Traditional approach - builds and deploys directly
+   fly deploy
    ```
    
-   **Option B: Manual commands**
-   ```bash
-   # 1. Update Oracle IP whitelist with your current IP
-   curl https://ipinfo.io/ip  # Get your current IP
-   
-   # 2. Deploy using latest image
-   fly deploy --image username/inventory-service:$(git rev-parse --short HEAD)
-   ```
+   This method:
+   - ✅ Builds image locally using your whitelisted IP
+   - ✅ No need to update Oracle IP whitelist frequently
+   - ✅ Same reliable process as before
+   - ✅ No dependency on external Docker images
 
 3. **Verify deployment**:
    - Backend: https://inventoryservice.fly.dev
    - Frontend: https://inventory-service.koyeb.app
 
+### Why This Approach Works Best
+- **Oracle free tier** requires IP whitelisting, but your IP changes frequently
+- **Local build** uses your current IP during Docker build process
+- **Fly.io deploys** the locally built image without needing external image pulls
+- **No daily IP updates** required in Oracle Cloud Console
+
 ### Environment Variables
 - **Production**: Uses `application-prod.yml` profile
-- **Oracle Database**: Requires IP whitelisting in Oracle Cloud Console
+- **Oracle Database**: Requires IP whitelisting, handled during local build
 - **Secrets**: Managed via GitHub Secrets and Fly.io secrets
 
 ---
