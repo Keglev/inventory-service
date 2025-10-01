@@ -34,6 +34,7 @@ class AdminStubController {
      * @return the literal string {@code "admin ok"} when authorization succeeds
      */
     @GetMapping("/ping")
+    @SuppressWarnings("unused")
     String ping() {
         return "admin ok";
     }

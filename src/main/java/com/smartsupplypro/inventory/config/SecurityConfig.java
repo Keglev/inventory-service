@@ -92,6 +92,9 @@ public class SecurityConfig {
     private OAuth2LoginSuccessHandler successHandler;
 
     @Autowired
+    private com.smartsupplypro.inventory.service.CustomOidcUserService customOidcUserService;
+
+    @Autowired
     private com.smartsupplypro.inventory.service.CustomOAuth2UserService customOAuth2UserService;
 
     @Autowired
@@ -198,7 +201,12 @@ public class SecurityConfig {
                     // can be processed by any instance (no sticky sessions required).
                     .authorizationRequestRepository(authorizationRequestRepository())
                 )
-                .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
+                .userInfoEndpoint(ui -> ui
+                    // OIDC path (Google): use the OIDC service that returns an OidcUser
+                    .oidcUserService(customOidcUserService)
+                    // Non-OIDC OAuth2 providers (if you ever add one): keep your existing service
+                    .userService(customOAuth2UserService)
+                )
                 .failureHandler(oauthFailureHandler(props))
                 .successHandler(successHandler)
             )
@@ -222,6 +230,7 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID", "SESSION")
                 .permitAll() // explicit: anyone can hit /logout (it only clears if there is a session)
+                .logoutRequestMatcher(request -> "/logout".equals(request.getRequestURI()) && "GET".equalsIgnoreCase(request.getMethod()))
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)

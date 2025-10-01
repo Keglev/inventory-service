@@ -27,6 +27,8 @@ import com.smartsupplypro.inventory.config.AppProperties;
 import com.smartsupplypro.inventory.config.SecurityConfig;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 import com.smartsupplypro.inventory.service.CustomOAuth2UserService;
+import com.smartsupplypro.inventory.service.CustomOidcUserService;
+
 
 /**
  * Security smoke tests exercising the real {@link SecurityConfig} in a lean MVC slice.
@@ -151,6 +153,14 @@ class SecuritySmokeTest {
                 .clientName("Google")
                 .build();
             return new InMemoryClientRegistrationRepository(google);
+        }
+
+        @Bean
+        @SuppressWarnings("unused")
+        CustomOidcUserService customOidcUserService(AppUserRepository appUserRepository) {
+            // SecurityConfig wires an OIDC user service for Google logins.
+            // In a @WebMvcTest slice we don’t hit the real provider, so a mock is sufficient.
+            return Mockito.mock(CustomOidcUserService.class);
         }
 
         // IMPORTANT: Do NOT declare an AppProperties @Bean here.
