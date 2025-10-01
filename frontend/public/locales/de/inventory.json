@@ -30,11 +30,13 @@
   "emptySearch": "Keine passenden Artikel für diesen Lieferanten.",
   "belowMinOnly": "Nur unter Mindestmenge",
   "notes": "Notizen",
-  "formSaved": "Artikel wurde erfolgreich gespeichert.",
-  "validationFailed": "Bitte korrigieren Sie die markierten Felder.",
+  "itemAddedToStock": "Artikel erfolgreich zum Lager hinzugefügt!",
+  "itemUpdated": "Artikel erfolgreich aktualisiert!",
   "duplicateName": "Ein Artikel mit diesem Namen existiert bereits.",
   "duplicateCode": "Ein Artikel mit diesem Code existiert bereits.",
-  "serverError": "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+  "validationFailed": "Bitte beheben Sie die markierten Felder.",
+  "serverError": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+  "formSaved": "Artikel wurde erfolgreich gespeichert."
 }
 
 

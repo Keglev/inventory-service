@@ -34,6 +34,7 @@ import type { SupplierOptionDTO } from '../../api/inventory/mutations';
 import { ItemFormDialog } from './ItemFormDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
+import { useToast } from '../../app/ToastContext';
 
 /** Debounce simple values to reduce server chatter while typing. */
 function useDebounced<T>(value: T, delayMs: number): T {
@@ -62,6 +63,17 @@ const DEFAULT_PAGE_SIZE = 10;
 const Inventory: React.FC = () => {
   // Include 'inventory' so `t('inventory.*')` is strongly typed and error-free.
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);
+  const toast = useToast();
+  
+  const handleItemSaved = () => {
+    load();
+    toast(t('inventory:itemAddedToStock'), 'success');
+  };
+
+  const handleItemUpdated = () => {
+    load();
+    toast(t('inventory:itemUpdated'), 'success');
+  };
 
   // -----------------------------
   // Filters/state
@@ -393,7 +405,7 @@ const Inventory: React.FC = () => {
       <ItemFormDialog
         open={openNew}
         onClose={() => setOpenNew(false)}
-        onSaved={load}
+        onSaved={handleItemSaved}
       />
 
       {selectedRow && (
@@ -408,7 +420,7 @@ const Inventory: React.FC = () => {
             notes: '',
           }}
           onClose={() => setOpenEdit(false)}
-          onSaved={load}
+          onSaved={handleItemUpdated}
         />
       )}
 

@@ -186,26 +186,26 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
     // Heuristics for duplicates and supplier selection issues
     if (msg.includes('name') && (msg.includes('duplicate') || msg.includes('exists'))) {
       setError('name', {
-        message: t('inventory.duplicateName', 'An item with this name already exists.'),
+        message: t('inventory:duplicateName', 'An item with this name already exists.'),
       });
-      setFormError(t('inventory.validationFailed', 'Please fix the highlighted fields.'));
+      setFormError(t('inventory:validationFailed', 'Please fix the highlighted fields.'));
       return;
     }
     if ((msg.includes('code') || msg.includes('sku')) && (msg.includes('duplicate') || msg.includes('exists'))) {
       setError('code', {
-        message: t('inventory.duplicateCode', 'An item with this code already exists.'),
+        message: t('inventory:duplicateCode', 'An item with this code already exists.'),
       });
-      setFormError(t('inventory.validationFailed', 'Please fix the highlighted fields.'));
+      setFormError(t('inventory:validationFailed', 'Please fix the highlighted fields.'));
       return;
     }
     if (msg.includes('supplier')) {
       setError('supplierId', { message });
-      setFormError(t('inventory.validationFailed', 'Please fix the highlighted fields.'));
+      setFormError(t('inventory:validationFailed', 'Please fix the highlighted fields.'));
       return;
     }
 
     // Generic fallback
-    setFormError(message || t('inventory.serverError', 'Something went wrong. Please try again.'));
+    setFormError(message || t('inventory:serverError', 'Something went wrong. Please try again.'));
   }
 
   /**
@@ -229,7 +229,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
       onSaved();
       onClose();
     } else {
-      applyServerError(res.error ?? t('inventory.serverError', 'Something went wrong. Please try again.'));
+      applyServerError(res.error ?? t('inventory:serverError', 'Something went wrong. Please try again.'));
     }
   });
 
@@ -237,8 +237,8 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
         {initial?.id
-          ? t('inventory.editItem', 'Edit item')
-          : t('inventory.newItem', 'Add new item')}
+          ? t('inventory:editItem', 'Edit item')
+          : t('inventory:newItem', 'Add new item')}
       </DialogTitle>
 
       <DialogContent dividers>
@@ -261,7 +261,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
             renderInput={(p) => (
               <TextField
                 {...p}
-                label={t('inventory.supplier', 'Supplier')}
+                label={t('inventory:supplier', 'Supplier')}
                 error={!!errors.supplierId}
                 helperText={errors.supplierId?.message}
               />
@@ -270,7 +270,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 
           {/* Name */}
           <TextField
-            label={t('inventory.name', 'Item')}
+            label={t('inventory:name', 'Item')}
             {...register('name')}
             error={!!errors.name}
             helperText={errors.name?.message}
@@ -288,9 +288,9 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 
           {/* Initial Stock Quantity */}
           <TextField
-            label={t('inventory.quantity', 'Initial Stock')}
+            label={t('inventory:quantity', 'Initial Stock')}
             type="number"
-            inputProps={{ min: 0 }}
+            slotProps={{ htmlInput: { min: 0 } }}
             {...register('quantity')}
             error={!!errors.quantity}
             helperText={errors.quantity?.message}
@@ -298,9 +298,9 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 
           {/* Minimum Quantity */}
           <TextField
-            label={t('inventory.minQty', 'Min Qty (Alert Threshold)')}
+            label={t('inventory:minQty', 'Min Qty (Alert Threshold)')}
             type="number"
-            inputProps={{ min: 0 }}
+            slotProps={{ htmlInput: { min: 0 } }}
             {...register('minQty')}
             error={!!errors.minQty}
             helperText={errors.minQty?.message}
@@ -308,9 +308,9 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 
           {/* Price */}
           <TextField
-            label={t('inventory.price', 'Price')}
+            label={t('inventory:price', 'Price')}
             type="number"
-            inputProps={{ min: 0.01, step: 0.01 }}
+            slotProps={{ htmlInput: { min: 0.01, step: 0.01 } }}
             {...register('price')}
             error={!!errors.price}
             helperText={errors.price?.message}
@@ -356,8 +356,8 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
           <span>
             <Button onClick={onSubmit} disabled={isSubmitting || readOnly} variant="contained">
               {initial?.id
-                ? t('inventory.save', 'Save')
-                : t('inventory.create', 'Create')}
+                ? t('inventory:save', 'Save')
+                : t('inventory:create', 'Create')}
             </Button>
           </span>
         </Tooltip>

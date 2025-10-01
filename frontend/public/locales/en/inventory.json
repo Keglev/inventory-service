@@ -26,11 +26,13 @@
   "notes": "Notes",
   "save": "Save",
   "create": "Create",
-  "formSaved": "Item saved successfully.",
-  "validationFailed": "Please fix the highlighted fields.",
+  "itemAddedToStock": "Item added to stock successfully!",
+  "itemUpdated": "Item updated successfully!",
   "duplicateName": "An item with this name already exists.",
   "duplicateCode": "An item with this code already exists.",
+  "validationFailed": "Please fix the highlighted fields.",
   "serverError": "Something went wrong. Please try again.",
+  "formSaved": "Item saved successfully.",
   "reasons": {
     "initial_stock": "Initial stock",
     "manual_update": "Manual update"
