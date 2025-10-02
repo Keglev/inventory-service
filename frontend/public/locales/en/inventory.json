@@ -49,6 +49,11 @@
   "noItemSelected": "Please select an item to adjust.",
   "adjustmentFailed": "Failed to adjust quantity. Please try again.",
   "quantityUpdatedTo": "Quantity changed to {{quantity}}",
+  "selectedItem": "Selected Item",
+  "typeToSearchItems": "Type to search items...",
+  "noItemsFound": "No items found for this search.",
+  "typeToSearchHint": "Start typing to search for items...",
+  "setQuantityHint": "Setting quantity to {{quantity}}",
   "reasons": {
     "initial_stock": "Initial stock",
     "manual_update": "Manual update",

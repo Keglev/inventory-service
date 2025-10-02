@@ -49,6 +49,11 @@
   "noItemSelected": "Bitte wählen Sie einen Artikel zum Anpassen aus.",
   "adjustmentFailed": "Fehler beim Anpassen der Menge. Bitte versuchen Sie es erneut.",
   "quantityUpdatedTo": "Menge wurde auf {{quantity}} geändert",
+  "selectedItem": "Ausgewählter Artikel",
+  "typeToSearchItems": "Tippen Sie, um Artikel zu suchen...",
+  "noItemsFound": "Keine Artikel für diese Suche gefunden.",
+  "typeToSearchHint": "Beginnen Sie mit der Eingabe, um nach Artikeln zu suchen...",
+  "setQuantityHint": "Menge wird auf {{quantity}} gesetzt",
   "reasons": {
     "initial_stock": "Anfangsbestand",
     "manual_update": "Manuelle Anpassung",
