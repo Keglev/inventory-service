@@ -52,36 +52,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { listSuppliers, type SupplierOptionDTO } from '../../api/inventory/mutations';
 import { adjustQuantity } from '../../api/inventory/mutations';
-import { searchItemsWithDetails } from './api/enhancedItemSearch';
-import type { DisplayableItem } from './components/ItemAutocompleteOption';
-
-/**
- * Simple debounced value hook for search inputs.
- * Prevents excessive API calls while user is typing.
- * 
- * @param value - The value to debounce
- * @param delay - Delay in milliseconds (default: 300ms)
- * @returns Debounced value
- */
-function useDebounced<T>(value: T, delay: number = 300): T {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
+import { useItemSearch } from './hooks/useItemSearch';
+import { ItemAutocompleteOption, type DisplayableItem } from './components/ItemAutocompleteOption';
 
 /**
  * Business reasons for stock quantity changes.
@@ -198,53 +173,22 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   /** Currently selected supplier for item filtering */
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
   
-  /** Autocomplete search state for item selection */
-  const [itemQuery, setItemQuery] = React.useState('');
-  /** Debounced search query to prevent excessive API calls */
-  const debouncedItemQuery = useDebounced(itemQuery, 250);
-  /** Currently selected item for quantity adjustment */
-  const [selectedItem, setSelectedItem] = React.useState<DisplayableItem | null>(null);
-  
   /** Form error message for user feedback */
   const [formError, setFormError] = React.useState<string>('');
 
   // ================================
-  // Reset search state when supplier changes (prevents cross-supplier leaks)
+  // Item Search with Custom Hook
   // ================================
   
-  React.useEffect(() => {
-    setItemQuery('');
-    setSelectedItem(null);
-  }, [selectedSupplier?.id]);
-
-  // ================================
-  // Item Search Query
-  // ================================
-  
-  /** Search items for the selected supplier with debounced query */
-  const itemSearchQuery = useQuery<DisplayableItem[]>({
-    queryKey: ['quantityAdjust', 'itemSearch', selectedSupplier?.id ?? null, debouncedItemQuery],
-    queryFn: async () => {
-      if (!selectedSupplier || !debouncedItemQuery.trim()) return [];
-      return searchItemsWithDetails(String(selectedSupplier.id), debouncedItemQuery, 50);
-    },
-    enabled: !!selectedSupplier && debouncedItemQuery.trim().length >= 1,
-    staleTime: 30_000,
-    placeholderData: keepPreviousData,
-    refetchOnWindowFocus: false,
-  });
-
-  /**
-   * Autocomplete options with selected item preservation.
-   * Ensures selected item remains visible even during refetch.
-   */
-  const itemOptions = React.useMemo(() => {
-    const baseOptions = itemSearchQuery.data ?? [];
-    if (selectedItem && !baseOptions.some((option) => option.id === selectedItem.id)) {
-      return [selectedItem, ...baseOptions];
-    }
-    return baseOptions;
-  }, [itemSearchQuery.data, selectedItem]);
+  /** Use the modular item search hook for enhanced functionality */
+  const {
+    itemQuery,
+    setItemQuery,
+    selectedItem,
+    setSelectedItem,
+    itemOptions,
+    isSearchLoading
+  } = useItemSearch({ supplierId: selectedSupplier ? String(selectedSupplier.id) : null });
 
   // ================================
   // Form Management
@@ -322,7 +266,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     setValue('itemId', '');
     setValue('newQuantity', 0);
     setFormError('');
-  }, [selectedSupplier, setValue]);
+  }, [selectedSupplier, setValue, setItemQuery, setSelectedItem]);
 
   // ================================
   // Event Handlers
@@ -358,7 +302,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   const handleSupplierChange = (supplier: SupplierOption | null) => {
     setSelectedSupplier(supplier);
     setSelectedItem(null);
-    setItemQuery(''); // Reset search query to clear previous searches
     setValue('itemId', '');
     setValue('newQuantity', 0);
     setFormError('');
@@ -474,17 +417,13 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
             <Autocomplete<DisplayableItem, false, false, false>
               options={itemOptions}
               getOptionLabel={(option) => option.name}
-              loading={itemSearchQuery.isLoading}
+              loading={isSearchLoading}
               value={selectedItem}
               onChange={(_, newValue) => {
                 setSelectedItem(newValue);
                 setValue('itemId', newValue?.id || '');
-                // Set current quantity as default for adjustment
-                if (newValue?.onHand !== undefined) {
-                  setValue('newQuantity', newValue.onHand);
-                } else {
-                  setValue('newQuantity', 0);
-                }
+                // Reset quantity when item changes
+                setValue('newQuantity', 0);
                 if (newValue) {
                   setItemQuery(newValue.name);
                 }
@@ -501,7 +440,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               disabled={!selectedSupplier}
               renderInput={(params) => {
-                const hasTyped = debouncedItemQuery.trim().length > 0;
+                const hasTyped = itemQuery.trim().length > 0;
                 const showNoMatches = !!selectedSupplier && hasTyped && itemOptions.length === 0;
                 const showTypeHint = !!selectedSupplier && !hasTyped;
                 
@@ -527,34 +466,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                 );
               }}
               renderOption={(props, option) => (
-                <Box component="li" {...props}>
-                  <Box sx={{ width: '100%' }}>
-                    <Typography variant="body2" fontWeight="medium" noWrap>
-                      {option.name}
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        {option.currentPrice !== undefined ? (
-                          t('inventory:price', 'Price: {{price}}', {
-                            price: new Intl.NumberFormat('en-US', {
-                              style: 'currency',
-                              currency: 'USD',
-                            }).format(option.currentPrice),
-                          })
-                        ) : (
-                          t('inventory:priceNotAvailable', 'Price: N/A')
-                        )}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {option.onHand !== undefined ? (
-                          t('inventory:qty', 'Qty: {{quantity}}', { quantity: option.onHand })
-                        ) : (
-                          t('inventory:qtyNotAvailable', 'Qty: N/A')
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
+                <ItemAutocompleteOption {...props} item={option} />
               )}
             />
           </Box>
@@ -574,29 +486,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     {selectedItem.name}
                   </Typography>
                 </Box>
-                {selectedItem.onHand !== undefined && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('inventory:currentQuantity', 'Current Quantity')}:
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium">
-                      {selectedItem.onHand}
-                    </Typography>
-                  </Box>
-                )}
-                {selectedItem.currentPrice !== undefined && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('inventory:price', 'Price')}:
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium">
-                      {new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                      }).format(selectedItem.currentPrice)}
-                    </Typography>
-                  </Box>
-                )}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2" color="text.secondary">
                     ID:
