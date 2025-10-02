@@ -17,8 +17,8 @@
 import * as React from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useDebounced } from '../../analytics/hooks/useDebounced';
-import { searchItemsWithDetails } from '../api/enhancedItemSearch';
-import type { DisplayableItem } from '../components/ItemAutocompleteOption';
+import { searchItemsForSupplier } from '../../../api/analytics/search';
+import type { ItemRef } from '../../../api/analytics/types';
 
 export interface UseItemSearchProps {
   /** Currently selected supplier ID */
@@ -37,11 +37,11 @@ export interface UseItemSearchReturn {
   /** Set the search query text */
   setItemQuery: (query: string) => void;
   /** Currently selected item */
-  selectedItem: DisplayableItem | null;
+  selectedItem: ItemRef | null;
   /** Set the selected item */
-  setSelectedItem: (item: DisplayableItem | null) => void;
+  setSelectedItem: (item: ItemRef | null) => void;
   /** Available search options */
-  itemOptions: DisplayableItem[];
+  itemOptions: ItemRef[];
   /** Whether search is loading */
   isSearchLoading: boolean;
   /** Whether search has error */
@@ -71,7 +71,7 @@ export function useItemSearch(props: UseItemSearchProps = {}): UseItemSearchRetu
   /** Debounced search query to prevent excessive API calls */
   const debouncedItemQuery = useDebounced(itemQuery, debounceDelay);
   /** Currently selected item for operations */
-  const [selectedItem, setSelectedItem] = React.useState<DisplayableItem | null>(null);
+  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
 
   /** Reset search state when supplier changes (prevents cross-supplier leaks) */
   React.useEffect(() => {
@@ -84,13 +84,13 @@ export function useItemSearch(props: UseItemSearchProps = {}): UseItemSearchRetu
   // ================================
 
   /** Search items for the selected supplier with debounced query */
-  const itemSearchQuery = useQuery<DisplayableItem[]>({
+  const itemSearchQuery = useQuery<ItemRef[]>({
     queryKey: ['itemSearch', supplierId ?? null, debouncedItemQuery],
     queryFn: async () => {
       if (!supplierId || !debouncedItemQuery.trim() || debouncedItemQuery.trim().length < minQueryLength) {
         return [];
       }
-      return searchItemsWithDetails(String(supplierId), debouncedItemQuery, limit);
+      return searchItemsForSupplier(String(supplierId), debouncedItemQuery, limit);
     },
     enabled: !!supplierId && debouncedItemQuery.trim().length >= minQueryLength,
     staleTime: 30_000,

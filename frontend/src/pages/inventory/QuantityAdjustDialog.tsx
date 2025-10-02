@@ -53,10 +53,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../app/ToastContext';
-import { listSuppliers, type SupplierOptionDTO } from '../../api/inventory/mutations';
+import { getSuppliersLite } from '../../api/analytics/suppliers';
 import { adjustQuantity } from '../../api/inventory/mutations';
 import { useItemSearch } from './hooks/useItemSearch';
-import { ItemAutocompleteOption, type DisplayableItem } from './components/ItemAutocompleteOption';
+import type { ItemRef } from '../../api/analytics/types';
 
 /**
  * Business reasons for stock quantity changes.
@@ -229,9 +229,9 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     const loadSuppliers = async () => {
       setSupplierLoading(true);
       try {
-        const suppliers = await listSuppliers();
+        const suppliers = await getSuppliersLite();
         if (!cancelled) {
-          const options: SupplierOption[] = suppliers.map((s: SupplierOptionDTO) => ({
+          const options: SupplierOption[] = suppliers.map((s) => ({
             id: s.id,
             label: s.name,
           }));
@@ -414,7 +414,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
             <Typography variant="subtitle2" gutterBottom color="primary">
               {t('inventory:step2SelectItem', 'Step 2: Select Item')}
             </Typography>
-            <Autocomplete<DisplayableItem, false, false, false>
+            <Autocomplete<ItemRef, false, false, false>
               options={itemOptions}
               getOptionLabel={(option) => option.name}
               loading={isSearchLoading}
@@ -466,7 +466,17 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                 );
               }}
               renderOption={(props, option) => (
-                <ItemAutocompleteOption {...props} item={option} />
+                <Box component="li" {...props}>
+                  <Box>
+                    <Typography variant="body2" fontWeight="medium">
+                      {option.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {/* TODO: Add current quantity and price display */}
+                      Supplier: {option.supplierId || 'N/A'}
+                    </Typography>
+                  </Box>
+                </Box>
               )}
             />
           </Box>
