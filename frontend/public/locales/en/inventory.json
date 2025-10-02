@@ -54,6 +54,8 @@
   "noItemsFound": "No items found for this search.",
   "typeToSearchHint": "Start typing to search for items...",
   "setQuantityHint": "Setting quantity to {{quantity}}",
+  "priceNotAvailable": "Price: N/A",
+  "qtyNotAvailable": "Qty: N/A",
   "reasons": {
     "initial_stock": "Initial stock",
     "manual_update": "Manual update",

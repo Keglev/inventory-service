@@ -56,8 +56,8 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { listSuppliers, type SupplierOptionDTO } from '../../api/inventory/mutations';
 import { adjustQuantity } from '../../api/inventory/mutations';
-import { searchItemsWithDetails } from './api/enhancedItemSearch';
-import type { DisplayableItem } from './components/ItemAutocompleteOption';
+import { searchItemsForSupplier } from '../../api/analytics/search';
+import type { ItemRef } from '../../api/analytics/types';
 
 /**
  * Simple debounced value hook for search inputs.
@@ -203,30 +203,21 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   /** Debounced search query to prevent excessive API calls */
   const debouncedItemQuery = useDebounced(itemQuery, 250);
   /** Currently selected item for quantity adjustment */
-  const [selectedItem, setSelectedItem] = React.useState<DisplayableItem | null>(null);
+  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
   
   /** Form error message for user feedback */
   const [formError, setFormError] = React.useState<string>('');
-
-  // ================================
-  // Reset search state when supplier changes (prevents cross-supplier leaks)
-  // ================================
-  
-  React.useEffect(() => {
-    setItemQuery('');
-    setSelectedItem(null);
-  }, [selectedSupplier?.id]);
 
   // ================================
   // Item Search Query
   // ================================
   
   /** Search items for the selected supplier with debounced query */
-  const itemSearchQuery = useQuery<DisplayableItem[]>({
+  const itemSearchQuery = useQuery<ItemRef[]>({
     queryKey: ['quantityAdjust', 'itemSearch', selectedSupplier?.id ?? null, debouncedItemQuery],
     queryFn: async () => {
       if (!selectedSupplier || !debouncedItemQuery.trim()) return [];
-      return searchItemsWithDetails(String(selectedSupplier.id), debouncedItemQuery, 50);
+      return searchItemsForSupplier(String(selectedSupplier.id), debouncedItemQuery, 50);
     },
     enabled: !!selectedSupplier && debouncedItemQuery.trim().length >= 1,
     staleTime: 30_000,
@@ -358,7 +349,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   const handleSupplierChange = (supplier: SupplierOption | null) => {
     setSelectedSupplier(supplier);
     setSelectedItem(null);
-    setItemQuery(''); // Reset search query to clear previous searches
     setValue('itemId', '');
     setValue('newQuantity', 0);
     setFormError('');
@@ -471,7 +461,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
             <Typography variant="subtitle2" gutterBottom color="primary">
               {t('inventory:step2SelectItem', 'Step 2: Select Item')}
             </Typography>
-            <Autocomplete<DisplayableItem, false, false, false>
+            <Autocomplete<ItemRef, false, false, false>
               options={itemOptions}
               getOptionLabel={(option) => option.name}
               loading={itemSearchQuery.isLoading}
@@ -479,12 +469,8 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               onChange={(_, newValue) => {
                 setSelectedItem(newValue);
                 setValue('itemId', newValue?.id || '');
-                // Set current quantity as default for adjustment
-                if (newValue?.onHand !== undefined) {
-                  setValue('newQuantity', newValue.onHand);
-                } else {
-                  setValue('newQuantity', 0);
-                }
+                // Reset quantity when item changes
+                setValue('newQuantity', 0);
                 if (newValue) {
                   setItemQuery(newValue.name);
                 }
@@ -528,31 +514,13 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               }}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
-                  <Box sx={{ width: '100%' }}>
-                    <Typography variant="body2" fontWeight="medium" noWrap>
+                  <Box>
+                    <Typography variant="body2" fontWeight="medium">
                       {option.name}
                     </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        {option.currentPrice !== undefined ? (
-                          t('inventory:price', 'Price: {{price}}', {
-                            price: new Intl.NumberFormat('en-US', {
-                              style: 'currency',
-                              currency: 'USD',
-                            }).format(option.currentPrice),
-                          })
-                        ) : (
-                          t('inventory:priceNotAvailable', 'Price: N/A')
-                        )}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {option.onHand !== undefined ? (
-                          t('inventory:qty', 'Qty: {{quantity}}', { quantity: option.onHand })
-                        ) : (
-                          t('inventory:qtyNotAvailable', 'Qty: N/A')
-                        )}
-                      </Typography>
-                    </Box>
+                    <Typography variant="caption" color="text.secondary">
+                      ID: {option.id}
+                    </Typography>
                   </Box>
                 </Box>
               )}
@@ -574,29 +542,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     {selectedItem.name}
                   </Typography>
                 </Box>
-                {selectedItem.onHand !== undefined && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('inventory:currentQuantity', 'Current Quantity')}:
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium">
-                      {selectedItem.onHand}
-                    </Typography>
-                  </Box>
-                )}
-                {selectedItem.currentPrice !== undefined && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('inventory:price', 'Price')}:
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium">
-                      {new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                      }).format(selectedItem.currentPrice)}
-                    </Typography>
-                  </Box>
-                )}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2" color="text.secondary">
                     ID:
