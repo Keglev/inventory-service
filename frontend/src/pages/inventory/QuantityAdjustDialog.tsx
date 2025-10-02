@@ -3,73 +3,635 @@
  * @module pages/inventory/QuantityAdjustDialog
  *
  * @summary
- * Dialog to adjust stock by a delta with a business reason.
- * Positive = purchase/inbound; negative = correction/outbound.
+ * Enterprise-level dialog for adjusting inventory item quantities with business reasoning.
+ * Implements a two-step workflow: supplier selection → item selection → quantity adjustment.
+ *
+ * @enterprise
+ * - Strict validation: quantity ≥ 0 (cannot be negative)
+ * - Audit trail: mandatory reason selection from predefined options
+ * - User experience: guided workflow prevents invalid operations
+ * - Type safety: fully typed with Zod validation and TypeScript
+ * - Accessibility: proper form labels, error states, and keyboard navigation
+ * - Internationalization: complete i18n support for all user-facing text
+ *
+ * @workflow
+ * 1. User selects supplier from dropdown
+ * 2. System loads available items for that supplier
+ * 3. User selects specific item to adjust
+ * 4. User enters new quantity (≥ 0) and selects business reason
+ * 5. System validates and applies quantity change with audit trail
+ *
+ * @validation
+ * - Supplier must be selected before item selection is enabled
+ * - Item must be selected before quantity adjustment is enabled
+ * - New quantity must be non-negative (≥ 0)
+ * - Business reason must be selected from predefined options
+ * - Read-only fields (name, price) cannot be modified
  */
 
 import * as React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Box } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+  Autocomplete,
+  CircularProgress,
+  Alert,
+  Divider,
+} from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { adjustQuantitySchema } from './validation';
-import type { AdjustQuantityForm } from './validation';
-import { adjustQuantity } from '../../api/inventory/mutations';
-import type { Resolver } from 'react-hook-form';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../../app/ToastContext';
+import { listSuppliers, type SupplierOptionDTO } from '../../api/inventory/mutations';
+import { getInventoryPage } from '../../api/inventory/list';
+import type { InventoryRow } from '../../api/inventory/types';
+import { adjustQuantity } from '../../api/inventory/mutations';
 
+/**
+ * Business reasons for stock quantity changes.
+ * Mirrors the backend StockChangeReason enum for audit trail consistency.
+ * 
+ * @enterprise
+ * These values provide traceability for all stock movements and support
+ * regulatory compliance, financial reconciliation, and operational analytics.
+ */
+const STOCK_CHANGE_REASONS = [
+  'MANUAL_UPDATE',
+  'SOLD',
+  'SCRAPPED',
+  'DESTROYED',
+  'DAMAGED',
+  'EXPIRED',
+  'LOST',
+  'RETURNED_TO_SUPPLIER',
+  'RETURNED_BY_CUSTOMER',
+] as const;
+
+/**
+ * Validation schema for quantity adjustment form.
+ * Enforces business rules and data integrity constraints.
+ * 
+ * @enterprise
+ * - Quantity must be non-negative (≥ 0) to prevent invalid stock levels
+ * - Item selection is mandatory for operation context
+ * - Business reason is required for audit trail compliance
+ */
+const quantityAdjustSchema = z.object({
+  itemId: z.string().min(1, 'Item selection is required'),
+  newQuantity: z.number()
+    .nonnegative('Quantity cannot be negative')
+    .finite('Quantity must be a valid number'),
+  reason: z.enum(STOCK_CHANGE_REASONS, {
+    message: 'Please select a valid reason',
+  }),
+});
+
+type QuantityAdjustForm = z.infer<typeof quantityAdjustSchema>;
+
+/**
+ * Properties for the QuantityAdjustDialog component.
+ * 
+ * @interface QuantityAdjustDialogProps
+ * @property {boolean} open - Controls dialog visibility
+ * @property {() => void} onClose - Callback when dialog is closed
+ * @property {() => void} onAdjusted - Callback when quantity is successfully adjusted
+ */
 export interface QuantityAdjustDialogProps {
+  /** Controls dialog visibility state */
   open: boolean;
-  itemId: string;
+  /** Callback invoked when dialog should be closed */
   onClose: () => void;
+  /** Callback invoked after successful quantity adjustment */
   onAdjusted: () => void;
 }
 
+/**
+ * Supplier option shape for the autocomplete component.
+ * Normalized from backend SupplierOptionDTO for consistent UI handling.
+ */
+interface SupplierOption {
+  /** Unique supplier identifier */
+  id: string | number;
+  /** Display name for supplier selection */
+  label: string;
+}
+
+/**
+ * Enterprise-level quantity adjustment dialog component.
+ * 
+ * Provides a guided workflow for adjusting inventory quantities with proper
+ * validation, audit trails, and user experience optimizations.
+ * 
+ * @component
+ * @example
+ * ```tsx
+ * <QuantityAdjustDialog
+ *   open={isDialogOpen}
+ *   onClose={() => setIsDialogOpen(false)}
+ *   onAdjusted={() => {
+ *     refreshInventoryList();
+ *     showSuccessMessage();
+ *   }}
+ * />
+ * ```
+ * 
+ * @enterprise
+ * - Implements step-by-step validation to prevent user errors
+ * - Provides clear feedback on current item state (current quantity)
+ * - Maintains audit trail through mandatory reason selection
+ * - Prevents negative quantities that would cause system inconsistencies
+ * - Supports internationalization for global deployment
+ */
 export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
-  open, itemId, onClose, onAdjusted
+  open,
+  onClose,
+  onAdjusted,
 }) => {
-  const { t } = useTranslation();
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } =
-    useForm<AdjustQuantityForm>({
-        resolver: zodResolver(adjustQuantitySchema) as Resolver<AdjustQuantityForm>,
-        defaultValues: { id: itemId, delta: 0, reason: '' },
-    });
+  const { t } = useTranslation(['common', 'inventory']);
+  const toast = useToast();
 
+  // ================================
+  // State Management
+  // ================================
+  
+  /** Available suppliers loaded from backend */
+  const [supplierOptions, setSupplierOptions] = React.useState<SupplierOption[]>([]);
+  /** Loading state for supplier data fetch */
+  const [supplierLoading, setSupplierLoading] = React.useState(false);
+  
+  /** Currently selected supplier for item filtering */
+  const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
+  
+  /** Available items for the selected supplier */
+  const [availableItems, setAvailableItems] = React.useState<InventoryRow[]>([]);
+  /** Loading state for item data fetch */
+  const [itemsLoading, setItemsLoading] = React.useState(false);
+  
+  /** Currently selected item for quantity adjustment */
+  const [selectedItem, setSelectedItem] = React.useState<InventoryRow | null>(null);
+  
+  /** Form error message for user feedback */
+  const [formError, setFormError] = React.useState<string>('');
+
+  // ================================
+  // Form Management
+  // ================================
+  
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setValue,
+    watch,
+  } = useForm<QuantityAdjustForm>({
+    resolver: zodResolver(quantityAdjustSchema),
+    defaultValues: {
+      itemId: '',
+      newQuantity: 0,
+      reason: 'MANUAL_UPDATE' as const,
+    },
+  });
+
+  // Watch for item selection to pre-populate current quantity
+  const watchedItemId = watch('itemId');
+
+  // ================================
+  // Data Loading Effects
+  // ================================
+
+  /**
+   * Load available suppliers when dialog opens.
+   * Provides options for the first step of the workflow.
+   * 
+   * @enterprise
+   * Implements tolerant loading with error handling to prevent
+   * dialog failure if supplier service is temporarily unavailable.
+   */
   React.useEffect(() => {
-    reset({ id: itemId, delta: 0, reason: '' });
-  }, [itemId, reset]);
+    if (!open) return;
 
-  const onSubmit = handleSubmit(async (values: AdjustQuantityForm) => {
-    const ok = await adjustQuantity(values);
-    if (ok) {
+    let cancelled = false;
+
+    const loadSuppliers = async () => {
+      setSupplierLoading(true);
+      try {
+        const suppliers = await listSuppliers();
+        if (!cancelled) {
+          const options: SupplierOption[] = suppliers.map((s: SupplierOptionDTO) => ({
+            id: s.id,
+            label: s.name,
+          }));
+          setSupplierOptions(options);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Failed to load suppliers:', error);
+          setFormError(t('inventory:failedToLoadSuppliers', 'Failed to load suppliers. Please try again.'));
+        }
+      } finally {
+        if (!cancelled) {
+          setSupplierLoading(false);
+        }
+      }
+    };
+
+    void loadSuppliers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, t]);
+
+  /**
+   * Load available items when supplier is selected.
+   * Enables the second step of the workflow.
+   * 
+   * @enterprise
+   * Implements supplier-scoped item loading to reduce cognitive load
+   * and prevent cross-supplier quantity adjustment errors.
+   */
+  React.useEffect(() => {
+    if (!selectedSupplier) {
+      setAvailableItems([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadItems = async () => {
+      setItemsLoading(true);
+      try {
+        const response = await getInventoryPage({
+          page: 1,
+          pageSize: 100, // Load more items for comprehensive selection
+          supplierId: selectedSupplier.id,
+          sort: 'name,asc',
+        });
+        
+        if (!cancelled) {
+          setAvailableItems(response.items);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Failed to load items:', error);
+          setFormError(t('inventory:failedToLoadItems', 'Failed to load items. Please try again.'));
+        }
+      } finally {
+        if (!cancelled) {
+          setItemsLoading(false);
+        }
+      }
+    };
+
+    void loadItems();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSupplier, t]);
+
+  /**
+   * Update selected item and pre-populate current quantity when item selection changes.
+   * Provides context for the quantity adjustment decision.
+   */
+  React.useEffect(() => {
+    const item = availableItems.find((item) => item.id === watchedItemId);
+    if (item) {
+      setSelectedItem(item);
+      setValue('newQuantity', item.onHand); // Pre-populate with current quantity
+    } else {
+      setSelectedItem(null);
+    }
+  }, [watchedItemId, availableItems, setValue]);
+
+  // ================================
+  // Event Handlers
+  // ================================
+
+  /**
+   * Handle dialog close with state cleanup.
+   * Ensures clean state for next dialog open.
+   * 
+   * @enterprise
+   * Prevents state pollution between dialog sessions that could
+   * lead to confusing user experiences or data integrity issues.
+   */
+  const handleClose = () => {
+    setSelectedSupplier(null);
+    setSelectedItem(null);
+    setAvailableItems([]);
+    setFormError('');
+    reset();
+    onClose();
+  };
+
+  /**
+   * Handle supplier selection change.
+   * Triggers item loading and resets downstream selections.
+   * 
+   * @param supplier - The newly selected supplier option
+   * 
+   * @enterprise
+   * Implements cascading state reset to maintain workflow integrity
+   * and prevent invalid cross-supplier item selections.
+   */
+  const handleSupplierChange = (supplier: SupplierOption | null) => {
+    setSelectedSupplier(supplier);
+    setSelectedItem(null);
+    setValue('itemId', '');
+    setValue('newQuantity', 0);
+    setFormError('');
+  };
+
+  /**
+   * Handle form submission with quantity adjustment.
+   * Validates input and applies quantity change with audit trail.
+   * 
+   * @param values - Validated form data
+   * 
+   * @enterprise
+   * - Calculates quantity delta for backend compatibility
+   * - Maintains audit trail through reason tracking
+   * - Provides user feedback on operation success/failure
+   * - Triggers parent component refresh for data consistency
+   */
+  const onSubmit = handleSubmit(async (values) => {
+    const typedValues = values as QuantityAdjustForm;
+    if (!selectedItem) {
+      setFormError(t('inventory:noItemSelected', 'Please select an item to adjust.'));
+      return;
+    }
+
+    setFormError('');
+
+    try {
+      // Calculate delta for backend API compatibility
+      const delta = typedValues.newQuantity - selectedItem.onHand;
+      
+      const success = await adjustQuantity({
+        id: typedValues.itemId,
+        delta,
+        reason: typedValues.reason,
+      });
+
+      if (success) {
+        // Show success message with the new quantity
+        toast(
+          t('inventory:quantityUpdatedTo', 'Quantity changed to {{quantity}}', {
+            quantity: typedValues.newQuantity,
+          }),
+          'success'
+        );
         onAdjusted();
-        onClose();
+        handleClose();
+      } else {
+        setFormError(t('inventory:adjustmentFailed', 'Failed to adjust quantity. Please try again.'));
+      }
+    } catch (error) {
+      console.error('Quantity adjustment error:', error);
+      setFormError(t('inventory:adjustmentFailed', 'Failed to adjust quantity. Please try again.'));
     }
   });
 
+  // ================================
+  // Render
+  // ================================
+
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>{t('inventory.adjustQty', 'Adjust quantity')}</DialogTitle>
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+      <DialogTitle>
+        {t('inventory:adjustQty', 'Adjust Quantity')}
+      </DialogTitle>
+      
       <DialogContent dividers>
-        <Box sx={{ display: 'grid', gap: 2, mt: 1 }}>
-          <TextField
-            label={t('inventory.delta', 'Delta')}
-            type="number"
-            {...register('delta')}
-            error={!!errors.delta}
-            helperText={errors.delta?.message}
-          />
-          <TextField
-            label={t('inventory.reason', 'Reason')}
-            {...register('reason')}
-            error={!!errors.reason}
-            helperText={errors.reason?.message}
-          />
+        <Box sx={{ display: 'grid', gap: 2.5, mt: 1 }}>
+          
+          {/* Error Display */}
+          {formError && (
+            <Alert severity="error" onClose={() => setFormError('')}>
+              {formError}
+            </Alert>
+          )}
+
+          {/* Step 1: Supplier Selection */}
+          <Box>
+            <Typography variant="subtitle2" gutterBottom color="primary">
+              {t('inventory:step1SelectSupplier', 'Step 1: Select Supplier')}
+            </Typography>
+            <Autocomplete
+              options={supplierOptions}
+              value={selectedSupplier}
+              onChange={(_, newValue) => handleSupplierChange(newValue)}
+              loading={supplierLoading}
+              getOptionLabel={(option) => option.label}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={t('inventory:supplier', 'Supplier')}
+                  placeholder={t('inventory:selectSupplierPlaceholder', 'Choose a supplier...')}
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {supplierLoading && <CircularProgress color="inherit" size={20} />}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          {/* Step 2: Item Selection */}
+          <Box>
+            <Typography variant="subtitle2" gutterBottom color="primary">
+              {t('inventory:step2SelectItem', 'Step 2: Select Item')}
+            </Typography>
+            <Controller
+              name="itemId"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth disabled={!selectedSupplier || itemsLoading}>
+                  <InputLabel id="item-select-label">
+                    {t('inventory:item', 'Item')}
+                  </InputLabel>
+                  <Select
+                    {...field}
+                    labelId="item-select-label"
+                    label={t('inventory:item', 'Item')}
+                    error={!!errors.itemId}
+                  >
+                    {itemsLoading ? (
+                      <MenuItem disabled>
+                        <CircularProgress size={20} sx={{ mr: 1 }} />
+                        {t('common:loading', 'Loading...')}
+                      </MenuItem>
+                    ) : (
+                      availableItems.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          <Box>
+                            <Typography variant="body2" fontWeight="medium">
+                              {item.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {t('inventory:currentStock', 'Current: {{quantity}}', { quantity: item.onHand })}
+                              {item.code && ` • ${item.code}`}
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      ))
+                    )}
+                  </Select>
+                  {errors.itemId && (
+                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                      {errors.itemId.message}
+                    </Typography>
+                  )}
+                </FormControl>
+              )}
+            />
+          </Box>
+
+          {/* Current Item Information */}
+          {selectedItem && (
+            <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                {t('inventory:currentItemInfo', 'Current Item Information')}
+              </Typography>
+              <Box sx={{ display: 'grid', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('inventory:name', 'Name')}:
+                  </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                    {selectedItem.name}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('inventory:currentQuantity', 'Current Quantity')}:
+                  </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                    {selectedItem.onHand}
+                  </Typography>
+                </Box>
+                {selectedItem.code && (
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('inventory:code', 'Code')}:
+                    </Typography>
+                    <Typography variant="body2" fontWeight="medium">
+                      {selectedItem.code}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          )}
+
+          <Divider />
+
+          {/* Step 3: Quantity Adjustment */}
+          <Box>
+            <Typography variant="subtitle2" gutterBottom color="primary">
+              {t('inventory:step3AdjustQuantity', 'Step 3: Adjust Quantity')}
+            </Typography>
+            
+            {/* New Quantity Input */}
+            <Controller
+              name="newQuantity"
+              control={control}
+              render={({ field: { onChange, value, ...field } }) => (
+                <TextField
+                  {...field}
+                  value={value}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    onChange(val === '' ? 0 : Number(val));
+                  }}
+                  label={t('inventory:newQuantity', 'New Quantity')}
+                  type="number"
+                  fullWidth
+                  disabled={!selectedItem}
+                  slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                  error={!!errors.newQuantity}
+                  helperText={
+                    errors.newQuantity?.message ||
+                    (selectedItem && (
+                      t('inventory:quantityChangeHint', 'Change from {{current}} to {{new}}', {
+                        current: selectedItem.onHand,
+                        new: value,
+                      })
+                    ))
+                  }
+                />
+              )}
+            />
+
+            {/* Reason Selection */}
+            <Controller
+              name="reason"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth sx={{ mt: 2 }} disabled={!selectedItem}>
+                  <InputLabel id="reason-select-label" error={!!errors.reason}>
+                    {t('inventory:reason', 'Reason')}
+                  </InputLabel>
+                  <Select
+                    {...field}
+                    labelId="reason-select-label"
+                    label={t('inventory:reason', 'Reason')}
+                    error={!!errors.reason}
+                  >
+                    {STOCK_CHANGE_REASONS.map((reason) => (
+                      <MenuItem key={reason} value={reason}>
+                        {t(`inventory:reasons.${reason.toLowerCase()}`, reason.replace(/_/g, ' '))}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.reason && (
+                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                      {errors.reason.message}
+                    </Typography>
+                  )}
+                </FormControl>
+              )}
+            />
+          </Box>
         </Box>
       </DialogContent>
+
       <DialogActions>
-        <Button onClick={onClose}>{t('actions.cancel', 'Cancel')}</Button>
-        <Button onClick={onSubmit} disabled={isSubmitting} variant="contained">
-          {t('actions.apply', 'Apply')}
+        <Button onClick={handleClose} disabled={isSubmitting}>
+          {t('actions.cancel', 'Cancel')}
+        </Button>
+        <Button
+          onClick={onSubmit}
+          disabled={isSubmitting || !selectedItem}
+          variant="contained"
+        >
+          {isSubmitting ? (
+            <>
+              <CircularProgress size={16} sx={{ mr: 1 }} />
+              {t('common:saving', 'Saving...')}
+            </>
+          ) : (
+            t('inventory:applyAdjustment', 'Apply Adjustment')
+          )}
         </Button>
       </DialogActions>
     </Dialog>

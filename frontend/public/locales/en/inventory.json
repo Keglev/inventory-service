@@ -33,9 +33,33 @@
   "validationFailed": "Please fix the highlighted fields.",
   "serverError": "Something went wrong. Please try again.",
   "formSaved": "Item saved successfully.",
+  "failedToLoadSuppliers": "Failed to load suppliers. Please try again.",
+  "failedToLoadItems": "Failed to load items. Please try again.",
+  "step1SelectSupplier": "Step 1: Select Supplier",
+  "step2SelectItem": "Step 2: Select Item",
+  "step3AdjustQuantity": "Step 3: Adjust Quantity",
+  "selectSupplierPlaceholder": "Choose a supplier...",
+  "item": "Item",
+  "currentStock": "Current: {{quantity}}",
+  "currentItemInfo": "Current Item Information",
+  "currentQuantity": "Current Quantity",
+  "newQuantity": "New Quantity",
+  "quantityChangeHint": "Change from {{current}} to {{new}}",
+  "applyAdjustment": "Apply Adjustment",
+  "noItemSelected": "Please select an item to adjust.",
+  "adjustmentFailed": "Failed to adjust quantity. Please try again.",
+  "quantityUpdatedTo": "Quantity changed to {{quantity}}",
   "reasons": {
     "initial_stock": "Initial stock",
-    "manual_update": "Manual update"
+    "manual_update": "Manual update",
+    "sold": "Sold",
+    "scrapped": "Scrapped",
+    "destroyed": "Destroyed",
+    "damaged": "Damaged",
+    "expired": "Expired",
+    "lost": "Lost",
+    "returned_to_supplier": "Returned to supplier",
+    "returned_by_customer": "Returned by customer"
   }
 }
 

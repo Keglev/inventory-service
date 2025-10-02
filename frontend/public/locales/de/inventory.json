@@ -19,10 +19,6 @@
   "qty": "Menge",
   "save": "Speichern",
   "create": "Erstellen",
-  "reasons": {
-    "initial_stock": "Anfangsbestand",
-    "manual_update": "Manuelle Anpassung"
-  },
   "changePrice": "Preis ändern",
   "newPrice": "Neuer Preis",
   "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen.",
@@ -36,7 +32,35 @@
   "duplicateCode": "Ein Artikel mit diesem Code existiert bereits.",
   "validationFailed": "Bitte beheben Sie die markierten Felder.",
   "serverError": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
-  "formSaved": "Artikel wurde erfolgreich gespeichert."
+  "formSaved": "Artikel wurde erfolgreich gespeichert.",
+  "failedToLoadSuppliers": "Fehler beim Laden der Lieferanten. Bitte versuchen Sie es erneut.",
+  "failedToLoadItems": "Fehler beim Laden der Artikel. Bitte versuchen Sie es erneut.",
+  "step1SelectSupplier": "Schritt 1: Lieferant auswählen",
+  "step2SelectItem": "Schritt 2: Artikel auswählen",
+  "step3AdjustQuantity": "Schritt 3: Menge anpassen",
+  "selectSupplierPlaceholder": "Lieferant auswählen...",
+  "item": "Artikel",
+  "currentStock": "Aktuell: {{quantity}}",
+  "currentItemInfo": "Aktuelle Artikelinformationen",
+  "currentQuantity": "Aktuelle Menge",
+  "newQuantity": "Neue Menge",
+  "quantityChangeHint": "Änderung von {{current}} auf {{new}}",
+  "applyAdjustment": "Anpassung anwenden",
+  "noItemSelected": "Bitte wählen Sie einen Artikel zum Anpassen aus.",
+  "adjustmentFailed": "Fehler beim Anpassen der Menge. Bitte versuchen Sie es erneut.",
+  "quantityUpdatedTo": "Menge wurde auf {{quantity}} geändert",
+  "reasons": {
+    "initial_stock": "Anfangsbestand",
+    "manual_update": "Manuelle Anpassung",
+    "sold": "Verkauft",
+    "scrapped": "Verschrottet",
+    "destroyed": "Zerstört",
+    "damaged": "Beschädigt",
+    "expired": "Abgelaufen",
+    "lost": "Verloren",
+    "returned_to_supplier": "An Lieferant zurückgegeben",
+    "returned_by_customer": "Vom Kunden zurückgegeben"
+  }
 }
 
 

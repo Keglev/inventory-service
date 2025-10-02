@@ -279,7 +279,7 @@ const Inventory: React.FC = () => {
           <Button disabled={!selectedRow} onClick={() => setOpenEdit(true)}>
             {t('actions.edit', 'Edit')}
           </Button>
-          <Button disabled={!selectedRow} onClick={() => setOpenAdjust(true)}>
+          <Button onClick={() => setOpenAdjust(true)}>
             {t('inventory:adjustQty', 'Adjust quantity')}
           </Button>
           <Button disabled={!selectedRow} onClick={() => setOpenPrice(true)}>
@@ -424,14 +424,11 @@ const Inventory: React.FC = () => {
         />
       )}
 
-      {selectedId && (
-        <QuantityAdjustDialog
-          open={openAdjust}
-          itemId={selectedId}
-          onClose={() => setOpenAdjust(false)}
-          onAdjusted={load}
-        />
-      )}
+      <QuantityAdjustDialog
+        open={openAdjust}
+        onClose={() => setOpenAdjust(false)}
+        onAdjusted={load}
+      />
 
       {selectedId && (
         <PriceChangeDialog
