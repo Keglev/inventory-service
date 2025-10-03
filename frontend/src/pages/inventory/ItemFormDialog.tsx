@@ -49,7 +49,7 @@ const upsertItemSchema = z.object({
   code: z.string().optional(),
   supplierId: z.string().min(1, 'Supplier is required'),
   quantity: z.number().positive('Quantity must be greater than 0'),
-  minQty: z.number().nonnegative('Minimum quantity cannot be negative').default(0),
+  minQty: z.number().min(0, 'Minimum quantity cannot be negative'),
   price: z.number().positive('Price must be greater than 0'),
   notes: z.string().min(1, 'Reason is required for new items'),
 });
@@ -124,8 +124,8 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
       name: initial?.name ?? '',
       code: initial?.code ?? '',
       supplierId: initial?.supplierId ?? '',
-      price: initial?.price ?? 0,
-      quantity: initial?.quantity ?? 0,
+      price: initial?.price ?? 1, // Default to 1 to satisfy positive validation
+      quantity: initial?.quantity ?? 1, // Default to 1 to satisfy positive validation
       // We keep the same form key, but label shows "Qty"
       minQty: initial?.minQty ?? 0,
       // "notes" carries create-reason until backend exposes a dedicated field

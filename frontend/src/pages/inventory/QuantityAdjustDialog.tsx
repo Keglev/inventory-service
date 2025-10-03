@@ -57,7 +57,7 @@ import { adjustQuantity } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import type { InventoryRow } from '../../api/inventory/types';
-import { useItemSearch } from './hooks/useItemSearch';
+import type { ItemRef } from '../../api/analytics/types';
 import { SupplierItemSelector } from './components/SupplierItemSelector';
 
 /**
@@ -170,19 +170,11 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   /** Currently selected supplier for item filtering */
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
   
+  /** Currently selected item for quantity adjustment */
+  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
+  
   /** Form error message for user feedback */
   const [formError, setFormError] = React.useState<string>('');
-
-  // ================================
-  // Item Search with Custom Hook
-  // ================================
-  
-  /** Use the modular item search hook for enhanced functionality */
-  const {
-    setItemQuery,
-    selectedItem,
-    setSelectedItem,
-  } = useItemSearch({ supplierId: selectedSupplier ? String(selectedSupplier.id) : null });
 
   // ================================
   // Item Details Query
@@ -272,12 +264,11 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
    * Prevents cross-supplier item selection errors.
    */
   React.useEffect(() => {
-    setItemQuery('');
     setSelectedItem(null);
     setValue('itemId', '');
     setValue('newQuantity', 0);
     setFormError('');
-  }, [selectedSupplier, setValue, setItemQuery, setSelectedItem]);
+  }, [selectedSupplier, setValue, setSelectedItem]);
 
   // ================================
   // Event Handlers
@@ -294,7 +285,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   const handleClose = () => {
     setSelectedSupplier(null);
     setSelectedItem(null);
-    setItemQuery('');
     setFormError('');
     reset();
     onClose();
@@ -403,9 +393,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               setValue('itemId', item?.id || '');
               // Reset quantity when item changes
               setValue('newQuantity', 0);
-              if (item) {
-                setItemQuery(item.name);
-              }
             }}
             selectedItemContent={
               selectedItem && (

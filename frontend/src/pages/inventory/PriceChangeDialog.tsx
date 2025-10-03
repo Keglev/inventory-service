@@ -63,7 +63,7 @@ import { changePrice } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import type { InventoryRow } from '../../api/inventory/types';
-import { useItemSearch } from './hooks/useItemSearch';
+import type { ItemRef } from '../../api/analytics/types';
 import { SupplierItemSelector } from './components/SupplierItemSelector';
 
 /**
@@ -170,19 +170,11 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   /** Currently selected supplier for item filtering */
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
   
+  /** Currently selected item for price change */
+  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
+  
   /** Form error message for user feedback */
   const [formError, setFormError] = React.useState<string>('');
-
-  // ================================
-  // Item Search with Custom Hook
-  // ================================
-  
-  /** Use the modular item search hook for enhanced functionality */
-  const {
-    setItemQuery,
-    selectedItem,
-    setSelectedItem,
-  } = useItemSearch({ supplierId: selectedSupplier ? String(selectedSupplier.id) : null });
 
   // ================================
   // Item Details Query
@@ -280,12 +272,11 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
    * Prevents cross-supplier item selection errors.
    */
   React.useEffect(() => {
-    setItemQuery('');
     setSelectedItem(null);
     setValue('itemId', '');
     setValue('newPrice', 0);
     setFormError('');
-  }, [selectedSupplier, setValue, setItemQuery, setSelectedItem]);
+  }, [selectedSupplier, setValue, setSelectedItem]);
 
   // ================================
   // Event Handlers
@@ -302,7 +293,6 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   const handleClose = () => {
     setSelectedSupplier(null);
     setSelectedItem(null);
-    setItemQuery('');
     setFormError('');
     reset();
     onClose();
@@ -406,9 +396,6 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
               setValue('itemId', item?.id || '');
               // Reset price when item changes
               setValue('newPrice', 0);
-              if (item) {
-                setItemQuery(item.name);
-              }
             }}
             selectedItemContent={
               selectedItem && (
