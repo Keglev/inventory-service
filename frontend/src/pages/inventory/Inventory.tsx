@@ -430,14 +430,11 @@ const Inventory: React.FC = () => {
         onAdjusted={load}
       />
 
-      {selectedId && (
-        <PriceChangeDialog
-          open={openPrice}
-          itemId={selectedId}
-          onClose={() => setOpenPrice(false)}
-          onChanged={load}
-        />
-      )}
+      <PriceChangeDialog
+        open={openPrice}
+        onClose={() => setOpenPrice(false)}
+        onChanged={load}
+      />
     </Box>
   );
 };
