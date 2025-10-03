@@ -57,6 +57,7 @@ import { useToast } from '../../app/ToastContext';
 import { getSuppliersLite } from '../../api/analytics/suppliers';
 import { adjustQuantity } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
+import { getPriceTrend } from '../../api/analytics/priceTrend';
 import type { InventoryRow } from '../../api/inventory/types';
 import { useItemSearch } from './hooks/useItemSearch';
 import type { ItemRef } from '../../api/analytics/types';
@@ -217,6 +218,35 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
         return item || null;
       } catch (error) {
         console.error('Failed to fetch item details:', error);
+        return null;
+      }
+    },
+    enabled: !!selectedItem?.id,
+    staleTime: 30_000,
+  });
+
+  /** Fetch current price for the selected item */
+  const itemPriceQuery = useQuery<number | null>({
+    queryKey: ['itemPrice', selectedItem?.id],
+    queryFn: async () => {
+      if (!selectedItem?.id) return null;
+      
+      try {
+        // Get recent price trend to find the most current price
+        const pricePoints = await getPriceTrend(selectedItem.id, { 
+          supplierId: selectedSupplier?.id ? String(selectedSupplier.id) : undefined 
+        });
+        
+        // Return the most recent price, or null if no price data
+        if (pricePoints.length > 0) {
+          // Sort by date and get the latest
+          const latestPrice = pricePoints[pricePoints.length - 1];
+          return latestPrice.price;
+        }
+        
+        return null;
+      } catch (error) {
+        console.error('Failed to fetch item price:', error);
         return null;
       }
     },
@@ -545,17 +575,20 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                 </Box>
                 
                 {/* Current Price */}
-                {itemDetailsQuery.data?.code && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('inventory:currentPrice', 'Price')}:
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium">
-                      {/* Note: Price not available in current API, showing placeholder */}
-                      {t('inventory:priceNotAvailable', 'Price data N/A')}
-                    </Typography>
-                  </Box>
-                )}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('inventory:currentPrice', 'Current Price')}:
+                  </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                    {itemPriceQuery.isLoading ? (
+                      <CircularProgress size={16} />
+                    ) : itemPriceQuery.data !== null && itemPriceQuery.data !== undefined ? (
+                      `$${itemPriceQuery.data.toFixed(2)}`
+                    ) : (
+                      t('inventory:priceNotAvailable', 'N/A')
+                    )}
+                  </Typography>
+                </Box>
                 
                 {/* Item Code/SKU if available */}
                 {itemDetailsQuery.data?.code && (
