@@ -49,7 +49,6 @@ import {
   Select,
   MenuItem,
   Typography,
-  Autocomplete,
   CircularProgress,
   Alert,
   Divider,
@@ -60,13 +59,12 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
-import { getSuppliersLite } from '../../api/analytics/suppliers';
 import { changePrice } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import type { InventoryRow } from '../../api/inventory/types';
 import { useItemSearch } from './hooks/useItemSearch';
-import type { ItemRef } from '../../api/analytics/types';
+import { SupplierItemSelector } from './components/SupplierItemSelector';
 
 /**
  * Business reasons for price changes.
@@ -169,11 +167,6 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   // State Management
   // ================================
   
-  /** Available suppliers loaded from backend */
-  const [supplierOptions, setSupplierOptions] = React.useState<SupplierOption[]>([]);
-  /** Loading state for supplier data fetch */
-  const [supplierLoading, setSupplierLoading] = React.useState(false);
-  
   /** Currently selected supplier for item filtering */
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
   
@@ -186,12 +179,9 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   
   /** Use the modular item search hook for enhanced functionality */
   const {
-    itemQuery,
     setItemQuery,
     selectedItem,
     setSelectedItem,
-    itemOptions,
-    isSearchLoading
   } = useItemSearch({ supplierId: selectedSupplier ? String(selectedSupplier.id) : null });
 
   // ================================
@@ -285,41 +275,6 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
    * Implements tolerant loading with error handling to prevent
    * dialog failure if supplier service is temporarily unavailable.
    */
-  React.useEffect(() => {
-    if (!open) return;
-
-    let cancelled = false;
-
-    const loadSuppliers = async () => {
-      setSupplierLoading(true);
-      try {
-        const suppliers = await getSuppliersLite();
-        if (!cancelled) {
-          const options: SupplierOption[] = suppliers.map((s) => ({
-            id: s.id,
-            label: s.name,
-          }));
-          setSupplierOptions(options);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.error('Failed to load suppliers:', error);
-          setFormError(t('inventory:failedToLoadSuppliers', 'Failed to load suppliers. Please try again.'));
-        }
-      } finally {
-        if (!cancelled) {
-          setSupplierLoading(false);
-        }
-      }
-    };
-
-    void loadSuppliers();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open, t]);
-
   /**
    * Reset item search when supplier changes.
    * Prevents cross-supplier item selection errors.
@@ -437,168 +392,72 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
             </Alert>
           )}
 
-          {/* Step 1: Supplier Selection */}
-          <Box>
-            <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step1SelectSupplier', 'Step 1: Select Supplier')}
-            </Typography>
-            <Autocomplete
-              options={supplierOptions}
-              value={selectedSupplier}
-              onChange={(_, newValue) => handleSupplierChange(newValue)}
-              loading={supplierLoading}
-              getOptionLabel={(option) => option.label}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={t('inventory:supplier', 'Supplier')}
-                  placeholder={t('inventory:selectSupplierPlaceholder', 'Choose a supplier...')}
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <>
-                        {supplierLoading && <CircularProgress color="inherit" size={20} />}
-                        {params.InputProps.endAdornment}
-                      </>
-                    ),
-                  }}
-                />
-              )}
-            />
-          </Box>
-
-          {/* Step 2: Item Selection */}
-          <Box>
-            <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step2SelectItem', 'Step 2: Select Item')}
-            </Typography>
-            <Autocomplete<ItemRef, false, false, false>
-              options={itemOptions}
-              getOptionLabel={(option) => option.name}
-              loading={isSearchLoading}
-              value={selectedItem}
-              onChange={(_, newValue) => {
-                setSelectedItem(newValue);
-                setValue('itemId', newValue?.id || '');
-                // Reset price when item changes
-                setValue('newPrice', 0);
-                if (newValue) {
-                  setItemQuery(newValue.name);
-                }
-              }}
-              inputValue={itemQuery}
-              onInputChange={(_, newInputValue) => {
-                setItemQuery(newInputValue);
-              }}
-              forcePopupIcon={false}
-              clearOnBlur={false}
-              selectOnFocus
-              handleHomeEndKeys
-              filterOptions={(x) => x} // We already filter server-side
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              disabled={!selectedSupplier}
-              renderInput={(params) => {
-                const hasTyped = itemQuery.trim().length > 0;
-                const showNoMatches = !!selectedSupplier && hasTyped && itemOptions.length === 0;
-                const showTypeHint = !!selectedSupplier && !hasTyped;
-                
-                return (
-                  <TextField
-                    {...params}
-                    label={t('inventory:item', 'Item')}
-                    placeholder={!selectedSupplier ? 
-                      t('inventory:selectSupplierFirst', 'Select supplier first...') :
-                      t('inventory:typeToSearchItems', 'Type to search items...')
-                    }
-                    error={!!errors.itemId}
-                    helperText={
-                      errors.itemId?.message ||
-                      (showNoMatches
-                        ? t('inventory:noItemsFound', 'No items found for this search.')
-                        : showTypeHint
-                        ? t('inventory:typeToSearchHint', 'Start typing to search for items...')
-                        : ' ')
-                    }
-                    FormHelperTextProps={{ sx: { minHeight: 20, mt: 0.5 } }}
-                  />
-                );
-              }}
-              renderOption={(props, option) => (
-                <Box component="li" {...props}>
-                  <Box sx={{ width: '100%' }}>
-                    <Typography variant="body2" fontWeight="medium">
-                      {option.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {option.supplierId ? `Supplier: ${option.supplierId}` : 'No supplier info'}
-                    </Typography>
-                  </Box>
-                </Box>
-              )}
-            />
-          </Box>
-
-          {/* Current Item Information */}
-          {selectedItem && (
-            <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-              <Typography variant="subtitle2" gutterBottom>
-                {t('inventory:selectedItem', 'Selected Item')}
-              </Typography>
-              <Box sx={{ display: 'grid', gap: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('inventory:name', 'Name')}:
-                  </Typography>
-                  <Typography variant="body2" fontWeight="medium">
-                    {selectedItem.name}
-                  </Typography>
-                </Box>
-                
-                {/* Current Quantity */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('inventory:currentQuantity', 'Current Quantity')}:
-                  </Typography>
-                  <Typography variant="body2" fontWeight="medium">
-                    {itemDetailsQuery.isLoading ? (
-                      <CircularProgress size={16} />
-                    ) : (
-                      itemDetailsQuery.data?.onHand ?? t('inventory:notAvailable', 'N/A')
-                    )}
-                  </Typography>
-                </Box>
-                
-                {/* Current Price */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('inventory:currentPrice', 'Current Price')}:
-                  </Typography>
-                  <Typography variant="body2" fontWeight="medium">
-                    {itemPriceQuery.isLoading ? (
-                      <CircularProgress size={16} />
-                    ) : itemPriceQuery.data !== null && itemPriceQuery.data !== undefined ? (
-                      `$${itemPriceQuery.data.toFixed(2)}`
-                    ) : (
-                      t('inventory:priceNotAvailable', 'N/A')
-                    )}
-                  </Typography>
-                </Box>
-                
-                {/* Item Code/SKU if available */}
-                {itemDetailsQuery.data?.code && (
+          {/* Supplier and Item Selection */}
+          <SupplierItemSelector
+            selectedSupplierId={selectedSupplier?.id?.toString() || ''}
+            onSupplierChange={(supplierId) => {
+              // SupplierItemSelector provides the supplier ID, we create a minimal supplier object
+              const supplier = supplierId ? { id: supplierId, label: '' } : null;
+              handleSupplierChange(supplier);
+            }}
+            selectedItem={selectedItem}
+            onItemChange={(item) => {
+              setSelectedItem(item);
+              setValue('itemId', item?.id || '');
+              // Reset price when item changes
+              setValue('newPrice', 0);
+              if (item) {
+                setItemQuery(item.name);
+              }
+            }}
+            selectedItemContent={
+              selectedItem && (
+                <Box sx={{ display: 'grid', gap: 1, mt: 1 }}>
+                  {/* Current Quantity */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2" color="text.secondary">
-                      {t('inventory:code', 'SKU/Code')}:
+                      {t('inventory:currentQuantity', 'Current Quantity')}:
                     </Typography>
                     <Typography variant="body2" fontWeight="medium">
-                      {itemDetailsQuery.data.code}
+                      {itemDetailsQuery.isLoading ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        itemDetailsQuery.data?.onHand ?? t('inventory:notAvailable', 'N/A')
+                      )}
                     </Typography>
                   </Box>
-                )}
-              </Box>
-            </Box>
-          )}
+                  
+                  {/* Current Price */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('inventory:currentPrice', 'Current Price')}:
+                    </Typography>
+                    <Typography variant="body2" fontWeight="medium">
+                      {itemPriceQuery.isLoading ? (
+                        <CircularProgress size={16} />
+                      ) : itemPriceQuery.data !== null && itemPriceQuery.data !== undefined ? (
+                        `$${itemPriceQuery.data.toFixed(2)}`
+                      ) : (
+                        t('inventory:priceNotAvailable', 'N/A')
+                      )}
+                    </Typography>
+                  </Box>
+                  
+                  {/* Item Code/SKU if available */}
+                  {itemDetailsQuery.data?.code && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('inventory:code', 'SKU/Code')}:
+                      </Typography>
+                      <Typography variant="body2" fontWeight="medium">
+                        {itemDetailsQuery.data.code}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              )
+            }
+          />
 
           <Divider />
 
