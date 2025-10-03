@@ -16,29 +16,21 @@
 import { z } from 'zod';
 
 /**
- * Schema for supplier ID - can be string or number
- */
-const supplierIdSchema = z.union([
-  z.string().min(1, 'Supplier is required'),
-  z.number(),
-]);
-
-/**
  * Schema for creating or updating inventory items.
  * Handles both new item creation and existing item updates.
  */
-export const upsertItemSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(2, 'Name is required'),
-  code: z.string().trim().optional().nullable(),
-  supplierId: supplierIdSchema,
-  quantity: z.number().min(0, 'Quantity cannot be negative'),
-  price: z.number().min(0, 'Price cannot be negative'),
-  minQty: z.number().min(0, 'Minimum quantity cannot be negative'),
-  notes: z.string().optional().nullable(),
+export const itemFormSchema = z.object({
+  name: z.string().min(1, "Item name is required"),
+  code: z.string().optional(),
+  supplierId: z.union([z.string(), z.number()]).refine(val => val !== "" && val !== 0, "Supplier is required"),
+  quantity: z.number().min(0, "Initial stock must be non-negative"),
+  price: z.number().min(0, "Price must be non-negative"),
+  reason: z.enum(["INITIAL_STOCK", "MANUAL_UPDATE"], {
+    message: "Reason is required",
+  }),
 });
 
-export type UpsertItemForm = z.infer<typeof upsertItemSchema>;
+export type UpsertItemForm = z.infer<typeof itemFormSchema>;
 
 /**
  * Schema for adjusting item quantities.

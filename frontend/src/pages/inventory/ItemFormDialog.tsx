@@ -35,9 +35,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
 import { listSuppliers, upsertItem } from '../../api/inventory/mutations';
-import type { SupplierOptionDTO } from '../../api/inventory/mutations';
+import type { SupplierOptionDTO, UpsertItemRequest } from '../../api/inventory/mutations';
+import type { InventoryRow } from '../../api/inventory/types';
 import { useTranslation } from 'react-i18next';
-import { upsertItemSchema } from './validation';
+import { itemFormSchema } from './validation';
 import type { UpsertItemForm } from './validation';
 
 /**
@@ -50,7 +51,7 @@ export interface ItemFormDialogProps {
    * When present, dialog operates in **Edit** mode and pre-fills fields.
    * When absent, dialog operates in **Create** mode.
    */
-  initial?: Partial<UpsertItemForm>;
+  initial?: InventoryRow;
   /** Called when the user cancels or after a successful save. */
   onClose: () => void;
   /**
@@ -102,18 +103,14 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
     reset,
     watch,
   } = useForm<UpsertItemForm>({
-    resolver: zodResolver(upsertItemSchema) as Resolver<UpsertItemForm>,
+    resolver: zodResolver(itemFormSchema) as Resolver<UpsertItemForm>,
     defaultValues: {
-      id: initial?.id,
       name: initial?.name ?? '',
       code: initial?.code ?? '',
       supplierId: initial?.supplierId ?? '',
-      price: initial?.price ?? 0, // Start with 0, require > 0 on submit
-      quantity: initial?.quantity ?? 0, // Start with 0, require > 0 on submit
-      // We keep the same form key, but label shows "Qty"
-      minQty: initial?.minQty ?? 0,
-      // "notes" carries create-reason until backend exposes a dedicated field
-      notes: initial?.notes ?? '',
+      quantity: initial?.onHand ?? 0, // Map onHand to quantity
+      price: 0, // Price not in InventoryRow, start with 0
+      reason: 'INITIAL_STOCK', // Default reason
     },
   });
 
@@ -161,12 +158,12 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
   React.useEffect(() => {
     if (!open) return;
     reset({
-      id: initial?.id,
       name: initial?.name ?? '',
       code: initial?.code ?? '',
       supplierId: (initial?.supplierId as UpsertItemForm['supplierId']) ?? '',
-      minQty: initial?.minQty ?? 0,
-      notes: initial?.notes ?? '',
+      quantity: initial?.onHand ?? 0, // Map onHand to quantity
+      price: 0, // Price not in InventoryRow, start with 0
+      reason: 'INITIAL_STOCK', // Default reason
     });
     setFormError(null);
     clearErrors();
@@ -224,7 +221,20 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
       return;
     }
 
-    const res = await upsertItem(values);
+    // Prepare the request with auto-set minQty and createdBy
+    // Map reason to notes for backend compatibility
+    const requestData: UpsertItemRequest = {
+      name: values.name,
+      code: values.code,
+      supplierId: values.supplierId,
+      quantity: values.quantity,
+      price: values.price,
+      minQty: 5, // Auto-set minimal stock to 5 as requested
+      notes: values.reason, // Map reason dropdown to notes field for backend
+      createdBy: 'user', // Set default user - can be improved with actual user context
+    };
+
+    const res = await upsertItem(requestData);
     if (res.ok) {
       onSaved();
       onClose();
@@ -296,21 +306,11 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
             helperText={errors.quantity?.message}
           />
 
-          {/* Minimum Quantity */}
-          <TextField
-            label={t('inventory:minQty', 'Min Qty (Alert Threshold)')}
-            type="number"
-            slotProps={{ htmlInput: { min: 0 } }}
-            {...register('minQty')}
-            error={!!errors.minQty}
-            helperText={errors.minQty?.message}
-          />
-
           {/* Price */}
           <TextField
             label={t('inventory:price', 'Price')}
             type="number"
-            slotProps={{ htmlInput: { min: 0.01, step: 0.01 } }}
+            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
             {...register('price')}
             error={!!errors.price}
             helperText={errors.price?.message}
@@ -319,16 +319,15 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
             }}
           />
 
-          {/* Notes */}
           {/* Reason dropdown on CREATE only */}
           {!initial?.id && (
-            <FormControl error={!!errors.notes}>
+            <FormControl error={!!errors.reason}>
               <InputLabel id="reason-label">{t('inventory:reason', 'Reason')}</InputLabel>
               <Select
                 labelId="reason-label"
                 label={t('inventory:reason', 'Reason')}
-                value={watch('notes') ?? ''}
-                onChange={(e) => setValue('notes', e.target.value as UpsertItemForm['notes'], { shouldValidate: true })}
+                value={watch('reason') ?? 'INITIAL_STOCK'}
+                onChange={(e) => setValue('reason', e.target.value as UpsertItemForm['reason'], { shouldValidate: true })}
               >
                 {CREATE_REASON_OPTIONS.map(opt => (
                   <MenuItem key={opt.value} value={opt.value}>
@@ -336,8 +335,8 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
                   </MenuItem>
                 ))}
               </Select>
-              {errors.notes?.message && (
-                <Box sx={{ mt: 0.5, color: 'error.main', fontSize: 12 }}>{errors.notes.message}</Box>
+              {errors.reason?.message && (
+                <Box sx={{ mt: 0.5, color: 'error.main', fontSize: 12 }}>{errors.reason.message}</Box>
               )}
             </FormControl>
           )}

@@ -56,8 +56,16 @@ export interface UpsertItemRequest {
   /** Code/SKU (nullable – DB may not have SKU yet) */
   code?: string | null;
   supplierId: string | number;
+  /** Initial quantity for new items */
+  quantity: number;
+  /** Unit price */
+  price: number;
+  /** Minimum quantity threshold - will be auto-set to 5 if not provided */
   minQty?: number | null;
+  /** Notes/reason for creation */
   notes?: string | null;
+  /** Created by user - required for backend validation */
+  createdBy?: string;
 }
 
 export interface UpsertItemResponse {

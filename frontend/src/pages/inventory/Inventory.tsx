@@ -417,8 +417,7 @@ const Inventory: React.FC = () => {
             name: selectedRow.name,
             code: selectedRow.code ?? '',
             supplierId: String(selectedRow.supplierId ?? supplierId ?? ''),
-            minQty: selectedRow.minQty ?? 0,
-            notes: '',
+            onHand: selectedRow.onHand,
           }}
           onClose={() => setOpenEdit(false)}
           onSaved={handleItemUpdated}
