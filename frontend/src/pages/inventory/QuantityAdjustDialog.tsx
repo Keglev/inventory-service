@@ -53,12 +53,12 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
-import { adjustQuantity } from '../../api/inventory/mutations';
+import { adjustQuantity, listSuppliers } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import type { InventoryRow } from '../../api/inventory/types';
-import type { ItemOptionDTO } from '../../api/inventory/mutations';
-import { SupplierItemSelector } from './components/SupplierItemSelector';
+import { searchItemsBySupplier } from '../../api/inventory/mutations';
+import type { ItemOptionDTO, SupplierOptionDTO } from '../../api/inventory/mutations';
 
 /**
  * Business reasons for stock quantity changes.
@@ -173,8 +173,73 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   /** Currently selected item for quantity adjustment */
   const [selectedItem, setSelectedItem] = React.useState<ItemOptionDTO | null>(null);
   
+  /** Available suppliers for dropdown */
+  const [supplierOptions, setSupplierOptions] = React.useState<SupplierOption[]>([]);
+  const [supplierLoading, setSupplierLoading] = React.useState(false);
+  
+  /** Available items for selected supplier */
+  const [itemOptions, setItemOptions] = React.useState<ItemOptionDTO[]>([]);
+  const [itemQuery, setItemQuery] = React.useState('');
+  const [itemsLoading, setItemsLoading] = React.useState(false);
+  
   /** Form error message for user feedback */
   const [formError, setFormError] = React.useState<string>('');
+
+  // ================================
+  // Data Loading Effects
+  // ================================
+
+  /** Load suppliers when dialog opens */
+  React.useEffect(() => {
+    if (!open) return;
+    
+    let cancelled = false;
+    (async () => {
+      setSupplierLoading(true);
+      try {
+        const list = await listSuppliers();
+        const opts: SupplierOption[] = list.map((s: SupplierOptionDTO) => ({
+          id: s.id,
+          label: s.name,
+        }));
+        if (!cancelled) setSupplierOptions(opts);
+      } catch (error) {
+        console.error('Failed to load suppliers:', error);
+      } finally {
+        if (!cancelled) setSupplierLoading(false);
+      }
+    })();
+    
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  /** Load items when supplier changes and query is entered */
+  React.useEffect(() => {
+    if (!selectedSupplier || !itemQuery.trim()) {
+      setItemOptions([]);
+      return;
+    }
+    
+    let cancelled = false;
+    (async () => {
+      setItemsLoading(true);
+      try {
+        const items = await searchItemsBySupplier(String(selectedSupplier.id), itemQuery);
+        if (!cancelled) setItemOptions(items);
+      } catch (error) {
+        console.error('Failed to load items:', error);
+        if (!cancelled) setItemOptions([]);
+      } finally {
+        if (!cancelled) setItemsLoading(false);
+      }
+    })();
+    
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSupplier, itemQuery]);
 
   // ================================
   // Item Details Query
@@ -265,10 +330,12 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
    */
   React.useEffect(() => {
     setSelectedItem(null);
+    setItemQuery('');
+    setItemOptions([]);
     setValue('itemId', '');
     setValue('newQuantity', 0);
     setFormError('');
-  }, [selectedSupplier, setValue, setSelectedItem]);
+  }, [selectedSupplier, setValue]);
 
   // ================================
   // Event Handlers
@@ -288,24 +355,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     setFormError('');
     reset();
     onClose();
-  };
-
-  /**
-   * Handle supplier selection change.
-   * Triggers item loading and resets downstream selections.
-   * 
-   * @param supplier - The newly selected supplier option
-   * 
-   * @enterprise
-   * Implements cascading state reset to maintain workflow integrity
-   * and prevent invalid cross-supplier item selections.
-   */
-  const handleSupplierChange = (supplier: SupplierOption | null) => {
-    setSelectedSupplier(supplier);
-    setSelectedItem(null);
-    setValue('itemId', '');
-    setValue('newQuantity', 0);
-    setFormError('');
   };
 
   /**
@@ -379,69 +428,127 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
             </Alert>
           )}
 
-          {/* Supplier and Item Selection */}
-          <SupplierItemSelector
-            selectedSupplierId={selectedSupplier?.id?.toString() || ''}
-            onSupplierChange={(supplierId) => {
-              // SupplierItemSelector provides the supplier ID, we create a minimal supplier object
-              const supplier = supplierId ? { id: supplierId, label: '' } : null;
-              handleSupplierChange(supplier);
-            }}
-            selectedItem={selectedItem}
-            onItemChange={(item) => {
-              setSelectedItem(item);
-              setValue('itemId', item?.id || '');
-              // Reset quantity when item changes
-              setValue('newQuantity', 0);
-            }}
-            selectedItemContent={
-              selectedItem && (
-                <Box sx={{ display: 'grid', gap: 1, mt: 1 }}>
-                  {/* Current Quantity */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('inventory:currentQuantity', 'Current Quantity')}:
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium">
-                      {itemDetailsQuery.isLoading ? (
-                        <CircularProgress size={16} />
-                      ) : (
-                        itemDetailsQuery.data?.onHand ?? t('inventory:notAvailable', 'N/A')
-                      )}
-                    </Typography>
-                  </Box>
-                  
-                  {/* Current Price */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('inventory:currentPrice', 'Current Price')}:
-                    </Typography>
-                    <Typography variant="body2" fontWeight="medium">
-                      {itemPriceQuery.isLoading ? (
-                        <CircularProgress size={16} />
-                      ) : itemPriceQuery.data !== null && itemPriceQuery.data !== undefined ? (
-                        `$${itemPriceQuery.data.toFixed(2)}`
-                      ) : (
-                        t('inventory:priceNotAvailable', 'N/A')
-                      )}
-                    </Typography>
-                  </Box>
-                  
-                  {/* Item Code/SKU if available */}
-                  {itemDetailsQuery.data?.code && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {t('inventory:code', 'SKU/Code')}:
-                      </Typography>
-                      <Typography variant="body2" fontWeight="medium">
-                        {itemDetailsQuery.data.code}
-                      </Typography>
-                    </Box>
-                  )}
+          {/* Step 1: Supplier Selection */}
+          <Box>
+            <Typography variant="subtitle2" gutterBottom color="primary">
+              {t('inventory:step1SelectSupplier', 'Step 1: Select Supplier')}
+            </Typography>
+            
+            <FormControl fullWidth size="small">
+              <InputLabel>{t('inventory:supplier', 'Supplier')}</InputLabel>
+              <Select
+                value={selectedSupplier?.id || ''}
+                label={t('inventory:supplier', 'Supplier')}
+                onChange={(e) => {
+                  const supplierId = e.target.value;
+                  const supplier = supplierOptions.find(s => String(s.id) === String(supplierId)) || null;
+                  setSelectedSupplier(supplier);
+                }}
+                disabled={supplierLoading}
+              >
+                <MenuItem value="">
+                  <em>{t('common:selectOption', 'Select an option')}</em>
+                </MenuItem>
+                {supplierOptions.map((supplier) => (
+                  <MenuItem key={supplier.id} value={supplier.id}>
+                    {supplier.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Step 2: Item Selection */}
+          <Box>
+            <Typography variant="subtitle2" gutterBottom color="primary">
+              {t('inventory:step2SelectItem', 'Step 2: Select Item')}
+            </Typography>
+            
+            <TextField
+              fullWidth
+              size="small"
+              label={t('inventory:searchItems', 'Search items...')}
+              value={itemQuery}
+              onChange={(e) => setItemQuery(e.target.value)}
+              disabled={!selectedSupplier}
+              placeholder={!selectedSupplier ? t('inventory:selectSupplierFirst', 'Select supplier first') : undefined}
+              sx={{ mb: 2 }}
+            />
+            
+            {itemsLoading && (
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <CircularProgress size={16} sx={{ mr: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  {t('inventory:loadingItems', 'Loading items...')}
+                </Typography>
+              </Box>
+            )}
+            
+            {itemOptions.length > 0 && (
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel>{t('inventory:selectItem', 'Select Item')}</InputLabel>
+                <Select
+                  value={selectedItem?.id || ''}
+                  label={t('inventory:selectItem', 'Select Item')}
+                  onChange={(e) => {
+                    const itemId = e.target.value;
+                    const item = itemOptions.find(i => i.id === itemId) || null;
+                    setSelectedItem(item);
+                    setValue('itemId', item?.id || '');
+                    setValue('newQuantity', 0);
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>{t('common:selectOption', 'Select an option')}</em>
+                  </MenuItem>
+                  {itemOptions.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {item.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+            
+            {/* Selected Item Details */}
+            {selectedItem && (
+              <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                <Typography variant="subtitle2" color="primary">
+                  {t('inventory:selectedItem', 'Selected Item')}: {selectedItem.name}
+                </Typography>
+                
+                {/* Current Quantity */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('inventory:currentQuantity', 'Current Quantity')}:
+                  </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                    {itemDetailsQuery.isLoading ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      itemDetailsQuery.data?.onHand ?? t('inventory:notAvailable', 'N/A')
+                    )}
+                  </Typography>
                 </Box>
-              )
-            }
-          />
+                
+                {/* Current Price */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('inventory:currentPrice', 'Current Price')}:
+                  </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                    {itemPriceQuery.isLoading ? (
+                      <CircularProgress size={16} />
+                    ) : itemPriceQuery.data !== null && itemPriceQuery.data !== undefined ? (
+                      `$${itemPriceQuery.data.toFixed(2)}`
+                    ) : (
+                      t('inventory:priceNotAvailable', 'N/A')
+                    )}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+          </Box>
 
           <Divider />
 
