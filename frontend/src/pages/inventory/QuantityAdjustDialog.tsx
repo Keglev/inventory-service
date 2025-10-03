@@ -52,9 +52,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { getSuppliersLite } from '../../api/analytics/suppliers';
 import { adjustQuantity } from '../../api/inventory/mutations';
+import { getInventoryPage } from '../../api/inventory/list';
+import type { InventoryRow } from '../../api/inventory/types';
 import { useItemSearch } from './hooks/useItemSearch';
 import type { ItemRef } from '../../api/analytics/types';
 
@@ -189,6 +192,37 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     itemOptions,
     isSearchLoading
   } = useItemSearch({ supplierId: selectedSupplier ? String(selectedSupplier.id) : null });
+
+  // ================================
+  // Item Details Query
+  // ================================
+  
+  /** Fetch detailed information for the selected item (quantity, price, etc.) */
+  const itemDetailsQuery = useQuery<InventoryRow | null>({
+    queryKey: ['itemDetails', selectedItem?.id],
+    queryFn: async () => {
+      if (!selectedItem?.id) return null;
+      
+      try {
+        // Use the inventory list API to get item details by searching for the specific item ID
+        const response = await getInventoryPage({
+          page: 1,
+          pageSize: 1,
+          q: selectedItem.id, // Search by ID
+          supplierId: selectedSupplier?.id || undefined,
+        });
+        
+        // Find the item that matches exactly
+        const item = response.items.find(item => item.id === selectedItem.id);
+        return item || null;
+      } catch (error) {
+        console.error('Failed to fetch item details:', error);
+        return null;
+      }
+    },
+    enabled: !!selectedItem?.id,
+    staleTime: 30_000,
+  });
 
   // ================================
   // Form Management
@@ -467,13 +501,12 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               }}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
-                  <Box>
+                  <Box sx={{ width: '100%' }}>
                     <Typography variant="body2" fontWeight="medium">
                       {option.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {/* TODO: Add current quantity and price display */}
-                      Supplier: {option.supplierId || 'N/A'}
+                      {option.supplierId ? `Supplier: ${option.supplierId}` : 'No supplier info'}
                     </Typography>
                   </Box>
                 </Box>
@@ -496,14 +529,45 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     {selectedItem.name}
                   </Typography>
                 </Box>
+                
+                {/* Current Quantity */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2" color="text.secondary">
-                    ID:
+                    {t('inventory:currentQuantity', 'Current Quantity')}:
                   </Typography>
                   <Typography variant="body2" fontWeight="medium">
-                    {selectedItem.id}
+                    {itemDetailsQuery.isLoading ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      itemDetailsQuery.data?.onHand ?? t('inventory:notAvailable', 'N/A')
+                    )}
                   </Typography>
                 </Box>
+                
+                {/* Current Price */}
+                {itemDetailsQuery.data?.code && (
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('inventory:currentPrice', 'Price')}:
+                    </Typography>
+                    <Typography variant="body2" fontWeight="medium">
+                      {/* Note: Price not available in current API, showing placeholder */}
+                      {t('inventory:priceNotAvailable', 'Price data N/A')}
+                    </Typography>
+                  </Box>
+                )}
+                
+                {/* Item Code/SKU if available */}
+                {itemDetailsQuery.data?.code && (
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('inventory:code', 'SKU/Code')}:
+                    </Typography>
+                    <Typography variant="body2" fontWeight="medium">
+                      {itemDetailsQuery.data.code}
+                    </Typography>
+                  </Box>
+                )}
               </Box>
             </Box>
           )}
