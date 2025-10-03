@@ -301,7 +301,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
             label={t('inventory:quantity', 'Initial Stock')}
             type="number"
             slotProps={{ htmlInput: { min: 0 } }}
-            {...register('quantity')}
+            {...register('quantity', { valueAsNumber: true })}
             error={!!errors.quantity}
             helperText={errors.quantity?.message}
           />
@@ -311,7 +311,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
             label={t('inventory:price', 'Price')}
             type="number"
             slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
-            {...register('price')}
+            {...register('price', { valueAsNumber: true })}
             error={!!errors.price}
             helperText={errors.price?.message}
             InputProps={{
