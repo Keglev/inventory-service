@@ -63,7 +63,7 @@ import { changePrice } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import type { InventoryRow } from '../../api/inventory/types';
-import type { ItemRef } from '../../api/analytics/types';
+import type { ItemOptionDTO } from '../../api/inventory/mutations';
 import { SupplierItemSelector } from './components/SupplierItemSelector';
 
 /**
@@ -171,7 +171,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
   
   /** Currently selected item for price change */
-  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
+  const [selectedItem, setSelectedItem] = React.useState<ItemOptionDTO | null>(null);
   
   /** Form error message for user feedback */
   const [formError, setFormError] = React.useState<string>('');

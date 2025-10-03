@@ -17,8 +17,8 @@
 import * as React from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useDebounced } from '../../analytics/hooks/useDebounced';
-import { searchItemsForSupplier } from '../../../api/analytics/search';
-import type { ItemRef } from '../../../api/analytics/types';
+import { searchItemsBySupplier } from '../../../api/inventory/mutations';
+import type { ItemOptionDTO } from '../../../api/inventory/mutations';
 
 export interface UseItemSearchProps {
   /** Currently selected supplier ID */
@@ -37,11 +37,11 @@ export interface UseItemSearchReturn {
   /** Set the search query text */
   setItemQuery: (query: string) => void;
   /** Currently selected item */
-  selectedItem: ItemRef | null;
+  selectedItem: ItemOptionDTO | null;
   /** Set the selected item */
-  setSelectedItem: (item: ItemRef | null) => void;
+  setSelectedItem: (item: ItemOptionDTO | null) => void;
   /** Available search options */
-  itemOptions: ItemRef[];
+  itemOptions: ItemOptionDTO[];
   /** Whether search is loading */
   isSearchLoading: boolean;
   /** Whether search has error */
@@ -57,7 +57,6 @@ export interface UseItemSearchReturn {
 export function useItemSearch(props: UseItemSearchProps = {}): UseItemSearchReturn {
   const {
     supplierId,
-    limit = 50,
     minQueryLength = 1,
     debounceDelay = 250,
   } = props;
@@ -71,7 +70,7 @@ export function useItemSearch(props: UseItemSearchProps = {}): UseItemSearchRetu
   /** Debounced search query to prevent excessive API calls */
   const debouncedItemQuery = useDebounced(itemQuery, debounceDelay);
   /** Currently selected item for operations */
-  const [selectedItem, setSelectedItem] = React.useState<ItemRef | null>(null);
+  const [selectedItem, setSelectedItem] = React.useState<ItemOptionDTO | null>(null);
 
   /** Reset search state when supplier changes (prevents cross-supplier leaks) */
   React.useEffect(() => {
@@ -84,13 +83,13 @@ export function useItemSearch(props: UseItemSearchProps = {}): UseItemSearchRetu
   // ================================
 
   /** Search items for the selected supplier with debounced query */
-  const itemSearchQuery = useQuery<ItemRef[]>({
+  const itemSearchQuery = useQuery<ItemOptionDTO[]>({
     queryKey: ['itemSearch', supplierId ?? null, debouncedItemQuery],
     queryFn: async () => {
       if (!supplierId || !debouncedItemQuery.trim() || debouncedItemQuery.trim().length < minQueryLength) {
         return [];
       }
-      return searchItemsForSupplier(String(supplierId), debouncedItemQuery, limit);
+      return searchItemsBySupplier(String(supplierId), debouncedItemQuery);
     },
     enabled: !!supplierId && debouncedItemQuery.trim().length >= minQueryLength,
     staleTime: 30_000,
@@ -107,7 +106,7 @@ export function useItemSearch(props: UseItemSearchProps = {}): UseItemSearchRetu
     
     // Additional client-side filtering by supplier (belt-and-suspenders approach)
     const filteredOptions = supplierId
-      ? baseOptions.filter((option) => (option.supplierId ?? '') === supplierId)
+      ? baseOptions.filter((option) => String(option.supplierId ?? '') === String(supplierId))
       : baseOptions;
     
     // Ensure selected item remains visible even during refetch

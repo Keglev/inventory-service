@@ -42,10 +42,10 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { getSuppliersLite } from '../../../api/analytics/suppliers';
+import { listSuppliers } from '../../../api/inventory/mutations';
+import type { SupplierOptionDTO, ItemOptionDTO } from '../../../api/inventory/mutations';
 import { useItemSearch } from '../hooks/useItemSearch';
 import { ItemAutocompleteOption } from './ItemAutocompleteOption';
-import type { ItemRef } from '../../../api/analytics/types';
 
 /**
  * Props for the supplier-item selector component.
@@ -58,10 +58,10 @@ export interface SupplierItemSelectorProps {
   onSupplierChange: (supplierId: string) => void;
   
   /** Currently selected item */
-  selectedItem: ItemRef | null;
+  selectedItem: ItemOptionDTO | null;
   
   /** Function to handle item selection change */
-  onItemChange: (item: ItemRef | null) => void;
+  onItemChange: (item: ItemOptionDTO | null) => void;
   
   /** Optional error message for supplier selection */
   supplierError?: string;
@@ -103,7 +103,14 @@ export const SupplierItemSelector: React.FC<SupplierItemSelectorProps> = ({
     error: suppliersError,
   } = useQuery({
     queryKey: ['suppliers', 'lite'],
-    queryFn: getSuppliersLite,
+    queryFn: async () => {
+      const supplierDTOs = await listSuppliers();
+      // Transform SupplierOptionDTO[] to the format expected by the component
+      return supplierDTOs.map((dto: SupplierOptionDTO) => ({
+        id: String(dto.id), // Ensure string type
+        name: dto.name,
+      }));
+    },
   });
 
   // Use shared item search hook (we manage selected item externally)
@@ -200,9 +207,14 @@ export const SupplierItemSelector: React.FC<SupplierItemSelectorProps> = ({
               }}
             />
           )}
-          renderOption={(props, option) => (
-            <ItemAutocompleteOption {...props} item={option} />
-          )}
+          renderOption={(props, option) => {
+            // Transform ItemOptionDTO to DisplayableItem format
+            const displayableItem = {
+              ...option,
+              supplierId: option.supplierId ? String(option.supplierId) : null,
+            };
+            return <ItemAutocompleteOption {...props} item={displayableItem} />;
+          }}
           loading={itemsLoading}
           disabled={!selectedSupplierId || disabled}
           noOptionsText={
