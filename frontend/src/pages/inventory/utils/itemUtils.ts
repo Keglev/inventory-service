@@ -6,7 +6,16 @@
  * Utility functions for item display and formatting.
  */
 
-import type { DisplayableItem } from '../components/ItemAutocompleteOption';
+/**
+ * Item that can be displayed in autocomplete.
+ */
+export interface DisplayableItem {
+  id: string;
+  name: string;
+  supplierId?: string | null;
+  onHand?: number;
+  currentPrice?: number;
+}
 
 /**
  * Get display label for item in autocomplete input field.

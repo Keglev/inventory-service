@@ -33,28 +33,12 @@ import {
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import type { Resolver } from 'react-hook-form';
-import { listSuppliers, upsertItem, searchItemsBySupplier } from '../../api/inventory/mutations';
-import type { SupplierOptionDTO, ItemOptionDTO } from '../../api/inventory/mutations';
+import { listSuppliers, upsertItem } from '../../api/inventory/mutations';
+import type { SupplierOptionDTO } from '../../api/inventory/mutations';
 import { useTranslation } from 'react-i18next';
-
-/**
- * Validation schema for item form.
- * Ensures all required fields are properly validated.
- */
-const upsertItemSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(1, 'Item name is required'),
-  code: z.string().optional(),
-  supplierId: z.string().min(1, 'Supplier is required'),
-  quantity: z.number().min(0, 'Quantity cannot be negative').refine(val => val > 0, 'Quantity must be greater than 0'),
-  minQty: z.number().min(0, 'Minimum quantity cannot be negative'),
-  price: z.number().min(0, 'Price cannot be negative').refine(val => val > 0, 'Price must be greater than 0'),
-  notes: z.string().min(1, 'Reason is required for new items'),
-});
-
-type UpsertItemForm = z.infer<typeof upsertItemSchema>;
+import { upsertItemSchema } from './validation';
+import type { UpsertItemForm } from './validation';
 
 /**
  * Props for {@link ItemFormDialog}.
@@ -238,24 +222,6 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
     if (readOnly) {
       setFormError(t('common.demoDisabled', 'This action is disabled in demo mode.'));
       return;
-    }
-
-    // Check for duplicate item names (only for new items)
-    if (!initial?.id) {
-      try {
-        const existingItems = await searchItemsBySupplier(values.supplierId, values.name);
-        const duplicateItem = existingItems.find((item: ItemOptionDTO) => 
-          item.name.toLowerCase() === values.name.toLowerCase()
-        );
-        
-        if (duplicateItem) {
-          setFormError(t('inventory:itemNameExists', 'An item with this name already exists for this supplier.'));
-          return;
-        }
-      } catch (error) {
-        console.warn('Could not check for duplicate item names:', error);
-        // Continue with submission even if the check fails
-      }
     }
 
     const res = await upsertItem(values);

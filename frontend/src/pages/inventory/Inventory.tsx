@@ -13,8 +13,7 @@
 
 import * as React from 'react';
 import { 
-  Box, Paper, Typography, LinearProgress, Stack, Button,
-  FormControl, InputLabel, Select, MenuItem, TextField
+  Box, Paper, Typography, LinearProgress, Stack, Button
 } from '@mui/material';
 import { FormControlLabel, Checkbox } from '@mui/material';
 import {
@@ -28,14 +27,11 @@ import { useTranslation } from 'react-i18next';
 import { getInventoryPage } from '../../api/inventory';
 import type { InventoryListResponse, InventoryRow } from '../../api/inventory';
 
+import { InventoryFilters } from './InventoryFilters';
+import type { SupplierOption } from './InventoryFilters';
+
 import { listSuppliers } from '../../api/inventory/mutations';
 import type { SupplierOptionDTO } from '../../api/inventory/mutations';
-
-/** Simple supplier option type for dropdown */
-interface SupplierOption {
-  id: string | number;
-  label: string;
-}
 
 import { ItemFormDialog } from './ItemFormDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
@@ -296,45 +292,21 @@ const Inventory: React.FC = () => {
 
       {/* Filters */}
       <Paper variant="outlined" sx={{ p: 1.5 }}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          {/* Supplier Selection */}
-          <FormControl size="small" sx={{ minWidth: 200 }}>
-            <InputLabel>{t('inventory:supplier', 'Supplier')}</InputLabel>
-            <Select
-              value={supplierId}
-              label={t('inventory:supplier', 'Supplier')}
-              onChange={(e) => {
-                const next = e.target.value;
-                // When supplier changes, reset paging & selection, and clear search
-                setSupplierId(next);
-                setSelectedId(null);
-                setQ('');
-                setPaginationModel((m) => ({ ...m, page: 0 }));
-              }}
-              disabled={supplierLoading}
-            >
-              <MenuItem value="">
-                <em>{t('inventory:allSuppliers', 'All Suppliers')}</em>
-              </MenuItem>
-              {supplierOptions.map((supplier) => (
-                <MenuItem key={supplier.id} value={supplier.id}>
-                  {supplier.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {/* Search Field */}
-          <TextField
-            size="small"
-            label={t('inventory:searchItems', 'Search items...')}
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            disabled={!supplierId}
-            placeholder={!supplierId ? t('inventory:selectSupplierFirst', 'Select supplier first') : undefined}
-            sx={{ flexGrow: 1 }}
-          />
-        </Stack>
+        <InventoryFilters
+          q={q}
+          onQChange={setQ}
+          supplierId={supplierId || ''}
+          onSupplierChange={(next) => {
+            // When supplier changes, reset paging & selection, and clear search
+            setSupplierId(next);
+            setSelectedId(null);
+            setQ('');
+            setPaginationModel((m) => ({ ...m, page: 0 }));
+          }}
+          supplierOptions={supplierOptions}
+          supplierLoading={supplierLoading}
+          disableSearchUntilSupplier
+        />
 
       {/* Below-Min toggle (only active once a supplier is chosen) */}
       <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
@@ -462,7 +434,7 @@ const Inventory: React.FC = () => {
       <PriceChangeDialog
         open={openPrice}
         onClose={() => setOpenPrice(false)}
-        onChanged={load}
+        onPriceChanged={load}
       />
     </Box>
   );

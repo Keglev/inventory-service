@@ -49,16 +49,15 @@ import {
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
-import { adjustQuantity, listSuppliers } from '../../api/inventory/mutations';
+import { adjustQuantity } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
-import type { InventoryRow } from '../../api/inventory/types';
-import { searchItemsBySupplier } from '../../api/inventory/mutations';
-import type { ItemOptionDTO, SupplierOptionDTO } from '../../api/inventory/mutations';
+import { getSuppliersLite } from '../../api/analytics/suppliers';
+import { quantityAdjustSchema } from './validation';
+import type { QuantityAdjustForm } from './validation';
 
 /**
  * Business reasons for stock quantity changes.
@@ -81,27 +80,6 @@ const STOCK_CHANGE_REASONS = [
 ] as const;
 
 /**
- * Validation schema for quantity adjustment form.
- * Enforces business rules and data integrity constraints.
- * 
- * @enterprise
- * - Quantity must be non-negative (≥ 0) to prevent invalid stock levels
- * - Item selection is mandatory for operation context
- * - Business reason is required for audit trail compliance
- */
-const quantityAdjustSchema = z.object({
-  itemId: z.string().min(1, 'Item selection is required'),
-  newQuantity: z.number()
-    .nonnegative('Quantity cannot be negative')
-    .finite('Quantity must be a valid number'),
-  reason: z.enum(STOCK_CHANGE_REASONS, {
-    message: 'Please select a valid reason',
-  }),
-});
-
-type QuantityAdjustForm = z.infer<typeof quantityAdjustSchema>;
-
-/**
  * Properties for the QuantityAdjustDialog component.
  * 
  * @interface QuantityAdjustDialogProps
@@ -120,13 +98,28 @@ export interface QuantityAdjustDialogProps {
 
 /**
  * Supplier option shape for the autocomplete component.
- * Normalized from backend SupplierOptionDTO for consistent UI handling.
+ * Normalized from backend supplier data for consistent UI handling.
  */
 interface SupplierOption {
   /** Unique supplier identifier */
   id: string | number;
   /** Display name for supplier selection */
   label: string;
+}
+
+/**
+ * Item option shape for the autocomplete component.
+ * Normalized from backend inventory data for consistent UI handling.
+ */
+interface ItemOption {
+  /** Unique item identifier */
+  id: string;
+  /** Display name for item selection */
+  name: string;
+  /** Current quantity on hand */
+  onHand: number;
+  /** Current price per unit */
+  price: number;
 }
 
 /**
@@ -171,109 +164,58 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
   
   /** Currently selected item for quantity adjustment */
-  const [selectedItem, setSelectedItem] = React.useState<ItemOptionDTO | null>(null);
+  const [selectedItem, setSelectedItem] = React.useState<ItemOption | null>(null);
   
-  /** Available suppliers for dropdown */
-  const [supplierOptions, setSupplierOptions] = React.useState<SupplierOption[]>([]);
-  const [supplierLoading, setSupplierLoading] = React.useState(false);
-  
-  /** Available items for selected supplier */
-  const [itemOptions, setItemOptions] = React.useState<ItemOptionDTO[]>([]);
+  /** Search query for item filtering */
   const [itemQuery, setItemQuery] = React.useState('');
-  const [itemsLoading, setItemsLoading] = React.useState(false);
   
   /** Form error message for user feedback */
   const [formError, setFormError] = React.useState<string>('');
 
   // ================================
-  // Data Loading Effects
+  // Data Queries
   // ================================
 
-  /** Load suppliers when dialog opens */
-  React.useEffect(() => {
-    if (!open) return;
-    
-    let cancelled = false;
-    (async () => {
-      setSupplierLoading(true);
-      try {
-        const list = await listSuppliers();
-        const opts: SupplierOption[] = list.map((s: SupplierOptionDTO) => ({
-          id: s.id,
-          label: s.name,
-        }));
-        if (!cancelled) setSupplierOptions(opts);
-      } catch (error) {
-        console.error('Failed to load suppliers:', error);
-      } finally {
-        if (!cancelled) setSupplierLoading(false);
-      }
-    })();
-    
-    return () => {
-      cancelled = true;
-    };
-  }, [open]);
-
-  /** Load items when supplier changes and query is entered */
-  React.useEffect(() => {
-    if (!selectedSupplier || !itemQuery.trim()) {
-      setItemOptions([]);
-      return;
-    }
-    
-    let cancelled = false;
-    (async () => {
-      setItemsLoading(true);
-      try {
-        const items = await searchItemsBySupplier(String(selectedSupplier.id), itemQuery);
-        if (!cancelled) setItemOptions(items);
-      } catch (error) {
-        console.error('Failed to load items:', error);
-        if (!cancelled) setItemOptions([]);
-      } finally {
-        if (!cancelled) setItemsLoading(false);
-      }
-    })();
-    
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedSupplier, itemQuery]);
-
-  // ================================
-  // Item Details Query
-  // ================================
-  
-  /** Fetch detailed information for the selected item (quantity, price, etc.) */
-  const itemDetailsQuery = useQuery<InventoryRow | null>({
-    queryKey: ['itemDetails', selectedItem?.id],
+  /** Load suppliers for dropdown */
+  const suppliersQuery = useQuery({
+    queryKey: ['suppliers', 'lite'],
     queryFn: async () => {
-      if (!selectedItem?.id) return null;
-      
-      try {
-        // Use the inventory list API to get item details by searching for the specific item ID
-        const response = await getInventoryPage({
-          page: 1,
-          pageSize: 1,
-          q: selectedItem.id, // Search by ID
-          supplierId: selectedSupplier?.id || undefined,
-        });
-        
-        // Find the item that matches exactly
-        const item = response.items.find(item => item.id === selectedItem.id);
-        return item || null;
-      } catch (error) {
-        console.error('Failed to fetch item details:', error);
-        return null;
-      }
+      const suppliers = await getSuppliersLite();
+      return suppliers.map((supplier): SupplierOption => ({
+        id: supplier.id,
+        label: supplier.name,
+      }));
     },
-    enabled: !!selectedItem?.id,
-    staleTime: 30_000,
+    enabled: open,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  /** Load items based on selected supplier and search query */
+  const itemsQuery = useQuery({
+    queryKey: ['inventory', 'search', selectedSupplier?.id, itemQuery],
+    queryFn: async () => {
+      if (!selectedSupplier) return [];
+      
+      const response = await getInventoryPage({
+        page: 1,
+        pageSize: 50,
+        q: itemQuery,
+        supplierId: selectedSupplier.id,
+      });
+      
+      return response.items.map((item): ItemOption => ({
+        id: item.id,
+        name: item.name,
+        onHand: item.onHand,
+        price: 0, // Default price since it's not available in InventoryRow
+      }));
+    },
+    enabled: !!selectedSupplier && itemQuery.length >= 2,
+    staleTime: 30_000, // 30 seconds
   });
 
   /** Fetch current price for the selected item */
-  const itemPriceQuery = useQuery<number | null>({
+  const itemPriceQuery = useQuery({
     queryKey: ['itemPrice', selectedItem?.id],
     queryFn: async () => {
       if (!selectedItem?.id) return null;
@@ -284,17 +226,17 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           supplierId: selectedSupplier?.id ? String(selectedSupplier.id) : undefined 
         });
         
-        // Return the most recent price, or null if no price data
+        // Return the most recent price, or fall back to item's current price
         if (pricePoints.length > 0) {
           // Sort by date and get the latest
           const latestPrice = pricePoints[pricePoints.length - 1];
           return latestPrice.price;
         }
         
-        return null;
+        return selectedItem.price;
       } catch (error) {
         console.error('Failed to fetch item price:', error);
-        return null;
+        return selectedItem.price;
       }
     },
     enabled: !!selectedItem?.id,
@@ -321,7 +263,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   });
 
   // ================================
-  // Data Loading Effects
+  // Effects
   // ================================
 
   /**
@@ -331,11 +273,20 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   React.useEffect(() => {
     setSelectedItem(null);
     setItemQuery('');
-    setItemOptions([]);
     setValue('itemId', '');
     setValue('newQuantity', 0);
     setFormError('');
   }, [selectedSupplier, setValue]);
+
+  /**
+   * Update form value when item is selected.
+   */
+  React.useEffect(() => {
+    if (selectedItem) {
+      setValue('itemId', selectedItem.id);
+      setValue('newQuantity', selectedItem.onHand);
+    }
+  }, [selectedItem, setValue]);
 
   // ================================
   // Event Handlers
@@ -352,6 +303,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   const handleClose = () => {
     setSelectedSupplier(null);
     setSelectedItem(null);
+    setItemQuery('');
     setFormError('');
     reset();
     onClose();
@@ -370,7 +322,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
    * - Triggers parent component refresh for data consistency
    */
   const onSubmit = handleSubmit(async (values) => {
-    const typedValues = values as QuantityAdjustForm;
     if (!selectedItem) {
       setFormError(t('inventory:noItemSelected', 'Please select an item to adjust.'));
       return;
@@ -379,21 +330,20 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     setFormError('');
 
     try {
-      // For now, we'll set the quantity directly as the delta
-      // TODO: Fetch current quantity to calculate proper delta
-      const delta = typedValues.newQuantity;
+      // Calculate the delta from current quantity
+      const delta = values.newQuantity - selectedItem.onHand;
       
       const success = await adjustQuantity({
-        id: typedValues.itemId,
+        id: values.itemId,
         delta,
-        reason: typedValues.reason,
+        reason: values.reason,
       });
 
       if (success) {
         // Show success message with the new quantity
         toast(
           t('inventory:quantityUpdatedTo', 'Quantity changed to {{quantity}}', {
-            quantity: typedValues.newQuantity,
+            quantity: values.newQuantity,
           }),
           'success'
         );
@@ -441,15 +391,15 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                 label={t('inventory:supplier', 'Supplier')}
                 onChange={(e) => {
                   const supplierId = e.target.value;
-                  const supplier = supplierOptions.find(s => String(s.id) === String(supplierId)) || null;
+                  const supplier = suppliersQuery.data?.find(s => String(s.id) === String(supplierId)) || null;
                   setSelectedSupplier(supplier);
                 }}
-                disabled={supplierLoading}
+                disabled={suppliersQuery.isLoading}
               >
                 <MenuItem value="">
                   <em>{t('common:selectOption', 'Select an option')}</em>
                 </MenuItem>
-                {supplierOptions.map((supplier) => (
+                {suppliersQuery.data?.map((supplier) => (
                   <MenuItem key={supplier.id} value={supplier.id}>
                     {supplier.label}
                   </MenuItem>
@@ -475,7 +425,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               sx={{ mb: 2 }}
             />
             
-            {itemsLoading && (
+            {itemsQuery.isLoading && itemQuery.length >= 2 && (
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <CircularProgress size={16} sx={{ mr: 1 }} />
                 <Typography variant="body2" color="text.secondary">
@@ -484,7 +434,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               </Box>
             )}
             
-            {itemOptions.length > 0 && (
+            {itemsQuery.data && itemsQuery.data.length > 0 && (
               <FormControl fullWidth size="small" sx={{ mb: 2 }}>
                 <InputLabel>{t('inventory:selectItem', 'Select Item')}</InputLabel>
                 <Select
@@ -492,18 +442,16 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                   label={t('inventory:selectItem', 'Select Item')}
                   onChange={(e) => {
                     const itemId = e.target.value;
-                    const item = itemOptions.find(i => i.id === itemId) || null;
+                    const item = itemsQuery.data?.find(i => i.id === itemId) || null;
                     setSelectedItem(item);
-                    setValue('itemId', item?.id || '');
-                    setValue('newQuantity', 0);
                   }}
                 >
                   <MenuItem value="">
                     <em>{t('common:selectOption', 'Select an option')}</em>
                   </MenuItem>
-                  {itemOptions.map((item) => (
+                  {itemsQuery.data.map((item) => (
                     <MenuItem key={item.id} value={item.id}>
-                      {item.name}
+                      {item.name} (Qty: {item.onHand})
                     </MenuItem>
                   ))}
                 </Select>
@@ -523,11 +471,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     {t('inventory:currentQuantity', 'Current Quantity')}:
                   </Typography>
                   <Typography variant="body2" fontWeight="medium">
-                    {itemDetailsQuery.isLoading ? (
-                      <CircularProgress size={16} />
-                    ) : (
-                      itemDetailsQuery.data?.onHand ?? t('inventory:notAvailable', 'N/A')
-                    )}
+                    {selectedItem.onHand}
                   </Typography>
                 </Box>
                 
@@ -542,7 +486,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     ) : itemPriceQuery.data !== null && itemPriceQuery.data !== undefined ? (
                       `$${itemPriceQuery.data.toFixed(2)}`
                     ) : (
-                      t('inventory:priceNotAvailable', 'N/A')
+                      `$${selectedItem.price.toFixed(2)}`
                     )}
                   </Typography>
                 </Box>
@@ -579,8 +523,9 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                   helperText={
                     errors.newQuantity?.message ||
                     (selectedItem && (
-                      t('inventory:setQuantityHint', 'Setting quantity to {{quantity}}', {
-                        quantity: value,
+                      t('inventory:changeFromTo', 'Change from {{from}} to {{to}}', {
+                        from: selectedItem.onHand,
+                        to: value,
                       })
                     ))
                   }
