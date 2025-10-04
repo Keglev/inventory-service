@@ -55,7 +55,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { adjustQuantity } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
-import { searchItemsForSupplier } from '../../api/analytics/search';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import { getSuppliersLite } from '../../api/analytics/suppliers';
 import { quantityAdjustSchema } from './validation';
@@ -199,17 +198,19 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     queryFn: async () => {
       if (!selectedSupplier) return [];
       
-      const items = await searchItemsForSupplier(
-        String(selectedSupplier.id),
-        itemQuery,
-        50
-      );
+      // Use the same API as Inventory.tsx for reliable supplier-scoped search
+      const response = await getInventoryPage({
+        page: 1,
+        pageSize: 50,
+        q: itemQuery,
+        supplierId: selectedSupplier.id,
+      });
       
-      return items.map((item): ItemOption => ({
+      return response.items.map((item): ItemOption => ({
         id: item.id,
         name: item.name,
-        onHand: 0, // This will be updated when item is selected
-        price: 0, // This will be updated when item is selected
+        onHand: item.onHand, // Use actual onHand from inventory data
+        price: 0, // Price will be updated when item is selected
       }));
     },
     enabled: !!selectedSupplier && itemQuery.length >= 2,
@@ -242,33 +243,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
       }
     },
     enabled: !!selectedItem?.id,
-    staleTime: 30_000,
-  });
-
-  /** Fetch detailed item information including current quantity */
-  const itemDetailsQuery = useQuery({
-    queryKey: ['itemDetails', selectedItem?.id, selectedSupplier?.id],
-    queryFn: async () => {
-      if (!selectedItem?.id || !selectedSupplier?.id) return null;
-      
-      try {
-        // Fetch item details from inventory to get current quantity
-        const response = await getInventoryPage({
-          page: 1,
-          pageSize: 1,
-          q: selectedItem.name,
-          supplierId: selectedSupplier.id,
-        });
-        
-        // Find the exact item by ID
-        const itemDetail = response.items.find(item => item.id === selectedItem.id);
-        return itemDetail || null;
-      } catch (error) {
-        console.error('Failed to fetch item details:', error);
-        return null;
-      }
-    },
-    enabled: !!selectedItem?.id && !!selectedSupplier?.id,
     staleTime: 30_000,
   });
 
@@ -309,16 +283,14 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
 
   /**
    * Update form value when item is selected.
-   * Use current quantity from item details query when available.
+   * Use current quantity from selected item data.
    */
   React.useEffect(() => {
     if (selectedItem) {
       setValue('itemId', selectedItem.id);
-      // Use actual current quantity if available, otherwise fall back to selectedItem.onHand
-      const currentQuantity = itemDetailsQuery.data?.onHand ?? selectedItem.onHand;
-      setValue('newQuantity', currentQuantity);
+      setValue('newQuantity', selectedItem.onHand);
     }
-  }, [selectedItem, itemDetailsQuery.data, setValue]);
+  }, [selectedItem, setValue]);
 
   // ================================
   // Event Handlers
@@ -362,9 +334,8 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     setFormError('');
 
     try {
-      // Calculate the delta from current quantity using actual data
-      const currentQuantity = itemDetailsQuery.data?.onHand ?? selectedItem.onHand;
-      const delta = values.newQuantity - currentQuantity;
+      // Calculate the delta from current quantity
+      const delta = values.newQuantity - selectedItem.onHand;
       
       const success = await adjustQuantity({
         id: values.itemId,
@@ -496,7 +467,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                   {t('inventory:currentQuantity', 'Current Quantity')}:
                 </Typography>
                 <Typography variant="body2" fontWeight="medium">
-                  {itemDetailsQuery.data?.onHand ?? selectedItem.onHand}
+                  {selectedItem.onHand}
                 </Typography>
               </Box>
               
@@ -548,7 +519,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     errors.newQuantity?.message ||
                     (selectedItem && (
                       t('inventory:changeFromTo', 'Change from {{from}} to {{to}}', {
-                        from: itemDetailsQuery.data?.onHand ?? selectedItem.onHand,
+                        from: selectedItem.onHand,
                         to: value,
                       })
                     ))
