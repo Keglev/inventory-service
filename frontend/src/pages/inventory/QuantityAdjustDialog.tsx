@@ -198,16 +198,23 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     queryFn: async () => {
       if (!selectedSupplier) return [];
       
-      // Use searchItemsForSupplier which properly filters by supplier
-      // This function calls /api/inventory with both supplierId AND search params
+      // Use searchItemsForSupplier which calls the backend with supplierId
+      // Note: Backend may not filter by supplierId, so we apply client-side filtering
       const items = await searchItemsForSupplier(
         String(selectedSupplier.id),
         itemQuery,
-        50
+        500 // Fetch more items since we'll filter client-side
+      );
+      
+      // CRITICAL: Apply client-side supplier filtering (backend doesn't filter properly)
+      // This matches the pattern used in PriceTrendCard.tsx and Inventory.tsx
+      const supplierIdStr = String(selectedSupplier.id);
+      const supplierFiltered = items.filter(
+        (item) => String(item.supplierId ?? '') === supplierIdStr
       );
       
       // ItemRef only has id, name, supplierId - we'll fetch full details on selection
-      return items.map((item): ItemOption => ({
+      return supplierFiltered.map((item): ItemOption => ({
         id: item.id,
         name: item.name,
         onHand: 0, // Will be fetched when item is selected
