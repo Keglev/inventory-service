@@ -54,6 +54,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { adjustQuantity } from '../../api/inventory/mutations';
 import { getInventoryPage } from '../../api/inventory/list';
+import { searchItemsForSupplier } from '../../api/analytics/search';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import { getSuppliersLite } from '../../api/analytics/suppliers';
 import { quantityAdjustSchema } from './validation';
@@ -196,18 +197,17 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     queryFn: async () => {
       if (!selectedSupplier) return [];
       
-      const response = await getInventoryPage({
-        page: 1,
-        pageSize: 50,
-        q: itemQuery,
-        supplierId: selectedSupplier.id,
-      });
+      const items = await searchItemsForSupplier(
+        String(selectedSupplier.id),
+        itemQuery,
+        50
+      );
       
-      return response.items.map((item): ItemOption => ({
+      return items.map((item): ItemOption => ({
         id: item.id,
         name: item.name,
-        onHand: item.onHand,
-        price: 0, // Default price since it's not available in InventoryRow
+        onHand: 0, // This will be updated when item is selected
+        price: 0, // This will be updated when item is selected
       }));
     },
     enabled: !!selectedSupplier && itemQuery.length >= 2,
@@ -240,6 +240,33 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
       }
     },
     enabled: !!selectedItem?.id,
+    staleTime: 30_000,
+  });
+
+  /** Fetch detailed item information including current quantity */
+  const itemDetailsQuery = useQuery({
+    queryKey: ['itemDetails', selectedItem?.id, selectedSupplier?.id],
+    queryFn: async () => {
+      if (!selectedItem?.id || !selectedSupplier?.id) return null;
+      
+      try {
+        // Fetch item details from inventory to get current quantity
+        const response = await getInventoryPage({
+          page: 1,
+          pageSize: 1,
+          q: selectedItem.name,
+          supplierId: selectedSupplier.id,
+        });
+        
+        // Find the exact item by ID
+        const itemDetail = response.items.find(item => item.id === selectedItem.id);
+        return itemDetail || null;
+      } catch (error) {
+        console.error('Failed to fetch item details:', error);
+        return null;
+      }
+    },
+    enabled: !!selectedItem?.id && !!selectedSupplier?.id,
     staleTime: 30_000,
   });
 
@@ -280,13 +307,16 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
 
   /**
    * Update form value when item is selected.
+   * Use current quantity from item details query when available.
    */
   React.useEffect(() => {
     if (selectedItem) {
       setValue('itemId', selectedItem.id);
-      setValue('newQuantity', selectedItem.onHand);
+      // Use actual current quantity if available, otherwise fall back to selectedItem.onHand
+      const currentQuantity = itemDetailsQuery.data?.onHand ?? selectedItem.onHand;
+      setValue('newQuantity', currentQuantity);
     }
-  }, [selectedItem, setValue]);
+  }, [selectedItem, itemDetailsQuery.data, setValue]);
 
   // ================================
   // Event Handlers
@@ -330,8 +360,9 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     setFormError('');
 
     try {
-      // Calculate the delta from current quantity
-      const delta = values.newQuantity - selectedItem.onHand;
+      // Calculate the delta from current quantity using actual data
+      const currentQuantity = itemDetailsQuery.data?.onHand ?? selectedItem.onHand;
+      const delta = values.newQuantity - currentQuantity;
       
       const success = await adjustQuantity({
         id: values.itemId,
@@ -471,7 +502,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     {t('inventory:currentQuantity', 'Current Quantity')}:
                   </Typography>
                   <Typography variant="body2" fontWeight="medium">
-                    {selectedItem.onHand}
+                    {itemDetailsQuery.data?.onHand ?? selectedItem.onHand}
                   </Typography>
                 </Box>
                 
