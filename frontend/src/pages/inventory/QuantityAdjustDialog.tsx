@@ -54,7 +54,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { adjustQuantity } from '../../api/inventory/mutations';
-import { getInventoryPage } from '../../api/inventory/list';
+import { getInventoryPage } from '../../api/inventory';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import { getSuppliersLite } from '../../api/analytics/suppliers';
 import { quantityAdjustSchema } from './validation';
