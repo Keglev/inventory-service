@@ -54,7 +54,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { adjustQuantity } from '../../api/inventory/mutations';
-import { getInventoryPage } from '../../api/inventory';
+import { searchItemsForSupplier } from '../../api/analytics/search';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import { getSuppliersLite } from '../../api/analytics/suppliers';
 import { quantityAdjustSchema } from './validation';
@@ -198,19 +198,20 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     queryFn: async () => {
       if (!selectedSupplier) return [];
       
-      // Use the same API as Inventory.tsx for reliable supplier-scoped search
-      const response = await getInventoryPage({
-        page: 1,
-        pageSize: 50,
-        q: itemQuery,
-        supplierId: selectedSupplier.id,
-      });
+      // Use searchItemsForSupplier which properly filters by supplier
+      // This function calls /api/inventory with both supplierId AND search params
+      const items = await searchItemsForSupplier(
+        String(selectedSupplier.id),
+        itemQuery,
+        50
+      );
       
-      return response.items.map((item): ItemOption => ({
+      // ItemRef only has id, name, supplierId - we'll fetch full details on selection
+      return items.map((item): ItemOption => ({
         id: item.id,
         name: item.name,
-        onHand: item.onHand, // Use actual onHand from inventory data
-        price: 0, // Price will be updated when item is selected
+        onHand: 0, // Will be fetched when item is selected
+        price: 0,  // Will be fetched when item is selected
       }));
     },
     enabled: !!selectedSupplier && itemQuery.length >= 2,
