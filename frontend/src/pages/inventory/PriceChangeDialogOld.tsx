@@ -8,17 +8,17 @@
  *
  * @enterprise
  * - Strict validation: price must be positive (> 0)
+ * - Price history tracking: displays historical price trends when available
  * - User experience: guided workflow prevents invalid operations
  * - Type safety: fully typed with Zod validation and TypeScript
  * - Accessibility: proper form labels, error states, and keyboard navigation
  * - Internationalization: complete i18n support for all user-facing text
- * - Shared data hooks: uses centralized hooks for consistent caching and error handling
  *
  * @workflow
- * 1. User selects supplier from dropdown (via useSuppliersQuery)
- * 2. System enables item search for that supplier (via useItemSearchQuery with client-side filtering)
+ * 1. User selects supplier from dropdown
+ * 2. System enables item search for that supplier
  * 3. User searches and selects specific item (type-ahead with 2+ characters)
- * 4. System fetches and displays current item details (via useItemDetailsQuery)
+ * 4. System fetches and displays current item details (price, quantity, history)
  * 5. User enters new price (must be > 0)
  * 6. System validates and applies price change
  *
@@ -32,11 +32,6 @@
  * PATCH /api/inventory/{id}/price?price={newPrice}
  * - Only accepts `price` parameter (no reason required)
  * - Returns updated inventory item with new price
- * 
- * @refactored
- * Uses shared hooks and types from:
- * - `hooks/useInventoryData.ts` - Data fetching hooks
- * - `types/inventory-dialog.types.ts` - TypeScript interfaces
  */
 
 import * as React from 'react';
@@ -61,12 +56,14 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { changePrice } from '../../api/inventory/mutations';
+import { searchItemsForSupplier } from '../../api/analytics/search';
+import { getSuppliersLite } from '../../api/analytics/suppliers';
+import http from '../../api/httpClient';
 import { priceChangeSchema } from './validation';
 import type { PriceChangeForm } from './validation';
-import type { SupplierOption, ItemOption } from './types/inventory-dialog.types';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from './hooks/useInventoryData';
 
 /**
  * Properties for the PriceChangeDialog component.
@@ -86,10 +83,46 @@ export interface PriceChangeDialogProps {
 }
 
 /**
+ * Supplier option shape for the dropdown component.
+ * Normalized from backend supplier data for consistent UI handling.
+ * 
+ * @interface SupplierOption
+ * @property {string | number} id - Unique supplier identifier
+ * @property {string} label - Display name for supplier selection
+ */
+interface SupplierOption {
+  /** Unique supplier identifier (can be string or number from backend) */
+  id: string | number;
+  /** Display name for supplier selection dropdown */
+  label: string;
+}
+
+/**
+ * Item option shape for the autocomplete component.
+ * Normalized from backend inventory data for consistent UI handling.
+ * 
+ * @interface ItemOption
+ * @property {string} id - Unique item identifier
+ * @property {string} name - Display name for item selection
+ * @property {number} onHand - Current quantity on hand
+ * @property {number} price - Current price per unit
+ */
+interface ItemOption {
+  /** Unique item identifier */
+  id: string;
+  /** Display name for item selection */
+  name: string;
+  /** Current quantity on hand (informational, not editable in this dialog) */
+  onHand: number;
+  /** Current price per unit (placeholder, actual value fetched on selection) */
+  price: number;
+}
+
+/**
  * Enterprise-level price change dialog component.
  * 
  * Provides a guided workflow for changing item prices with proper validation,
- * and user experience optimizations.
+ * price history tracking, and user experience optimizations.
  * 
  * @component
  * @example
@@ -107,14 +140,9 @@ export interface PriceChangeDialogProps {
  * @enterprise
  * - Implements step-by-step validation to prevent user errors
  * - Provides clear feedback on current item state (current price, quantity)
+ * - Shows price history when available for informed decision-making
  * - Prevents invalid prices (must be positive)
  * - Supports internationalization for global deployment
- * - Uses shared data hooks for consistent behavior across dialogs
- * 
- * @refactored
- * - Data fetching centralized via hooks/useInventoryData.ts
- * - Type definitions shared via types/inventory-dialog.types.ts
- * - Eliminates code duplication with QuantityAdjustDialog
  */
 export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   open,
@@ -146,21 +174,118 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
 
   /**
    * Load suppliers for dropdown selection.
-   * Uses shared hook for consistent caching and error handling.
+   * 
+   * @enterprise
+   * - Only fetches when dialog is open (performance optimization)
+   * - Caches for 5 minutes to reduce API calls
+   * - Maps to normalized SupplierOption shape for consistent UI
    */
-  const suppliersQuery = useSuppliersQuery(open);
+  const suppliersQuery = useQuery({
+    queryKey: ['suppliers', 'lite'],
+    queryFn: async () => {
+      const suppliers = await getSuppliersLite();
+      return suppliers.map((supplier): SupplierOption => ({
+        id: supplier.id,
+        label: supplier.name,
+      }));
+    },
+    enabled: open,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   /**
    * Load items based on selected supplier and search query.
-   * Uses shared hook with client-side supplier filtering.
+   * Uses type-ahead search with supplier-scoped filtering.
+   * 
+   * @enterprise
+   * - Requires supplier selection first (prevents cross-supplier errors)
+   * - Minimum 2 characters to trigger search (reduces API load)
+   * - Applies client-side supplier filtering (backend limitation workaround)
+   * - Returns placeholder price/quantity (actual values fetched on selection)
+   * - Caches for 30 seconds to improve UX during selection
+   * 
+   * @backend_limitation
+   * Backend /api/inventory endpoint doesn't properly filter by supplierId,
+   * so we fetch items and filter client-side to ensure supplier isolation.
    */
-  const itemsQuery = useItemSearchQuery(selectedSupplier, itemQuery);
+  const itemsQuery = useQuery({
+    queryKey: ['inventory', 'search', selectedSupplier?.id, itemQuery],
+    queryFn: async () => {
+      if (!selectedSupplier) return [];
+      
+      // Use searchItemsForSupplier which calls the backend with supplierId
+      // Note: Backend may not filter by supplierId, so we apply client-side filtering
+      const items = await searchItemsForSupplier(
+        String(selectedSupplier.id),
+        itemQuery,
+        500 // Fetch more items since we'll filter client-side
+      );
+      
+      // CRITICAL: Apply client-side supplier filtering (backend doesn't filter properly)
+      // This matches the pattern used in QuantityAdjustDialog.tsx
+      const supplierIdStr = String(selectedSupplier.id);
+      const supplierFiltered = items.filter(
+        (item) => String(item.supplierId ?? '') === supplierIdStr
+      );
+      
+      // ItemRef only has id, name, supplierId - we'll fetch full details on selection
+      return supplierFiltered.map((item): ItemOption => ({
+        id: item.id,
+        name: item.name,
+        onHand: 0, // Will be fetched when item is selected
+        price: 0,  // Will be fetched when item is selected
+      }));
+    },
+    enabled: !!selectedSupplier && itemQuery.length >= 2,
+    staleTime: 30_000, // 30 seconds
+  });
 
   /**
+   * Fetch price history for the selected item.
+   * Displays historical price trends to help users make informed pricing decisions.
+   * 
+   * @enterprise
+   * - Only fetches when item is selected (performance optimization)
+  /**
    * Fetch full item details including current price and quantity.
-   * Uses shared hook for consistent data fetching.
+   * Critical for displaying accurate current values and pre-filling the form.
+   * 
+   * @enterprise
+   * - Fetches from /api/inventory/{id} for complete item data
+   * - Provides actual current price (not placeholder from search results)
+   * - Provides actual current quantity for informational display
+   * - Handles both 'quantity' and 'onHand' field name variations
+   * - Gracefully handles fetch errors without blocking dialog
+   * 
+   * @backend_api GET /api/inventory/{id}
+   * @returns Complete item details or null on error
    */
-  const itemDetailsQuery = useItemDetailsQuery(selectedItem?.id);
+  const itemDetailsQuery = useQuery({
+    queryKey: ['itemDetails', selectedItem?.id],
+    queryFn: async () => {
+      if (!selectedItem?.id) return null;
+      
+      try {
+        const response = await http.get(`/api/inventory/${encodeURIComponent(selectedItem.id)}`);
+        const data = response.data;
+        
+        // Extract the current price and quantity from the response
+        return {
+          id: String(data.id || ''),
+          name: String(data.name || ''),
+          onHand: Number(data.quantity || data.onHand || 0),
+          price: Number(data.price || 0),
+          code: data.code || null,
+          supplierId: data.supplierId || null,
+        };
+      } catch (error) {
+        console.error('Failed to fetch item details:', error);
+        return null;
+      }
+    },
+    enabled: !!selectedItem?.id,
+    staleTime: 30_000, // 30 seconds
+  });
 
   // ================================
   // Form Management
