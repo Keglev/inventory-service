@@ -85,6 +85,10 @@ concurrency:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    
+    # Grant write permissions to push coverage reports
+    permissions:
+      contents: write
 
     env:
       # Docker repo where backend images are pushed
@@ -94,10 +98,12 @@ jobs:
 
     steps:
       # ---------------------------------------------------------------------
-      # 1) Checkout repository
+      # 1) Checkout repository with token for push access
       # ---------------------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # ---------------------------------------------------------------------
       # 2) Resolve backend directory (repo root vs ./inventory-service)
@@ -193,12 +199,20 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add coverage reports
           git add docs/backend/coverage/
+          
+          # Check if there are changes
           if git diff --cached --quiet; then
-            echo "No coverage changes to commit."
+            echo "✅ No coverage changes to commit."
           else
+            echo "📝 Coverage reports changed, committing..."
             git commit -m "docs: update backend test coverage reports [skip ci]"
-            git push
+            
+            # Push using GITHUB_TOKEN
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+            echo "✅ Coverage reports pushed successfully"
           fi
 
       # ---------------------------------------------------------------------
