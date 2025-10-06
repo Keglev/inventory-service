@@ -40,6 +40,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebMvcTest(controllers = TestApiStubController.class)   // << limit to ONLY the stub
 @AutoConfigureMockMvc(addFilters = true)                 // enable Spring Security filters
 @Import(DemoReadonlySecurityTest.DemoReadonlyTestSecurityConfig.class)
+@org.springframework.test.context.ActiveProfiles("test-stub")  // Load TestApiStubController
 class DemoReadonlySecurityTest {
 
     @Resource

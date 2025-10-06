@@ -1,5 +1,6 @@
 package com.smartsupplypro.inventory.security;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -8,8 +9,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * A simple controller to stub out API endpoints for testing purposes.
+ * Test-only stub controller for security testing.
+ * 
+ * <p>This controller provides minimal API endpoints for testing security rules
+ * without requiring the full application context. It's marked with {@code @Profile("test-stub")}
+ * to prevent accidental loading in {@code @SpringBootTest} contexts (which use {@code @ActiveProfiles("test")}).</p>
+ * 
+ * <p><strong>Usage:</strong> Only use with {@code @WebMvcTest} and {@code @ActiveProfiles("test-stub")} 
+ * to isolate security tests.</p>
+ * 
+ * @see DemoReadonlySecurityTest
+ * @see ApiEntryPointBehaviourTest
  */
+@Profile("test-stub")  // Only loaded when "test-stub" profile is active
 @RestController
 @RequestMapping("/api")
 public class TestApiStubController {

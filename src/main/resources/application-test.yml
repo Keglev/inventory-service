@@ -12,6 +12,23 @@ spring:
     username: sa                    # Default username
     password:                       # No password required for in-memory use
 
+  # OAuth2 configuration for tests (dummy values)
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            scope: openid,profile,email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect # Use H2 dialect for compatibility
     hibernate:
