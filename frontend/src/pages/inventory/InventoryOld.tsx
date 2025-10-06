@@ -9,12 +9,6 @@
  * - Tolerant loading: UI stays responsive even on failures.
  * - Dialogs are decoupled; the grid reloads after each successful mutation.
  * - Strict typing: no `any`, no unused imports, MUI DataGrid-friendly.
- * - Shared data hooks: uses centralized supplier loading for consistency.
- * 
- * @refactored
- * Uses shared hooks from:
- * - `hooks/useInventoryData.ts` - useSuppliersQuery for consistent caching
- * - `types/inventory-dialog.types.ts` - SupplierOption interface
  */
 
 import * as React from 'react';
@@ -34,12 +28,15 @@ import { getInventoryPage } from '../../api/inventory';
 import type { InventoryListResponse, InventoryRow } from '../../api/inventory';
 
 import { InventoryFilters } from './InventoryFilters';
+import type { SupplierOption } from './InventoryFilters';
+
+import { listSuppliers } from '../../api/inventory/mutations';
+import type { SupplierOptionDTO } from '../../api/inventory/mutations';
 
 import { ItemFormDialog } from './ItemFormDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
 import { useToast } from '../../app/ToastContext';
-import { useSuppliersQuery } from './hooks/useInventoryData';
 
 /** Debounce simple values to reduce server chatter while typing. */
 function useDebounced<T>(value: T, delayMs: number): T {
@@ -104,6 +101,10 @@ const Inventory: React.FC = () => {
   });
 
   const [loading, setLoading] = React.useState(false);
+
+  // Supplier picker options for the Filters component
+  const [supplierOptions, setSupplierOptions] = React.useState<SupplierOption[]>([]);
+  const [supplierLoading, setSupplierLoading] = React.useState(false);
 
   /**
    * Show only items that are below their minimum quantity.
@@ -178,19 +179,29 @@ const Inventory: React.FC = () => {
     }
   }, [supplierId, load]);
 
+
   // -----------------------------
-  // Suppliers for filter
+  // Suppliers for filter (tolerant)
   // -----------------------------
-  /**
-   * Load suppliers using shared hook for consistent caching.
-   * Always enabled (not tied to dialog open state like in dialogs).
-   * 
-   * @enterprise
-   * Uses centralized hook for 5-minute cache and consistent error handling.
-   */
-  const suppliersQuery = useSuppliersQuery(true);
-  const supplierOptions = suppliersQuery.data ?? [];
-  const supplierLoading = suppliersQuery.isLoading;
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setSupplierLoading(true);
+      try {
+        const list = await listSuppliers(); // SupplierOptionDTO[]
+        const opts: SupplierOption[] = list.map((s: SupplierOptionDTO) => ({
+          id: s.id,
+          label: s.name,
+        }));
+        if (!cancelled) setSupplierOptions(opts);
+      } finally {
+        setSupplierLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // -----------------------------
   // Columns (value getters avoid missing data gracefully)
