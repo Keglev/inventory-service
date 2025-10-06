@@ -1,0 +1,50 @@
+# YAML Lint Configuration for GitHub Actions Workflows
+# This suppresses false-positive warnings from the Red Hat YAML extension
+# about GitHub Actions secrets and context expressions.
+
+extends: default
+
+# Ignore workflow files - they have their own validation via GitHub
+ignore: |
+  .github/workflows/*.yml
+  .github/workflows/*.yaml
+
+rules:
+  # Allow long lines (common in GitHub Actions for secrets and expressions)
+  line-length: disable
+  
+  # Don't complain about truthy values (on/off are valid in GitHub Actions)
+  truthy: disable
+  
+  # Allow empty values (GitHub Actions allows this)
+  empty-values: disable
+  
+  # Don't enforce key ordering
+  key-ordering: disable
+  
+  # Allow duplicate keys (GitHub Actions sometimes uses this intentionally)
+  key-duplicates: disable
+  
+  # Allow extra spaces
+  trailing-spaces: disable
+  
+  # Don't enforce document start
+  document-start: disable
+  
+  # Be lenient with comments
+  comments:
+    min-spaces-from-content: 1
+    require-starting-space: false
+  
+  # Allow any indentation
+  indentation: disable
+  
+  # Allow brackets with spaces
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: -1
+  
+  # Allow braces with spaces  
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: -1

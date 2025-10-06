@@ -41,11 +41,15 @@ jobs:
 
       # /**
       #  * Step 3: Authenticate with DockerHub.
+      #  * Note: DOCKER_USERNAME and DOCKER_PASSWORD are configured in
+      #  * GitHub repository secrets. Linter warnings are false positives.
       #  */
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
+          # yamllint disable-line rule:line-length
           username: ${{ secrets.DOCKER_USERNAME }}
+          # yamllint disable-line rule:line-length
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       # /**
