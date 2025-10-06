@@ -104,13 +104,44 @@ public interface AnalyticsService {
     */
     List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end);
 
-
-    /** WAC summary (purchases, COGS, write-offs, returns, opening/ending) for [from..to]. */
+    /**
+     * Retrieves a Weighted Average Cost (WAC) financial summary for the specified date range.
+     * <p>
+     * This method aggregates financial metrics including:
+     * <ul>
+     *   <li>Opening inventory value (WAC at period start)</li>
+     *   <li>Total purchases during the period</li>
+     *   <li>Cost of Goods Sold (COGS) - sales at WAC</li>
+     *   <li>Write-offs and losses (damaged, expired, scrapped items)</li>
+     *   <li>Returns to suppliers</li>
+     *   <li>Ending inventory value (WAC at period end)</li>
+     * </ul>
+     * </p>
+     *
+     * <p><b>Business Logic:</b> WAC is recalculated after each purchase to reflect
+     * the blended cost of inventory. This method is essential for financial reporting,
+     * profit margin analysis, and inventory valuation.</p>
+     *
+     * @param from the start date of the financial period (inclusive)
+     * @param to the end date of the financial period (inclusive)
+     * @param supplierId optional supplier filter to scope the summary (nullable for all suppliers)
+     * @return {@link FinancialSummaryDTO} containing aggregated financial metrics
+     */
     FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId);
 
     /**
-     * @return total number of items below their minimum stock across all suppliers.
-     * items where quantity < 5 (absolute KPI threshold)
+     * Counts the total number of inventory items that are currently below their defined
+     * minimum stock threshold across all suppliers.
+     * <p>
+     * This is a Key Performance Indicator (KPI) used for dashboard alerts and inventory
+     * management monitoring. Items with quantity less than 5 units are considered
+     * critically low stock.
+     * </p>
+     *
+     * <p><b>Business Rule:</b> An item is counted if {@code quantity < minimumQuantity}
+     * regardless of supplier.</p>
+     *
+     * @return total count of low-stock items requiring attention
      */
     long lowStockCount();
 
