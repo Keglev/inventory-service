@@ -23,11 +23,6 @@
  *   translation files (enterprise standard). Avoid per-dialog files to limit sprawl.
  * - **Maintainability:** Extensive TypeDoc + inline comments explain business intent and trade-offs
  *   for future contributors and technical reviewers (e.g., recruiters).
- *
- * @refactored
- * - Uses shared `useSuppliersQuery` hook for consistent supplier loading with 5-minute cache
- * - Migrated from direct `listSuppliers()` API call to React Query pattern
- * - Eliminates duplicate supplier fetching logic (~27 lines)
  */
 
 import * as React from 'react';
@@ -39,14 +34,12 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
-import { upsertItem } from '../../api/inventory/mutations';
-import type { UpsertItemRequest } from '../../api/inventory/mutations';
+import { listSuppliers, upsertItem } from '../../api/inventory/mutations';
+import type { SupplierOptionDTO, UpsertItemRequest } from '../../api/inventory/mutations';
 import type { InventoryRow } from '../../api/inventory/types';
 import { useTranslation } from 'react-i18next';
 import { itemFormSchema } from './validation';
 import type { UpsertItemForm } from './validation';
-import { useSuppliersQuery } from './hooks/useInventoryData';
-import type { SupplierOption } from './types/inventory-dialog.types';
 
 /**
  * Props for {@link ItemFormDialog}.
@@ -127,32 +120,36 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
     { value: 'MANUAL_UPDATE', i18nKey: 'reasons.manual_update' },
   ] as const;
 
-  /**
-   * Load suppliers using shared hook with 5-minute cache.
-   * @enterprise Consistent with other dialogs (QuantityAdjustDialog, PriceChangeDialog)
-   * @refactored Replaced manual useEffect + listSuppliers() with useSuppliersQuery hook
-   */
-  const { data: suppliers = [] } = useSuppliersQuery(open);
-
+  /** Supplier options fetched from server. */
+  const [suppliers, setSuppliers] = React.useState<SupplierOptionDTO[]>([]);
   /**
    * Controlled value for Autocomplete to prevent UI/RHF desync (common pitfall).
    * RHF stores the `supplierId` as the form value; the UI needs the full option object.
    */
-  const [supplierValue, setSupplierValue] = React.useState<SupplierOption | null>(null);
-  
+  const [supplierValue, setSupplierValue] = React.useState<SupplierOptionDTO | null>(null);
   /** Form-level error banner (for non-field errors and generic failures). */
   const [formError, setFormError] = React.useState<string | null>(null);
 
   /**
-   * Align the controlled Autocomplete with `initial?.supplierId` when suppliers load.
+   * Fetch suppliers once and align the controlled Autocomplete with `initial?.supplierId`.
    * @enterprise Avoids race conditions where the list arrives after defaultValues.
-   * @refactored Simplified to only handle supplier matching, fetching now handled by hook
    */
   React.useEffect(() => {
-    if (!suppliers.length) return;
-    const match = suppliers.find((s) => String(s.id) === String(initial?.supplierId)) ?? null;
-    setSupplierValue(match);
-  }, [suppliers, initial?.supplierId]);
+    let cancelled = false;
+    (async () => {
+      const list = await listSuppliers();
+      if (cancelled) return;
+      setSuppliers(list);
+
+      const match =
+        list.find((s) => String(s.id) === String(initial?.supplierId)) ?? null;
+      setSupplierValue(match);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // Re-run when editing another item that has a different supplier
+  }, [initial?.supplierId]);
 
   /**
    * Reinitialize RHF state whenever the dialog opens with different initial data.
@@ -260,7 +257,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
           {formError && <Alert severity="error">{formError}</Alert>}
 
           {/* Supplier (controlled Autocomplete) */}
-          <Autocomplete<SupplierOption, false, false, false>
+          <Autocomplete<SupplierOptionDTO, false, false, false>
             options={suppliers}
             value={supplierValue}
             onChange={(_, opt) => {
@@ -269,7 +266,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
                 opt ? (opt.id as UpsertItemForm['supplierId']) : ('' as UpsertItemForm['supplierId']);
                 setValue('supplierId', nextSupplierId, { shouldValidate: true });
               }}
-            getOptionLabel={(o) => o.label}
+            getOptionLabel={(o) => o.name}
             isOptionEqualToValue={(a, b) => String(a.id) === String(b.id)}
             renderInput={(p) => (
               <TextField
