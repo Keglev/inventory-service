@@ -90,7 +90,8 @@ public class StockHistoryValidator {
                 StockChangeReason.RETURNED_TO_SUPPLIER,
                 StockChangeReason.RETURNED_BY_CUSTOMER,
                 StockChangeReason.INITIAL_STOCK,
-                StockChangeReason.MANUAL_UPDATE
+                StockChangeReason.MANUAL_UPDATE,
+                StockChangeReason.PRICE_CHANGE
         ).contains(reason)) {
             throw new IllegalArgumentException("Invalid stock change reason: " + reason);
         }
