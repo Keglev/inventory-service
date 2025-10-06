@@ -49,9 +49,9 @@ public class CustomOidcUserService implements OAuth2UserService&lt;OidcUserReque
 
     private final AppUserRepository userRepository;
 
-<span class="nc" id="L52">    public CustomOidcUserService(AppUserRepository userRepository) {</span>
-<span class="nc" id="L53">        this.userRepository = userRepository;</span>
-<span class="nc" id="L54">    }</span>
+<span class="fc" id="L52">    public CustomOidcUserService(AppUserRepository userRepository) {</span>
+<span class="fc" id="L53">        this.userRepository = userRepository;</span>
+<span class="fc" id="L54">    }</span>
 
     /** Reads APP_ADMIN_EMAILS (comma-separated, case-insensitive) into a lowercase set. */
     private static Set&lt;String&gt; readAdminAllowlist() {

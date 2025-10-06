@@ -3,16 +3,16 @@ Inventory Service,com.smartsupplypro.inventory.model,AppUser,3,43,0,0,1,13,1,2,1
 Inventory Service,com.smartsupplypro.inventory.model,StockHistory,3,4,1,1,1,2,1,1,0,1
 Inventory Service,com.smartsupplypro.inventory.model,Role,7,15,0,0,1,3,1,1,1,1
 Inventory Service,com.smartsupplypro.inventory.model,InventoryItem,4,59,7,17,1,12,7,6,0,1
-Inventory Service,com.smartsupplypro.inventory,InventoryServiceApplication,47,107,10,6,13,24,9,8,1,8
+Inventory Service,com.smartsupplypro.inventory,InventoryServiceApplication,5,3,0,0,2,1,1,1,1,1
 Inventory Service,com.smartsupplypro.inventory.controller,AuthController,23,110,3,3,8,33,3,5,1,4
 Inventory Service,com.smartsupplypro.inventory.controller,SupplierController,4,91,1,5,1,17,2,9,1,7
 Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemController,0,99,0,2,0,22,0,13,0,12
 Inventory Service,com.smartsupplypro.inventory.controller,AnalyticsController,59,244,22,30,9,52,19,20,1,12
 Inventory Service,com.smartsupplypro.inventory.controller,AuthController.AppUserProfileDTO,0,15,0,0,0,1,0,1,0,1
-Inventory Service,com.smartsupplypro.inventory.controller,HealthCheckController,57,0,8,0,13,0,7,0,3,0
-Inventory Service,com.smartsupplypro.inventory.controller,RootRedirectController,12,0,0,0,2,0,2,0,2,0
+Inventory Service,com.smartsupplypro.inventory.controller,HealthCheckController,54,3,8,0,12,1,6,1,2,1
+Inventory Service,com.smartsupplypro.inventory.controller,RootRedirectController,6,6,0,0,1,1,1,1,1,1
 Inventory Service,com.smartsupplypro.inventory.controller,StockHistoryController,0,46,2,4,0,10,2,5,0,4
-Inventory Service,com.smartsupplypro.inventory.config,SecuritySpelBridgeConfig,5,0,0,0,2,0,2,0,2,0
+Inventory Service,com.smartsupplypro.inventory.config,SecuritySpelBridgeConfig,0,5,0,0,0,2,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.config,AppProperties.Frontend,6,17,0,0,2,5,2,3,2,3
 Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig.new OncePerRequestFilter() {...},0,31,3,3,0,7,3,2,0,2
 Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig.new OncePerRequestFilter() {...},8,71,4,4,1,16,5,2,1,2
@@ -34,8 +34,8 @@ Inventory Service,com.smartsupplypro.inventory.mapper,StockHistoryMapper,63,0,4,
 Inventory Service,com.smartsupplypro.inventory.security,OAuth2LoginSuccessHandler,157,123,30,6,27,31,19,6,3,4
 Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository.new TypeReference() {...},3,0,0,0,1,0,1,0,1,0
 Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository,280,186,36,12,67,44,30,6,6,6
-Inventory Service,com.smartsupplypro.inventory.service,CustomOAuth2UserService,192,0,26,0,36,0,20,0,7,0
-Inventory Service,com.smartsupplypro.inventory.service,CustomOidcUserService,184,0,24,0,36,0,19,0,7,0
+Inventory Service,com.smartsupplypro.inventory.service,CustomOAuth2UserService,186,6,26,0,33,3,19,1,6,1
+Inventory Service,com.smartsupplypro.inventory.service,CustomOidcUserService,178,6,24,0,33,3,18,1,6,1
 Inventory Service,com.smartsupplypro.inventory.service,StockHistoryService,89,77,2,0,25,29,6,5,5,5
 Inventory Service,com.smartsupplypro.inventory.dto,PriceTrendDTO,0,11,0,0,0,4,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,StockEventRowDTO,0,21,0,0,0,1,0,1,0,1

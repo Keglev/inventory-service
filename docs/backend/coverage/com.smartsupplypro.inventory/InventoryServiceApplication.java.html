@@ -1,121 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryServiceApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory</a> &gt; <span class="el_source">InventoryServiceApplication.java</span></div><h1>InventoryServiceApplication.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory;
 
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
- * Main application class for the Inventory Service microservice.
- * &lt;p&gt;
- * This entry point performs the following tasks:
+ * Main application class for the SmartSupplyPro Inventory Service microservice.
+ * 
+ * &lt;p&gt;This Spring Boot application provides a RESTful API for managing inventory items,
+ * suppliers, stock history, and analytics. It integrates with Oracle Autonomous Database
+ * using wallet-based authentication and implements Google OAuth2 for secure user access.&lt;/p&gt;
+ * 
+ * &lt;h2&gt;Key Features&lt;/h2&gt;
  * &lt;ul&gt;
- *   &lt;li&gt;Bootstraps the Spring Boot application.&lt;/li&gt;
- *   &lt;li&gt;Reads and applies Oracle Wallet system properties from environment variables.&lt;/li&gt;
- *   &lt;li&gt;Logs essential environment variables and active Spring profiles for diagnostics (non-prod only).&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Inventory Management:&lt;/strong&gt; CRUD operations for inventory items with stock tracking&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Supplier Management:&lt;/strong&gt; Supplier database with relationship to inventory items&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Stock History:&lt;/strong&gt; Complete audit trail of all quantity and price changes&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Analytics:&lt;/strong&gt; Business insights including stock value, movement trends, and alerts&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;OAuth2 Security:&lt;/strong&gt; Google-based authentication with role-based access control&lt;/li&gt;
  * &lt;/ul&gt;
  * 
- * @author Carlo
+ * &lt;h2&gt;Oracle Wallet Configuration&lt;/h2&gt;
+ * &lt;p&gt;Oracle Wallet setup for database connectivity is handled externally by the deployment
+ * infrastructure (&lt;code&gt;start.sh&lt;/code&gt; in Docker, Fly.io secrets) to maintain separation
+ * of concerns and improve security.&lt;/p&gt;
+ * 
+ * &lt;p&gt;&lt;strong&gt;Why No Wallet Configuration in Java Code:&lt;/strong&gt;&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;strong&gt;Security:&lt;/strong&gt; Prevents logging of sensitive paths or configuration details&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Separation of Concerns:&lt;/strong&gt; Infrastructure concerns handled by deployment layer&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Simplicity:&lt;/strong&gt; start.sh sets JVM system properties before app starts:
+ *       &lt;pre&gt;-Doracle.net.tns_admin=/app/wallet/Wallet_sspdb_fixed
+ *-Doracle.net.wallet_password=${ORACLE_WALLET_PASSWORD}&lt;/pre&gt;
+ *   &lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Memory Safety:&lt;/strong&gt; start.sh clears sensitive env vars after setting JVM properties&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * &lt;h2&gt;Deployment Profiles&lt;/h2&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;strong&gt;dev:&lt;/strong&gt; Local development with detailed logging&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;test:&lt;/strong&gt; Integration testing with H2 in-memory database (no Oracle wallet needed)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;prod:&lt;/strong&gt; Production deployment with minimal logging and Oracle Cloud DB&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * &lt;h2&gt;Architecture&lt;/h2&gt;
+ * &lt;p&gt;This application follows enterprise-level patterns:&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;strong&gt;Layered Architecture:&lt;/strong&gt; Controller → Service → Repository&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;DTO Pattern:&lt;/strong&gt; Separate API contracts from domain models&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Validation Layer:&lt;/strong&gt; Business rule enforcement before persistence&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Security Layer:&lt;/strong&gt; OAuth2 + role-based access control&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Audit Trail:&lt;/strong&gt; Complete stock history for compliance&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * @author SmartSupplyPro Team
+ * @version 1.0.0
  * @since 1.0.0
+ * @see &lt;a href=&quot;https://github.com/Keglev/inventory-service&quot;&gt;GitHub Repository&lt;/a&gt;
+ * @see &lt;a href=&quot;https://keglev.github.io/inventory-service/api.html&quot;&gt;API Documentation&lt;/a&gt;
+ * @see &lt;a href=&quot;https://keglev.github.io/inventory-service/backend/coverage/index.html&quot;&gt;Test Coverage&lt;/a&gt;
  */
 @SpringBootApplication
-<span class="fc" id="L29">public class InventoryServiceApplication {</span>
-
-<span class="fc" id="L31">    private static final Logger logger = LoggerFactory.getLogger(InventoryServiceApplication.class);</span>
+<span class="fc" id="L63">public class InventoryServiceApplication {</span>
 
     /**
-     * Main method that launches the Inventory Service application.
-     * It also sets Oracle Wallet properties based on environment variables.
+     * Main entry point for the Inventory Service application.
+     * 
+     * &lt;p&gt;Bootstraps the Spring Boot application context with all configured components.
+     * No explicit configuration is needed here as all environment-specific setup
+     * (database, security, logging) is handled through Spring profiles and external
+     * configuration.&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Oracle Wallet Configuration:&lt;/strong&gt; Handled by &lt;code&gt;start.sh&lt;/code&gt;
+     * before JVM startup. The shell script:&lt;/p&gt;
+     * &lt;ol&gt;
+     *   &lt;li&gt;Decodes wallet from base64-encoded Fly.io secret&lt;/li&gt;
+     *   &lt;li&gt;Extracts wallet files to &lt;code&gt;/app/wallet/&lt;/code&gt;&lt;/li&gt;
+     *   &lt;li&gt;Sets JVM system properties for Oracle JDBC driver&lt;/li&gt;
+     *   &lt;li&gt;Clears sensitive environment variables&lt;/li&gt;
+     *   &lt;li&gt;Launches application with clean environment&lt;/li&gt;
+     * &lt;/ol&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Why This Approach:&lt;/strong&gt;&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;Oracle JDBC reads system properties before Spring initializes&lt;/li&gt;
+     *   &lt;li&gt;Reduces attack surface by not exposing config in Java code&lt;/li&gt;
+     *   &lt;li&gt;Improves testability (tests use H2, don't need wallet)&lt;/li&gt;
+     *   &lt;li&gt;Follows 12-factor app principles (config via environment)&lt;/li&gt;
+     * &lt;/ul&gt;
      *
-     * @param args Command-line arguments
+     * @param args command-line arguments (typically empty in containerized deployments)
      */
     public static void main(String[] args) {
-<span class="nc" id="L40">        String tnsAdmin = System.getenv(&quot;TNS_ADMIN&quot;);</span>
-<span class="nc" id="L41">        String walletPassword = System.getenv(&quot;ORACLE_WALLET_PASSWORD&quot;);</span>
-
-<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (tnsAdmin != null) {</span>
-<span class="nc" id="L44">            System.setProperty(&quot;oracle.net.tns_admin&quot;, tnsAdmin);</span>
-<span class="nc" id="L45">            logger.info(&quot;TNS_ADMIN set.&quot;);</span>
-        } else {
-<span class="nc" id="L47">            logger.warn(&quot;TNS_ADMIN environment variable not set.&quot;);</span>
-        }
-
-<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (walletPassword != null) {</span>
-<span class="nc" id="L51">            System.setProperty(&quot;oracle.net.wallet_password&quot;, walletPassword);</span>
-<span class="nc" id="L52">            logger.info(&quot;Oracle Wallet password set.&quot;);</span>
-        } else {
-<span class="nc" id="L54">            logger.warn(&quot;ORACLE_WALLET_PASSWORD environment variable not set.&quot;);</span>
-        }
-
-<span class="nc" id="L57">        SpringApplication.run(InventoryServiceApplication.class, args);</span>
-<span class="nc" id="L58">    }</span>
-
-    /**
-     * Logs database connection properties (excluding password) at startup.
-     * Only intended for non-production diagnostics.
-     *
-     * @param user the database username
-     * @param url  the database URL
-     * @param env  the Spring environment
-     * @return CommandLineRunner
-     */
-    @Bean
-    public CommandLineRunner logDbSettings(
-            @Value(&quot;${spring.datasource.username:NOT_SET}&quot;) String user,
-            @Value(&quot;${spring.datasource.url:NOT_SET}&quot;) String url,
-            Environment env) {
-<span class="fc" id="L74">        return args -&gt; {</span>
-<span class="pc bpc" id="L75" title="1 of 2 branches missed.">            if (!env.acceptsProfiles(Profiles.of(&quot;prod&quot;))) {</span>
-<span class="fc" id="L76">                logger.debug(&quot;Database username: {}&quot;, user);</span>
-<span class="fc" id="L77">                logger.debug(&quot;Database URL: {}&quot;, url);</span>
-            }
-<span class="fc" id="L79">        };</span>
-    }
-
-    /**
-     * Logs active Spring profiles and environment information.
-     * Avoids exposing secrets in production environments.
-     *
-     * @param env the Spring environment
-     * @return CommandLineRunner
-     */
-    @Bean
-    public CommandLineRunner logEnvironment(Environment env) {
-<span class="fc" id="L91">        return args -&gt; {</span>
-<span class="fc" id="L92">            logger.info(&quot;Active Spring profiles: {}&quot;, Arrays.toString(env.getActiveProfiles()));</span>
-
-<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            if (!env.acceptsProfiles(Profiles.of(&quot;prod&quot;))) {</span>
-<span class="fc" id="L95">                String dbUrl = System.getenv(&quot;DB_URL&quot;);</span>
-<span class="fc" id="L96">                String dbUser = System.getenv(&quot;DB_USERNAME&quot;);</span>
-<span class="fc" id="L97">                String dbPass = System.getenv(&quot;DB_PASSWORD&quot;);</span>
-<span class="fc" id="L98">                String googleClientId = System.getenv(&quot;GOOGLE_CLIENT_ID&quot;);</span>
-
-<span class="pc bpc" id="L100" title="1 of 2 branches missed.">                logger.debug(&quot;DB URL is set: {}&quot;, dbUrl != null);</span>
-<span class="pc bpc" id="L101" title="1 of 2 branches missed.">                logger.debug(&quot;DB USER is set: {}&quot;, dbUser != null);</span>
-<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                logger.debug(&quot;DB PASS is set: {}&quot;, dbPass != null);</span>
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                logger.debug(&quot;GOOGLE CLIENT ID is set: {}&quot;, googleClientId != null);</span>
-<span class="fc" id="L104">            } else {</span>
-<span class="nc" id="L105">                logger.info(&quot;Production mode: environment variables not logged.&quot;);</span>
-            }
-<span class="fc" id="L107">        };</span>
-    }
-    @Bean
-    public CommandLineRunner checkOAuthClientId(
-        @Value(&quot;${GOOGLE_CLIENT_ID:NOT_SET}&quot;) String clientId,
-        @Value(&quot;${GOOGLE_CLIENT_SECRET:NOT_SET}&quot;) String clientSecret
-    ) {
-<span class="fc" id="L114">        return args -&gt; {</span>
-<span class="fc" id="L115">            System.out.println(&quot;&gt;&gt;&gt; GOOGLE_CLIENT_ID: &quot; + clientId);</span>
-<span class="fc" id="L116">            System.out.println(&quot;&gt;&gt;&gt; GOOGLE_CLIENT_SECRET length: &quot; + clientSecret.length());</span>
-<span class="fc" id="L117">        };</span>
-    }
-
+<span class="nc" id="L94">        SpringApplication.run(InventoryServiceApplication.class, args);</span>
+<span class="nc" id="L95">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

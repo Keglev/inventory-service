@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Primary;
  * chooses this one automatically.
  */
 @Configuration
-<span class="nc" id="L13">public class SecuritySpelBridgeConfig {</span>
+<span class="fc" id="L13">public class SecuritySpelBridgeConfig {</span>
 
     @Bean(&quot;appProperties&quot;)
     @Primary
     public AppProperties appPropertiesPrimary(AppProperties props) {
-<span class="nc" id="L18">        return props; // same managed instance, just an alias name</span>
+<span class="fc" id="L18">        return props; // same managed instance, just an alias name</span>
     }
 }
 
