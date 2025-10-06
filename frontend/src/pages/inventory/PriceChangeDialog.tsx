@@ -31,9 +31,10 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { changePrice } from '../../api/inventory/mutations';
-import { getInventoryPage } from '../../api/inventory/list';
+import { searchItemsForSupplier } from '../../api/analytics/search';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import { getSuppliersLite } from '../../api/analytics/suppliers';
+import http from '../../api/httpClient';
 import { priceChangeSchema } from './validation';
 import type { PriceChangeForm } from './validation';
 
@@ -91,18 +92,27 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
     queryFn: async () => {
       if (!selectedSupplier) return [];
       
-      const response = await getInventoryPage({
-        page: 1,
-        pageSize: 50,
-        q: itemQuery,
-        supplierId: selectedSupplier.id,
-      });
+      // Use searchItemsForSupplier which calls the backend with supplierId
+      // Note: Backend may not filter by supplierId, so we apply client-side filtering
+      const items = await searchItemsForSupplier(
+        String(selectedSupplier.id),
+        itemQuery,
+        500 // Fetch more items since we'll filter client-side
+      );
       
-      return response.items.map((item): ItemOption => ({
+      // CRITICAL: Apply client-side supplier filtering (backend doesn't filter properly)
+      // This matches the pattern used in QuantityAdjustDialog.tsx
+      const supplierIdStr = String(selectedSupplier.id);
+      const supplierFiltered = items.filter(
+        (item) => String(item.supplierId ?? '') === supplierIdStr
+      );
+      
+      // ItemRef only has id, name, supplierId - we'll fetch full details on selection
+      return supplierFiltered.map((item): ItemOption => ({
         id: item.id,
         name: item.name,
-        onHand: item.onHand,
-        price: 0, // Default price since it's not available in InventoryRow
+        onHand: 0, // Will be fetched when item is selected
+        price: 0,  // Will be fetched when item is selected
       }));
     },
     enabled: !!selectedSupplier && itemQuery.length >= 2,
@@ -123,6 +133,34 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
       } catch (error) {
         console.error('Failed to fetch price history:', error);
         return [];
+      }
+    },
+    enabled: !!selectedItem?.id,
+    staleTime: 30_000,
+  });
+
+  /** Fetch full item details including current price and quantity when item is selected */
+  const itemDetailsQuery = useQuery({
+    queryKey: ['itemDetails', selectedItem?.id],
+    queryFn: async () => {
+      if (!selectedItem?.id) return null;
+      
+      try {
+        const response = await http.get(`/api/inventory/${encodeURIComponent(selectedItem.id)}`);
+        const data = response.data;
+        
+        // Extract the current price and quantity from the response
+        return {
+          id: String(data.id || ''),
+          name: String(data.name || ''),
+          onHand: Number(data.quantity || data.onHand || 0),
+          price: Number(data.price || 0),
+          code: data.code || null,
+          supplierId: data.supplierId || null,
+        };
+      } catch (error) {
+        console.error('Failed to fetch item details:', error);
+        return null;
       }
     },
     enabled: !!selectedItem?.id,
@@ -153,11 +191,11 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   }, [selectedSupplier, setValue]);
 
   React.useEffect(() => {
-    if (selectedItem) {
+    if (selectedItem && itemDetailsQuery.data) {
       setValue('itemId', selectedItem.id);
-      setValue('newPrice', selectedItem.price);
+      setValue('newPrice', itemDetailsQuery.data.price);
     }
-  }, [selectedItem, setValue]);
+  }, [selectedItem, itemDetailsQuery.data, setValue]);
 
   const handleClose = () => {
     setSelectedSupplier(null);
@@ -286,7 +324,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                   </MenuItem>
                   {itemsQuery.data.map((item) => (
                     <MenuItem key={item.id} value={item.id}>
-                      {item.name} (${item.price.toFixed(2)})
+                      {item.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -304,7 +342,11 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                     {t('inventory:currentPrice', 'Current Price')}:
                   </Typography>
                   <Typography variant="body2" fontWeight="medium">
-                    ${selectedItem.price.toFixed(2)}
+                    {itemDetailsQuery.isLoading ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      `$${(itemDetailsQuery.data?.price ?? 0).toFixed(2)}`
+                    )}
                   </Typography>
                 </Box>
                 
@@ -313,7 +355,11 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                     {t('inventory:currentQuantity', 'Current Quantity')}:
                   </Typography>
                   <Typography variant="body2" fontWeight="medium">
-                    {selectedItem.onHand}
+                    {itemDetailsQuery.isLoading ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      itemDetailsQuery.data?.onHand ?? 0
+                    )}
                   </Typography>
                 </Box>
 
@@ -366,9 +412,9 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                   error={!!errors.newPrice}
                   helperText={
                     errors.newPrice?.message ||
-                    (selectedItem && value !== selectedItem.price && (
+                    (selectedItem && itemDetailsQuery.data && value !== itemDetailsQuery.data.price && (
                       t('inventory:priceChangeFromTo', 'Change from ${{from}} to ${{to}}', {
-                        from: selectedItem.price.toFixed(2),
+                        from: itemDetailsQuery.data.price.toFixed(2),
                         to: value.toFixed(2),
                       })
                     ))

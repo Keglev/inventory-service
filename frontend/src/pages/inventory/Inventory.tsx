@@ -284,7 +284,7 @@ const Inventory: React.FC = () => {
           <Button onClick={() => setOpenAdjust(true)}>
             {t('inventory:adjustQty', 'Adjust quantity')}
           </Button>
-          <Button disabled={!selectedRow} onClick={() => setOpenPrice(true)}>
+          <Button onClick={() => setOpenPrice(true)}>
             {t('inventory:changePrice', 'Change price')}
           </Button>
         </Stack>
