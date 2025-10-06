@@ -1,63 +1,101 @@
-# Step 2 Progress: Application Startup Cleanup
+# Step 2 Progress: Backend Code Review & Documentation
 
-**Status**: 🔄 IN PROGRESS  
-**Phase**: Core Application Files Review  
-**Date**: October 6, 2025
+**Status**: ✅ PHASE 1 COMPLETE - Core Application Files  
+**Phase**: Ready for Phase 2 - Service Layer Review  
+**Date**: October 6, 2025  
+**Commit**: `245e4e5` - "security: harden core application files and improve test infrastructure"
 
 ---
 
-## ✅ Files Reviewed & Updated (3/3)
+## ✅ Phase 1: Core Application Files (3/3 Complete)
 
 ### 1. InventoryServiceApplication.java ✅
 **Changes Made:**
-- ❌ **REMOVED**: `configureOracleWallet()` method
-- ❌ **REMOVED**: `logActiveProfiles()` CommandLineRunner bean
-- ❌ **REMOVED**: All logging dependencies (Logger, LoggerFactory)
-- ❌ **REMOVED**: Environment variable reading from Java code
-- ✅ **ADDED**: Comprehensive JavaDoc explaining wallet configuration delegation
-- ✅ **ADDED**: Architecture overview in class-level documentation
-- ✅ **ADDED**: Link to test coverage reports
+- ❌ **REMOVED**: `configureOracleWallet()` method (redundant, handled by start.sh)
+- ❌ **REMOVED**: All debug logs exposing configuration details
+- ✅ **ADDED**: Comprehensive JavaDoc explaining Oracle Wallet is configured by start.sh
+- ✅ **ADDED**: Architecture overview and security explanation
 
-**Rationale:**
-```
-OLD APPROACH (Security Risk):
-Java Code reads env vars → Sets system properties → Logs paths → Keeps secrets in memory
-
-NEW APPROACH (Secure):
-start.sh reads env vars → Sets JVM properties → Clears secrets → Launches app
-```
-
-**Lines Reduced**: 155 → 87 lines (-68 lines, -43%)
+**Security Impact**: No configuration exposure in production logs
 
 ### 2. InventoryServiceApplicationTest.java ✅
 **Changes Made:**
-- ✅ Comprehensive JavaDoc explaining H2 test strategy
-- ✅ Documentation of why Oracle Testcontainers is not used
-- ✅ Clear test purpose and scope documentation
+- ✅ **ADDED**: Enterprise-level JavaDoc explaining test strategy
+- ✅ **DOCUMENTED**: Why H2 instead of Testcontainers (Oracle Free Tier IP whitelisting)
+- ✅ **DOCUMENTED**: What the smoke test validates (context loading, bean wiring, JPA mapping)
 
-**Lines**: 51 (no change, already clean)
+**Code Quality**: Comprehensive documentation for future developers
 
-### 3. TestContainersOracleConfiguration.java ❌
-**Action**: **DELETED** (file no longer needed)
+### 3. TestContainersOracleConfiguration.java ❌ DELETED
+**Action**: File deleted from `src/test/java/`
 
-**Reason**: 
-- Oracle Free Tier requires IP whitelisting
-- IP changes daily when computer restarts
-- Testcontainers not feasible for this setup
-- Tests use H2 in Oracle compatibility mode instead
+**Reason**: Unusable with Oracle Free Tier - requires IP whitelisting, incompatible with dynamic IPs
+
+### 4. application-test.yml ✅
+**Changes Made:**
+- ✅ **ADDED**: OAuth2 test configuration (dummy credentials)
+- ✅ **FIXED**: Spring Security initialization in test profile
+
+**Test Impact**: OAuth2 beans now initialize correctly in tests
+
+### 5. TestApiStubController.java ✅
+**Changes Made:**
+- ✅ **ADDED**: `@Profile("test-stub")` to prevent loading in @SpringBootTest
+- ✅ **ADDED**: Comprehensive JavaDoc explaining test-only purpose
+- ✅ **FIXED**: Ambiguous mapping error with AnalyticsController
+
+**Test Impact**: No more conflicts between test stub and real controllers
+
+### 6. DemoReadonlySecurityTest.java ✅
+**Changes Made:**
+- ✅ **ADDED**: `@ActiveProfiles("test-stub")` to load TestApiStubController
+
+**Test Impact**: Test properly loads its stub controller
 
 ---
 
-## 🔐 Security Improvements
+## 🔐 Security Improvements Summary
 
-### Issue 1: Redundant Wallet Configuration
-**Before:**
-```java
-private static void configureOracleWallet() {
-    String tnsAdmin = System.getenv("TNS_ADMIN");
-    String walletPassword = System.getenv("ORACLE_WALLET_PASSWORD");
-    
-    if (tnsAdmin != null && !tnsAdmin.trim().isEmpty()) {
+| Issue | Before | After | Impact |
+|-------|--------|-------|--------|
+| **Debug Logs** | Exposed TNS_ADMIN paths in logs | No configuration logging | Production security |
+| **Wallet Config** | Java code set system properties | start.sh handles all setup | Separation of concerns |
+| **Test Infrastructure** | Missing OAuth2 config | Dummy credentials for tests | Tests initialize correctly |
+| **Component Scanning** | Ambiguous mappings | Profile-based loading | Clean test isolation |
+
+---
+
+## 📊 Test Results
+
+**All Tests Passing**: ✅ 268 tests, 0 failures, 0 errors
+
+```
+[INFO] Tests run: 268, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+```
+
+---
+
+## 📝 Next Steps: Phase 2 - Service Layer Review
+
+**Target**: `com.smartsupplypro.inventory.service` (14% coverage - highest priority)
+
+**Files to Review:**
+1. `CustomOAuth2UserService.java` - OAuth2 user loading
+2. `CustomOidcUserService.java` - OIDC user loading
+3. `StockHistoryService.java` - Stock history interface
+4. `AnalyticsServiceImpl.java` - Analytics business logic
+5. `InventoryItemServiceImpl.java` - Inventory business logic
+6. `SupplierServiceImpl.java` - Supplier business logic
+
+**Focus Areas:**
+- Document business logic with enterprise-level JavaDoc
+- Explain service method purposes and parameters
+- Add inline comments for complex algorithms
+- Document transaction boundaries
+- Explain validation logic
+
+**Coverage Goal**: Improve service layer documentation to enterprise standards
         System.setProperty("oracle.net.tns_admin", tnsAdmin);
         logger.debug("Oracle Wallet location configured from TNS_ADMIN");
     }
