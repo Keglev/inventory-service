@@ -4,7 +4,7 @@
  *
  * @summary
  * Enterprise-level dialog for adjusting inventory item quantities with business reasoning.
- * Implements a guided workflow: supplier selection → item selection → quantity adjustment.
+ * Implements a two-step workflow: supplier selection → item selection → quantity adjustment.
  *
  * @enterprise
  * - Strict validation: quantity ≥ 0 (cannot be negative)
@@ -13,15 +13,13 @@
  * - Type safety: fully typed with Zod validation and TypeScript
  * - Accessibility: proper form labels, error states, and keyboard navigation
  * - Internationalization: complete i18n support for all user-facing text
- * - Shared data hooks: uses centralized hooks for consistent caching and error handling
  *
  * @workflow
- * 1. User selects supplier from dropdown (via useSuppliersQuery)
- * 2. System loads available items for that supplier (via useItemSearchQuery with client-side filtering)
+ * 1. User selects supplier from dropdown
+ * 2. System loads available items for that supplier
  * 3. User selects specific item to adjust
- * 4. System fetches full item details (via useItemDetailsQuery)
- * 5. User enters new quantity (≥ 0) and selects business reason
- * 6. System validates and applies quantity change with audit trail
+ * 4. User enters new quantity (≥ 0) and selects business reason
+ * 5. System validates and applies quantity change with audit trail
  *
  * @validation
  * - Supplier must be selected before item selection is enabled
@@ -29,11 +27,6 @@
  * - New quantity must be non-negative (≥ 0)
  * - Business reason must be selected from predefined options
  * - Read-only fields (name, price) cannot be modified
- * 
- * @refactored
- * Uses shared hooks and types from:
- * - `hooks/useInventoryData.ts` - Data fetching hooks
- * - `types/inventory-dialog.types.ts` - TypeScript interfaces
  */
 
 import * as React from 'react';
@@ -61,11 +54,12 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { adjustQuantity } from '../../api/inventory/mutations';
+import { searchItemsForSupplier } from '../../api/analytics/search';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
+import { getSuppliersLite } from '../../api/analytics/suppliers';
+import http from '../../api/httpClient';
 import { quantityAdjustSchema } from './validation';
 import type { QuantityAdjustForm } from './validation';
-import type { SupplierOption, ItemOption } from './types/inventory-dialog.types';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from './hooks/useInventoryData';
 
 /**
  * Business reasons for stock quantity changes.
@@ -106,6 +100,32 @@ export interface QuantityAdjustDialogProps {
 }
 
 /**
+ * Supplier option shape for the autocomplete component.
+ * Normalized from backend supplier data for consistent UI handling.
+ */
+interface SupplierOption {
+  /** Unique supplier identifier */
+  id: string | number;
+  /** Display name for supplier selection */
+  label: string;
+}
+
+/**
+ * Item option shape for the autocomplete component.
+ * Normalized from backend inventory data for consistent UI handling.
+ */
+interface ItemOption {
+  /** Unique item identifier */
+  id: string;
+  /** Display name for item selection */
+  name: string;
+  /** Current quantity on hand */
+  onHand: number;
+  /** Current price per unit */
+  price: number;
+}
+
+/**
  * Enterprise-level quantity adjustment dialog component.
  * 
  * Provides a guided workflow for adjusting inventory quantities with proper
@@ -130,12 +150,6 @@ export interface QuantityAdjustDialogProps {
  * - Maintains audit trail through mandatory reason selection
  * - Prevents negative quantities that would cause system inconsistencies
  * - Supports internationalization for global deployment
- * - Uses shared data hooks for consistent behavior across dialogs
- * 
- * @refactored
- * - Data fetching centralized via hooks/useInventoryData.ts
- * - Type definitions shared via types/inventory-dialog.types.ts
- * - Eliminates code duplication with PriceChangeDialog
  */
 export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   open,
@@ -165,22 +179,54 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   // Data Queries
   // ================================
 
-  /**
-   * Load suppliers for dropdown.
-   * Uses shared hook for consistent caching and error handling.
-   */
-  const suppliersQuery = useSuppliersQuery(open);
+  /** Load suppliers for dropdown */
+  const suppliersQuery = useQuery({
+    queryKey: ['suppliers', 'lite'],
+    queryFn: async () => {
+      const suppliers = await getSuppliersLite();
+      return suppliers.map((supplier): SupplierOption => ({
+        id: supplier.id,
+        label: supplier.name,
+      }));
+    },
+    enabled: open,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
-  /**
-   * Load items based on selected supplier and search query.
-   * Uses shared hook with client-side supplier filtering.
-   */
-  const itemsQuery = useItemSearchQuery(selectedSupplier, itemQuery);
+  /** Load items based on selected supplier and search query */
+  const itemsQuery = useQuery({
+    queryKey: ['inventory', 'search', selectedSupplier?.id, itemQuery],
+    queryFn: async () => {
+      if (!selectedSupplier) return [];
+      
+      // Use searchItemsForSupplier which calls the backend with supplierId
+      // Note: Backend may not filter by supplierId, so we apply client-side filtering
+      const items = await searchItemsForSupplier(
+        String(selectedSupplier.id),
+        itemQuery,
+        500 // Fetch more items since we'll filter client-side
+      );
+      
+      // CRITICAL: Apply client-side supplier filtering (backend doesn't filter properly)
+      // This matches the pattern used in PriceTrendCard.tsx and Inventory.tsx
+      const supplierIdStr = String(selectedSupplier.id);
+      const supplierFiltered = items.filter(
+        (item) => String(item.supplierId ?? '') === supplierIdStr
+      );
+      
+      // ItemRef only has id, name, supplierId - we'll fetch full details on selection
+      return supplierFiltered.map((item): ItemOption => ({
+        id: item.id,
+        name: item.name,
+        onHand: 0, // Will be fetched when item is selected
+        price: 0,  // Will be fetched when item is selected
+      }));
+    },
+    enabled: !!selectedSupplier && itemQuery.length >= 2,
+    staleTime: 30_000, // 30 seconds
+  });
 
-  /**
-   * Fetch current price for the selected item.
-   * Uses price trend API to get the most recent price.
-   */
+  /** Fetch current price for the selected item */
   const itemPriceQuery = useQuery({
     queryKey: ['itemPrice', selectedItem?.id],
     queryFn: async () => {
@@ -209,11 +255,33 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     staleTime: 30_000,
   });
 
-  /**
-   * Fetch full item details including current quantity when item is selected.
-   * Uses shared hook for consistent data fetching.
-   */
-  const itemDetailsQuery = useItemDetailsQuery(selectedItem?.id);
+  /** Fetch full item details including current quantity when item is selected */
+  const itemDetailsQuery = useQuery({
+    queryKey: ['itemDetails', selectedItem?.id],
+    queryFn: async () => {
+      if (!selectedItem?.id) return null;
+      
+      try {
+        const response = await http.get(`/api/inventory/${encodeURIComponent(selectedItem.id)}`);
+        const data = response.data;
+        
+        // Extract the current quantity from the response
+        return {
+          id: String(data.id || ''),
+          name: String(data.name || ''),
+          onHand: Number(data.quantity || data.onHand || 0),
+          price: Number(data.price || 0),
+          code: data.code || null,
+          supplierId: data.supplierId || null,
+        };
+      } catch (error) {
+        console.error('Failed to fetch item details:', error);
+        return null;
+      }
+    },
+    enabled: !!selectedItem?.id,
+    staleTime: 30_000,
+  });
 
   // ================================
   // Form Management
