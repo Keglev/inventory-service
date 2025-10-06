@@ -47,11 +47,16 @@ export type QuantityAdjustForm = z.infer<typeof quantityAdjustSchema>;
 /**
  * Schema for changing item prices.
  * Used in price change dialogs.
+ * 
+ * @validation
+ * - itemId: Required, identifies which item to update
+ * - newPrice: Must be positive (> 0), backend validates this as well
+ * 
+ * @note Backend does not require a "reason" parameter for price changes
  */
 export const priceChangeSchema = z.object({
   itemId: z.string().min(1, 'Item selection is required'),
-  newPrice: z.number().min(0, 'Price cannot be negative'),
-  reason: z.string().min(1, 'Reason is required'),
+  newPrice: z.number().positive('Price must be greater than 0'),
 });
 
 export type PriceChangeForm = z.infer<typeof priceChangeSchema>;
