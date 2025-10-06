@@ -3,7 +3,7 @@ Inventory Service,com.smartsupplypro.inventory.model,AppUser,3,43,0,0,1,13,1,2,1
 Inventory Service,com.smartsupplypro.inventory.model,StockHistory,3,4,1,1,1,2,1,1,0,1
 Inventory Service,com.smartsupplypro.inventory.model,Role,7,15,0,0,1,3,1,1,1,1
 Inventory Service,com.smartsupplypro.inventory.model,InventoryItem,4,59,7,17,1,12,7,6,0,1
-Inventory Service,com.smartsupplypro.inventory,InventoryServiceApplication,48,106,10,6,13,24,9,8,1,8
+Inventory Service,com.smartsupplypro.inventory,InventoryServiceApplication,47,107,10,6,13,24,9,8,1,8
 Inventory Service,com.smartsupplypro.inventory.controller,AuthController,23,110,3,3,8,33,3,5,1,4
 Inventory Service,com.smartsupplypro.inventory.controller,SupplierController,4,91,1,5,1,17,2,9,1,7
 Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemController,0,99,0,2,0,22,0,13,0,12
@@ -17,16 +17,16 @@ Inventory Service,com.smartsupplypro.inventory.config,AppProperties.Frontend,6,1
 Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig.new OncePerRequestFilter() {...},0,31,3,3,0,7,3,2,0,2
 Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig.new OncePerRequestFilter() {...},8,71,4,4,1,16,5,2,1,2
 Inventory Service,com.smartsupplypro.inventory.config,AppProperties,0,21,0,0,0,6,0,4,0,4
-Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig,83,475,9,1,22,72,11,15,6,15
+Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig,119,439,9,1,25,69,11,15,6,15
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockHistoryCustomRepositoryImpl,42,339,30,26,8,74,28,13,0,13
 Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason,0,69,0,0,0,12,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.exception,DuplicateResourceException,0,4,0,0,0,2,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.exception,InvalidRequestException,0,4,0,0,0,1,0,1,0,1
-Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,57,140,2,2,12,27,11,14,9,14
+Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,58,140,2,2,12,27,11,14,9,14
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl.State,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,114,270,13,33,24,66,19,19,6,9
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,28,102,0,2,8,23,4,6,4,5
-Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,202,834,49,73,27,173,38,49,1,25
+Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,204,835,49,73,27,173,38,49,1,25
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl.Issue,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,8,60,4,4,0,21,4,3,0,3
 Inventory Service,com.smartsupplypro.inventory.mapper,InventoryItemMapper,7,67,1,1,1,22,2,2,1,2
@@ -39,7 +39,7 @@ Inventory Service,com.smartsupplypro.inventory.service,CustomOidcUserService,184
 Inventory Service,com.smartsupplypro.inventory.service,StockHistoryService,89,77,2,0,25,29,6,5,5,5
 Inventory Service,com.smartsupplypro.inventory.dto,PriceTrendDTO,0,11,0,0,0,4,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,StockEventRowDTO,0,21,0,0,0,1,0,1,0,1
-Inventory Service,com.smartsupplypro.inventory.validation,StockHistoryValidator,16,100,8,18,2,18,7,8,0,2
+Inventory Service,com.smartsupplypro.inventory.validation,StockHistoryValidator,16,101,8,18,2,18,7,8,0,2
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,39,116,15,19,11,20,13,11,2,5
 Inventory Service,com.smartsupplypro.inventory.validation,SupplierValidator,5,98,4,18,2,23,4,13,0,6
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemSecurityValidator,11,73,4,14,2,14,5,8,1,3
