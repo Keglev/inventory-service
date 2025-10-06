@@ -57,6 +57,7 @@ import { adjustQuantity } from '../../api/inventory/mutations';
 import { searchItemsForSupplier } from '../../api/analytics/search';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import { getSuppliersLite } from '../../api/analytics/suppliers';
+import http from '../../api/httpClient';
 import { quantityAdjustSchema } from './validation';
 import type { QuantityAdjustForm } from './validation';
 
@@ -254,6 +255,34 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     staleTime: 30_000,
   });
 
+  /** Fetch full item details including current quantity when item is selected */
+  const itemDetailsQuery = useQuery({
+    queryKey: ['itemDetails', selectedItem?.id],
+    queryFn: async () => {
+      if (!selectedItem?.id) return null;
+      
+      try {
+        const response = await http.get(`/api/inventory/${encodeURIComponent(selectedItem.id)}`);
+        const data = response.data;
+        
+        // Extract the current quantity from the response
+        return {
+          id: String(data.id || ''),
+          name: String(data.name || ''),
+          onHand: Number(data.quantity || data.onHand || 0),
+          price: Number(data.price || 0),
+          code: data.code || null,
+          supplierId: data.supplierId || null,
+        };
+      } catch (error) {
+        console.error('Failed to fetch item details:', error);
+        return null;
+      }
+    },
+    enabled: !!selectedItem?.id,
+    staleTime: 30_000,
+  });
+
   // ================================
   // Form Management
   // ================================
@@ -342,8 +371,11 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     setFormError('');
 
     try {
-      // Calculate the delta from current quantity
-      const delta = values.newQuantity - selectedItem.onHand;
+      // Use the actual current quantity from the fetched item details
+      const actualCurrentQty = itemDetailsQuery.data?.onHand ?? 0;
+      
+      // Calculate the delta from the ACTUAL current quantity
+      const delta = values.newQuantity - actualCurrentQty;
       
       const success = await adjustQuantity({
         id: values.itemId,
@@ -475,7 +507,11 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                   {t('inventory:currentQuantity', 'Current Quantity')}:
                 </Typography>
                 <Typography variant="body2" fontWeight="medium">
-                  {selectedItem.onHand}
+                  {itemDetailsQuery.isLoading ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    itemDetailsQuery.data?.onHand ?? 0
+                  )}
                 </Typography>
               </Box>
               
