@@ -26,7 +26,7 @@ Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl.State,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,114,270,13,33,24,66,19,19,6,9
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,28,102,0,2,8,23,4,6,4,5
-Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,204,835,49,73,27,173,38,49,1,25
+Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,204,835,49,73,28,177,38,49,1,25
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl.Issue,0,9,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,8,60,4,4,0,21,4,3,0,3
 Inventory Service,com.smartsupplypro.inventory.mapper,InventoryItemMapper,7,67,1,1,1,22,2,2,1,2
