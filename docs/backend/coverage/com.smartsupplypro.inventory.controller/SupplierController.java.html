@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SupplierController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller</a> &gt; <span class="el_source">SupplierController.java</span></div><h1>SupplierController.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller;
+
+import java.net.URI;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.service.SupplierService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping(&quot;/api/suppliers&quot;)
+@RequiredArgsConstructor
+public class SupplierController {
+
+    private final SupplierService supplierService;
+
+    /**
+     * List all suppliers (USER/ADMIN).
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping
+    public ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt; listAll() {
+<span class="fc" id="L41">        return ResponseEntity.ok(supplierService.findAll());</span>
+    }
+
+    /**
+    * Returns the total number of suppliers.
+    * @return JSON number (e.g., 12)
+    */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/count&quot;)
+    public long countSuppliers() {
+<span class="nc" id="L51">        return supplierService.countSuppliers();</span>
+    }
+
+    /**
+     * Get one supplier by id (USER/ADMIN).
+     */
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;SupplierDTO&gt; getById(@PathVariable String id) {
+<span class="fc" id="L60">        return supplierService.findById(id)</span>
+<span class="fc" id="L61">                .map(ResponseEntity::ok)</span>
+<span class="fc" id="L62">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
+    }
+
+    /**
+     * Search by (partial) name (USER/ADMIN).
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/search&quot;)
+    public ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt; search(@RequestParam String name) {
+<span class="fc" id="L71">        return ResponseEntity.ok(supplierService.findByName(name));</span>
+    }
+
+    /**
+     * Create supplier (ADMIN) — returns 201 + Location.
+     * DTO validation happens here; duplicate handling is done in the service
+     * via DuplicateResourceException (mapped to 409).
+     */
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @PostMapping
+    public ResponseEntity&lt;SupplierDTO&gt; create(@Valid @RequestBody SupplierDTO dto) {
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
+            // path/payload mismatch style: controller throws ResponseStatusException in rare cases
+<span class="fc" id="L84">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
+        }
+<span class="fc" id="L86">        SupplierDTO created = supplierService.create(dto);</span>
+<span class="fc" id="L87">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId()))</span>
+<span class="fc" id="L88">                .header(HttpHeaders.LOCATION, &quot;/api/suppliers/&quot; + created.getId())</span>
+<span class="fc" id="L89">                .body(created);</span>
+    }
+
+    /**
+     * Update supplier (ADMIN). Path id wins; body.id may be absent or mismatched.
+     */
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;SupplierDTO&gt; update(@PathVariable String id, @Valid @RequestBody SupplierDTO dto) {
+        // If body has an id and it doesn't match, signal a payload/path mismatch (400).
+<span class="pc bpc" id="L99" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
+<span class="fc" id="L100">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
+        }
+<span class="fc" id="L102">        SupplierDTO updated = supplierService.update(id, dto);</span>
+<span class="fc" id="L103">        return ResponseEntity.ok(updated);</span>
+    }
+
+    /**
+     * Delete supplier (ADMIN). Service will throw IllegalStateException (409)
+     * when there are linked inventory items, per your GlobalExceptionHandler.
+     */
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; delete(@PathVariable String id) {
+<span class="fc" id="L113">        supplierService.delete(id);</span>
+<span class="fc" id="L114">        return ResponseEntity.noContent().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

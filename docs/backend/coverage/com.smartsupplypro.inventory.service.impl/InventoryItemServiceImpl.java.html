@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryItemServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.service.impl</a> &gt; <span class="el_source">InventoryItemServiceImpl.java</span></div><h1>InventoryItemServiceImpl.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.service.impl;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.mapper.InventoryItemMapper;
+import com.smartsupplypro.inventory.model.InventoryItem;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.service.InventoryItemService;
+import com.smartsupplypro.inventory.service.StockHistoryService;
+import com.smartsupplypro.inventory.validation.InventoryItemSecurityValidator;
+import com.smartsupplypro.inventory.validation.InventoryItemValidator;
+import static com.smartsupplypro.inventory.validation.InventoryItemValidator.assertFinalQuantityNonNegative;
+import static com.smartsupplypro.inventory.validation.InventoryItemValidator.assertPriceValid;
+
+/**
+ * Service layer responsible for managing inventory item operations including
+ * creation, update, deletion, and retrieval. Also coordinates stock history logging
+ * and supplier validation.
+ *
+ * &lt;p&gt;Responsibilities:&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;Validate inputs and permissions&lt;/li&gt;
+ *   &lt;li&gt;Map between entities and DTOs&lt;/li&gt;
+ *   &lt;li&gt;Persist changes and write stock history (quantity + price snapshots)&lt;/li&gt;
+ *   &lt;li&gt;Enforce domain rules (e.g., allowed deletion reasons)&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+@Service
+public class InventoryItemServiceImpl implements InventoryItemService {
+
+    private final InventoryItemRepository repository;
+    private final StockHistoryService stockHistoryService;
+    private final SupplierRepository supplierRepository;
+
+    /**
+     * Constructs the InventoryItemService with required dependencies.
+     */
+    public InventoryItemServiceImpl(
+            InventoryItemRepository repository,
+            StockHistoryService stockHistoryService,
+            SupplierRepository supplierRepository
+<span class="fc" id="L56">    ) {</span>
+<span class="fc" id="L57">        this.repository = repository;</span>
+<span class="fc" id="L58">        this.stockHistoryService = stockHistoryService;</span>
+<span class="fc" id="L59">        this.supplierRepository = supplierRepository;</span>
+<span class="fc" id="L60">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public List&lt;InventoryItemDTO&gt; getAll() {
+<span class="nc" id="L65">        return repository.findAll().stream().map(InventoryItemMapper::toDTO).toList();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Optional&lt;InventoryItemDTO&gt; getById(String id) {
+<span class="fc" id="L71">        return repository.findById(id).map(InventoryItemMapper::toDTO);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Page&lt;InventoryItemDTO&gt; findByNameSortedByPrice(String name, Pageable pageable) {
+<span class="fc" id="L77">        Page&lt;InventoryItem&gt; page = repository.findByNameSortedByPrice(name, pageable);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        return page == null ? Page.empty() : page.map(InventoryItemMapper::toDTO);</span>
+    }
+
+    /**
+    * Total number of inventory items (KPI).
+    */
+    @Override
+    @Transactional(readOnly = true)
+    public long countItems() {
+<span class="nc" id="L87">        return repository.count();</span>
+    }
+
+    /**
+     * Persists a new inventory item after validating input data and logging its initial stock.
+     * Also records a stock history entry with the initial quantity and current unit price snapshot.
+     */
+    @Override
+    @Transactional
+    public InventoryItemDTO save(InventoryItemDTO dto) {
+        // Ensure createdBy is populated from authenticated user before validation
+<span class="pc bpc" id="L98" title="1 of 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
+<span class="fc" id="L99">            dto.setCreatedBy(currentUsername());</span>
+        }
+        
+<span class="fc" id="L102">        InventoryItemValidator.validateBase(dto);</span>
+<span class="fc" id="L103">        InventoryItemValidator.validateInventoryItemNotExists(dto.getName(), dto.getPrice(), repository);</span>
+<span class="fc" id="L104">        validateSupplierExists(dto.getSupplierId());</span>
+
+<span class="fc" id="L106">        InventoryItem entity = InventoryItemMapper.toEntity(dto);</span>
+
+        // Ensure server-side fields
+<span class="pc bpc" id="L109" title="1 of 4 branches missed.">        if (entity.getId() == null || entity.getId().isBlank()) {</span>
+<span class="fc" id="L110">            entity.setId(UUID.randomUUID().toString());</span>
+        }
+<span class="fc" id="L112">        entity.setCreatedBy(currentUsername()); // authoritative source</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (entity.getCreatedAt() == null) {</span>
+<span class="fc" id="L114">            entity.setCreatedAt(LocalDateTime.now());</span>
+        }
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (entity.getMinimumQuantity() &lt;= 0) {</span>
+<span class="fc" id="L117">            entity.setMinimumQuantity(10);</span>
+        }
+
+<span class="fc" id="L120">        InventoryItem saved = repository.save(entity);</span>
+
+        // Write INITIAL_STOCK with quantity and price snapshot
+<span class="fc" id="L123">        stockHistoryService.logStockChange(</span>
+<span class="fc" id="L124">                saved.getId(),</span>
+<span class="fc" id="L125">                saved.getQuantity(),</span>
+                StockChangeReason.INITIAL_STOCK,
+<span class="fc" id="L127">                currentUsername(),</span>
+<span class="fc" id="L128">                saved.getPrice()</span>
+        );
+
+<span class="fc" id="L131">        return InventoryItemMapper.toDTO(saved);</span>
+    }
+
+    /**
+     * Updates an existing inventory item.
+     * &lt;ul&gt;
+     *   &lt;li&gt;Validates permissions&lt;/li&gt;
+     *   &lt;li&gt;Writes a MANUAL_UPDATE history entry when quantity changes (with price snapshot)&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    @Transactional
+    public Optional&lt;InventoryItemDTO&gt; update(String id, InventoryItemDTO dto) {
+<span class="fc" id="L144">        InventoryItemValidator.validateBase(dto);</span>
+<span class="fc" id="L145">        validateSupplierExists(dto.getSupplierId());</span>
+
+<span class="fc" id="L147">        InventoryItem existing = InventoryItemValidator.validateExists(id, repository);</span>
+
+<span class="fc" id="L149">        InventoryItemSecurityValidator.validateUpdatePermissions(existing, dto);</span>
+
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        boolean nameChanged  = !existing.getName().equalsIgnoreCase(dto.getName());</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">        boolean priceChanged = !existing.getPrice().equals(dto.getPrice());</span>
+<span class="pc bpc" id="L153" title="1 of 4 branches missed.">        if (nameChanged || priceChanged) {</span>
+<span class="nc" id="L154">            InventoryItemValidator.validateInventoryItemNotExists(id, dto.getName(), dto.getPrice(), repository);</span>
+        }
+
+<span class="fc" id="L157">        int quantityDiff = dto.getQuantity() - existing.getQuantity();</span>
+
+<span class="fc" id="L159">        existing.setName(dto.getName());</span>
+<span class="fc" id="L160">        existing.setQuantity(dto.getQuantity());</span>
+<span class="fc" id="L161">        existing.setSupplierId(dto.getSupplierId());</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (dto.getMinimumQuantity() &gt; 0) {</span>
+<span class="fc" id="L163">            existing.setMinimumQuantity(dto.getMinimumQuantity());</span>
+        }
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">        if (priceChanged) {</span>
+<span class="nc" id="L166">            assertPriceValid(dto.getPrice());</span>
+<span class="nc" id="L167">            existing.setPrice(dto.getPrice());</span>
+        }
+        // DO NOT overwrite createdBy on update
+        // existing.setCreatedBy(...);
+
+<span class="fc" id="L172">        InventoryItem updated = repository.save(existing);</span>
+
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (quantityDiff != 0) {</span>
+<span class="fc" id="L175">            stockHistoryService.logStockChange(</span>
+<span class="fc" id="L176">                    updated.getId(),</span>
+                    quantityDiff,
+                    StockChangeReason.MANUAL_UPDATE,
+<span class="fc" id="L179">                    currentUsername(),</span>
+<span class="fc" id="L180">                    updated.getPrice()</span>
+            );
+        }
+
+<span class="fc" id="L184">        return Optional.of(InventoryItemMapper.toDTO(updated));</span>
+    }
+
+    /**
+     * Deletes an item. Logs a full negative adjustment before deletion.
+     * Allowed reasons: SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER.
+     */
+    @Override
+    @Transactional
+    public void delete(String id, StockChangeReason reason) {
+<span class="pc bpc" id="L194" title="4 of 12 branches missed.">        if (reason != StockChangeReason.SCRAPPED &amp;&amp;</span>
+            reason != StockChangeReason.DESTROYED &amp;&amp;
+            reason != StockChangeReason.DAMAGED &amp;&amp;
+            reason != StockChangeReason.EXPIRED &amp;&amp;
+            reason != StockChangeReason.LOST &amp;&amp;
+            reason != StockChangeReason.RETURNED_TO_SUPPLIER) {
+<span class="fc" id="L200">            throw new IllegalArgumentException(&quot;Invalid reason for deletion&quot;);</span>
+        }
+
+<span class="fc" id="L203">        InventoryItem item = repository.findById(id)</span>
+<span class="fc" id="L204">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Item not found&quot;));</span>
+
+        // Log full removal (negative) with price snapshot, then delete
+<span class="fc" id="L207">        stockHistoryService.logStockChange(</span>
+<span class="fc" id="L208">                item.getId(),</span>
+<span class="fc" id="L209">                -item.getQuantity(),</span>
+                reason,
+<span class="fc" id="L211">                currentUsername(),</span>
+<span class="fc" id="L212">                item.getPrice()</span>
+        );
+
+<span class="fc" id="L215">        repository.deleteById(id);</span>
+<span class="fc" id="L216">    }</span>
+
+    /**
+     * Adjusts quantity by delta (positive or negative). Writes a history entry with price snapshot.
+     */
+    @Override
+    @Transactional
+    public InventoryItemDTO adjustQuantity(String id, int delta, StockChangeReason reason) {
+<span class="nc" id="L224">        InventoryItem item = repository.findById(id)</span>
+<span class="nc" id="L225">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Item not found&quot;));</span>
+
+<span class="nc" id="L227">        int newQty = item.getQuantity() + delta;</span>
+<span class="nc" id="L228">        assertFinalQuantityNonNegative(newQty);</span>
+
+<span class="nc" id="L230">        item.setQuantity(newQty);</span>
+<span class="nc" id="L231">        InventoryItem saved = repository.save(item);</span>
+
+<span class="nc" id="L233">        stockHistoryService.logStockChange(</span>
+<span class="nc" id="L234">                saved.getId(),</span>
+                delta,
+                reason,
+<span class="nc" id="L237">                currentUsername(),</span>
+<span class="nc" id="L238">                saved.getPrice()</span>
+        );
+
+<span class="nc" id="L241">        return InventoryItemMapper.toDTO(saved);</span>
+    }
+
+    /**
+     * Updates unit price and writes a PRICE_CHANGE history entry with change=0 and price snapshot.
+     */
+    @Override
+    @Transactional
+    public InventoryItemDTO updatePrice(String id, BigDecimal newPrice) {
+<span class="nc" id="L250">        assertPriceValid(newPrice);</span>
+
+<span class="nc" id="L252">        InventoryItem item = repository.findById(id)</span>
+<span class="nc" id="L253">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Item not found: &quot; + id));</span>
+<span class="nc" id="L254">        item.setPrice(newPrice);</span>
+<span class="nc" id="L255">        InventoryItem saved = repository.save(item);</span>
+
+<span class="nc" id="L257">        stockHistoryService.logStockChange(</span>
+                id,
+                0,
+                StockChangeReason.PRICE_CHANGE,
+<span class="nc" id="L261">                currentUsername(),</span>
+                newPrice
+        );
+<span class="nc" id="L264">        return InventoryItemMapper.toDTO(saved);</span>
+    }
+
+    /* ---------- helpers ---------- */
+
+    private void validateSupplierExists(String supplierId) {
+<span class="fc bfc" id="L270" title="All 2 branches covered.">        if (!supplierRepository.existsById(supplierId)) {</span>
+<span class="fc" id="L271">            throw new IllegalArgumentException(&quot;Supplier does not exist&quot;);</span>
+        }
+<span class="fc" id="L273">    }</span>
+
+    private String currentUsername() {
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
+<span class="pc" id="L277">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">        return a != null ? a.getName() : &quot;system&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

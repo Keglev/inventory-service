@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.repository.AppUserRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Authentication-related endpoints (current user profile; API-only logout).
+ *
+ * &lt;p&gt;Important contract for the front-end:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;b&gt;GET /api/me&lt;/b&gt; returns a minimal profile: {@code email}, {@code fullName}, {@code role} (single string),
+ *       and optional {@code pictureUrl}.&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;POST /logout&lt;/b&gt; is handled by Spring Security (see SecurityConfig). Prefer that over the legacy API logout.&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+@RestController
+@RequestMapping(&quot;/api&quot;)
+public class AuthController {
+
+    private final AppUserRepository appUserRepository;
+
+<span class="fc" id="L37">    public AuthController(AppUserRepository appUserRepository) {</span>
+<span class="fc" id="L38">        this.appUserRepository = appUserRepository;</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * DTO for authenticated user profile response.
+     * Exposes only non-sensitive fields, shaped exactly for the FE.
+     */
+<span class="fc" id="L45">    public record AppUserProfileDTO(</span>
+            String email,
+            String fullName,
+            String role,
+            String pictureUrl
+    ) {}
+
+    /**
+     * Returns the authenticated user's profile.
+     *
+     * &lt;p&gt;Source of truth for identity:
+     * &lt;ol&gt;
+     *   &lt;li&gt;Read Google's {@code email} from the OAuth2 principal.&lt;/li&gt;
+     *   &lt;li&gt;Load our {@link AppUser} by email (created on first login in the success handler).&lt;/li&gt;
+     *   &lt;li&gt;Shape the response as {@code { email, fullName, role, pictureUrl? }}.&lt;/li&gt;
+     * &lt;/ol&gt;
+     *
+     * &lt;p&gt;401 is returned if the principal is missing or the user is not found.&lt;/p&gt;
+     */
+    @GetMapping(&quot;/me&quot;)
+    public AppUserProfileDTO me(@AuthenticationPrincipal OAuth2User principal) {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L67">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication provided&quot;);</span>
+        }
+<span class="fc" id="L69">        String email = principal.getAttribute(&quot;email&quot;);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (email == null) {</span>
+<span class="fc" id="L71">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;Email not provided by OAuth2 provider&quot;);</span>
+        }
+
+<span class="fc" id="L74">        AppUser user = appUserRepository.findByEmail(email)</span>
+<span class="fc" id="L75">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not found&quot;));</span>
+
+        // Optional: pull Google picture/ avatar if present
+<span class="fc" id="L78">        String picture = principal.getAttribute(&quot;picture&quot;);</span>
+
+<span class="fc" id="L80">        return new AppUserProfileDTO(</span>
+<span class="fc" id="L81">                user.getEmail(),</span>
+<span class="fc" id="L82">                user.getName(),              // map to fullName</span>
+<span class="fc" id="L83">                user.getRole().name(),       // single role string</span>
+                picture
+        );
+    }
+    /**
+     * Returns the caller's granted authorities (e.g., ROLE_USER, ROLE_ADMIN).
+     *
+     * &lt;p&gt;We inject the authenticated principal ({@link OAuth2User}) directly via
+     * {@link org.springframework.security.core.annotation.AuthenticationPrincipal}.
+     * This is the correct way to access authorities for the current user in a controller;
+     * using {@code @AuthenticationPrincipal Authentication} will typically resolve to {@code null}.&lt;/p&gt;
+     *
+     * @return list of authority strings (never {@code null})
+     * @throws ResponseStatusException 401 if no authenticated principal is present
+     */
+    @GetMapping(&quot;/me/authorities&quot;)
+    public java.util.List&lt;String&gt; meAuthorities(
+            @AuthenticationPrincipal OAuth2User principal) {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L102">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
+        }
+<span class="nc" id="L104">        return principal.getAuthorities().stream()</span>
+<span class="nc" id="L105">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
+<span class="nc" id="L106">                .distinct()</span>
+<span class="nc" id="L107">                .sorted()</span>
+<span class="nc" id="L108">                .toList();</span>
+    }
+
+    /**
+     * API logout endpoint.
+     * Invalidates the Spring Security session and expires cookies.
+     * Intended for API clients (e.g. Postman); prefer the POST /logout handled by Spring Security for browsers.
+     * Returns 204 No Content.
+     * @param request  HTTP servlet request
+     * @param response HTTP servlet response
+     * @return ResponseEntity with no content
+     * @see org.springframework.security.web.authentication.logout.LogoutSuccessHandler
+     **/
+    @PostMapping(&quot;/auth/logout&quot;)
+    public ResponseEntity&lt;Void&gt; apiLogout(HttpServletRequest request, HttpServletResponse response) {
+        // Invalidate Spring Security session
+<span class="fc" id="L124">        new SecurityContextLogoutHandler().logout(request, response, null);</span>
+
+        // Expire session cookies explicitly for API clients (what the test expects)
+<span class="fc" id="L127">        ResponseCookie jsess = ResponseCookie.from(&quot;JSESSIONID&quot;, &quot;&quot;)</span>
+<span class="fc" id="L128">                .path(&quot;/&quot;)</span>
+<span class="fc" id="L129">                .httpOnly(true)</span>
+<span class="fc" id="L130">                .secure(true)</span>
+<span class="fc" id="L131">                .sameSite(&quot;None&quot;)</span>
+<span class="fc" id="L132">                .maxAge(0)</span>
+<span class="fc" id="L133">                .build();</span>
+
+<span class="fc" id="L135">        ResponseCookie session = ResponseCookie.from(&quot;SESSION&quot;, &quot;&quot;)</span>
+<span class="fc" id="L136">                .path(&quot;/&quot;)</span>
+<span class="fc" id="L137">                .httpOnly(true)</span>
+<span class="fc" id="L138">                .secure(true)</span>
+<span class="fc" id="L139">                .sameSite(&quot;None&quot;)</span>
+<span class="fc" id="L140">                .maxAge(0)</span>
+<span class="fc" id="L141">                .build();</span>
+
+<span class="fc" id="L143">        return ResponseEntity.noContent()</span>
+<span class="fc" id="L144">                .header(&quot;Set-Cookie&quot;, jsess.toString())</span>
+<span class="fc" id="L145">                .header(&quot;Set-Cookie&quot;, session.toString())</span>
+<span class="fc" id="L146">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

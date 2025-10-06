@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.config</a> &gt; <span class="el_source">SecurityConfig.java</span></div><h1>SecurityConfig.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.config;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.lang.NonNull;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
+import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Global Spring Security configuration for the SmartSupplyPro backend application.
+ *
+ * &lt;p&gt;&lt;b&gt;Responsibilities&lt;/b&gt;&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;Session-based OAuth2 login (Google) with custom success/failure handling.&lt;/li&gt;
+ *   &lt;li&gt;Role-based authorization for REST APIs (JSON APIs under &lt;code&gt;/api/**&lt;/code&gt;).&lt;/li&gt;
+ *   &lt;li&gt;Browser UX: unauthenticated &lt;i&gt;web&lt;/i&gt; requests are redirected to OAuth login; JSON API requests receive &lt;code&gt;401&lt;/code&gt;.&lt;/li&gt;
+ *   &lt;li&gt;CORS for cross-domain frontend (SameSite=None, Secure cookies).&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;&lt;b&gt;Security Notes&lt;/b&gt;&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;CSRF is disabled globally as a portfolio simplification. For production, prefer enabling CSRF and
+ *       ignoring it for REST endpoints (&lt;code&gt;/api/**&lt;/code&gt;) only.&lt;/li&gt;
+ *   &lt;li&gt;Logout deletes both servlet and Spring Session cookies (&lt;code&gt;JSESSIONID&lt;/code&gt;, &lt;code&gt;SESSION&lt;/code&gt;).&lt;/li&gt;
+ *   &lt;li&gt;New-user self-enrollment flows are intentionally out of scope; onboarding is handled by the OAuth2 success handler.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;&lt;b&gt;Related&lt;/b&gt;&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@link com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler} – user bootstrap + post-login redirect.&lt;/li&gt;
+ *   &lt;li&gt;{@link com.smartsupplypro.inventory.config.TestSecurityConfig} – simplified test-only chain for controller tests.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * 
+ * Demo Mode Security
+ * In Demo, web-layer rules `permitAll()` for read-only GET endpoints are complemented
+ * by method-level checks that allow access via SpEL:
+ *     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+ * To make the SpEL work, we expose an alias bean named &quot;appProperties&quot; that returns
+ * the same instance managed by @EnableConfigurationProperties(AppProperties.class).
+ * Mutating endpoints remain authenticated-only.
+ * &lt;p&gt;See also {@link SecuritySpelBridgeConfig}.&lt;/p&gt;
+ * @since 2025-08
+ */
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+@EnableConfigurationProperties(AppProperties.class)
+<span class="fc" id="L85">public class SecurityConfig {</span>
+
+    /**
+     * Injected OAuth2 success handler that creates a local {@code AppUser} on first login
+     * and performs the frontend redirect.
+     */
+    @Autowired
+    private OAuth2LoginSuccessHandler successHandler;
+
+    @Autowired
+    private com.smartsupplypro.inventory.service.CustomOidcUserService customOidcUserService;
+
+    @Autowired
+    private com.smartsupplypro.inventory.service.CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    private AppProperties props;
+
+    /**
+     * Main security filter chain wiring: CORS, endpoint rules, OAuth2 login, session and exception handling.
+     *
+     * &lt;p&gt;&lt;b&gt;API vs Browser failures:&lt;/b&gt; a small pre-filter flags JSON API calls (Accept contains
+     * &lt;code&gt;application/json&lt;/code&gt; under &lt;code&gt;/api/**&lt;/code&gt;). Those requests receive a JSON &lt;code&gt;401&lt;/code&gt;
+     * via a custom entry point, while all other unauthenticated requests use a login redirect.&lt;/p&gt;
+     *
+     * @param http HttpSecurity builder
+     * @return configured SecurityFilterChain
+     * @throws Exception if misconfigured
+     */
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        // Flags JSON API requests so we can return 401 (not a redirect) on auth failures.
+<span class="fc" id="L118">        OncePerRequestFilter apiFlagFilter = new OncePerRequestFilter() {</span>
+            @Override
+            protected void doFilterInternal(@NonNull HttpServletRequest req,
+                                            @NonNull HttpServletResponse res,
+                                            @NonNull FilterChain chain)
+                    throws ServletException, IOException {
+<span class="fc" id="L124">                String accept = req.getHeader(&quot;Accept&quot;);</span>
+                // Flag API requests that accept JSON, so we can handle them differently later
+<span class="pc bpc" id="L126" title="2 of 4 branches missed.">                if (req.getRequestURI().startsWith(&quot;/api/&quot;)</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">                        &amp;&amp; accept != null &amp;&amp; accept.contains(&quot;application/json&quot;)) {</span>
+<span class="fc" id="L128">                    req.setAttribute(&quot;IS_API_REQUEST&quot;, true);</span>
+                }
+<span class="fc" id="L130">                chain.doFilter(req, res);</span>
+<span class="fc" id="L131">            }</span>
+        };
+        // Request matcher to identify API requests based on the custom attribute set by the filter
+<span class="pc" id="L134">        RequestMatcher apiMatcher = request -&gt; Boolean.TRUE.equals(request.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
+        // Entry point for API requests that should return JSON 401 instead of redirecting
+<span class="fc" id="L136">        AuthenticationEntryPoint apiEntry = (req, res, ex) -&gt; {</span>
+<span class="nc" id="L137">            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);</span>
+<span class="nc" id="L138">            res.setContentType(&quot;application/json&quot;);</span>
+<span class="nc" id="L139">            res.getWriter().write(&quot;{\&quot;message\&quot;:\&quot;Unauthorized\&quot;}&quot;);</span>
+<span class="nc" id="L140">        };</span>
+        // Entry point for web requests that should redirect to the login page
+<span class="fc" id="L142">        AuthenticationEntryPoint webEntry = (req, res, ex) -&gt; {</span>
+<span class="nc" id="L143">            String target = props.getFrontend().getBaseUrl() + &quot;/login&quot;;</span>
+<span class="nc" id="L144">            res.sendRedirect(target);</span>
+<span class="nc" id="L145">        };</span>
+        // Main security configuration
+<span class="fc" id="L147">        http</span>
+<span class="fc" id="L148">            .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)</span>
+<span class="fc" id="L149">            .cors(Customizer.withDefaults())</span>
+
+            // ---------- AUTHZ RULES (block form) ----------
+<span class="fc" id="L152">            .authorizeHttpRequests(auth -&gt; {</span>
+
+                // 1) Allow CORS preflight requests to pass through the security filter
+<span class="fc" id="L155">                auth.requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll(); // allow preflight requests globally</span>
+<span class="fc" id="L156">                auth.requestMatchers(&quot;/logout&quot;).permitAll();</span>
+                // Public (always)
+<span class="fc" id="L158">                auth.requestMatchers(</span>
+                        &quot;/&quot;, &quot;/actuator/**&quot;, &quot;/health/**&quot;,
+                        &quot;/oauth2/**&quot;, &quot;/login/oauth2/**&quot;, &quot;/login/**&quot;, &quot;/error&quot;
+<span class="fc" id="L161">                ).permitAll();</span>
+
+                // 2) Demo mode: allow read-only endpoints without login
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">                if (props.isDemoReadonly()) { // using the getter (with parentheses)</span>
+<span class="fc" id="L165">                    auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
+<span class="fc" id="L166">                    auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).permitAll();</span>
+<span class="fc" id="L167">                    auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).permitAll();</span>
+                }
+
+                // 3) Default (non-demo): any signed-in user may READ these resources
+<span class="fc" id="L171">                auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).authenticated();</span>
+<span class="fc" id="L172">                auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).authenticated();</span>
+<span class="fc" id="L173">                auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).authenticated();</span>
+
+                // 4) Admin-only area stays role-protected
+<span class="fc" id="L176">                auth.requestMatchers(&quot;/api/admin/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L177">                auth.requestMatchers(HttpMethod.POST, &quot;/api/inventory/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L178">                auth.requestMatchers(HttpMethod.PUT, &quot;/api/inventory/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L179">                auth.requestMatchers(HttpMethod.PATCH, &quot;/api/inventory/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L180">                auth.requestMatchers(HttpMethod.DELETE, &quot;/api/inventory/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L181">                auth.requestMatchers(HttpMethod.POST, &quot;/api/suppliers/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L182">                auth.requestMatchers(HttpMethod.PUT, &quot;/api/suppliers/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L183">                auth.requestMatchers(HttpMethod.PATCH, &quot;/api/suppliers/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+<span class="fc" id="L184">                auth.requestMatchers(HttpMethod.DELETE, &quot;/api/suppliers/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+
+                // 5) Everything else under /api/** must at least be authenticated
+<span class="fc" id="L187">                auth.requestMatchers(&quot;/api/**&quot;).authenticated();</span>
+
+                // 6) Anything else authenticated as well (e.g., app shell)
+<span class="fc" id="L190">                auth.anyRequest().authenticated();</span>
+<span class="fc" id="L191">            })</span>
+            // ----------------------------------------------
+
+<span class="fc" id="L194">            .exceptionHandling(ex -&gt; ex</span>
+<span class="fc" id="L195">                .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)      // JSON APIs -&gt; 401 JSON</span>
+<span class="pc" id="L196">                .defaultAuthenticationEntryPointFor(webEntry, request -&gt; true) // everything else -&gt; redirect</span>
+            )
+<span class="fc" id="L198">            .oauth2Login(oauth -&gt; oauth</span>
+<span class="fc" id="L199">                .authorizationEndpoint(ae -&gt; ae</span>
+                    // Store the outbound authorization request in a cookie so the callback
+                    // can be processed by any instance (no sticky sessions required).
+<span class="fc" id="L202">                    .authorizationRequestRepository(authorizationRequestRepository())</span>
+                )
+<span class="fc" id="L204">                .userInfoEndpoint(ui -&gt; ui</span>
+                    // OIDC path (Google): use the OIDC service that returns an OidcUser
+<span class="fc" id="L206">                    .oidcUserService(customOidcUserService)</span>
+                    // Non-OIDC OAuth2 providers (if you ever add one): keep your existing service
+<span class="fc" id="L208">                    .userService(customOAuth2UserService)</span>
+                )
+<span class="fc" id="L210">                .failureHandler(oauthFailureHandler(props))</span>
+<span class="fc" id="L211">                .successHandler(successHandler)</span>
+            )
+<span class="fc" id="L213">            .logout(logout -&gt; logout</span>
+<span class="fc" id="L214">                .logoutUrl(&quot;/logout&quot;)</span>
+<span class="fc" id="L215">                .logoutSuccessHandler((req, res, auth) -&gt; {</span>
+<span class="nc" id="L216">                    boolean isApi = Boolean.TRUE.equals(req.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                    if (isApi) {</span>
+<span class="nc" id="L218">                        res.setStatus(HttpServletResponse.SC_NO_CONTENT); // 204 for XHR/API</span>
+<span class="nc" id="L219">                        return;</span>
+                    }
+                    // Support FE form-post with ?return=&lt;absolute-url&gt;, but guard against open redirects
+<span class="nc" id="L222">                    String base = props.getFrontend().getBaseUrl();                  // e.g., https://your-fe.example</span>
+<span class="nc" id="L223">                    String ret  = req.getParameter(&quot;return&quot;);                  // e.g., https://your-fe.example/logout-success</span>
+<span class="nc" id="L224">                    String target = base + &quot;/logout-success&quot;;</span>
+<span class="nc bnc" id="L225" title="All 4 branches missed.">                    if (ret != null &amp;&amp; ret.startsWith(base)) {                     // simple allowlist: must start with FE base</span>
+<span class="nc" id="L226">                        target = ret;</span>
+                    }
+<span class="nc" id="L228">                    res.sendRedirect(target);</span>
+<span class="nc" id="L229">                })</span>
+<span class="fc" id="L230">                .invalidateHttpSession(true)</span>
+<span class="fc" id="L231">                .deleteCookies(&quot;JSESSIONID&quot;, &quot;SESSION&quot;)</span>
+<span class="fc" id="L232">                .permitAll() // explicit: anyone can hit /logout (it only clears if there is a session)</span>
+            )
+<span class="fc" id="L234">            .sessionManagement(session -&gt; session</span>
+<span class="fc" id="L235">                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)</span>
+            )
+            // For production, prefer enabling CSRF and ignoring it for /api/** only:
+<span class="fc" id="L238">            .csrf(csrf -&gt; csrf.ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/logout&quot;, &quot;/actuator/**&quot;))</span>
+<span class="fc" id="L239">            .addFilterAfter(authTraceFilter(), AnonymousAuthenticationFilter.class);</span>
+<span class="fc" id="L240">        return http.build();</span>
+    }
+
+    /**
+     * CORS settings for cross-origin frontend access with credentialed cookies.
+     *
+     * &lt;p&gt;&lt;b&gt;Important:&lt;/b&gt; When {@code allowCredentials=true}, wildcards are not permitted.
+     * The origin must be explicitly listed and must match exactly. Preflight responses are cached
+     * for one hour.&lt;/p&gt;
+     *
+     * &lt;ul&gt;
+     *   &lt;li&gt;Dev: Vite default &lt;code&gt;http://localhost:5173&lt;/code&gt; (HTTPS variant listed if you use it).&lt;/li&gt;
+     *   &lt;li&gt;Prod: set to your Fly frontend domain.&lt;/li&gt;
+     *   &lt;li&gt;Methods: GET/POST/PUT/PATCH/DELETE/OPTIONS; headers: all.&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @return {@link CorsConfigurationSource} used by Spring Security’s CORS filter
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+<span class="fc" id="L260">        CorsConfiguration config = new CorsConfiguration();</span>
+<span class="fc" id="L261">        config.setAllowedOrigins(List.of(</span>
+            // Dev (Vite default)
+            &quot;http://localhost:5173&quot;,
+            &quot;http://127.0.0.1:5173&quot;,
+            // Dev over HTTPS (only if actually use mkcert/HTTPS locally)
+            &quot;https://localhost:5173&quot;,             
+            // Production Frontend (in this case, Koyeb frontend domain)
+            &quot;https://inventory-service.koyeb.app&quot;   
+        ));
+<span class="fc" id="L270">        config.setAllowedMethods(List.of(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;PATCH&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;));</span>
+<span class="fc" id="L271">        config.setAllowedHeaders(List.of(&quot;*&quot;));</span>
+<span class="fc" id="L272">        config.setExposedHeaders(List.of(&quot;Set-Cookie&quot;));</span>
+<span class="fc" id="L273">        config.setAllowCredentials(true);</span>
+<span class="fc" id="L274">        config.setMaxAge(3600L);</span>
+
+<span class="fc" id="L276">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
+<span class="fc" id="L277">        source.registerCorsConfiguration(&quot;/**&quot;, config);</span>
+<span class="fc" id="L278">        return source;</span>
+    }
+
+    /**
+     * Session cookie settings for cross-site use.
+     *
+     * &lt;p&gt;Sets &lt;code&gt;SameSite=None&lt;/code&gt; and &lt;code&gt;Secure&lt;/code&gt; so cookies can be sent with
+     * cross-site requests over HTTPS. When Spring Session is on the classpath, the cookie
+     * name defaults to &lt;code&gt;SESSION&lt;/code&gt;; otherwise the container uses &lt;code&gt;JSESSIONID&lt;/code&gt;.&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;b&gt;Development note:&lt;/b&gt; Browsers only send &lt;code&gt;Secure&lt;/code&gt; cookies over HTTPS.
+     * If your frontend runs on plain HTTP in development, the cookie will not be stored/sent.
+     * Use HTTPS locally (e.g., mkcert) or adjust in a dev-only profile.&lt;/p&gt;
+     *
+     * @return cookie serializer for Spring Session (no-op if Spring Session is absent)
+     */
+    @Bean
+    public CookieSerializer cookieSerializer() {
+<span class="fc" id="L296">        DefaultCookieSerializer serializer = new DefaultCookieSerializer();</span>
+<span class="fc" id="L297">        serializer.setSameSite(&quot;None&quot;);</span>
+<span class="fc" id="L298">        serializer.setUseSecureCookie(true);</span>
+<span class="fc" id="L299">        serializer.setCookiePath(&quot;/&quot;);</span>
+<span class="fc" id="L300">        return serializer;</span>
+    }
+
+    /**
+     * Redirect-based handler for OAuth2 login failures.
+     *
+     * &lt;p&gt;Encodes the error message and redirects to &lt;code&gt;/login&lt;/code&gt; with a query parameter
+     * (&lt;code&gt;?error=...&lt;/code&gt;) for UI display. The frontend is responsible for parsing and showing it.&lt;/p&gt;
+     *
+     * @return a configured {@link AuthenticationFailureHandler}
+     */
+    @Bean
+    public AuthenticationFailureHandler oauthFailureHandler(AppProperties props) {
+<span class="fc" id="L313">        return (request, response, exception) -&gt; {</span>
+            // Optional but useful log:
+<span class="nc" id="L315">            LoggerFactory.getLogger(SecurityConfig.class).warn(&quot;OAuth2 failure: {}&quot;, exception.toString());</span>
+<span class="nc" id="L316">            String target = props.getFrontend().getBaseUrl() + &quot;/login?error=oauth&quot;;</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">            if (!response.isCommitted()) response.sendRedirect(target);</span>
+<span class="nc" id="L318">        };</span>
+    };
+
+    /**
+    * OAuth2 authorization request persistence:
+    * &lt;p&gt;
+    * We store the OAuth2 AuthorizationRequest in an HttpOnly, SameSite=None cookie
+    * (see CookieOAuth2AuthorizationRequestRepository) rather than the default in-memory
+    * HttpSession. This avoids &quot;authorization_request_not_found&quot; errors when the user
+    * is redirected back to a different instance (stateless, no sticky session required).
+    * Session cookies remain configured via {@link #cookieSerializer()} for application use.
+    */
+    @Bean
+    public AuthorizationRequestRepository&lt;OAuth2AuthorizationRequest&gt; authorizationRequestRepository() {
+<span class="fc" id="L332">        return new CookieOAuth2AuthorizationRequestRepository();</span>
+    }
+
+   /**
+    * Lightweight request tracer to log the authenticated user and authorities
+    * on every /api/** request. Useful to see what the backend actually receives
+    * during a failing POST (e.g., does it carry ROLE_ADMIN?).
+    *
+    * Remove this bean after troubleshooting to keep logs clean.
+    */
+    @Bean
+    public OncePerRequestFilter authTraceFilter() {
+<span class="fc" id="L344">        return new OncePerRequestFilter() {</span>
+<span class="fc" id="L345">            private final Logger log = LoggerFactory.getLogger(&quot;AuthTrace&quot;);</span>
+
+            @Override
+            protected void doFilterInternal(
+                @NonNull HttpServletRequest request,
+                @NonNull HttpServletResponse response,
+                @NonNull FilterChain filterChain
+            ) throws ServletException, java.io.IOException {
+
+<span class="fc" id="L354">            final String uri = request.getRequestURI();</span>
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">            if (uri.startsWith(&quot;/api/&quot;)) {</span>
+<span class="fc" id="L356">                final Authentication auth = SecurityContextHolder.getContext().getAuthentication();</span>
+<span class="pc bpc" id="L357" title="1 of 2 branches missed.">                final String who = (auth == null) ? &quot;&lt;none&gt;&quot; : String.valueOf(auth.getName());</span>
+                final String authorities =
+<span class="pc bpc" id="L359" title="2 of 4 branches missed.">                    (auth == null || auth.getAuthorities() == null)</span>
+<span class="nc" id="L360">                        ? &quot;[]&quot;</span>
+<span class="fc" id="L361">                        : auth.getAuthorities().stream()</span>
+<span class="fc" id="L362">                              .map(GrantedAuthority::getAuthority)</span>
+<span class="fc" id="L363">                              .sorted()</span>
+<span class="pc" id="L364">                              .reduce((a, b) -&gt; a + &quot;,&quot; + b)</span>
+<span class="fc" id="L365">                              .orElse(&quot;&quot;);</span>
+
+<span class="fc" id="L367">                log.info(&quot;AUTH TRACE method={} uri={} user={} authorities=[{}]&quot;,</span>
+<span class="fc" id="L368">                        request.getMethod(), uri, who, authorities);</span>
+            }
+
+<span class="fc" id="L371">             filterChain.doFilter(request, response);</span>
+<span class="fc" id="L372">            }</span>
+        };
+    }
+};
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

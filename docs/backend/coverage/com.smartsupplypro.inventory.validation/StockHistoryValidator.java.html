@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockHistoryValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.validation</a> &gt; <span class="el_source">StockHistoryValidator.java</span></div><h1>StockHistoryValidator.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.validation;
+
+import java.util.EnumSet;
+
+import com.smartsupplypro.inventory.dto.StockHistoryDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+
+/**
+ * Utility class responsible for validating {@link StockHistoryDTO} instances and
+ * {@link StockChangeReason} enums before persisting stock change records.
+ *
+ * &lt;p&gt;This validator enforces strict business rules to ensure data integrity for all stock history changes,
+ * such as:&lt;/p&gt;
+ * &lt;ul&gt;
+ *     &lt;li&gt;Non-null and valid item IDs&lt;/li&gt;
+ *     &lt;li&gt;Non-zero stock changes&lt;/li&gt;
+ *     &lt;li&gt;Valid reason codes mapped to the {@code StockChangeReason} enum&lt;/li&gt;
+ *     &lt;li&gt;Mandatory audit fields such as {@code createdBy}&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;&lt;strong&gt;Design:&lt;/strong&gt; Implements the utility class pattern using a private constructor
+ * and static methods only. Intended for use in service layer logic (e.g., {@code StockHistoryService}).&lt;/p&gt;
+ *
+ * @author
+ * SmartSupplyPro Dev Team
+ */
+public class StockHistoryValidator {
+
+    /**
+     * Private constructor to enforce utility class semantics.
+     */
+    private StockHistoryValidator() {}
+
+    /**
+     * Validates the contents of a {@link StockHistoryDTO} before it is persisted.
+     * &lt;p&gt;Ensures the following:&lt;/p&gt;
+     * &lt;ul&gt;
+     *     &lt;li&gt;{@code itemId} is not null or empty&lt;/li&gt;
+     *     &lt;li&gt;{@code change} value is not zero&lt;/li&gt;
+     *     &lt;li&gt;{@code reason} is not null and is a valid enum constant&lt;/li&gt;
+     *     &lt;li&gt;{@code createdBy} is provided&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param dto the data transfer object representing the stock change
+     * @throws IllegalArgumentException if any validation rule fails
+     */
+    public static void validate(StockHistoryDTO dto) {
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">    if (dto.getItemId() == null || dto.getItemId().isBlank()) {</span>
+<span class="fc" id="L50">      throw new InvalidRequestException(&quot;Item ID cannot be null or empty&quot;);</span>
+    }
+
+    final StockChangeReason reason;
+    try {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">      reason = dto.getReason() == null ? null : StockChangeReason.valueOf(dto.getReason());</span>
+<span class="fc" id="L56">    } catch (IllegalArgumentException ex) {</span>
+<span class="fc" id="L57">      throw new InvalidRequestException(&quot;Invalid stock change reason: &quot; + dto.getReason());</span>
+<span class="fc" id="L58">    }</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">    if (reason == null) throw new InvalidRequestException(&quot;Stock change reason is required&quot;);</span>
+
+    // zero delta only for PRICE_CHANGE
+<span class="pc bpc" id="L62" title="1 of 4 branches missed.">    if (dto.getChange() == 0 &amp;&amp; reason != StockChangeReason.PRICE_CHANGE) {</span>
+<span class="fc" id="L63">      throw new InvalidRequestException(&quot;Zero quantity change is only allowed for PRICE_CHANGE&quot;);</span>
+    }
+
+    // enforce createdBy is provided  ***
+<span class="fc bfc" id="L67" title="All 4 branches covered.">    if (dto.getCreatedBy() == null || dto.getCreatedBy().isBlank()) {</span>
+<span class="fc" id="L68">        throw new InvalidRequestException(&quot;CreatedBy must be provided&quot;);</span>
+    }
+
+    // optional: non-negative price for PRICE_CHANGE
+<span class="fc bfc" id="L72" title="All 2 branches covered.">    if (reason == StockChangeReason.PRICE_CHANGE &amp;&amp;</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        dto.getPriceAtChange() != null &amp;&amp;</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        dto.getPriceAtChange().signum() &lt; 0) {</span>
+<span class="nc" id="L75">      throw new InvalidRequestException(&quot;priceAtChange must be &gt;= 0 for PRICE_CHANGE&quot;);</span>
+    }
+<span class="fc" id="L77">  }</span>
+
+    /**
+     * Validates that the given {@link StockChangeReason} enum is part of the allowed set.
+     * &lt;p&gt;Helps avoid saving or logging stock changes with unsupported reason codes.&lt;/p&gt;
+     *
+     * @param reason the reason enum to validate
+     * @throws IllegalArgumentException if the reason is null or not within the allowed set
+     */
+    public static void validateEnum(StockChangeReason reason) {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (reason == null || !EnumSet.of(</span>
+                StockChangeReason.SOLD,
+                StockChangeReason.SCRAPPED,
+                StockChangeReason.RETURNED_TO_SUPPLIER,
+                StockChangeReason.RETURNED_BY_CUSTOMER,
+                StockChangeReason.INITIAL_STOCK,
+                StockChangeReason.MANUAL_UPDATE,
+                StockChangeReason.PRICE_CHANGE
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        ).contains(reason)) {</span>
+<span class="fc" id="L96">            throw new IllegalArgumentException(&quot;Invalid stock change reason: &quot; + reason);</span>
+        }
+<span class="fc" id="L98">    }</span>
+}
+// This code provides the StockHistoryValidator class, which enforces validation rules for stock history data.
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

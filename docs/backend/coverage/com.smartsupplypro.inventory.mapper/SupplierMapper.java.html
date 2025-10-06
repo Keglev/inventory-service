@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SupplierMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.mapper</a> &gt; <span class="el_source">SupplierMapper.java</span></div><h1>SupplierMapper.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.mapper;
+
+import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.model.Supplier;
+
+/**
+ * Utility class for mapping between {@link Supplier} entities and {@link SupplierDTO} DTOs.
+ * Static for speed of development and zero tooling overhead.
+ */
+public final class SupplierMapper {
+
+    private SupplierMapper() { /* no instances */ }
+
+    /**
+     * Convert a {@link Supplier} entity to {@link SupplierDTO}.
+     *
+     * @param supplier entity from persistence (may be null)
+     * @return DTO for API/UI consumption (null if input is null)
+     */
+    public static SupplierDTO toDTO(Supplier supplier) {
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        if (supplier == null) return null;</span>
+<span class="fc" id="L22">        return SupplierDTO.builder()</span>
+<span class="fc" id="L23">                .id(supplier.getId())</span>
+<span class="fc" id="L24">                .name(supplier.getName())</span>
+<span class="fc" id="L25">                .contactName(supplier.getContactName())</span>
+<span class="fc" id="L26">                .phone(supplier.getPhone())</span>
+<span class="fc" id="L27">                .email(supplier.getEmail())</span>
+                // audit fields are safe to expose in DTO
+<span class="fc" id="L29">                .createdBy(supplier.getCreatedBy())</span>
+<span class="fc" id="L30">                .createdAt(supplier.getCreatedAt())</span>
+                // add these only if your entity has them; otherwise omit
+                // .updatedBy(supplier.getUpdatedBy())
+                // .updatedAt(supplier.getUpdatedAt())
+<span class="fc" id="L34">                .build();</span>
+    }
+
+    /**
+     * Convert a {@link SupplierDTO} to a new {@link Supplier} entity.
+     *
+     * &lt;p&gt;Note: server-authoritative fields like {@code id}, {@code createdAt}, {@code createdBy}
+     * are typically set by the service. We intentionally do NOT copy createdAt/createdBy here.
+     *
+     * @param dto incoming DTO (may be null)
+     * @return new entity instance (null if input is null)
+     */
+    public static Supplier toEntity(SupplierDTO dto) {
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        if (dto == null) return null;</span>
+
+        // If your Supplier has Lombok @Builder:
+<span class="fc" id="L50">        return Supplier.builder()</span>
+<span class="fc" id="L51">                .id(dto.getId()) // controller enforces null on create; service may override</span>
+<span class="fc" id="L52">                .name(trimOrNull(dto.getName()))</span>
+<span class="fc" id="L53">                .contactName(trimOrNull(dto.getContactName()))</span>
+<span class="fc" id="L54">                .phone(trimOrNull(dto.getPhone()))</span>
+<span class="fc" id="L55">                .email(trimOrNull(dto.getEmail()))</span>
+                // DO NOT set createdBy/createdAt from DTO here; service sets those.
+<span class="fc" id="L57">                .build();</span>
+
+        // If you DON'T have @Builder on Supplier, use setters instead:
+        // Supplier e = new Supplier();
+        // e.setId(dto.getId());
+        // e.setName(trimOrNull(dto.getName()));
+        // e.setContactName(trimOrNull(dto.getContactName()));
+        // e.setPhone(trimOrNull(dto.getPhone()));
+        // e.setEmail(trimOrNull(dto.getEmail()));
+        // return e;
+    }
+
+    // small helper to keep DB values clean
+    private static String trimOrNull(String s) {
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (s == null) return null;</span>
+<span class="fc" id="L72">        String t = s.trim();</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        return t.isEmpty() ? null : t;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

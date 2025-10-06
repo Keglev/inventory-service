@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppUser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.model</a> &gt; <span class="el_source">AppUser.java</span></div><h1>AppUser.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.model;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * Entity representing a registered user authenticated via Google OAuth2.
+ *
+ * &lt;p&gt;This user model is persisted in the Oracle Autonomous Database under
+ * the table {@code ADMIN.USERS_APP}. It tracks the user's identity,
+ * role (USER or ADMIN), and registration timestamp.
+ *
+ * &lt;p&gt;Roles are assigned based on email domains or post-login business logic.
+ *
+ * &lt;p&gt;Example usage:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Access control via Spring Security role checks&lt;/li&gt;
+ *   &lt;li&gt;Audit trails for changes made by a user&lt;/li&gt;
+ *   &lt;li&gt;API personalization (e.g., showing user's own updates)&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+@Getter
+@Setter
+@Entity(name = &quot;UsersApp&quot;)
+@Table(
+    name = &quot;users_app&quot;, 
+    // schema = &quot;$(USERS_SCHEMA:ADMIN)&quot;,
+    uniqueConstraints = @UniqueConstraint(name= &quot;uk_users_email&quot;, columnNames = &quot;email&quot;)
+)
+public class AppUser {
+
+    /** Unique internal user ID (UUID format) */
+<span class="fc" id="L43">    @Id</span>
+    @Column(length = 36)
+<span class="fc" id="L45">    private String id = UUID.randomUUID().toString();</span>
+
+    /** User's Google email address (used as login ID) */
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    /** Full name as retrieved from OAuth2 provider */
+    private String name;
+
+    /** Role of the user: USER or ADMIN (stored as STRING in DB) */
+<span class="fc" id="L55">    @Enumerated(EnumType.STRING)</span>
+    @Column(name = &quot;ROLE&quot;, nullable = false, length = 16)
+    private Role role = Role.USER; // default for new users
+
+    /** Timestamp when the user was registered in the system */
+<span class="fc" id="L60">    private LocalDateTime createdAt = LocalDateTime.now();</span>
+
+    /**
+     * Constructor used when registering a new OAuth2 user.
+     * Automatically sets ID and creation timestamp.
+     *
+     * @param email Google email
+     * @param name Full name
+     */
+<span class="fc" id="L69">    public AppUser(String email, String name) {</span>
+<span class="fc" id="L70">        this.id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L71">        this.email = email;</span>
+<span class="fc" id="L72">        this.name = name;</span>
+<span class="fc" id="L73">        this.createdAt = LocalDateTime.now();</span>
+
+        // For debugging only — remove in production
+<span class="fc" id="L76">    }</span>
+
+    /**
+     * Required by JPA for reflective instantiation.
+     */
+<span class="fc" id="L81">    public AppUser() {</span>
+<span class="fc" id="L82">        this.id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L83">    }</span>
+
+    /**
+     * Returns the user's role enum for programmatic logic.
+     *
+     * @return assigned {@link Role}
+     */
+    public Role getRoleEnum() {
+<span class="nc" id="L91">        return this.role;</span>
+    }
+
+}
+/**
+ * Enum representing user roles in the application.
+ *
+ * &lt;p&gt;Roles are used for access control and authorization checks.
+ * The default role is USER, with ADMIN having elevated privileges.
+ */
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

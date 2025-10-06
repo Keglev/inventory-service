@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OAuth2LoginSuccessHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.security</a> &gt; <span class="el_source">OAuth2LoginSuccessHandler.java</span></div><h1>OAuth2LoginSuccessHandler.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.security;
+
+import java.io.IOException;
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+import com.smartsupplypro.inventory.config.AppProperties;
+import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.model.Role;
+import com.smartsupplypro.inventory.repository.AppUserRepository;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+* OAuth2LoginSuccessHandler handles user onboarding and redirection
+* after successful Google OAuth2 login.
+*
+* &lt;p&gt;&lt;b&gt;Flow&lt;/b&gt;
+* &lt;ol&gt;
+*   &lt;li&gt;Extracts &lt;code&gt;email&lt;/code&gt; and &lt;code&gt;name&lt;/code&gt; from the OAuth2 principal.&lt;/li&gt;
+*   &lt;li&gt;Creates a local {@link AppUser} with {@link Role#USER} if none exists.&lt;/li&gt;
+*   &lt;li&gt;Redirects the browser to the frontend login landing page.&lt;/li&gt;
+* &lt;/ol&gt;
+*
+* &lt;p&gt;&lt;b&gt;Contract&lt;/b&gt;
+* &lt;ul&gt;
+*   &lt;li&gt;Identity is keyed by unique email.&lt;/li&gt;
+*   &lt;li&gt;Duplicate detection defends against concurrent logins (DB unique constraint).&lt;/li&gt;
+*   &lt;li&gt;Redirect target should be environment-configurable for dev/prod.&lt;/li&gt;
+* &lt;/ul&gt;
+*
+* &lt;p&gt;&lt;b&gt;Out of scope&lt;/b&gt;: self-service enrollment flows/UI.&lt;/p&gt;
+*/
+
+@Component
+public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    
+<span class="fc" id="L48">    private static final org.slf4j.Logger log =</span>
+<span class="fc" id="L49">    org.slf4j.LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);</span>
+    private final AppProperties props;
+    private final AppUserRepository userRepository;
+    
+<span class="fc" id="L53">    public OAuth2LoginSuccessHandler(AppProperties props, AppUserRepository userRepository) {</span>
+<span class="fc" id="L54">        this.props = props;</span>
+<span class="fc" id="L55">        this.userRepository = userRepository;</span>
+<span class="fc" id="L56">    }</span>
+    
+    /**
+    * Callback method invoked after a successful OAuth2 authentication.
+    *
+    * &lt;p&gt;This method extracts the user's email and name from the OAuth2 token,
+    * checks if the user already exists in the database, and creates a new user
+    * with role {@code USER} if not found.
+    *
+    * @param request        the incoming HTTP request
+    * @param response       the outgoing HTTP response
+    * @param authentication the authentication object containing OAuth2 user details
+    * @throws IOException        in case of I/O errors
+    * @throws ServletException   in case of general servlet-related errors
+    */
+    
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request,
+    HttpServletResponse response,
+    Authentication authentication)
+    throws IOException, ServletException {
+        
+        // Prevent duplicate redirects if something triggers success twice in the same request
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (request.getAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;) != null) {</span>
+<span class="nc" id="L80">            log.debug(&quot;Success redirect already performed; skipping.&quot;);</span>
+<span class="nc" id="L81">            return;</span>
+        }
+<span class="fc" id="L83">        request.setAttribute(&quot;OAUTH2_SUCCESS_REDIRECT_DONE&quot;, Boolean.TRUE);</span>
+        
+<span class="fc" id="L85">        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;</span>
+<span class="fc" id="L86">        String email = token.getPrincipal().getAttribute(&quot;email&quot;);</span>
+<span class="fc" id="L87">        String name = token.getPrincipal().getAttribute(&quot;name&quot;);</span>
+        
+<span class="fc bfc" id="L89" title="All 4 branches covered.">        if (email == null || name == null) {</span>
+<span class="fc" id="L90">            throw new IllegalStateException(&quot;Email or name not provided by OAuth2 provider&quot;);</span>
+        }
+        
+        try {
+            // Register the user if they don't exist
+<span class="fc" id="L95">            userRepository.findById(email).orElseGet(() -&gt; {</span>
+<span class="fc" id="L96">                AppUser newUser = new AppUser(email, name);</span>
+<span class="fc" id="L97">                newUser.setRole(Role.USER);</span>
+<span class="fc" id="L98">                newUser.setCreatedAt(LocalDateTime.now());</span>
+<span class="fc" id="L99">                return userRepository.save(newUser);</span>
+            });
+<span class="fc" id="L101">        } catch (DataIntegrityViolationException e) {</span>
+            // Concurrent insert safety: load the already-created user
+<span class="fc" id="L103">            userRepository.findByEmail(email).orElseThrow(() -&gt;</span>
+<span class="nc" id="L104">            new IllegalStateException(&quot;User already exists but cannot be loaded.&quot;));</span>
+<span class="fc" id="L105">        }</span>
+        
+        // ---------- dynamic return ----------
+        // Allowed frontend origins (adjust if needed)
+<span class="fc" id="L109">        List&lt;String&gt; allowed = List.of(</span>
+        &quot;http://localhost:5173&quot;,
+        &quot;https://localhost:5173&quot;,
+<span class="fc" id="L112">        props.getFrontend().getBaseUrl() // e.g., https://inventory-service.koyeb.app</span>
+        );
+        // configurable post-login target
+<span class="fc" id="L115">        String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();</span>
+        
+<span class="fc" id="L117">        Cookie[] cookies = request.getCookies();</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (cookies != null) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            for (Cookie c : cookies) {</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">                if (&quot;SSP_RETURN&quot;.equals(c.getName())) {</span>
+<span class="nc" id="L121">                    String candidate = c.getValue();</span>
+<span class="nc bnc" id="L122" title="All 4 branches missed.">                    if (candidate != null &amp;&amp; allowed.contains(candidate)) {</span>
+<span class="nc" id="L123">                        target = candidate + &quot;/auth&quot;;</span>
+                    }
+                    // clear cookie
+<span class="nc" id="L126">                    Cookie clear = new Cookie(&quot;SSP_RETURN&quot;, &quot;&quot;);</span>
+<span class="nc" id="L127">                    clear.setPath(&quot;/&quot;);</span>
+<span class="nc" id="L128">                    clear.setMaxAge(0);</span>
+<span class="nc" id="L129">                    clear.setSecure(isSecureOrForwardedHttps(request));</span>
+<span class="nc" id="L130">                    clear.setHttpOnly(false); // FE created it non-HttpOnly</span>
+<span class="nc" id="L131">                    addCookieWithSameSite(response, clear, &quot;None&quot;);</span>
+<span class="nc" id="L132">                    break;</span>
+                }
+            }
+        }
+<span class="fc" id="L136">        log.info(&quot;OAuth2 success → redirecting to FE: {}&quot;, target);</span>
+<span class="fc" id="L137">        setAlwaysUseDefaultTargetUrl(true);</span>
+<span class="fc" id="L138">        setDefaultTargetUrl(URI.create(target).toString());</span>
+        // ONE redirect only
+        // Let the parent handler run the (single) redirect
+<span class="fc" id="L141">        super.onAuthenticationSuccess(request, response, authentication);</span>
+<span class="fc" id="L142">    }</span>
+    
+    // --- Helpers ---
+    private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (request.isSecure()) return true;</span>
+<span class="nc" id="L147">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
+<span class="nc bnc" id="L148" title="All 4 branches missed.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
+    }
+    
+    /** Mirror of your repo helper: add SameSite to Set-Cookie. */
+    private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
+<span class="nc" id="L153">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (cookie.getMaxAge() &gt;= 0) sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (cookie.getSecure()) sb.append(&quot;; Secure&quot;);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (cookie.isHttpOnly()) sb.append(&quot;; HttpOnly&quot;);</span>
+<span class="nc bnc" id="L159" title="All 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
+<span class="nc" id="L160">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
+<span class="nc" id="L161">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

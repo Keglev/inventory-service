@@ -174,6 +174,34 @@ jobs:
             grep -E 'spring-core|spring-security-core' || true
 
       # ---------------------------------------------------------------------
+      # 4.5) Copy JaCoCo coverage reports to docs (for GitHub Pages)
+      # ---------------------------------------------------------------------
+      - name: Copy test coverage reports
+        run: |
+          set -euo pipefail
+          mkdir -p docs/backend/coverage
+          if [ -d "$BACKEND_DIR/target/site/jacoco" ]; then
+            cp -r $BACKEND_DIR/target/site/jacoco/* docs/backend/coverage/
+            echo "✅ JaCoCo coverage reports copied to docs/backend/coverage/"
+            ls -la docs/backend/coverage/ | head -10
+          else
+            echo "⚠️ No JaCoCo reports found in $BACKEND_DIR/target/site/jacoco"
+          fi
+
+      - name: Commit coverage reports
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/backend/coverage/
+          if git diff --cached --quiet; then
+            echo "No coverage changes to commit."
+          else
+            git commit -m "docs: update backend test coverage reports [skip ci]"
+            git push
+          fi
+
+      # ---------------------------------------------------------------------
       # 5) Docker login
       #    Note: DOCKER_USERNAME and DOCKER_PASSWORD are configured in
       #    GitHub repository secrets. Linter warnings are false positives.

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockHistoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller</a> &gt; <span class="el_source">StockHistoryController.java</span></div><h1>StockHistoryController.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller;
+
+import com.smartsupplypro.inventory.dto.StockHistoryDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+import com.smartsupplypro.inventory.service.StockHistoryService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * REST controller for querying historical inventory stock changes.
+ *
+ * &lt;p&gt;Supports filtering by item, reason, supplier, and date range with pagination.
+ * Bounds are &lt;strong&gt;inclusive&lt;/strong&gt;. Default sort is {@code timestamp DESC}.&lt;/p&gt;
+ */
+@RestController
+@RequestMapping(&quot;/api/stock-history&quot;)
+@RequiredArgsConstructor
+public class StockHistoryController {
+
+    private static final int MAX_PAGE_SIZE = 200;
+
+    private final StockHistoryService stockHistoryService;
+
+    /** Returns all stock history entries (non-paged). */
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','USER')&quot;)
+    @GetMapping
+    public List&lt;StockHistoryDTO&gt; getAll() {
+<span class="fc" id="L39">        return stockHistoryService.getAll();</span>
+    }
+
+    /** Returns stock history for a specific item (non-paged). */
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','USER')&quot;)
+    @GetMapping(&quot;/item/{itemId}&quot;)
+    public List&lt;StockHistoryDTO&gt; getByItemId(@PathVariable String itemId) {
+<span class="fc" id="L46">        return stockHistoryService.getByItemId(itemId);</span>
+    }
+
+    /** Returns stock history filtered by change reason (non-paged). */
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','USER')&quot;)
+    @GetMapping(&quot;/reason/{reason}&quot;)
+    public List&lt;StockHistoryDTO&gt; getByReason(@PathVariable StockChangeReason reason) {
+<span class="fc" id="L53">        return stockHistoryService.getByReason(reason);</span>
+    }
+
+    /**
+     * Advanced, paged search across stock history.
+     *
+     * @param startDate ISO-8601 datetime (inclusive)
+     * @param endDate   ISO-8601 datetime (inclusive)
+     * @param itemName  optional partial item name
+     * @param supplierId optional supplier id
+     * @param pageable  defaults: size=50, sort=timestamp DESC; size capped to 200
+     */
+    @PreAuthorize(&quot;hasAnyRole('ADMIN','USER')&quot;)
+    @GetMapping(&quot;/search&quot;)
+    public Page&lt;StockHistoryDTO&gt; search(
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+        @RequestParam(required = false) String itemName,
+        @RequestParam(required = false) String supplierId,
+        @PageableDefault(size = 50, sort = &quot;timestamp&quot;, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+<span class="pc bpc" id="L74" title="2 of 6 branches missed.">        if (startDate != null &amp;&amp; endDate != null &amp;&amp; endDate.isBefore(startDate)) {</span>
+<span class="fc" id="L75">            throw new InvalidRequestException(&quot;endDate must be &gt;= startDate&quot;);</span>
+        }
+<span class="fc" id="L77">        pageable = PageRequest.of(</span>
+<span class="fc" id="L78">            pageable.getPageNumber(),</span>
+<span class="fc" id="L79">            Math.min(pageable.getPageSize(), MAX_PAGE_SIZE),</span>
+<span class="fc" id="L80">            pageable.getSort()</span>
+        );
+<span class="fc" id="L82">        return stockHistoryService.findFiltered(startDate, endDate, itemName, supplierId, pageable);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SupplierServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.service.impl</a> &gt; <span class="el_source">SupplierServiceImpl.java</span></div><h1>SupplierServiceImpl.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.service.impl;
+
+import java.time.LocalDateTime;
+import java.util.List; // &lt;-- adjust package if your entity lives elsewhere
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // static methods used directly
+
+import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.mapper.SupplierMapper;
+import com.smartsupplypro.inventory.model.Supplier;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+import com.smartsupplypro.inventory.repository.SupplierRepository;
+import com.smartsupplypro.inventory.service.SupplierService;
+import com.smartsupplypro.inventory.validation.SupplierValidator;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Default {@link SupplierService} implementation.
+ *
+ * &lt;p&gt;&lt;strong&gt;Responsibilities &amp; Cross-Cutting Concerns&lt;/strong&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;em&gt;Validation:&lt;/em&gt; Uses {@link SupplierValidator} for base checks, uniqueness,
+ *       and deletion preconditions. Exceptions map via GlobalExceptionHandler (400/404/409).&lt;/li&gt;
+ *   &lt;li&gt;&lt;em&gt;Consistency:&lt;/em&gt; Server-authoritative IDs &amp; timestamps. Path ID is authoritative for updates.&lt;/li&gt;
+ *   &lt;li&gt;&lt;em&gt;Mapping:&lt;/em&gt; Converts between entity and DTO via {@link SupplierMapper}'s &lt;b&gt;static&lt;/b&gt; methods.&lt;/li&gt;
+ *   &lt;li&gt;&lt;em&gt;Transactions:&lt;/em&gt; Read-only for queries; write transactions for mutations.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;&lt;strong&gt;Error semantics expected by web layer&lt;/strong&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@code InvalidRequestException} → 400&lt;/li&gt;
+ *   &lt;li&gt;{@code DuplicateResourceException} → 409&lt;/li&gt;
+ *   &lt;li&gt;{@code IllegalStateException} (business conflict) → 409&lt;/li&gt;
+ *   &lt;li&gt;{@code NoSuchElementException} → 404&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class SupplierServiceImpl implements SupplierService {
+
+    private final SupplierRepository supplierRepository;
+    private final InventoryItemRepository inventoryItemRepository;
+
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;SupplierDTO&gt; findAll() {
+        // No filtering here; caller controls access via @PreAuthorize at controller.
+<span class="nc" id="L55">        return supplierRepository.findAll().stream()</span>
+<span class="nc" id="L56">                .map(SupplierMapper::toDTO) // static call</span>
+<span class="nc" id="L57">                .toList();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional&lt;SupplierDTO&gt; findById(String id) {
+<span class="nc" id="L64">        return supplierRepository.findById(id).map(SupplierMapper::toDTO); // static call</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;SupplierDTO&gt; findByName(String name) {
+        // Repository contract: partial, case-insensitive search.
+<span class="nc" id="L72">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
+<span class="nc" id="L73">                .map(SupplierMapper::toDTO) // static call</span>
+<span class="nc" id="L74">                .toList();</span>
+    }
+
+    /**
+     * Create a supplier with server-generated id and timestamp.
+     *
+     * &lt;p&gt;Preconditions enforced:
+     * &lt;ul&gt;
+     *   &lt;li&gt;Base DTO validation (non-blank name, etc.).&lt;/li&gt;
+     *   &lt;li&gt;Uniqueness of name (case-insensitive).&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if payload invalid
+     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if name not unique
+     */
+    @Override
+    public SupplierDTO create(SupplierDTO dto) {
+<span class="fc" id="L91">        SupplierValidator.validateBase(dto);</span>
+<span class="fc" id="L92">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), null);</span>
+
+<span class="fc" id="L94">        Supplier entity = SupplierMapper.toEntity(dto); // static call</span>
+<span class="fc" id="L95">        entity.setId(UUID.randomUUID().toString());</span>
+<span class="fc" id="L96">        entity.setCreatedAt(LocalDateTime.now());</span>
+        // TO DO(optional): populate createdBy from security context if desired.
+
+<span class="fc" id="L99">        Supplier saved = supplierRepository.save(entity);</span>
+<span class="fc" id="L100">        return SupplierMapper.toDTO(saved); // static call</span>
+    }
+
+    /**
+     * Update mutable fields of an existing supplier.
+     *
+     * &lt;p&gt;Semantics:
+     * &lt;ul&gt;
+     *   &lt;li&gt;Path {@code id} is authoritative; if entity missing → 404.&lt;/li&gt;
+     *   &lt;li&gt;Validates DTO and name uniqueness (excluding current {@code id}).&lt;/li&gt;
+     *   &lt;li&gt;Maintains server-side audit fields (update timestamp/user) if present in the entity.&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @throws NoSuchElementException if supplier does not exist
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if payload invalid
+     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if name conflict
+     */
+    @Override
+    public SupplierDTO update(String id, SupplierDTO dto) {
+<span class="fc" id="L119">        Supplier existing = supplierRepository.findById(id)</span>
+<span class="fc" id="L120">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
+
+<span class="fc" id="L122">        SupplierValidator.validateBase(dto);</span>
+<span class="fc" id="L123">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
+
+        // Map allowed fields
+<span class="fc" id="L126">        existing.setName(dto.getName());</span>
+<span class="fc" id="L127">        existing.setContactName(dto.getContactName());</span>
+<span class="fc" id="L128">        existing.setPhone(dto.getPhone());</span>
+<span class="fc" id="L129">        existing.setEmail(dto.getEmail());</span>
+
+        // NOTE: Your Supplier entity does not expose setUpdatedAt(..).
+        // If you later add it, you can uncomment the next line.
+        // existing.setUpdatedAt(LocalDateTime.now());
+
+<span class="fc" id="L135">        Supplier saved = supplierRepository.save(existing);</span>
+<span class="fc" id="L136">        return SupplierMapper.toDTO(saved); // static call</span>
+    }
+
+    /**
+     * Delete a supplier after verifying there are no linked inventory items.
+     *
+     * &lt;p&gt;Preconditions enforced:
+     * &lt;ul&gt;
+     *   &lt;li&gt;{@code assertDeletable} blocks deletion when items reference the supplier ( → 409 ).&lt;/li&gt;
+     *   &lt;li&gt;Existence check ( → 404 if missing ).&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @throws IllegalStateException if business constraint prevents deletion
+     * @throws NoSuchElementException if supplier does not exist
+     */
+    @Override
+    public void delete(String id) {
+<span class="fc" id="L153">        SupplierValidator.assertDeletable(</span>
+            id, 
+<span class="fc" id="L155">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
+        );
+
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
+<span class="fc" id="L159">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
+        }
+<span class="fc" id="L161">        supplierRepository.deleteById(id);</span>
+<span class="fc" id="L162">    }</span>
+
+    /**
+    * Total number of suppliers (KPI).
+    */
+    @Override
+    @Transactional(readOnly = true)
+    public long countSuppliers() {
+<span class="nc" id="L170">        return supplierRepository.count();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

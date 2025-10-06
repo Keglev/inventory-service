@@ -36,8 +36,8 @@ This project simulates a real-world software system for small-to-medium manufact
 
 All endpoints are documented manually via OpenAPI 3.0 YAML files and rendered using [Redoc](https://github.com/Redocly/redoc). This allows clear, secure API sharing without exposing runtime Swagger UI.
 
-- **API (ReDoc):** https://<user>.github.io/<repo>/api.html
-- **Security Overview:** https://<user>.github.io/<repo>/architecture/security-overview.md
+- **API (ReDoc):** https://keglev.github.io/inventory-service/api.html
+- **Security Overview:** https://keglev.github.io/inventory-service/architecture/security-overview.html
 
 | Module                | OpenAPI Documentation |
 |-----------------------|------------------------|
@@ -50,6 +50,25 @@ All endpoints are documented manually via OpenAPI 3.0 YAML files and rendered us
 
 Browse all docs in one place:
 👉 [**Inventory API Index**](https://keglev.github.io/inventory-service/index.html)
+
+---
+
+## 🧪 Testing & Code Quality
+
+### Backend Test Coverage
+- **JUnit 5** with Mockito for unit tests
+- **Testcontainers** for integration tests
+- **JaCoCo** for code coverage analysis
+
+📊 **View Live Coverage Reports:**
+👉 [**Backend Test Coverage (JaCoCo)**](https://keglev.github.io/inventory-service/backend/coverage/index.html)
+
+> Coverage reports are automatically updated on every CI build and published via GitHub Pages.
+
+### Frontend Testing (Planned)
+- Vitest for unit tests
+- React Testing Library for component tests
+- Coverage reports coming soon
 
 ---
 

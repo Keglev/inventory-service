@@ -52,6 +52,11 @@ out/
 test-output/
 
 # -----------------------------------------------------------------------------
+# Documentation & coverage reports (GitHub Pages only, never in Docker)
+# -----------------------------------------------------------------------------
+docs/
+
+# -----------------------------------------------------------------------------
 # Backend: Maven wrapper — KEEP `.mvn/`, ignore wrapper launchers
 # Reason: Dockerfile COPY includes `.mvn/` to improve caching; don't ignore it.
 # -----------------------------------------------------------------------------

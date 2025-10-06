@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryItemValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.validation</a> &gt; <span class="el_source">InventoryItemValidator.java</span></div><h1>InventoryItemValidator.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.validation;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.model.InventoryItem;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+
+/**
+* Utility class responsible for validating InventoryItem-related input data.
+*
+* &lt;p&gt;Ensures that the data passed into service layers (especially during creation
+* or update operations) adheres to business rules such as:
+* &lt;ul&gt;
+*   &lt;li&gt;Non-null and non-empty names&lt;/li&gt;
+*   &lt;li&gt;Non-negative quantities and prices&lt;/li&gt;
+*   &lt;li&gt;Mandatory supplier ID and createdBy metadata&lt;/li&gt;
+* &lt;/ul&gt;
+*
+* &lt;p&gt;&lt;strong&gt;Design Note:&lt;/strong&gt; This class is intentionally non-instantiable
+* using a private constructor. It provides only static validation methods.&lt;/p&gt;
+*
+* &lt;p&gt;&lt;strong&gt;Usage:&lt;/strong&gt; Typically called in {@code InventoryItemService} before persisting data.&lt;/p&gt;
+*
+* @author
+* SmartSupplyPro Dev Team
+*/
+public class InventoryItemValidator {
+    
+    private InventoryItemValidator() {
+        // Utility class - prevent instantiation
+    }
+    
+    /**
+    * Validates the fundamental fields of an {@link InventoryItemDTO}.
+    *
+    * @param dto the DTO representing the inventory item
+    * @throws IllegalArgumentException if any validation rule is violated
+    */
+    public static void validateBase(InventoryItemDTO dto) {
+<span class="pc bpc" id="L46" title="1 of 4 branches missed.">        if (dto.getName() == null || dto.getName().trim().isEmpty()) {</span>
+<span class="fc" id="L47">            throw new IllegalArgumentException(&quot;Product name cannot be null or empty&quot;);</span>
+        }
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (dto.getQuantity() &lt; 0) {</span>
+<span class="fc" id="L50">            throw new IllegalArgumentException(&quot;Quantity cannot be negative&quot;);</span>
+        }
+<span class="pc bpc" id="L52" title="1 of 4 branches missed.">        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L53">            throw new IllegalArgumentException(&quot;Price must be positive or greater than zero&quot;);</span>
+        }
+<span class="fc bfc" id="L55" title="All 4 branches covered.">        if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {</span>
+<span class="fc" id="L56">            throw new IllegalArgumentException(&quot;Supplier ID must be provided&quot;);</span>
+        }
+<span class="pc bpc" id="L58" title="1 of 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
+<span class="fc" id="L59">            throw new IllegalArgumentException(&quot;CreatedBy must be provided&quot;);</span>
+        }
+<span class="fc" id="L61">    }</span>
+    
+    /**
+    * Validates that no inventory item with the same name and price already exists (for creation).
+    *
+    * @param name          the name of the inventory item
+    * @param price         the price of the inventory item
+    * @param inventoryRepo the inventory item repository
+    * @throws IllegalArgumentException if duplicate found
+    */
+    public static void validateInventoryItemNotExists(
+    String id, String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
+<span class="fc" id="L73">        List&lt;InventoryItem&gt; existingItems = inventoryRepo.findByNameIgnoreCase(name);</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        for (InventoryItem item : existingItems) {</span>
+<span class="pc bpc" id="L75" title="2 of 4 branches missed.">            if (!item.getId().equals(id) &amp;&amp; item.getPrice().compareTo(price) == 0) {</span>
+<span class="fc" id="L76">                throw new DuplicateResourceException(</span>
+                &quot;Another inventory item with this name and price already exists.&quot;
+                );
+            }
+<span class="nc" id="L80">        }</span>
+<span class="nc" id="L81">    }</span>
+    
+    /**
+    * Validates that no other inventory item (excluding the one with the same ID) has the same name and price.
+    * Used for updates to prevent duplication when changing name or price.
+    *
+    * @param id            the ID of the current inventory item (being updated)
+    * @param name          the proposed new name
+    * @param price         the proposed new price
+    * @param inventoryRepo the repository to check against
+    * @throws IllegalArgumentException if another item with same name and price exists
+    */
+    public static void validateInventoryItemNotExists(
+    String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
+<span class="fc" id="L95">        List&lt;InventoryItem&gt; existingItems = inventoryRepo.findByNameIgnoreCase(name);</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        for (InventoryItem item : existingItems) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (item.getPrice().compareTo(price) == 0) {</span>
+<span class="nc" id="L98">                throw new DuplicateResourceException(</span>
+                &quot;An inventory item with this name and price already exists.&quot;
+                );
+            }
+<span class="nc" id="L102">        }</span>
+<span class="fc" id="L103">    }</span>
+    
+    /**
+    * Validates that an inventory item exists in the database by its ID.
+    *
+    * &lt;p&gt;This method abstracts the common repository lookup and throws a consistent
+    * exception when no item is found. It should be used before performing update or
+    * delete operations.&lt;/p&gt;
+    *
+    * @param id             the ID of the inventory item
+    * @param inventoryRepo  the repository used for lookup
+    * @return the InventoryItem entity if found
+    * @throws IllegalArgumentException if the item does not exist
+    */
+    public static InventoryItem validateExists(String id, InventoryItemRepository inventoryRepo) {
+<span class="fc" id="L118">        return inventoryRepo.findById(id).orElseThrow(() -&gt;</span>
+<span class="fc" id="L119">        new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found: &quot; + id)</span>
+        );
+    }
+    
+    /**
+    * Validates that the resulting quantity after an operation is non-negative.
+    *
+    * @param resultingQuantity the quantity after applying a delta
+    * @throws IllegalArgumentException if resulting quantity is negative
+    */
+    public static void assertFinalQuantityNonNegative(int resultingQuantity) {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (resultingQuantity &lt; 0) {</span>
+<span class="nc" id="L131">            throw new ResponseStatusException(</span>
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            &quot;Resulting stock cannot be negative&quot;
+            );
+        }
+<span class="nc" id="L136">    }</span>
+    
+    /**
+    * Validates a price value for update/patch operations.
+    * Uses the same rule as validateBase: must be strictly greater than zero.
+    *
+    * @param price the price to validate
+    * @throws IllegalArgumentException if null or not strictly positive
+    */
+    public static void assertPriceValid(BigDecimal price) {
+<span class="nc bnc" id="L146" title="All 4 branches missed.">        if (price == null || price.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="nc" id="L147">            throw new ResponseStatusException(</span>
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            &quot;Price must be greater than zero&quot;
+            );
+        }
+<span class="nc" id="L152">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

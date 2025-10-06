@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SupplierValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.validation</a> &gt; <span class="el_source">SupplierValidator.java</span></div><h1>SupplierValidator.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.validation;
+
+import java.util.Objects;
+import java.util.function.BooleanSupplier;
+
+import com.smartsupplypro.inventory.dto.SupplierDTO;
+import com.smartsupplypro.inventory.exception.DuplicateResourceException;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+import com.smartsupplypro.inventory.repository.SupplierRepository;
+
+/**
+ * Central validation utilities for Supplier operations.
+ *
+ * &lt;p&gt;Design goals:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Keep business rules close to the service layer while staying repo‑agnostic.&lt;/li&gt;
+ *   &lt;li&gt;Surface exceptions that your GlobalExceptionHandler maps to 400/404/409.&lt;/li&gt;
+ *   &lt;li&gt;Be resilient to schema differences (1‑N or N‑N item–supplier relations).&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+public final class SupplierValidator {
+
+    private SupplierValidator() { }
+
+    /**
+     * Basic field validation invoked on create/update.
+     * &lt;ul&gt;
+     *   &lt;li&gt;name: required, non-blank&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @throws InvalidRequestException if dto or required fields are invalid
+     */
+    public static void validateBase(SupplierDTO dto) {
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (dto == null) {</span>
+<span class="fc" id="L35">            throw new InvalidRequestException(&quot;Supplier payload must not be null&quot;);</span>
+        }
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (isBlank(dto.getName())) {</span>
+<span class="fc" id="L38">            throw new InvalidRequestException(&quot;Supplier name must not be blank&quot;);</span>
+        }
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * Enforce unique, case-insensitive supplier name.
+     *
+     * @param repo       Supplier repository providing exact lookup by name
+     * @param name       desired supplier name (case-insensitive)
+     * @param excludeId  pass null for create; current id for update
+     * @throws DuplicateResourceException if another supplier already uses the name
+     */
+    public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (isBlank(name)) return; // validateBase already handles blank</span>
+<span class="fc" id="L52">        String trimmed = name.trim();</span>
+
+<span class="fc" id="L54">        var existingOpt = repo.findByNameIgnoreCase(trimmed).map(s -&gt; (Object) s);</span>
+<span class="fc" id="L55">        var existing = existingOpt.orElse(null);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (existing != null) {</span>
+<span class="fc" id="L57">            String existingId = invokeGetId(existing);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            if (!Objects.equals(existingId, excludeId)) {</span>
+<span class="fc" id="L59">                throw new DuplicateResourceException(&quot;Supplier already exists&quot;);</span>
+            }
+        }
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Prevent deletion when there are linked inventory items.
+     *
+     * &lt;p&gt;Repo-agnostic: the caller supplies a boolean check that returns true if any links exist
+     * (e.g., {@code () -&gt; itemRepo.countBySupplierId(id) &gt; 0} or
+     * {@code () -&gt; supplierRepo.existsByIdAndItemsIsNotEmpty(id)}).&lt;/p&gt;
+     *
+     * @param supplierId supplier identifier to validate
+     * @param hasAnyLinks boolean supplier that must return true iff links exist
+     * @throws InvalidRequestException if id is blank
+     * @throws IllegalStateException if links exist (mapped to 409 Conflict)
+     */
+    public static void assertDeletable(String supplierId, BooleanSupplier hasAnyLinks) {
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (isBlank(supplierId)) {</span>
+<span class="fc" id="L78">            throw new InvalidRequestException(&quot;Supplier id must be provided for deletion&quot;);</span>
+        }
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
+<span class="fc" id="L81">            throw new IllegalStateException(&quot;Cannot delete supplier with linked items&quot;);</span>
+        }
+<span class="fc" id="L83">    }</span>
+
+    // ---- helpers ------------------------------------------------------------
+
+    private static boolean isBlank(String s) {
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        return s == null || s.trim().isEmpty();</span>
+    }
+
+    /**
+     * Lightweight reflective accessor to avoid importing your entity type here.
+     * If your entity package changes, this method keeps the validator stable.
+     */
+    private static String invokeGetId(Object entity) {
+        try {
+<span class="fc" id="L97">            var m = entity.getClass().getMethod(&quot;getId&quot;);</span>
+<span class="fc" id="L98">            Object v = m.invoke(entity);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">            return v != null ? v.toString() : null;</span>
+<span class="nc" id="L100">        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException | SecurityException e) {</span>
+<span class="nc" id="L101">            return null; // keep existing behavior: silently fall back</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

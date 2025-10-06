@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.exception;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+
+/**
+ * Global exception translator for REST controllers.
+ *
+ * &lt;p&gt;&lt;strong&gt;Goals&lt;/strong&gt;&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;Return a consistent, minimal JSON payload: {@code {&quot;error&quot;: &quot;...&quot;, &quot;message&quot;: &quot;...&quot;}}.&lt;/li&gt;
+ *   &lt;li&gt;Map common error categories to appropriate HTTP status codes.&lt;/li&gt;
+ *   &lt;li&gt;Keep controllers thin—business and validation exceptions bubble up to here.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;&lt;strong&gt;Status mapping (summary)&lt;/strong&gt;&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;b&gt;400&lt;/b&gt; – Validation / bad input (bean validation, type mismatch, unreadable JSON, missing params)&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;401&lt;/b&gt; – Authentication failed / missing&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;403&lt;/b&gt; – Access denied (role/permission)&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;404&lt;/b&gt; – Resource not found (NoSuchElement, or existence checks)&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;409&lt;/b&gt; – Conflicts (duplicates, optimistic locking, DB integrity, state conflicts)&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;RSE&lt;/b&gt; – {@link ResponseStatusException} pass‑through (uses embedded status)&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;500&lt;/b&gt; – Unhandled errors (as a last‑resort safety net)&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@RestControllerAdvice
+<span class="fc" id="L51">public class GlobalExceptionHandler {</span>
+
+    /* =======================================================================
+     * Helpers
+     * ======================================================================= */
+
+    /**
+     * Builds a standard JSON error body and wraps it in a {@link ResponseEntity}.
+     *
+     * &lt;p&gt;&lt;b&gt;Contract:&lt;/b&gt; The {@code error} field is a normalized, lowercase token derived
+     * from the HTTP status (e.g., {@code &quot;bad_request&quot;}, {@code &quot;not_found&quot;}, {@code &quot;conflict&quot;}).
+     * The {@code message} field contains a short, human‑readable explanation suitable for clients.&lt;/p&gt;
+     */
+    private ResponseEntity&lt;Map&lt;String, String&gt;&gt; body(HttpStatus status, String message) {
+<span class="fc" id="L65">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L66">        map.put(&quot;error&quot;, errorCode(status));</span>
+<span class="fc" id="L67">        map.put(&quot;message&quot;, nonEmpty(message, status.getReasonPhrase()));</span>
+<span class="fc" id="L68">        return ResponseEntity.status(status)</span>
+<span class="fc" id="L69">                .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L70">                .body(map);</span>
+    }
+
+    /** Normalize an HTTP status into a lowercase token (e.g., BAD_REQUEST → &quot;bad_request&quot;). */
+    private static String errorCode(HttpStatus status) {
+<span class="fc" id="L75">        return status.name().toLowerCase(); // &quot;bad_request&quot;, &quot;not_found&quot;, &quot;conflict&quot;, etc.</span>
+    }
+
+    private static String nonEmpty(String s, String fallback) {
+<span class="pc bpc" id="L79" title="2 of 4 branches missed.">        return (s == null || s.isBlank()) ? fallback : s;</span>
+    }
+
+    /* =======================================================================
+     * 400 Bad Request family
+     * ======================================================================= */
+
+    /**
+     * Application‑level invalid request (e.g., custom validators).
+     * &lt;p&gt;Mapped to &lt;b&gt;400 Bad Request&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleInvalid(InvalidRequestException ex) {
+<span class="fc" id="L92">        return body(HttpStatus.BAD_REQUEST, nonEmpty(ex.getMessage(), &quot;Invalid request&quot;));</span>
+    }
+
+    /**
+     * Bean validation on {@code @Valid} request bodies (e.g., DTO field constraints).
+     * &lt;p&gt;Returns the first field error as &quot;&lt;i&gt;field&lt;/i&gt; &lt;i&gt;message&lt;/i&gt;&quot; for clarity.&lt;/p&gt;
+     * &lt;p&gt;Mapped to &lt;b&gt;400 Bad Request&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+<span class="fc" id="L102">        String first = ex.getBindingResult().getFieldErrors().stream()</span>
+<span class="fc" id="L103">                .findFirst()</span>
+<span class="fc" id="L104">                .map(fe -&gt; fe.getField() + &quot; &quot; + fe.getDefaultMessage())</span>
+<span class="fc" id="L105">                .orElse(&quot;Validation failed&quot;);</span>
+<span class="fc" id="L106">        return body(HttpStatus.BAD_REQUEST, first);</span>
+    }
+
+    /**
+     * Constraint violations on {@code @RequestParam}/{@code @PathVariable} etc.
+     * &lt;p&gt;Returns the first violation message.&lt;/p&gt;
+     * &lt;p&gt;Mapped to &lt;b&gt;400 Bad Request&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleConstraintViolation(ConstraintViolationException ex) {
+<span class="nc" id="L116">        String first = ex.getConstraintViolations().stream()</span>
+<span class="nc" id="L117">                .findFirst()</span>
+<span class="nc" id="L118">                .map(v -&gt; v.getPropertyPath() + &quot; &quot; + v.getMessage())</span>
+<span class="nc" id="L119">                .orElse(&quot;Constraint violation&quot;);</span>
+<span class="nc" id="L120">        return body(HttpStatus.BAD_REQUEST, first);</span>
+    }
+
+    /**
+     * Bad/missing JSON or incompatible payload.
+     * &lt;p&gt;Mapped to &lt;b&gt;400 Bad Request&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleNotReadable(HttpMessageNotReadableException ex) {
+<span class="nc" id="L129">        return body(HttpStatus.BAD_REQUEST, &quot;Request body is invalid or unreadable&quot;);</span>
+    }
+
+    /**
+     * Missing required query parameter.
+     * &lt;p&gt;Mapped to &lt;b&gt;400 Bad Request&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleMissingParam(MissingServletRequestParameterException ex) {
+<span class="fc" id="L138">        return body(HttpStatus.BAD_REQUEST, &quot;Missing required parameter: &quot; + ex.getParameterName());</span>
+    }
+
+    /**
+     * Wrong type for a controller method argument (e.g., path or query parameter).
+     * &lt;p&gt;Mapped to &lt;b&gt;400 Bad Request&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+<span class="fc" id="L147">        return body(HttpStatus.BAD_REQUEST, &quot;Invalid value for: &quot; + ex.getName());</span>
+    }
+
+    /* =======================================================================
+     * 401 / 403 Security
+     * ======================================================================= */
+
+    /**
+     * Authentication failures (missing/invalid credentials).
+     * &lt;p&gt;Mapped to &lt;b&gt;401 Unauthorized&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleAuthentication(AuthenticationException ex) {
+<span class="nc" id="L160">        return body(HttpStatus.UNAUTHORIZED, &quot;Authentication required&quot;);</span>
+    }
+
+    /**
+     * Authorization failures (insufficient privileges).
+     * &lt;p&gt;Mapped to &lt;b&gt;403 Forbidden&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleAccessDenied(AccessDeniedException ex) {
+<span class="fc" id="L169">        return body(HttpStatus.FORBIDDEN, &quot;Access denied&quot;);</span>
+    }
+
+    /* =======================================================================
+     * 404 Not Found
+     * ======================================================================= */
+
+    /**
+     * Existence checks currently signaled with {@link IllegalArgumentException}.
+     * &lt;p&gt;Mapped to &lt;b&gt;404 Not Found&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleIllegalArgument(IllegalArgumentException ex) {
+<span class="nc" id="L182">        return body(HttpStatus.NOT_FOUND, nonEmpty(ex.getMessage(), &quot;Resource not found&quot;));</span>
+    }
+
+    /**
+     * Resource not found via repository lookups.
+     * &lt;p&gt;Mapped to &lt;b&gt;404 Not Found&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleNoSuchElement(NoSuchElementException ex) {
+<span class="fc" id="L191">        return body(HttpStatus.NOT_FOUND, nonEmpty(ex.getMessage(), &quot;Resource not found&quot;));</span>
+    }
+
+    /**
+    * Static resource not found (e.g., bad URL for {@code /images/**}).
+    * &lt;p&gt;Mapped to &lt;b&gt;404 Not Found&lt;/b&gt;.&lt;/p&gt;
+    */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+<span class="nc" id="L200">    public void notFound() { /* no body */ }</span>
+
+    /* =======================================================================
+     * 409 Conflict
+     * ======================================================================= */
+
+    /**
+     * Domain‑level duplicate key / uniqueness violations.
+     * &lt;p&gt;Mapped to &lt;b&gt;409 Conflict&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleDuplicate(DuplicateResourceException ex) {
+<span class="fc" id="L212">        return body(HttpStatus.CONFLICT, nonEmpty(ex.getMessage(), &quot;Duplicate resource&quot;));</span>
+    }
+
+    /**
+     * Database integrity violations (unique index, foreign key, etc.).
+     * &lt;p&gt;Mapped to &lt;b&gt;409 Conflict&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleDataIntegrity(DataIntegrityViolationException ex) {
+<span class="nc" id="L221">        return body(HttpStatus.CONFLICT, &quot;Data conflict&quot;);</span>
+    }
+
+    /**
+     * Business‑rule conflicts (state‑dependent failures).
+     *
+     * &lt;p&gt;Common examples include attempts to delete a supplier that still has linked inventory
+     * items in stock. The request is syntactically valid but cannot be applied in the current
+     * domain state.&lt;/p&gt;
+     *
+     * &lt;p&gt;Mapped to &lt;b&gt;409 Conflict&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleIllegalState(IllegalStateException ex) {
+<span class="fc" id="L235">        return body(HttpStatus.CONFLICT, nonEmpty(ex.getMessage(), &quot;Conflict&quot;));</span>
+    }
+
+    /**
+     * Optimistic locking conflicts (e.g., JPA {@code @Version}).
+     * &lt;p&gt;Mapped to &lt;b&gt;409 Conflict&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleOptimistic(ObjectOptimisticLockingFailureException ex) {
+<span class="nc" id="L244">        return body(HttpStatus.CONFLICT, &quot;Concurrent update detected&quot;);</span>
+    }
+
+    /* =======================================================================
+     * Pass-through (ResponseStatusException)
+     * ======================================================================= */
+
+    /**
+     * Pass‑through for {@link ResponseStatusException}, preserving the embedded status.
+     * &lt;p&gt;Useful for explicit controller rejections such as path/payload mismatches.&lt;/p&gt;
+     */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleResponseStatus(ResponseStatusException ex,
+                                                                     HttpServletRequest request) {
+<span class="fc" id="L258">        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L259">        map.put(&quot;error&quot;, ex.getStatusCode().toString().toLowerCase()); // keep your existing shape here</span>
+<span class="fc" id="L260">        map.put(&quot;message&quot;, nonEmpty(ex.getReason(), &quot;Request failed&quot;));</span>
+<span class="fc" id="L261">        return ResponseEntity.status(ex.getStatusCode())</span>
+<span class="fc" id="L262">                .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L263">                .body(map);</span>
+    }
+
+    /* =======================================================================
+     * 500 Internal Server Error (safety net)
+     * ======================================================================= */
+
+    /**
+     * Final safety net for unhandled exceptions. Keeps the API contract stable
+     * while surfacing a generic message to clients.
+     * &lt;p&gt;Mapped to &lt;b&gt;500 Internal Server Error&lt;/b&gt;.&lt;/p&gt;
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleAny(Exception ex) {
+        // You may want to log at ERROR here with a correlation id if you add one.
+<span class="nc" id="L278">        return body(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Unexpected server error&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

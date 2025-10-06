@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryServiceApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory</a> &gt; <span class="el_source">InventoryServiceApplication.java</span></div><h1>InventoryServiceApplication.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory;
+
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import org.springframework.beans.factory.annotation.Value;
+
+/**
+ * Main application class for the Inventory Service microservice.
+ * &lt;p&gt;
+ * This entry point performs the following tasks:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Bootstraps the Spring Boot application.&lt;/li&gt;
+ *   &lt;li&gt;Reads and applies Oracle Wallet system properties from environment variables.&lt;/li&gt;
+ *   &lt;li&gt;Logs essential environment variables and active Spring profiles for diagnostics (non-prod only).&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * @author Carlo
+ * @since 1.0.0
+ */
+@SpringBootApplication
+<span class="fc" id="L29">public class InventoryServiceApplication {</span>
+
+<span class="fc" id="L31">    private static final Logger logger = LoggerFactory.getLogger(InventoryServiceApplication.class);</span>
+
+    /**
+     * Main method that launches the Inventory Service application.
+     * It also sets Oracle Wallet properties based on environment variables.
+     *
+     * @param args Command-line arguments
+     */
+    public static void main(String[] args) {
+<span class="nc" id="L40">        String tnsAdmin = System.getenv(&quot;TNS_ADMIN&quot;);</span>
+<span class="nc" id="L41">        String walletPassword = System.getenv(&quot;ORACLE_WALLET_PASSWORD&quot;);</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (tnsAdmin != null) {</span>
+<span class="nc" id="L44">            System.setProperty(&quot;oracle.net.tns_admin&quot;, tnsAdmin);</span>
+<span class="nc" id="L45">            logger.info(&quot;TNS_ADMIN set.&quot;);</span>
+        } else {
+<span class="nc" id="L47">            logger.warn(&quot;TNS_ADMIN environment variable not set.&quot;);</span>
+        }
+
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (walletPassword != null) {</span>
+<span class="nc" id="L51">            System.setProperty(&quot;oracle.net.wallet_password&quot;, walletPassword);</span>
+<span class="nc" id="L52">            logger.info(&quot;Oracle Wallet password set.&quot;);</span>
+        } else {
+<span class="nc" id="L54">            logger.warn(&quot;ORACLE_WALLET_PASSWORD environment variable not set.&quot;);</span>
+        }
+
+<span class="nc" id="L57">        SpringApplication.run(InventoryServiceApplication.class, args);</span>
+<span class="nc" id="L58">    }</span>
+
+    /**
+     * Logs database connection properties (excluding password) at startup.
+     * Only intended for non-production diagnostics.
+     *
+     * @param user the database username
+     * @param url  the database URL
+     * @param env  the Spring environment
+     * @return CommandLineRunner
+     */
+    @Bean
+    public CommandLineRunner logDbSettings(
+            @Value(&quot;${spring.datasource.username:NOT_SET}&quot;) String user,
+            @Value(&quot;${spring.datasource.url:NOT_SET}&quot;) String url,
+            Environment env) {
+<span class="fc" id="L74">        return args -&gt; {</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">            if (!env.acceptsProfiles(Profiles.of(&quot;prod&quot;))) {</span>
+<span class="fc" id="L76">                logger.debug(&quot;Database username: {}&quot;, user);</span>
+<span class="fc" id="L77">                logger.debug(&quot;Database URL: {}&quot;, url);</span>
+            }
+<span class="fc" id="L79">        };</span>
+    }
+
+    /**
+     * Logs active Spring profiles and environment information.
+     * Avoids exposing secrets in production environments.
+     *
+     * @param env the Spring environment
+     * @return CommandLineRunner
+     */
+    @Bean
+    public CommandLineRunner logEnvironment(Environment env) {
+<span class="fc" id="L91">        return args -&gt; {</span>
+<span class="fc" id="L92">            logger.info(&quot;Active Spring profiles: {}&quot;, Arrays.toString(env.getActiveProfiles()));</span>
+
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">            if (!env.acceptsProfiles(Profiles.of(&quot;prod&quot;))) {</span>
+<span class="fc" id="L95">                String dbUrl = System.getenv(&quot;DB_URL&quot;);</span>
+<span class="fc" id="L96">                String dbUser = System.getenv(&quot;DB_USERNAME&quot;);</span>
+<span class="fc" id="L97">                String dbPass = System.getenv(&quot;DB_PASSWORD&quot;);</span>
+<span class="fc" id="L98">                String googleClientId = System.getenv(&quot;GOOGLE_CLIENT_ID&quot;);</span>
+
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">                logger.debug(&quot;DB URL is set: {}&quot;, dbUrl != null);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">                logger.debug(&quot;DB USER is set: {}&quot;, dbUser != null);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                logger.debug(&quot;DB PASS is set: {}&quot;, dbPass != null);</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                logger.debug(&quot;GOOGLE CLIENT ID is set: {}&quot;, googleClientId != null);</span>
+<span class="fc" id="L104">            } else {</span>
+<span class="nc" id="L105">                logger.info(&quot;Production mode: environment variables not logged.&quot;);</span>
+            }
+<span class="fc" id="L107">        };</span>
+    }
+    @Bean
+    public CommandLineRunner checkOAuthClientId(
+        @Value(&quot;${GOOGLE_CLIENT_ID:NOT_SET}&quot;) String clientId,
+        @Value(&quot;${GOOGLE_CLIENT_SECRET:NOT_SET}&quot;) String clientSecret
+    ) {
+<span class="fc" id="L114">        return args -&gt; {</span>
+<span class="fc" id="L115">            System.out.println(&quot;&gt;&gt;&gt; GOOGLE_CLIENT_ID: &quot; + clientId);</span>
+<span class="fc" id="L116">            System.out.println(&quot;&gt;&gt;&gt; GOOGLE_CLIENT_SECRET length: &quot; + clientSecret.length());</span>
+<span class="fc" id="L117">        };</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

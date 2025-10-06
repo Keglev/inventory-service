@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockChangeReason.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.enums</a> &gt; <span class="el_source">StockChangeReason.java</span></div><h1>StockChangeReason.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.enums;
+
+/**
+ * Enum representing the reason for a stock quantity change.
+ *
+ * &lt;p&gt;Used in inventory history, analytics, and auditing to explain
+ * why stock was added or removed. Helps ensure traceability and consistency
+ * across all stock movement entries.
+ *
+ * &lt;p&gt;This enum is used in:
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@code StockHistoryDTO.reason}&lt;/li&gt;
+ *   &lt;li&gt;{@code InventoryItemService.delete(..., reason)}&lt;/li&gt;
+ *   &lt;li&gt;Filtering in analytics/reporting&lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+<span class="fc" id="L17">public enum StockChangeReason {</span>
+
+    /** Initial quantity entered when item is first added to inventory. */
+<span class="fc" id="L20">    INITIAL_STOCK,</span>
+
+    /** Manual correction performed by a user (e.g., discrepancy fix). */
+<span class="fc" id="L23">    MANUAL_UPDATE,</span>
+
+    /** manual correction performed by a user (e.g., new prices) */
+<span class="fc" id="L26">    PRICE_CHANGE,</span>
+
+    /** Stock was sold to a customer (outbound). */
+<span class="fc" id="L29">    SOLD,</span>
+
+    /** Item was scrapped due to damage, policy, or internal decision. */
+<span class="fc" id="L32">    SCRAPPED,</span>
+
+    /** Item was destroyed beyond use (e.g., fire, critical damage). */
+<span class="fc" id="L35">    DESTROYED,</span>
+
+    /** Item is damaged but not yet scrapped or returned. */
+<span class="fc" id="L38">    DAMAGED,</span>
+
+    /** Item has passed its expiration date and is no longer sellable. */
+<span class="fc" id="L41">    EXPIRED,</span>
+
+    /** Item is missing or lost during handling, shipping, or storage. */
+<span class="fc" id="L44">    LOST,</span>
+
+    /** Stock was returned back to the supplier (e.g., defective goods). */
+<span class="fc" id="L47">    RETURNED_TO_SUPPLIER,</span>
+
+    /** Stock was returned by the customer (e.g., refund, exchange). */
+<span class="fc" id="L50">    RETURNED_BY_CUSTOMER</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
