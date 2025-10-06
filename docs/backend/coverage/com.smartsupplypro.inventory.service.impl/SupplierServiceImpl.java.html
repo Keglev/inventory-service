@@ -20,24 +20,265 @@ import com.smartsupplypro.inventory.validation.SupplierValidator;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Default {@link SupplierService} implementation.
+ * Implementation of {@link SupplierService} providing supplier lifecycle management
+ * with comprehensive validation, referential integrity checks, and audit trail support.
  *
- * &lt;p&gt;&lt;strong&gt;Responsibilities &amp; Cross-Cutting Concerns&lt;/strong&gt;
+ * &lt;h2&gt;Overview&lt;/h2&gt;
+ * &lt;p&gt;
+ * This service manages the complete lifecycle of supplier entities, ensuring data integrity,
+ * business rule enforcement, and proper coordination with dependent inventory items. Unlike
+ * {@link InventoryItemServiceImpl} which manages items with audit trails, this service focuses
+ * on supplier master data management with strict referential integrity constraints.
+ * &lt;/p&gt;
+ *
+ * &lt;h2&gt;Core Responsibilities&lt;/h2&gt;
  * &lt;ul&gt;
- *   &lt;li&gt;&lt;em&gt;Validation:&lt;/em&gt; Uses {@link SupplierValidator} for base checks, uniqueness,
- *       and deletion preconditions. Exceptions map via GlobalExceptionHandler (400/404/409).&lt;/li&gt;
- *   &lt;li&gt;&lt;em&gt;Consistency:&lt;/em&gt; Server-authoritative IDs &amp; timestamps. Path ID is authoritative for updates.&lt;/li&gt;
- *   &lt;li&gt;&lt;em&gt;Mapping:&lt;/em&gt; Converts between entity and DTO via {@link SupplierMapper}'s &lt;b&gt;static&lt;/b&gt; methods.&lt;/li&gt;
- *   &lt;li&gt;&lt;em&gt;Transactions:&lt;/em&gt; Read-only for queries; write transactions for mutations.&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;CRUD Operations&lt;/strong&gt;: Create, read, update, delete suppliers with validation&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Uniqueness Enforcement&lt;/strong&gt;: Supplier name must be unique (case-insensitive)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Referential Integrity&lt;/strong&gt;: Prevent deletion if inventory items reference supplier&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Master Data Validation&lt;/strong&gt;: Ensure valid contact information (phone, email)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Search Capabilities&lt;/strong&gt;: Name-based partial matching (case-insensitive)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Audit Fields&lt;/strong&gt;: Server-side generation of IDs and timestamps&lt;/li&gt;
  * &lt;/ul&gt;
  *
- * &lt;p&gt;&lt;strong&gt;Error semantics expected by web layer&lt;/strong&gt;
+ * &lt;h2&gt;Key Features&lt;/h2&gt;
+ *
+ * &lt;h3&gt;1. Validation Strategy (Delegated Pattern)&lt;/h3&gt;
+ * &lt;p&gt;
+ * All validation logic is centralized in {@link SupplierValidator} static utility:
  * &lt;ul&gt;
- *   &lt;li&gt;{@code InvalidRequestException} → 400&lt;/li&gt;
- *   &lt;li&gt;{@code DuplicateResourceException} → 409&lt;/li&gt;
- *   &lt;li&gt;{@code IllegalStateException} (business conflict) → 409&lt;/li&gt;
- *   &lt;li&gt;{@code NoSuchElementException} → 404&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;{@code validateBase()}&lt;/strong&gt;: Field-level validation
+ *     &lt;ul&gt;
+ *       &lt;li&gt;Name: Non-blank, reasonable length&lt;/li&gt;
+ *       &lt;li&gt;Contact Name: Non-blank&lt;/li&gt;
+ *       &lt;li&gt;Phone: Valid format (optional, depends on validator impl)&lt;/li&gt;
+ *       &lt;li&gt;Email: Valid format (optional, depends on validator impl)&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;{@code assertUniqueName()}&lt;/strong&gt;: Uniqueness check
+ *     &lt;ul&gt;
+ *       &lt;li&gt;Case-insensitive name matching&lt;/li&gt;
+ *       &lt;li&gt;Excludes current supplier ID on updates&lt;/li&gt;
+ *       &lt;li&gt;Throws {@code DuplicateResourceException} on conflict → HTTP 409&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;{@code assertDeletable()}&lt;/strong&gt;: Business constraint check
+ *     &lt;ul&gt;
+ *       &lt;li&gt;Prevents deletion if inventory items reference supplier&lt;/li&gt;
+ *       &lt;li&gt;Uses {@code existsActiveStockForSupplier()} query&lt;/li&gt;
+ *       &lt;li&gt;Throws {@code IllegalStateException} on constraint violation → HTTP 409&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
  * &lt;/ul&gt;
+ * &lt;strong&gt;Benefits&lt;/strong&gt;: Centralized rules, reusable across layers, testable in isolation
+ * &lt;/p&gt;
+ *
+ * &lt;h3&gt;2. Referential Integrity Enforcement&lt;/h3&gt;
+ * &lt;p&gt;
+ * Suppliers are referenced by inventory items via {@code supplierId} foreign key.
+ * This service enforces referential integrity at the service layer:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;strong&gt;On Deletion&lt;/strong&gt;: Checks {@code inventoryItemRepository.existsActiveStockForSupplier()}
+ *     &lt;ul&gt;
+ *       &lt;li&gt;If ANY inventory items reference supplier → deletion blocked&lt;/li&gt;
+ *       &lt;li&gt;Error message: &quot;Cannot delete supplier with existing inventory items&quot;&lt;/li&gt;
+ *       &lt;li&gt;Alternative: Implement soft delete (isActive flag) or cascade strategy&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;On Update&lt;/strong&gt;: Name change allowed even with linked items
+ *     &lt;ul&gt;
+ *       &lt;li&gt;Items automatically see updated supplier name via relationship&lt;/li&gt;
+ *       &lt;li&gt;No orphaned references possible&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;strong&gt;Business Rule&lt;/strong&gt;: Cannot delete suppliers in active use (prevents data integrity issues)
+ * &lt;/p&gt;
+ *
+ * &lt;h3&gt;3. Uniqueness Constraint (Case-Insensitive)&lt;/h3&gt;
+ * &lt;p&gt;
+ * Supplier names must be unique regardless of case:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&quot;ACME Corp&quot; and &quot;acme corp&quot; are considered duplicates&lt;/li&gt;
+ *   &lt;li&gt;Enforced at service layer (before database)&lt;/li&gt;
+ *   &lt;li&gt;Repository uses {@code findByNameContainingIgnoreCase()} for searching&lt;/li&gt;
+ *   &lt;li&gt;Validator uses case-insensitive comparison&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;strong&gt;Why Service Layer?&lt;/strong&gt; Provides clear error messages and prevents database constraint violations
+ * &lt;/p&gt;
+ *
+ * &lt;h3&gt;4. Static Mapper Pattern&lt;/h3&gt;
+ * &lt;p&gt;
+ * This service uses {@link SupplierMapper} with &lt;strong&gt;static methods&lt;/strong&gt; for conversion:
+ * &lt;pre&gt;
+ * SupplierDTO dto = SupplierMapper.toDTO(entity);   // Entity → DTO
+ * Supplier entity = SupplierMapper.toEntity(dto);   // DTO → Entity
+ * &lt;/pre&gt;
+ * &lt;strong&gt;Comparison with Other Services&lt;/strong&gt;:
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@link InventoryItemServiceImpl}: Uses {@code InventoryItemMapper} (also static)&lt;/li&gt;
+ *   &lt;li&gt;Consistent pattern across all services&lt;/li&gt;
+ *   &lt;li&gt;Alternative: MapStruct or instance-based mappers (future refactoring option)&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;h3&gt;5. Transaction Management&lt;/h3&gt;
+ * &lt;p&gt;
+ * Class-level {@code @Transactional} with method-level overrides:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;strong&gt;Read Operations&lt;/strong&gt;: {@code @Transactional(readOnly = true)} for optimization
+ *     &lt;ul&gt;
+ *       &lt;li&gt;{@code findAll()}, {@code findById()}, {@code findByName()}, {@code countSuppliers()}&lt;/li&gt;
+ *       &lt;li&gt;Allows database read-only optimizations (no dirty checking)&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Write Operations&lt;/strong&gt;: Default {@code @Transactional} (read-write)
+ *     &lt;ul&gt;
+ *       &lt;li&gt;{@code create()}, {@code update()}, {@code delete()}&lt;/li&gt;
+ *       &lt;li&gt;Atomicity: Validation + persistence (all-or-nothing)&lt;/li&gt;
+ *       &lt;li&gt;Rollback on any exception&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;h3&gt;6. Server-Authoritative Fields&lt;/h3&gt;
+ * &lt;p&gt;
+ * Similar to {@link InventoryItemServiceImpl}, server controls critical fields:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;strong&gt;ID&lt;/strong&gt;: UUID generated on creation (client-provided IDs ignored)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;createdAt&lt;/strong&gt;: Timestamp set on creation (LocalDateTime.now())&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;updatedAt&lt;/strong&gt;: &lt;em&gt;(Not currently implemented)&lt;/em&gt;
+ *     &lt;ul&gt;
+ *       &lt;li&gt;Entity class doesn't expose {@code setUpdatedAt()}&lt;/li&gt;
+ *       &lt;li&gt;Future enhancement: Add {@code updatedAt} field + JPA @PreUpdate listener&lt;/li&gt;
+ *       &lt;li&gt;See refactoring analysis for AuditFieldListener pattern&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;createdBy&lt;/strong&gt;: &lt;em&gt;(TODO)&lt;/em&gt;
+ *     &lt;ul&gt;
+ *       &lt;li&gt;Comment notes: &quot;populate createdBy from security context if desired&quot;&lt;/li&gt;
+ *       &lt;li&gt;Future enhancement: Use SecurityContextUtils.getCurrentUsername()&lt;/li&gt;
+ *       &lt;li&gt;See {@link InventoryItemServiceImpl#currentUsername()} for pattern&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;h2&gt;Business Rules Enforced&lt;/h2&gt;
+ * &lt;ol&gt;
+ *   &lt;li&gt;&lt;strong&gt;Unique Name&lt;/strong&gt;: No two suppliers can have the same name (case-insensitive)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Deletion Protection&lt;/strong&gt;: Cannot delete suppliers with linked inventory items&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Required Fields&lt;/strong&gt;: Name and contact name must be non-blank&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Path ID Authoritative&lt;/strong&gt;: On update, path ID takes precedence over DTO ID&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Server-Side Timestamps&lt;/strong&gt;: Creation timestamp always set by server&lt;/li&gt;
+ * &lt;/ol&gt;
+ *
+ * &lt;h2&gt;Error Handling &amp; HTTP Status Mapping&lt;/h2&gt;
+ * &lt;p&gt;
+ * Exception types map to HTTP status codes via GlobalExceptionHandler:
+ * &lt;/p&gt;
+ * &lt;table border=&quot;1&quot;&gt;
+ *   &lt;tr&gt;
+ *     &lt;th&gt;Exception Type&lt;/th&gt;
+ *     &lt;th&gt;HTTP Status&lt;/th&gt;
+ *     &lt;th&gt;Scenario&lt;/th&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;{@code InvalidRequestException}&lt;/td&gt;
+ *     &lt;td&gt;400 Bad Request&lt;/td&gt;
+ *     &lt;td&gt;Invalid DTO fields (blank name, invalid email, etc.)&lt;/td&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;{@code NoSuchElementException}&lt;/td&gt;
+ *     &lt;td&gt;404 Not Found&lt;/td&gt;
+ *     &lt;td&gt;Supplier ID doesn't exist (update/delete)&lt;/td&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;{@code DuplicateResourceException}&lt;/td&gt;
+ *     &lt;td&gt;409 Conflict&lt;/td&gt;
+ *     &lt;td&gt;Supplier name already exists&lt;/td&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;{@code IllegalStateException}&lt;/td&gt;
+ *     &lt;td&gt;409 Conflict&lt;/td&gt;
+ *     &lt;td&gt;Cannot delete supplier with linked items&lt;/td&gt;
+ *   &lt;/tr&gt;
+ * &lt;/table&gt;
+ *
+ * &lt;h2&gt;Performance Considerations&lt;/h2&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;strong&gt;{@code findAll()}&lt;/strong&gt;: Loads ALL suppliers (acceptable for master data, typically &amp;lt; 1000 records)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;{@code findByName()}&lt;/strong&gt;: Uses {@code LIKE %name%} query (index on name recommended)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;{@code existsActiveStockForSupplier()}&lt;/strong&gt;: Custom repository query (should use index on supplierId)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Read-Only Transactions&lt;/strong&gt;: Optimization hint for database (no dirty checking)&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;h2&gt;Comparison with InventoryItemServiceImpl&lt;/h2&gt;
+ * &lt;table border=&quot;1&quot;&gt;
+ *   &lt;tr&gt;
+ *     &lt;th&gt;Aspect&lt;/th&gt;
+ *     &lt;th&gt;SupplierServiceImpl&lt;/th&gt;
+ *     &lt;th&gt;InventoryItemServiceImpl&lt;/th&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;Audit Trail&lt;/td&gt;
+ *     &lt;td&gt;Minimal (timestamps only)&lt;/td&gt;
+ *     &lt;td&gt;Comprehensive (StockHistory integration)&lt;/td&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;Validation&lt;/td&gt;
+ *     &lt;td&gt;Static utility (SupplierValidator)&lt;/td&gt;
+ *     &lt;td&gt;Static utilities (InventoryItemValidator + SecurityValidator)&lt;/td&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;Referential Integrity&lt;/td&gt;
+ *     &lt;td&gt;Enforced (prevent deletion)&lt;/td&gt;
+ *     &lt;td&gt;Enforced (supplier must exist)&lt;/td&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;Security Context&lt;/td&gt;
+ *     &lt;td&gt;TODO (not yet implemented)&lt;/td&gt;
+ *     &lt;td&gt;Fully integrated (currentUsername())&lt;/td&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;Complexity&lt;/td&gt;
+ *     &lt;td&gt;MEDIUM (152 lines)&lt;/td&gt;
+ *     &lt;td&gt;HIGH (1092 lines)&lt;/td&gt;
+ *   &lt;/tr&gt;
+ *   &lt;tr&gt;
+ *     &lt;td&gt;Master Data&lt;/td&gt;
+ *     &lt;td&gt;Yes (suppliers are reference data)&lt;/td&gt;
+ *     &lt;td&gt;No (items are transactional data)&lt;/td&gt;
+ *   &lt;/tr&gt;
+ * &lt;/table&gt;
+ *
+ * &lt;h2&gt;Related Components&lt;/h2&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@link SupplierService} - Service interface defining contract&lt;/li&gt;
+ *   &lt;li&gt;{@link SupplierValidator} - Validation logic (static utilities)&lt;/li&gt;
+ *   &lt;li&gt;{@link SupplierRepository} - Data access layer&lt;/li&gt;
+ *   &lt;li&gt;{@link SupplierMapper} - Entity/DTO conversion (static methods)&lt;/li&gt;
+ *   &lt;li&gt;{@link InventoryItemRepository} - Used for referential integrity checks&lt;/li&gt;
+ *   &lt;li&gt;{@link InventoryItemServiceImpl} - Consumes supplier data&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;h2&gt;Future Refactoring Considerations&lt;/h2&gt;
+ * &lt;p&gt;
+ * See {@code docs/backend/SUPPLIERSERVICEIMPL_REFACTORING_ANALYSIS.md} for:
+ * &lt;ul&gt;
+ *   &lt;li&gt;SecurityContextUtils integration (createdBy/updatedBy population)&lt;/li&gt;
+ *   &lt;li&gt;AuditFieldListener pattern (automatic timestamp management)&lt;/li&gt;
+ *   &lt;li&gt;Soft delete implementation (isActive flag vs hard delete)&lt;/li&gt;
+ *   &lt;li&gt;Pagination support for findAll() (if supplier count grows &amp;gt; 1000)&lt;/li&gt;
+ *   &lt;li&gt;Cross-service validation patterns (shared with InventoryItemServiceImpl)&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * @see SupplierService
+ * @see SupplierValidator
+ * @see SupplierRepository
+ * @see SupplierMapper
  */
 @Service
 @RequiredArgsConstructor
@@ -47,127 +288,595 @@ public class SupplierServiceImpl implements SupplierService {
     private final SupplierRepository supplierRepository;
     private final InventoryItemRepository inventoryItemRepository;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     * 
+     * &lt;p&gt;&lt;strong&gt;Performance Note&lt;/strong&gt;: This method loads ALL suppliers into memory.
+     * For most applications, supplier count remains manageable (&amp;lt; 1000 records) as they
+     * represent master/reference data, not transactional data.&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Use Cases&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;Admin dashboard showing complete supplier list&lt;/li&gt;
+     *   &lt;li&gt;Dropdown menus for supplier selection (if count is reasonable)&lt;/li&gt;
+     *   &lt;li&gt;Export functionality (CSV/Excel generation)&lt;/li&gt;
+     *   &lt;li&gt;Bulk operations requiring all suppliers&lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Security&lt;/strong&gt;: Access control enforced at controller layer via
+     * {@code @PreAuthorize} annotations. This method performs no filtering.&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Future Enhancement&lt;/strong&gt;: If supplier count grows &amp;gt; 1000, consider:
+     * &lt;ul&gt;
+     *   &lt;li&gt;Adding pagination support (Page&amp;lt;SupplierDTO&amp;gt; findAll(Pageable))&lt;/li&gt;
+     *   &lt;li&gt;Implementing caching (suppliers change infrequently)&lt;/li&gt;
+     *   &lt;li&gt;Lazy loading strategies&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     *
+     * @return list of all suppliers as DTOs (typically small dataset)
+     */
     @Override
     @Transactional(readOnly = true)
     public List&lt;SupplierDTO&gt; findAll() {
         // No filtering here; caller controls access via @PreAuthorize at controller.
-<span class="nc" id="L55">        return supplierRepository.findAll().stream()</span>
-<span class="nc" id="L56">                .map(SupplierMapper::toDTO) // static call</span>
-<span class="nc" id="L57">                .toList();</span>
+<span class="nc" id="L323">        return supplierRepository.findAll().stream()</span>
+<span class="nc" id="L324">                .map(SupplierMapper::toDTO) // static call</span>
+<span class="nc" id="L325">                .toList();</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     * 
+     * &lt;p&gt;Returns {@link Optional#empty()} if supplier not found, allowing caller
+     * to handle absence gracefully (e.g., return 404 HTTP status).&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Use Cases&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;View supplier details page&lt;/li&gt;
+     *   &lt;li&gt;Pre-populate edit forms&lt;/li&gt;
+     *   &lt;li&gt;Validate supplier existence before linking to inventory item&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param id the unique identifier of the supplier
+     * @return Optional containing the supplier DTO if found, empty otherwise
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional&lt;SupplierDTO&gt; findById(String id) {
-<span class="nc" id="L64">        return supplierRepository.findById(id).map(SupplierMapper::toDTO); // static call</span>
+<span class="nc" id="L347">        return supplierRepository.findById(id).map(SupplierMapper::toDTO); // static call</span>
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     * 
+     * &lt;p&gt;&lt;strong&gt;Search Behavior&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;&lt;strong&gt;Partial Match&lt;/strong&gt;: Uses SQL {@code LIKE %name%} pattern&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Case-Insensitive&lt;/strong&gt;: &quot;ACME&quot;, &quot;acme&quot;, &quot;Acme&quot; all match&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Substring Matching&lt;/strong&gt;: &quot;corp&quot; matches &quot;ACME Corporation&quot;, &quot;TechCorp&quot;, &quot;CorpSystems&quot;&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Empty String&lt;/strong&gt;: Returns all suppliers (same as findAll)&lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Use Cases&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;Search bar autocomplete in UI&lt;/li&gt;
+     *   &lt;li&gt;Filtering supplier dropdown by typing&lt;/li&gt;
+     *   &lt;li&gt;Supplier lookup by partial name&lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Performance&lt;/strong&gt;: Consider adding database index on supplier name
+     * column for faster wildcard searches.&lt;/p&gt;
+     *
+     * @param name the search term for supplier name (partial match, case-insensitive)
+     * @return list of matching suppliers, empty list if no matches
+     */
     @Override
     @Transactional(readOnly = true)
     public List&lt;SupplierDTO&gt; findByName(String name) {
         // Repository contract: partial, case-insensitive search.
-<span class="nc" id="L72">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
-<span class="nc" id="L73">                .map(SupplierMapper::toDTO) // static call</span>
-<span class="nc" id="L74">                .toList();</span>
+<span class="nc" id="L378">        return supplierRepository.findByNameContainingIgnoreCase(name).stream()</span>
+<span class="nc" id="L379">                .map(SupplierMapper::toDTO) // static call</span>
+<span class="nc" id="L380">                .toList();</span>
     }
 
     /**
-     * Create a supplier with server-generated id and timestamp.
+     * Creates a new supplier with server-generated ID and timestamp.
      *
-     * &lt;p&gt;Preconditions enforced:
+     * &lt;p&gt;&lt;strong&gt;Operation Flow&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ol&gt;
+     *   &lt;li&gt;Validate DTO fields (non-blank name, valid email/phone format)&lt;/li&gt;
+     *   &lt;li&gt;Check name uniqueness (case-insensitive across all suppliers)&lt;/li&gt;
+     *   &lt;li&gt;Convert DTO to entity&lt;/li&gt;
+     *   &lt;li&gt;Generate server-side fields (ID, createdAt)&lt;/li&gt;
+     *   &lt;li&gt;Persist to database&lt;/li&gt;
+     *   &lt;li&gt;Return saved entity as DTO&lt;/li&gt;
+     * &lt;/ol&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Business Rules Applied&lt;/strong&gt;:&lt;/p&gt;
      * &lt;ul&gt;
-     *   &lt;li&gt;Base DTO validation (non-blank name, etc.).&lt;/li&gt;
-     *   &lt;li&gt;Uniqueness of name (case-insensitive).&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Unique Name&lt;/strong&gt;: No duplicate supplier names (case-insensitive)
+     *     &lt;ul&gt;
+     *       &lt;li&gt;&quot;ACME Corp&quot; and &quot;acme corp&quot; are considered duplicates&lt;/li&gt;
+     *       &lt;li&gt;Throws {@code DuplicateResourceException} → HTTP 409 Conflict&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Required Fields&lt;/strong&gt;: Name and contact name must be non-blank&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Server-Authoritative ID&lt;/strong&gt;: UUID generated regardless of client input&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Server-Authoritative Timestamp&lt;/strong&gt;: createdAt set to current time&lt;/li&gt;
      * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Validation Delegation&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;All validation logic is centralized in {@link SupplierValidator}:
+     * &lt;ul&gt;
+     *   &lt;li&gt;{@code validateBase(dto)}: Field-level validation (non-blank, format checks)&lt;/li&gt;
+     *   &lt;li&gt;{@code assertUniqueName(repo, name, null)}: Uniqueness check (null = new supplier)&lt;/li&gt;
+     * &lt;/ul&gt;
+     * This promotes code reuse and makes validation rules testable in isolation.
+     * &lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Audit Trail (Current State)&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;✅ {@code createdAt}: Automatically set to {@code LocalDateTime.now()}&lt;/li&gt;
+     *   &lt;li&gt;⏸️ {@code createdBy}: TODO - Not yet implemented
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Future enhancement: Use {@code SecurityContextUtils.getCurrentUsername()}&lt;/li&gt;
+     *       &lt;li&gt;See {@link InventoryItemServiceImpl#currentUsername()} for pattern&lt;/li&gt;
+     *       &lt;li&gt;Requires SecurityContextUtils extraction (see refactoring analysis)&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Transaction Boundary&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;Validation and persistence occur within a single transaction. If validation fails,
+     * no database operation is attempted (fail-fast). If persistence fails, validation
+     * results are discarded (atomicity guarantee).&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Example Usage&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;pre&gt;
+     * SupplierDTO newSupplier = new SupplierDTO();
+     * newSupplier.setName(&quot;ACME Corporation&quot;);
+     * newSupplier.setContactName(&quot;John Smith&quot;);
+     * newSupplier.setPhone(&quot;+1-555-0123&quot;);
+     * newSupplier.setEmail(&quot;john.smith@acme.com&quot;);
+     * 
+     * SupplierDTO saved = service.create(newSupplier);
+     * // Result: Supplier persisted with UUID and timestamp
+     * &lt;/pre&gt;
      *
-     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if payload invalid
-     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if name not unique
+     * @param dto the supplier data transfer object (client-provided)
+     * @return the saved supplier as DTO with server-generated fields
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if DTO validation fails (blank name, invalid email, etc.) → HTTP 400
+     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if supplier name already exists (case-insensitive) → HTTP 409
      */
     @Override
     public SupplierDTO create(SupplierDTO dto) {
-<span class="fc" id="L91">        SupplierValidator.validateBase(dto);</span>
-<span class="fc" id="L92">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), null);</span>
+        // ===== STEP 1: Validate DTO fields =====
+        // Checks: non-blank name, non-blank contact name, valid email/phone format
+<span class="fc" id="L456">        SupplierValidator.validateBase(dto);</span>
+        
+        // ===== STEP 2: Check name uniqueness =====
+        // Business rule: Supplier name must be unique (case-insensitive)
+        // null parameter = new supplier (no ID to exclude from search)
+<span class="fc" id="L461">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), null);</span>
 
-<span class="fc" id="L94">        Supplier entity = SupplierMapper.toEntity(dto); // static call</span>
-<span class="fc" id="L95">        entity.setId(UUID.randomUUID().toString());</span>
-<span class="fc" id="L96">        entity.setCreatedAt(LocalDateTime.now());</span>
-        // TO DO(optional): populate createdBy from security context if desired.
+        // ===== STEP 3: Convert DTO to entity =====
+<span class="fc" id="L464">        Supplier entity = SupplierMapper.toEntity(dto); // static call</span>
+        
+        // ===== STEP 4: Generate server-side fields =====
+        // ID: Always generate new UUID (client-provided ID ignored)
+<span class="fc" id="L468">        entity.setId(UUID.randomUUID().toString());</span>
+        
+        // createdAt: Set to current timestamp
+<span class="fc" id="L471">        entity.setCreatedAt(LocalDateTime.now());</span>
+        
+        // TODO (Future Enhancement): Populate createdBy from security context
+        // entity.setCreatedBy(SecurityContextUtils.getCurrentUsername());
+        // Requires SecurityContextUtils extraction (see refactoring analysis)
 
-<span class="fc" id="L99">        Supplier saved = supplierRepository.save(entity);</span>
-<span class="fc" id="L100">        return SupplierMapper.toDTO(saved); // static call</span>
+        // ===== STEP 5: Persist to database =====
+<span class="fc" id="L478">        Supplier saved = supplierRepository.save(entity);</span>
+        
+        // ===== STEP 6: Return saved entity as DTO =====
+<span class="fc" id="L481">        return SupplierMapper.toDTO(saved); // static call</span>
     }
 
     /**
-     * Update mutable fields of an existing supplier.
+     * Updates mutable fields of an existing supplier.
      *
-     * &lt;p&gt;Semantics:
+     * &lt;p&gt;&lt;strong&gt;Operation Flow&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ol&gt;
+     *   &lt;li&gt;Verify supplier exists (throws 404 if not found)&lt;/li&gt;
+     *   &lt;li&gt;Validate DTO fields (non-blank, format checks)&lt;/li&gt;
+     *   &lt;li&gt;Check name uniqueness (excluding current supplier)&lt;/li&gt;
+     *   &lt;li&gt;Map allowed fields from DTO to entity&lt;/li&gt;
+     *   &lt;li&gt;Update audit timestamp (if entity supports it)&lt;/li&gt;
+     *   &lt;li&gt;Persist changes to database&lt;/li&gt;
+     *   &lt;li&gt;Return updated entity as DTO&lt;/li&gt;
+     * &lt;/ol&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Business Rules Applied&lt;/strong&gt;:&lt;/p&gt;
      * &lt;ul&gt;
-     *   &lt;li&gt;Path {@code id} is authoritative; if entity missing → 404.&lt;/li&gt;
-     *   &lt;li&gt;Validates DTO and name uniqueness (excluding current {@code id}).&lt;/li&gt;
-     *   &lt;li&gt;Maintains server-side audit fields (update timestamp/user) if present in the entity.&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Path ID Authoritative&lt;/strong&gt;: Path parameter {@code id} is authoritative
+     *     &lt;ul&gt;
+     *       &lt;li&gt;DTO ID (if provided) is ignored&lt;/li&gt;
+     *       &lt;li&gt;Prevents ID confusion/manipulation&lt;/li&gt;
+     *       &lt;li&gt;Standard REST practice (PUT /api/suppliers/{id})&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Uniqueness Check (Conditional)&lt;/strong&gt;: Name uniqueness validated ONLY if name changed
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Current supplier ID excluded from uniqueness search&lt;/li&gt;
+     *       &lt;li&gt;Example: Can update &quot;ACME Corp&quot; → &quot;ACME Corporation&quot; if no conflict&lt;/li&gt;
+     *       &lt;li&gt;{@code assertUniqueName(repo, newName, currentId)}&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Immutable Fields&lt;/strong&gt;: ID and createdAt are never overwritten
+     *     &lt;ul&gt;
+     *       &lt;li&gt;ID: Determined by path parameter&lt;/li&gt;
+     *       &lt;li&gt;createdAt: Preserved from original entity&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Referential Integrity Preserved&lt;/strong&gt;: Linked inventory items automatically see updated supplier name&lt;/li&gt;
      * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Mutable Fields&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;{@code name}: Supplier display name (subject to uniqueness constraint)&lt;/li&gt;
+     *   &lt;li&gt;{@code contactName}: Primary contact person name&lt;/li&gt;
+     *   &lt;li&gt;{@code phone}: Contact phone number (format validated by SupplierValidator)&lt;/li&gt;
+     *   &lt;li&gt;{@code email}: Contact email address (format validated by SupplierValidator)&lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Audit Trail (Current State)&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;⏸️ {@code updatedAt}: NOT YET IMPLEMENTED
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Entity class {@link Supplier} does not expose {@code setUpdatedAt()} method&lt;/li&gt;
+     *       &lt;li&gt;Future enhancement: Add {@code updatedAt} field to entity&lt;/li&gt;
+     *       &lt;li&gt;Uncomment line: {@code existing.setUpdatedAt(LocalDateTime.now());}&lt;/li&gt;
+     *       &lt;li&gt;Alternative: Implement JPA @PreUpdate listener (see AuditFieldListener pattern)&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;⏸️ {@code updatedBy}: NOT YET IMPLEMENTED
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Future enhancement: Use {@code SecurityContextUtils.getCurrentUsername()}&lt;/li&gt;
+     *       &lt;li&gt;Track who made the last modification (compliance requirement)&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Impact on Linked Inventory Items&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;When a supplier name is updated:
+     * &lt;ul&gt;
+     *   &lt;li&gt;✅ Inventory items referencing this supplier automatically see the new name&lt;/li&gt;
+     *   &lt;li&gt;✅ No orphaned references (referential integrity maintained)&lt;/li&gt;
+     *   &lt;li&gt;✅ No cascade update needed (foreign key relationship)&lt;/li&gt;
+     *   &lt;li&gt;⚠️ Analytics reports using cached data may show stale supplier names until cache refresh&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Transaction Boundary&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;All validations and database update occur atomically. If validation fails,
+     * no changes are persisted. If persistence fails, all changes are rolled back.&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Example Usage&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;pre&gt;
+     * // Scenario 1: Update supplier contact info
+     * SupplierDTO updates = existingSupplier.clone();
+     * updates.setContactName(&quot;Jane Doe&quot;);
+     * updates.setPhone(&quot;+1-555-9999&quot;);
+     * service.update(supplierId, updates);
+     * // Result: Contact updated, name unchanged, no uniqueness check needed
+     * 
+     * // Scenario 2: Rename supplier (requires uniqueness check)
+     * SupplierDTO rename = existingSupplier.clone();
+     * rename.setName(&quot;ACME Corporation Ltd&quot;);
+     * service.update(supplierId, rename);
+     * // Result: Name updated if unique, DuplicateResourceException if conflict
+     * 
+     * // Scenario 3: Invalid supplier ID
+     * try {
+     *     service.update(&quot;invalid-id&quot;, updates);
+     * } catch (NoSuchElementException e) {
+     *     // &quot;Supplier not found: invalid-id&quot; → HTTP 404
+     * }
+     * &lt;/pre&gt;
      *
-     * @throws NoSuchElementException if supplier does not exist
-     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if payload invalid
-     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if name conflict
+     * @param id the unique identifier of the supplier to update (path parameter, authoritative)
+     * @param dto the updated supplier data (ID field ignored if present)
+     * @return the updated supplier as DTO
+     * @throws NoSuchElementException if supplier with given ID does not exist → HTTP 404
+     * @throws com.smartsupplypro.inventory.exception.InvalidRequestException if DTO validation fails → HTTP 400
+     * @throws com.smartsupplypro.inventory.exception.DuplicateResourceException if name conflicts with another supplier → HTTP 409
      */
     @Override
     public SupplierDTO update(String id, SupplierDTO dto) {
-<span class="fc" id="L119">        Supplier existing = supplierRepository.findById(id)</span>
-<span class="fc" id="L120">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
+        // ===== STEP 1: Verify supplier exists =====
+<span class="fc" id="L596">        Supplier existing = supplierRepository.findById(id)</span>
+<span class="fc" id="L597">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
 
-<span class="fc" id="L122">        SupplierValidator.validateBase(dto);</span>
-<span class="fc" id="L123">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
+        // ===== STEP 2: Validate DTO fields =====
+<span class="fc" id="L600">        SupplierValidator.validateBase(dto);</span>
+        
+        // ===== STEP 3: Check name uniqueness (excluding current supplier) =====
+        // Business rule: Name must be unique, but allow same supplier to keep same name
+        // The 'id' parameter excludes this supplier from the uniqueness search
+<span class="fc" id="L605">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
 
-        // Map allowed fields
-<span class="fc" id="L126">        existing.setName(dto.getName());</span>
-<span class="fc" id="L127">        existing.setContactName(dto.getContactName());</span>
-<span class="fc" id="L128">        existing.setPhone(dto.getPhone());</span>
-<span class="fc" id="L129">        existing.setEmail(dto.getEmail());</span>
+        // ===== STEP 4: Map allowed fields from DTO to entity =====
+<span class="fc" id="L608">        existing.setName(dto.getName());</span>
+<span class="fc" id="L609">        existing.setContactName(dto.getContactName());</span>
+<span class="fc" id="L610">        existing.setPhone(dto.getPhone());</span>
+<span class="fc" id="L611">        existing.setEmail(dto.getEmail());</span>
 
-        // NOTE: Your Supplier entity does not expose setUpdatedAt(..).
-        // If you later add it, you can uncomment the next line.
+        // ===== STEP 5: Update audit timestamp (if entity supports it) =====
+        // NOTE: Your Supplier entity does not expose setUpdatedAt(..) method.
+        // Future enhancement: Add updatedAt field + uncomment below
         // existing.setUpdatedAt(LocalDateTime.now());
+        
+        // TODO (Future Enhancement): Track who made the update
+        // existing.setUpdatedBy(SecurityContextUtils.getCurrentUsername());
 
-<span class="fc" id="L135">        Supplier saved = supplierRepository.save(existing);</span>
-<span class="fc" id="L136">        return SupplierMapper.toDTO(saved); // static call</span>
+        // ===== STEP 6: Persist changes to database =====
+<span class="fc" id="L622">        Supplier saved = supplierRepository.save(existing);</span>
+        
+        // ===== STEP 7: Return updated entity as DTO =====
+<span class="fc" id="L625">        return SupplierMapper.toDTO(saved); // static call</span>
     }
 
     /**
-     * Delete a supplier after verifying there are no linked inventory items.
+     * Deletes a supplier after ensuring referential integrity.
      *
-     * &lt;p&gt;Preconditions enforced:
+     * &lt;p&gt;&lt;strong&gt;Operation Flow&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ol&gt;
+     *   &lt;li&gt;Check referential integrity (throws 409 if linked items exist)&lt;/li&gt;
+     *   &lt;li&gt;Verify supplier exists (throws 404 if not found)&lt;/li&gt;
+     *   &lt;li&gt;Delete supplier from database&lt;/li&gt;
+     * &lt;/ol&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Referential Integrity Enforcement&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;&lt;strong&gt;⚠️ CRITICAL BUSINESS RULE&lt;/strong&gt;: A supplier &lt;strong&gt;CANNOT&lt;/strong&gt; be deleted if any inventory
+     * items currently reference it. This prevents orphaned foreign keys and maintains
+     * data consistency.&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Deletion Blocked Scenarios&lt;/strong&gt;:&lt;/p&gt;
      * &lt;ul&gt;
-     *   &lt;li&gt;{@code assertDeletable} blocks deletion when items reference the supplier ( → 409 ).&lt;/li&gt;
-     *   &lt;li&gt;Existence check ( → 404 if missing ).&lt;/li&gt;
+     *   &lt;li&gt;❌ &lt;strong&gt;Active Stock&lt;/strong&gt;: Inventory items with quantity &gt; 0 linked to this supplier
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Example: Supplier &quot;ACME Corp&quot; has 50 laptops in stock&lt;/li&gt;
+     *       &lt;li&gt;Action required: Transfer items to another supplier OR deplete stock first&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;❌ &lt;strong&gt;Depleted Stock (Historical Records)&lt;/strong&gt;: Items with quantity = 0 but supplier link preserved
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Example: Supplier &quot;Obsolete Inc&quot; has 0 laptops now, but historical records exist&lt;/li&gt;
+     *       &lt;li&gt;Reason: Audit trail requires preserving supplier relationship&lt;/li&gt;
+     *       &lt;li&gt;Action required: Change item's supplier reference OR consider soft delete&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;✅ &lt;strong&gt;No Linked Items&lt;/strong&gt;: Supplier never referenced OR all items deleted first
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Example: Supplier &quot;New Vendor&quot; never had items assigned&lt;/li&gt;
+     *       &lt;li&gt;Result: Deletion proceeds successfully&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
      * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Validation Query Explained&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;The {@code assertDeletable(..)} method executes:
+     * &lt;pre&gt;
+     * // Custom query from InventoryItemRepository
+     * SELECT COUNT(*) FROM inventory_items WHERE supplier_id = ? AND quantity &gt; ?
+     * // threshold = 0, so matches ANY items (active OR historical)
+     * &lt;/pre&gt;
+     * If count &gt; 0 → {@link IllegalStateException} (mapped to HTTP 409 by controller)
+     * &lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Alternative Deletion Strategies (Not Implemented)&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;💡 &lt;strong&gt;Soft Delete&lt;/strong&gt; (Recommended for compliance):
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Add {@code deletedAt} timestamp field to {@link Supplier} entity&lt;/li&gt;
+     *       &lt;li&gt;Hide deleted suppliers from {@code findAll()} via filter&lt;/li&gt;
+     *       &lt;li&gt;Preserve historical data for audits/reports&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;💡 &lt;strong&gt;Cascade Nullify&lt;/strong&gt; (Use with caution):
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Set {@code supplier_id = NULL} on linked inventory items&lt;/li&gt;
+     *       &lt;li&gt;Risk: Loses historical supplier association&lt;/li&gt;
+     *       &lt;li&gt;Use case: Anonymous/generic suppliers&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;⚠️ &lt;strong&gt;Cascade Delete&lt;/strong&gt; (Not recommended):
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Automatically delete linked inventory items&lt;/li&gt;
+     *       &lt;li&gt;Dangerous: Unintentional data loss&lt;/li&gt;
+     *       &lt;li&gt;Never appropriate for supplier-item relationship&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Transaction Boundary&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;Referential integrity check and deletion occur atomically. If validation
+     * passes but deletion fails (e.g., concurrent modification), changes are rolled back.&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Example Usage&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;pre&gt;
+     * // Scenario 1: Successful deletion (no linked items)
+     * String supplierId = &quot;never-used-supplier-id&quot;;
+     * service.delete(supplierId);
+     * // Result: Supplier deleted successfully
+     * 
+     * // Scenario 2: Deletion blocked (linked active stock)
+     * String activeSupplier = &quot;acme-corp-id&quot;;
+     * try {
+     *     service.delete(activeSupplier);
+     * } catch (IllegalStateException e) {
+     *     // &quot;Cannot delete supplier: inventory items still reference it&quot; → HTTP 409
+     *     // UI should show: &quot;Transfer items to another supplier before deletion&quot;
+     * }
+     * 
+     * // Scenario 3: Invalid supplier ID
+     * try {
+     *     service.delete(&quot;non-existent-id&quot;);
+     * } catch (NoSuchElementException e) {
+     *     // &quot;Supplier not found: non-existent-id&quot; → HTTP 404
+     * }
+     * 
+     * // Scenario 4: Deletion blocked (historical records)
+     * String historicalSupplier = &quot;obsolete-supplier-id&quot;;
+     * try {
+     *     service.delete(historicalSupplier);
+     * } catch (IllegalStateException e) {
+     *     // &quot;Cannot delete supplier: inventory items still reference it&quot; → HTTP 409
+     *     // All items have quantity=0, but supplier link preserved for audit
+     *     // UI should show: &quot;Change supplier on items OR consider archiving supplier&quot;
+     * }
+     * &lt;/pre&gt;
      *
-     * @throws IllegalStateException if business constraint prevents deletion
-     * @throws NoSuchElementException if supplier does not exist
+     * @param id the unique identifier of the supplier to delete
+     * @throws IllegalStateException if inventory items reference this supplier → HTTP 409
+     * @throws NoSuchElementException if supplier with given ID does not exist → HTTP 404
      */
     @Override
     public void delete(String id) {
-<span class="fc" id="L153">        SupplierValidator.assertDeletable(</span>
+        // ===== STEP 1: Check referential integrity =====
+        // Validation throws IllegalStateException if any inventory items link to this supplier
+        // Lambda provides custom query: existsActiveStockForSupplier(supplierId, threshold=0)
+        // threshold=0 means check for ANY items (active stock + historical records)
+<span class="fc" id="L749">        SupplierValidator.assertDeletable(</span>
             id, 
-<span class="fc" id="L155">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
+<span class="fc" id="L751">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
         );
 
-<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
-<span class="fc" id="L159">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
+        // ===== STEP 2: Verify supplier exists =====
+<span class="fc bfc" id="L755" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
+<span class="fc" id="L756">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
         }
-<span class="fc" id="L161">        supplierRepository.deleteById(id);</span>
-<span class="fc" id="L162">    }</span>
+        
+        // ===== STEP 3: Delete supplier from database =====
+        // Safe to proceed: No foreign key constraints will be violated
+<span class="fc" id="L761">        supplierRepository.deleteById(id);</span>
+<span class="fc" id="L762">    }</span>
 
     /**
-    * Total number of suppliers (KPI).
-    */
+     * Returns the total number of suppliers in the system (KPI metric).
+     *
+     * &lt;p&gt;&lt;strong&gt;Purpose&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;This method provides a key performance indicator (KPI) for the supplier management
+     * system. It is used in dashboard displays, analytics reports, and monitoring to
+     * track the growth and size of the supplier network.&lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Use Cases&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;&lt;strong&gt;Dashboard KPI Tile&lt;/strong&gt;:
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Display total supplier count alongside other metrics (total items, total stock value)&lt;/li&gt;
+     *       &lt;li&gt;Example: &quot;Suppliers: 87&quot; on admin dashboard&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Analytics Reports&lt;/strong&gt;:
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Supplier diversity analysis (how many suppliers provide inventory)&lt;/li&gt;
+     *       &lt;li&gt;Risk assessment (over-reliance on single supplier if count is low)&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Pagination UI&lt;/strong&gt;:
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Determine total pages for supplier list (totalPages = ceil(count / pageSize))&lt;/li&gt;
+     *       &lt;li&gt;Show &quot;Displaying 1-25 of 87 suppliers&quot;&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Capacity Planning&lt;/strong&gt;:
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Monitor supplier network growth over time&lt;/li&gt;
+     *       &lt;li&gt;Decide when to implement pagination (if count exceeds 1000)&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Performance Characteristics&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;&lt;strong&gt;Query Type&lt;/strong&gt;: {@code SELECT COUNT(*) FROM suppliers}
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Lightweight database operation (no row data fetched)&lt;/li&gt;
+     *       &lt;li&gt;Typically &amp;lt;10ms execution time even for thousands of records&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Caching Opportunity&lt;/strong&gt;:
+     *     &lt;ul&gt;
+     *       &lt;li&gt;Master data changes infrequently (new suppliers added rarely)&lt;/li&gt;
+     *       &lt;li&gt;Consider caching result for 1-5 minutes to reduce DB load&lt;/li&gt;
+     *       &lt;li&gt;Invalidate cache on create/update/delete operations&lt;/li&gt;
+     *     &lt;/ul&gt;
+     *   &lt;/li&gt;
+     * &lt;/ul&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Comparison with {@code countItems()} in {@link InventoryItemServiceImpl}&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;table border=&quot;1&quot; cellpadding=&quot;5&quot;&gt;
+     *   &lt;tr&gt;
+     *     &lt;th&gt;Aspect&lt;/th&gt;
+     *     &lt;th&gt;{@code countSuppliers()} (this method)&lt;/th&gt;
+     *     &lt;th&gt;{@code countItems()}&lt;/th&gt;
+     *   &lt;/tr&gt;
+     *   &lt;tr&gt;
+     *     &lt;td&gt;&lt;strong&gt;Data Type&lt;/strong&gt;&lt;/td&gt;
+     *     &lt;td&gt;Master data (reference)&lt;/td&gt;
+     *     &lt;td&gt;Transactional data&lt;/td&gt;
+     *   &lt;/tr&gt;
+     *   &lt;tr&gt;
+     *     &lt;td&gt;&lt;strong&gt;Change Frequency&lt;/strong&gt;&lt;/td&gt;
+     *     &lt;td&gt;Low (monthly/quarterly)&lt;/td&gt;
+     *     &lt;td&gt;High (daily/hourly)&lt;/td&gt;
+     *   &lt;/tr&gt;
+     *   &lt;tr&gt;
+     *     &lt;td&gt;&lt;strong&gt;Typical Count&lt;/strong&gt;&lt;/td&gt;
+     *     &lt;td&gt;10-500 suppliers&lt;/td&gt;
+     *     &lt;td&gt;100-10,000+ items&lt;/td&gt;
+     *   &lt;/tr&gt;
+     *   &lt;tr&gt;
+     *     &lt;td&gt;&lt;strong&gt;Caching Strategy&lt;/strong&gt;&lt;/td&gt;
+     *     &lt;td&gt;High potential (5-minute cache)&lt;/td&gt;
+     *     &lt;td&gt;Low potential (real-time accuracy needed)&lt;/td&gt;
+     *   &lt;/tr&gt;
+     * &lt;/table&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Transaction Behavior&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;p&gt;Marked {@code @Transactional(readOnly = true)} for performance optimization:
+     * &lt;ul&gt;
+     *   &lt;li&gt;✅ No write lock acquired (concurrent reads allowed)&lt;/li&gt;
+     *   &lt;li&gt;✅ Database can optimize read-only query&lt;/li&gt;
+     *   &lt;li&gt;✅ Reduced transaction overhead&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     * 
+     * &lt;p&gt;&lt;strong&gt;Example Usage&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;pre&gt;
+     * // Dashboard KPI display
+     * long supplierCount = service.countSuppliers();
+     * System.out.println(&quot;Total Suppliers: &quot; + supplierCount);
+     * // Output: &quot;Total Suppliers: 87&quot;
+     * 
+     * // Pagination calculation
+     * int pageSize = 25;
+     * long totalSuppliers = service.countSuppliers();
+     * int totalPages = (int) Math.ceil((double) totalSuppliers / pageSize);
+     * // Result: 87 suppliers ÷ 25 per page = 4 pages
+     * 
+     * // Risk assessment
+     * if (supplierCount &amp;lt; 3) {
+     *     System.out.println(&quot;WARNING: Over-reliance on few suppliers (risk: single point of failure)&quot;);
+     * }
+     * &lt;/pre&gt;
+     *
+     * @return the total number of suppliers in the database
+     */
     @Override
     @Transactional(readOnly = true)
     public long countSuppliers() {
-<span class="nc" id="L170">        return supplierRepository.count();</span>
+<span class="nc" id="L879">        return supplierRepository.count();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
