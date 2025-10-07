@@ -253,10 +253,11 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     
     
     /**
-    * Current total stock quantity by supplier (simple dashboard pie/bar).
-    *
-    * <p><strong>Output row format:</strong> [supplier_name (String), total_quantity (Number)]</p>
-    */
+     * Returns total stock quantity per supplier for dashboard (native SQL).
+     * Returns: [supplier_name (String), total_quantity (Number)]
+     *
+     * @return per-supplier totals ordered by quantity descending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getTotalStockPerSupplier() {
@@ -282,12 +283,12 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     }
     
     /**
-    * Update frequency per item, optionally filtered by supplier.
-    *
-    * <p><strong>Output row format:</strong> [item_name (String), update_count (Number)]</p>
-    *
-    * @param supplierId optional supplier ID (case-insensitive for H2 branch)
-    */
+     * Returns update event count per item with optional supplier filtering (native SQL).
+     * Returns: [item_name (String), update_count (Number)]
+     *
+     * @param supplierId optional supplier ID filter (case-insensitive)
+     * @return per-item update counts ordered by count descending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getUpdateCountPerItemFiltered(String supplierId) {
@@ -318,12 +319,12 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     }
     
     /**
-    * Items currently below their minimum threshold, optionally filtered by supplier.
-    *
-    * <p><strong>Output row format:</strong> [name (String), quantity (Number), minimum_quantity (Number)]</p>
-    *
-    * @param supplierId optional supplier ID (case-insensitive for H2 branch)
-    */
+     * Returns items currently below their minimum stock threshold (native SQL).
+     * Returns: [name (String), quantity (Number), minimum_quantity (Number)]
+     *
+     * @param supplierId optional supplier ID filter (case-insensitive)
+     * @return items below minimum ordered by severity
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> findItemsBelowMinimumStockFiltered(String supplierId) {
@@ -352,12 +353,19 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     }
     
     /**
-    * Flexible stock update search with time/supplier/item/user/quantity filters.
-    *
-    * <p><strong>Output row format:</strong>
-    * [item_name (String), supplier_name (String), quantity_change (Number),
-    *  reason (String or enum name), created_by (String), created_at (TIMESTAMP)]</p>
-    */
+     * Returns stock updates with flexible multi-criteria filtering (native SQL).
+     * Returns: [item_name, supplier_name, quantity_change, reason, created_by, created_at]
+     *
+     * @param startDate optional minimum creation timestamp
+     * @param endDate optional maximum creation timestamp
+     * @param itemName optional item name filter (case-insensitive partial match)
+     * @param supplierId optional supplier ID filter
+     * @param createdBy optional creator username filter (case-insensitive exact match)
+     * @param minChange optional minimum quantity change filter
+     * @param maxChange optional maximum quantity change filter
+     * @return filtered stock updates ordered by creation time descending
+     * @see com.smartsupplypro.inventory.repository for parameter normalization patterns
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> findFilteredStockUpdates(
@@ -369,6 +377,11 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     Integer minChange,
     Integer maxChange
     ) {
+        // Enterprise Comment: Multi-Criteria Filtering Pattern
+        // Uses NULL-safe WHERE clauses allowing optional filters. Each parameter
+        // is normalized (null/blank checks) and converted to search patterns
+        // (e.g., LIKE %term% for partial match). This enables flexible queries
+        // without building dynamic SQL strings.
         final String sql;
         if (isH2()) {
             sql = """
@@ -418,16 +431,15 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     }
     
     /**
-    * Average price trend per day for a specific item (optional supplier filter).
-    *
-    * <p><strong>Output row format:</strong> [day_str (String YYYY-MM-DD), price (BigDecimal)]</p>
-    *
-    * @param itemId     required item ID
-    * @param supplierId optional supplier ID (null/blank = all)
-    * @param start      inclusive lower bound (created_at)
-    * @param end        inclusive upper bound (created_at)
-    * @return list of day/price pairs ordered by day ascending
-    */
+     * Returns daily average price trend for specific item (native SQL).
+     * Returns: [day_str (String YYYY-MM-DD), price (BigDecimal)]
+     *
+     * @param itemId required item ID
+     * @param supplierId optional supplier ID filter
+     * @param start inclusive lower bound timestamp
+     * @param end inclusive upper bound timestamp
+     * @return daily price trend ordered by day ascending
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDateTime start, LocalDateTime end) {
@@ -480,20 +492,20 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     }
     
     /**
-    * Streams events up to the given time (inclusive) using JPQL over entity properties.
-    *
-    * <p>Used by the WAC (weighted-average-cost) algorithm to:
-    * <ul>
-    *   <li>replay events before the analysis window to build opening inventory, and</li>
-    *   <li>aggregate purchases/COGS/write-offs/returns within the window.</li>
-    * </ul>
-    *
-    * @param end        inclusive upper bound (compared to entity property {@code createdAt})
-    * @param supplierId optional supplier filter (null = all)
-    * @return ordered rows projected into {@link StockEventRowDTO}
-    */
+     * Streams stock events up to specified time for WAC algorithm (JPQL).
+     * Used to replay events for opening inventory and aggregate purchases/COGS within window.
+     *
+     * @param end inclusive upper bound timestamp
+     * @param supplierId optional supplier filter
+     * @return ordered event stream projected to StockEventRowDTO
+     * @see com.smartsupplypro.inventory.service for WAC cost-flow calculations
+     */
     @Override
     public List<StockEventRowDTO> findEventsUpTo(LocalDateTime end, String supplierId) {
+        // Enterprise Comment: WAC Event Streaming
+        // Provides time-ordered event stream for Weighted Average Cost calculations.
+        // Events are sorted by item and timestamp to enable sequential replay for
+        // opening inventory reconstruction and period-specific cost aggregations.
         final String jpql = """
             select new com.smartsupplypro.inventory.dto.StockEventRowDTO(
                 sh.itemId, 
