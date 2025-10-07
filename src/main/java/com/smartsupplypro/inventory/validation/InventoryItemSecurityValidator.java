@@ -10,38 +10,31 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Security-focused validation utility for InventoryItem operations.
- * <p>
- * This class enforces role-based access control for update operations
- * on inventory items. Specifically:
+ * Security validator for role-based inventory item update restrictions.
+ *
+ * <p><strong>Access Control</strong>:
  * <ul>
- *   <li><strong>ADMIN</strong> users may perform full updates</li>
- *   <li><strong>USER</strong> roles are restricted to only updating quantity and price</li>
+ *   <li><strong>ADMIN</strong>: Full update permissions (name, supplier, quantity, price)</li>
+ *   <li><strong>USER</strong>: Restricted to quantity and price updates only</li>
  * </ul>
- * The validator throws HTTP 403 errors if permission constraints are violated.
- * </p>
- * 
- * <p>
- * Usage: This validator is typically called from service-layer update logic
- * to ensure unauthorized field changes are blocked at runtime.
- * </p>
- * 
- * @author
- * SmartSupplyPro Dev Team
+ *
+ * <p><strong>Design</strong>:
+ * Validates field-level permissions before service layer commits changes.
+ * Throws HTTP 403 for unauthorized field modifications.
+ *
+ * @see InventoryItemService
+ * @see <a href="file:../../../../../../docs/architecture/patterns/validation-patterns.md">Validation Patterns</a>
  */
 public class InventoryItemSecurityValidator {
 
     /**
-     * Validates whether the currently authenticated user has permission to update
-     * specific fields of an inventory item based on their role.
-     * <p>
-     * If the user is a regular USER (not ADMIN), changes to the item's name or supplier
-     * will result in an HTTP 403 Forbidden response.
-     * </p>
+     * Validates user has permission to update specific inventory item fields.
+     * USER role: only quantity and price changes allowed.
+     * ADMIN role: full update permissions.
      *
-     * @param existing the existing InventoryItem entity from the database
-     * @param incoming the DTO containing updated item fields from the request
-     * @throws ResponseStatusException if authentication is missing or access is denied
+     * @param existing current inventory item entity
+     * @param incoming updated item DTO from request
+     * @throws ResponseStatusException 401 if not authenticated, 403 if unauthorized field change
      */
     public static void validateUpdatePermissions(InventoryItem existing, InventoryItemDTO incoming) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

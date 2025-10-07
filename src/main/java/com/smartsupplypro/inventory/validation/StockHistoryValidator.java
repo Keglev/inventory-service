@@ -7,43 +7,29 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 
 /**
- * Utility class responsible for validating {@link StockHistoryDTO} instances and
- * {@link StockChangeReason} enums before persisting stock change records.
+ * Validation utilities for stock history operations.
  *
- * <p>This validator enforces strict business rules to ensure data integrity for all stock history changes,
- * such as:</p>
+ * <p><strong>Capabilities</strong>:
  * <ul>
- *     <li>Non-null and valid item IDs</li>
- *     <li>Non-zero stock changes</li>
- *     <li>Valid reason codes mapped to the {@code StockChangeReason} enum</li>
- *     <li>Mandatory audit fields such as {@code createdBy}</li>
+ *   <li><strong>DTO Validation</strong>: Item ID, change value, reason, audit fields</li>
+ *   <li><strong>Enum Validation</strong>: Stock change reason whitelist enforcement</li>
+ *   <li><strong>Business Rules</strong>: Zero-delta only for PRICE_CHANGE, non-negative prices</li>
+ *   <li><strong>Audit Trail</strong>: Mandatory createdBy field enforcement</li>
  * </ul>
  *
- * <p><strong>Design:</strong> Implements the utility class pattern using a private constructor
- * and static methods only. Intended for use in service layer logic (e.g., {@code StockHistoryService}).</p>
- *
- * @author
- * SmartSupplyPro Dev Team
+ * @see StockHistoryService
+ * @see <a href="file:../../../../../../docs/architecture/patterns/validation-patterns.md">Validation Patterns</a>
  */
 public class StockHistoryValidator {
 
-    /**
-     * Private constructor to enforce utility class semantics.
-     */
     private StockHistoryValidator() {}
 
     /**
-     * Validates the contents of a {@link StockHistoryDTO} before it is persisted.
-     * <p>Ensures the following:</p>
-     * <ul>
-     *     <li>{@code itemId} is not null or empty</li>
-     *     <li>{@code change} value is not zero</li>
-     *     <li>{@code reason} is not null and is a valid enum constant</li>
-     *     <li>{@code createdBy} is provided</li>
-     * </ul>
+     * Validates stock history DTO before persistence.
+     * Enforces item ID, non-zero change (except PRICE_CHANGE), valid reason, and audit fields.
      *
-     * @param dto the data transfer object representing the stock change
-     * @throws IllegalArgumentException if any validation rule fails
+     * @param dto stock change data
+     * @throws InvalidRequestException if validation fails
      */
     public static void validate(StockHistoryDTO dto) {
     if (dto.getItemId() == null || dto.getItemId().isBlank()) {
@@ -77,11 +63,10 @@ public class StockHistoryValidator {
   }
 
     /**
-     * Validates that the given {@link StockChangeReason} enum is part of the allowed set.
-     * <p>Helps avoid saving or logging stock changes with unsupported reason codes.</p>
+     * Validates stock change reason is in allowed enum set.
      *
-     * @param reason the reason enum to validate
-     * @throws IllegalArgumentException if the reason is null or not within the allowed set
+     * @param reason stock change reason
+     * @throws IllegalArgumentException if reason is null or not allowed
      */
     public static void validateEnum(StockChangeReason reason) {
         if (reason == null || !EnumSet.of(

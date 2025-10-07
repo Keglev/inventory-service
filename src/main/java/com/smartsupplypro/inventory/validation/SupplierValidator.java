@@ -9,26 +9,28 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 
 /**
- * Central validation utilities for Supplier operations.
+ * Validation utilities for supplier operations.
  *
- * <p>Design goals:
+ * <p><strong>Capabilities</strong>:
  * <ul>
- *   <li>Keep business rules close to the service layer while staying repo‑agnostic.</li>
- *   <li>Surface exceptions that your GlobalExceptionHandler maps to 400/404/409.</li>
- *   <li>Be resilient to schema differences (1‑N or N‑N item–supplier relations).</li>
+ *   <li><strong>Base Validation</strong>: Required field checks (name)</li>
+ *   <li><strong>Uniqueness</strong>: Case-insensitive name enforcement</li>
+ *   <li><strong>Deletion Safety</strong>: Prevents deletion with linked items</li>
+ *   <li><strong>Exception Mapping</strong>: Throws 400/409 exceptions for GlobalExceptionHandler</li>
  * </ul>
+ *
+ * @see SupplierService
+ * @see <a href="file:../../../../../../docs/architecture/patterns/validation-patterns.md">Validation Patterns</a>
  */
 public final class SupplierValidator {
 
     private SupplierValidator() { }
 
     /**
-     * Basic field validation invoked on create/update.
-     * <ul>
-     *   <li>name: required, non-blank</li>
-     * </ul>
+     * Validates required supplier fields (name must be non-blank).
      *
-     * @throws InvalidRequestException if dto or required fields are invalid
+     * @param dto supplier data
+     * @throws InvalidRequestException if validation fails
      */
     public static void validateBase(SupplierDTO dto) {
         if (dto == null) {
@@ -40,12 +42,12 @@ public final class SupplierValidator {
     }
 
     /**
-     * Enforce unique, case-insensitive supplier name.
+     * Enforces unique supplier name (case-insensitive).
      *
-     * @param repo       Supplier repository providing exact lookup by name
-     * @param name       desired supplier name (case-insensitive)
-     * @param excludeId  pass null for create; current id for update
-     * @throws DuplicateResourceException if another supplier already uses the name
+     * @param repo supplier repository
+     * @param name desired supplier name
+     * @param excludeId current ID for update, null for create
+     * @throws DuplicateResourceException if name already exists
      */
     public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
         if (isBlank(name)) return; // validateBase already handles blank
@@ -62,16 +64,13 @@ public final class SupplierValidator {
     }
 
     /**
-     * Prevent deletion when there are linked inventory items.
+     * Prevents supplier deletion when linked inventory items exist.
+     * Repo-agnostic: caller supplies boolean check for link existence.
      *
-     * <p>Repo-agnostic: the caller supplies a boolean check that returns true if any links exist
-     * (e.g., {@code () -> itemRepo.countBySupplierId(id) > 0} or
-     * {@code () -> supplierRepo.existsByIdAndItemsIsNotEmpty(id)}).</p>
-     *
-     * @param supplierId supplier identifier to validate
-     * @param hasAnyLinks boolean supplier that must return true iff links exist
-     * @throws InvalidRequestException if id is blank
-     * @throws IllegalStateException if links exist (mapped to 409 Conflict)
+     * @param supplierId supplier ID to validate
+     * @param hasAnyLinks supplier returning true if links exist
+     * @throws InvalidRequestException if ID is blank
+     * @throws IllegalStateException if links exist (409 Conflict)
      */
     public static void assertDeletable(String supplierId, BooleanSupplier hasAnyLinks) {
         if (isBlank(supplierId)) {
@@ -89,8 +88,10 @@ public final class SupplierValidator {
     }
 
     /**
-     * Lightweight reflective accessor to avoid importing your entity type here.
-     * If your entity package changes, this method keeps the validator stable.
+     * Reflective accessor for entity ID to maintain repo-agnostic design.
+     *
+     * @param entity supplier entity
+     * @return entity ID or null
      */
     private static String invokeGetId(Object entity) {
         try {

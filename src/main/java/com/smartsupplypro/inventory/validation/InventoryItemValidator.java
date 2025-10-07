@@ -12,24 +12,20 @@ import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 
 /**
-* Utility class responsible for validating InventoryItem-related input data.
-*
-* <p>Ensures that the data passed into service layers (especially during creation
-* or update operations) adheres to business rules such as:
-* <ul>
-*   <li>Non-null and non-empty names</li>
-*   <li>Non-negative quantities and prices</li>
-*   <li>Mandatory supplier ID and createdBy metadata</li>
-* </ul>
-*
-* <p><strong>Design Note:</strong> This class is intentionally non-instantiable
-* using a private constructor. It provides only static validation methods.</p>
-*
-* <p><strong>Usage:</strong> Typically called in {@code InventoryItemService} before persisting data.</p>
-*
-* @author
-* SmartSupplyPro Dev Team
-*/
+ * Validation utilities for inventory item operations.
+ *
+ * <p><strong>Capabilities</strong>:
+ * <ul>
+ *   <li><strong>Base Validation</strong>: Name, quantity, price, supplier ID, audit fields</li>
+ *   <li><strong>Duplicate Detection</strong>: Name + price uniqueness enforcement</li>
+ *   <li><strong>Existence Checks</strong>: Validates item exists before update/delete</li>
+ *   <li><strong>Quantity Safety</strong>: Ensures non-negative stock after adjustments</li>
+ *   <li><strong>Price Validation</strong>: Strictly positive price enforcement</li>
+ * </ul>
+ *
+ * @see InventoryItemService
+ * @see <a href="file:../../../../../../docs/architecture/patterns/validation-patterns.md">Validation Patterns</a>
+ */
 public class InventoryItemValidator {
     
     private InventoryItemValidator() {
@@ -37,11 +33,11 @@ public class InventoryItemValidator {
     }
     
     /**
-    * Validates the fundamental fields of an {@link InventoryItemDTO}.
-    *
-    * @param dto the DTO representing the inventory item
-    * @throws IllegalArgumentException if any validation rule is violated
-    */
+     * Validates fundamental inventory item fields (name, quantity, price, supplier, audit).
+     *
+     * @param dto inventory item data
+     * @throws IllegalArgumentException if validation fails
+     */
     public static void validateBase(InventoryItemDTO dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Product name cannot be null or empty");
@@ -61,13 +57,14 @@ public class InventoryItemValidator {
     }
     
     /**
-    * Validates that no inventory item with the same name and price already exists (for creation).
-    *
-    * @param name          the name of the inventory item
-    * @param price         the price of the inventory item
-    * @param inventoryRepo the inventory item repository
-    * @throws IllegalArgumentException if duplicate found
-    */
+     * Validates no duplicate item exists with same name and price (for creation).
+     *
+     * @param id inventory item ID (current item to exclude)
+     * @param name item name
+     * @param price item price
+     * @param inventoryRepo inventory repository
+     * @throws DuplicateResourceException if duplicate found
+     */
     public static void validateInventoryItemNotExists(
     String id, String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
         List<InventoryItem> existingItems = inventoryRepo.findByNameIgnoreCase(name);
@@ -81,15 +78,13 @@ public class InventoryItemValidator {
     }
     
     /**
-    * Validates that no other inventory item (excluding the one with the same ID) has the same name and price.
-    * Used for updates to prevent duplication when changing name or price.
-    *
-    * @param id            the ID of the current inventory item (being updated)
-    * @param name          the proposed new name
-    * @param price         the proposed new price
-    * @param inventoryRepo the repository to check against
-    * @throws IllegalArgumentException if another item with same name and price exists
-    */
+     * Validates no duplicate item exists with same name and price (for updates).
+     *
+     * @param name item name
+     * @param price item price
+     * @param inventoryRepo inventory repository
+     * @throws DuplicateResourceException if duplicate found
+     */
     public static void validateInventoryItemNotExists(
     String name, BigDecimal price, InventoryItemRepository inventoryRepo) {
         List<InventoryItem> existingItems = inventoryRepo.findByNameIgnoreCase(name);
@@ -103,17 +98,13 @@ public class InventoryItemValidator {
     }
     
     /**
-    * Validates that an inventory item exists in the database by its ID.
-    *
-    * <p>This method abstracts the common repository lookup and throws a consistent
-    * exception when no item is found. It should be used before performing update or
-    * delete operations.</p>
-    *
-    * @param id             the ID of the inventory item
-    * @param inventoryRepo  the repository used for lookup
-    * @return the InventoryItem entity if found
-    * @throws IllegalArgumentException if the item does not exist
-    */
+     * Validates inventory item exists by ID before update/delete operations.
+     *
+     * @param id inventory item ID
+     * @param inventoryRepo inventory repository
+     * @return found inventory item entity
+     * @throws ResponseStatusException 404 if not found
+     */
     public static InventoryItem validateExists(String id, InventoryItemRepository inventoryRepo) {
         return inventoryRepo.findById(id).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found: " + id)
@@ -121,11 +112,11 @@ public class InventoryItemValidator {
     }
     
     /**
-    * Validates that the resulting quantity after an operation is non-negative.
-    *
-    * @param resultingQuantity the quantity after applying a delta
-    * @throws IllegalArgumentException if resulting quantity is negative
-    */
+     * Validates resulting quantity is non-negative after adjustment.
+     *
+     * @param resultingQuantity quantity after delta application
+     * @throws ResponseStatusException 422 if negative
+     */
     public static void assertFinalQuantityNonNegative(int resultingQuantity) {
         if (resultingQuantity < 0) {
             throw new ResponseStatusException(
@@ -136,12 +127,11 @@ public class InventoryItemValidator {
     }
     
     /**
-    * Validates a price value for update/patch operations.
-    * Uses the same rule as validateBase: must be strictly greater than zero.
-    *
-    * @param price the price to validate
-    * @throws IllegalArgumentException if null or not strictly positive
-    */
+     * Validates price is strictly positive (for update/patch operations).
+     *
+     * @param price price to validate
+     * @throws ResponseStatusException 422 if null or not positive
+     */
     public static void assertPriceValid(BigDecimal price) {
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ResponseStatusException(
