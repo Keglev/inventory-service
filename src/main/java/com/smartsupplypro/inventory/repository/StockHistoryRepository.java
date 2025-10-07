@@ -15,39 +15,41 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Repository for managing {@link StockHistory} entities.
+ * Repository for stock history audit data with analytics support.
  *
- * <h2>Purpose</h2>
+ * <p><strong>Capabilities</strong>:
  * <ul>
- *   <li>Provide efficient access to stock movement audit data.</li>
- *   <li>Support dashboard/reporting filters and time-range queries.</li>
- *   <li>Offer ordered finders to avoid in-memory sorting in services.</li>
+ *   <li><strong>Paginated Filtering</strong>: Time range, item name, supplier queries</li>
+ *   <li><strong>Ordered Finders</strong>: Newest-first sorting to avoid in-memory sorts</li>
+ *   <li><strong>Price Trends</strong>: Historical price snapshots for item analytics</li>
+ *   <li><strong>Custom Queries</strong>: Extends StockHistoryCustomRepository for complex analytics</li>
  * </ul>
  *
- * <h2>Dialect & Naming Notes</h2>
+ * <p><strong>Design Notes</strong>:
  * <ul>
- *   <li>The Java field is {@code timestamp}, but the DB column is {@code CREATED_AT}
- *       (chosen to avoid reserved-word conflicts). JPQL/derived queries use the field name,
- *       while <strong>native SQL must reference {@code CREATED_AT}</strong>.</li>
- *   <li>Supplier filter uses the denormalized {@code SUPPLIER_ID} on {@code STOCK_HISTORY}
- *       (added for index-friendly analytics). We still join {@code INVENTORY_ITEM} to filter by item name.</li>
- *   <li>Bounds are inclusive ({@code >=}, {@code <=}); native query includes a stable
- *       {@code ORDER BY} because Spring Data does not inject sort clauses into native SQL.</li>
+ *   <li>Java field <code>timestamp</code> maps to DB column <code>CREATED_AT</code></li>
+ *   <li>Denormalized <code>supplierId</code> on stock_history for index-friendly analytics</li>
+ *   <li>Native SQL uses <code>CREATED_AT</code>, JPQL uses <code>timestamp</code></li>
+ *   <li>Stable default ordering (CREATED_AT DESC) in native queries</li>
  * </ul>
+ *
+ * @see StockHistory
+ * @see StockHistoryCustomRepository
+ * @see <a href="file:../../../../../../docs/architecture/patterns/repository-patterns.md">Repository Patterns</a>
  */
 public interface StockHistoryRepository
         extends JpaRepository<StockHistory, String>, StockHistoryCustomRepository {
 
     /**
-     * Paginated stock history entries with optional filters.
-     *
-     * <p><strong>Sorting:</strong> A stable default ordering by {@code CREATED_AT DESC} is applied
-     * inside the native query because Spring Data does not inject sort clauses into native queries.</p>
+     * Paginated stock history with optional time/item/supplier filters.
+     * Stable ordering by CREATED_AT DESC (native SQL).
      *
      * @param startDate optional start (inclusive)
-     * @param endDate   optional end (inclusive)
-     * @param itemName  optional partial match (case-insensitive) on item name
-     * @param supplierId optional exact supplier id (uses denormalized {@code s.SUPPLIER_ID})
+     * @param endDate optional end (inclusive)
+     * @param itemName optional partial item name match
+     * @param supplierId optional supplier filter
+     * @param pageable pagination parameters
+     * @return paginated stock history records
      */
     @Query(
         value = """
@@ -80,34 +82,45 @@ public interface StockHistoryRepository
     );
 
     /**
-     * Ordered finder for all records of an item (newest first).
-     * <p>Uses the Java field name ({@code timestamp}); mapped to DB column {@code CREATED_AT}.</p>
+     * Finds all records for item ordered newest first (uses timestamp field).
+     *
+     * @param itemId inventory item ID
+     * @return ordered stock history records
      */
     List<StockHistory> findByItemIdOrderByTimestampDesc(String itemId);
 
     /**
-     * Ordered finder for all records with the given reason (newest first).
-     * <p>Uses the Java field name ({@code timestamp}); mapped to DB column {@code CREATED_AT}.</p>
+     * Finds all records by reason ordered newest first (uses timestamp field).
+     *
+     * @param reason stock change reason
+     * @return ordered stock history records
      */
     List<StockHistory> findByReasonOrderByTimestampDesc(StockChangeReason reason);
 
     /**
-     * Finds all stock history records for a given inventory item.
-     * <p><strong>Note:</strong> Prefer {@link #findByItemIdOrderByTimestampDesc(String)} for stable ordering.</p>
+     * Finds all records for item (unordered - prefer timestampDesc variant).
+     *
+     * @param itemId inventory item ID
+     * @return stock history records
      */
     List<StockHistory> findByItemId(String itemId);
 
     /**
-     * Finds stock history records by reason code.
-     * <p><strong>Note:</strong> Prefer {@link #findByReasonOrderByTimestampDesc(StockChangeReason)} for stable ordering.</p>
+     * Finds records by reason (unordered - prefer timestampDesc variant).
+     *
+     * @param reason stock change reason
+     * @return stock history records
      */
     List<StockHistory> findByReason(StockChangeReason reason);
 
     /**
-     * Time-ordered price snapshots for a specific item within a range.
-     * <p>Only entries with non-null {@code priceAtChange} are included. Bounds are inclusive.</p>
+     * Retrieves time-ordered price snapshots for item within date range.
+     * Only includes entries with non-null priceAtChange.
      *
-     * <p>JPQL uses the entity field {@code timestamp}, which is safely mapped to DB column {@code CREATED_AT}.</p>
+     * @param itemId item ID
+     * @param start start date (inclusive)
+     * @param end end date (inclusive)
+     * @return price trend data points
      */
     @Query("""
         SELECT new com.smartsupplypro.inventory.dto.PriceTrendDTO(sh.timestamp, sh.priceAtChange)

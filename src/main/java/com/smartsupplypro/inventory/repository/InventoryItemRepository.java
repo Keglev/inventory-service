@@ -12,34 +12,37 @@ import org.springframework.data.repository.query.Param;
 import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
- * Repository interface for managing {@link InventoryItem} entities.
+ * Repository for inventory item management with analytics queries.
  *
- * <h2>Design & Conventions</h2>
+ * <p><strong>Capabilities</strong>:
  * <ul>
- *   <li><b>Derived queries that involve the supplier</b> use the JPA relation field
- *       <code>supplier</code> (singular). Use the Spring Data convention <code>Supplier_Id</code>
- *       to target the relation's ID (e.g., <code>existsBySupplier_Id(...)</code>).</li>
- *   <li><b>Native SQL</b> may reference the raw FK column <code>supplier_id</code> directly for
- *       performance or simplicity (e.g., analytics dashboards). This avoids a join when you only
- *       need the FK value.</li>
- *   <li><b>Do not use plural <code>Suppliers</code> in method names</b>. The entity field is
- *       <code>supplier</code> (singular), and Spring Data parses method names against entity fields.</li>
+ *   <li><strong>Search</strong>: Name-based lookup with case-insensitive matching</li>
+ *   <li><strong>Stock Analysis</strong>: Below-minimum queries, quantity thresholds</li>
+ *   <li><strong>Supplier Validation</strong>: Active stock checks before deletion</li>
+ *   <li><strong>Duplicate Detection</strong>: Name + price uniqueness validation</li>
+ *   <li><strong>Native SQL</strong>: Performance-optimized queries for analytics</li>
  * </ul>
+ *
+ * <p><strong>Design Notes</strong>:
+ * <ul>
+ *   <li>Relation field is <code>supplier</code> (singular) - use <code>Supplier_Id</code> convention</li>
+ *   <li>Native SQL uses <code>supplier_id</code> FK column directly for performance</li>
+ *   <li>JPQL queries use entity field names (e.g., <code>i.supplierId</code>)</li>
+ * </ul>
+ *
+ * @see InventoryItem
+ * @see InventoryItemService
+ * @see <a href="file:../../../../../../docs/architecture/patterns/repository-patterns.md">Repository Patterns</a>
  */
 public interface InventoryItemRepository extends JpaRepository<InventoryItem, String> {
 
     /**
-    * Checks whether there exists at least one inventory item linked to the given supplier
-    * (either via the scalar FK {@code supplierId} or the {@code supplier} relation) that has
-    * a quantity greater than the provided threshold.
-    *
-    * <p>This method is used before deleting a supplier to enforce the business rule:
-    * suppliers cannot be deleted while they still have stock assigned to any items.</p>
-    *
-    * @param supplierId the supplier identifier (matches either i.supplierId or i.supplier.id)
-    * @param minQty     the minimum quantity threshold (usually 0)
-    * @return true if at least one linked item exists with quantity > minQty, false otherwise
-    */
+     * Checks if supplier has active stock before deletion (uses supplier relation or FK).
+     *
+     * @param supplierId supplier ID
+     * @param minQty minimum quantity threshold
+     * @return true if any linked item has quantity > minQty
+     */
     @Query("""
         select (count(i) > 0)
         from InventoryItem i
@@ -52,38 +55,36 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
 
 
     /**
-     * Finds inventory items that partially match the given name, case-insensitive.
+     * Finds items by partial name match (case-insensitive).
      *
-     * @param name Partial or full item name
-     * @return List of matching inventory items
+     * @param name partial or full item name
+     * @return matching inventory items
      */
     List<InventoryItem> findByNameContainingIgnoreCase(String name);
 
     /**
-     * Checks whether any inventory items are associated with the given supplier.
+     * Checks if any items exist for supplier (uses supplier relation).
      *
-     * <p><b>Relation-based:</b> uses the {@code @ManyToOne} field <code>supplier</code>.
-     * The suffix {@code _Id} targets the relation's ID property.</p>
-     *
-     * @param supplierId ID of the supplier
-     * @return {@code true} if at least one item exists for the supplier
+     * @param supplierId supplier ID
+     * @return true if at least one item exists
      */
     boolean existsBySupplier_Id(String supplierId);
 
     /**
-     * Checks if any item exists with the same name and price (duplicate-by-value check).
+     * Checks if item exists with exact name and price (duplicate detection).
+     *
+     * @param name item name
+     * @param price item price
+     * @return true if duplicate exists
      */
     boolean existsByNameAndPrice(String name, BigDecimal price);
 
     /**
-     * Finds all inventory items where quantity is below the defined minimum quantity,
-     * optionally filtered by supplier ID.
+     * Finds items below minimum stock threshold with optional supplier filter.
+     * Returns: [name, quantity, minimum_quantity]
      *
-     * <p><b>Native SQL (FK-based):</b> uses the raw column <code>supplier_id</code> for filtering.
-     * Returns rows as <code>[name, quantity, minimum_quantity]</code>.</p>
-     *
-     * @param supplierId Optional supplier ID to filter results
-     * @return List of Object arrays: [name, quantity, minimum_quantity]
+     * @param supplierId optional supplier filter
+     * @return Object arrays with low-stock item data
      */
     @Query(value = """
         SELECT name, quantity, minimum_quantity
@@ -95,13 +96,10 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     List<Object[]> findItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
 
     /**
-     * Counts items below their minimum stock threshold.
+     * Counts items below minimum stock threshold with optional supplier filter.
      *
-     * <p>Native SQL for performance over large tables. Optional supplier filter
-     * keeps parity with {@code findItemsBelowMinimumStockFiltered}.</p>
-     *
-     * @param supplierId optional supplier filter (nullable)
-     * @return number of items where quantity < minimum_quantity
+     * @param supplierId optional supplier filter
+     * @return count of low-stock items
      */
     @Query(value = """
         SELECT COUNT(*)
@@ -112,9 +110,11 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     long countItemsBelowMinimumStockFiltered(@Param("supplierId") String supplierId);
 
     /**
-     * Counts items whose on-hand quantity is below a fixed KPI threshold.
-     * Null quantities are treated as 0 so they also flag as low stock.
-    */
+     * Counts items below fixed KPI threshold (treats null quantity as 0).
+     *
+     * @param threshold quantity threshold
+     * @return count of items below threshold
+     */
     @Query("""
         SELECT COUNT(i)
         FROM InventoryItem i
@@ -123,17 +123,19 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     long countWithQuantityBelow(@Param("threshold") int threshold);
 
     /**
-     * Finds all inventory items with an exact name match (case-insensitive).
+     * Finds items by exact name (case-insensitive) for duplicate verification.
      *
-     * <p>Used to verify potential duplicates with identical names but different prices.</p>
-     *
-     * @param name the exact name of the item (case-insensitive)
-     * @return list of inventory items with that name
+     * @param name item name
+     * @return matching inventory items
      */
     List<InventoryItem> findByNameIgnoreCase(String name);
 
     /**
-     * JPQL search by name with a deterministic sort by price ascending.
+     * Searches items by name with deterministic price sorting.
+     *
+     * @param name search term
+     * @param pageable pagination parameters
+     * @return paginated results sorted by price ascending
      */
     @Query("""
         SELECT i FROM InventoryItem i
@@ -143,25 +145,28 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, St
     Page<InventoryItem> findByNameSortedByPrice(@Param("name") String name, Pageable pageable);
 
     /**
-     * Finds inventory items by name with pagination (case-insensitive).
+     * Finds items by name with pagination (case-insensitive).
+     *
+     * @param name search term
+     * @param pageable pagination parameters
+     * @return paginated results
      */
     Page<InventoryItem> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     /**
-     * Checks whether any item exists with the given (case-insensitive) name.
+     * Checks if item exists by name (case-insensitive).
+     *
+     * @param name item name
+     * @return true if exists
      */
     boolean existsByNameIgnoreCase(String name);
 
     /**
-     * Checks whether any items for a supplier have quantity strictly greater than the given threshold.
+     * Checks if supplier has items with quantity above threshold (uses supplier relation).
      *
-     * <p><b>Relation-based:</b> uses the singular relation field <code>supplier</code> and targets
-     * its ID with <code>_Id</code>. This fixes the previous parse error caused by the plural
-     * method name <code>existsBySuppliers_IdAndQuantityGreaterThan</code>.</p>
-     *
-     * @param supplierId supplier ID (relation ID)
+     * @param supplierId supplier ID
      * @param quantity threshold (strictly greater than)
-     * @return {@code true} if any matching items exist
+     * @return true if matching items exist
      */
     boolean existsBySupplier_IdAndQuantityGreaterThan(String supplierId, int quantity);
 }

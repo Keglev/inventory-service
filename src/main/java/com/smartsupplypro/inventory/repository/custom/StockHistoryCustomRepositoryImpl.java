@@ -14,42 +14,24 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
 /**
-* Custom repository implementation for analytics queries over STOCK_HISTORY.
-*
-* <h2>Purpose</h2>
-* Encapsulates all native SQL / JPQL needed by analytics so we can:
-* <ul>
-*   <li>Support both H2 (test profile) and Oracle (prod) without leaking dialect specifics upward.</li>
-*   <li>Keep controllers/services DB-agnostic (only rely on entity properties or DTOs).</li>
-*   <li>Centralize SQL tuning (indexes, hints, date truncation functions, etc.).</li>
-* </ul>
-*
-* <h2>Entity / Column conventions</h2>
-* <ul>
-*   <li><code>StockHistory.timestamp</code> → DB column <code>CREATED_AT</code> (DATE/TIMESTAMP)</li>
-*   <li><code>StockHistory.change</code>    → DB column <code>"CHANGE"</code> (NUMBER/INT)</li>
-*   <li><code>StockHistory.priceAtChange</code> → DB column <code>"PRICE_AT_CHANGE"</code></li>
-*   <li><code>StockHistory.itemId</code>    → DB column <code>"ITEM_ID"</code></li>
-*   <li><code>StockHistory.supplierId</code>→ DB column <code>"SUPPLIER_ID"</code></li>
-*   <li>H2 branch uses quoted UPPERCASE identifiers (e.g., <code>"STOCK_HISTORY"</code>) to match how
-*       Hibernate created the tables in tests; Oracle branch uses unquoted identifiers.</li>
-*   <li>All parameters are bound (no string concatenation) to avoid SQL injection.</li>
-* </ul>
-*
-* <h2>Filtering conventions</h2><h2>H2 vs Oracle</h2>
-* <ul>
-*   <li>H2 (Oracle mode): use <code>YEAR()/MONTH()/DAY()</code>, <code>CAST(... AS DATE)</code>, string <code>CONCAT</code>.</li>
-*   <li>Oracle: use <code>TO_CHAR(...)</code> for formatting, <code>TRUNC(...)</code> for day grouping.</li>
-*   <li>Table/column names are unquoted, case‑insensitive, and identical across DBs.</li>
-* </ul>
-*
-* <h2>Return shapes</h2>
-* <ul>
-*   <li>Most native methods return <code>List&lt;Object[]&gt;</code> for simple aggregations.</li>
-*   <li>Event streaming for cost-flow (WAC) uses a constructor projection into
-*       {@link com.smartsupplypro.inventory.dto.StockEventRowDTO} via JPQL.</li>
-* </ul>
-*/
+ * Custom repository implementation for stock history analytics with database-specific SQL.
+ *
+ * <p><strong>Purpose</strong>:
+ * Encapsulates native SQL and JPQL for analytics, supporting both H2 (test) and Oracle (prod)
+ * without leaking dialect specifics to controllers or services.
+ *
+ * <p><strong>Design Notes</strong>:
+ * <ul>
+ *   <li><strong>Field Mapping</strong>: timestamp → CREATED_AT, change → CHANGE, priceAtChange → PRICE_AT_CHANGE</li>
+ *   <li><strong>H2 Mode</strong>: Uses quoted uppercase identifiers, YEAR/MONTH/DAY functions, CONCAT</li>
+ *   <li><strong>Oracle Mode</strong>: Uses unquoted identifiers, TO_CHAR formatting, TRUNC for day grouping</li>
+ *   <li><strong>Filtering</strong>: All parameters bound (no string concat) to prevent SQL injection</li>
+ *   <li><strong>Return Types</strong>: Object[] for aggregations, StockEventRowDTO for WAC calculations</li>
+ * </ul>
+ *
+ * @see StockHistoryCustomRepository
+ * @see <a href="../../../../../../../docs/architecture/patterns/repository-patterns.md">Repository Patterns</a>
+ */
 public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepository {
     
     @PersistenceContext
@@ -59,22 +41,23 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     private org.springframework.core.env.Environment environment;
     
     /**
-    * Detects whether we should run H2-compatible SQL (test/h2 profiles) or Oracle SQL (default/prod).
-    */
+     * Detects if H2 profile is active (test/h2) vs Oracle (default/prod).
+     *
+     * @return true if H2 mode
+     */
     private boolean isH2() {
         return Arrays.stream(environment.getActiveProfiles())
             .anyMatch(p -> p.equalsIgnoreCase("test") || p.equalsIgnoreCase("h2"));
     }
     
     /**
-    * Monthly stock movement (stock-in / stock-out) over a time window.
-    *
-    * <p><strong>Output row format:</strong> [month_str (YYYY-MM), stock_in (Number), stock_out (Number)]</p>
-    *
-    * @param start inclusive lower bound (uses <code>created_at</code>)
-    * @param end   inclusive upper bound (uses <code>created_at</code>)
-    * @return aggregated rows ordered by month ascending
-    */
+     * Monthly stock-in/stock-out aggregations over time window (native SQL).
+     * Returns: [month (YYYY-MM), stockIn, stockOut]
+     *
+     * @param start inclusive lower bound
+     * @param end inclusive upper bound
+     * @return monthly aggregations ordered by month
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getMonthlyStockMovement(LocalDateTime start, LocalDateTime end) {
@@ -109,15 +92,14 @@ public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepos
     }
     
     /**
-    * Monthly stock movement (stock-in / stock-out) filtered by supplier over a time window.
-    *
-    * <p><strong>Output row format:</strong> [month_str (YYYY-MM), stock_in (Number), stock_out (Number)]</p>
-    *
-    * @param start      inclusive lower bound
-    * @param end        inclusive upper bound
-    * @param supplierId optional supplier ID (case-insensitive for H2 branch)
-    * @return aggregated rows ordered by month ascending
-    */
+     * Monthly stock-in/stock-out filtered by supplier (native SQL).
+     * Returns: [month (YYYY-MM), stockIn, stockOut]
+     *
+     * @param start inclusive lower bound
+     * @param end inclusive upper bound
+     * @param supplierId optional supplier filter (case-insensitive for H2)
+     * @return monthly aggregations ordered by month
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> getMonthlyStockMovementFiltered(LocalDateTime start, LocalDateTime end, String supplierId) {
