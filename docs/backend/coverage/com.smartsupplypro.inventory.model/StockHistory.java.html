@@ -22,30 +22,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Domain entity representing a single stock movement (receive, sell, scrap, manual adjust).
+ * Stock history entity for immutable audit trail of inventory movements.
+ * Maps to STOCK_HISTORY table with indexed columns for analytics.
  *
- * &lt;h2&gt;Purpose&lt;/h2&gt;
- * &lt;ul&gt;
- *   &lt;li&gt;Provides an immutable audit trail for analytics, compliance, and debugging.&lt;/li&gt;
- *   &lt;li&gt;Captures who did what, when, why, and at what price (if applicable).&lt;/li&gt;
- *   &lt;li&gt;Supports frequent query patterns via targeted indexes (by item, by supplier, by time).&lt;/li&gt;
- * &lt;/ul&gt;
+ * &lt;p&gt;&lt;strong&gt;Purpose&lt;/strong&gt;: Captures stock changes (receive, sell, scrap, adjust) with who, what, when, why, and price context.
  *
- * &lt;h2&gt;Schema Notes&lt;/h2&gt;
- * &lt;ul&gt;
- *   &lt;li&gt;Mapped to table {@code STOCK_HISTORY}.&lt;/li&gt;
- *   &lt;li&gt;DB column {@code CREATED_AT} is used instead of {@code TIMESTAMP} to avoid keyword conflicts on H2/Oracle.&lt;/li&gt;
- *   &lt;li&gt;{@code SUPPLIER_ID} exists for efficient supplier-based analytics; it is populated by the service layer
- *       from the associated {@code InventoryItem} at write time.&lt;/li&gt;
- *   &lt;li&gt;Read-only associations are provided for convenience in reporting (no cascading writes from this entity).&lt;/li&gt;
- * &lt;/ul&gt;
+ * &lt;p&gt;&lt;strong&gt;Indexes&lt;/strong&gt;: IX_SH_ITEM_TS (item_id, created_at), IX_SH_TS (created_at), IX_SH_SUPPLIER_TS (supplier_id, created_at).
  *
- * &lt;h2&gt;Indexing Strategy&lt;/h2&gt;
- * &lt;ul&gt;
- *   &lt;li&gt;{@code IX_SH_ITEM_TS} on ({@code ITEM_ID}, {@code CREATED_AT}) accelerates “item timeline” queries.&lt;/li&gt;
- *   &lt;li&gt;{@code IX_SH_TS} on ({@code CREATED_AT}) supports range scans (e.g., recent changes).&lt;/li&gt;
- *   &lt;li&gt;{@code IX_SH_SUPPLIER_TS} on ({@code SUPPLIER_ID}, {@code CREATED_AT}) supports supplier-centric analytics.&lt;/li&gt;
- * &lt;/ul&gt;
+ * &lt;p&gt;&lt;strong&gt;Usage&lt;/strong&gt;: Analytics, compliance, debugging, WAC calculations.
+ *
+ * @see InventoryItem
+ * @see Supplier
+ * @see StockChangeReason
+ * @see &lt;a href=&quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model Patterns&lt;/a&gt;
  */
 @Entity
 @Data
@@ -65,82 +54,59 @@ import lombok.NoArgsConstructor;
 )
 public class StockHistory {
 
-    /** Unique identifier for the stock history event (UUID or external key). */
+    /** Unique identifier for stock history event (UUID). */
     @Id
     @Column(name=&quot;ID&quot;)
     private String id;
 
-    /** Foreign key reference to the affected inventory item. */
+    /** Foreign key reference to affected inventory item. */
     @Column(name = &quot;ITEM_ID&quot;, nullable = false)
     private String itemId;
 
-    /**
-     * Optional denormalized reference to the supplier (for fast supplier analytics).
-     * &lt;p&gt;Populated by the service layer when creating history records:
-     * {@code history.setSupplierId(item.getSupplierId());}
-     */
+    /** Denormalized supplier reference for fast analytics (populated by service layer). */
     @Column(name = &quot;SUPPLIER_ID&quot;)
     private String supplierId;
 
-    /**
-     * Quantity delta. Positive for increases (RECEIVED), negative for decreases (SOLD/SCRAPPED).
-     */
+    /** Quantity delta (positive for increases, negative for decreases). */
     @Column(name = &quot;QUANTITY_CHANGE&quot;, nullable = false)
     private int change;
 
-    /**
-     * Reason for the stock change. Stored as string for forward compatibility.
-     */
+    /** Reason for stock change (stored as STRING). */
     @Enumerated(EnumType.STRING)
     @Column(name = &quot;REASON&quot;, nullable = false)
     private StockChangeReason reason;
 
-    /** Identifier of the user who initiated the stock change. */
+    /** User who initiated the stock change. */
     @Column(name = &quot;CREATED_BY&quot;, nullable = false)
     private String createdBy;
 
-    /**
-     * When the stock change occurred (application time).
-     * &lt;p&gt;&lt;b&gt;DB column name:&lt;/b&gt; {@code CREATED_AT} (chosen to avoid reserved-word conflicts).&lt;/p&gt;
-     * &lt;p&gt;The Java field remains {@code timestamp} for backward compatibility with existing code/tests.&lt;/p&gt;
-     */
+    /** Timestamp of stock change event. */
     @Column(name = &quot;CREATED_AT&quot;, nullable = false)
     private LocalDateTime timestamp;
 
-    /**
-     * Unit price at the time of the change (used for price-trend analytics and audit).
-     */
+    /** Price at time of change (for valuation analytics). */
     @Column(name = &quot;PRICE_AT_CHANGE&quot;, precision = 12, scale = 2)
     private BigDecimal priceAtChange;
 
     /**
-     * Set defaults prior to initial persist.
-     * &lt;ul&gt;
-     *   &lt;li&gt;Backfills {@code timestamp} if missing.&lt;/li&gt;
-     * &lt;/ul&gt;
+     * Sets timestamp before persist if not already set.
      */
     @PrePersist
     public void prePersist() {
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (timestamp == null) {</span>
-<span class="nc" id="L125">            timestamp = LocalDateTime.now();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (timestamp == null) {</span>
+<span class="nc" id="L97">            timestamp = LocalDateTime.now();</span>
         }
-<span class="fc" id="L127">    }</span>
-
-    // ---------------------------
-    // Read-only associations
-    // ---------------------------
+<span class="fc" id="L99">    }</span>
 
     /**
-     * Read-only association to the related InventoryItem.
-     * &lt;p&gt;Use for joins/reporting; not used for writes.&lt;/p&gt;
+     * Inventory item entity reference (read-only, for joins).
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = &quot;ITEM_ID&quot;, insertable = false, updatable = false)
     private InventoryItem inventoryItem;
 
     /**
-     * Read-only association to the related Supplier (if {@code supplierId} is populated).
-     * &lt;p&gt;Use for joins/reporting; not used for writes.&lt;/p&gt;
+     * Supplier entity reference (read-only, for joins).
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = &quot;SUPPLIER_ID&quot;, insertable = false, updatable = false)

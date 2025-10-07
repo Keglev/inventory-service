@@ -1,50 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Role.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.model</a> &gt; <span class="el_source">Role.java</span></div><h1>Role.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.model;
 
 /**
- * Enum representing user roles in the application.
+ * User role enum for authorization and access control via Spring Security.
  *
- * &lt;p&gt;Roles are used for authorization and access control via Spring Security.
- * They determine which endpoints a user can access and what actions are permitted.
+ * &lt;p&gt;&lt;strong&gt;Roles&lt;/strong&gt;: ADMIN (full CRUD access), USER (read-only access).
  *
- * &lt;ul&gt;
- *   &lt;li&gt;{@code ADMIN} – Full access to create, update, and delete resources.&lt;/li&gt;
- *   &lt;li&gt;{@code USER} – Read-only access to inventory and reporting features.&lt;/li&gt;
- * &lt;/ul&gt;
+ * &lt;p&gt;&lt;strong&gt;Storage&lt;/strong&gt;: Persisted as STRING via @Enumerated(EnumType.STRING).
  *
- * &lt;p&gt;This enum is persisted in the database using {@code @Enumerated(EnumType.STRING)}
- * and may be mapped from string values provided by OAuth2 providers or UI input.
+ * @see AppUser
+ * @see &lt;a href=&quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model Patterns&lt;/a&gt;
  */
-<span class="fc" id="L17">public enum Role {</span>
-<span class="fc" id="L18">    ADMIN,</span>
-<span class="fc" id="L19">    USER;</span>
+<span class="fc" id="L13">public enum Role {</span>
+<span class="fc" id="L14">    ADMIN,</span>
+<span class="fc" id="L15">    USER;</span>
 
     /**
-     * Parses a string value (e.g., from DB or external input) into a {@link Role} enum.
-     * Automatically trims whitespace and removes commas before resolving.
+     * Parses string value to Role enum (trims whitespace, removes commas).
      *
-     * @param value the raw role name as a string
-     * @return corresponding {@link Role} enum value
-     * @throws IllegalArgumentException if the input is invalid
+     * @param value raw role name
+     * @return corresponding Role enum
+     * @throws IllegalArgumentException if invalid
      */
     public static Role fromString(String value) {
-<span class="nc" id="L30">        return Role.valueOf(value.trim().replace(&quot;,&quot;, &quot;&quot;));</span>
+<span class="nc" id="L25">        return Role.valueOf(value.trim().replace(&quot;,&quot;, &quot;&quot;));</span>
     }
 }
-// This enum is designed to be used in service layers where user roles are checked,
-// such as in Spring Security configurations, user management services, and
-// authorization logic. It provides a clear and type-safe way to represent roles,
-// ensuring that only valid roles are used throughout the application. The
-// `fromString` method allows for flexible parsing of role names from various
-// sources, such as database records or user input, while maintaining robustness
-// against common formatting issues like extra spaces or commas. This approach
-// also allows for easy extension in the future if additional roles are needed,
-// simply by adding new enum constants. The use of enums ensures that role
-// management is consistent and type-safe, reducing the risk of errors from
-// using raw strings or integers to represent roles. This is particularly useful
-// in applications with complex access control requirements, where roles may
-// need to be checked frequently in various parts of the codebase, such as
-// controllers, services, and security configurations. The enum can also be
-// easily serialized/deserialized in JSON or other formats, making it suitable
-// for use in REST APIs or other communication protocols where roles need to be
-// transmitted between client and server.
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

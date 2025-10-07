@@ -24,97 +24,114 @@ import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
- * OAuth2 user service that:
+ * OAuth2 user service for social login with automatic role assignment.
  *
+ * &lt;p&gt;&lt;strong&gt;Characteristics&lt;/strong&gt;:
  * &lt;ul&gt;
- *   &lt;li&gt;Loads the upstream OAuth2 user (e.g., Google) and extracts email/name.&lt;/li&gt;
- *   &lt;li&gt;Finds or creates a local {@link AppUser} record on first login.&lt;/li&gt;
- *   &lt;li&gt;Assigns {@code ROLE_ADMIN} if the user's email is present in the configured allow-list
- *       (environment variable {@code APP_ADMIN_EMAILS}, comma-separated, case-insensitive);
- *       otherwise assigns {@code ROLE_USER}.&lt;/li&gt;
- *   &lt;li&gt;Exposes a Spring Security authority of the form {@code ROLE_*} so that
- *       {@code hasRole('ADMIN')} and {@code hasRole('USER')} continue to work unchanged.&lt;/li&gt;
- *   &lt;li&gt;Adds an {@code appRole} attribute to the principal's attributes for frontend display if needed.&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Auto-Provisioning&lt;/strong&gt;: Creates local user on first OAuth2 login&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Role Assignment&lt;/strong&gt;: ADMIN via APP_ADMIN_EMAILS env var, otherwise USER&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Email-Based Identity&lt;/strong&gt;: Uses email as principal for security context&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Role Healing&lt;/strong&gt;: Updates role if allow-list changes&lt;/li&gt;
  * &lt;/ul&gt;
  *
- * &lt;p&gt;&lt;strong&gt;Rationale:&lt;/strong&gt; This keeps your existing controller annotations and tests intact.
- * You can grant yourself (or others) admin rights operationally via an environment variable,
- * avoiding hard-coding emails in source code.&lt;/p&gt;
+ * &lt;p&gt;&lt;strong&gt;Configuration&lt;/strong&gt;:
+ * Set {@code APP_ADMIN_EMAILS} environment variable with comma-separated admin emails.
+ *
+ * @see AppUser
+ * @see CustomOidcUserService
  */
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService&lt;OAuth2UserRequest, OAuth2User&gt; {
 
     private final AppUserRepository userRepository;
 
-<span class="fc" id="L49">    public CustomOAuth2UserService(AppUserRepository userRepository) {</span>
-<span class="fc" id="L50">        this.userRepository = userRepository;</span>
-<span class="fc" id="L51">    }</span>
+<span class="fc" id="L48">    public CustomOAuth2UserService(AppUserRepository userRepository) {</span>
+<span class="fc" id="L49">        this.userRepository = userRepository;</span>
+<span class="fc" id="L50">    }</span>
 
     /**
-     * Reads a comma-separated admin list from {@code APP_ADMIN_EMAILS}.
-     * Trims whitespace and lower-cases entries for case-insensitive matching.
+     * Reads admin email allow-list from APP_ADMIN_EMAILS environment variable.
+     * @return set of lowercase admin emails
      */
     private static Set&lt;String&gt; readAdminAllowlist() {
-<span class="nc" id="L58">        String raw = System.getenv().getOrDefault(&quot;APP_ADMIN_EMAILS&quot;, &quot;&quot;);</span>
-<span class="nc bnc" id="L59" title="All 4 branches missed.">        if (raw == null || raw.isBlank()) return Collections.emptySet();</span>
-<span class="nc" id="L60">        return Arrays.stream(raw.split(&quot;,&quot;))</span>
-<span class="nc" id="L61">            .map(String::trim)</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            .filter(s -&gt; !s.isEmpty())</span>
-<span class="nc" id="L63">            .map(String::toLowerCase)</span>
-<span class="nc" id="L64">            .collect(Collectors.toCollection(LinkedHashSet::new));</span>
+<span class="nc" id="L57">        String raw = System.getenv().getOrDefault(&quot;APP_ADMIN_EMAILS&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L58" title="All 4 branches missed.">        if (raw == null || raw.isBlank()) return Collections.emptySet();</span>
+<span class="nc" id="L59">        return Arrays.stream(raw.split(&quot;,&quot;))</span>
+<span class="nc" id="L60">            .map(String::trim)</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            .filter(s -&gt; !s.isEmpty())</span>
+<span class="nc" id="L62">            .map(String::toLowerCase)</span>
+<span class="nc" id="L63">            .collect(Collectors.toCollection(LinkedHashSet::new));</span>
     }
 
-    /** Normalizes a role name to a Spring Security ROLE_* authority. */
+    /**
+     * Normalizes role name to Spring Security ROLE_* authority format.
+     * @param roleName role name
+     * @return ROLE_* prefixed authority
+     */
     private static String toRoleAuthority(String roleName) {
-<span class="nc bnc" id="L69" title="All 4 branches missed.">        if (roleName == null || roleName.isBlank()) return &quot;ROLE_USER&quot;;</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">        return roleName.startsWith(&quot;ROLE_&quot;) ? roleName : &quot;ROLE_&quot; + roleName;</span>
+<span class="nc bnc" id="L72" title="All 4 branches missed.">        if (roleName == null || roleName.isBlank()) return &quot;ROLE_USER&quot;;</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        return roleName.startsWith(&quot;ROLE_&quot;) ? roleName : &quot;ROLE_&quot; + roleName;</span>
     }
 
+    /**
+     * Loads OAuth2 user and provisions/updates local user with role assignment.
+     * @param request OAuth2 user request
+     * @return OAuth2 user with ROLE_* authorities
+     * @throws OAuth2AuthenticationException if email not provided
+     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-<span class="nc" id="L75">        OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(request);</span>
+        // Enterprise Comment: OAuth2 User Loading
+        // Delegates to default service for upstream provider communication
+<span class="nc" id="L86">        OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(request);</span>
 
-<span class="nc" id="L77">        final String email = oauthUser.getAttribute(&quot;email&quot;);</span>
-<span class="nc" id="L78">        final String name  = oauthUser.getAttribute(&quot;name&quot;);</span>
+<span class="nc" id="L88">        final String email = oauthUser.getAttribute(&quot;email&quot;);</span>
+<span class="nc" id="L89">        final String name  = oauthUser.getAttribute(&quot;name&quot;);</span>
 
-<span class="nc bnc" id="L80" title="All 4 branches missed.">        if (email == null || email.isBlank()) {</span>
-<span class="nc" id="L81">            throw new OAuth2AuthenticationException(&quot;Email not provided by OAuth2 provider.&quot;);</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">        if (email == null || email.isBlank()) {</span>
+<span class="nc" id="L92">            throw new OAuth2AuthenticationException(&quot;Email not provided by OAuth2 provider.&quot;);</span>
         }
 
+        // Enterprise Comment: Environment-Based Role Assignment
+        // Admin emails configured via APP_ADMIN_EMAILS for operational flexibility
         // Decide role from env allow-list (minimal change; no AppProperties wiring needed)
-<span class="nc" id="L85">        final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());</span>
+<span class="nc" id="L98">        final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());</span>
 
+        // Enterprise Comment: Auto-Provisioning Pattern
+        // Creates local user on first login with race condition handling
         // Find or create local user
-<span class="nc" id="L88">        AppUser user = userRepository.findByEmail(email).orElseGet(() -&gt; {</span>
-<span class="nc" id="L89">            AppUser u = new AppUser();                           // use no-arg ctor; id stays a UUID</span>
-<span class="nc" id="L90">            u.setEmail(email);</span>
-<span class="nc bnc" id="L91" title="All 4 branches missed.">            u.setName((name == null || name.isBlank()) ? email : name);</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            u.setRole(isAdmin ? Role.ADMIN : Role.USER);</span>
-<span class="nc" id="L93">            u.setCreatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L103">        AppUser user = userRepository.findByEmail(email).orElseGet(() -&gt; {</span>
+<span class="nc" id="L104">            AppUser u = new AppUser();                           // use no-arg ctor; id stays a UUID</span>
+<span class="nc" id="L105">            u.setEmail(email);</span>
+<span class="nc bnc" id="L106" title="All 4 branches missed.">            u.setName((name == null || name.isBlank()) ? email : name);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            u.setRole(isAdmin ? Role.ADMIN : Role.USER);</span>
+<span class="nc" id="L108">            u.setCreatedAt(LocalDateTime.now());</span>
             try {
-<span class="nc" id="L95">                return userRepository.save(u);</span>
-<span class="nc" id="L96">            } catch (DataIntegrityViolationException e) {</span>
+<span class="nc" id="L110">                return userRepository.save(u);</span>
+<span class="nc" id="L111">            } catch (DataIntegrityViolationException e) {</span>
                 // If unique(email) tripped, fetch the existing row by EMAIL
-<span class="nc" id="L98">                return userRepository.findByEmail(email).orElseThrow(() -&gt; e);</span>
+<span class="nc" id="L113">                return userRepository.findByEmail(email).orElseThrow(() -&gt; e);</span>
             }
         });
 
+        // Enterprise Comment: Role Healing Pattern
+        // Updates role dynamically if allow-list changes (idempotent operation)
         // Heal role if the allow-list changed since last login (idempotent)
-<span class="nc bnc" id="L103" title="All 2 branches missed.">        final Role desired = isAdmin ? Role.ADMIN : Role.USER;</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (user.getRole() != desired) {</span>
-<span class="nc" id="L105">            user.setRole(desired);</span>
-<span class="nc" id="L106">            userRepository.save(user);</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        final Role desired = isAdmin ? Role.ADMIN : Role.USER;</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (user.getRole() != desired) {</span>
+<span class="nc" id="L122">            user.setRole(desired);</span>
+<span class="nc" id="L123">            userRepository.save(user);</span>
         }
 
         // Build ROLE_* authority so hasRole(...) checks keep working
-<span class="nc" id="L110">        final String roleName = user.getRole().name();</span>
-<span class="nc" id="L111">        final SimpleGrantedAuthority roleAuthority = new SimpleGrantedAuthority(toRoleAuthority(roleName));</span>
+<span class="nc" id="L127">        final String roleName = user.getRole().name();</span>
+<span class="nc" id="L128">        final SimpleGrantedAuthority roleAuthority = new SimpleGrantedAuthority(toRoleAuthority(roleName));</span>
 
         // Copy provider attributes and add a helpful &quot;appRole&quot; for the frontend
-<span class="nc" id="L114">        Map&lt;String, Object&gt; attributes = new HashMap&lt;&gt;(oauthUser.getAttributes());</span>
-<span class="nc" id="L115">        attributes.put(&quot;appRole&quot;, roleName);</span>
+<span class="nc" id="L131">        Map&lt;String, Object&gt; attributes = new HashMap&lt;&gt;(oauthUser.getAttributes());</span>
+<span class="nc" id="L132">        attributes.put(&quot;appRole&quot;, roleName);</span>
 
-<span class="nc" id="L117">        return new DefaultOAuth2User(Collections.singletonList(roleAuthority), attributes, &quot;email&quot;);</span>
+<span class="nc" id="L134">        return new DefaultOAuth2User(Collections.singletonList(roleAuthority), attributes, &quot;email&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

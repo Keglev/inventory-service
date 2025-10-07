@@ -9,96 +9,97 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
 
 /**
- * Central validation utilities for Supplier operations.
+ * Validation utilities for supplier operations.
  *
- * &lt;p&gt;Design goals:
+ * &lt;p&gt;&lt;strong&gt;Capabilities&lt;/strong&gt;:
  * &lt;ul&gt;
- *   &lt;li&gt;Keep business rules close to the service layer while staying repo‑agnostic.&lt;/li&gt;
- *   &lt;li&gt;Surface exceptions that your GlobalExceptionHandler maps to 400/404/409.&lt;/li&gt;
- *   &lt;li&gt;Be resilient to schema differences (1‑N or N‑N item–supplier relations).&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Base Validation&lt;/strong&gt;: Required field checks (name)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Uniqueness&lt;/strong&gt;: Case-insensitive name enforcement&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Deletion Safety&lt;/strong&gt;: Prevents deletion with linked items&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Exception Mapping&lt;/strong&gt;: Throws 400/409 exceptions for GlobalExceptionHandler&lt;/li&gt;
  * &lt;/ul&gt;
+ *
+ * @see SupplierService
+ * @see &lt;a href=&quot;file:../../../../../../docs/architecture/patterns/validation-patterns.md&quot;&gt;Validation Patterns&lt;/a&gt;
  */
 public final class SupplierValidator {
 
     private SupplierValidator() { }
 
     /**
-     * Basic field validation invoked on create/update.
-     * &lt;ul&gt;
-     *   &lt;li&gt;name: required, non-blank&lt;/li&gt;
-     * &lt;/ul&gt;
+     * Validates required supplier fields (name must be non-blank).
      *
-     * @throws InvalidRequestException if dto or required fields are invalid
+     * @param dto supplier data
+     * @throws InvalidRequestException if validation fails
      */
     public static void validateBase(SupplierDTO dto) {
-<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (dto == null) {</span>
-<span class="fc" id="L35">            throw new InvalidRequestException(&quot;Supplier payload must not be null&quot;);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (dto == null) {</span>
+<span class="fc" id="L37">            throw new InvalidRequestException(&quot;Supplier payload must not be null&quot;);</span>
         }
-<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (isBlank(dto.getName())) {</span>
-<span class="fc" id="L38">            throw new InvalidRequestException(&quot;Supplier name must not be blank&quot;);</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (isBlank(dto.getName())) {</span>
+<span class="fc" id="L40">            throw new InvalidRequestException(&quot;Supplier name must not be blank&quot;);</span>
         }
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L42">    }</span>
 
     /**
-     * Enforce unique, case-insensitive supplier name.
+     * Enforces unique supplier name (case-insensitive).
      *
-     * @param repo       Supplier repository providing exact lookup by name
-     * @param name       desired supplier name (case-insensitive)
-     * @param excludeId  pass null for create; current id for update
-     * @throws DuplicateResourceException if another supplier already uses the name
+     * @param repo supplier repository
+     * @param name desired supplier name
+     * @param excludeId current ID for update, null for create
+     * @throws DuplicateResourceException if name already exists
      */
     public static void assertUniqueName(SupplierRepository repo, String name, String excludeId) {
-<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (isBlank(name)) return; // validateBase already handles blank</span>
-<span class="fc" id="L52">        String trimmed = name.trim();</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        if (isBlank(name)) return; // validateBase already handles blank</span>
+<span class="fc" id="L54">        String trimmed = name.trim();</span>
 
-<span class="fc" id="L54">        var existingOpt = repo.findByNameIgnoreCase(trimmed).map(s -&gt; (Object) s);</span>
-<span class="fc" id="L55">        var existing = existingOpt.orElse(null);</span>
-<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (existing != null) {</span>
-<span class="fc" id="L57">            String existingId = invokeGetId(existing);</span>
-<span class="fc bfc" id="L58" title="All 2 branches covered.">            if (!Objects.equals(existingId, excludeId)) {</span>
-<span class="fc" id="L59">                throw new DuplicateResourceException(&quot;Supplier already exists&quot;);</span>
+<span class="fc" id="L56">        var existingOpt = repo.findByNameIgnoreCase(trimmed).map(s -&gt; (Object) s);</span>
+<span class="fc" id="L57">        var existing = existingOpt.orElse(null);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (existing != null) {</span>
+<span class="fc" id="L59">            String existingId = invokeGetId(existing);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            if (!Objects.equals(existingId, excludeId)) {</span>
+<span class="fc" id="L61">                throw new DuplicateResourceException(&quot;Supplier already exists&quot;);</span>
             }
         }
-<span class="fc" id="L62">    }</span>
+<span class="fc" id="L64">    }</span>
 
     /**
-     * Prevent deletion when there are linked inventory items.
+     * Prevents supplier deletion when linked inventory items exist.
+     * Repo-agnostic: caller supplies boolean check for link existence.
      *
-     * &lt;p&gt;Repo-agnostic: the caller supplies a boolean check that returns true if any links exist
-     * (e.g., {@code () -&gt; itemRepo.countBySupplierId(id) &gt; 0} or
-     * {@code () -&gt; supplierRepo.existsByIdAndItemsIsNotEmpty(id)}).&lt;/p&gt;
-     *
-     * @param supplierId supplier identifier to validate
-     * @param hasAnyLinks boolean supplier that must return true iff links exist
-     * @throws InvalidRequestException if id is blank
-     * @throws IllegalStateException if links exist (mapped to 409 Conflict)
+     * @param supplierId supplier ID to validate
+     * @param hasAnyLinks supplier returning true if links exist
+     * @throws InvalidRequestException if ID is blank
+     * @throws IllegalStateException if links exist (409 Conflict)
      */
     public static void assertDeletable(String supplierId, BooleanSupplier hasAnyLinks) {
-<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (isBlank(supplierId)) {</span>
-<span class="fc" id="L78">            throw new InvalidRequestException(&quot;Supplier id must be provided for deletion&quot;);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (isBlank(supplierId)) {</span>
+<span class="fc" id="L77">            throw new InvalidRequestException(&quot;Supplier id must be provided for deletion&quot;);</span>
         }
-<span class="pc bpc" id="L80" title="1 of 4 branches missed.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
-<span class="fc" id="L81">            throw new IllegalStateException(&quot;Cannot delete supplier with linked items&quot;);</span>
+<span class="pc bpc" id="L79" title="1 of 4 branches missed.">        if (hasAnyLinks != null &amp;&amp; hasAnyLinks.getAsBoolean()) {</span>
+<span class="fc" id="L80">            throw new IllegalStateException(&quot;Cannot delete supplier with linked items&quot;);</span>
         }
-<span class="fc" id="L83">    }</span>
+<span class="fc" id="L82">    }</span>
 
     // ---- helpers ------------------------------------------------------------
 
     private static boolean isBlank(String s) {
-<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        return s == null || s.trim().isEmpty();</span>
+<span class="pc bpc" id="L87" title="1 of 4 branches missed.">        return s == null || s.trim().isEmpty();</span>
     }
 
     /**
-     * Lightweight reflective accessor to avoid importing your entity type here.
-     * If your entity package changes, this method keeps the validator stable.
+     * Reflective accessor for entity ID to maintain repo-agnostic design.
+     *
+     * @param entity supplier entity
+     * @return entity ID or null
      */
     private static String invokeGetId(Object entity) {
         try {
-<span class="fc" id="L97">            var m = entity.getClass().getMethod(&quot;getId&quot;);</span>
-<span class="fc" id="L98">            Object v = m.invoke(entity);</span>
-<span class="pc bpc" id="L99" title="1 of 2 branches missed.">            return v != null ? v.toString() : null;</span>
-<span class="nc" id="L100">        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException | SecurityException e) {</span>
-<span class="nc" id="L101">            return null; // keep existing behavior: silently fall back</span>
+<span class="fc" id="L98">            var m = entity.getClass().getMethod(&quot;getId&quot;);</span>
+<span class="fc" id="L99">            Object v = m.invoke(entity);</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">            return v != null ? v.toString() : null;</span>
+<span class="nc" id="L101">        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException | SecurityException e) {</span>
+<span class="nc" id="L102">            return null; // keep existing behavior: silently fall back</span>
         }
     }
 }

@@ -18,18 +18,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entity representing a physical or digital item in inventory.
+ * Inventory item entity with stock quantity, pricing, and supplier linkage.
+ * Maps to INVENTORY_ITEM table with audit metadata.
  *
- * &lt;p&gt;This model maps to the {@code INVENTORY_ITEM} table in the database.
- * Each item is uniquely identified by an {@code id}, linked to a supplier,
- * and supports key attributes such as quantity, price, and audit metadata.
+ * &lt;p&gt;&lt;strong&gt;Purpose&lt;/strong&gt;: Represents physical/digital items with quantity tracking and low-stock alerts.
  *
- * &lt;p&gt;Used in:
- * &lt;ul&gt;
- *   &lt;li&gt;Inventory management&lt;/li&gt;
- *   &lt;li&gt;Stock analytics&lt;/li&gt;
- *   &lt;li&gt;Low stock alerts and dashboards&lt;/li&gt;
- * &lt;/ul&gt;
+ * &lt;p&gt;&lt;strong&gt;Usage&lt;/strong&gt;: Inventory management, stock analytics, dashboard reporting.
+ *
+ * @see Supplier
+ * @see StockHistory
+ * @see &lt;a href=&quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model Patterns&lt;/a&gt;
  */
 @Entity
 @Table(name = &quot;INVENTORY_ITEM&quot;)
@@ -39,76 +37,67 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InventoryItem {
 
-    /** Unique item identifier (UUID or business-generated) */
+    /** Unique item identifier (UUID). */
     @Id
     @Column(name = &quot;ID&quot;, nullable = false, length = 36)
     private String id;
 
-    /** Unique name of the item (used for display and lookups) */
+    /** Item name (unique, for display and lookups). */
     @Column(name = &quot;NAME&quot;, nullable=false) private String name;
 
-    /** Quantity currently available in stock (non-negative) */
+    /** Current stock quantity (non-negative). */
     @Column(name = &quot;QUANTITY&quot;, nullable=false) private int quantity;
 
-    /** Price per unit (used in total value and analytics) */
+    /** Price per unit. */
     @Column(name = &quot;PRICE&quot;, nullable=false) private BigDecimal price;
 
-    /** Foreign key reference to the item's supplier */
+    /** Foreign key to supplier. */
     @Column(name = &quot;SUPPLIER_ID&quot;, nullable=false)
     private String supplierId;
 
-    /** Username or email of the person who created this item */
+    /** Creator username/email. */
     @Column(name = &quot;CREATED_BY&quot;, nullable=false)
     private String createdBy;
 
-    /** Minimum acceptable quantity before considered &quot;low stock&quot; */
+    /** Minimum quantity threshold for low-stock alerts. */
     @Column(name = &quot;MINIMUM_QUANTITY&quot;, nullable=false)
     private int minimumQuantity;
 
-    /** Timestamp when the item was created (set automatically if not provided) */
+    /** Creation timestamp. */
     @Column(name = &quot;CREATED_AT&quot;, nullable=false)
     private LocalDateTime createdAt;
 
     /**
-     * Supplier entity reference (read-only). Used for reporting and joins.
-     * This mapping is optional and is not used during insert/update.
+     * Supplier entity reference (read-only, for joins).
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = &quot;SUPPLIER_ID&quot;, insertable = false, updatable = false)
     private Supplier supplier;
 
     /**
-     * Automatically sets the creation timestamp if not already set.
-     * Invoked before the entity is persisted.
+     * Sets creation metadata before persist.
      */
     @PrePersist
     protected void onCreate() {
-<span class="pc bpc" id="L86" title="2 of 4 branches missed.">        if (this.id == null || this.id.isBlank()) {</span>
-<span class="nc" id="L87">            this.id = UUID.randomUUID().toString();</span>
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">        if (this.id == null || this.id.isBlank()) {</span>
+<span class="nc" id="L83">            this.id = UUID.randomUUID().toString();</span>
         }
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (this.createdAt == null) {</span>
-<span class="fc" id="L90">            this.createdAt = LocalDateTime.now();</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (this.createdAt == null) {</span>
+<span class="fc" id="L86">            this.createdAt = LocalDateTime.now();</span>
         }
-<span class="pc bpc" id="L92" title="1 of 4 branches missed.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
-<span class="fc" id="L93">            this.createdBy = &quot;system&quot;;</span>
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
+<span class="fc" id="L89">            this.createdBy = &quot;system&quot;;</span>
         }
-<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
-<span class="fc" id="L96">            this.minimumQuantity = 10; // sensible default</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
+<span class="fc" id="L92">            this.minimumQuantity = 10; </span>
         }
-        // Only set default supplierId if both supplierId and supplier relationship are null
-        // This handles cases where tests set supplier objects but don't set supplierId field
-<span class="pc bpc" id="L100" title="1 of 6 branches missed.">        if ((this.supplierId == null || this.supplierId.isBlank()) &amp;&amp; this.supplier != null) {</span>
-<span class="fc" id="L101">            this.supplierId = this.supplier.getId();</span>
-<span class="pc bpc" id="L102" title="2 of 6 branches missed.">        } else if ((this.supplierId == null || this.supplierId.isBlank()) &amp;&amp; this.supplier == null) {</span>
-            // For cases where neither supplierId nor supplier are set, create a minimal default
-            // This should only happen in tests or edge cases
-<span class="fc" id="L105">            this.supplierId = &quot;default-supplier&quot;;</span>
+        // Enterprise Comment: Supplier ID Resolution
+        // Handles test scenarios where supplier object is set but supplierId field is null
+<span class="pc bpc" id="L96" title="1 of 6 branches missed.">        if ((this.supplierId == null || this.supplierId.isBlank()) &amp;&amp; this.supplier != null) {</span>
+<span class="fc" id="L97">            this.supplierId = this.supplier.getId();</span>
+<span class="pc bpc" id="L98" title="2 of 6 branches missed.">        } else if ((this.supplierId == null || this.supplierId.isBlank()) &amp;&amp; this.supplier == null) {</span>
+<span class="fc" id="L99">            this.supplierId = &quot;default-supplier&quot;;</span>
         }
-<span class="fc" id="L107">    }</span>
+<span class="fc" id="L101">    }</span>
 }
-// This model is designed to be used in service layers where inventory items are managed,
-// such as in REST controllers, service classes, and repositories. It provides a clear
-// structure for representing items, including their relationships to suppliers and
-// audit metadata. The use of Lombok annotations simplifies boilerplate code, while
-// JPA annotations ensure that the entity is correctly mapped to the database schema.
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
