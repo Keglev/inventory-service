@@ -14,13 +14,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entity representing a supplier in the inventory system.
+ * Supplier entity representing inventory goods providers.
+ * Maps to SUPPLIER table with contact information and audit metadata.
  *
- * <p>Suppliers provide goods that are tracked in the inventory.
- * Each supplier has a unique ID, basic contact information, and metadata
- * such as who created the entry and when.
+ * <p><strong>Purpose</strong>: Tracks supplier information for inventory sourcing and reporting.
  *
- * <p>Mapped to the {@code SUPPLIER} table in the database.
+ * <p><strong>Usage</strong>: Supplier management, inventory linkage, analytics.
+ *
+ * @see InventoryItem
+ * @see StockHistory
+ * @see <a href="../../../../../docs/architecture/patterns/model-patterns.md">Model Patterns</a>
  */
 @Entity
 @Table(name = "SUPPLIER")
@@ -30,36 +33,33 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Supplier {
 
-    /** Unique identifier for the supplier (UUID or custom code) */
+    
     @Id
     @Column(name="ID", nullable = false)
     private String id;
 
-    /** Supplier's company name (must be unique and not null) */
+    
     @Column(name="NAME", nullable=false)
     private String name;
 
-    /** Contact person's name at the supplier organization */
+    
     @Column(name="CONTACT_NAME")
     private String contactName;
 
-    /** Contact phone number */
-     @Column(name="PHONE")
+   
+    @Column(name="PHONE")
     private String phone;
 
-    /** Contact email address */
+    
     @Column(name="EMAIL")
     private String email;
 
-    /** Identifier of the user or system that created this record */
+    
     @Column(name="CREATED_BY", nullable=false)
     private String createdBy;
 
-    /** Timestamp of when this supplier was added to the system */
+    
     @CreationTimestamp
     @Column(name="CREATED_AT", nullable=false, updatable=false)
     private LocalDateTime createdAt;
 }
-// This model is designed to be used in service layers where supplier information is managed,
-// such as in REST controllers, service classes, and repositories. It provides a clear
-// structure for representing suppliers, including their contact details and audit metadata.

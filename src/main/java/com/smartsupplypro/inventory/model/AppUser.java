@@ -14,87 +14,72 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Entity representing a registered user authenticated via Google OAuth2.
+ * User entity for OAuth2 authentication and role-based access control.
+ * Persisted in users_app table with Google email as unique identifier.
  *
- * <p>This user model is persisted in the Oracle Autonomous Database under
- * the table {@code ADMIN.USERS_APP}. It tracks the user's identity,
- * role (USER or ADMIN), and registration timestamp.
+ * <p><strong>Purpose</strong>: Tracks registered users, their roles (USER/ADMIN), and registration timestamps.
  *
- * <p>Roles are assigned based on email domains or post-login business logic.
+ * <p><strong>Usage</strong>: Spring Security role checks, audit trails, API personalization.
  *
- * <p>Example usage:
- * <ul>
- *   <li>Access control via Spring Security role checks</li>
- *   <li>Audit trails for changes made by a user</li>
- *   <li>API personalization (e.g., showing user's own updates)</li>
- * </ul>
+ * @see Role
+ * @see <a href="../../../../../docs/architecture/patterns/model-patterns.md">Model Patterns</a>
  */
 @Getter
 @Setter
 @Entity(name = "UsersApp")
-@Table(
-    name = "users_app", 
-    // schema = "$(USERS_SCHEMA:ADMIN)",
+@Table(name = "users_app",
     uniqueConstraints = @UniqueConstraint(name= "uk_users_email", columnNames = "email")
 )
 public class AppUser {
 
-    /** Unique internal user ID (UUID format) */
+    /** Unique user ID (UUID format). */
     @Id
     @Column(length = 36)
     private String id = UUID.randomUUID().toString();
-
-    /** User's Google email address (used as login ID) */
+    
+    /** Google email address (login ID). */
     @Column(unique = true, nullable = false)
     private String email;
 
-    /** Full name as retrieved from OAuth2 provider */
+    /** Full name from OAuth2 provider. */
+    @Column(nullable = false)
     private String name;
 
-    /** Role of the user: USER or ADMIN (stored as STRING in DB) */
+    /** User role: USER or ADMIN (stored as STRING). */
     @Enumerated(EnumType.STRING)
     @Column(name = "ROLE", nullable = false, length = 16)
-    private Role role = Role.USER; // default for new users
+    private Role role = Role.USER; 
 
-    /** Timestamp when the user was registered in the system */
+    /** Registration timestamp. */
     private LocalDateTime createdAt = LocalDateTime.now();
 
     /**
-     * Constructor used when registering a new OAuth2 user.
-     * Automatically sets ID and creation timestamp.
+     * Creates new OAuth2 user with email and name.
      *
      * @param email Google email
-     * @param name Full name
+     * @param name full name
      */
     public AppUser(String email, String name) {
         this.id = UUID.randomUUID().toString();
         this.email = email;
         this.name = name;
         this.createdAt = LocalDateTime.now();
-
-        // For debugging only — remove in production
     }
 
     /**
-     * Required by JPA for reflective instantiation.
+     * No-arg constructor for JPA.
      */
     public AppUser() {
         this.id = UUID.randomUUID().toString();
     }
 
     /**
-     * Returns the user's role enum for programmatic logic.
+     * Returns user's role enum.
      *
-     * @return assigned {@link Role}
+     * @return assigned role
      */
     public Role getRoleEnum() {
         return this.role;
     }
 
 }
-/**
- * Enum representing user roles in the application.
- *
- * <p>Roles are used for access control and authorization checks.
- * The default role is USER, with ADMIN having elevated privileges.
- */

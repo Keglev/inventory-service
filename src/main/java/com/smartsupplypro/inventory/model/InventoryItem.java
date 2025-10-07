@@ -18,18 +18,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entity representing a physical or digital item in inventory.
+ * Inventory item entity with stock quantity, pricing, and supplier linkage.
+ * Maps to INVENTORY_ITEM table with audit metadata.
  *
- * <p>This model maps to the {@code INVENTORY_ITEM} table in the database.
- * Each item is uniquely identified by an {@code id}, linked to a supplier,
- * and supports key attributes such as quantity, price, and audit metadata.
+ * <p><strong>Purpose</strong>: Represents physical/digital items with quantity tracking and low-stock alerts.
  *
- * <p>Used in:
- * <ul>
- *   <li>Inventory management</li>
- *   <li>Stock analytics</li>
- *   <li>Low stock alerts and dashboards</li>
- * </ul>
+ * <p><strong>Usage</strong>: Inventory management, stock analytics, dashboard reporting.
+ *
+ * @see Supplier
+ * @see StockHistory
+ * @see <a href="../../../../../docs/architecture/patterns/model-patterns.md">Model Patterns</a>
  */
 @Entity
 @Table(name = "INVENTORY_ITEM")
@@ -39,47 +37,45 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InventoryItem {
 
-    /** Unique item identifier (UUID or business-generated) */
+    /** Unique item identifier (UUID). */
     @Id
     @Column(name = "ID", nullable = false, length = 36)
     private String id;
 
-    /** Unique name of the item (used for display and lookups) */
+    /** Item name (unique, for display and lookups). */
     @Column(name = "NAME", nullable=false) private String name;
 
-    /** Quantity currently available in stock (non-negative) */
+    /** Current stock quantity (non-negative). */
     @Column(name = "QUANTITY", nullable=false) private int quantity;
 
-    /** Price per unit (used in total value and analytics) */
+    /** Price per unit. */
     @Column(name = "PRICE", nullable=false) private BigDecimal price;
 
-    /** Foreign key reference to the item's supplier */
+    /** Foreign key to supplier. */
     @Column(name = "SUPPLIER_ID", nullable=false)
     private String supplierId;
 
-    /** Username or email of the person who created this item */
+    /** Creator username/email. */
     @Column(name = "CREATED_BY", nullable=false)
     private String createdBy;
 
-    /** Minimum acceptable quantity before considered "low stock" */
+    /** Minimum quantity threshold for low-stock alerts. */
     @Column(name = "MINIMUM_QUANTITY", nullable=false)
     private int minimumQuantity;
 
-    /** Timestamp when the item was created (set automatically if not provided) */
+    /** Creation timestamp. */
     @Column(name = "CREATED_AT", nullable=false)
     private LocalDateTime createdAt;
 
     /**
-     * Supplier entity reference (read-only). Used for reporting and joins.
-     * This mapping is optional and is not used during insert/update.
+     * Supplier entity reference (read-only, for joins).
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SUPPLIER_ID", insertable = false, updatable = false)
     private Supplier supplier;
 
     /**
-     * Automatically sets the creation timestamp if not already set.
-     * Invoked before the entity is persisted.
+     * Sets creation metadata before persist.
      */
     @PrePersist
     protected void onCreate() {
@@ -93,21 +89,14 @@ public class InventoryItem {
             this.createdBy = "system";
         }
         if (this.minimumQuantity <= 0) {
-            this.minimumQuantity = 10; // sensible default
+            this.minimumQuantity = 10; 
         }
-        // Only set default supplierId if both supplierId and supplier relationship are null
-        // This handles cases where tests set supplier objects but don't set supplierId field
+        // Enterprise Comment: Supplier ID Resolution
+        // Handles test scenarios where supplier object is set but supplierId field is null
         if ((this.supplierId == null || this.supplierId.isBlank()) && this.supplier != null) {
             this.supplierId = this.supplier.getId();
         } else if ((this.supplierId == null || this.supplierId.isBlank()) && this.supplier == null) {
-            // For cases where neither supplierId nor supplier are set, create a minimal default
-            // This should only happen in tests or edge cases
             this.supplierId = "default-supplier";
         }
     }
 }
-// This model is designed to be used in service layers where inventory items are managed,
-// such as in REST controllers, service classes, and repositories. It provides a clear
-// structure for representing items, including their relationships to suppliers and
-// audit metadata. The use of Lombok annotations simplifies boilerplate code, while
-// JPA annotations ensure that the entity is correctly mapped to the database schema.
