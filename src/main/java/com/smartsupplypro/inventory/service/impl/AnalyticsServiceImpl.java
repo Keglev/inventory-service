@@ -206,31 +206,26 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Total number of items currently below their configured minimum stock.
+     * Total number of items currently below minimum stock threshold.
+     *
+     * @return count of low-stock items (global KPI, no supplier filter)
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#low-stock-alerts">Low Stock Alerts</a>
      */
     @Override
     @Transactional(readOnly = true)
     public long lowStockCount() {
-        // global KPI → no supplier filter
         return inventoryItemRepository.countWithQuantityBelow(5);
     }
 
     /**
-     * Applies a flexible filter over stock updates with date/supplier/item/user/quantity bounds.
+     * Applies flexible filter over stock updates (multi-criteria query).
      *
-     * <p><strong>Defaults</strong>:
-     * if both {@code startDate} and {@code endDate} are {@code null}, the window defaults to the
-     * last 30 days ending at the current time.</p>
+     * <p>Defaults to last 30 days if date bounds are {@code null}.
      *
-     * <p><strong>Validation</strong>:
-     * {@code startDate &le; endDate}; if {@code minChange} and {@code maxChange} are both present,
-     * then {@code minChange &le; maxChange}.</p>
-     *
-     * <p>Blank text filters are normalized to {@code null} to indicate "no filter".</p>
-     *
-     * @param filter filter object containing optional criteria
-     * @return list ordered by newest event first (createdAt DESC)
-     * @throws InvalidRequestException if validation fails or filter is {@code null}
+     * @param filter filter object with optional criteria (required, must not be {@code null})
+     * @return list of stock updates (ordered by createdAt DESC)
+     * @throws InvalidRequestException if filter is {@code null} or validation fails
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#advanced-filtering">Advanced Filtering</a>
      */
     @Override
     public List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter) {
@@ -255,7 +250,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             throw new InvalidRequestException("minChange must be <= maxChange");
         }
 
-        // Pass null for blank text filters (so repo ignores them)
         String itemName   = blankToNull(filter.getItemName());
         String supplierId = blankToNull(filter.getSupplierId());
         String createdBy  = blankToNull(filter.getCreatedBy());
@@ -264,7 +258,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 start, end, itemName, supplierId, createdBy, min, max
         );
 
-        // row = [itemName, supplierName, qtyChange, reason, createdBy, createdAt]
         return rows.stream()
                 .map(r -> new StockUpdateResultDTO(
                         (String) r[0],
@@ -278,18 +271,15 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Returns the average unit price per day for a specific item within a date window (inclusive),
-     * optionally filtered by supplier.
+     * Returns average unit price per day for an item within a date window.
      *
-     * <p>Delegates to a custom repository method that aggregates by day using the entity's
-     * {@code createdAt} property / {@code created_at} column.</p>
-     *
-     * @param itemId     required inventory item identifier
-     * @param supplierId optional supplier filter; {@code null/blank} means all suppliers
-     * @param start      inclusive start date
-     * @param end        inclusive end date
+     * @param itemId required inventory item identifier
+     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
+     * @param start inclusive start date (required)
+     * @param end inclusive end date (required)
      * @return ordered list of day/price pairs (ascending by date)
-     * @throws InvalidRequestException if {@code itemId} is blank or {@code start} &gt; {@code end}
+     * @throws InvalidRequestException if {@code itemId} is blank or {@code start > end}
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#price-history">Price History</a>
      */
     @Override
     public List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end) {
@@ -307,39 +297,30 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Produces a financial summary for a period using the Weighted Average Cost (WAC) method.
+     * Produces financial summary using Weighted Average Cost (WAC) method.
      *
-     * <p><strong>Computation model</strong></p>
+     * <p><strong>Computation Model</strong>:
      * <ol>
-     *   <li><em>Opening inventory</em> is obtained by replaying all events strictly before {@code from}
-     *       to build per-item running quantity and moving average cost.</li>
-     *   <li>Within [{@code from}..{@code to}], events contribute to buckets:
-     *     <ul>
-     *       <li><em>Purchases</em>: positive changes with a unit price, plus optional {@code INITIAL_STOCK}.</li>
-     *       <li><em>Returns In</em>: positive changes with reason {@code RETURNED_BY_CUSTOMER}.</li>
-     *       <li><em>Write-offs</em>: negative changes with reasons
-     *           {@code DAMAGED}, {@code DESTROYED}, {@code SCRAPPED}, {@code EXPIRED}, {@code LOST}.</li>
-     *       <li><em>Return to Supplier</em>: negative changes with {@code RETURNED_TO_SUPPLIER}
-     *           (treated as negative purchases at current WAC).</li>
-     *       <li><em>COGS/Consumption</em>: all other negative changes valued at current WAC.</li>
-     *     </ul>
-     *   </li>
-     *   <li><em>Ending inventory</em> equals the final per-item state after processing all events up to {@code to}.</li>
+     *   <li>Opening inventory: Replay events before period to establish baseline WAC per item</li>
+     *   <li>Period events: Categorize into purchases, returns, COGS, write-offs, returns to supplier</li>
+     *   <li>Ending inventory: Final state after processing all events</li>
      * </ol>
      *
-     * <p><strong>Notes</strong></p>
+     * <p><strong>WAC Formula</strong>: {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty}
+     *
+     * <p><strong>Notes</strong>:
      * <ul>
-     *   <li>If an inbound event lacks {@code priceAtChange}, the current moving average is used
-     *       to maintain cost continuity.</li>
-     *   <li>The algorithm guards against negative on-hand quantities caused by data issues by clamping at zero.</li>
-     *   <li>All values are computed with scale 4 and {@link RoundingMode#HALF_UP} for intermediate averages.</li>
+     *   <li>Algorithm details in inline comments (complex event replay logic)</li>
+     *   <li>Scale 4, {@link RoundingMode#HALF_UP} for intermediate calculations</li>
+     *   <li>Guards against negative quantities (clamps at zero)</li>
      * </ul>
      *
-     * @param from       inclusive start date
-     * @param to         inclusive end date
-     * @param supplierId optional supplier filter (events for other suppliers are ignored when provided)
-     * @return WAC-based {@link FinancialSummaryDTO} with opening/ending, purchases, returns, COGS, and write-offs
-     * @throws InvalidRequestException if any bound is {@code null} or {@code from} &gt; {@code to}
+     * @param from inclusive start date (required)
+     * @param to inclusive end date (required)
+     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
+     * @return WAC-based financial summary with all categories
+     * @throws InvalidRequestException if {@code from/to} is {@code null} or {@code from > to}
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#wac-algorithm">WAC Algorithm</a>
      */
     @Override
     public FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId) {
