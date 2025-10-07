@@ -32,12 +32,32 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
-## 📘 API Documentation (OpenAPI YAML + Redoc)
+## 📘 Documentation
+
+### API Documentation (OpenAPI YAML + Redoc)
 
 All endpoints are documented manually via OpenAPI 3.0 YAML files and rendered using [Redoc](https://github.com/Redocly/redoc). This allows clear, secure API sharing without exposing runtime Swagger UI.
 
 - **API (ReDoc):** https://keglev.github.io/inventory-service/api.html
 - **Security Overview:** https://keglev.github.io/inventory-service/architecture/security-overview.html
+
+### 🏗️ Architecture Documentation
+
+Comprehensive enterprise-level architecture documentation covering design patterns, service flows, and refactoring roadmaps:
+
+- **📚 Architecture Index:** [docs/architecture/README.md](./docs/architecture/README.md)
+- **🔧 Service Layer:** [docs/architecture/services/README.md](./docs/architecture/services/README.md)
+- **🎨 Design Patterns:** [docs/architecture/patterns/](./docs/architecture/patterns/)
+- **🔄 Refactoring Roadmap:** [docs/architecture/refactoring/](./docs/architecture/refactoring/)
+
+**Service Documentation:**
+- [AnalyticsService](./docs/architecture/services/analytics-service.md) - Business insights, WAC algorithm (🔴 HIGH complexity)
+- [InventoryItemService](./docs/architecture/services/inventory-item-service.md) - Inventory CRUD, stock history (🟡 MEDIUM complexity)
+- [SupplierService](./docs/architecture/services/supplier-service.md) - Master data management (🟢 LOW complexity)
+- [StockHistoryService](./docs/architecture/services/stock-history-service.md) - Append-only audit log (🟢 LOW complexity)
+- [OAuth2 Services](./docs/architecture/services/oauth2-services.md) - Authentication integration (🟡 MEDIUM complexity)
+
+### API Endpoints (OpenAPI Specs)
 
 | Module                | OpenAPI Documentation |
 |-----------------------|------------------------|
