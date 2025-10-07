@@ -24,22 +24,21 @@ import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
- * OAuth2 user service that:
+ * OAuth2 user service for social login with automatic role assignment.
  *
+ * <p><strong>Characteristics</strong>:
  * <ul>
- *   <li>Loads the upstream OAuth2 user (e.g., Google) and extracts email/name.</li>
- *   <li>Finds or creates a local {@link AppUser} record on first login.</li>
- *   <li>Assigns {@code ROLE_ADMIN} if the user's email is present in the configured allow-list
- *       (environment variable {@code APP_ADMIN_EMAILS}, comma-separated, case-insensitive);
- *       otherwise assigns {@code ROLE_USER}.</li>
- *   <li>Exposes a Spring Security authority of the form {@code ROLE_*} so that
- *       {@code hasRole('ADMIN')} and {@code hasRole('USER')} continue to work unchanged.</li>
- *   <li>Adds an {@code appRole} attribute to the principal's attributes for frontend display if needed.</li>
+ *   <li><strong>Auto-Provisioning</strong>: Creates local user on first OAuth2 login</li>
+ *   <li><strong>Role Assignment</strong>: ADMIN via APP_ADMIN_EMAILS env var, otherwise USER</li>
+ *   <li><strong>Email-Based Identity</strong>: Uses email as principal for security context</li>
+ *   <li><strong>Role Healing</strong>: Updates role if allow-list changes</li>
  * </ul>
  *
- * <p><strong>Rationale:</strong> This keeps your existing controller annotations and tests intact.
- * You can grant yourself (or others) admin rights operationally via an environment variable,
- * avoiding hard-coding emails in source code.</p>
+ * <p><strong>Configuration</strong>:
+ * Set {@code APP_ADMIN_EMAILS} environment variable with comma-separated admin emails.
+ *
+ * @see AppUser
+ * @see CustomOidcUserService
  */
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
@@ -51,8 +50,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     /**
-     * Reads a comma-separated admin list from {@code APP_ADMIN_EMAILS}.
-     * Trims whitespace and lower-cases entries for case-insensitive matching.
+     * Reads admin email allow-list from APP_ADMIN_EMAILS environment variable.
+     * @return set of lowercase admin emails
      */
     private static Set<String> readAdminAllowlist() {
         String raw = System.getenv().getOrDefault("APP_ADMIN_EMAILS", "");
@@ -64,14 +63,26 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    /** Normalizes a role name to a Spring Security ROLE_* authority. */
+    /**
+     * Normalizes role name to Spring Security ROLE_* authority format.
+     * @param roleName role name
+     * @return ROLE_* prefixed authority
+     */
     private static String toRoleAuthority(String roleName) {
         if (roleName == null || roleName.isBlank()) return "ROLE_USER";
         return roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
     }
 
+    /**
+     * Loads OAuth2 user and provisions/updates local user with role assignment.
+     * @param request OAuth2 user request
+     * @return OAuth2 user with ROLE_* authorities
+     * @throws OAuth2AuthenticationException if email not provided
+     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
+        // Enterprise Comment: OAuth2 User Loading
+        // Delegates to default service for upstream provider communication
         OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(request);
 
         final String email = oauthUser.getAttribute("email");
@@ -81,9 +92,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             throw new OAuth2AuthenticationException("Email not provided by OAuth2 provider.");
         }
 
+        // Enterprise Comment: Environment-Based Role Assignment
+        // Admin emails configured via APP_ADMIN_EMAILS for operational flexibility
         // Decide role from env allow-list (minimal change; no AppProperties wiring needed)
         final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());
 
+        // Enterprise Comment: Auto-Provisioning Pattern
+        // Creates local user on first login with race condition handling
         // Find or create local user
         AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
             AppUser u = new AppUser();                           // use no-arg ctor; id stays a UUID
@@ -99,6 +114,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             }
         });
 
+        // Enterprise Comment: Role Healing Pattern
+        // Updates role dynamically if allow-list changes (idempotent operation)
         // Heal role if the allow-list changed since last login (idempotent)
         final Role desired = isAdmin ? Role.ADMIN : Role.USER;
         if (user.getRole() != desired) {

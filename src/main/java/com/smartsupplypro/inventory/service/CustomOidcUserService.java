@@ -23,26 +23,26 @@ import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 /**
- * Custom OIDC user service that runs for providers sending the "openid" scope (e.g., Google).
+ * OIDC user service for OpenID Connect providers with automatic role assignment.
  *
- * <p><b>Why we need this:</b> For OIDC logins Spring Security invokes an {@link OAuth2UserService}
- * parametrized as {@code OAuth2UserService<OidcUserRequest, OidcUser>} rather than the plain
- * {@code OAuth2UserService<OAuth2UserRequest, OAuth2User>}. If we only customize the latter,
- * our role mapping (ROLE_USER / ROLE_ADMIN) never runs, resulting in requests that carry only
- * authorities like {@code OIDC_USER} and scopes, but <em>not</em> {@code ROLE_ADMIN}.</p>
+ * <p><strong>Characteristics</strong>:
+ * <ul>
+ *   <li><strong>OIDC Support</strong>: Handles OpenID Connect flow (e.g., Google with openid scope)</li>
+ *   <li><strong>Auto-Provisioning</strong>: Creates local user on first OIDC login</li>
+ *   <li><strong>Role Assignment</strong>: ADMIN via APP_ADMIN_EMAILS env var, otherwise USER</li>
+ *   <li><strong>Email-Based Identity</strong>: Uses email as principal for security context</li>
+ *   <li><strong>Role Healing</strong>: Updates role if allow-list changes</li>
+ * </ul>
  *
- * <p>This implementation delegates to the default {@link OidcUserService} to load the upstream
- * OIDC user, then:
- * <ol>
- *   <li>Reads the user's email from OIDC claims.</li>
- *   <li>Finds/creates a local {@link AppUser} record and assigns {@code Role.ADMIN} when the
- *       email is present in the environment variable {@code APP_ADMIN_EMAILS}
- *       (comma-separated, case-insensitive); otherwise {@code Role.USER}.</li>
- *   <li>Builds a {@link DefaultOidcUser} that <b>adds</b> {@code ROLE_*} to the provider
- *       authorities and uses the email as the principal name attribute.</li>
- * </ol>
- * Keeping the principal name as the email ensures logs and security traces show the email
- * instead of the OIDC subject ("sub").</p>
+ * <p><strong>Why Separate from OAuth2UserService</strong>:
+ * OIDC requires {@code OAuth2UserService<OidcUserRequest, OidcUser>} parametrization.
+ * Without this, role mapping ({@code ROLE_ADMIN}/{@code ROLE_USER}) wouldn't apply to OIDC logins.
+ *
+ * <p><strong>Configuration</strong>:
+ * Set {@code APP_ADMIN_EMAILS} environment variable with comma-separated admin emails.
+ *
+ * @see AppUser
+ * @see CustomOAuth2UserService
  */
 @Service
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
@@ -53,7 +53,11 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         this.userRepository = userRepository;
     }
 
-    /** Reads APP_ADMIN_EMAILS (comma-separated, case-insensitive) into a lowercase set. */
+    /**
+     * Reads admin allow-list from APP_ADMIN_EMAILS environment variable.
+     *
+     * @return set of lowercase admin emails
+     */
     private static Set<String> readAdminAllowlist() {
         String raw = System.getenv().getOrDefault("APP_ADMIN_EMAILS", "");
         if (raw == null || raw.isBlank()) return Collections.emptySet();
@@ -64,14 +68,29 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    /**
+     * Normalizes role to Spring Security authority format.
+     *
+     * @param role user role
+     * @return ROLE_* authority string
+     */
     private static String toRoleAuthority(Role role) {
         String name = (role == null) ? "USER" : role.name();
         return name.startsWith("ROLE_") ? name : "ROLE_" + name;
     }
 
+    /**
+     * Loads OIDC user and assigns ROLE_ADMIN or ROLE_USER based on APP_ADMIN_EMAILS.
+     *
+     * @param request OIDC user request
+     * @return OIDC user with role-based authority
+     * @throws OAuth2AuthenticationException if email missing or user creation fails
+     */
     @Override
     public OidcUser loadUser(OidcUserRequest request) throws OAuth2AuthenticationException {
-        // Delegate to the default loader first
+        // Enterprise Comment: OIDC User Loading
+        // Delegate to OidcUserService to handle ID token validation and claims extraction.
+        // This ensures OpenID Connect standards (JWT signature, issuer validation, nonce) are enforced.
         OidcUser oidc = new OidcUserService().loadUser(request);
 
         final String email = oidc.getEmail(); // same as oidc.getAttribute("email")
@@ -81,10 +100,14 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             throw new OAuth2AuthenticationException("Email not provided by OAuth2 provider.");
         }
 
-        // Decide role from env allow-list (same helper you already use)
+        // Enterprise Comment: Environment-Based Role Assignment
+        // APP_ADMIN_EMAILS allows zero-downtime role changes without code deployment.
+        // Example: APP_ADMIN_EMAILS=admin@corp.com,manager@corp.com
         final boolean isAdmin = readAdminAllowlist().contains(email.toLowerCase());
 
-        // ---- FIND OR CREATE BY *EMAIL* (not by id) ----
+        // Enterprise Comment: Auto-Provisioning Pattern
+        // Create user on first login with role based on email allow-list.
+        // Race condition handling: If concurrent login creates duplicate, re-fetch by email.
         AppUser user = userRepository.findByEmail(email).orElseGet(() -> {
             AppUser u = new AppUser();                           // let JPA manage UUID id
             u.setEmail(email);
@@ -99,7 +122,8 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             }
         });
 
-        // Heal role if the allow-list changed since last login
+        // Enterprise Comment: Role Healing Pattern
+        // Update role if APP_ADMIN_EMAILS changed since last login (idempotent operation).
         final Role desired = isAdmin ? Role.ADMIN : Role.USER;
         if (user.getRole() != desired) {
             user.setRole(desired);
