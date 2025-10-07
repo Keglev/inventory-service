@@ -304,7 +304,6 @@ class StockHistoryRepositoryTest {
         inventoryItemRepository.save(item2);
 
         List<Object[]> result = stockHistoryRepository.findItemsBelowMinimumStockFiltered(supplierB.getId());
-        System.out.println("Low-stock items: " + result.size());
         assertEquals(1, result.size());
     }
 
