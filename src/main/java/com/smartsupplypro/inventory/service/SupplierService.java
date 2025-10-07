@@ -6,84 +6,78 @@ import java.util.Optional;
 import com.smartsupplypro.inventory.dto.SupplierDTO;
 
 /**
- * Application service boundary for Supplier use-cases.
+ * Service interface for supplier management operations.
  *
- * <p>This interface defines the contract used by web controllers and other
- * application layers. Implementations enforce validation, uniqueness,
- * and business rules, and surface errors that the GlobalExceptionHandler maps
- * to HTTP statuses (400/404/409).
- *
- * <h3>Error semantics (enforced by the implementation)</h3>
+ * <p><strong>Capabilities</strong>:
  * <ul>
- *   <li>Invalid payload → {@code InvalidRequestException} (400)</li>
- *   <li>Not found → {@code NoSuchElementException} (404)</li>
- *   <li>Duplicate/Conflict → {@code DuplicateResourceException} or {@code IllegalStateException} (409)</li>
+ *   <li><strong>CRUD Operations</strong>: Create, read, update, delete suppliers</li>
+ *   <li><strong>Search</strong>: Name-based partial matching</li>
+ *   <li><strong>Validation</strong>: Uniqueness and business rule enforcement</li>
+ *   <li><strong>Error Handling</strong>: Maps domain errors to HTTP status codes via GlobalExceptionHandler</li>
  * </ul>
+ *
+ * <p><strong>Error Semantics</strong>:
+ * <ul>
+ *   <li>Invalid payload → InvalidRequestException (400)</li>
+ *   <li>Not found → NoSuchElementException (404)</li>
+ *   <li>Duplicate/Conflict → DuplicateResourceException or IllegalStateException (409)</li>
+ * </ul>
+ *
+ * @see SupplierServiceImpl
  */
 public interface SupplierService {
 
     /**
-     * Retrieve all suppliers.
+     * Retrieves all suppliers.
      *
-     * <p>Used by {@code GET /api/suppliers}. Caller is responsible for authorization.
-     *
-     * @return immutable list of suppliers
+     * @return list of all suppliers
      */
     List<SupplierDTO> findAll();
 
     /**
-    * @return total number of suppliers (KPI).
-    */
+     * Counts total suppliers (KPI).
+     *
+     * @return total supplier count
+     */
     long countSuppliers();
 
     /**
-     * Retrieve a supplier by its ID.
+     * Retrieves supplier by ID.
      *
-     * <p>Used by {@code GET /api/suppliers/{id}}. Controller typically maps
-     * {@code Optional.empty()} to 404 via {@code orElseThrow()}.
-     *
-     * @param id supplier identifier (non-null)
-     * @return supplier DTO if present
+     * @param id supplier identifier
+     * @return supplier if present, empty otherwise
      */
     Optional<SupplierDTO> findById(String id);
 
     /**
-     * Search suppliers by (partial, case-insensitive) name.
+     * Searches suppliers by partial name (case-insensitive).
      *
-     * <p>Used by {@code GET /api/suppliers/search?name=...}.
-     *
-     * @param name fragment to match (non-null; empty yields empty list)
-     * @return suppliers whose names contain the fragment
+     * @param name search fragment
+     * @return matching suppliers
      */
     List<SupplierDTO> findByName(String name);
 
     /**
-     * Create a new supplier.
+     * Creates new supplier with validation.
      *
-     * <p>Controller ensures {@code id == null} on create and returns 201 + Location.
-     *
-     * @param dto input DTO (validated in the implementation)
-     * @return created supplier with server-generated id/timestamps
+     * @param dto supplier data (id must be null)
+     * @return created supplier with generated ID
      */
     SupplierDTO create(SupplierDTO dto);
 
     /**
-     * Update an existing supplier.
+     * Updates existing supplier with validation.
      *
-     * <p>Controller enforces that path id is authoritative; if body.id is present,
-     * it must match the path id (else 400). Implementation validates payload and
-     * uniqueness, and sets {@code updatedAt}.
-     *
-     * @param id  supplier id from path (authoritative)
-     * @param dto input DTO
-     * @return updated supplier DTO
+     * @param id supplier ID from path (authoritative)
+     * @param dto updated supplier data
+     * @return updated supplier
      */
     SupplierDTO update(String id, SupplierDTO dto);
 
     /**
-     * Delete a supplier after verifying no linked inventory items exist.
+     * Deletes supplier after verifying no linked inventory items exist.
      *
-     * @param id supplier id to delete
+     * @param id supplier ID to delete
      */
     void delete(String id);
 }

@@ -14,134 +14,99 @@ import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
 
 /**
- * Service interface for inventory analytics and dashboard reporting operations.
- * <p>
- * Provides business-layer contract for querying stock-related statistics such as
- * value trends, supplier-wise stock distribution, low stock warnings, item update
- * frequencies, and monthly movement summaries.
- * </p>
+ * Service interface for inventory analytics and dashboard reporting.
  *
- * <p>
- * Implementations of this interface should aggregate and transform raw inventory data
- * into structured DTOs for frontend consumption and decision-making support.
- * </p>
- *
- * <p><b>Key Use Cases:</b></p>
+ * <p><strong>Capabilities</strong>:
  * <ul>
- *   <li>Visualize stock valuation trends over time</li>
- *   <li>Identify top/bottom performing suppliers</li>
- *   <li>Trigger low-stock alerts</li>
- *   <li>Analyze monthly inventory movements</li>
- *   <li>Export filtered inventory activity logs</li>
+ *   <li><strong>Stock Valuation</strong>: Daily trends over time with supplier filtering</li>
+ *   <li><strong>Supplier Analytics</strong>: Per-supplier stock distribution and performance</li>
+ *   <li><strong>Low Stock Alerts</strong>: Items below minimum thresholds</li>
+ *   <li><strong>Movement Analysis</strong>: Monthly stock-in/stock-out summaries</li>
+ *   <li><strong>Financial Reporting</strong>: Weighted Average Cost (WAC) summaries</li>
+ *   <li><strong>Price Trends</strong>: Historical price tracking per item</li>
  * </ul>
  *
- * @author SmartSupply
+ * @see AnalyticsServiceImpl
  */
 public interface AnalyticsService {
 
     /**
-     * Retrieves the total daily stock value across the selected date range,
-     * optionally filtered by supplier.
+     * Retrieves daily stock value over date range with optional supplier filter.
      *
-     * @param startDate  the start date (nullable, defaults to last 30 days)
-     * @param endDate    the end date (nullable, defaults to today)
-     * @param supplierId optional supplier ID filter
-     * @return list of {@link StockValueOverTimeDTO} representing daily stock valuation
+     * @param startDate start date (nullable, defaults to last 30 days)
+     * @param endDate end date (nullable, defaults to today)
+     * @param supplierId optional supplier filter
+     * @return list of daily stock valuations
      */
     List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate, LocalDate endDate, String supplierId);
 
     /**
-     * Returns current total stock quantities grouped by supplier.
+     * Returns current stock quantities grouped by supplier.
      *
-     * @return list of {@link StockPerSupplierDTO} representing per-supplier inventory totals
+     * @return per-supplier inventory totals
      */
     List<StockPerSupplierDTO> getTotalStockPerSupplier();
 
     /**
-     * Returns how frequently items have been updated for the given supplier.
+     * Returns item update frequency for given supplier.
      *
-     * @param supplierId the supplier ID (required)
-     * @return list of {@link ItemUpdateFrequencyDTO} containing update counts per item
+     * @param supplierId supplier ID (required)
+     * @return update counts per item
      */
     List<ItemUpdateFrequencyDTO> getItemUpdateFrequency(String supplierId);
 
     /**
-     * Identifies all items below their minimum stock threshold for the given supplier.
+     * Identifies items below minimum stock threshold for given supplier.
      *
-     * @param supplierId the supplier ID (required)
-     * @return list of {@link LowStockItemDTO} containing warning-level stock items
+     * @param supplierId supplier ID (required)
+     * @return low-stock items requiring attention
      */
     List<LowStockItemDTO> getItemsBelowMinimumStock(String supplierId);
 
     /**
-     * Returns monthly aggregation of stock-in and stock-out movements
-     * within the selected date range and supplier filter.
+     * Returns monthly stock-in/stock-out aggregations with optional filters.
      *
-     * @param startDate  start date (nullable, defaults to last 30 days)
-     * @param endDate    end date (nullable, defaults to today)
-     * @param supplierId optional supplier ID
-     * @return list of {@link MonthlyStockMovementDTO} showing monthly trends
+     * @param startDate start date (nullable, defaults to last 30 days)
+     * @param endDate end date (nullable, defaults to today)
+     * @param supplierId optional supplier filter
+     * @return monthly movement summaries
      */
     List<MonthlyStockMovementDTO> getMonthlyStockMovement(LocalDate startDate, LocalDate endDate, String supplierId);
 
     /**
-     * Applies advanced filtering to retrieve raw stock history events matching multiple criteria.
+     * Retrieves stock history events matching advanced filter criteria.
      *
-     * @param filter the {@link StockUpdateFilterDTO} with time, supplier, user, and quantity filters
-     * @return list of {@link StockUpdateResultDTO} matching the filter
+     * @param filter time, supplier, user, and quantity filters
+     * @return filtered stock update events
      */
     List<StockUpdateResultDTO> getFilteredStockUpdates(StockUpdateFilterDTO filter);
 
     /**
-    * Retrieves historical price trend data for a given inventory item,
-    * optionally filtered by supplier.
-    *
-    * @param itemId the ID of the inventory item (required)
-    * @param supplierId optional supplier filter (nullable)
-    * @param start start date (inclusive)
-    * @param end end date (inclusive)
-    * @return list of {@link PriceTrendDTO} containing price history
-    */
+     * Retrieves historical price trend data for given item.
+     *
+     * @param itemId inventory item ID (required)
+     * @param supplierId optional supplier filter
+     * @param start start date (inclusive)
+     * @param end end date (inclusive)
+     * @return price history data points
+     */
     List<PriceTrendDTO> getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end);
 
     /**
-     * Retrieves a Weighted Average Cost (WAC) financial summary for the specified date range.
-     * <p>
-     * This method aggregates financial metrics including:
-     * <ul>
-     *   <li>Opening inventory value (WAC at period start)</li>
-     *   <li>Total purchases during the period</li>
-     *   <li>Cost of Goods Sold (COGS) - sales at WAC</li>
-     *   <li>Write-offs and losses (damaged, expired, scrapped items)</li>
-     *   <li>Returns to suppliers</li>
-     *   <li>Ending inventory value (WAC at period end)</li>
-     * </ul>
-     * </p>
+     * Retrieves Weighted Average Cost (WAC) financial summary for date range.
+     * Includes opening/ending inventory, purchases, COGS, write-offs, and returns.
      *
-     * <p><b>Business Logic:</b> WAC is recalculated after each purchase to reflect
-     * the blended cost of inventory. This method is essential for financial reporting,
-     * profit margin analysis, and inventory valuation.</p>
-     *
-     * @param from the start date of the financial period (inclusive)
-     * @param to the end date of the financial period (inclusive)
-     * @param supplierId optional supplier filter to scope the summary (nullable for all suppliers)
-     * @return {@link FinancialSummaryDTO} containing aggregated financial metrics
+     * @param from start date (inclusive)
+     * @param to end date (inclusive)
+     * @param supplierId optional supplier filter
+     * @return aggregated financial metrics
      */
     FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId);
 
     /**
-     * Counts the total number of inventory items that are currently below their defined
-     * minimum stock threshold across all suppliers.
-     * <p>
-     * This is a Key Performance Indicator (KPI) used for dashboard alerts and inventory
-     * management monitoring. Items with quantity less than 5 units are considered
-     * critically low stock.
-     * </p>
+     * Counts items below minimum stock threshold across all suppliers (KPI).
      *
-     * <p><b>Business Rule:</b> An item is counted if {@code quantity < minimumQuantity}
-     * regardless of supplier.</p>
-     *
-     * @return total count of low-stock items requiring attention
+     * @return total count of low-stock items
      */
     long lowStockCount();
 
