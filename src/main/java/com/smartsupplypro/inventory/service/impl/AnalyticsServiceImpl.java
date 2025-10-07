@@ -32,82 +32,38 @@ import com.smartsupplypro.inventory.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Production implementation of {@link AnalyticsService} providing inventory analytics,
- * reporting, and financial calculations for dashboard and decision-making support.
+ * Service implementation for inventory analytics, reporting, and financial calculations.
  *
- * <h2>Overview</h2>
- * <p>
- * This service aggregates raw inventory and stock history data into structured analytical
- * outputs including stock valuations, supplier performance metrics, low-stock alerts,
- * movement trends, and comprehensive financial summaries using Weighted Average Cost (WAC).
- * </p>
- *
- * <h2>Core Responsibilities</h2>
+ * <p><strong>Characteristics</strong>:
  * <ul>
- *   <li><strong>Input Validation</strong>: Enforce date range semantics, validate filters, provide sensible defaults</li>
- *   <li><strong>Data Aggregation</strong>: Delegate to repository custom queries (native SQL/JPQL) for efficient aggregation</li>
- *   <li><strong>DTO Mapping</strong>: Transform raw database projections into type-safe DTOs for frontend consumption</li>
- *   <li><strong>WAC Calculation</strong>: Implement event replay algorithm for financial reporting</li>
- *   <li><strong>Cross-Database Compatibility</strong>: Handle type differences between H2 (test) and Oracle (prod)</li>
+ *   <li><strong>Read-Only Operations</strong>: All methods marked {@code @Transactional(readOnly = true)}</li>
+ *   <li><strong>WAC Calculation</strong>: Event replay algorithm for Weighted Average Cost reporting</li>
+ *   <li><strong>Data Aggregation</strong>: Custom repository queries (native SQL/JPQL) for efficiency</li>
+ *   <li><strong>Database Portability</strong>: Handles H2 (test) and Oracle (prod) type differences</li>
+ *   <li><strong>Date Window Defaults</strong>: Last 30 days when bounds not specified</li>
+ *   <li><strong>Input Validation</strong>: Date range checks, filter normalization</li>
  * </ul>
  *
- * <h2>Key Features</h2>
+ * <p><strong>Core Analytics</strong>:
  * <ul>
- *   <li><strong>Stock Valuation Over Time</strong>: Daily inventory value trends with supplier filtering</li>
- *   <li><strong>Supplier Analytics</strong>: Stock distribution, update frequencies, low-stock items per supplier</li>
- *   <li><strong>Movement Trends</strong>: Monthly stock-in/stock-out aggregations</li>
- *   <li><strong>Price History</strong>: Item price trends for procurement analysis</li>
- *   <li><strong>Financial Reporting</strong>: WAC-based summaries (opening, purchases, COGS, write-offs, ending)</li>
- *   <li><strong>Advanced Filtering</strong>: Multi-criteria stock history queries</li>
+ *   <li>Stock valuation over time (daily trends, supplier filtering)</li>
+ *   <li>Supplier performance metrics (stock distribution, update frequencies)</li>
+ *   <li>Low stock alerts (threshold-based warnings)</li>
+ *   <li>Movement trends (monthly stock-in/stock-out)</li>
+ *   <li>Price history (procurement analysis)</li>
+ *   <li>Financial summaries (WAC-based: opening, purchases, COGS, write-offs, ending)</li>
  * </ul>
  *
- * <h2>Database Portability Strategy</h2>
- * <ul>
- *   <li><strong>Type Safety</strong>: Use {@link Number} for numeric projections to handle BigDecimal/Long/Integer
- *       variations between H2 and Oracle</li>
- *   <li><strong>Date Handling</strong>: Helper methods ({@code asLocalDate}, {@code asLocalDateTime}) normalize
- *       Date/Timestamp/String representations from different JDBC drivers</li>
- *   <li><strong>Naming Convention</strong>: JPQL queries use entity properties ({@code createdAt}), native SQL
- *       uses column names ({@code created_at})</li>
- * </ul>
+ * <p><strong>Transaction Management</strong>:
+ * Class-level {@code @Transactional(readOnly = true)} for all analytics operations.
  *
- * <h2>Transaction Management</h2>
- * <ul>
- *   <li>All methods are marked {@code @Transactional(readOnly = true)} for read-only optimization</li>
- *   <li>No data modifications occur in this service (strictly analytical/reporting)</li>
- *   <li>Database connections are released promptly after result set mapping</li>
- * </ul>
- *
- * <h2>Error Handling</h2>
- * <ul>
- *   <li>Input validation failures throw {@link InvalidRequestException} (mapped to HTTP 400)</li>
- *   <li>Date range violations (start &gt; end) are caught early with clear error messages</li>
- *   <li>Null/blank filters are normalized to sensible defaults or ignored</li>
- * </ul>
- *
- * <h2>Performance Considerations</h2>
- * <ul>
- *   <li><strong>Indexed Queries</strong>: Repository methods leverage database indexes on
- *       {@code created_at}, {@code supplier_id}, and {@code item_id}</li>
- *   <li><strong>Date Window Defaults</strong>: Limits results to last 30 days when bounds are not specified</li>
- *   <li><strong>Streaming Results</strong>: Uses Java streams for in-memory aggregation after DB fetch</li>
- *   <li><strong>WAC Replay</strong>: Event-sourcing approach may process many rows for long date ranges
- *       (consider caching for frequent requests)</li>
- * </ul>
- *
- * <h2>Future Refactoring Considerations</h2>
- * <p>
- * The {@link #getFinancialSummaryWAC(LocalDate, LocalDate, String)} method (124 lines) contains
- * complex event replay and aggregation logic that could be extracted into a dedicated
- * {@code WacCalculator} component for improved testability and maintainability.
- * See {@code docs/backend/REFACTORING_IMPACT_ANALYSIS.md} for details.
- * </p>
+ * <p><strong>Architecture Documentation</strong>:
+ * For detailed operation flows, WAC algorithm, business rules, and refactoring notes, see:
+ * <a href="../../../../../../docs/architecture/services/analytics-service.md">Analytics Service Architecture</a>
  *
  * @see AnalyticsService
  * @see com.smartsupplypro.inventory.repository.StockHistoryRepository
  * @see com.smartsupplypro.inventory.repository.InventoryItemRepository
- * @author SmartSupply Pro Team
- * @since 1.0
  */
 @Service
 @RequiredArgsConstructor
@@ -118,17 +74,16 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final InventoryItemRepository inventoryItemRepository;
 
     /**
-     * Retrieves the total inventory value (quantity × price) per day between two dates (inclusive),
-     * optionally filtered by supplier.
+     * Retrieves daily inventory value (quantity × price) over a date range.
      *
-     * <p><strong>Defaults</strong>: if any bound is {@code null}, the window defaults to the last 30 days
-     * ending today. The service validates {@code startDate &le; endDate}.</p>
+     * <p>Defaults to last 30 days if bounds are {@code null}.
      *
-     * @param startDate inclusive start date (nullable for defaulting)
-     * @param endDate   inclusive end date (nullable for defaulting)
-     * @param supplierId optional supplier filter; {@code null/blank} means all suppliers
-     * @return ordered list of daily points (ascending by date)
-     * @throws InvalidRequestException if {@code startDate} is after {@code endDate}
+     * @param startDate inclusive start date (nullable)
+     * @param endDate inclusive end date (nullable)
+     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
+     * @return ordered list of daily stock values (ascending by date)
+     * @throws InvalidRequestException if {@code startDate > endDate}
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#stock-valuation">Stock Valuation</a>
      */
     @Override
     public List<StockValueOverTimeDTO> getTotalStockValueOverTime(LocalDate startDate,
@@ -142,42 +97,24 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<Object[]> rows =
                 stockHistoryRepository.getStockValueGroupedByDateFiltered(from, to, blankToNull(supplierId));
 
-        // row[0] = DATE (java.sql.Date or LocalDate), row[1] = numeric total value
         return rows.stream()
                 .map(r -> new StockValueOverTimeDTO(
                         asLocalDate(r[0]),
-                        asNumber(r[1]).doubleValue() // DTO uses double for charting
+                        asNumber(r[1]).doubleValue()
                 ))
                 .toList();
     }
 
     /**
-     * Retrieves current stock quantities grouped and totaled by supplier.
-     * <p>
-     * This method provides a supplier-centric view of inventory distribution, useful for:
-     * <ul>
-     *   <li>Identifying suppliers with the most inventory on hand</li>
-     *   <li>Balancing procurement across multiple suppliers</li>
-     *   <li>Visualizing supplier contribution to total inventory (pie/bar charts)</li>
-     *   <li>Detecting supplier dependency risks (too much stock from single supplier)</li>
-     * </ul>
-     * </p>
+     * Retrieves current stock quantities grouped by supplier.
      *
-     * <p><strong>Business Logic</strong>: Aggregates {@code quantity} field from current
-     * inventory items, grouped by their associated supplier. Does not consider historical
-     * stock movements - this is a snapshot of current state.</p>
-     *
-     * <p><strong>Database Query</strong>: Delegates to native SQL aggregation for performance.
-     * Results are ordered by quantity descending to show largest suppliers first.</p>
-     *
-     * @return list of {@link StockPerSupplierDTO} containing supplier name and total quantity,
-     *         ordered by quantity descending. Empty list if no inventory items exist.
+     * @return list of suppliers with total quantities (ordered by quantity desc)
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#supplier-analytics">Supplier Analytics</a>
      */
     @Override
     public List<StockPerSupplierDTO> getTotalStockPerSupplier() {
         List<Object[]> rows = stockHistoryRepository.getTotalStockPerSupplier();
 
-        // row[0] = supplier name, row[1] = numeric quantity
         return rows.stream()
                 .map(r -> new StockPerSupplierDTO(
                         (String) r[0],
@@ -187,32 +124,14 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Analyzes how frequently inventory items have been updated for a specific supplier.
-     * <p>
-     * This metric helps identify:
-     * <ul>
-     *   <li><strong>High-churn items</strong>: Products with frequent stock movements (sales, restocking)</li>
-     *   <li><strong>Stale inventory</strong>: Items with few or no updates over time</li>
-     *   <li><strong>Operational patterns</strong>: Which products require constant attention</li>
-     * </ul>
-     * </p>
+     * Retrieves stock update frequency per item for a supplier.
      *
-     * <p><strong>Business Logic</strong>: Counts the number of stock history entries per item
-     * for the given supplier. Each adjustment, sale, restock, price change, etc. increments
-     * the count. Items with more history entries appear at the top.</p>
+     * <p>Counts stock history entries per item (higher count = more active product).
      *
-     * <p><strong>Use Cases</strong>:
-     * <ul>
-     *   <li>Dashboard showing "most active products"</li>
-     *   <li>Identifying items that need automated reorder rules</li>
-     *   <li>Finding slow-moving inventory candidates for clearance</li>
-     * </ul>
-     * </p>
-     *
-     * @param supplierId supplier identifier (required, must be non-blank)
-     * @return list of {@link ItemUpdateFrequencyDTO} ordered by update count descending,
-     *         showing item name and total number of stock history entries
-     * @throws InvalidRequestException if {@code supplierId} is blank or null
+     * @param supplierId supplier identifier (required)
+     * @return list of items with update counts (ordered by count desc)
+     * @throws InvalidRequestException if {@code supplierId} is blank
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#supplier-analytics">Supplier Analytics</a>
      */
     @Override
     public List<ItemUpdateFrequencyDTO> getItemUpdateFrequency(String supplierId) {
@@ -220,7 +139,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         List<Object[]> rows = stockHistoryRepository.getUpdateCountPerItemFiltered(sid);
 
-        // row[0] = item name, row[1] = numeric count
         return rows.stream()
                 .map(r -> new ItemUpdateFrequencyDTO(
                         (String) r[0],
@@ -230,35 +148,14 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Identifies inventory items that have fallen below their configured minimum stock threshold
-     * for a specific supplier.
-     * <p>
-     * This is a critical alerting mechanism for inventory management, helping prevent stockouts
-     * and maintain service levels.
-     * </p>
+     * Identifies items below minimum stock threshold for a supplier.
      *
-     * <p><strong>Business Rule</strong>: An item is considered "low stock" when:
-     * {@code currentQuantity < minimumQuantity}. Each inventory item has a configurable
-     * {@code minimumQuantity} field representing the safety stock level.</p>
+     * <p><strong>Business Rule</strong>: Low stock when {@code currentQuantity < minimumQuantity}.
      *
-     * <p><strong>Use Cases</strong>:
-     * <ul>
-     *   <li><strong>Reorder Alerts</strong>: Trigger purchase orders for low-stock items</li>
-     *   <li><strong>Dashboard Warnings</strong>: Display red/yellow indicators for attention-needed items</li>
-     *   <li><strong>Email Notifications</strong>: Automatically notify procurement team</li>
-     *   <li><strong>Priority Replenishment</strong>: Sort items by how far below minimum they are</li>
-     * </ul>
-     * </p>
-     *
-     * <p><strong>Sorting</strong>: Results are ordered by {@code quantity} ascending, so the most
-     * critically low items (closest to zero) appear first.</p>
-     *
-     * @param supplierId supplier identifier (required, must be non-blank) - filters to items
-     *                   from this supplier only
-     * @return list of {@link LowStockItemDTO} containing item name, current quantity, and minimum
-     *         quantity threshold, ordered by current quantity ascending (most critical first).
-     *         Empty list if no items are below minimum for this supplier.
-     * @throws InvalidRequestException if {@code supplierId} is blank or null
+     * @param supplierId supplier identifier (required)
+     * @return list of low-stock items (ordered by quantity asc, most critical first)
+     * @throws InvalidRequestException if {@code supplierId} is blank
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#low-stock-alerts">Low Stock Alerts</a>
      */
     @Override
     public List<LowStockItemDTO> getItemsBelowMinimumStock(String supplierId) {
@@ -266,7 +163,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         List<Object[]> rows = inventoryItemRepository.findItemsBelowMinimumStockFiltered(sid);
 
-        // row = [name, quantity, minimum_quantity]
         return rows.stream()
                 .map(r -> new LowStockItemDTO(
                         (String) r[0],
@@ -277,39 +173,16 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     /**
-     * Aggregates stock movements into monthly buckets showing total stock-in and stock-out
-     * quantities for trend analysis and capacity planning.
-     * <p>
-     * This method categorizes all stock history events into inbound (stock-in) and outbound
-     * (stock-out) movements, grouped by month (YYYY-MM format).
-     * </p>
+     * Aggregates stock movements into monthly buckets (stock-in vs stock-out).
      *
-     * <p><strong>Movement Categorization</strong>:
-     * <ul>
-     *   <li><strong>Stock-In</strong>: Positive quantity changes (purchases, returns from customers, restocking)</li>
-     *   <li><strong>Stock-Out</strong>: Negative quantity changes (sales, write-offs, damages, returns to suppliers)</li>
-     * </ul>
-     * </p>
+     * <p>Defaults to last 30 days if bounds are {@code null}.
      *
-     * <p><strong>Use Cases</strong>:
-     * <ul>
-     *   <li><strong>Trend Analysis</strong>: Visualize seasonal patterns in stock movements</li>
-     *   <li><strong>Capacity Planning</strong>: Identify peak months for warehouse space needs</li>
-     *   <li><strong>Turnover Rate</strong>: Compare stock-in vs stock-out to measure inventory velocity</li>
-     *   <li><strong>Procurement Forecasting</strong>: Historical patterns inform future purchasing</li>
-     * </ul>
-     * </p>
-     *
-     * <p><strong>Defaults</strong>: If both date bounds are {@code null}, the window defaults
-     * to the last 30 days ending today.</p>
-     *
-     * @param startDate inclusive start date (nullable for defaulting to 30 days ago)
-     * @param endDate   inclusive end date (nullable for defaulting to today)
-     * @param supplierId optional supplier filter; {@code null/blank} means all suppliers
-     * @return list of {@link MonthlyStockMovementDTO} ordered by month ascending, containing
-     *         {@code monthKey} (YYYY-MM format), {@code stockIn} (total positive movements),
-     *         and {@code stockOut} (total negative movements as positive numbers)
-     * @throws InvalidRequestException if {@code startDate} is after {@code endDate}
+     * @param startDate inclusive start date (nullable)
+     * @param endDate inclusive end date (nullable)
+     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
+     * @return list of monthly movements (YYYY-MM format, ordered by month asc)
+     * @throws InvalidRequestException if {@code startDate > endDate}
+     * @see <a href="../../../../../../docs/architecture/services/analytics-service.md#movement-trends">Movement Trends</a>
      */
     @Override
     public List<MonthlyStockMovementDTO> getMonthlyStockMovement(LocalDate startDate,
@@ -323,7 +196,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<Object[]> rows =
                 stockHistoryRepository.getMonthlyStockMovementFiltered(from, to, blankToNull(supplierId));
 
-        // row = [YYYY-MM, stockIn, stockOut]
         return rows.stream()
                 .map(r -> new MonthlyStockMovementDTO(
                         (String) r[0],
