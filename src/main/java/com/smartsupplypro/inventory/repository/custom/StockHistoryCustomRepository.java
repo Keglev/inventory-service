@@ -2,9 +2,9 @@ package com.smartsupplypro.inventory.repository.custom;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
+import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 
 /**
  * Custom repository interface for database-specific stock history analytics queries.

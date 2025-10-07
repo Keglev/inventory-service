@@ -1,18 +1,18 @@
 package com.smartsupplypro.inventory.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Repository for stock history audit data with analytics support.

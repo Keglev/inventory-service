@@ -1,11 +1,12 @@
 package com.smartsupplypro.inventory.repository;
 
-import com.smartsupplypro.inventory.model.Supplier;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import com.smartsupplypro.inventory.model.Supplier;
 
 /**
  * Repository for supplier aggregate management.

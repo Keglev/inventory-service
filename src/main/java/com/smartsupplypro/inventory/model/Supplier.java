@@ -33,32 +33,32 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Supplier {
 
-    
+    /** Unique supplier identifier (UUID or custom code). */
     @Id
     @Column(name="ID", nullable = false)
     private String id;
 
-    
+    /** Supplier company name (unique). */
     @Column(name="NAME", nullable=false)
     private String name;
 
-    
+    /** Contact person name. */
     @Column(name="CONTACT_NAME")
     private String contactName;
 
-   
+    /** Contact phone number. */
     @Column(name="PHONE")
     private String phone;
 
-    
+    /** Contact email address. */
     @Column(name="EMAIL")
     private String email;
 
-    
+    /** User/system that created this record. */
     @Column(name="CREATED_BY", nullable=false)
     private String createdBy;
 
-    
+    /** Timestamp when supplier was added. */
     @CreationTimestamp
     @Column(name="CREATED_AT", nullable=false, updatable=false)
     private LocalDateTime createdAt;

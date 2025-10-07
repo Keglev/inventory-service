@@ -1,13 +1,13 @@
 package com.smartsupplypro.inventory.validation;
 
-import com.smartsupplypro.inventory.dto.InventoryItemDTO;
-import com.smartsupplypro.inventory.model.InventoryItem;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.smartsupplypro.inventory.dto.InventoryItemDTO;
+import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
  * Security validator for role-based inventory item update restrictions.
