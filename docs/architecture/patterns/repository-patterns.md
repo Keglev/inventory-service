@@ -558,6 +558,323 @@ void sumQuantityChangesByDateRange_shouldCalculateCorrectly() {
 
 ---
 
+## Advanced Patterns
+
+### Pattern: Multi-Database Dialect Support
+
+**Runtime database detection for H2 (test) vs Oracle (prod):**
+```java
+@Component
+public class StockHistoryCustomRepositoryImpl implements StockHistoryCustomRepository {
+    
+    @PersistenceContext
+    private EntityManager em;
+    
+    @Autowired
+    private Environment environment;
+    
+    /**
+     * Detects active database profile.
+     * Enterprise Comment: Database Dialect Detection
+     * Enables writing portable queries that adapt to test/prod environments
+     * without requiring separate implementations.
+     * 
+     * @return true if H2 (test), false if Oracle (prod)
+     */
+    private boolean isH2() {
+        return Arrays.stream(environment.getActiveProfiles())
+            .anyMatch(p -> p.equalsIgnoreCase("test") || p.equalsIgnoreCase("h2"));
+    }
+    
+    /**
+     * Monthly stock aggregations with database-specific SQL.
+     */
+    @Override
+    public List<Object[]> getMonthlyStockMovement(LocalDateTime start, LocalDateTime end) {
+        final String sql;
+        if (isH2()) {
+            // H2: Use CONCAT, YEAR/MONTH/DAY functions
+            sql = """
+                SELECT CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                              LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0')) AS month_str,
+                       SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
+                       SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
+                FROM stock_history sh
+                WHERE sh.created_at BETWEEN :start AND :end
+                GROUP BY CONCAT(CAST(YEAR(sh.created_at) AS VARCHAR), '-',
+                                LPAD(CAST(MONTH(sh.created_at) AS VARCHAR), 2, '0'))
+                ORDER BY 1
+            """;
+        } else {
+            // Oracle: Use TO_CHAR for formatting
+            sql = """
+                SELECT TO_CHAR(sh.created_at, 'YYYY-MM') AS month_str,
+                       SUM(CASE WHEN sh.quantity_change > 0 THEN sh.quantity_change ELSE 0 END) AS stock_in,
+                       SUM(CASE WHEN sh.quantity_change < 0 THEN ABS(sh.quantity_change) ELSE 0 END) AS stock_out
+                FROM stock_history sh
+                WHERE sh.created_at BETWEEN :start AND :end
+                GROUP BY TO_CHAR(sh.created_at, 'YYYY-MM')
+                ORDER BY 1
+            """;
+        }
+        
+        Query query = em.createNativeQuery(sql);
+        query.setParameter("start", start);
+        query.setParameter("end", end);
+        return query.getResultList();
+    }
+}
+```
+
+**Key Differences Between Dialects:**
+
+| Feature | H2 (Test) | Oracle (Production) |
+|---------|-----------|---------------------|
+| **Identifiers** | Quoted uppercase: `"CREATED_AT"` | Unquoted lowercase: `created_at` |
+| **Date Formatting** | `YEAR()`, `MONTH()`, `DAY()`, `CONCAT()` | `TO_CHAR(date, 'YYYY-MM-DD')` |
+| **String Functions** | `LPAD()`, `CONCAT()` | `TO_CHAR()`, `||` operator |
+| **Day Truncation** | `TRUNC(date)` | `TRUNC(date)` (same) |
+
+**Benefits:**
+- ✅ **Test Portability**: Use in-memory H2 for fast unit tests
+- ✅ **Production Performance**: Optimize for Oracle in production
+- ✅ **Single Codebase**: No separate test/prod implementations
+- ✅ **Profile-Based**: Automatically switches via Spring profiles
+
+---
+
+### Pattern: Window Functions & Analytics
+
+**Using SQL window functions for complex analytics:**
+```java
+/**
+ * Daily stock valuation using window functions.
+ * Enterprise Comment: Window Function Pattern
+ * Uses ROW_NUMBER() to identify last event per item per day,
+ * then calculates running balance and multiplies by price.
+ * This avoids full inventory reconstruction for each day.
+ */
+@Override
+public List<Object[]> getStockValueGroupedByDateFiltered(
+    LocalDateTime dateFrom, 
+    LocalDateTime dateTo, 
+    String supplierId
+) {
+    final String sql = isH2() ? """
+        WITH daily_events AS (
+            SELECT 
+                i.id AS item_id,
+                TRUNC(sh.created_at) AS event_date,
+                sh.quantity_change,
+                sh.price_at_change,
+                ROW_NUMBER() OVER (
+                    PARTITION BY i.id, TRUNC(sh.created_at)
+                    ORDER BY sh.created_at DESC
+                ) AS rn
+            FROM stock_history sh
+            JOIN inventory_item i ON sh.item_id = i.id
+            WHERE (:dateFrom IS NULL OR sh.created_at >= :dateFrom)
+              AND (:dateTo IS NULL OR sh.created_at <= :dateTo)
+              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+        ),
+        running_balance AS (
+            SELECT 
+                event_date,
+                SUM(quantity_change) OVER (
+                    PARTITION BY item_id 
+                    ORDER BY event_date
+                ) AS daily_quantity,
+                price_at_change
+            FROM daily_events
+            WHERE rn = 1
+        )
+        SELECT 
+            event_date,
+            SUM(daily_quantity * price_at_change) AS total_value
+        FROM running_balance
+        GROUP BY event_date
+        ORDER BY event_date
+        """ : "..."; // Oracle variant
+    
+    Query query = em.createNativeQuery(sql);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateTo", dateTo);
+    query.setParameter("supplierId", (supplierId == null || supplierId.isBlank()) ? null : supplierId);
+    
+    return query.getResultList();
+}
+```
+
+**Window Function Benefits:**
+- ✅ **Performance**: Avoids correlated subqueries
+- ✅ **Readability**: Clear analytical intent
+- ✅ **Accuracy**: Precise per-partition calculations
+- ✅ **Flexibility**: PARTITION BY, ORDER BY, window frames
+
+**Common Window Functions:**
+- `ROW_NUMBER()`: Sequential numbering within partition
+- `RANK()`: Ranking with gaps for ties
+- `SUM() OVER()`: Running totals
+- `AVG() OVER()`: Moving averages
+- `LAG()/LEAD()`: Access previous/next row values
+
+---
+
+### Pattern: Multi-Criteria Filtering with NULL-Safe Queries
+
+**Flexible filtering without dynamic SQL:**
+```java
+/**
+ * Searches stock updates with optional multi-criteria filters.
+ * Enterprise Comment: Multi-Criteria Filtering Pattern
+ * Uses NULL-safe WHERE clauses (:param IS NULL OR condition).
+ * Each parameter is normalized (null/blank checks) and converted
+ * to search patterns (e.g., LIKE %term%). This enables flexible
+ * queries without building dynamic SQL strings (SQL injection safe).
+ */
+@Override
+public List<Object[]> findFilteredStockUpdates(
+    LocalDateTime startDate,
+    LocalDateTime endDate,
+    String itemName,
+    String supplierId,
+    String createdBy,
+    Integer minChange,
+    Integer maxChange
+) {
+    final String sql = """
+        SELECT i.name, s.name, sh.quantity_change, sh.reason, sh.created_by, sh.created_at
+        FROM stock_history sh
+        JOIN inventory_item i ON sh.item_id = i.id
+        JOIN supplier s ON i.supplier_id = s.id
+        WHERE (:startDate     IS NULL OR sh.created_at >= :startDate)
+          AND (:endDate       IS NULL OR sh.created_at <= :endDate)
+          AND (:itemPattern   IS NULL OR LOWER(i.name) LIKE :itemPattern)
+          AND (:supplierId    IS NULL OR i.supplier_id = :supplierId)
+          AND (:createdByNorm IS NULL OR LOWER(sh.created_by) = :createdByNorm)
+          AND (:minChange     IS NULL OR sh.quantity_change >= :minChange)
+          AND (:maxChange     IS NULL OR sh.quantity_change <= :maxChange)
+        ORDER BY sh.created_at DESC
+        """;
+    
+    // Parameter normalization
+    final String itemPattern = (itemName == null || itemName.isBlank()) 
+        ? null : "%" + itemName.toLowerCase() + "%";
+    final String normalizedSupp = (supplierId == null || supplierId.isBlank()) 
+        ? null : supplierId;
+    final String createdByNorm = (createdBy == null || createdBy.isBlank()) 
+        ? null : createdBy.toLowerCase();
+    
+    Query q = em.createNativeQuery(sql);
+    q.setParameter("startDate", startDate);
+    q.setParameter("endDate", endDate);
+    q.setParameter("itemPattern", itemPattern);
+    q.setParameter("supplierId", normalizedSupp);
+    q.setParameter("createdByNorm", createdByNorm);
+    q.setParameter("minChange", minChange);
+    q.setParameter("maxChange", maxChange);
+    
+    return q.getResultList();
+}
+```
+
+**Pattern Benefits:**
+- ✅ **SQL Injection Safe**: All parameters bound, no string concatenation
+- ✅ **Flexible**: Any combination of filters works
+- ✅ **Maintainable**: Single query handles all cases
+- ✅ **Performance**: Database can optimize with NULL checks
+- ✅ **Normalized**: Consistent case handling (LOWER/UPPER)
+
+**Normalization Techniques:**
+- `null` or blank → `null` (skip filter)
+- Partial match → `LIKE %term%`
+- Exact match → `LOWER(field) = LOWER(param)`
+- Case-insensitive → `UPPER()` or `LOWER()` functions
+
+---
+
+### Pattern: DTO Projection in JPQL
+
+**Type-safe result mapping without boilerplate:**
+```java
+/**
+ * Streams stock events for WAC (Weighted Average Cost) calculations.
+ * Enterprise Comment: WAC Event Streaming
+ * Provides time-ordered event stream for cost-flow calculations.
+ * Events sorted by item and timestamp enable sequential replay for
+ * opening inventory reconstruction and period-specific aggregations.
+ */
+@Override
+public List<StockEventRowDTO> findEventsUpTo(LocalDateTime end, String supplierId) {
+    final String jpql = """
+        select new com.smartsupplypro.inventory.dto.StockEventRowDTO(
+            sh.itemId, 
+            coalesce(sh.supplierId, i.supplierId), 
+            sh.timestamp, 
+            sh.change,
+            sh.priceAtChange,
+            sh.reason
+        )
+        from StockHistory sh, InventoryItem i
+        where i.id = sh.itemId 
+            and sh.timestamp <= :end
+            and (
+                :supplierIdNorm is null 
+                or lower(sh.supplierId) = :supplierIdNorm
+            )
+        order by sh.itemId asc, sh.timestamp asc
+    """;
+
+    final String supplierIdNorm = (supplierId == null || supplierId.isBlank()) 
+        ? null : supplierId.trim().toLowerCase();
+
+    return em.createQuery(jpql, StockEventRowDTO.class)
+            .setParameter("end", end)
+            .setParameter("supplierIdNorm", supplierIdNorm)
+            .getResultList();
+}
+```
+
+**DTO Constructor Requirements:**
+```java
+public class StockEventRowDTO {
+    private final String itemId;
+    private final String supplierId;
+    private final LocalDateTime timestamp;
+    private final Integer change;
+    private final BigDecimal priceAtChange;
+    private final StockChangeReason reason;
+    
+    // Constructor MUST match JPQL "new" clause signature
+    public StockEventRowDTO(
+        String itemId,
+        String supplierId,
+        LocalDateTime timestamp,
+        Integer change,
+        BigDecimal priceAtChange,
+        StockChangeReason reason
+    ) {
+        this.itemId = itemId;
+        this.supplierId = supplierId;
+        this.timestamp = timestamp;
+        this.change = change;
+        this.priceAtChange = priceAtChange;
+        this.reason = reason;
+    }
+    
+    // Getters...
+}
+```
+
+**Benefits:**
+- ✅ **Type Safety**: Compile-time DTO constructor validation
+- ✅ **No Manual Mapping**: JPQL handles Object[] → DTO conversion
+- ✅ **Readable**: Clear field mapping in query
+- ✅ **Maintainable**: Refactoring updates query automatically
+- ✅ **Performance**: Direct field selection, no full entity loading
+
+---
+
 ## Best Practices
 
 ### 1. Use Specific Return Types
