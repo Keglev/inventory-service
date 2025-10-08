@@ -4,8 +4,10 @@
 
 This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, authentication, CI/CD, testing, and data visualizations.
 
-> ⚠️ Project still under development!
+> ⚠️ Project still under development!  
 ![CI](https://github.com/Keglev/inventory-service/actions/workflows/ci.yml/badge.svg)
+
+**📅 Last Updated:** October 8, 2025 - Enterprise Documentation Organization Complete
 
 ---
 
