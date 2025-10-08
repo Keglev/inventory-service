@@ -4,6 +4,8 @@
 
 This document describes validation patterns used across the Smart Supply Pro inventory service, focusing on **delegated validation** vs **inline validation**, and when to use each approach.
 
+**Related Documentation**: See [DTO Patterns](dto-patterns.md) for validation group patterns and Bean Validation integration.
+
 ---
 
 ## Pattern: Delegated Validation
