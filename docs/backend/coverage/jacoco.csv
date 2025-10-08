@@ -30,9 +30,9 @@ Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl
 Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,8,60,4,4,0,21,4,3,0,3
 Inventory Service,com.smartsupplypro.inventory.mapper,InventoryItemMapper,7,67,1,1,1,22,2,2,1,2
 Inventory Service,com.smartsupplypro.inventory.mapper,StockHistoryMapper,63,0,4,0,19,0,5,0,3,0
-Inventory Service,com.smartsupplypro.inventory.security,OAuth2LoginSuccessHandler,157,123,30,6,27,31,19,6,3,4
+Inventory Service,com.smartsupplypro.inventory.security,OAuth2LoginSuccessHandler,164,131,32,6,29,33,20,6,3,4
 Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository.new TypeReference() {...},3,0,0,0,1,0,1,0,1,0
-Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository,280,186,36,12,67,44,30,6,6,6
+Inventory Service,com.smartsupplypro.inventory.security,CookieOAuth2AuthorizationRequestRepository,275,165,36,12,67,42,30,6,6,6
 Inventory Service,com.smartsupplypro.inventory.service,CustomOAuth2UserService,186,6,26,0,33,3,19,1,6,1
 Inventory Service,com.smartsupplypro.inventory.service,CustomOidcUserService,178,6,24,0,33,3,18,1,6,1
 Inventory Service,com.smartsupplypro.inventory.service,StockHistoryService,89,77,2,0,25,29,6,5,5,5
