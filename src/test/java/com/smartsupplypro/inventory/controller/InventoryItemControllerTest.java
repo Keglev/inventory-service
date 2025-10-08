@@ -39,53 +39,14 @@ import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
- * Enterprise MVC Integration Tests for {@link InventoryItemController}.
+ * MVC tests for InventoryItemController - HTTP contract and security validation.
  * 
- * <p>This test suite validates the complete HTTP contract and security integration
- * of the inventory item management REST API, ensuring proper request/response handling,
- * status codes, security enforcement, and JSON serialization.</p>
+ * // ENTERPRISE: Web layer testing only, service logic tested in InventoryItemServiceTest
+ * // SECURITY: Role-based access (ADMIN/USER), CSRF protection for state changes
+ * // SCOPE: Request/response validation, status codes, JSON serialization
  * 
- * <h3>Test Architecture:</h3>
- * <ul>
- *   <li><strong>Test Slice:</strong> @WebMvcTest for focused web layer testing</li>
- *   <li><strong>Security Integration:</strong> Custom TestSecurityConfig with role-based testing</li>
- *   <li><strong>Exception Handling:</strong> GlobalExceptionHandler integration</li>
- *   <li><strong>Mock Strategy:</strong> Service layer mocked for isolated HTTP testing</li>
- * </ul>
- * 
- * <h3>Coverage Scope:</h3>
- * <ul>
- *   <li><strong>HTTP Contract:</strong> Routing, request mapping, and response structure</li>
- *   <li><strong>Security Enforcement:</strong> Role-based access control (ADMIN/USER)</li>
- *   <li><strong>Validation Integration:</strong> @Valid annotation and constraint validation</li>
- *   <li><strong>Error Handling:</strong> Exception to HTTP status code mapping</li>
- *   <li><strong>Content Negotiation:</strong> JSON request/response processing</li>
- * </ul>
- * 
- * <h3>Business Logic Exclusion:</h3>
- * <p><strong>Note:</strong> Business rules, data persistence, and service interactions 
- * are intentionally excluded from this test suite. These concerns are thoroughly 
- * covered in:</p>
- * <ul>
- *   <li>{@link com.smartsupplypro.inventory.service.InventoryItemServiceTest} - Service logic</li>
- *   <li>{@link com.smartsupplypro.inventory.repository.InventoryItemRepositoryTest} - Data access</li>
- *   <li>Integration tests - End-to-end business workflows</li>
- * </ul>
- * 
- * <h3>Security Testing Strategy:</h3>
- * <ul>
- *   <li><strong>Admin Operations:</strong> CREATE, UPDATE, DELETE operations require ADMIN role</li>
- *   <li><strong>User Operations:</strong> READ operations available to USER role</li>
- *   <li><strong>Anonymous Access:</strong> All endpoints require authentication</li>
- *   <li><strong>CSRF Protection:</strong> State-changing operations require CSRF tokens</li>
- * </ul>
- * 
- * @author SmartSupplyPro Development Team
- * @version 1.0.0
- * @since 2025-10-08
  * @see InventoryItemController
  * @see InventoryItemService
- * @see TestSecurityConfig
  */
 @WebMvcTest(controllers = InventoryItemController.class)
 @Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
@@ -99,10 +60,9 @@ class InventoryItemControllerTest {
     /* ==================== Test Data Factory Methods ==================== */
 
     /**
-     * Creates a sample InventoryItemDTO for testing purposes.
+     * Creates sample InventoryItemDTO for testing.
      * 
-     * @param id the inventory item ID, or null for new items
-     * @return fully populated InventoryItemDTO with valid test data
+     * // ENTERPRISE: Centralized test data creation with realistic business values
      */
     private InventoryItemDTO sample(String id) {
         InventoryItemDTO dto = new InventoryItemDTO();
@@ -115,9 +75,7 @@ class InventoryItemControllerTest {
     }
 
     /**
-     * Creates a new InventoryItemDTO without ID for creation testing.
-     * 
-     * @return InventoryItemDTO suitable for POST operations
+     * Creates InventoryItemDTO for POST operations (no ID).
      */
     private InventoryItemDTO withoutId() {
         InventoryItemDTO dto = sample(null);
@@ -126,16 +84,9 @@ class InventoryItemControllerTest {
     }
 
     /**
-     * Creates an intentionally invalid InventoryItemDTO for validation testing.
+     * Creates intentionally invalid DTO for validation testing.
      * 
-     * <p>This DTO violates multiple validation constraints:</p>
-     * <ul>
-     *   <li>Name is blank (violates @NotBlank)</li>
-     *   <li>Quantity is negative (violates @PositiveOrZero)</li>
-     *   <li>Price is negative (violates @DecimalMin)</li>
-     * </ul>
-     * 
-     * @return invalid InventoryItemDTO for 400 Bad Request testing
+     * // ENTERPRISE: Triggers @Valid before service layer for 400 validation
      */
     private InventoryItemDTO invalid() {
         // Intentionally invalid to trigger @Valid -> 400 before service runs
@@ -149,40 +100,13 @@ class InventoryItemControllerTest {
     /* ==================== CREATE Operations (POST /api/inventory) ==================== */
 
     /**
-     * Validates successful inventory item creation with ADMIN role.
+     * Tests inventory item creation with admin role.
+     * Given: Valid item data and ADMIN role
+     * When: POST /api/inventory
+     * Then: Returns 201 with created item and location header
      * 
-     * <p><strong>Test Scenario:</strong> Admin user creates new inventory item</p>
-     * 
-     * <h4>Given:</h4>
-     * <ul>
-     *   <li>User authenticated with ADMIN role</li>
-     *   <li>Valid inventory item DTO without ID</li>
-     *   <li>Service layer returns created item with generated ID</li>
-     *   <li>CSRF token provided</li>
-     * </ul>
-     * 
-     * <h4>When:</h4>
-     * <ul>
-     *   <li>POST request to /api/inventory with JSON payload</li>
-     * </ul>
-     * 
-     * <h4>Then:</h4>
-     * <ul>
-     *   <li>HTTP 201 Created status returned</li>
-     *   <li>Location header points to new resource</li>
-     *   <li>Response body contains created item with ID</li>
-     *   <li>Service.save() method called with request data</li>
-     * </ul>
-     * 
-     * <h4>Security Verification:</h4>
-     * <ul>
-     *   <li>ADMIN role authorization enforced</li>
-     *   <li>CSRF protection validated</li>
-     * </ul>
-     * 
-     * @throws Exception if MockMvc request fails
+     * // ENTERPRISE: Validates Location header format per REST standards
      */
-
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("POST /api/inventory -> 201 + Location (ADMIN)")
@@ -201,36 +125,12 @@ class InventoryItemControllerTest {
     }
 
     /**
-     * Validates that unauthenticated requests are rejected for inventory creation.
+     * Tests inventory creation rejection for unauthenticated users.
+     * Given: No authentication context
+     * When: POST /api/inventory  
+     * Then: Returns 401 Unauthorized
      * 
-     * <p><strong>Test Scenario:</strong> Anonymous user attempts to create inventory item</p>
-     * 
-     * <h4>Security Policy Tested:</h4>
-     * <ul>
-     *   <li>All inventory management endpoints require authentication</li>
-     *   <li>Anonymous access is prohibited for data modification</li>
-     * </ul>
-     * 
-     * <h4>Given:</h4>
-     * <ul>
-     *   <li>No authentication context (anonymous user)</li>
-     *   <li>Valid inventory item DTO</li>
-     *   <li>CSRF token provided</li>
-     * </ul>
-     * 
-     * <h4>When:</h4>
-     * <ul>
-     *   <li>POST request to /api/inventory</li>
-     * </ul>
-     * 
-     * <h4>Then:</h4>
-     * <ul>
-     *   <li>HTTP 401 Unauthorized status returned</li>
-     *   <li>Service layer is not invoked</li>
-     *   <li>No data modification occurs</li>
-     * </ul>
-     * 
-     * @throws Exception if MockMvc request fails
+     * // ENTERPRISE: Security policy - all inventory endpoints require authentication
      */
     @Test
     @DisplayName("POST /api/inventory -> 401 when unauthenticated")
@@ -242,37 +142,12 @@ class InventoryItemControllerTest {
     }
 
     /**
-     * Validates that USER role is insufficient for inventory item creation.
+     * Tests role-based authorization - USER cannot create inventory.
+     * Given: USER role authentication  
+     * When: POST /api/inventory
+     * Then: Returns 403 Forbidden
      * 
-     * <p><strong>Test Scenario:</strong> User with USER role attempts creation</p>
-     * 
-     * <h4>Authorization Policy Tested:</h4>
-     * <ul>
-     *   <li>CREATE operations require ADMIN role</li>
-     *   <li>USER role provides read-only access</li>
-     *   <li>Role-based access control enforcement</li>
-     * </ul>
-     * 
-     * <h4>Given:</h4>
-     * <ul>
-     *   <li>User authenticated with USER role</li>
-     *   <li>Valid inventory item DTO</li>
-     *   <li>CSRF token provided</li>
-     * </ul>
-     * 
-     * <h4>When:</h4>
-     * <ul>
-     *   <li>POST request to /api/inventory</li>
-     * </ul>
-     * 
-     * <h4>Then:</h4>
-     * <ul>
-     *   <li>HTTP 403 Forbidden status returned</li>
-     *   <li>Service layer is not invoked</li>
-     *   <li>Access denied based on role restriction</li>
-     * </ul>
-     * 
-     * @throws Exception if MockMvc request fails
+     * // ENTERPRISE: RBAC enforcement - only ADMIN can create/modify inventory
      */
     @Test
     @WithMockUser(roles = "USER")
@@ -284,6 +159,14 @@ class InventoryItemControllerTest {
             .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests input validation failure handling.
+     * Given: ADMIN role with invalid DTO (empty name, negative values)
+     * When: POST /api/inventory
+     * Then: Returns 400 Bad Request
+     * 
+     * // ENTERPRISE: @Valid annotation triggers validation before service layer
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("POST /api/inventory -> 400 when bean validation fails")
@@ -294,6 +177,14 @@ class InventoryItemControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Tests duplicate resource exception handling.
+     * Given: ADMIN role attempting to create duplicate item
+     * When: POST /api/inventory with existing name
+     * Then: Returns 409 Conflict
+     * 
+     * // ENTERPRISE: GlobalExceptionHandler converts DuplicateResourceException to 409
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("POST /api/inventory -> 409 when duplicate (handler wiring)")
@@ -306,8 +197,16 @@ class InventoryItemControllerTest {
             .andExpect(status().isConflict());
     }
 
-    /* -------------------- read -------------------- */
+    /* ==================== READ Operations (GET /api/inventory) ==================== */
 
+    /**
+     * Tests item retrieval by ID - both found and not found scenarios.
+     * Given: USER role (read access allowed)
+     * When: GET /api/inventory/{id}
+     * Then: Returns 200 with item or 404 if not found
+     * 
+     * // ENTERPRISE: Standard REST contract for resource retrieval
+     */
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("GET /api/inventory/{id} -> 200 or 404")
@@ -323,6 +222,12 @@ class InventoryItemControllerTest {
             .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests inventory list retrieval with populated data.
+     * Given: USER role and existing inventory items
+     * When: GET /api/inventory
+     * Then: Returns 200 with item array
+     */
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("GET /api/inventory -> 200 with list")
@@ -334,6 +239,12 @@ class InventoryItemControllerTest {
             .andExpect(jsonPath("$[1].id").value("i-2"));
     }
 
+    /**
+     * Tests inventory list retrieval with no data.
+     * Given: USER role and empty inventory
+     * When: GET /api/inventory
+     * Then: Returns 200 with empty array
+     */
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("GET /api/inventory -> 200 with empty list")
@@ -344,6 +255,14 @@ class InventoryItemControllerTest {
             .andExpect(content().json("[]"));
     }
 
+    /**
+     * Tests search endpoint with pagination and sorting.
+     * Given: USER role and search parameters
+     * When: GET /api/inventory/search with pageable params
+     * Then: Returns 200 with paginated results
+     * 
+     * // ENTERPRISE: Validates Spring Data pagination integration with REST layer
+     */
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("GET /api/inventory/search -> pageable & sort passed through")
@@ -360,8 +279,16 @@ class InventoryItemControllerTest {
             .andExpect(jsonPath("$.content[0].id").value("i-2"));
     }
 
-    /* -------------------- update (PUT unwraps Optional) -------------------- */
+    /* ==================== UPDATE Operations (PUT /api/inventory/{id}) ==================== */
 
+    /**
+     * Tests role-based field restrictions for inventory updates.
+     * Given: USER role attempting forbidden field changes
+     * When: PUT /api/inventory/{id}
+     * Then: Returns 403 Forbidden
+     * 
+     * // ENTERPRISE: Business rule - USERs can only modify quantity/price, not structural data
+     */
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("PUT /api/inventory/{id} -> 403 when user attempts forbidden field changes")
@@ -378,6 +305,14 @@ class InventoryItemControllerTest {
             .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests full inventory update for admin users.
+     * Given: ADMIN role and valid/invalid item IDs
+     * When: PUT /api/inventory/{id}
+     * Then: Returns 200 with updated item or 404 if not found
+     * 
+     * // ENTERPRISE: Standard REST update contract with Optional unwrapping
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("PUT /api/inventory/{id} -> 200 when found, 404 when missing")
@@ -400,8 +335,16 @@ class InventoryItemControllerTest {
             .andExpect(status().isNotFound());
     }
 
-    /* -------------------- delete -------------------- */
+    /* ==================== DELETE Operations (DELETE /api/inventory/{id}) ==================== */
 
+    /**
+     * Tests inventory deletion security for unauthenticated users.
+     * Given: No authentication context
+     * When: DELETE /api/inventory/{id}
+     * Then: Returns 401 Unauthorized
+     * 
+     * // ENTERPRISE: Deletion requires authentication and audit trail (reason parameter)
+     */
     @Test
     @DisplayName("DELETE /api/inventory/{id} -> 401 when unauthenticated")
     void delete_unauthenticated_401() throws Exception {
@@ -410,6 +353,12 @@ class InventoryItemControllerTest {
             .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests successful inventory deletion for admin users.
+     * Given: ADMIN role with valid item ID and reason
+     * When: DELETE /api/inventory/{id}?reason=SCRAPPED
+     * Then: Returns 204 No Content
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("DELETE /api/inventory/{id}?reason=SCRAPPED -> 204 (ADMIN)")
@@ -419,6 +368,14 @@ class InventoryItemControllerTest {
             .andExpect(status().isNoContent());
     }
 
+    /**
+     * Tests USER role restriction for inventory deletion.
+     * Given: USER role attempting to delete inventory
+     * When: DELETE /api/inventory/{id}
+     * Then: Returns 403 Forbidden
+     * 
+     * // ENTERPRISE: Only ADMIN users can delete inventory items
+     */
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("DELETE /api/inventory/{id} -> 403 (USER forbidden)")
@@ -428,6 +385,14 @@ class InventoryItemControllerTest {
             .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests validation requirement for deletion reason parameter.
+     * Given: ADMIN role but missing reason parameter
+     * When: DELETE /api/inventory/{id} without reason
+     * Then: Returns 400 Bad Request
+     * 
+     * // ENTERPRISE: Audit compliance requires reason for all deletions
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("DELETE /api/inventory/{id} without reason -> 400")
@@ -436,6 +401,16 @@ class InventoryItemControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+    /* ==================== PATCH Operations (Partial Updates) ==================== */
+
+    /**
+     * Tests quantity adjustment for USER role.
+     * Given: USER role with quantity delta and reason
+     * When: PATCH /api/inventory/{id}/quantity
+     * Then: Returns 200 with updated item
+     * 
+     * // ENTERPRISE: Users allowed to adjust quantity with audit trail (reason required)
+     */
     @Test
     @WithMockUser(roles = "USER")
     void patch_quantity_user_ok() throws Exception {
@@ -448,6 +423,14 @@ class InventoryItemControllerTest {
             .andExpect(status().isOk());
     }
 
+    /**
+     * Tests price update for USER role.
+     * Given: USER role with new price value
+     * When: PATCH /api/inventory/{id}/price
+     * Then: Returns 200 with updated item
+     * 
+     * // ENTERPRISE: Price updates allowed for USERs (business requirement)
+     */
     @Test
     @WithMockUser(roles = "USER")
     void patch_price_user_ok() throws Exception {
@@ -459,11 +442,15 @@ class InventoryItemControllerTest {
             .andExpect(status().isOk());
     }
 
+    /* ==================== UTILITY Operations ==================== */
+
     /**
-     * Test that the inventory count endpoint is accessible to any authenticated user,
-     * regardless of their role.
+     * Tests inventory count endpoint for authenticated users.
+     * Given: Any authenticated user (no specific role required)
+     * When: GET /api/inventory/count
+     * Then: Returns 200 with count
      * 
-     * @throws Exception if the request fails
+     * // ENTERPRISE: Public read operation - any authenticated user can view count
      */
     @WithMockUser // signed-in user, no role
     @Test
