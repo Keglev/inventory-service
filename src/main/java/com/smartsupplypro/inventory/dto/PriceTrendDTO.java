@@ -7,41 +7,25 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * DTO representing the historical unit price of a specific inventory item.
- *
- * <p>Used for analytics and dashboard visualizations of purchase price trends over time.
- * Each entry reflects the price that was recorded at a specific point when stock was updated.
- *
- * <p>This DTO is typically returned by the {@code /api/analytics/price-trend} endpoint,
- * filtered by item ID and date range.
- *
- * <p>Unlike {@link StockValueOverTimeDTO} which aggregates total stock value,
- * this DTO focuses on unit-level price variation.
- *
- * <p>Example usage:
- * <ul>
- *     <li>Line chart: "How has the purchase price of CPU Model X changed in the last 6 months?"</li>
- *     <li>Supplier negotiation tools based on historical prices</li>
- * </ul>
+ * Historical price trend DTO for individual inventory items over time.
+ * Tracks unit price variations for supplier negotiation and market analysis.
+ * @see AnalyticsController#getPriceTrend()
+ * @see dto-patterns.md for time series patterns
  */
 @Data
 @AllArgsConstructor
 public class PriceTrendDTO {
 
-    /**
-     * The date (formatted as yyyy-MM-dd) when this price was recorded.
-     * Returned as a String for compatibility with H2 and Oracle SQL date formats.
-     */
+    /** Date when price was recorded (yyyy-MM-dd format for SQL compatibility). */
     private String timestamp;
 
-    /**
-     * The unit purchase price at that point in time.
-     * Typically set when new stock is received.
-     */
+    /** Unit purchase price at this point in time. */
     private BigDecimal price;
 
+    // Enterprise Comment: Date format conversion - standardize on yyyy-MM-dd string format
+    // for consistent serialization across H2/Oracle databases and frontend charting libraries
     public PriceTrendDTO(LocalDateTime timestamp, BigDecimal price) {
-        this.timestamp = timestamp.toLocalDate().toString(); // Format as yyyy-MM-dd
+        this.timestamp = timestamp.toLocalDate().toString();
         this.price = price;
     }
 

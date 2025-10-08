@@ -6,25 +6,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * DTO representing the total value of inventory on a given date.
- *
- * <p>Used for plotting trends in stock valuation over time,
- * such as in line charts, monthly reports, or KPI dashboards.
+ * Time series DTO for inventory valuation trends and analytics visualization.
+ * Provides daily snapshots of total inventory value for KPI dashboards.
+ * @see AnalyticsController#getStockValueOverTime()
+ * @see dto-patterns.md for time series patterns
  */
 @Data
 @AllArgsConstructor
 public class StockValueOverTimeDTO {
 
-    /**
-     * The date associated with the stock value.
-     * Typically one entry per day in a time series.
-     */
+    /** Date point for time series (typically daily snapshots). */
     private LocalDate date;
 
-    /**
-     * Total monetary value of all inventory items on the given date.
-     * Computed as the sum of (quantity × price) for all items.
-     */
+    /** Total inventory value on this date (sum of quantity × price). */
     private double totalValue;
 }
 

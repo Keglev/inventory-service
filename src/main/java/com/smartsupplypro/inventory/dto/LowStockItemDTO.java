@@ -4,28 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * DTO representing an inventory item that has fallen below its minimum stock threshold.
- *
- * <p>Used in low-stock alerts, dashboards, or automated restocking workflows.
- * Helps identify products that need attention based on business-defined minimums.
+ * Low stock alert DTO identifying items below minimum thresholds.
+ * Used for automated restocking workflows and inventory management dashboards.
+ * @see AnalyticsController#getLowStockItems()
+ * @see dto-patterns.md for alert system patterns
  */
 @Data
 @AllArgsConstructor
 public class LowStockItemDTO {
 
-    /**
-     * Name of the inventory item.
-     */
+    /** Item name requiring attention. */
     private String itemName;
 
-    /**
-     * Current stock quantity available.
-     */
+    /** Current available stock quantity. */
     private int quantity;
 
-    /**
-     * Business-defined minimum threshold for this item.
-     * If {@code quantity < minimumQuantity}, the item is considered low in stock.
-     */
+    /** Minimum threshold (alert triggers when quantity < minimumQuantity). */
     private int minimumQuantity;
 }
