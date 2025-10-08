@@ -25,6 +25,12 @@ import com.smartsupplypro.inventory.service.SupplierService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST controller for supplier management with full CRUD operations and search.
+ * Supports role-based authorization (USER read-only, ADMIN full access).
+ * @see SupplierService
+ * @see controller-patterns.md for REST API patterns
+ */
 @RestController
 @RequestMapping(&quot;/api/suppliers&quot;)
 @RequiredArgsConstructor
@@ -33,85 +39,98 @@ public class SupplierController {
     private final SupplierService supplierService;
 
     /**
-     * List all suppliers (USER/ADMIN).
+     * Lists all suppliers with optional demo readonly access.
+     * @return list of supplier DTOs
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping
     public ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt; listAll() {
-<span class="fc" id="L41">        return ResponseEntity.ok(supplierService.findAll());</span>
+<span class="fc" id="L48">        return ResponseEntity.ok(supplierService.findAll());</span>
     }
 
     /**
-    * Returns the total number of suppliers.
-    * @return JSON number (e.g., 12)
-    */
+     * Returns total count of suppliers in system.
+     * @return supplier count as long value
+     */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/count&quot;)
     public long countSuppliers() {
-<span class="nc" id="L51">        return supplierService.countSuppliers();</span>
+<span class="nc" id="L58">        return supplierService.countSuppliers();</span>
     }
 
     /**
-     * Get one supplier by id (USER/ADMIN).
+     * Retrieves supplier by unique identifier.
+     * @param id supplier ID
+     * @return supplier DTO or 404 if not found
      */
     @PreAuthorize(&quot;isAuthenticated()&quot;)
     @GetMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;SupplierDTO&gt; getById(@PathVariable String id) {
-<span class="fc" id="L60">        return supplierService.findById(id)</span>
-<span class="fc" id="L61">                .map(ResponseEntity::ok)</span>
-<span class="fc" id="L62">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
+<span class="fc" id="L69">        return supplierService.findById(id)</span>
+<span class="fc" id="L70">                .map(ResponseEntity::ok)</span>
+<span class="fc" id="L71">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
     }
 
     /**
-     * Search by (partial) name (USER/ADMIN).
+     * Searches suppliers by partial name match.
+     * @param name partial or full supplier name
+     * @return list of matching suppliers
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/search&quot;)
     public ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt; search(@RequestParam String name) {
-<span class="fc" id="L71">        return ResponseEntity.ok(supplierService.findByName(name));</span>
+<span class="fc" id="L82">        return ResponseEntity.ok(supplierService.findByName(name));</span>
     }
 
     /**
-     * Create supplier (ADMIN) — returns 201 + Location.
-     * DTO validation happens here; duplicate handling is done in the service
-     * via DuplicateResourceException (mapped to 409).
+     * Creates new supplier with admin authorization and returns 201 + Location header.
+     * @param dto supplier data (ID must be null)
+     * @return created supplier with 201 status
      */
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @PostMapping
     public ResponseEntity&lt;SupplierDTO&gt; create(@Valid @RequestBody SupplierDTO dto) {
-<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
-            // path/payload mismatch style: controller throws ResponseStatusException in rare cases
-<span class="fc" id="L84">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
+            // Enterprise Comment: ID consistency validation - prevent client-generated IDs on creation
+            // to maintain server-side ID generation control and avoid potential ID conflicts
+<span class="fc" id="L96">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
         }
-<span class="fc" id="L86">        SupplierDTO created = supplierService.create(dto);</span>
-<span class="fc" id="L87">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId()))</span>
-<span class="fc" id="L88">                .header(HttpHeaders.LOCATION, &quot;/api/suppliers/&quot; + created.getId())</span>
-<span class="fc" id="L89">                .body(created);</span>
+<span class="fc" id="L98">        SupplierDTO created = supplierService.create(dto);</span>
+        // Enterprise Comment: REST Location header pattern - provide resource URI for immediate access
+        // enabling client-side navigation and RESTful resource discovery
+<span class="fc" id="L101">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId()))</span>
+<span class="fc" id="L102">                .header(HttpHeaders.LOCATION, &quot;/api/suppliers/&quot; + created.getId())</span>
+<span class="fc" id="L103">                .body(created);</span>
     }
 
     /**
-     * Update supplier (ADMIN). Path id wins; body.id may be absent or mismatched.
+     * Updates existing supplier with path ID taking precedence over body ID.
+     * @param id supplier ID from path
+     * @param dto updated supplier data
+     * @return updated supplier DTO
      */
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @PutMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;SupplierDTO&gt; update(@PathVariable String id, @Valid @RequestBody SupplierDTO dto) {
-        // If body has an id and it doesn't match, signal a payload/path mismatch (400).
-<span class="pc bpc" id="L99" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
-<span class="fc" id="L100">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
+        // Enterprise Comment: Path vs body ID validation - ensure API contract consistency
+        // by preventing mismatched identifiers that could lead to unintended updates
+<span class="pc bpc" id="L117" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
+<span class="fc" id="L118">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
         }
-<span class="fc" id="L102">        SupplierDTO updated = supplierService.update(id, dto);</span>
-<span class="fc" id="L103">        return ResponseEntity.ok(updated);</span>
+<span class="fc" id="L120">        SupplierDTO updated = supplierService.update(id, dto);</span>
+<span class="fc" id="L121">        return ResponseEntity.ok(updated);</span>
     }
 
     /**
-     * Delete supplier (ADMIN). Service will throw IllegalStateException (409)
-     * when there are linked inventory items, per your GlobalExceptionHandler.
+     * Deletes supplier with referential integrity checks.
+     * @param id supplier ID to delete
+     * @return 204 No Content on success
      */
     @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
     @DeleteMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;Void&gt; delete(@PathVariable String id) {
-<span class="fc" id="L113">        supplierService.delete(id);</span>
-<span class="fc" id="L114">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L132">        supplierService.delete(id);</span>
+<span class="fc" id="L133">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
