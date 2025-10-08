@@ -4,25 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * DTO representing the number of times an inventory item has been updated.
- *
- * <p>This metric is useful for identifying frequently adjusted items,
- * which may indicate operational volatility, high demand, or data correction needs.
- *
- * <p>Used in analytics dashboards or audit reports to provide visibility
- * into item activity frequency over time.
+ * Item activity tracking DTO showing update frequency for volatility analysis.
+ * Identifies high-activity items for operational insights and audit reporting.
+ * @see AnalyticsController#getTopUpdatedItems()
+ * @see dto-patterns.md for activity tracking patterns
  */
 @Data
 @AllArgsConstructor
 public class ItemUpdateFrequencyDTO {
 
-    /**
-     * The name of the inventory item.
-     */
+    /** Item name being tracked for activity. */
     private String itemName;
 
-    /**
-     * The number of update events recorded for this item.
-     */
+    /** Number of update events recorded for this item. */
     private long updateCount;
 }

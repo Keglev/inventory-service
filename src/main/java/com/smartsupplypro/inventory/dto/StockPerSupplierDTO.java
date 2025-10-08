@@ -4,23 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * DTO representing the total quantity of stock associated with a given supplier.
- *
- * <p>Used in supplier-level analytics, pie/bar charts, or performance dashboards
- * to visualize inventory distribution across suppliers.
+ * Supplier stock distribution DTO for analytics and performance visualization.
+ * Shows inventory quantities aggregated by supplier for dashboard charts.
+ * @see AnalyticsController#getStockPerSupplier()
+ * @see dto-patterns.md for supplier analytics patterns
  */
 @Data
 @AllArgsConstructor
 public class StockPerSupplierDTO {
 
-    /**
-     * The display name of the supplier.
-     */
+    /** Supplier display name for analytics visualization. */
     private String supplierName;
 
-    /**
-     * Total quantity of items currently in stock from this supplier.
-     */
+    /** Total stock quantity from this supplier. */
     private long totalQuantity;
 }
-// Note: This DTO is designed to be used in analytics and reporting contexts.

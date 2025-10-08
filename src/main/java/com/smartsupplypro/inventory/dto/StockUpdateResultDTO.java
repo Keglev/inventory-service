@@ -6,45 +6,31 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * DTO representing a single stock update event with human-readable details.
- *
- * <p>This is typically the result of a filtered search using {@link StockUpdateFilterDTO},
- * and is designed to present enriched data (item name, supplier name) rather than just IDs.
- *
- * <p>Useful in reporting tables, CSV/Excel exports, audit views, and admin dashboards.
+ * Enriched stock update result DTO with human-readable details for reporting.
+ * Provides display names instead of IDs for audit views and export functionality.
+ * @see StockHistoryController#search()
+ * @see dto-patterns.md for result enrichment patterns
  */
 @Data
 @AllArgsConstructor
 public class StockUpdateResultDTO {
 
-    /**
-     * Display name of the inventory item affected.
-     */
+    /** Item display name (enriched from ID). */
     private String itemName;
 
-    /**
-     * Display name of the supplier associated with the item.
-     */
+    /** Supplier display name (enriched from ID). */
     private String supplierName;
 
-    /**
-     * Quantity changed (positive for additions, negative for removals).
-     */
+    /** Quantity delta (positive inbound, negative outbound). */
     private int change;
 
-    /**
-     * Reason for the stock change (e.g., RECEIVED, SOLD, SCRAPPED).
-     */
+    /** Stock change reason classification. */
     private String reason;
 
-    /**
-     * User or system process that triggered the change.
-     */
+    /** User or process that triggered this change. */
     private String createdBy;
 
-    /**
-     * Timestamp when the stock change was recorded.
-     */
+    /** When this change was recorded. */
     private LocalDateTime timestamp;
 }
 // Note: This DTO is designed to be used in contexts where human-readable information is preferred.

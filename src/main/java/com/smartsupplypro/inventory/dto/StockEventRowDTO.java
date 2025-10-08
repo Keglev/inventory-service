@@ -5,22 +5,24 @@ import java.time.LocalDateTime;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 
 /**
- * Lightweight event used by the cost-flow (WAC) algorithm.
- * Sourced via JPQL over {@code StockHistory} fields (portable across H2/Oracle).
- * not raw DB column names. Column mapping is handled in the entity with @Column(name="created_at").
- *
- * @param itemId         Inventory item ID
- * @param supplierId     Supplier ID (nullable)
- * @param createdAt      Event creation timestamp (entity property mapped to DB created_at)
- * @param change         Signed quantity change (+in / -out)
- * @param priceAtChange  Unit purchase price at the event (nullable for non-purchase events)
- * @param reason         Classified reason for the movement
+ * Immutable stock event record for WAC cost-flow algorithm processing.
+ * Optimized for financial calculations with portable JPQL field mapping.
+ * @see dto-patterns.md for record pattern and WAC algorithm documentation
  */
 public record StockEventRowDTO(
+        /** Inventory item identifier. */
         String itemId,
+        /** Supplier identifier (nullable). */
         String supplierId,
+        /** Event timestamp (mapped from entity created_at). */
         LocalDateTime createdAt,
+        /** Signed quantity change (+inbound/-outbound). */
         int quantityChange,
+        /** Unit price at event time (nullable for non-purchase events). */
         BigDecimal priceAtChange,
+        /** Classified reason for stock movement. */
         StockChangeReason reason
-) {}
+) {
+    // Enterprise Comment: Record pattern for WAC algorithm - immutable event data structure
+    // optimizes memory usage and thread safety for financial calculations
+}
