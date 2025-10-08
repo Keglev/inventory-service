@@ -6,11 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.smartsupplypro.inventory.config.AppProperties;
 
 /**
- * Redirect requests to the root URL ("/") to the frontend application.
- * <p>
- * This controller handles GET requests to the root URL and redirects them
- * to the frontend base URL specified in the application properties.
- * </p>
+ * Root path redirection controller that routes "/" requests to frontend application.
+ * Uses configurable frontend base URL from application properties.
+ * @see controller-patterns.md for redirect pattern documentation
  */
 @Controller
 public class RootRedirectController {
@@ -22,12 +20,13 @@ public class RootRedirectController {
     public RootRedirectController(AppProperties props) { this.props = props; }
 
     /**
-     * Redirect GET requests to the root URL ("/") to the frontend application.
-     *
-     * @return a redirect URL to the frontend base URL
+     * Redirects root requests to configured frontend application.
+     * @return redirect URL to frontend base path
      */
     @GetMapping("/")
     public String root() {
+        // Enterprise Comment: Single-page application hosting pattern - redirect root to configured frontend
+        // rather than serving static content directly from Spring Boot, enabling flexible deployment models
         return "redirect:" + props.getFrontend().getBaseUrl();
     }
 }

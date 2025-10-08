@@ -18,10 +18,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * REST controller for querying historical inventory stock changes.
- *
- * <p>Supports filtering by item, reason, supplier, and date range with pagination.
- * Bounds are <strong>inclusive</strong>. Default sort is {@code timestamp DESC}.</p>
+ * Stock history audit trail controller providing comprehensive change tracking.
+ * Supports filtering by item, reason, supplier with pagination and date ranges.
+ * @see StockHistoryService
+ * @see controller-patterns.md for audit pattern documentation
  */
 @RestController
 @RequestMapping("/api/stock-history")
@@ -32,21 +32,32 @@ public class StockHistoryController {
 
     private final StockHistoryService stockHistoryService;
 
-    /** Returns all stock history entries (non-paged). */
+    /**
+     * Retrieves all stock history entries without pagination.
+     * @return complete list of stock changes
+     */
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping
     public List<StockHistoryDTO> getAll() {
         return stockHistoryService.getAll();
     }
 
-    /** Returns stock history for a specific item (non-paged). */
+    /**
+     * Gets stock history for specific inventory item.
+     * @param itemId inventory item identifier
+     * @return list of changes for the item
+     */
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/item/{itemId}")
     public List<StockHistoryDTO> getByItemId(@PathVariable String itemId) {
         return stockHistoryService.getByItemId(itemId);
     }
 
-    /** Returns stock history filtered by change reason (non-paged). */
+    /**
+     * Filters stock history by change reason type.
+     * @param reason stock change reason enum
+     * @return list of changes matching reason
+     */
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/reason/{reason}")
     public List<StockHistoryDTO> getByReason(@PathVariable StockChangeReason reason) {
@@ -54,13 +65,13 @@ public class StockHistoryController {
     }
 
     /**
-     * Advanced, paged search across stock history.
-     *
-     * @param startDate ISO-8601 datetime (inclusive)
-     * @param endDate   ISO-8601 datetime (inclusive)
-     * @param itemName  optional partial item name
-     * @param supplierId optional supplier id
-     * @param pageable  defaults: size=50, sort=timestamp DESC; size capped to 200
+     * Advanced paginated search with multiple filter criteria and date bounds.
+     * @param startDate inclusive start timestamp (ISO-8601)
+     * @param endDate inclusive end timestamp (ISO-8601)
+     * @param itemName partial item name filter
+     * @param supplierId supplier identifier filter
+     * @param pageable pagination config (max 200 per page, default timestamp DESC)
+     * @return paginated stock history results
      */
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/search")
@@ -71,9 +82,13 @@ public class StockHistoryController {
         @RequestParam(required = false) String supplierId,
         @PageableDefault(size = 50, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable
     ) {
+        // Enterprise Comment: Date range validation - prevent logical inconsistencies that could
+        // cause confusion in audit reports and ensure temporal query validity
         if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
             throw new InvalidRequestException("endDate must be >= startDate");
         }
+        // Enterprise Comment: Page size protection - cap large page requests to prevent memory issues
+        // and maintain reasonable response times for audit queries over large datasets
         pageable = PageRequest.of(
             pageable.getPageNumber(),
             Math.min(pageable.getPageSize(), MAX_PAGE_SIZE),

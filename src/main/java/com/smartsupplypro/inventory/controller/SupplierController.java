@@ -25,6 +25,12 @@ import com.smartsupplypro.inventory.service.SupplierService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST controller for supplier management with full CRUD operations and search.
+ * Supports role-based authorization (USER read-only, ADMIN full access).
+ * @see SupplierService
+ * @see controller-patterns.md for REST API patterns
+ */
 @RestController
 @RequestMapping("/api/suppliers")
 @RequiredArgsConstructor
@@ -33,7 +39,8 @@ public class SupplierController {
     private final SupplierService supplierService;
 
     /**
-     * List all suppliers (USER/ADMIN).
+     * Lists all suppliers with optional demo readonly access.
+     * @return list of supplier DTOs
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping
@@ -42,9 +49,9 @@ public class SupplierController {
     }
 
     /**
-    * Returns the total number of suppliers.
-    * @return JSON number (e.g., 12)
-    */
+     * Returns total count of suppliers in system.
+     * @return supplier count as long value
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/count")
     public long countSuppliers() {
@@ -52,7 +59,9 @@ public class SupplierController {
     }
 
     /**
-     * Get one supplier by id (USER/ADMIN).
+     * Retrieves supplier by unique identifier.
+     * @param id supplier ID
+     * @return supplier DTO or 404 if not found
      */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
@@ -63,7 +72,9 @@ public class SupplierController {
     }
 
     /**
-     * Search by (partial) name (USER/ADMIN).
+     * Searches suppliers by partial name match.
+     * @param name partial or full supplier name
+     * @return list of matching suppliers
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/search")
@@ -72,30 +83,37 @@ public class SupplierController {
     }
 
     /**
-     * Create supplier (ADMIN) — returns 201 + Location.
-     * DTO validation happens here; duplicate handling is done in the service
-     * via DuplicateResourceException (mapped to 409).
+     * Creates new supplier with admin authorization and returns 201 + Location header.
+     * @param dto supplier data (ID must be null)
+     * @return created supplier with 201 status
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<SupplierDTO> create(@Valid @RequestBody SupplierDTO dto) {
         if (dto.getId() != null) {
-            // path/payload mismatch style: controller throws ResponseStatusException in rare cases
+            // Enterprise Comment: ID consistency validation - prevent client-generated IDs on creation
+            // to maintain server-side ID generation control and avoid potential ID conflicts
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID must be null on create");
         }
         SupplierDTO created = supplierService.create(dto);
+        // Enterprise Comment: REST Location header pattern - provide resource URI for immediate access
+        // enabling client-side navigation and RESTful resource discovery
         return ResponseEntity.created(URI.create("/api/suppliers/" + created.getId()))
                 .header(HttpHeaders.LOCATION, "/api/suppliers/" + created.getId())
                 .body(created);
     }
 
     /**
-     * Update supplier (ADMIN). Path id wins; body.id may be absent or mismatched.
+     * Updates existing supplier with path ID taking precedence over body ID.
+     * @param id supplier ID from path
+     * @param dto updated supplier data
+     * @return updated supplier DTO
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<SupplierDTO> update(@PathVariable String id, @Valid @RequestBody SupplierDTO dto) {
-        // If body has an id and it doesn't match, signal a payload/path mismatch (400).
+        // Enterprise Comment: Path vs body ID validation - ensure API contract consistency
+        // by preventing mismatched identifiers that could lead to unintended updates
         if (dto.getId() != null && !id.equals(dto.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path id and body id must match");
         }
@@ -104,8 +122,9 @@ public class SupplierController {
     }
 
     /**
-     * Delete supplier (ADMIN). Service will throw IllegalStateException (409)
-     * when there are linked inventory items, per your GlobalExceptionHandler.
+     * Deletes supplier with referential integrity checks.
+     * @param id supplier ID to delete
+     * @return 204 No Content on success
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
