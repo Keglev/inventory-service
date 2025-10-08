@@ -1,9 +1,12 @@
 package com.smartsupplypro.inventory.dto;
 
-import lombok.*;
-
-import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Stock change audit trail DTO capturing inventory modification events.

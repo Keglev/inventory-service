@@ -1,10 +1,10 @@
 package com.smartsupplypro.inventory.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * Historical price trend DTO for individual inventory items over time.

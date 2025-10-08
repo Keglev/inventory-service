@@ -1,7 +1,12 @@
 package com.smartsupplypro.inventory.dto;
 
 import java.math.BigDecimal;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Financial period summary DTO using Weighted Average Cost (WAC) methodology.
