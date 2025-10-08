@@ -82,9 +82,9 @@ This project uses GitHub Pages to serve documentation:
 
 ## 🔗 Related Documentation
 
-- [API Documentation](https://keglev.github.io/inventory-service/api.html)
-- [Documentation Plan](../DOCUMENTATION_PLAN.md)
-- [Security Overview](https://keglev.github.io/inventory-service/architecture/security-overview.html)
+- [API Documentation](https://keglev.github.io/inventory-service/api/redoc/api.html)
+- [API Documentation Hub](https://keglev.github.io/inventory-service/api/redoc/index.html)
+- [Security Architecture](../architecture/patterns/oauth2-security-architecture.md)
 
 ---
 
