@@ -209,7 +209,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
-            // For production, prefer enabling CSRF and ignoring it for /api/** only:
+            // Enterprise Security: CSRF protection disabled for REST APIs to support SPA architecture
             .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/actuator/**"));
         return http.build();
     }
@@ -272,7 +272,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationFailureHandler oauthFailureHandler(AppProperties props) {
         return (request, response, exception) -> {
-            // Optional but useful log:
+            // Enterprise Audit: Log authentication failures for security monitoring
             LoggerFactory.getLogger(SecurityConfig.class).warn("OAuth2 failure: {}", exception.toString());
             String target = props.getFrontend().getBaseUrl() + "/login?error=oauth";
             if (!response.isCommitted()) response.sendRedirect(target);
