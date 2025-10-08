@@ -29,24 +29,13 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
- * REST controller for managing inventory items.
+ * Inventory item REST controller for CRUD operations.
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>Expose CRUD/search endpoints for inventory items.</li>
- *   <li>Apply route-level authorization; delegate rules to the service layer.</li>
- *   <li>Let exceptions bubble to GlobalExceptionHandler for consistent status codes.</li>
- * </ul>
+ * <p>Provides item management with role-based authorization and validation.
+ * Follows standard HTTP status conventions for REST APIs.</p>
  *
- * <p>Status conventions:
- * <ul>
- *   <li>201 Created + Location on successful create</li>
- *   <li>204 No Content on successful delete</li>
- *   <li>404 Not Found when item is missing</li>
- *   <li>409 Conflict on duplicates/optimistic locking</li>
- *   <li>403 Forbidden when role-based rules are violated</li>
- *   <li>400 for bean validation failures</li>
- * </ul>
+ * @see InventoryItemService
+ * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
  */
 @RestController
 @RequestMapping("/api/inventory")
@@ -59,10 +48,12 @@ public class InventoryItemController {
         this.inventoryItemService = inventoryItemService;
     }
 
-    /** Retrieve a single item by id.
-     *  @param id unique item identifier
-     *  @return the item
-     *  @throws ResponseStatusException 404 if not found (handled by GlobalExceptionHandler)
+    /**
+     * Gets single inventory item by ID.
+     *
+     * @param id unique item identifier
+     * @return inventory item details
+     * @throws ResponseStatusException 404 if item not found
      */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
@@ -71,7 +62,11 @@ public class InventoryItemController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found"));
     }
 
-    /** Retrieve all items (non‑paginated). Prefer /search for large datasets. */
+    /**
+     * Gets all inventory items (non-paginated).
+     *
+     * @return list of all inventory items
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping
     public List<InventoryItemDTO> getAll() {
@@ -79,9 +74,10 @@ public class InventoryItemController {
     }
 
     /**
-    * Returns the total number of inventory items.
-    * @return JSON number (e.g., 123)
-    */
+     * Gets total count of inventory items.
+     *
+     * @return total number of items
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/count")
     public long countItems() {
@@ -89,11 +85,12 @@ public class InventoryItemController {
     }
 
 
-    /** Search items by (partial) name with paging/sorting.
-     *  @apiNote Defaults to page size 20; prefer this over GET /api/inventory for large datasets.
-     *  @param name case-insensitive substring to search
-     *  @param pageable Spring pageable (page,size,sort)
-     *  @return page of items
+    /**
+     * Searches items by name with pagination and sorting.
+     *
+     * @param name     case-insensitive name substring
+     * @param pageable pagination and sorting parameters
+     * @return page of matching items
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/search")
@@ -103,12 +100,12 @@ public class InventoryItemController {
         return inventoryItemService.findByNameSortedByPrice(name, pageable);
     }
 
-    /** Create a new item (ADMIN).
-     *  <p>Validation group: {@code InventoryItemDTO.Create} — ID must be absent.</p>
-     *  @return 201 Created with Location: /api/inventory/{id}
-     *  @response 400 on validation error (bean validation) or if service returns null
-     *  @response 409 on duplicate (via {@link com.smartsupplypro.inventory.exception.DuplicateResourceException})
-     *  @response 403 if caller lacks ADMIN role
+    /**
+     * Creates new inventory item (ADMIN only).
+     *
+     * @param body item data (ID must be absent)
+     * @return 201 Created with Location header and created item
+     * @throws ResponseStatusException 400/409 on validation/duplicate errors
      */
    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
@@ -119,6 +116,10 @@ public class InventoryItemController {
         if (created == null) {
             return ResponseEntity.badRequest().build();
         }
+        
+        // Enterprise Comment: REST Location Header Pattern
+        // Generate Location header pointing to the newly created resource
+        // Follows RFC 7231 standard for 201 Created responses
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
                 .buildAndExpand(created.getId())
@@ -126,12 +127,13 @@ public class InventoryItemController {
         return ResponseEntity.created(location).body(created);
     }
 
-    /** Full update of an item.
-     *  <p>Validation group: {@code InventoryItemDTO.Update} — ID is required/validated for update semantics.</p>
-     *  @param id path identifier; if payload contains an ID, it must match
-     *  @return the updated item
-     *  @response 400 if path ID and payload ID differ
-     *  @response 404 if the item does not exist
+    /**
+     * Updates existing inventory item completely.
+     *
+     * @param id   path identifier
+     * @param body updated item data
+     * @return updated inventory item
+     * @throws ResponseStatusException 404 if item not found
      */
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
@@ -139,17 +141,21 @@ public class InventoryItemController {
             @PathVariable String id,
             @Validated /* or @Valid */ @RequestBody InventoryItemDTO body) {
 
-        // Ignore any client-sent body.id to avoid false 400s and match test expectations
+        // Enterprise Comment: ID Consistency Strategy
+        // Ignore client-sent body.id to prevent conflicts and match test expectations
+        // Path parameter takes precedence for resource identification
         body.setId(null); // or body.setId(id) if you prefer
 
         return inventoryItemService.update(id, body)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found"));
     }
 
-    /** Delete an item (ADMIN).
-     *  <p>Requires a {@code reason} for auditability; service persists stock history.</p>
-     *  @response 204 on success
-     *  @response 404 if the item does not exist (service should throw)
+    /**
+     * Deletes inventory item (ADMIN only).
+     *
+     * @param id     item identifier
+     * @param reason business reason for deletion (audit trail)
+     * @throws ResponseStatusException 404 if item not found
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
@@ -158,11 +164,13 @@ public class InventoryItemController {
         inventoryItemService.delete(id, reason);
     }
 
-    /** Adjust item quantity by a delta (can be positive or negative).
-     *  @param delta positive to add stock, negative to remove
-     *  @param reason business reason recorded in stock history
-     *  @return the updated item
-     *  @response 400 if delta violates business rules (validator/service)
+    /**
+     * Adjusts item quantity by delta amount.
+     *
+     * @param id     item identifier
+     * @param delta  quantity change (positive to add, negative to remove)
+     * @param reason business reason for stock change
+     * @return updated inventory item
      */
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}/quantity")
@@ -172,9 +180,12 @@ public class InventoryItemController {
         return inventoryItemService.adjustQuantity(id, delta, reason);
     }
 
-    /** Update unit price for the item.
-     *  @param price new price; must be > 0
-     *  @return the updated item
+    /**
+     * Updates item unit price.
+     *
+     * @param id    item identifier
+     * @param price new unit price (must be positive)
+     * @return updated inventory item
      */
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}/price")

@@ -19,14 +19,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Authentication-related endpoints (current user profile; API-only logout).
+ * Authentication controller for user profile and logout operations.
  *
- * <p>Important contract for the front-end:
- * <ul>
- *   <li><b>GET /api/me</b> returns a minimal profile: {@code email}, {@code fullName}, {@code role} (single string),
- *       and optional {@code pictureUrl}.</li>
- *   <li><b>POST /logout</b> is handled by Spring Security (see SecurityConfig). Prefer that over the legacy API logout.</li>
- * </ul>
+ * <p>Provides current user profile data and API logout functionality.
+ * Works with OAuth2 authentication principals and Spring Security.</p>
+ *
+ * @see AppUserRepository
+ * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
  */
 @RestController
 @RequestMapping("/api")
@@ -39,8 +38,12 @@ public class AuthController {
     }
 
     /**
-     * DTO for authenticated user profile response.
-     * Exposes only non-sensitive fields, shaped exactly for the FE.
+     * DTO for user profile response with frontend-specific fields.
+     *
+     * @param email      user email address
+     * @param fullName   user display name
+     * @param role       user role (ADMIN/USER)
+     * @param pictureUrl optional profile picture URL
      */
     public record AppUserProfileDTO(
             String email,
@@ -50,22 +53,22 @@ public class AuthController {
     ) {}
 
     /**
-     * Returns the authenticated user's profile.
+     * Gets authenticated user's profile information.
      *
-     * <p>Source of truth for identity:
-     * <ol>
-     *   <li>Read Google's {@code email} from the OAuth2 principal.</li>
-     *   <li>Load our {@link AppUser} by email (created on first login in the success handler).</li>
-     *   <li>Shape the response as {@code { email, fullName, role, pictureUrl? }}.</li>
-     * </ol>
-     *
-     * <p>401 is returned if the principal is missing or the user is not found.</p>
+     * @param principal OAuth2 authentication principal
+     * @return user profile with email, name, role, and optional picture
+     * @throws ResponseStatusException 401 if not authenticated or user not found
      */
     @GetMapping("/me")
     public AppUserProfileDTO me(@AuthenticationPrincipal OAuth2User principal) {
         if (principal == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authentication provided");
         }
+        
+        // Enterprise Comment: OAuth2 Identity Resolution
+        // 1. Extract email from OAuth2 provider (Google)
+        // 2. Load corresponding AppUser entity (created during first login)
+        // 3. Return frontend-friendly profile shape
         String email = principal.getAttribute("email");
         if (email == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email not provided by OAuth2 provider");
@@ -74,7 +77,7 @@ public class AuthController {
         AppUser user = appUserRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        // Optional: pull Google picture/ avatar if present
+        // Optional: include profile picture from OAuth2 provider
         String picture = principal.getAttribute("picture");
 
         return new AppUserProfileDTO(
@@ -85,15 +88,11 @@ public class AuthController {
         );
     }
     /**
-     * Returns the caller's granted authorities (e.g., ROLE_USER, ROLE_ADMIN).
+     * Gets user's granted authorities for authorization checks.
      *
-     * <p>We inject the authenticated principal ({@link OAuth2User}) directly via
-     * {@link org.springframework.security.core.annotation.AuthenticationPrincipal}.
-     * This is the correct way to access authorities for the current user in a controller;
-     * using {@code @AuthenticationPrincipal Authentication} will typically resolve to {@code null}.</p>
-     *
-     * @return list of authority strings (never {@code null})
-     * @throws ResponseStatusException 401 if no authenticated principal is present
+     * @param principal OAuth2 authentication principal
+     * @return sorted list of authority strings (e.g., ROLE_USER, ROLE_ADMIN)
+     * @throws ResponseStatusException 401 if not authenticated
      */
     @GetMapping("/me/authorities")
     public java.util.List<String> meAuthorities(
@@ -109,21 +108,23 @@ public class AuthController {
     }
 
     /**
-     * API logout endpoint.
-     * Invalidates the Spring Security session and expires cookies.
-     * Intended for API clients (e.g. Postman); prefer the POST /logout handled by Spring Security for browsers.
-     * Returns 204 No Content.
+     * API logout endpoint for programmatic clients.
+     *
+     * <p>Invalidates session and expires cookies. 
+     * For browser clients, prefer the standard POST /logout endpoint.</p>
+     *
      * @param request  HTTP servlet request
      * @param response HTTP servlet response
-     * @return ResponseEntity with no content
-     * @see org.springframework.security.web.authentication.logout.LogoutSuccessHandler
-     **/
+     * @return 204 No Content response
+     */
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> apiLogout(HttpServletRequest request, HttpServletResponse response) {
         // Invalidate Spring Security session
         new SecurityContextLogoutHandler().logout(request, response, null);
 
-        // Expire session cookies explicitly for API clients (what the test expects)
+        // Enterprise Comment: Cookie Expiration Strategy
+        // Explicitly expire session cookies for API clients with secure settings
+        // Required for proper logout in SPA and mobile applications
         ResponseCookie jsess = ResponseCookie.from("JSESSIONID", "")
                 .path("/")
                 .httpOnly(true)

@@ -13,11 +13,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 /**
- * Health check controller for verifying Oracle database availability.
+ * Health check controller for application and database status monitoring.
  *
- * <p>This endpoint is particularly important in environments like Oracle Free Tier,
- * where the database can be paused after inactivity. A periodic HTTP ping
- * to this endpoint can keep the connection alive and ensure faster cold starts.
+ * <p>Provides lightweight and deep health checks for monitoring systems.
+ * Particularly useful for Oracle Free Tier environments where database pausing occurs.</p>
+ *
+ * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
  */
 @RestController
 @RequestMapping("/health")
@@ -38,20 +39,18 @@ public class HealthCheckController {
      *
 
     /**
-     * Lightweight health check — confirms the app is up.
-     * Used as the default health check for Fly.io and Kubernetes.
+     * Basic application health check.
      *
-     * @return HTTP 200 OK always if the app is running.
+     * @return 200 OK if application is running
      */
     @GetMapping
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("OK");
     }
-      /**
-     * Performs a deep health check by querying the Oracle database.
-     * This is intended for manual monitoring tools, not as Fly's liveness probe.
+    /**
+     * Deep database health check with Oracle-specific query.
      *
-     * @return HTTP 200 if database is reachable; 503 if not.
+     * @return 200 OK with client IP if database accessible, 503 if database down
      */
     @GetMapping("/db")
     public ResponseEntity<String> checkDatabaseConnection() {
@@ -59,7 +58,9 @@ public class HealthCheckController {
             // Open a connection from the pool
             Connection conn = dataSource.getConnection();
 
-            // Oracle-specific dummy query to test DB availability
+            // Enterprise Comment: Oracle Health Check Strategy
+            // Use SYS_CONTEXT query instead of simple SELECT 1 FROM DUAL
+            // to verify actual Oracle functionality and return diagnostic info
             PreparedStatement stmt = conn.prepareStatement("SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL");
 
             // Execute query

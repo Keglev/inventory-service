@@ -33,17 +33,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
- * REST endpoints for analytics and reporting over inventory data.
+ * Analytics REST controller for inventory reporting and dashboard data.
  *
- * <p>Provides time-series, summaries, and filtered stock movement to power dashboards and charts.
- * All endpoints are DB-agnostic (H2/Oracle differences are handled in the service/repository layers).</p>
+ * <p>Provides time-series analytics, KPIs, and filtered reports.
+ * Supports demo mode for read-only endpoints, authenticated access for mutations.</p>
  *
- * Security note:
- * For read-only endpoints we allow requests when Demo mode is enabled:
- * {@code @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")}.
- * This complements the web-layer `permitAll()` in {@link SecurityConfig}
- * and avoids 403 responses in Demo (no server-side session).
- * Mutating endpoints (POST/PUT/PATCH/DELETE) remain authenticated only.
+ * @see AnalyticsService
+ * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
  */
 @RestController
 @RequestMapping(value = "/api/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,16 +47,20 @@ import lombok.RequiredArgsConstructor;
 @Validated
 public class AnalyticsController{
 
+    // Enterprise Comment: Demo Mode Security Pattern
+    // Read-only endpoints use: @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
+    // This allows public access in demo mode while maintaining authentication for production.
+    // Mutating operations (POST/PUT/PATCH/DELETE) always require authentication.
     private final AnalyticsService analyticsService;
 
     /**
-     * Time series of total stock value between two dates (inclusive).
+     * Gets time series of total stock value between dates.
      *
      * @param start      inclusive start date (ISO yyyy-MM-dd)
      * @param end        inclusive end date (ISO yyyy-MM-dd)
      * @param supplierId optional supplier filter
-     * @return list of {@link StockValueOverTimeDTO} points
-     * @throws InvalidRequestException if start/end are missing or invalid (start > end)
+     * @return list of stock value points over time
+     * @throws InvalidRequestException if date range is invalid
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-value")
@@ -74,7 +74,9 @@ public class AnalyticsController{
     }
 
     /**
-     * Current total stock per supplier (e.g., for pie/bar charts).
+     * Gets current total stock per supplier for charts.
+     *
+     * @return list of stock quantities per supplier
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-per-supplier")
@@ -83,9 +85,9 @@ public class AnalyticsController{
     }
 
     /**
-     * Low-stock KPI (count only).
+     * Gets count of items below minimum stock threshold.
      *
-     * @return JSON number (e.g., 5) of items where quantity < minimum_quantity
+     * @return number of low-stock items
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/low-stock/count")
@@ -94,9 +96,10 @@ public class AnalyticsController{
     }
 
     /**
-     * Update frequency for items of a given supplier.
+     * Gets item update frequency for a supplier.
      *
      * @param supplierId required supplier identifier
+     * @return list of item update frequencies
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/item-update-frequency")
@@ -108,9 +111,10 @@ public class AnalyticsController{
     }
 
     /**
-     * Items below their configured minimum stock threshold for a supplier.
+     * Gets items below minimum stock threshold for a supplier.
      *
      * @param supplierId required supplier identifier
+     * @return list of low-stock items with details
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/low-stock-items")
@@ -122,11 +126,12 @@ public class AnalyticsController{
     }
 
     /**
-     * Monthly net stock movement (additions/removals) in a date window (inclusive).
+     * Gets monthly stock movement within date range.
      *
      * @param start      inclusive start date (ISO yyyy-MM-dd)
      * @param end        inclusive end date (ISO yyyy-MM-dd)
      * @param supplierId optional supplier filter
+     * @return list of monthly stock movement data
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/monthly-stock-movement")
@@ -140,10 +145,18 @@ public class AnalyticsController{
     }
 
     /**
-     * GET variant of filtered stock updates.
+     * Gets filtered stock updates via query parameters.
      *
-     * <p>If both {@code startDate} and {@code endDate} are null, defaults to the last 30 days
-     * ending at "now" to keep responses bounded and performant.</p>
+     * <p>Defaults to last 30 days if no dates provided.</p>
+     *
+     * @param startDate  optional start timestamp
+     * @param endDate    optional end timestamp  
+     * @param itemName   optional item name filter
+     * @param supplierId optional supplier filter
+     * @param createdBy  optional creator filter
+     * @param minChange  optional minimum quantity change
+     * @param maxChange  optional maximum quantity change
+     * @return list of filtered stock updates
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-updates")
@@ -156,7 +169,9 @@ public class AnalyticsController{
             @RequestParam(required = false) Integer minChange,
             @RequestParam(required = false) Integer maxChange) {
 
-        // Default window if both are absent
+        // Enterprise Comment: Default Date Window Strategy
+        // When no dates provided, default to last 30 days to prevent unbounded queries
+        // that could impact performance on large datasets
         if (startDate == null && endDate == null) {
             endDate = LocalDateTime.now();
             startDate = endDate.minusDays(30);
@@ -182,7 +197,10 @@ public class AnalyticsController{
     }
 
     /**
-     * POST variant of filtered stock updates, accepts full JSON filter.
+     * Gets filtered stock updates via JSON payload.
+     *
+     * @param filter stock update filter criteria
+     * @return list of filtered stock updates
      */
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/stock-updates/query", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -202,9 +220,14 @@ public class AnalyticsController{
     }
 
     /**
-     * Dashboard-ready summary for a period and/or supplier.
+     * Gets dashboard summary with multiple analytics.
      *
-     * <p>Defaults to the last 30 days if no dates are provided.</p>
+     * <p>Defaults to last 30 days if no dates provided.</p>
+     *
+     * @param supplierId optional supplier filter
+     * @param startDate  optional start timestamp
+     * @param endDate    optional end timestamp
+     * @return dashboard summary with multiple data sets
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/summary")
@@ -237,12 +260,13 @@ public class AnalyticsController{
     }
 
     /**
-     * Historical price changes for an item, optionally filtered by supplier.
+     * Gets historical price changes for an item.
      *
-     * @param itemId     required inventory item id
-     * @param supplierId optional supplier id
+     * @param itemId     required inventory item ID
+     * @param supplierId optional supplier filter
      * @param start      inclusive start date (ISO yyyy-MM-dd)
      * @param end        inclusive end date (ISO yyyy-MM-dd)
+     * @return list of price trend data points
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/price-trend")
@@ -258,10 +282,13 @@ public class AnalyticsController{
     }
 
     /**
-    * Financial summary (WAC): purchases, COGS, write-offs, returns, opening/ending.
-    *
-    * <p>Dates are inclusive. Validates that {@code from <= to}.</p>
-    */
+     * Gets financial summary with WAC calculations.
+     *
+     * @param from       inclusive start date (ISO yyyy-MM-dd)
+     * @param to         inclusive end date (ISO yyyy-MM-dd)
+     * @param supplierId optional supplier filter
+     * @return financial summary with purchases, COGS, write-offs
+     */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/financial/summary")
     public ResponseEntity<FinancialSummaryDTO> getFinancialSummary(
@@ -269,22 +296,22 @@ public class AnalyticsController{
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) String supplierId) {
 
-        // reuse helper from earlier controller suggestion
+        // reuse helper for date validation
         validateDateRange(from, to, "from", "to");
         return ResponseEntity.ok(analyticsService.getFinancialSummaryWAC(from, to, supplierId));
     }
 
     // ------------------------------------------------------------------------
-    // Helpers
+    // Validation Helpers
     // ------------------------------------------------------------------------
 
     /**
-     * Validates that start and end dates are not null and that start is before or equal to end.
+     * Validates date range parameters.
      *
-     * @param start      the start date
-     * @param end        the end date
-     * @param startName  name of the start parameter for error messages
-     * @param endName    name of the end parameter for error messages
+     * @param start     start date (must not be null)
+     * @param end       end date (must not be null and >= start)
+     * @param startName parameter name for error messages
+     * @param endName   parameter name for error messages
      * @throws InvalidRequestException if validation fails
      */
     private static void validateDateRange(LocalDate start, LocalDate end,
@@ -298,11 +325,11 @@ public class AnalyticsController{
     }
 
     /**
-     * Validates that a string is not null or blank.
+     * Validates string parameter is not blank.
      *
-     * @param value the string to check
-     * @param name  the name of the parameter for error messages
-     * @throws InvalidRequestException if the string is blank
+     * @param value parameter value to check
+     * @param name  parameter name for error messages
+     * @throws InvalidRequestException if value is blank
      */
     private static void requireNonBlank(String value, String name) {
         if (value == null || value.trim().isEmpty()) {
