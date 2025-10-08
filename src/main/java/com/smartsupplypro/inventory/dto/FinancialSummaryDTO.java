@@ -4,42 +4,46 @@ import java.math.BigDecimal;
 import lombok.*;
 
 /**
- * Period financial summary computed with Weighted Average Cost (WAC).
- *
- * <p>Quantities are unit counts; values are monetary amounts in your inventory currency.
- * Dates are ISO strings to make serialization predictable for UIs.</p>
+ * Financial period summary DTO using Weighted Average Cost (WAC) methodology.
+ * Provides opening/closing balances, COGS, purchases, and write-offs for analysis.
+ * @see AnalyticsController
+ * @see dto-patterns.md for financial calculation patterns
  */
 @Getter @Setter @Builder
 @AllArgsConstructor @NoArgsConstructor
 public class FinancialSummaryDTO {
-    /** Costing method used for this summary (currently "WAC"). */
+    // Enterprise Comment: WAC (Weighted Average Cost) methodology - provides consistent valuation
+    // across periods by averaging purchase costs, essential for accurate financial reporting
+    
+    /** Costing method identifier (currently "WAC"). */
     private String method;
 
-    /** Inclusive start and end dates in ISO yyyy-MM-dd form. */
+    /** Period start date (ISO yyyy-MM-dd format). */
     private String fromDate;
+    /** Period end date (ISO yyyy-MM-dd format). */
     private String toDate;
 
-    /** Opening inventory (as of start-1 second). */
+    /** Opening inventory quantities and values. */
     private long openingQty;
     private BigDecimal openingValue;
 
-    /** Purchases (incl. receipts) during [from..to]. */
+    /** Purchases and receipts during period. */
     private long purchasesQty;
     private BigDecimal purchasesCost;
 
-    /** Customer returns (stock back in) during [from..to]. */
+    /** Customer returns (inbound stock). */
     private long returnsInQty;
     private BigDecimal returnsInCost;
 
-    /** Cost of goods sold / consumption during [from..to]. */
+    /** Cost of goods sold during period. */
     private long cogsQty;
     private BigDecimal cogsCost;
 
-    /** Write-offs (damaged/destroyed/expired/lost/adjustment_out) during [from..to]. */
+    /** Write-offs and adjustments out. */
     private long writeOffQty;
     private BigDecimal writeOffCost;
 
-    /** Ending inventory (as of end). */
+    /** Closing inventory quantities and values. */
     private long endingQty;
     private BigDecimal endingValue;
 }

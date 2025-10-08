@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 /**
- * DTO representing a single historical stock change event for an inventory item.
- *
- * <p>Used for audit trails, historical analysis, and change logs in the inventory system.
- * Each entry captures what changed, why, when, and who performed the action.
+ * Stock change audit trail DTO capturing inventory modification events.
+ * Records what changed, when, why, and who performed each stock operation.
+ * @see StockHistoryController
+ * @see dto-patterns.md for audit trail patterns
  */
 @Data
 @Builder
@@ -17,40 +17,25 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class StockHistoryDTO {
 
-    /**
-     * Unique identifier for the stock history record.
-     */
+    /** Unique audit record identifier. */
     private String id;
 
-    /**
-     * The ID of the inventory item affected by the stock change.
-     */
+    /** Inventory item affected by this change. */
     private String itemId;
 
-    /**
-     * Quantity changed — can be positive (inbound) or negative (outbound).
-     */
+    /** Quantity delta (positive for inbound, negative for outbound). */
     private int change;
 
-    /**
-     * Reason for the stock change (e.g., RECEIVED, SOLD, SCRAPPED).
-     */
+    /** Reason code for the stock change (enum-based). */
     private String reason;
 
-    /**
-     * The user or system process that triggered the change.
-     */
+    /** User or process that triggered this change. */
     private String createdBy;
 
-    /**
-     * Timestamp when the change was recorded.
-     */
+    /** When this change was recorded. */
     private LocalDateTime timestamp;
 
-    /**
-     * The price of the item at the time of this stock change.
-     * Useful for tracking value changes over time.
-     */
+    /** Item price at time of change (for value tracking). */
     private BigDecimal priceAtChange;
 }
 

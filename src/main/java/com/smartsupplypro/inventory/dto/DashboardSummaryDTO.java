@@ -8,9 +8,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Consolidated summary of key inventory metrics for dashboards.
- *
- * Returned by {@code GET /api/analytics/summary}.
+ * Dashboard metrics aggregation DTO providing comprehensive inventory analytics.
+ * Contains supplier distribution, low stock alerts, trends, and activity summaries.
+ * @see AnalyticsController#getDashboardSummary()
+ * @see dto-patterns.md for analytics DTO design patterns
  */
 @Data
 @NoArgsConstructor
@@ -18,23 +19,15 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DashboardSummaryDTO {
 
-    /* 
-     * Total number of distinct items in inventory.
-     */
+    /** Stock distribution across all suppliers with quantities and values. */
     private List<StockPerSupplierDTO> stockPerSupplier;
 
-    /* 
-     * Financial summary including total inventory value and recent changes.
-     */
+    /** Items requiring attention due to low stock levels. */
     private List<LowStockItemDTO> lowStockItems;
 
-    /* 
-     * Price trend data for key items over time.
-     */
+    /** Monthly stock movement trends for analytics visualization. */
     private List<MonthlyStockMovementDTO> monthlyStockMovement;
 
-    /* 
-     * Items with the highest frequency of updates.
-     */
+    /** Most frequently updated items indicating high activity levels. */
     private List<ItemUpdateFrequencyDTO> topUpdatedItems;
 }
