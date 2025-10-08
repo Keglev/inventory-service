@@ -7,43 +7,27 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * DTO representing the historical unit price of a specific inventory item.
- *
- * &lt;p&gt;Used for analytics and dashboard visualizations of purchase price trends over time.
- * Each entry reflects the price that was recorded at a specific point when stock was updated.
- *
- * &lt;p&gt;This DTO is typically returned by the {@code /api/analytics/price-trend} endpoint,
- * filtered by item ID and date range.
- *
- * &lt;p&gt;Unlike {@link StockValueOverTimeDTO} which aggregates total stock value,
- * this DTO focuses on unit-level price variation.
- *
- * &lt;p&gt;Example usage:
- * &lt;ul&gt;
- *     &lt;li&gt;Line chart: &quot;How has the purchase price of CPU Model X changed in the last 6 months?&quot;&lt;/li&gt;
- *     &lt;li&gt;Supplier negotiation tools based on historical prices&lt;/li&gt;
- * &lt;/ul&gt;
+ * Historical price trend DTO for individual inventory items over time.
+ * Tracks unit price variations for supplier negotiation and market analysis.
+ * @see AnalyticsController#getPriceTrend()
+ * @see dto-patterns.md for time series patterns
  */
 @Data
 @AllArgsConstructor
 public class PriceTrendDTO {
 
-    /**
-     * The date (formatted as yyyy-MM-dd) when this price was recorded.
-     * Returned as a String for compatibility with H2 and Oracle SQL date formats.
-     */
+    /** Date when price was recorded (yyyy-MM-dd format for SQL compatibility). */
     private String timestamp;
 
-    /**
-     * The unit purchase price at that point in time.
-     * Typically set when new stock is received.
-     */
+    /** Unit purchase price at this point in time. */
     private BigDecimal price;
 
-<span class="fc" id="L43">    public PriceTrendDTO(LocalDateTime timestamp, BigDecimal price) {</span>
-<span class="fc" id="L44">        this.timestamp = timestamp.toLocalDate().toString(); // Format as yyyy-MM-dd</span>
-<span class="fc" id="L45">        this.price = price;</span>
-<span class="fc" id="L46">    }</span>
+    // Enterprise Comment: Date format conversion - standardize on yyyy-MM-dd string format
+    // for consistent serialization across H2/Oracle databases and frontend charting libraries
+<span class="fc" id="L27">    public PriceTrendDTO(LocalDateTime timestamp, BigDecimal price) {</span>
+<span class="fc" id="L28">        this.timestamp = timestamp.toLocalDate().toString();</span>
+<span class="fc" id="L29">        this.price = price;</span>
+<span class="fc" id="L30">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
