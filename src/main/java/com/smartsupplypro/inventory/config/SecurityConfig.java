@@ -3,7 +3,6 @@ package com.smartsupplypro.inventory.config;
 import java.io.IOException;
 import java.util.List;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -16,14 +15,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -42,52 +37,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * Global Spring Security configuration for the SmartSupplyPro backend application.
- *
- * <p><b>Responsibilities</b></p>
- * <ul>
- *   <li>Session-based OAuth2 login (Google) with custom success/failure handling.</li>
- *   <li>Role-based authorization for REST APIs (JSON APIs under <code>/api/**</code>).</li>
- *   <li>Browser UX: unauthenticated <i>web</i> requests are redirected to OAuth login; JSON API requests receive <code>401</code>.</li>
- *   <li>CORS for cross-domain frontend (SameSite=None, Secure cookies).</li>
- * </ul>
- *
- * <p><b>Security Notes</b></p>
- * <ul>
- *   <li>CSRF is disabled globally as a portfolio simplification. For production, prefer enabling CSRF and
- *       ignoring it for REST endpoints (<code>/api/**</code>) only.</li>
- *   <li>Logout deletes both servlet and Spring Session cookies (<code>JSESSIONID</code>, <code>SESSION</code>).</li>
- *   <li>New-user self-enrollment flows are intentionally out of scope; onboarding is handled by the OAuth2 success handler.</li>
- * </ul>
- *
- * <p><b>Related</b></p>
- * <ul>
- *   <li>{@link com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler} – user bootstrap + post-login redirect.</li>
- *   <li>{@link com.smartsupplypro.inventory.config.TestSecurityConfig} – simplified test-only chain for controller tests.</li>
- * </ul>
- * 
- * 
- * Demo Mode Security
- * In Demo, web-layer rules `permitAll()` for read-only GET endpoints are complemented
- * by method-level checks that allow access via SpEL:
- *     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
- * To make the SpEL work, we expose an alias bean named "appProperties" that returns
- * the same instance managed by @EnableConfigurationProperties(AppProperties.class).
- * Mutating endpoints remain authenticated-only.
- * <p>See also {@link SecuritySpelBridgeConfig}.</p>
- * @since 2025-08
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 @EnableConfigurationProperties(AppProperties.class)
 public class SecurityConfig {
 
-    /**
-     * Injected OAuth2 success handler that creates a local {@code AppUser} on first login
-     * and performs the frontend redirect.
-     */
+    
     @Autowired
     private OAuth2LoginSuccessHandler successHandler;
 
@@ -100,17 +56,7 @@ public class SecurityConfig {
     @Autowired
     private AppProperties props;
 
-    /**
-     * Main security filter chain wiring: CORS, endpoint rules, OAuth2 login, session and exception handling.
-     *
-     * <p><b>API vs Browser failures:</b> a small pre-filter flags JSON API calls (Accept contains
-     * <code>application/json</code> under <code>/api/**</code>). Those requests receive a JSON <code>401</code>
-     * via a custom entry point, while all other unauthenticated requests use a login redirect.</p>
-     *
-     * @param http HttpSecurity builder
-     * @return configured SecurityFilterChain
-     * @throws Exception if misconfigured
-     */
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -235,26 +181,11 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
             // For production, prefer enabling CSRF and ignoring it for /api/** only:
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/actuator/**"))
-            .addFilterAfter(authTraceFilter(), AnonymousAuthenticationFilter.class);
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/actuator/**"));
         return http.build();
     }
 
-    /**
-     * CORS settings for cross-origin frontend access with credentialed cookies.
-     *
-     * <p><b>Important:</b> When {@code allowCredentials=true}, wildcards are not permitted.
-     * The origin must be explicitly listed and must match exactly. Preflight responses are cached
-     * for one hour.</p>
-     *
-     * <ul>
-     *   <li>Dev: Vite default <code>http://localhost:5173</code> (HTTPS variant listed if you use it).</li>
-     *   <li>Prod: set to your Fly frontend domain.</li>
-     *   <li>Methods: GET/POST/PUT/PATCH/DELETE/OPTIONS; headers: all.</li>
-     * </ul>
-     *
-     * @return {@link CorsConfigurationSource} used by Spring Security’s CORS filter
-     */
+    
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -278,19 +209,7 @@ public class SecurityConfig {
         return source;
     }
 
-    /**
-     * Session cookie settings for cross-site use.
-     *
-     * <p>Sets <code>SameSite=None</code> and <code>Secure</code> so cookies can be sent with
-     * cross-site requests over HTTPS. When Spring Session is on the classpath, the cookie
-     * name defaults to <code>SESSION</code>; otherwise the container uses <code>JSESSIONID</code>.</p>
-     *
-     * <p><b>Development note:</b> Browsers only send <code>Secure</code> cookies over HTTPS.
-     * If your frontend runs on plain HTTP in development, the cookie will not be stored/sent.
-     * Use HTTPS locally (e.g., mkcert) or adjust in a dev-only profile.</p>
-     *
-     * @return cookie serializer for Spring Session (no-op if Spring Session is absent)
-     */
+    
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
@@ -300,14 +219,6 @@ public class SecurityConfig {
         return serializer;
     }
 
-    /**
-     * Redirect-based handler for OAuth2 login failures.
-     *
-     * <p>Encodes the error message and redirects to <code>/login</code> with a query parameter
-     * (<code>?error=...</code>) for UI display. The frontend is responsible for parsing and showing it.</p>
-     *
-     * @return a configured {@link AuthenticationFailureHandler}
-     */
     @Bean
     public AuthenticationFailureHandler oauthFailureHandler(AppProperties props) {
         return (request, response, exception) -> {
@@ -318,58 +229,9 @@ public class SecurityConfig {
         };
     };
 
-    /**
-    * OAuth2 authorization request persistence:
-    * <p>
-    * We store the OAuth2 AuthorizationRequest in an HttpOnly, SameSite=None cookie
-    * (see CookieOAuth2AuthorizationRequestRepository) rather than the default in-memory
-    * HttpSession. This avoids "authorization_request_not_found" errors when the user
-    * is redirected back to a different instance (stateless, no sticky session required).
-    * Session cookies remain configured via {@link #cookieSerializer()} for application use.
-    */
+    
     @Bean
     public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
         return new CookieOAuth2AuthorizationRequestRepository();
-    }
-
-   /**
-    * Lightweight request tracer to log the authenticated user and authorities
-    * on every /api/** request. Useful to see what the backend actually receives
-    * during a failing POST (e.g., does it carry ROLE_ADMIN?).
-    *
-    * Remove this bean after troubleshooting to keep logs clean.
-    */
-    @Bean
-    public OncePerRequestFilter authTraceFilter() {
-        return new OncePerRequestFilter() {
-            private final Logger log = LoggerFactory.getLogger("AuthTrace");
-
-            @Override
-            protected void doFilterInternal(
-                @NonNull HttpServletRequest request,
-                @NonNull HttpServletResponse response,
-                @NonNull FilterChain filterChain
-            ) throws ServletException, java.io.IOException {
-
-            final String uri = request.getRequestURI();
-            if (uri.startsWith("/api/")) {
-                final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                final String who = (auth == null) ? "<none>" : String.valueOf(auth.getName());
-                final String authorities =
-                    (auth == null || auth.getAuthorities() == null)
-                        ? "[]"
-                        : auth.getAuthorities().stream()
-                              .map(GrantedAuthority::getAuthority)
-                              .sorted()
-                              .reduce((a, b) -> a + "," + b)
-                              .orElse("");
-
-                log.info("AUTH TRACE method={} uri={} user={} authorities=[{}]",
-                        request.getMethod(), uri, who, authorities);
-            }
-
-             filterChain.doFilter(request, response);
-            }
-        };
     }
 };
