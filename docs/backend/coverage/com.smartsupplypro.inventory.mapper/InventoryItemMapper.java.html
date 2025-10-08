@@ -6,67 +6,142 @@ import com.smartsupplypro.inventory.dto.InventoryItemDTO;
 import com.smartsupplypro.inventory.model.InventoryItem;
 
 /**
- * Utility class for converting between {@link InventoryItem} entities
- * and {@link InventoryItemDTO} data transfer objects.
- *
- * &lt;p&gt;This mapper supports:
+ * Enterprise entity-DTO mapping utility for inventory items with calculated field support.
+ * 
+ * &lt;p&gt;Provides bidirectional transformation between {@link InventoryItem} entities and 
+ * {@link InventoryItemDTO} data transfer objects with enterprise-specific business logic
+ * including computed total values and supplier relationship handling.&lt;/p&gt;
+ * 
+ * &lt;p&gt;&lt;strong&gt;Enterprise Mapping Features:&lt;/strong&gt;&lt;/p&gt;
  * &lt;ul&gt;
- *   &lt;li&gt;Frontend/backend DTO transformation&lt;/li&gt;
- *   &lt;li&gt;Custom logic (e.g., computed total value)&lt;/li&gt;
- *   &lt;li&gt;Explicit control over field mapping&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Calculated Fields:&lt;/strong&gt; Automatic total value computation (price × quantity)&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Relationship Handling:&lt;/strong&gt; Safe supplier name extraction with null safety&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Audit Field Preservation:&lt;/strong&gt; Maintains creation timestamps and user tracking&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Service Layer Integration:&lt;/strong&gt; Designed for seamless service-controller mapping&lt;/li&gt;
  * &lt;/ul&gt;
- *
- * &lt;p&gt;Helps decouple persistence logic from controller and service layers.
+ * 
+ * &lt;p&gt;&lt;strong&gt;Enterprise Architecture:&lt;/strong&gt; This mapper serves as the transformation layer
+ * between persistence entities and API DTOs, enabling clean separation of concerns and 
+ * supporting multiple presentation formats while maintaining data integrity.&lt;/p&gt;
  */
-<span class="nc" id="L21">public class InventoryItemMapper {</span>
+public final class InventoryItemMapper {
 
     /**
-     * Converts an {@link InventoryItem} entity into a corresponding {@link InventoryItemDTO}.
+     * Private constructor to prevent instantiation of utility class.
+     * 
+     * @throws UnsupportedOperationException if instantiation is attempted
+     */
+<span class="nc" id="L34">    private InventoryItemMapper() {</span>
+<span class="nc" id="L35">        throw new UnsupportedOperationException(&quot;Utility class - no instances allowed&quot;);</span>
+    }
+
+    /**
+     * Transforms an inventory item entity to a data transfer object with computed fields.
      *
-     * &lt;p&gt;Computes {@code totalValue} by multiplying {@code price × quantity}.
+     * &lt;p&gt;&lt;strong&gt;Enterprise Transformation Logic:&lt;/strong&gt;&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;&lt;strong&gt;Total Value Calculation:&lt;/strong&gt; Computes price × quantity automatically&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Supplier Name Resolution:&lt;/strong&gt; Safely extracts supplier name with null checks&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Entity Integrity:&lt;/strong&gt; Preserves all entity fields including audit metadata&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;API Readiness:&lt;/strong&gt; Returns DTO optimized for client consumption&lt;/li&gt;
+     * &lt;/ul&gt;
      *
-     * @param item the inventory entity to convert
-     * @return DTO representation of the entity
+     * &lt;p&gt;&lt;strong&gt;Business Rules:&lt;/strong&gt; The total value calculation uses BigDecimal precision
+     * to ensure financial accuracy for inventory valuation reports and analytics.&lt;/p&gt;
+     *
+     * @param item the inventory entity from persistence layer, must not be null
+     * @return DTO with computed fields for API responses and frontend consumption
+     * @implNote Uses builder pattern for null safety and performance optimization
      */
     public static InventoryItemDTO toDTO(InventoryItem item) {
-<span class="fc" id="L32">        return InventoryItemDTO.builder()</span>
-<span class="fc" id="L33">                .id(item.getId())</span>
-<span class="fc" id="L34">                .name(item.getName())</span>
-<span class="fc" id="L35">                .quantity(item.getQuantity())</span>
-<span class="fc" id="L36">                .price(item.getPrice())</span>
-<span class="fc" id="L37">                .totalValue(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))</span>
-<span class="fc" id="L38">                .supplierId(item.getSupplierId())</span>
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">                .supplierName(item.getSupplier() != null ? item.getSupplier().getName() : null)</span>
-<span class="fc" id="L40">                .minimumQuantity(item.getMinimumQuantity())</span>
-<span class="fc" id="L41">                .createdBy(item.getCreatedBy())</span>
-<span class="fc" id="L42">                .createdAt(item.getCreatedAt())</span>
-<span class="fc" id="L43">                .build();</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (item == null) {</span>
+<span class="nc" id="L58">            return null;</span>
+        }
+        
+        // Calculate total value with null safety and financial precision
+<span class="fc" id="L62">        BigDecimal totalValue = calculateTotalValue(item.getPrice(), item.getQuantity());</span>
+        
+        // Resolve supplier name with null safety
+<span class="fc" id="L65">        String supplierName = resolveSupplierName(item.getSupplier());</span>
+        
+<span class="fc" id="L67">        return InventoryItemDTO.builder()</span>
+<span class="fc" id="L68">                .id(item.getId())</span>
+<span class="fc" id="L69">                .name(item.getName())</span>
+<span class="fc" id="L70">                .quantity(item.getQuantity())</span>
+<span class="fc" id="L71">                .price(item.getPrice())</span>
+<span class="fc" id="L72">                .totalValue(totalValue)</span>
+<span class="fc" id="L73">                .supplierId(item.getSupplierId())</span>
+<span class="fc" id="L74">                .supplierName(supplierName)</span>
+<span class="fc" id="L75">                .minimumQuantity(item.getMinimumQuantity())</span>
+<span class="fc" id="L76">                .createdBy(item.getCreatedBy())</span>
+<span class="fc" id="L77">                .createdAt(item.getCreatedAt())</span>
+<span class="fc" id="L78">                .build();</span>
     }
 
     /**
-     * Converts an {@link InventoryItemDTO} into a corresponding {@link InventoryItem} entity.
+     * Transforms a data transfer object back to an inventory item entity for persistence.
      *
-     * @param dto the DTO to convert
-     * @return Entity representation of the DTO
+     * &lt;p&gt;&lt;strong&gt;Persistence Preparation Logic:&lt;/strong&gt;&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;&lt;strong&gt;Entity Reconstruction:&lt;/strong&gt; Maps all DTO fields to entity properties&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Persistence Context:&lt;/strong&gt; Prepares entity for JPA persistence operations&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Audit Field Support:&lt;/strong&gt; Preserves creation metadata for entity tracking&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;Server Authoritative:&lt;/strong&gt; Ignores computed fields like totalValue&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Design Note:&lt;/strong&gt; This method is primarily used for update operations
+     * and test data preparation. The supplier relationship is handled separately through
+     * the service layer to maintain referential integrity.&lt;/p&gt;
+     *
+     * @param dto the data transfer object from API requests, must not be null
+     * @return entity ready for persistence layer operations and database storage
+     * @implNote Builder pattern ensures immutability and validation during entity creation
      */
     public static InventoryItem toEntity(InventoryItemDTO dto) {
-<span class="fc" id="L53">        return InventoryItem.builder()</span>
-<span class="fc" id="L54">                .id(dto.getId())</span>
-<span class="fc" id="L55">                .name(dto.getName())</span>
-<span class="fc" id="L56">                .quantity(dto.getQuantity())</span>
-<span class="fc" id="L57">                .price(dto.getPrice())</span>
-<span class="fc" id="L58">                .supplierId(dto.getSupplierId())</span>
-<span class="fc" id="L59">                .minimumQuantity(dto.getMinimumQuantity())</span>
-<span class="fc" id="L60">                .createdBy(dto.getCreatedBy())    // will be overwritten in service if null</span>
-<span class="fc" id="L61">                .createdAt(dto.getCreatedAt())    // PrePersist covers nulls</span>
-<span class="fc" id="L62">                .build();</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (dto == null) {</span>
+<span class="nc" id="L102">            return null;</span>
+        }
+        
+<span class="fc" id="L105">        return InventoryItem.builder()</span>
+<span class="fc" id="L106">                .id(dto.getId())</span>
+<span class="fc" id="L107">                .name(dto.getName())</span>
+<span class="fc" id="L108">                .quantity(dto.getQuantity())</span>
+<span class="fc" id="L109">                .price(dto.getPrice())</span>
+<span class="fc" id="L110">                .supplierId(dto.getSupplierId())</span>
+<span class="fc" id="L111">                .minimumQuantity(dto.getMinimumQuantity())</span>
+<span class="fc" id="L112">                .createdBy(dto.getCreatedBy())    // will be overwritten in service if null</span>
+<span class="fc" id="L113">                .createdAt(dto.getCreatedAt())    // PrePersist covers nulls</span>
+<span class="fc" id="L114">                .build();</span>
+    }
+    
+    /**
+     * Calculates total value with financial precision and null safety.
+     *
+     * &lt;p&gt;&lt;strong&gt;Business Rule:&lt;/strong&gt; Total value = price × quantity using BigDecimal
+     * for financial accuracy. Returns zero for null inputs to prevent calculation errors.&lt;/p&gt;
+     *
+     * @param price the item price (may be null)
+     * @param quantity the item quantity (may be null)
+     * @return calculated total value or BigDecimal.ZERO for null inputs
+     */
+    private static BigDecimal calculateTotalValue(BigDecimal price, Integer quantity) {
+<span class="pc bpc" id="L128" title="2 of 4 branches missed.">        if (price == null || quantity == null) {</span>
+<span class="nc" id="L129">            return BigDecimal.ZERO;</span>
+        }
+<span class="fc" id="L131">        return price.multiply(BigDecimal.valueOf(quantity));</span>
+    }
+    
+    /**
+     * Resolves supplier name with null safety for relationship handling.
+     *
+     * &lt;p&gt;&lt;strong&gt;Relationship Safety:&lt;/strong&gt; Safely navigates through supplier
+     * relationship to extract name, returning null for missing associations.&lt;/p&gt;
+     *
+     * @param supplier the supplier entity (may be null)
+     * @return supplier name or null if supplier is null
+     */
+    private static String resolveSupplierName(com.smartsupplypro.inventory.model.Supplier supplier) {
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        return supplier != null ? supplier.getName() : null;</span>
     }
 }
-// This mapper is designed to be used in service layers where conversion between
-// persistence entities and DTOs is required, especially in applications with complex
-// business logic or multiple data sources. It ensures that the conversion logic is
-// centralized, making it easier to maintain and test. The use of builders allows for
-// fluent and readable code, while the explicit mapping of fields ensures that all
-// necessary data is transferred correctly between layers. This approach also allows
-// for easy extension in the future if additional fields or transformations are needed.
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
