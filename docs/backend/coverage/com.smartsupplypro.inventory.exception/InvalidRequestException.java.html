@@ -1,12 +1,253 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvalidRequestException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.exception</a> &gt; <span class="el_source">InvalidRequestException.java</span></div><h1>InvalidRequestException.java</h1><pre class="source lang-java linenums">
 package com.smartsupplypro.inventory.exception;
 
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+
 /**
- * Exception thrown when a request is invalid, typically due to missing or incorrect parameters.
- * This exception is used to indicate that the request cannot be processed due to client-side errors.
+ * Enterprise exception for client request validation failures.
+ * 
+ * &lt;p&gt;Enforces API contract compliance through parameter validation, business rule
+ * verification, and data integrity constraints for reliable service operations.
+ * 
+ * &lt;p&gt;Key integrations: Request validation, Service layer checks, Controller parameters.
+ * 
+ * @author Smart Supply Pro Development Team
+ * @version 1.0.0
+ * @since 1.0.0
+ * @see GlobalExceptionHandler
  */
 public class InvalidRequestException extends RuntimeException {
-<span class="fc" id="L9">  public InvalidRequestException(String message) { super(message); }</span>
+    
+    private final ValidationSeverity severity;
+    private final String validationCode;
+    private final Map&lt;String, String&gt; fieldErrors;
+    private final List&lt;String&gt; generalErrors;
+
+    /**
+     * Creates invalid request exception with validation details.
+     * 
+     * @param message specific validation failure description
+     */
+    public InvalidRequestException(String message) { 
+<span class="fc" id="L35">        super(message);</span>
+<span class="fc" id="L36">        this.severity = ValidationSeverity.MEDIUM;</span>
+<span class="fc" id="L37">        this.validationCode = &quot;INVALID_REQUEST&quot;;</span>
+<span class="fc" id="L38">        this.fieldErrors = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L39">        this.generalErrors = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * Creates invalid request exception with detailed validation context.
+     * 
+     * @param message specific validation failure description
+     * @param severity validation failure severity level
+     * @param validationCode specific validation code for client handling
+     */
+    public InvalidRequestException(String message, ValidationSeverity severity, String validationCode) {
+<span class="nc" id="L50">        super(message);</span>
+<span class="nc" id="L51">        this.severity = severity;</span>
+<span class="nc" id="L52">        this.validationCode = validationCode;</span>
+<span class="nc" id="L53">        this.fieldErrors = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L54">        this.generalErrors = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L55">    }</span>
+
+    /**
+     * Creates invalid request exception with field-specific errors.
+     * 
+     * @param message general validation failure description
+     * @param fieldErrors map of field names to specific error messages
+     */
+    public InvalidRequestException(String message, Map&lt;String, String&gt; fieldErrors) {
+<span class="nc" id="L64">        super(message);</span>
+<span class="nc" id="L65">        this.severity = ValidationSeverity.MEDIUM;</span>
+<span class="nc" id="L66">        this.validationCode = &quot;FIELD_VALIDATION_FAILED&quot;;</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        this.fieldErrors = fieldErrors != null ? new HashMap&lt;&gt;(fieldErrors) : new HashMap&lt;&gt;();</span>
+<span class="nc" id="L68">        this.generalErrors = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L69">    }</span>
+
+    // Enterprise utility methods for enhanced validation handling
+
+    /**
+     * Gets the severity level of this validation failure.
+     * 
+     * @return validation severity classification
+     */
+    public ValidationSeverity getSeverity() {
+<span class="nc" id="L79">        return severity;</span>
+    }
+
+    /**
+     * Gets the specific validation code for client error handling.
+     * 
+     * @return validation code identifier
+     */
+    public String getValidationCode() {
+<span class="nc" id="L88">        return validationCode;</span>
+    }
+
+    /**
+     * Gets field-specific validation errors.
+     * 
+     * @return immutable map of field errors
+     */
+    public Map&lt;String, String&gt; getFieldErrors() {
+<span class="nc" id="L97">        return Map.copyOf(fieldErrors);</span>
+    }
+
+    /**
+     * Gets general validation errors not tied to specific fields.
+     * 
+     * @return immutable list of general errors
+     */
+    public List&lt;String&gt; getGeneralErrors() {
+<span class="nc" id="L106">        return List.copyOf(generalErrors);</span>
+    }
+
+    /**
+     * Checks if this exception has field-specific validation errors.
+     * 
+     * @return true if field errors are present
+     */
+    public boolean hasFieldErrors() {
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        return !fieldErrors.isEmpty();</span>
+    }
+
+    /**
+     * Checks if this exception has general validation errors.
+     * 
+     * @return true if general errors are present
+     */
+    public boolean hasGeneralErrors() {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        return !generalErrors.isEmpty();</span>
+    }
+
+    /**
+     * Gets the total number of validation errors.
+     * 
+     * @return sum of field and general errors
+     */
+    public int getErrorCount() {
+<span class="nc" id="L133">        return fieldErrors.size() + generalErrors.size();</span>
+    }
+
+    /**
+     * Checks if this is a critical validation failure requiring immediate attention.
+     * 
+     * @return true if severity is CRITICAL
+     */
+    public boolean isCritical() {
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        return severity == ValidationSeverity.CRITICAL;</span>
+    }
+
+    /**
+     * Creates a structured error response for API clients.
+     * 
+     * @return map containing validation details for client consumption
+     */
+    public Map&lt;String, Object&gt; getValidationDetails() {
+<span class="nc" id="L151">        Map&lt;String, Object&gt; details = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L152">        details.put(&quot;validationCode&quot;, validationCode);</span>
+<span class="nc" id="L153">        details.put(&quot;severity&quot;, severity.name());</span>
+<span class="nc" id="L154">        details.put(&quot;message&quot;, getMessage());</span>
+        
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (hasFieldErrors()) {</span>
+<span class="nc" id="L157">            details.put(&quot;fieldErrors&quot;, fieldErrors);</span>
+        }
+        
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (hasGeneralErrors()) {</span>
+<span class="nc" id="L161">            details.put(&quot;generalErrors&quot;, generalErrors);</span>
+        }
+        
+<span class="nc" id="L164">        details.put(&quot;errorCount&quot;, getErrorCount());</span>
+<span class="nc" id="L165">        return details;</span>
+    }
+
+    // Static factory methods for common validation scenarios
+
+    /**
+     * Creates exception for required field validation failures.
+     * 
+     * @param fieldName the missing required field
+     * @return configured exception instance
+     */
+    public static InvalidRequestException requiredField(String fieldName) {
+<span class="nc" id="L177">        Map&lt;String, String&gt; fieldErrors = Map.of(fieldName, &quot;This field is required&quot;);</span>
+<span class="nc" id="L178">        return new InvalidRequestException(</span>
+            &quot;Required field missing: &quot; + fieldName, 
+            fieldErrors
+        );
+    }
+
+    /**
+     * Creates exception for invalid format validation failures.
+     * 
+     * @param fieldName the field with invalid format
+     * @param expectedFormat description of expected format
+     * @return configured exception instance
+     */
+    public static InvalidRequestException invalidFormat(String fieldName, String expectedFormat) {
+<span class="nc" id="L192">        Map&lt;String, String&gt; fieldErrors = Map.of(fieldName, &quot;Invalid format. Expected: &quot; + expectedFormat);</span>
+<span class="nc" id="L193">        return new InvalidRequestException(</span>
+            &quot;Invalid format for field: &quot; + fieldName, 
+            fieldErrors
+        );
+    }
+
+    /**
+     * Creates exception for value range validation failures.
+     * 
+     * @param fieldName the field with out-of-range value
+     * @param minValue minimum allowed value
+     * @param maxValue maximum allowed value
+     * @return configured exception instance
+     */
+    public static InvalidRequestException valueOutOfRange(String fieldName, Object minValue, Object maxValue) {
+<span class="nc" id="L208">        Map&lt;String, String&gt; fieldErrors = Map.of(fieldName, </span>
+<span class="nc" id="L209">            String.format(&quot;Value must be between %s and %s&quot;, minValue, maxValue));</span>
+<span class="nc" id="L210">        return new InvalidRequestException(</span>
+            &quot;Value out of range for field: &quot; + fieldName, 
+            fieldErrors
+        );
+    }
+
+    /**
+     * Creates exception for business rule validation failures.
+     * 
+     * @param businessRule description of violated business rule
+     * @return configured exception instance
+     */
+    public static InvalidRequestException businessRuleViolation(String businessRule) {
+<span class="nc" id="L223">        return new InvalidRequestException(</span>
+            &quot;Business rule violation: &quot; + businessRule,
+            ValidationSeverity.HIGH,
+            &quot;BUSINESS_RULE_VIOLATION&quot;
+        );
+    }
+
+    /**
+     * Creates exception for critical security validation failures.
+     * 
+     * @param securityIssue description of security validation failure
+     * @return configured exception instance with CRITICAL severity
+     */
+    public static InvalidRequestException securityViolation(String securityIssue) {
+<span class="nc" id="L237">        return new InvalidRequestException(</span>
+            &quot;Security validation failed: &quot; + securityIssue,
+            ValidationSeverity.CRITICAL,
+            &quot;SECURITY_VIOLATION&quot;
+        );
+    }
+
+    // Nested enum for validation severity classification
+<span class="fc" id="L245">    public enum ValidationSeverity {</span>
+<span class="fc" id="L246">        LOW,      // Minor validation issues, warnings</span>
+<span class="fc" id="L247">        MEDIUM,   // Standard validation failures</span>
+<span class="fc" id="L248">        HIGH,     // Business rule violations</span>
+<span class="fc" id="L249">        CRITICAL  // Security or data integrity issues</span>
+    }
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
