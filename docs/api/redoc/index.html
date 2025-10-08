@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>API Overview – SmartSupplyPro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="SmartSupplyPro API documentation hub with comprehensive endpoint guides, security architecture, and integration resources." />
+  <link rel="icon" href="https://keglev.github.io/inventory-service/favicon.ico" />
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #fafafa; color: #111; }
+    header { background-color: #0d1117; color: white; padding: 1rem 2rem;
+             display: flex; justify-content: space-between; align-items: center; }
+    nav { background: #f3f4f6; padding: 1rem 2rem; }
+    nav a { margin-right: 1.5rem; text-decoration: none; font-weight: 500; color: #0366d6; }
+    nav a:hover { text-decoration: underline; }
+    main { max-width: 900px; margin: 2rem auto; padding: 0 2rem; line-height: 1.6; }
+    main h1, main h2, main h3 { color: #0d1117; }
+    pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                "Liberation Mono", "Courier New", monospace; background: #f6f8fa;
+                border-radius: 6px; padding: 0.2rem 0.4rem; }
+    pre { padding: 1rem; overflow: auto; }
+    footer { text-align: center; padding: 2rem; font-size: 0.875rem; color: #666; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🔐 Security Overview</h1>
+    <a href="https://github.com/Keglev/inventory-service" target="_blank" style="color: #58a6ff;">View on GitHub ↗</a>
+  </header>
+  <nav>
+    <a href="../index.html">🏠 Home</a>
+    <a href="../api.html">📘 API Reference</a>
+  </nav>
+  <main>
+    <h1>SmartSupplyPro API Overview</h1>
+<p><strong>SmartSupplyPro Inventory Management API</strong><br><strong>Version:</strong> 1.0.0<br><strong>Last Updated:</strong> October 8, 2025  </p>
+<h2>🚀 Enterprise API Documentation Hub</h2>
+<p>Welcome to the <strong>SmartSupplyPro API Overview</strong> - your central gateway to comprehensive API documentation, security architecture, and integration resources for the enterprise inventory management system.</p>
+<h2>📖 Complete API Documentation</h2>
+<h3><strong>Interactive Documentation</strong></h3>
+<ul>
+<li><strong><a href="api.html">🌐 ReDoc API Documentation</a></strong> - Complete interactive API reference</li>
+<li><strong><a href="api/README.md">📋 API Documentation Hub</a></strong> - Comprehensive API guide and navigation</li>
+</ul>
+<h3><strong>API Endpoints by Domain</strong></h3>
+<ul>
+<li><strong><a href="api/endpoints/inventory-items.md">📦 Inventory Items API</a></strong> - Complete inventory management</li>
+<li><strong><a href="api/endpoints/suppliers.md">🏢 Suppliers API</a></strong> - Supplier relationship management  </li>
+<li><strong><a href="api/endpoints/analytics.md">📊 Analytics API</a></strong> - Business intelligence and KPIs</li>
+<li><strong><a href="api/endpoints/stock-history.md">📈 Stock History API</a></strong> - Inventory movement tracking</li>
+<li><strong><a href="api/endpoints/authentication.md">🔐 Authentication API</a></strong> - OAuth2 security and sessions</li>
+<li><strong><a href="api/endpoints/health.md">❤️ Health API</a></strong> - System monitoring and health checks</li>
+</ul>
+<h2>🛡️ Security Architecture</h2>
+<h3><strong>Authentication &amp; Authorization</strong></h3>
+<p>SmartSupplyPro implements <strong>enterprise-grade OAuth2 security</strong> with Google Identity Provider:</p>
+<ul>
+<li><strong>🔐 OAuth2 Authentication</strong> - Secure login with Google accounts</li>
+<li><strong>🍪 Session Management</strong> - HTTPOnly secure cookies with CSRF protection</li>
+<li><strong>🔑 Role-Based Access</strong> - Fine-grained permissions system</li>
+<li><strong>🛡️ CORS Protection</strong> - Cross-origin security policies</li>
+</ul>
+<h3><strong>Comprehensive Security Documentation</strong></h3>
+<ul>
+<li><strong><a href="architecture/patterns/oauth2-security-architecture.md">🏗️ OAuth2 Security Architecture</a></strong> - Complete OAuth2 implementation (728+ lines)</li>
+<li><strong><a href="architecture/patterns/security-patterns.md">🔒 Security Patterns</a></strong> - Enterprise security patterns (280+ lines)</li>
+<li><strong><a href="architecture/patterns/security-implementation-patterns.md">⚙️ Security Implementation</a></strong> - Implementation guide</li>
+<li><strong><a href="architecture/patterns/security-cross-cutting-patterns.md">🔄 Cross-Cutting Security</a></strong> - Security across all layers</li>
+<li><strong><a href="architecture/patterns/security-refactoring-guide.md">🔧 Security Refactoring</a></strong> - Security enhancement guide</li>
+</ul>
+<h3><strong>Security Features Overview</strong></h3>
+<h4><strong>Authentication Flow</strong></h4>
+<pre><code class="language-mermaid">graph LR
+    A[Client] --&gt; B[OAuth2 Login]
+    B --&gt; C[Google Identity]
+    C --&gt; D[Session Creation]
+    D --&gt; E[Secure Cookie]
+    E --&gt; F[API Access]
+</code></pre>
+<h4><strong>Session Security</strong></h4>
+<ul>
+<li><strong>Secure Cookies</strong>: HTTPOnly, Secure, SameSite=Lax</li>
+<li><strong>Session Timeout</strong>: 4 hours inactivity, 24 hours absolute</li>
+<li><strong>CSRF Protection</strong>: Token-based protection for state changes</li>
+<li><strong>Session Invalidation</strong>: Secure logout with cookie clearing</li>
+</ul>
+<h4><strong>API Security</strong></h4>
+<ul>
+<li><strong>Rate Limiting</strong>: Endpoint-specific rate limits</li>
+<li><strong>Input Validation</strong>: Comprehensive request validation</li>
+<li><strong>Output Sanitization</strong>: Secure response formatting</li>
+<li><strong>Error Handling</strong>: Security-aware error responses</li>
+</ul>
+<h2>🏗️ Enterprise Architecture</h2>
+<h3><strong>Backend Architecture</strong></h3>
+<ul>
+<li><strong><a href="backend/README.md">🏢 Backend Documentation Hub</a></strong> - Complete backend architecture</li>
+<li><strong><a href="architecture/">📚 Architecture Patterns</a></strong> - Enterprise patterns and guides</li>
+<li><strong><a href="architecture/services/">🔧 Service Layer</a></strong> - Business logic architecture</li>
+<li><strong><a href="architecture/patterns/">🗄️ Repository Patterns</a></strong> - Data access patterns</li>
+</ul>
+<h3><strong>API Integration Architecture</strong></h3>
+<ul>
+<li><strong><a href="architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md">🔄 Exception Integration</a></strong> - Error handling across APIs</li>
+<li><strong><a href="architecture/mappers/API_INTEGRATION_PATTERNS.md">🗺️ Mapper Integration</a></strong> - Data transformation patterns</li>
+<li><strong><a href="architecture/patterns/configuration-api-integration.md">⚙️ Configuration Integration</a></strong> - Configuration management</li>
+</ul>
+<h2>🔧 Developer Resources</h2>
+<h3><strong>API Development</strong></h3>
+<ul>
+<li><strong><a href="api/development/api-design-guidelines.md">📐 API Design Guidelines</a></strong> - Standards and best practices</li>
+<li><strong><a href="api/development/openapi-guide.md">📝 OpenAPI Guide</a></strong> - Specification maintenance</li>
+<li><strong><a href="api/development/testing-strategies.md">🧪 Testing Strategies</a></strong> - Comprehensive testing</li>
+</ul>
+<h3><strong>Integration Guides</strong></h3>
+<ul>
+<li><strong><a href="api/integration/react-integration.md">⚛️ React Integration</a></strong> - Frontend integration patterns</li>
+<li><strong><a href="api/integration/javascript-sdk.md">🔧 JavaScript SDK</a></strong> - Client SDK documentation</li>
+<li><strong><a href="api/integration/error-handling.md">⚠️ Error Handling</a></strong> - Error response patterns</li>
+</ul>
+<h3><strong>Code Coverage &amp; Quality</strong></h3>
+<ul>
+<li><strong><a href="backend/coverage/">📊 Backend Test Coverage</a></strong> - JaCoCo coverage reports</li>
+<li><strong><a href="backend/testing/">🧪 Testing Documentation</a></strong> - Testing strategies and results</li>
+</ul>
+<h2>📊 API Monitoring</h2>
+<h3><strong>Performance Metrics</strong></h3>
+<ul>
+<li><strong>Response Times</strong>: &lt; 200ms for cached endpoints, &lt; 2s for computed analytics</li>
+<li><strong>Availability</strong>: 99.9% uptime SLA</li>
+<li><strong>Rate Limits</strong>: Tiered limits based on operation type</li>
+<li><strong>Caching</strong>: Multi-layer caching strategy for optimal performance</li>
+</ul>
+<h3><strong>Business Intelligence</strong></h3>
+<ul>
+<li><strong>Usage Analytics</strong>: API endpoint usage patterns</li>
+<li><strong>Performance Monitoring</strong>: Real-time performance metrics</li>
+<li><strong>Error Tracking</strong>: Comprehensive error monitoring with correlation IDs</li>
+</ul>
+<h2>🚀 Quick Start</h2>
+<h3><strong>1. Authentication</strong></h3>
+<pre><code class="language-bash"># Initiate OAuth2 login
+curl -X GET &quot;http://localhost:8081/api/v1/auth/login&quot;
+
+# Check authentication status
+curl -X GET &quot;http://localhost:8081/api/v1/auth/status&quot; \
+  --cookie-jar cookies.txt
+</code></pre>
+<h3><strong>2. API Requests</strong></h3>
+<pre><code class="language-javascript">// Make authenticated API request
+const response = await fetch(&#39;/api/v1/inventory&#39;, {
+  credentials: &#39;include&#39;,
+  headers: {
+    &#39;Content-Type&#39;: &#39;application/json&#39;
+  }
+});
+
+const data = await response.json();
+</code></pre>
+<h3><strong>3. Error Handling</strong></h3>
+<pre><code class="language-javascript">try {
+  const response = await fetch(&#39;/api/v1/inventory&#39;);
+  if (!response.ok) {
+    const error = await response.json();
+    console.error(&#39;API Error:&#39;, error.message);
+    console.error(&#39;Correlation ID:&#39;, error.correlationId);
+  }
+} catch (error) {
+  console.error(&#39;Network Error:&#39;, error);
+}
+</code></pre>
+<h2>📞 Support &amp; Resources</h2>
+<ul>
+<li><strong>📧 API Support</strong>: <a href="mailto:api-support@smartsupplypro.com">api-support@smartsupplypro.com</a></li>
+<li><strong>🐛 Issues</strong>: <a href="https://github.com/Keglev/inventory-service/issues">GitHub Issues</a></li>
+<li><strong>💬 Discussions</strong>: <a href="https://github.com/Keglev/inventory-service/discussions">GitHub Discussions</a></li>
+<li><strong>📖 Changelog</strong>: <a href="api/changelog/CHANGELOG.md">API Changelog</a></li>
+</ul>
+<h2>🎯 Enterprise Standards</h2>
+<p>SmartSupplyPro API follows enterprise-grade standards:</p>
+<ul>
+<li><strong>🔒 Security</strong>: OAuth2, RBAC, session management, CORS protection</li>
+<li><strong>📊 Observability</strong>: Comprehensive logging, metrics, and tracing</li>
+<li><strong>🧪 Quality</strong>: Extensive test coverage and automated testing</li>
+<li><strong>📚 Documentation</strong>: Complete API documentation and integration guides</li>
+<li><strong>🚀 Performance</strong>: Optimized response times and caching strategies</li>
+<li><strong>🏗️ Architecture</strong>: Microservices-ready, cloud-native design</li>
+</ul>
+<hr>
+<p><strong>SmartSupplyPro API Overview</strong> - Enterprise Inventory Management System<br><em>Version 1.0.0 | Last Updated: October 8, 2025</em></p>
+
+  </main>
+  <footer>© 2025 SmartSupplyPro – Security Overview</footer>
+</body>
+</html>

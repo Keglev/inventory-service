@@ -22,9 +22,9 @@ const page = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Security Overview – SmartSupplyPro</title>
+  <title>API Overview – SmartSupplyPro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Security architecture for SmartSupplyPro (OAuth2, sessions, CORS, CSRF, roles)." />
+  <meta name="description" content="SmartSupplyPro API documentation hub with comprehensive endpoint guides, security architecture, and integration resources." />
   <link rel="icon" href="https://keglev.github.io/inventory-service/favicon.ico" />
   <style>
     body { margin: 0; font-family: system-ui, sans-serif; background: #fafafa; color: #111; }

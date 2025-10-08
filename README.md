@@ -34,20 +34,40 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ## 📘 Documentation
 
-### API Documentation (OpenAPI YAML + Redoc)
+### 🚀 API Documentation Hub
 
-All endpoints are documented manually via OpenAPI 3.0 YAML files and rendered using [Redoc](https://github.com/Redocly/redoc). This allows clear, secure API sharing without exposing runtime Swagger UI.
+**Enterprise-grade API documentation** with comprehensive guides, security architecture, and integration resources:
 
-- **API (ReDoc):** https://keglev.github.io/inventory-service/api.html
-- **Security Overview:** https://keglev.github.io/inventory-service/architecture/security-overview.html
+- **🌐 Complete API Documentation:** https://keglev.github.io/inventory-service/api/redoc/index.html
+- **📖 Interactive API Reference:** https://keglev.github.io/inventory-service/api/redoc/api.html
+- **📋 API Documentation Hub:** [docs/api/README.md](./docs/api/README.md)
 
-### 🏗️ Architecture Documentation
+### 🛡️ Security & Architecture
 
-Comprehensive enterprise-level architecture documentation covering design patterns, service flows, and refactoring roadmaps:
+**Comprehensive security documentation** with OAuth2 implementation and enterprise patterns:
 
-- **📚 Architecture Index:** [docs/architecture/README.md](./docs/architecture/README.md)
-- **🔧 Service Layer:** [docs/architecture/services/README.md](./docs/architecture/services/README.md)
+- **🔐 OAuth2 Security Architecture:** [docs/architecture/patterns/oauth2-security-architecture.md](./docs/architecture/patterns/oauth2-security-architecture.md) *(728+ lines)*
+- **🔒 Security Patterns:** [docs/architecture/patterns/security-patterns.md](./docs/architecture/patterns/security-patterns.md) *(280+ lines)*
+- **⚙️ Security Implementation:** [docs/architecture/patterns/security-implementation-patterns.md](./docs/architecture/patterns/security-implementation-patterns.md)
+- **🔄 Cross-Cutting Security:** [docs/architecture/patterns/security-cross-cutting-patterns.md](./docs/architecture/patterns/security-cross-cutting-patterns.md)
+
+### 🏗️ Backend Architecture
+
+**Complete backend transformation** with enterprise-level documentation covering all layers:
+
+- **📚 Backend Documentation Hub:** [docs/backend/README.md](./docs/backend/README.md)
+- **🔧 Service Layer Architecture:** [docs/architecture/services/README.md](./docs/architecture/services/README.md)
 - **🎨 Design Patterns:** [docs/architecture/patterns/](./docs/architecture/patterns/)
+- **📊 Test Coverage Reports:** [docs/backend/coverage/](./docs/backend/coverage/)
+
+### 📡 API Integration Guides
+
+**Comprehensive integration documentation** for all backend layers:
+
+- **⚠️ Exception Handling:** [docs/architecture/exceptions/](./docs/architecture/exceptions/) *(25,000+ words)*
+- **🗺️ Mapper Patterns:** [docs/architecture/mappers/](./docs/architecture/mappers/) *(35,000+ words)*
+- **📊 Enum Business Logic:** [docs/architecture/enums/](./docs/architecture/enums/)
+- **🔗 Configuration Patterns:** [docs/architecture/patterns/](./docs/architecture/patterns/)
 - **🔄 Refactoring Roadmap:** [docs/architecture/refactoring/](./docs/architecture/refactoring/)
 
 **Service Documentation:**
