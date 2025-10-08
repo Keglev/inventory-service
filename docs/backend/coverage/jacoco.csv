@@ -18,7 +18,8 @@ Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig.new OncePer
 Inventory Service,com.smartsupplypro.inventory.config,AppProperties,0,21,0,0,0,6,0,4,0,4
 Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig,119,430,9,1,25,67,11,14,6,14
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockHistoryCustomRepositoryImpl,42,339,30,26,8,74,28,13,0,13
-Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason,0,69,0,0,0,12,0,1,0,1
+Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason.AuditSeverity,27,0,0,0,2,0,1,0,1,0
+Inventory Service,com.smartsupplypro.inventory.enums,StockChangeReason,94,69,14,0,24,12,18,1,10,1
 Inventory Service,com.smartsupplypro.inventory.exception,DuplicateResourceException,0,4,0,0,0,2,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.exception,InvalidRequestException,0,4,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,58,140,2,2,12,27,11,14,9,14
