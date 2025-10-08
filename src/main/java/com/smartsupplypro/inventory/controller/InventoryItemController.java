@@ -95,7 +95,7 @@ public class InventoryItemController {
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/search")
     public Page<InventoryItemDTO> search(
-        @RequestParam String name, 
+        @RequestParam String name,
         @org.springframework.data.web.PageableDefault(size = 20, sort = "price") Pageable pageable) {
         return inventoryItemService.findByNameSortedByPrice(name, pageable);
     }

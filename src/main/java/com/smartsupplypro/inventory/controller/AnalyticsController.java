@@ -150,7 +150,7 @@ public class AnalyticsController{
      * <p>Defaults to last 30 days if no dates provided.</p>
      *
      * @param startDate  optional start timestamp
-     * @param endDate    optional end timestamp  
+     * @param endDate    optional end timestamp
      * @param itemName   optional item name filter
      * @param supplierId optional supplier filter
      * @param createdBy  optional creator filter

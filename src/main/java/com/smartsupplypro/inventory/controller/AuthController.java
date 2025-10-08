@@ -77,7 +77,6 @@ public class AuthController {
         AppUser user = appUserRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        // Optional: include profile picture from OAuth2 provider
         String picture = principal.getAttribute("picture");
 
         return new AppUserProfileDTO(
@@ -110,7 +109,7 @@ public class AuthController {
     /**
      * API logout endpoint for programmatic clients.
      *
-     * <p>Invalidates session and expires cookies. 
+     * <p>Invalidates session and expires cookies.
      * For browser clients, prefer the standard POST /logout endpoint.</p>
      *
      * @param request  HTTP servlet request
@@ -119,7 +118,6 @@ public class AuthController {
      */
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> apiLogout(HttpServletRequest request, HttpServletResponse response) {
-        // Invalidate Spring Security session
         new SecurityContextLogoutHandler().logout(request, response, null);
 
         // Enterprise Comment: Cookie Expiration Strategy

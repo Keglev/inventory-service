@@ -55,7 +55,6 @@ public class HealthCheckController {
     @GetMapping("/db")
     public ResponseEntity<String> checkDatabaseConnection() {
         try (
-            // Open a connection from the pool
             Connection conn = dataSource.getConnection();
 
             // Enterprise Comment: Oracle Health Check Strategy
@@ -63,7 +62,6 @@ public class HealthCheckController {
             // to verify actual Oracle functionality and return diagnostic info
             PreparedStatement stmt = conn.prepareStatement("SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL");
 
-            // Execute query
             ResultSet rs = stmt.executeQuery()
         ) {
             if (rs.next()) {
