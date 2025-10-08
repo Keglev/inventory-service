@@ -77,13 +77,12 @@ public class AuthController {
 <span class="fc" id="L77">        AppUser user = appUserRepository.findByEmail(email)</span>
 <span class="fc" id="L78">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not found&quot;));</span>
 
-        // Optional: include profile picture from OAuth2 provider
-<span class="fc" id="L81">        String picture = principal.getAttribute(&quot;picture&quot;);</span>
+<span class="fc" id="L80">        String picture = principal.getAttribute(&quot;picture&quot;);</span>
 
-<span class="fc" id="L83">        return new AppUserProfileDTO(</span>
-<span class="fc" id="L84">                user.getEmail(),</span>
-<span class="fc" id="L85">                user.getName(),              // map to fullName</span>
-<span class="fc" id="L86">                user.getRole().name(),       // single role string</span>
+<span class="fc" id="L82">        return new AppUserProfileDTO(</span>
+<span class="fc" id="L83">                user.getEmail(),</span>
+<span class="fc" id="L84">                user.getName(),              // map to fullName</span>
+<span class="fc" id="L85">                user.getRole().name(),       // single role string</span>
                 picture
         );
     }
@@ -97,20 +96,20 @@ public class AuthController {
     @GetMapping(&quot;/me/authorities&quot;)
     public java.util.List&lt;String&gt; meAuthorities(
             @AuthenticationPrincipal OAuth2User principal) {
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (principal == null) {</span>
-<span class="nc" id="L101">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L100">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
         }
-<span class="nc" id="L103">        return principal.getAuthorities().stream()</span>
-<span class="nc" id="L104">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
-<span class="nc" id="L105">                .distinct()</span>
-<span class="nc" id="L106">                .sorted()</span>
-<span class="nc" id="L107">                .toList();</span>
+<span class="nc" id="L102">        return principal.getAuthorities().stream()</span>
+<span class="nc" id="L103">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
+<span class="nc" id="L104">                .distinct()</span>
+<span class="nc" id="L105">                .sorted()</span>
+<span class="nc" id="L106">                .toList();</span>
     }
 
     /**
      * API logout endpoint for programmatic clients.
      *
-     * &lt;p&gt;Invalidates session and expires cookies. 
+     * &lt;p&gt;Invalidates session and expires cookies.
      * For browser clients, prefer the standard POST /logout endpoint.&lt;/p&gt;
      *
      * @param request  HTTP servlet request
@@ -119,32 +118,31 @@ public class AuthController {
      */
     @PostMapping(&quot;/auth/logout&quot;)
     public ResponseEntity&lt;Void&gt; apiLogout(HttpServletRequest request, HttpServletResponse response) {
-        // Invalidate Spring Security session
-<span class="fc" id="L123">        new SecurityContextLogoutHandler().logout(request, response, null);</span>
+<span class="fc" id="L121">        new SecurityContextLogoutHandler().logout(request, response, null);</span>
 
         // Enterprise Comment: Cookie Expiration Strategy
         // Explicitly expire session cookies for API clients with secure settings
         // Required for proper logout in SPA and mobile applications
-<span class="fc" id="L128">        ResponseCookie jsess = ResponseCookie.from(&quot;JSESSIONID&quot;, &quot;&quot;)</span>
-<span class="fc" id="L129">                .path(&quot;/&quot;)</span>
-<span class="fc" id="L130">                .httpOnly(true)</span>
-<span class="fc" id="L131">                .secure(true)</span>
-<span class="fc" id="L132">                .sameSite(&quot;None&quot;)</span>
-<span class="fc" id="L133">                .maxAge(0)</span>
-<span class="fc" id="L134">                .build();</span>
+<span class="fc" id="L126">        ResponseCookie jsess = ResponseCookie.from(&quot;JSESSIONID&quot;, &quot;&quot;)</span>
+<span class="fc" id="L127">                .path(&quot;/&quot;)</span>
+<span class="fc" id="L128">                .httpOnly(true)</span>
+<span class="fc" id="L129">                .secure(true)</span>
+<span class="fc" id="L130">                .sameSite(&quot;None&quot;)</span>
+<span class="fc" id="L131">                .maxAge(0)</span>
+<span class="fc" id="L132">                .build();</span>
 
-<span class="fc" id="L136">        ResponseCookie session = ResponseCookie.from(&quot;SESSION&quot;, &quot;&quot;)</span>
-<span class="fc" id="L137">                .path(&quot;/&quot;)</span>
-<span class="fc" id="L138">                .httpOnly(true)</span>
-<span class="fc" id="L139">                .secure(true)</span>
-<span class="fc" id="L140">                .sameSite(&quot;None&quot;)</span>
-<span class="fc" id="L141">                .maxAge(0)</span>
-<span class="fc" id="L142">                .build();</span>
+<span class="fc" id="L134">        ResponseCookie session = ResponseCookie.from(&quot;SESSION&quot;, &quot;&quot;)</span>
+<span class="fc" id="L135">                .path(&quot;/&quot;)</span>
+<span class="fc" id="L136">                .httpOnly(true)</span>
+<span class="fc" id="L137">                .secure(true)</span>
+<span class="fc" id="L138">                .sameSite(&quot;None&quot;)</span>
+<span class="fc" id="L139">                .maxAge(0)</span>
+<span class="fc" id="L140">                .build();</span>
 
-<span class="fc" id="L144">        return ResponseEntity.noContent()</span>
-<span class="fc" id="L145">                .header(&quot;Set-Cookie&quot;, jsess.toString())</span>
-<span class="fc" id="L146">                .header(&quot;Set-Cookie&quot;, session.toString())</span>
-<span class="fc" id="L147">                .build();</span>
+<span class="fc" id="L142">        return ResponseEntity.noContent()</span>
+<span class="fc" id="L143">                .header(&quot;Set-Cookie&quot;, jsess.toString())</span>
+<span class="fc" id="L144">                .header(&quot;Set-Cookie&quot;, session.toString())</span>
+<span class="fc" id="L145">                .build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
