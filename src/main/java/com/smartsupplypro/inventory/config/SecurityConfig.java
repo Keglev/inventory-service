@@ -37,6 +37,19 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Enterprise OAuth2 security configuration with role-based access control.
+ * 
+ * <p>Implements session-based Google OAuth2 authentication with stateless authorization
+ * request persistence, role-based API authorization, and cross-origin request support.</p>
+ * 
+ * <p><strong>Enterprise Features:</strong> OAuth2 login with custom user provisioning,
+ * dual authentication entry points (API vs browser), CORS with secure cookies,
+ * demo mode read-only access, and comprehensive session management.</p>
+ * 
+ * <p><strong>Demo Mode Integration:</strong> Uses SpEL expressions with {@code @appProperties.demoReadonly}
+ * for conditional read-only access. See {@link SecuritySpelBridgeConfig} for SpEL bridge setup.</p>
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -44,19 +57,35 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
     
+    /**
+     * OAuth2 authentication success handler for user provisioning.
+     * Creates local user records on first login and handles frontend redirect.
+     */
     @Autowired
     private OAuth2LoginSuccessHandler successHandler;
 
+    /** Custom OIDC user service for Google OAuth2 integration. */
     @Autowired
     private com.smartsupplypro.inventory.service.CustomOidcUserService customOidcUserService;
 
+    /** Custom OAuth2 user service for non-OIDC providers. */
     @Autowired
     private com.smartsupplypro.inventory.service.CustomOAuth2UserService customOAuth2UserService;
 
+    /** Application configuration properties for demo mode and frontend URLs. */
     @Autowired
     private AppProperties props;
 
-    
+    /**
+     * Primary security filter chain with OAuth2 and role-based authorization.
+     * 
+     * <p>Configures dual entry points: API requests receive JSON 401, browser 
+     * requests redirect to OAuth2 login. Implements CORS, session management,
+     * and demo mode access patterns.</p>
+     * 
+     * <p><strong>Enterprise Pattern:</strong> Uses request attribute flagging to distinguish
+     * API calls from browser requests for appropriate authentication failure responses.</p>
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -185,7 +214,15 @@ public class SecurityConfig {
         return http.build();
     }
 
-    
+    /**
+     * CORS configuration for cross-origin frontend access with secure cookies.
+     * 
+     * <p>Supports development (localhost) and production origins with credentialed
+     * requests. Uses SameSite=None and Secure flags for cross-site compatibility.</p>
+     * 
+     * <p><strong>Enterprise Security:</strong> Explicit origin allowlist prevents CORS bypass attacks.
+     * Credentials enabled for authenticated session cookie transmission.</p>
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -209,7 +246,14 @@ public class SecurityConfig {
         return source;
     }
 
-    
+    /**
+     * Session cookie configuration for cross-site authentication.
+     * 
+     * <p>Configures SameSite=None and Secure flags for cross-origin cookie transmission.
+     * Essential for OAuth2 flows when frontend and backend are on different domains.</p>
+     * 
+     * <p><strong>Security Note:</strong> Requires HTTPS in production for Secure flag compliance.</p>
+     */
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
@@ -219,6 +263,12 @@ public class SecurityConfig {
         return serializer;
     }
 
+    /**
+     * OAuth2 authentication failure handler with frontend redirect.
+     * 
+     * <p>Logs authentication failures and redirects to frontend login page with error parameter.
+     * Frontend is responsible for displaying user-friendly error messages.</p>
+     */
     @Bean
     public AuthenticationFailureHandler oauthFailureHandler(AppProperties props) {
         return (request, response, exception) -> {
@@ -229,7 +279,14 @@ public class SecurityConfig {
         };
     };
 
-    
+    /**
+     * Stateless OAuth2 authorization request repository using secure cookies.
+     * 
+     * <p>Stores OAuth2 authorization requests in HttpOnly cookies instead of server sessions.
+     * Enables stateless authentication flows across multiple application instances.</p>
+     * 
+     * <p><strong>Enterprise Benefit:</strong> Eliminates need for sticky sessions in load-balanced deployments.</p>
+     */
     @Bean
     public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
         return new CookieOAuth2AuthorizationRequestRepository();
