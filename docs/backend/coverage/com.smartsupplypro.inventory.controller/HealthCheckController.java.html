@@ -13,15 +13,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 /**
- * Health check controller for verifying Oracle database availability.
+ * Health check controller for application and database status monitoring.
  *
- * &lt;p&gt;This endpoint is particularly important in environments like Oracle Free Tier,
- * where the database can be paused after inactivity. A periodic HTTP ping
- * to this endpoint can keep the connection alive and ensure faster cold starts.
+ * &lt;p&gt;Provides lightweight and deep health checks for monitoring systems.
+ * Particularly useful for Oracle Free Tier environments where database pausing occurs.&lt;/p&gt;
+ *
+ * @see &lt;a href=&quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller Patterns&lt;/a&gt;
  */
 @RestController
 @RequestMapping(&quot;/health&quot;)
-<span class="fc" id="L24">public class HealthCheckController {</span>
+<span class="fc" id="L25">public class HealthCheckController {</span>
 
     @Autowired
     private DataSource dataSource;
@@ -38,46 +39,46 @@ import java.sql.ResultSet;
      *
 
     /**
-     * Lightweight health check — confirms the app is up.
-     * Used as the default health check for Fly.io and Kubernetes.
+     * Basic application health check.
      *
-     * @return HTTP 200 OK always if the app is running.
+     * @return 200 OK if application is running
      */
     @GetMapping
     public ResponseEntity&lt;String&gt; health() {
 <span class="nc" id="L48">        return ResponseEntity.ok(&quot;OK&quot;);</span>
     }
-      /**
-     * Performs a deep health check by querying the Oracle database.
-     * This is intended for manual monitoring tools, not as Fly's liveness probe.
+    /**
+     * Deep database health check with Oracle-specific query.
      *
-     * @return HTTP 200 if database is reachable; 503 if not.
+     * @return 200 OK with client IP if database accessible, 503 if database down
      */
     @GetMapping(&quot;/db&quot;)
     public ResponseEntity&lt;String&gt; checkDatabaseConnection() {
         try (
             // Open a connection from the pool
-<span class="nc" id="L60">            Connection conn = dataSource.getConnection();</span>
+<span class="nc" id="L59">            Connection conn = dataSource.getConnection();</span>
 
-            // Oracle-specific dummy query to test DB availability
-<span class="nc" id="L63">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL&quot;);</span>
+            // Enterprise Comment: Oracle Health Check Strategy
+            // Use SYS_CONTEXT query instead of simple SELECT 1 FROM DUAL
+            // to verify actual Oracle functionality and return diagnostic info
+<span class="nc" id="L64">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL&quot;);</span>
 
             // Execute query
-<span class="nc" id="L66">            ResultSet rs = stmt.executeQuery()</span>
+<span class="nc" id="L67">            ResultSet rs = stmt.executeQuery()</span>
         ) {
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (rs.next()) {</span>
-<span class="nc" id="L69">                String ip = rs.getString(&quot;ip&quot;);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">            if (rs.next()) {</span>
+<span class="nc" id="L70">                String ip = rs.getString(&quot;ip&quot;);</span>
                 // Query succeeded — DB is reachable
-<span class="nc" id="L71">                return ResponseEntity.ok(&quot;{\&quot;status\&quot;: \&quot;UP\&quot;, \&quot;oracleSeesIp\&quot;: \&quot;&quot; + ip + &quot;\&quot;}&quot;);</span>
+<span class="nc" id="L72">                return ResponseEntity.ok(&quot;{\&quot;status\&quot;: \&quot;UP\&quot;, \&quot;oracleSeesIp\&quot;: \&quot;&quot; + ip + &quot;\&quot;}&quot;);</span>
             } else {
                 // Query returned no result — unusual but possible
-<span class="nc" id="L74">                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
-<span class="nc" id="L75">                        .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;db\&quot;: \&quot;query failed\&quot;}&quot;);</span>
+<span class="nc" id="L75">                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
+<span class="nc" id="L76">                        .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;db\&quot;: \&quot;query failed\&quot;}&quot;);</span>
             }
-<span class="nc bnc" id="L77" title="All 6 branches missed.">        } catch (Exception ex) {</span>
+<span class="nc bnc" id="L78" title="All 6 branches missed.">        } catch (Exception ex) {</span>
             // DB unreachable or misconfigured
-<span class="nc" id="L79">            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
-<span class="nc" id="L80">                    .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;error\&quot;: \&quot;&quot; + ex.getMessage() + &quot;\&quot;}&quot;);</span>
+<span class="nc" id="L80">            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
+<span class="nc" id="L81">                    .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;error\&quot;: \&quot;&quot; + ex.getMessage() + &quot;\&quot;}&quot;);</span>
         }
     }
 }
