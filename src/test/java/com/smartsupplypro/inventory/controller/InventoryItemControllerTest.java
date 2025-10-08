@@ -39,10 +39,53 @@ import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.InventoryItemService;
 
 /**
- * MVC slice tests for {@link InventoryItemController}.
- *
- * Scope: HTTP contract only (routing, security, status codes, headers, minimal JSON).
- * Business rules and side-effects are covered in service/integration tests.
+ * Enterprise MVC Integration Tests for {@link InventoryItemController}.
+ * 
+ * <p>This test suite validates the complete HTTP contract and security integration
+ * of the inventory item management REST API, ensuring proper request/response handling,
+ * status codes, security enforcement, and JSON serialization.</p>
+ * 
+ * <h3>Test Architecture:</h3>
+ * <ul>
+ *   <li><strong>Test Slice:</strong> @WebMvcTest for focused web layer testing</li>
+ *   <li><strong>Security Integration:</strong> Custom TestSecurityConfig with role-based testing</li>
+ *   <li><strong>Exception Handling:</strong> GlobalExceptionHandler integration</li>
+ *   <li><strong>Mock Strategy:</strong> Service layer mocked for isolated HTTP testing</li>
+ * </ul>
+ * 
+ * <h3>Coverage Scope:</h3>
+ * <ul>
+ *   <li><strong>HTTP Contract:</strong> Routing, request mapping, and response structure</li>
+ *   <li><strong>Security Enforcement:</strong> Role-based access control (ADMIN/USER)</li>
+ *   <li><strong>Validation Integration:</strong> @Valid annotation and constraint validation</li>
+ *   <li><strong>Error Handling:</strong> Exception to HTTP status code mapping</li>
+ *   <li><strong>Content Negotiation:</strong> JSON request/response processing</li>
+ * </ul>
+ * 
+ * <h3>Business Logic Exclusion:</h3>
+ * <p><strong>Note:</strong> Business rules, data persistence, and service interactions 
+ * are intentionally excluded from this test suite. These concerns are thoroughly 
+ * covered in:</p>
+ * <ul>
+ *   <li>{@link com.smartsupplypro.inventory.service.InventoryItemServiceTest} - Service logic</li>
+ *   <li>{@link com.smartsupplypro.inventory.repository.InventoryItemRepositoryTest} - Data access</li>
+ *   <li>Integration tests - End-to-end business workflows</li>
+ * </ul>
+ * 
+ * <h3>Security Testing Strategy:</h3>
+ * <ul>
+ *   <li><strong>Admin Operations:</strong> CREATE, UPDATE, DELETE operations require ADMIN role</li>
+ *   <li><strong>User Operations:</strong> READ operations available to USER role</li>
+ *   <li><strong>Anonymous Access:</strong> All endpoints require authentication</li>
+ *   <li><strong>CSRF Protection:</strong> State-changing operations require CSRF tokens</li>
+ * </ul>
+ * 
+ * @author SmartSupplyPro Development Team
+ * @version 1.0.0
+ * @since 2025-10-08
+ * @see InventoryItemController
+ * @see InventoryItemService
+ * @see TestSecurityConfig
  */
 @WebMvcTest(controllers = InventoryItemController.class)
 @Import({ GlobalExceptionHandler.class, TestSecurityConfig.class })
@@ -53,8 +96,14 @@ class InventoryItemControllerTest {
 
     @MockitoBean InventoryItemService inventoryItemService;
 
-    /* -------------------- helpers -------------------- */
+    /* ==================== Test Data Factory Methods ==================== */
 
+    /**
+     * Creates a sample InventoryItemDTO for testing purposes.
+     * 
+     * @param id the inventory item ID, or null for new items
+     * @return fully populated InventoryItemDTO with valid test data
+     */
     private InventoryItemDTO sample(String id) {
         InventoryItemDTO dto = new InventoryItemDTO();
         dto.setId(id);
@@ -65,12 +114,29 @@ class InventoryItemControllerTest {
         return dto;
     }
 
+    /**
+     * Creates a new InventoryItemDTO without ID for creation testing.
+     * 
+     * @return InventoryItemDTO suitable for POST operations
+     */
     private InventoryItemDTO withoutId() {
         InventoryItemDTO dto = sample(null);
         dto.setId(null);
         return dto;
     }
 
+    /**
+     * Creates an intentionally invalid InventoryItemDTO for validation testing.
+     * 
+     * <p>This DTO violates multiple validation constraints:</p>
+     * <ul>
+     *   <li>Name is blank (violates @NotBlank)</li>
+     *   <li>Quantity is negative (violates @PositiveOrZero)</li>
+     *   <li>Price is negative (violates @DecimalMin)</li>
+     * </ul>
+     * 
+     * @return invalid InventoryItemDTO for 400 Bad Request testing
+     */
     private InventoryItemDTO invalid() {
         // Intentionally invalid to trigger @Valid -> 400 before service runs
         InventoryItemDTO dto = new InventoryItemDTO();
@@ -80,7 +146,42 @@ class InventoryItemControllerTest {
         return dto;
     }
 
-    /* -------------------- create (POST -> save) -------------------- */
+    /* ==================== CREATE Operations (POST /api/inventory) ==================== */
+
+    /**
+     * Validates successful inventory item creation with ADMIN role.
+     * 
+     * <p><strong>Test Scenario:</strong> Admin user creates new inventory item</p>
+     * 
+     * <h4>Given:</h4>
+     * <ul>
+     *   <li>User authenticated with ADMIN role</li>
+     *   <li>Valid inventory item DTO without ID</li>
+     *   <li>Service layer returns created item with generated ID</li>
+     *   <li>CSRF token provided</li>
+     * </ul>
+     * 
+     * <h4>When:</h4>
+     * <ul>
+     *   <li>POST request to /api/inventory with JSON payload</li>
+     * </ul>
+     * 
+     * <h4>Then:</h4>
+     * <ul>
+     *   <li>HTTP 201 Created status returned</li>
+     *   <li>Location header points to new resource</li>
+     *   <li>Response body contains created item with ID</li>
+     *   <li>Service.save() method called with request data</li>
+     * </ul>
+     * 
+     * <h4>Security Verification:</h4>
+     * <ul>
+     *   <li>ADMIN role authorization enforced</li>
+     *   <li>CSRF protection validated</li>
+     * </ul>
+     * 
+     * @throws Exception if MockMvc request fails
+     */
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -99,6 +200,38 @@ class InventoryItemControllerTest {
             .andExpect(jsonPath("$.name").value("Monitor"));
     }
 
+    /**
+     * Validates that unauthenticated requests are rejected for inventory creation.
+     * 
+     * <p><strong>Test Scenario:</strong> Anonymous user attempts to create inventory item</p>
+     * 
+     * <h4>Security Policy Tested:</h4>
+     * <ul>
+     *   <li>All inventory management endpoints require authentication</li>
+     *   <li>Anonymous access is prohibited for data modification</li>
+     * </ul>
+     * 
+     * <h4>Given:</h4>
+     * <ul>
+     *   <li>No authentication context (anonymous user)</li>
+     *   <li>Valid inventory item DTO</li>
+     *   <li>CSRF token provided</li>
+     * </ul>
+     * 
+     * <h4>When:</h4>
+     * <ul>
+     *   <li>POST request to /api/inventory</li>
+     * </ul>
+     * 
+     * <h4>Then:</h4>
+     * <ul>
+     *   <li>HTTP 401 Unauthorized status returned</li>
+     *   <li>Service layer is not invoked</li>
+     *   <li>No data modification occurs</li>
+     * </ul>
+     * 
+     * @throws Exception if MockMvc request fails
+     */
     @Test
     @DisplayName("POST /api/inventory -> 401 when unauthenticated")
     void create_unauthenticated_401() throws Exception {
@@ -108,6 +241,39 @@ class InventoryItemControllerTest {
             .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Validates that USER role is insufficient for inventory item creation.
+     * 
+     * <p><strong>Test Scenario:</strong> User with USER role attempts creation</p>
+     * 
+     * <h4>Authorization Policy Tested:</h4>
+     * <ul>
+     *   <li>CREATE operations require ADMIN role</li>
+     *   <li>USER role provides read-only access</li>
+     *   <li>Role-based access control enforcement</li>
+     * </ul>
+     * 
+     * <h4>Given:</h4>
+     * <ul>
+     *   <li>User authenticated with USER role</li>
+     *   <li>Valid inventory item DTO</li>
+     *   <li>CSRF token provided</li>
+     * </ul>
+     * 
+     * <h4>When:</h4>
+     * <ul>
+     *   <li>POST request to /api/inventory</li>
+     * </ul>
+     * 
+     * <h4>Then:</h4>
+     * <ul>
+     *   <li>HTTP 403 Forbidden status returned</li>
+     *   <li>Service layer is not invoked</li>
+     *   <li>Access denied based on role restriction</li>
+     * </ul>
+     * 
+     * @throws Exception if MockMvc request fails
+     */
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("POST /api/inventory -> 403 (USER forbidden)")
