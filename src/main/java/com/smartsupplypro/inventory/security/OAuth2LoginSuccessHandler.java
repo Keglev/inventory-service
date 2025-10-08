@@ -84,6 +84,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         try {
             // Enterprise Provisioning: Automatic user creation with default role assignment
             userRepository.findById(email).orElseGet(() -> {
+                log.info("Enterprise OAuth2: Creating new user account: {}", email);
                 AppUser newUser = new AppUser(email, name);
                 newUser.setRole(Role.USER);  // Enterprise default: USER role for OAuth2 users
                 newUser.setCreatedAt(LocalDateTime.now());
@@ -91,8 +92,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             });
         } catch (DataIntegrityViolationException e) {
             // Enterprise Concurrency: Handle race conditions in multi-instance deployments
+            log.warn("Enterprise OAuth2: Concurrent user creation resolved for: {}", email);
             userRepository.findByEmail(email).orElseThrow(() ->
-            new IllegalStateException("User already exists but cannot be loaded."));
+                new IllegalStateException("User already exists but cannot be loaded."));
         }
         
         // Enterprise Redirect Security: Origin allowlist prevents open redirect attacks
@@ -112,6 +114,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     String candidate = c.getValue();
                     if (candidate != null && allowed.contains(candidate)) {
                         target = candidate + "/auth";  // Enterprise routing: custom post-auth destination
+                    } else if (candidate != null) {
+                        log.warn("Enterprise OAuth2: Rejected non-allowlisted return URL: {}", candidate);
                     }
                     // Enterprise Cleanup: Remove single-use return URL cookie
                     Cookie clear = new Cookie("SSP_RETURN", "");
@@ -124,7 +128,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 }
             }
         }
-        log.info("OAuth2 success → redirecting to FE: {}", target);
+        log.info("Enterprise OAuth2: Authentication success, redirecting to: {}", target);
         setAlwaysUseDefaultTargetUrl(true);
         setDefaultTargetUrl(URI.create(target).toString());
         // Enterprise Flow: Single redirect execution via parent handler

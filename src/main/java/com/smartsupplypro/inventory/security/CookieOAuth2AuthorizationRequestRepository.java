@@ -86,9 +86,8 @@ public class CookieOAuth2AuthorizationRequestRepository
                 r.setPath("/");
                 r.setMaxAge(300); // Enterprise timeout: 5 minutes for OAuth2 flow completion
                 addCookieWithSameSite(response, r, "None");
-                log.debug("Set SSP_RETURN cookie for {}", ret);
             } else {
-                log.warn("Ignored non-whitelisted return origin: {}", ret);
+                log.warn("Enterprise OAuth2: Rejected non-allowlisted return origin: {}", ret);
             }
         }
         
@@ -105,8 +104,6 @@ public class CookieOAuth2AuthorizationRequestRepository
         cookie.setMaxAge(COOKIE_EXPIRE_SECONDS);  // Enterprise timeout: 3 minutes for OAuth2 completion
 
         addCookieWithSameSite(response, cookie, "None");
-        log.debug("Saved {} cookie. secure={}, maxAge={}, sameSite=None",
-            AUTH_REQUEST_COOKIE_NAME, cookie.getSecure(), cookie.getMaxAge());
     }
 
     /**
@@ -126,7 +123,10 @@ public class CookieOAuth2AuthorizationRequestRepository
      * Handles Base64 decoding and JSON deserialization with graceful failure handling.
      */
     private Optional<OAuth2AuthorizationRequest> read(HttpServletRequest request) {
-        if (request.getCookies() == null) return Optional.empty();
+        if (request.getCookies() == null) {
+            return Optional.empty();
+        }
+        
         for (Cookie c : request.getCookies()) {
             if (AUTH_REQUEST_COOKIE_NAME.equals(c.getName())) {
                 try {
@@ -136,11 +136,13 @@ public class CookieOAuth2AuthorizationRequestRepository
                     if (o != null) {
                         return Optional.of(o);
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
                     // Enterprise Resilience: Ignore malformed cookies, continue search
+                    log.warn("Enterprise OAuth2: Malformed authorization request cookie ignored");
                 }
             }
         }
+        
         return Optional.empty();
     }
 
@@ -155,7 +157,6 @@ public class CookieOAuth2AuthorizationRequestRepository
         cookie.setPath("/");
         cookie.setMaxAge(0);  // Enterprise Pattern: Immediate expiration for state cleanup
         addCookieWithSameSite(response, cookie, "None");
-        log.debug("Deleted {} cookie.", AUTH_REQUEST_COOKIE_NAME);
     }
 
     /**
