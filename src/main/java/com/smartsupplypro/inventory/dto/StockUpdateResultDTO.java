@@ -33,4 +33,3 @@ public class StockUpdateResultDTO {
     /** When this change was recorded. */
     private LocalDateTime timestamp;
 }
-// Note: This DTO is designed to be used in contexts where human-readable information is preferred.

@@ -37,4 +37,3 @@ public class StockUpdateFilterDTO {
     /** Optional maximum quantity change (inclusive). */
     private Integer maxChange;
 }
-// Note: This DTO is designed to be flexible and extensible for future requirements.
