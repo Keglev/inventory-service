@@ -22,52 +22,42 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
-* OAuth2LoginSuccessHandler handles user onboarding and redirection
-* after successful Google OAuth2 login.
-*
-* <p><b>Flow</b>
-* <ol>
-*   <li>Extracts <code>email</code> and <code>name</code> from the OAuth2 principal.</li>
-*   <li>Creates a local {@link AppUser} with {@link Role#USER} if none exists.</li>
-*   <li>Redirects the browser to the frontend login landing page.</li>
-* </ol>
-*
-* <p><b>Contract</b>
-* <ul>
-*   <li>Identity is keyed by unique email.</li>
-*   <li>Duplicate detection defends against concurrent logins (DB unique constraint).</li>
-*   <li>Redirect target should be environment-configurable for dev/prod.</li>
-* </ul>
-*
-* <p><b>Out of scope</b>: self-service enrollment flows/UI.</p>
-*/
+ * Enterprise OAuth2 authentication success handler with automatic user provisioning.
+ * 
+ * <p>Handles post-authentication user onboarding and secure frontend redirection
+ * after successful Google OAuth2 login. Creates local user accounts with default
+ * permissions and manages cross-origin redirect security.</p>
+ * 
+ * <p><strong>Enterprise Features:</strong> Automatic user provisioning, concurrent
+ * login safety, configurable frontend redirects, and origin allowlist security.</p>
+ */
 
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     
     private static final org.slf4j.Logger log =
     org.slf4j.LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);
+    /** Application properties for frontend URL configuration and environment settings. */
     private final AppProperties props;
+    
+    /** User repository for automatic user provisioning and duplicate detection. */
     private final AppUserRepository userRepository;
     
+    /** Constructor with dependency injection for configuration and data access. */
     public OAuth2LoginSuccessHandler(AppProperties props, AppUserRepository userRepository) {
         this.props = props;
         this.userRepository = userRepository;
     }
     
     /**
-    * Callback method invoked after a successful OAuth2 authentication.
-    *
-    * <p>This method extracts the user's email and name from the OAuth2 token,
-    * checks if the user already exists in the database, and creates a new user
-    * with role {@code USER} if not found.
-    *
-    * @param request        the incoming HTTP request
-    * @param response       the outgoing HTTP response
-    * @param authentication the authentication object containing OAuth2 user details
-    * @throws IOException        in case of I/O errors
-    * @throws ServletException   in case of general servlet-related errors
-    */
+     * Handles successful OAuth2 authentication with automatic user provisioning.
+     * 
+     * <p>Extracts user credentials from OAuth2 token, creates local user account
+     * if needed, and redirects to configured frontend URL with origin allowlist security.</p>
+     * 
+     * <p><strong>Enterprise Security:</strong> Prevents duplicate redirects, validates
+     * return URLs against allowlist, and handles concurrent login scenarios safely.</p>
+     */
     
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -75,13 +65,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     Authentication authentication)
     throws IOException, ServletException {
         
-        // Prevent duplicate redirects if something triggers success twice in the same request
+        // Enterprise Security: Prevent duplicate redirects in concurrent authentication scenarios
         if (request.getAttribute("OAUTH2_SUCCESS_REDIRECT_DONE") != null) {
             log.debug("Success redirect already performed; skipping.");
             return;
         }
         request.setAttribute("OAUTH2_SUCCESS_REDIRECT_DONE", Boolean.TRUE);
         
+        // Enterprise Identity: Extract user credentials from OAuth2 token for local provisioning
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         String email = token.getPrincipal().getAttribute("email");
         String name = token.getPrincipal().getAttribute("name");
@@ -91,43 +82,43 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
         
         try {
-            // Register the user if they don't exist
+            // Enterprise Provisioning: Automatic user creation with default role assignment
             userRepository.findById(email).orElseGet(() -> {
                 AppUser newUser = new AppUser(email, name);
-                newUser.setRole(Role.USER);
+                newUser.setRole(Role.USER);  // Enterprise default: USER role for OAuth2 users
                 newUser.setCreatedAt(LocalDateTime.now());
                 return userRepository.save(newUser);
             });
         } catch (DataIntegrityViolationException e) {
-            // Concurrent insert safety: load the already-created user
+            // Enterprise Concurrency: Handle race conditions in multi-instance deployments
             userRepository.findByEmail(email).orElseThrow(() ->
             new IllegalStateException("User already exists but cannot be loaded."));
         }
         
-        // ---------- dynamic return ----------
-        // Allowed frontend origins (adjust if needed)
+        // Enterprise Redirect Security: Origin allowlist prevents open redirect attacks
         List<String> allowed = List.of(
-        "http://localhost:5173",
-        "https://localhost:5173",
-        props.getFrontend().getBaseUrl() // e.g., https://inventory-service.koyeb.app
+        "http://localhost:5173",     // Development environment
+        "https://localhost:5173",    // Development HTTPS
+        props.getFrontend().getBaseUrl() // Production frontend from configuration
         );
-        // configurable post-login target
+        // Enterprise Configuration: Environment-specific post-login landing page
         String target = props.getFrontend().getBaseUrl() + props.getFrontend().getLandingPath();
         
+        // Enterprise Return URL: Check for custom return destination with security validation
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie c : cookies) {
                 if ("SSP_RETURN".equals(c.getName())) {
                     String candidate = c.getValue();
                     if (candidate != null && allowed.contains(candidate)) {
-                        target = candidate + "/auth";
+                        target = candidate + "/auth";  // Enterprise routing: custom post-auth destination
                     }
-                    // clear cookie
+                    // Enterprise Cleanup: Remove single-use return URL cookie
                     Cookie clear = new Cookie("SSP_RETURN", "");
                     clear.setPath("/");
                     clear.setMaxAge(0);
                     clear.setSecure(isSecureOrForwardedHttps(request));
-                    clear.setHttpOnly(false); // FE created it non-HttpOnly
+                    clear.setHttpOnly(false); // Frontend created it non-HttpOnly
                     addCookieWithSameSite(response, clear, "None");
                     break;
                 }
@@ -136,19 +127,24 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         log.info("OAuth2 success → redirecting to FE: {}", target);
         setAlwaysUseDefaultTargetUrl(true);
         setDefaultTargetUrl(URI.create(target).toString());
-        // ONE redirect only
-        // Let the parent handler run the (single) redirect
+        // Enterprise Flow: Single redirect execution via parent handler
         super.onAuthenticationSuccess(request, response, authentication);
     }
     
-    // --- Helpers ---
+    /**
+     * Enterprise Security: Detects HTTPS context including load balancer forwarding.
+     * Supports both direct HTTPS and X-Forwarded-Proto header detection.
+     */
     private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
         if (request.isSecure()) return true;
         String xfProto = request.getHeader("X-Forwarded-Proto");
         return xfProto != null && xfProto.equalsIgnoreCase("https");
     }
     
-    /** Mirror of your repo helper: add SameSite to Set-Cookie. */
+    /**
+     * Enterprise Cookie Security: Adds SameSite attribute for cross-origin compatibility.
+     * Essential for OAuth2 flows between frontend and backend on different domains.
+     */
     private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
         StringBuilder sb = new StringBuilder();
         sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? "" : cookie.getValue());
