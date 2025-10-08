@@ -38,18 +38,18 @@ jobs:
       - name: Bundle & build
         run: npm run docs     
 
-      # === Commit the generated docs back to the repo (default) ===
+      # === Commit the generated docs back to the repo (enterprise structure) ===
       - name: Commit generated artifacts
         run: |
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add openapi.yaml api.html architecture/security-overview.html
+          git add api/openapi/openapi.yaml api/redoc/api.html api/redoc/index.html
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(docs): bundle & build OpenAPI (api.html, openapi.yaml) and Security Overview (HTML) [skip ci]"
+            git commit -m "docs: update enterprise API documentation [skip ci]"
             git push
           fi
       - name: Reminder
-        run: echo "::notice title=Docs Reminder::This job bundles & builds the docs. Keep path files and schemas tidy for recruiters."  
+        run: echo "::notice title=Enterprise Docs Pipeline::This job bundles & builds enterprise API documentation. OpenAPI specs and ReDoc generated in /api structure."  
