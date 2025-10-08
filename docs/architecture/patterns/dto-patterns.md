@@ -536,6 +536,8 @@ public class ConfigDTO {
 - [Service Layer Patterns](service-patterns.md) - DTO to entity mapping
 - [Repository Layer Patterns](repository-patterns.md) - Query result projection
 - [Validation Patterns](validation-patterns.md) - Bean validation strategies
+- [Security Configuration Patterns](../../patterns/security-patterns.md) - OAuth2 authentication for DTO access
+- [Configuration Patterns](../../patterns/configuration-patterns.md) - Demo mode and conditional DTO access
 
 ### Framework Integration
 - **Spring Boot Validation** - `@Validated` with groups
