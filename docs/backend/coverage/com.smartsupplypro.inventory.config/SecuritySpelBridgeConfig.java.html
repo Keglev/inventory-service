@@ -5,17 +5,28 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 /**
- * Exposes AppProperties under bean name &quot;appProperties&quot; for SpEL and
- * makes it @Primary so type-based injection (e.g., in SuccessHandler)
- * chooses this one automatically.
+ * SpEL integration bridge for security expressions.
+ * 
+ * &lt;p&gt;Exposes AppProperties under named bean for method-level security expressions.
+ * Enables conditional authorization using {@code @appProperties.demoReadonly} in
+ * {@code @PreAuthorize} annotations.&lt;/p&gt;
+ * 
+ * &lt;p&gt;&lt;strong&gt;Enterprise Pattern:&lt;/strong&gt; Bridges configuration properties into SpEL context
+ * for declarative security rules without coupling security logic to business logic.&lt;/p&gt;
  */
 @Configuration
-<span class="fc" id="L13">public class SecuritySpelBridgeConfig {</span>
+<span class="fc" id="L18">public class SecuritySpelBridgeConfig {</span>
 
+    /**
+     * Primary AppProperties bean with named alias for SpEL expressions.
+     * 
+     * &lt;p&gt;Creates {@code @Primary} bean accessible as both {@code AppProperties} type
+     * and {@code &quot;appProperties&quot;} name for method security SpEL integration.&lt;/p&gt;
+     */
     @Bean(&quot;appProperties&quot;)
     @Primary
     public AppProperties appPropertiesPrimary(AppProperties props) {
-<span class="fc" id="L18">        return props; // same managed instance, just an alias name</span>
+<span class="fc" id="L29">        return props; // same managed instance, just an alias name</span>
     }
 }
 
