@@ -40,40 +40,61 @@ import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.AnalyticsService;
 /**
-* Integration tests for the {@link com.smartsupplypro.inventory.controller.AnalyticsController}.
-* <p>
-* This test class validates the REST endpoints exposed by the analytics controller,
-* ensuring proper response structures, filtering logic, authentication handling,
-* and coverage for both ADMIN and USER roles.
-* <p>
-* Includes:
-* <ul>
-*   <li>Role-based access tests</li>
-*   <li>Default and custom filter usage</li>
-*   <li>Validation of HTTP status codes and JSON responses</li>
-*   <li>Authentication and authorization checks</li>
-* </ul>
-* <p>
-* This is critical for enterprise-level auditability, access control, and frontend dashboard consumption.
-*/
+ * Web Layer Tests - AnalyticsController Business Intelligence API Validation
+ * 
+ * BUSINESS SCOPE:
+ * - Analytics dashboard API contract validation for financial reporting
+ * - Business intelligence endpoint security and role-based access control  
+ * - Stock movement analytics and supplier performance metrics validation
+ * - Low stock alerts and inventory optimization features testing
+ * 
+ * TECHNICAL SCOPE:
+ * - MockMvc slice testing with mocked AnalyticsService for isolated web layer validation
+ * - Complex DTO response structure validation for dashboard consumption
+ * - Parameter filtering logic and date range validation testing
+ * - Authentication boundary testing with ADMIN vs USER role differentiation
+ * 
+ * ENTERPRISE PATTERNS:
+ * - Parameterized testing for role-based access validation across endpoints
+ * - JSON response structure validation for frontend dashboard integration
+ * - Business logic isolation through service layer mocking
+ * - Comprehensive security boundary testing for sensitive financial data
+ * 
+ * CROSS-REFERENCES:
+ * - Service layer logic: {@link com.smartsupplypro.inventory.service.impl.AnalyticsServiceImplTest}
+ * - Complex analytics: {@link com.smartsupplypro.inventory.service.impl.AnalyticsServiceImplWacTest}
+ * - Controller implementation: {@link AnalyticsController}
+ * - Security configuration: {@link com.smartsupplypro.inventory.config.TestSecurityConfig}
+ * 
+ * @author SmartSupplyPro Development Team
+ * @since 1.0.0
+ * @see AnalyticsController
+ * @see com.smartsupplypro.inventory.service.AnalyticsService
+ */
 @WebMvcTest(AnalyticsController.class)
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 public class AnalyticsControllerTest {
         
+        /** MockMvc for HTTP request simulation and analytics API contract validation */
         @Autowired
         private MockMvc mockMvc;
         
+        /** Mocked analytics service - isolates web layer testing from complex business calculations */
         @MockitoBean
         private AnalyticsService analyticsService;
         
+        /** Jackson ObjectMapper for JSON serialization in analytics response testing */
         @Autowired
         private ObjectMapper objectMapper;
         
         /**
-        * Verifies that the endpoint returns the correct stock totals per supplier
-        * for both ADMIN and USER roles.
-        * Ensures JSON array structure and correct mapping of supplier names.
-        */
+         * Validates stock aggregation per supplier endpoint for dashboard consumption.
+         * Given: ADMIN or USER role authentication
+         * When: GET /api/analytics/stock-per-supplier
+         * Then: Returns 200 with supplier stock totals array
+         * 
+         * // ENTERPRISE: Core dashboard metric - both roles need access for reporting
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturnStockPerSupplier(String role) throws Exception {
@@ -93,9 +114,13 @@ public class AnalyticsControllerTest {
         }
         
         /**
-        * Tests retrieval of low stock items with supplier ID provided.
-        * Ensures correct mapping and HTTP 200 response.
-        */
+         * Tests low stock items endpoint with supplier filtering.
+         * Given: Valid supplierId parameter and authenticated user
+         * When: GET /api/analytics/low-stock-items?supplierId=s1
+         * Then: Returns 200 with filtered low stock items
+         * 
+         * // ENTERPRISE: Critical for inventory management - prevents stockouts
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturnLowStockItems(String role) throws Exception {
@@ -109,8 +134,13 @@ public class AnalyticsControllerTest {
         }
         
         /**
-        * Tests that missing required query parameter (supplierId) results in HTTP 400.
-        */
+         * Validates required parameter validation for low stock endpoint.
+         * Given: Missing required supplierId parameter
+         * When: GET /api/analytics/low-stock-items (no params)
+         * Then: Returns 400 Bad Request
+         * 
+         * // ENTERPRISE: Parameter validation prevents meaningless queries
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturn400WhenSupplierIdMissingInLowStock(String role) throws Exception {
@@ -120,9 +150,13 @@ public class AnalyticsControllerTest {
         }
         
         /**
-        * Tests stock movement aggregation over a date range.
-        * Verifies correct date parsing and content returned.
-        */
+         * Tests monthly stock movement analytics with date range filtering.
+         * Given: Valid date range and supplier ID parameters
+         * When: GET /api/analytics/monthly-stock-movement with date params
+         * Then: Returns 200 with monthly aggregated movement data
+         * 
+         * // ENTERPRISE: Time-series analytics for inventory trend analysis
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturnMonthlyStockMovement(String role) throws Exception {
@@ -138,8 +172,13 @@ public class AnalyticsControllerTest {
         }
         
         /**
-        * Verifies frequency of item updates based on change history.
-        */
+         * Tests item update frequency analytics for tracking change patterns.
+         * Given: Valid supplierId parameter and authenticated user
+         * When: GET /api/analytics/item-update-frequency?supplierId=s1
+         * Then: Returns 200 with item update frequency metrics
+         * 
+         * // ENTERPRISE: Operational analytics for identifying high-maintenance items
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturnItemUpdateFrequency(String role) throws Exception {
@@ -153,8 +192,13 @@ public class AnalyticsControllerTest {
         }
         
         /**
-        * Ensures that missing supplierId results in HTTP 400 for update frequency endpoint.
-        */
+         * Validates parameter requirement for item update frequency endpoint.
+         * Given: Missing required supplierId parameter
+         * When: GET /api/analytics/item-update-frequency (no params)
+         * Then: Returns 400 Bad Request
+         * 
+         * // ENTERPRISE: Prevents expensive queries without proper filtering
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturn400WhenSupplierIdMissingInUpdateFrequency(String role) throws Exception {
@@ -164,8 +208,13 @@ public class AnalyticsControllerTest {
         }
         
         /**
-        * Tests filter-based stock update retrieval using POST body.
-        */
+         * Tests complex stock update filtering with POST request body.
+         * Given: Valid filter criteria in request body
+         * When: POST /api/analytics/stock-updates/query with filter DTO
+         * Then: Returns 200 with filtered stock update results
+         * 
+         * // ENTERPRISE: Advanced filtering for detailed audit trail analysis
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturnFilteredStockUpdatesViaPost(String role) throws Exception {
@@ -189,7 +238,12 @@ public class AnalyticsControllerTest {
         }
 
         /**
-         * Verifies that the stock value endpoint returns 200 OK and JSON content
+         * Tests stock value analytics endpoint with authenticated user (any role).
+         * Given: Any authenticated user with date range parameters
+         * When: GET /api/analytics/stock-value?start=2025-08-01&end=2025-08-31
+         * Then: Returns 200 with JSON stock value data
+         * 
+         * // ENTERPRISE: Financial reporting accessible to all authenticated users
          */
         @WithMockUser // no roles on purpose; should still be authenticated
         @Test
@@ -202,10 +256,13 @@ public class AnalyticsControllerTest {
         }
 
         /**
-        * Tests that filtered stock update results are returned correctly using GET parameters.
-        * Ensures that both ADMIN and USER roles receive valid data with proper filtering.
-        */
-        
+         * Tests filtered stock updates endpoint using GET parameters.
+         * Given: ADMIN or USER role with query parameters
+         * When: GET /api/analytics/stock-updates with filtering params
+         * Then: Returns 200 with filtered stock update results
+         * 
+         * // ENTERPRISE: Flexible querying for operational monitoring
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturnFilteredStockUpdatesViaGet(String role) throws Exception {
@@ -224,9 +281,13 @@ public class AnalyticsControllerTest {
                 .andExpect(jsonPath("$[0].itemName").value("ItemX"));
         }
         /**
-        * Verifies that default start date is used when missing in POST filter for stock updates.
-        * Confirms that analytics service still returns expected result.
-        */
+         * Tests default date handling when start date missing in POST filter.
+         * Given: Filter DTO with endDate but no startDate
+         * When: POST /api/analytics/stock-updates/query with partial filter
+         * Then: Returns 200 with service using default start date
+         * 
+         * // ENTERPRISE: Graceful handling of incomplete filter criteria
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldUseDefaultDateWhenMissingStartDateInPost(String role) throws Exception {
@@ -246,8 +307,13 @@ public class AnalyticsControllerTest {
                 .andExpect(jsonPath("$[0].itemName").value("ItemX"));
         }
         /**
-        * Ensures default start date is used when GET request for stock updates omits startDate parameter.
-        */
+         * Tests default date handling when start date missing in GET parameters.
+         * Given: GET request with endDate but no startDate parameter
+         * When: GET /api/analytics/stock-updates with partial params
+         * Then: Returns 200 with service using default start date
+         * 
+         * // ENTERPRISE: Consistent behavior across GET and POST filtering
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldUseDefaultDateWhenMissingStartDateInGet(String role) throws Exception {
@@ -264,8 +330,13 @@ public class AnalyticsControllerTest {
                 .andExpect(jsonPath("$[0].itemName").value("ItemX"));
         }
         /**
-        * Ensures default end date is used when POST request for stock updates omits endDate parameter.
-        */
+         * Tests default date handling when end date missing in POST filter.
+         * Given: Filter DTO with startDate but no endDate
+         * When: POST /api/analytics/stock-updates/query with partial filter
+         * Then: Returns 200 with service using default end date
+         * 
+         * // ENTERPRISE: Robust date range defaulting for user convenience
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldUseDefaultDateWhenMissingEndDateInPost(String role) throws Exception {
@@ -285,8 +356,13 @@ public class AnalyticsControllerTest {
                 .andExpect(jsonPath("$[0].itemName").value("ItemX"));
         }
         /**
-        * Validates that an empty result is returned when no filters are provided for stock updates via GET.
-        */
+         * Tests empty result handling when no filters provided via GET.
+         * Given: GET request with no filtering parameters
+         * When: GET /api/analytics/stock-updates (no query params)
+         * Then: Returns 200 with empty result set
+         * 
+         * // ENTERPRISE: Performance protection - prevents unfiltered large datasets
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturnEmptyWhenNoFiltersProvidedInGet(String role) throws Exception {
@@ -299,8 +375,13 @@ public class AnalyticsControllerTest {
                 .andExpect(content().json("[]"));
         }
         /**
-        * Tests that a bad request (400) is returned when an invalid startDate format is used.
-        */
+         * Tests date format validation for GET parameter parsing.
+         * Given: Invalid date format in startDate parameter
+         * When: GET /api/analytics/stock-updates?startDate=invalid-date
+         * Then: Returns 400 Bad Request
+         * 
+         * // ENTERPRISE: Input validation prevents malformed requests
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturn400WhenStartDateFormatInvalidInGet(String role) throws Exception {
@@ -310,16 +391,26 @@ public class AnalyticsControllerTest {
                 .andExpect(status().isBadRequest());
         }
         /**
-        * Verifies access control by ensuring a user with no roles receives a 403 Forbidden.
-        */
+         * Tests role-based access control enforcement.
+         * Given: User with no assigned roles
+         * When: GET /api/analytics/stock-per-supplier
+         * Then: Returns 403 Forbidden
+         * 
+         * // ENTERPRISE: Security boundary - analytics requires minimum USER role
+         */
         @Test
         void shouldReturn403WhenAccessingWithoutRoles() throws Exception {
                 mockMvc.perform(get("/api/analytics/stock-per-supplier"))
                 .andExpect(status().isForbidden());
         }
         /**
-        * Tests handling of empty POST body for stock updates. Should return empty list with status 200.
-        */
+         * Tests handling of empty POST request body for stock updates.
+         * Given: Authenticated user with empty JSON object
+         * When: POST /api/analytics/stock-updates/query with {}
+         * Then: Returns 200 with empty array
+         * 
+         * // ENTERPRISE: Graceful handling of minimal filter criteria
+         */
         @ParameterizedTest
         @ValueSource(strings = {"USER", "ADMIN"})
         void shouldReturnEmptyListWhenPostBodyMissing(String role) throws Exception {
@@ -331,17 +422,26 @@ public class AnalyticsControllerTest {
                 .andExpect(content().json("[]"));
         }
         /**
-        * Ensures a 401 Unauthorized is returned when accessing endpoint without authentication.
-        */
+         * Tests authentication requirement for analytics endpoints.
+         * Given: No authentication context
+         * When: GET /api/analytics/stock-per-supplier
+         * Then: Returns 401 Unauthorized
+         * 
+         * // ENTERPRISE: All analytics endpoints require authentication
+         */
         @Test
         void shouldReturn401WhenNoAuth() throws Exception {
                 mockMvc.perform(get("/api/analytics/stock-per-supplier"))
                 .andExpect(status().isUnauthorized());
         }
         /**
-        * Validates that the dashboard summary endpoint returns all four key analytics components
-        * for authorized roles using the provided supplierId.
-        */
+         * Tests comprehensive dashboard summary endpoint with all analytics components.
+         * Given: Valid supplierId parameter and authenticated user
+         * When: GET /api/analytics/summary?supplierId=supplier-1
+         * Then: Returns 200 with complete dashboard data structure
+         * 
+         * // ENTERPRISE: One-stop dashboard API for executive reporting
+         */
         @ParameterizedTest
         @ValueSource(strings = {"ADMIN", "USER"})
         void shouldReturnDashboardSummaryWithDefaults(String role) throws Exception {
@@ -366,18 +466,14 @@ public class AnalyticsControllerTest {
         }
         
         /**
-        * Verifies that the Financial Summary (WAC) endpoint responds with 200 OK and a well-formed payload
-        * when called with the required date parameters. This is a controller-level contract test that:
-        * <ul>
-        *   <li>passes ISO-8601 dates (<code>from</code>/<code>to</code>) as query params,</li>
-        *   <li>injects an authenticated user (ADMIN role),</li>
-        *   <li>stubs the service method to return a deterministic DTO, and</li>
-        *   <li>asserts key fields in the JSON response.</li>
-        * </ul>
-        *
-        * <p><strong>Why:</strong> ensures the endpoint mapping, parameter binding, security, and JSON shape
-        * remain stable for client UIs and API consumers.</p>
-        */
+         * Tests financial summary endpoint with WAC (Weighted Average Cost) calculation.
+         * Given: ADMIN role with valid date range parameters
+         * When: GET /api/analytics/financial/summary?from=2024-02-01&to=2024-02-28
+         * Then: Returns 200 with complete financial summary DTO
+         * 
+         * // ENTERPRISE: Critical financial reporting endpoint for cost accounting
+         * // WAC: Weighted Average Cost method for inventory valuation compliance
+         */
         @org.junit.jupiter.api.Test
         void financialSummary_returnsOk() throws Exception {
                 // Arrange
@@ -419,13 +515,13 @@ public class AnalyticsControllerTest {
         }
         
         /**
-        * Verifies that requests without authentication are rejected by the Financial Summary (WAC) endpoint.
-        *
-        * <p><strong>Why:</strong> ensures security filters remain in place for sensitive analytics endpoints.</p>
-        *
-        * <p><em>Note:</em> If your security config returns 403 instead of 401 for unauthenticated requests,
-        * adjust the expected status accordingly.</p>
-        */
+         * Tests authentication requirement for financial summary endpoint.
+         * Given: No authentication context
+         * When: GET /api/analytics/financial/summary with date params
+         * Then: Returns 401 Unauthorized
+         * 
+         * // ENTERPRISE: Financial data requires strict authentication
+         */
         @org.junit.jupiter.api.Test
         void financialSummary_unauthenticated_isUnauthorized() throws Exception {
                 mockMvc.perform(get("/api/analytics/financial/summary")
@@ -433,9 +529,13 @@ public class AnalyticsControllerTest {
                         .param("to", "2024-02-28"))
                 .andExpect(status().isUnauthorized()); // change to isForbidden() if your app returns 403
         }
-        /*
-         * Tests that the Financial Summary (WAC) endpoint returns a 400 Bad Request
-         * when the 'from' date is after the 'to' date.
+        /**
+         * Tests date range validation for financial summary endpoint.
+         * Given: Invalid date range where from > to
+         * When: GET /api/analytics/financial/summary?from=2024-03-01&to=2024-02-01
+         * Then: Returns 400 Bad Request via service exception
+         * 
+         * // ENTERPRISE: Business rule validation prevents invalid date ranges
          */
         @org.junit.jupiter.api.Test
         void financialSummary_fromAfterTo_returnsBadRequest() throws Exception {
