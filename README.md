@@ -93,17 +93,19 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ### API Endpoints (OpenAPI Specs)
 
-| Module                | OpenAPI Documentation |
-|-----------------------|------------------------|
-| 🔐 Auth (OAuth2 `/api/me`)         | [auth-api.yaml](https://keglev.github.io/inventory-service/api/openapi/paths/auth/auth-api.yaml) |
-| 📦 Inventory Items     | [inventory-*.yaml](https://keglev.github.io/inventory-service/api/openapi/paths/inventory/) |
-| 🚚 Suppliers           | [supplier-api.yaml](https://keglev.github.io/inventory-service/api/openapi/paths/suppliers/supplier-api.yaml) |
-| 🔁 Stock History       | [stock-history-api.yaml](https://keglev.github.io/inventory-service/api/openapi/paths/stock-history/stock-history-api.yaml) |
-| 📊 Analytics           | [analytics-*.yaml](https://keglev.github.io/inventory-service/api/openapi/paths/analytics/) |
-| ❤️ Health Check       | [health-check-api.yaml](https://keglev.github.io/inventory-service/api/openapi/paths/health/health-check-api.yaml) |
+**Complete API documentation with interactive exploration:**
 
-Browse all docs in one place:
-👉 [**Inventory API Index**](https://keglev.github.io/inventory-service/api/redoc/index.html)
+| Module                | Documentation |
+|-----------------------|----------------|
+| 🔐 **Authentication (OAuth2)**     | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Authentication) |
+| 📦 **Inventory Management**        | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Inventory-Items) |
+| 🚚 **Supplier Management**         | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Suppliers) |
+| 🔁 **Stock History Tracking**      | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Stock-History) |
+| 📊 **Analytics & Reports**         | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Analytics) |
+| ❤️ **Health Monitoring**          | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Health-Check) |
+
+**📋 Complete API Documentation Hub:**
+👉 [**Enterprise API Documentation**](https://keglev.github.io/inventory-service/api/redoc/index.html)
 
 ---
 
