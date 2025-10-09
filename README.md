@@ -1,25 +1,46 @@
 # SmartSupplyPro
 
+## About
+
 **Enterprise Inventory Management System - Java Spring Boot & React**
 
 *Complete enterprise-style full-stack application for Inventory & Supplier Management with comprehensive documentation, security architecture, and CI/CD integration.*
 
-This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, authentication, CI/CD, testing, and data visualizations.
+This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, OAuth2 authentication, automated CI/CD pipelines, comprehensive testing, and business intelligence visualizations.
 
-> ⚠️ Project still under development!  
-![CI](https://github.com/Keglev/inventory-service/actions/workflows/ci.yml/badge.svg)
+> ⚠️ **Still under construction** - Enterprise documentation is not yet complete  
+![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/ci-build.yml/badge.svg)  
+![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
 
-**📅 Last Updated:** October 8, 2025 - Enterprise Documentation Organization Complete  
+**📅 Last Updated:** October 9, 2025 - Controller Layer Testing Architecture Complete  
 **🏗️ Status:** 60,000+ words comprehensive documentation | Enterprise architecture | Working CI/CD pipeline
+
+## Screenshots
+
+*Screenshots will be placed here to showcase the application interface*
 
 ---
 
-## 🎯 **ENTERPRISE DOCUMENTATION ORGANIZATION COMPLETE**
+## 🎯 **PROJECT STATUS - STILL UNDER CONSTRUCTION**
 
-**✅ 60,000+ words comprehensive documentation**  
-**✅ Professional API documentation hub**  
-**✅ Complete architecture documentation**  
-**✅ Working CI/CD pipeline**
+**✅ Backend Development - Complete**
+- ✅ 60,000+ words comprehensive documentation
+- ✅ Professional API documentation with TypeDoc, OpenAPI, and Redoc
+- ✅ Complete backend architecture with enterprise patterns
+- ✅ Working CI/CD pipeline for backend
+- ✅ Controller layer testing architecture complete
+
+**🚧 Frontend Development - In Progress**
+- ✅ React + TypeScript + Material-UI foundation
+- ✅ CI/CD pipeline working and automatically deployed
+- 🚧 Dashboard UI development ongoing
+- 🚧 CRUD operations implementation needed
+- 🚧 Frontend testing documentation needed
+
+**📚 Documentation Status**
+- ✅ Backend testing documentation complete
+- 🚧 Frontend testing documentation needed
+- 🚧 Complete integration testing documentation needed
 
 ---
 
@@ -28,21 +49,27 @@ This project simulates a real-world software system for small-to-medium manufact
 ### 🎯 Core Modules
 - ✅ **Authentication** with Google OAuth2 via Spring Security
 - 📦 **Inventory Management** – CRUD items, quantity tracking, stock history
-- 🧾 **Supplier Management** – CRUD supplier data, filtering by name
+- 🧾 **Supplier Management** – CRUD supplier data, filtering by name  
 - 📊 **Analytics & Dashboard** – Visual insights including:
   - Stock value over time
   - Monthly stock movement
   - Update frequency per item
   - Low stock alerts
 
+### 🚧 Frontend Development Status
+- ✅ **React Dashboard Foundation** - Material-UI components and routing
+- ✅ **Authentication Integration** - OAuth2 login flow working
+- 🚧 **CRUD Operations** - Still developing frontend forms and data management
+- 🚧 **Dynamic Chart Filtering** - Analytics visualization enhancements needed
+
 ---
 
 ## 🛡️ Security
 
-- OAuth2 login with role-based access (`ADMIN`, `USER`)
-- All `/api/**` endpoints are secured
-- Fine-grained access using `@PreAuthorize`
-- Swagger is **not used** for runtime documentation to simplify security configuration
+- OAuth2 login with Google integration and role-based access (`ADMIN`, `USER`)
+- All `/api/**` endpoints are secured with Spring Security
+- Fine-grained access control using `@PreAuthorize` annotations
+- **Note**: Swagger is **not used** for security simplification - instead using TypeDoc, OpenAPI, and Redoc for API documentation
 
 ---
 
@@ -60,15 +87,14 @@ This project simulates a real-world software system for small-to-medium manufact
 
 **Comprehensive security documentation** with OAuth2 implementation and enterprise patterns:
 
+### 🏗️ Architecture Overview
+
+**Complete backend transformation** with enterprise-level documentation covering all layers:
+
 - **🔐 OAuth2 Security Architecture:** [docs/architecture/patterns/oauth2-security-architecture.md](./docs/architecture/patterns/oauth2-security-architecture.md) *(728+ lines)*
 - **🔒 Security Patterns:** [docs/architecture/patterns/security-patterns.md](./docs/architecture/patterns/security-patterns.md) *(280+ lines)*
 - **⚙️ Security Implementation:** [docs/architecture/patterns/security-implementation-patterns.md](./docs/architecture/patterns/security-implementation-patterns.md)
 - **🔄 Cross-Cutting Security:** [docs/architecture/patterns/security-cross-cutting-patterns.md](./docs/architecture/patterns/security-cross-cutting-patterns.md)
-
-### 🏗️ Backend Architecture
-
-**Complete backend transformation** with enterprise-level documentation covering all layers:
-
 - **📚 Backend Documentation Hub:** [docs/backend/README.md](./docs/backend/README.md)
 - **🔧 Service Layer Architecture:** [docs/architecture/services/README.md](./docs/architecture/services/README.md)
 - **🎨 Design Patterns:** [docs/architecture/patterns/](./docs/architecture/patterns/)
@@ -111,133 +137,138 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ## 🧪 Testing & Code Quality
 
-### Backend Test Coverage
-- **JUnit 5** with Mockito for unit tests
-- **Testcontainers** for integration tests
-- **JaCoCo** for code coverage analysis
+**🚧 Still under construction** - Backend testing complete, frontend testing documentation needed
+
+### 🧪 Backend Testing Architecture
+- **JUnit 5** with Mockito for comprehensive unit testing
+- **Testcontainers** for integration testing with Oracle database
+- **MockMvc** for controller layer testing with Spring Security integration
+- **JaCoCo** for code coverage analysis and reporting
 
 📊 **View Live Coverage Reports:**
 👉 [**Backend Test Coverage (JaCoCo)**](https://keglev.github.io/inventory-service/backend/coverage/index.html)
 
+📚 **Complete Testing Documentation:**
+👉 [**Testing Architecture Documentation**](./docs/architecture/testing/README.md) - Enterprise testing strategy and implementation guides
+
 > Coverage reports are automatically updated on every CI build and published via GitHub Pages.
 
-### Frontend Testing (Planned)
-- Vitest for unit tests
-- React Testing Library for component tests
-- Coverage reports coming soon
+### 🚧 Frontend Testing (Still under construction)
+- Vitest for unit testing framework
+- React Testing Library for component testing  
+- TypeDoc for documentation generation
+- Coverage reports and documentation coming soon
 
 ---
 
 ## 🧰 Tech Stack
 
 ### Backend
-- Java 17+, Spring Boot 3.5+
-- Spring Security (OAuth2 + Role-based Access)
-- Oracle Autonomous DB (Free Tier)
-- REST APIs documented via OpenAPI YAML
-- Docker, JUnit, Mockito
+- **Java 17+** with **Spring Boot 3.5+**
+- **Spring Security** (OAuth2 + Role-based Access Control)
+- **Oracle Autonomous Database** (Free Tier with wallet connectivity)
+- **REST APIs** documented via OpenAPI YAML specifications
+- **Docker** containerization with multi-stage builds
+- **JUnit 5** + **Mockito** + **Testcontainers** for comprehensive testing
 
-### Frontend (WIP)
-- React + TypeScript
-- Tailwind CSS, Axios, Chart.js
-- React Router, React Testing Library, Jest
+### Frontend
+- **React 19** + **TypeScript** for type-safe development
+- **Material-UI (MUI)** for enterprise-grade component library
+- **Vite** for fast development and optimized builds
+- **Axios** for HTTP client with React Query for state management
+- **React Router** for SPA navigation
+- **Vitest** + **React Testing Library** for testing
+- **TypeDoc** for documentation generation
 
-### DevOps
-- GitHub Actions (CI/CD)
-- Docker Compose
-- Vercel (Frontend) / Fly.io or Oracle Cloud (Backend)
+### DevOps & Infrastructure
+- **GitHub Actions** for automated CI/CD pipelines
+- **Docker Compose** for local development environment
+- **Fly.io** for backend deployment with Oracle DB connectivity
+- **Koyeb** for frontend deployment with automated builds
+- **JaCoCo** + **GitHub Pages** for live test coverage reporting
 
 ---
 
 ## 🌐 Environment Profiles
 
-- `application-dev.yml` — for local testing (auto-reload, detailed logs)
-- `application-prod.yml` — used in Docker + CI/CD
-- `application-test.yml` — used in unit + integration test containers
+- `application-dev.yml` — Local development (auto-reload, detailed logging)
+- `application-prod.yml` — Production deployment (Docker + CI/CD)  
+- `application-test.yml` — Testing environment (unit + integration tests with Testcontainers)
 
-Oracle Wallet authentication is used in all environments via environment variables for secure DB access.
+Oracle Wallet authentication is configured via environment variables for secure database access across all environments.
 
 ---
 
 ## ✅ CI/CD
 
-GitHub Actions automatically:
-- Builds and tests the backend using Maven
-- Runs unit + integration tests with Testcontainers
-- Builds Docker image and optionally pushes to DockerHub
+**🚧 Still under construction** - CI/CD is working, documentation updates needed
 
-> Frontend CI/CD is planned after backend is fully stabilized.
+### 🔄 Automated Pipelines
+GitHub Actions automatically handle:
 
----
-## 🔌 Oracle Wallet Connectivity Test
+**Backend CI/CD:**
+- ✅ Builds and tests Spring Boot application using Maven
+- ✅ Runs comprehensive test suite (unit + integration tests with Testcontainers)
+- ✅ Generates and publishes test coverage reports to GitHub Pages
+- ✅ Builds Docker image and pushes to DockerHub with security scanning
+- ✅ Automated deployment ready (manual trigger for Oracle IP restrictions)
 
-This project includes a standalone Java utility to manually test the Oracle Wallet connection **outside Spring Boot**. This is helpful for validating database access and credentials securely.
+**Frontend CI/CD:**
+- ✅ Builds and tests React application with Vitest
+- ✅ Automatically deploys to Koyeb on successful builds
+- ✅ Live deployment at: https://inventory-service.koyeb.app
+- ✅ Health checks and smoke tests included
 
-### Prerequisites
+## � Deployment
 
-1. Java and Oracle JDBC Driver in `/lib`
-2. Oracle Wallet files downloaded and placed locally
-3. `.env` file with the following keys:
-   ```env
-   ENABLE_WALLET_TEST=true
-   TNS_ADMIN=/path/to/wallet
-   ORACLE_WALLET_PASSWORD=your_wallet_password
-   DB_URL=jdbc:oracle:thin:@your-db
-   DB_USERNAME=your_user
-   DB_PASSWORD=your_password
+### CI/CD Pipeline Status
+**✅ CI/CD pipelines are working and operational**
 
-## 🏗️ Architecture Overview
-
-- Modular domain-driven design (separate DTO, validation, service, repository layers)
-- Full test coverage planned (unit, integration, and MockMvc)
-- Designed for microservices: decoupled backend, frontend, and deployment
-
----
-
-## 🚀 Deployment
-
-### CI/CD Pipeline
-- **Backend CI**: Automatic build, test, and Docker image push on backend file changes
-- **Frontend CI**: Automatic build, test, and deployment to Koyeb on frontend file changes
-- **Manual Production Deploy**: Due to Oracle free tier IP restrictions, backend deployment requires manual execution from local machine
-
-### Production Deployment Workflow
-
-1. **Push backend changes** → Triggers CI build → Docker image built and pushed
-2. **Manual deployment** from local machine (required for Oracle IP whitelist):
-   
+**Backend Deployment:**
+1. **Automated CI/CD**: Push to main → Triggers build, test, and Docker image creation
+2. **Manual Production Deploy**: Due to Oracle free tier IP restrictions, backend deployment uses manual trigger:
    ```bash
-   # Traditional approach - builds and deploys directly
    fly deploy
    ```
-   
-   This method:
-   - ✅ Builds image locally using your whitelisted IP
-   - ✅ No need to update Oracle IP whitelist frequently
-   - ✅ Same reliable process as before
-   - ✅ No dependency on external Docker images
+   This approach:
+   - ✅ Uses your whitelisted IP during local Docker build process
+   - ✅ Deploys via `fly.toml` configuration with `Dockerfile` and `start.sh` 
+   - ✅ No dependency on external Docker registry pulls
+   - ✅ Reliable deployment to: https://inventoryservice.fly.dev
 
-3. **Verify deployment**:
-   - Backend: https://inventoryservice.fly.dev
-   - Frontend: https://inventory-service.koyeb.app
+**Frontend Deployment:**
+- ✅ **Fully Automated**: Push to main → Auto-build and deploy to Koyeb
+- ✅ **Live Application**: https://inventory-service.koyeb.app
+- ✅ **Health Checks**: Automated smoke tests and health monitoring
 
-### Why This Approach Works Best
-- **Oracle free tier** requires IP whitelisting, but your IP changes frequently
-- **Local build** uses your current IP during Docker build process
-- **Fly.io deploys** the locally built image without needing external image pulls
-- **No daily IP updates** required in Oracle Cloud Console
+### Why This Deployment Strategy Works
+- **Oracle Free Tier**: Requires IP whitelisting for database connections
+- **Fixed IP Solution**: Using Fly.io VM provides stable IP address
+- **Local Build**: Ensures build process uses your whitelisted IP
+- **No Daily IP Updates**: Eliminates need to constantly update Oracle IP whitelist
 
-### Environment Variables
-- **Production**: Uses `application-prod.yml` profile
-- **Oracle Database**: Requires IP whitelisting, handled during local build
-- **Secrets**: Managed via GitHub Secrets and Fly.io secrets
+### Production Environment
+- **Backend**: Spring Boot with `application-prod.yml` profile
+- **Database**: Oracle Autonomous DB with wallet-based authentication
+- **Security**: OAuth2 with Google integration
+- **Monitoring**: Health check endpoints and application logging
 
 ---
 
-## 👀 Coming Next
-- Frontend React dashboard
-- Jenkins-based parallel CI pipeline (optional)
-- Dynamic chart filtering + analytics export
+## 👀 Coming Next - Still Under Construction
+
+### 🚧 Frontend Development
+- **Dashboard UI**: Still developing comprehensive frontend dashboard
+- **CRUD Operations**: Still need to implement complete CRUD operations in frontend
+- **Dynamic Chart Filtering**: Advanced analytics visualization features
+
+### 🚧 Infrastructure Enhancements
+- **Jenkins Parallel CI**: No parallel CI pipeline implementation yet
+- **Advanced Monitoring**: Enhanced logging and monitoring capabilities
+
+### 🚧 Documentation
+- **Frontend Testing**: Complete frontend testing documentation needed
+- **Integration Guides**: Cross-system integration documentation
 
 ---
 

@@ -198,6 +198,11 @@ void deleteInventoryItem_UserRole_ShouldReturnForbidden() {
 - **[Security Testing Patterns](security-testing.md)** - Authentication and authorization
 - **[TestContainers Setup](test-containers-setup.md)** - Oracle database test environment
 
+### **Comprehensive Architecture Documentation**
+- **[Controller Layer Architecture](layers/controller-layer-architecture.md)** - Complete controller testing ecosystem analysis
+- **[Spring Boot Test Integration](frameworks/spring-boot-integration.md)** - MockMvc, Security, and framework patterns
+- **[Enterprise Testing Patterns](strategies/enterprise-patterns.md)** - Business context and domain-driven testing
+
 ### **Coverage & Reports**
 - **[Live Coverage Report](../../backend/coverage/index.html)** - JaCoCo coverage analysis
 - **[Test Execution Reports](../testing/test-execution-reports/)** - Surefire/Failsafe reports
