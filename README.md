@@ -14,10 +14,24 @@ This project simulates a real-world software system for small-to-medium manufact
 ![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/ci-build.yml/badge.svg)  
 ![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
 
-**📅 Last Updated:** October 9, 2025 - Controller Layer Testing Architecture Complete  
+**📅 Last Updated:** October 10, 2025 - Controller Layer Testing Architecture Complete  
 **🏗️ Status:** 60,000+ words comprehensive documentation | Enterprise architecture | Working CI/CD pipeline
 
 ---
+
+## Table of contents
+
+1. [Still under construction](#project-status---still-under-construction)
+2. [Screenshots](#screenshots)
+3. [Project status](#project-status---still-under-construction)
+4. [Features](#features)
+5. [Security](#security)
+6. [Documentation](#documentation)
+7. [Testing & Code quality](#testing--code-quality)
+8. [Tech stack](#tech-stack)
+9. [Environment profiles (Ci/CD)](#environment-profiles)
+10. [Available Scripts](#available-scripts)
+11. [Coming next](#coming-next)
 
 ## Screenshots
 
@@ -62,11 +76,6 @@ This project simulates a real-world software system for small-to-medium manufact
   - Update frequency per item
   - Low stock alerts
 
-### 🚧 Frontend Development Status
-- ✅ **React Dashboard Foundation** - Material-UI components and routing
-- ✅ **Authentication Integration** - OAuth2 login flow working
-- 🚧 **CRUD Operations** - Still developing frontend forms and data management
-- 🚧 **Dynamic Chart Filtering** - Analytics visualization enhancements needed
 
 ---
 
@@ -81,30 +90,23 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ## 📘 Documentation
 
+
 ### 🚀 API Documentation Hub
 
-**Enterprise-grade API documentation** with comprehensive guides, security architecture, and integration resources:
-
-- **🌐 Complete API Documentation:** https://keglev.github.io/inventory-service/api/redoc/index.html
-- **📖 Interactive API Reference:** https://keglev.github.io/inventory-service/api/redoc/api.html
-- **📋 API Documentation Hub:** [docs/api/README.md](./docs/api/README.md)
-
-### 🛡️ Security & Architecture
-
-**Comprehensive security documentation** with OAuth2 implementation and enterprise patterns:
+. [Complete API Documentation (ReDoc)](https://keglev.github.io/inventory-service/api/redoc/index.html) — interactive API landing page
+. [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html) — direct ReDoc explorer
+. [./docs/api/README.md](./docs/api/README.md) — API index and quick reference
 
 ### 🏗️ Architecture Overview
 
-**Complete backend transformation** with enterprise-level documentation covering all layers:
+. [Backend Documentation Hub](./docs/backend/README.md) — architecture landing with service catalog
+. [Service Layer Overview](./docs/architecture/services/README.md) — service responsibilities and patterns
+. [Design Patterns & Security](./docs/architecture/patterns/) — architecture patterns, security, and implementation
+. Key documents:
+  - [OAuth2 Security Architecture](./docs/architecture/patterns/oauth2-security-architecture.md)
+  - [Security Patterns](./docs/architecture/patterns/security-patterns.md)
+  - [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md)
 
-- **🔐 OAuth2 Security Architecture:** [docs/architecture/patterns/oauth2-security-architecture.md](./docs/architecture/patterns/oauth2-security-architecture.md) *(728+ lines)*
-- **🔒 Security Patterns:** [docs/architecture/patterns/security-patterns.md](./docs/architecture/patterns/security-patterns.md) *(280+ lines)*
-- **⚙️ Security Implementation:** [docs/architecture/patterns/security-implementation-patterns.md](./docs/architecture/patterns/security-implementation-patterns.md)
-- **🔄 Cross-Cutting Security:** [docs/architecture/patterns/security-cross-cutting-patterns.md](./docs/architecture/patterns/security-cross-cutting-patterns.md)
-- **📚 Backend Documentation Hub:** [docs/backend/README.md](./docs/backend/README.md)
-- **🔧 Service Layer Architecture:** [docs/architecture/services/README.md](./docs/architecture/services/README.md)
-- **🎨 Design Patterns:** [docs/architecture/patterns/](./docs/architecture/patterns/)
-- **📊 Test Coverage Reports:** [docs/backend/coverage/](./docs/backend/coverage/)
 
 ### 📡 API Integration Guides
 
@@ -135,9 +137,6 @@ This project simulates a real-world software system for small-to-medium manufact
 | 🔁 **Stock History Tracking**      | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Stock-History) |
 | 📊 **Analytics & Reports**         | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Analytics) |
 | ❤️ **Health Monitoring**          | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Health-Check) |
-
-**📋 Complete API Documentation Hub:**
-👉 [**Enterprise API Documentation**](https://keglev.github.io/inventory-service/api/redoc/index.html)
 
 ---
 
@@ -281,16 +280,16 @@ GitHub Actions automatically handle:
 📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
 
 this following part is only for fetching purposes
-## Technologies 
 
-- *Java 17+ with Spring Boot 3.5+
-- *Spring Security (OAuth2) 
-- *Oracle Autonomous Database 
-- *REST APIs
-- *Docker 
-- *JUnit 5 + Mockito 
-- *React + TypeScript
-- *Material-UI (MUI) 
-- *Vite
-- *React Router
-- *TypeDoc
+## Technologies
+
+. Java 17+ with Spring Boot 3.5+
+. Spring Security (OAuth2)
+. Oracle Autonomous Database
+. REST APIs (OpenAPI)
+. Docker (multi-stage builds)
+. JUnit 5 + Mockito + Testcontainers
+. React 19 + TypeScript
+. Material-UI (MUI)
+. Vite, React Router, TypeDoc
+. GitHub Actions, Fly.io, Koyeb
