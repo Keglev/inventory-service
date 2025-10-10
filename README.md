@@ -1,23 +1,29 @@
 # SmartSupplyPro
 
-## About
-
 **Enterprise Inventory Management System - Java Spring Boot & React**
+
+## About
 
 *Complete enterprise-style full-stack application for Inventory & Supplier Management with comprehensive documentation, security architecture, and CI/CD integration.*
 
+**Description**
 This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, OAuth2 authentication, automated CI/CD pipelines, comprehensive testing, and business intelligence visualizations.
 
 > ⚠️ **Still under construction** - Enterprise documentation is not yet complete  
+
 ![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/ci-build.yml/badge.svg)  
 ![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
 
 **📅 Last Updated:** October 9, 2025 - Controller Layer Testing Architecture Complete  
 **🏗️ Status:** 60,000+ words comprehensive documentation | Enterprise architecture | Working CI/CD pipeline
 
+---
+
 ## Screenshots
 
-*Screenshots will be placed here to showcase the application interface*
+<img src="./frontend/src/assets/project-image.png" alt="Analytics Dashboard" width="600" height="300"/>
+
+<img src="./frontend/src/assets/barchart.png" alt="Analytics Dashboard" width="600" height="300"/>
 
 ---
 
@@ -161,7 +167,7 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
-## 🧰 Tech Stack
+## Techchnologies 🧰
 
 ### Backend
 - **Java 17+** with **Spring Boot 3.5+**
