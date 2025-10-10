@@ -4,9 +4,9 @@
 
 ## About
 
-*Complete enterprise-style full-stack application for Inventory & Supplier Management with comprehensive documentation, security architecture, and CI/CD integration.*
+Complete enterprise-style full-stack application for Inventory & Supplier Management with comprehensive documentation, security architecture, and CI/CD integration.*
 
-**Description**
+## Description
 This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, OAuth2 authentication, automated CI/CD pipelines, comprehensive testing, and business intelligence visualizations.
 
 > ⚠️ **Still under construction** - Enterprise documentation is not yet complete  
@@ -167,7 +167,7 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
-## Techchnologies 🧰
+## 🧰 Tech Stack 
 
 ### Backend
 - **Java 17+** with **Spring Boot 3.5+**
@@ -280,3 +280,17 @@ GitHub Actions automatically handle:
 
 📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
 
+this following part is only for fetching purposes
+## Technologies 
+
+- *Java 17+ with Spring Boot 3.5+
+- *Spring Security (OAuth2) 
+- *Oracle Autonomous Database 
+- *REST APIs
+- *Docker 
+- *JUnit 5 + Mockito 
+- *React + TypeScript
+- *Material-UI (MUI) 
+- *Vite
+- *React Router
+- *TypeDoc
