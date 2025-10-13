@@ -210,17 +210,27 @@ jobs:
             echo "📝 Coverage reports changed, committing..."
             git commit -m "docs: update backend test coverage reports [skip ci]"
 
-            # Ensure the branch is up-to-date to avoid push rejections
-            refName=${GITHUB_REF#refs/heads/}
-            echo "Detected target branch: $refName"
-            git fetch origin $refName
+            # Determine push target. For pull_request events the GITHUB_REF is
+            # the special hidden merge ref (refs/pull/<id>/merge) which cannot
+            # be updated. In that case push to the PR head branch instead
+            # (available in GITHUB_HEAD_REF). For normal push events use the
+            # branch name derived from GITHUB_REF.
+            if [ -n "${GITHUB_HEAD_REF:-}" ]; then
+              targetBranch="$GITHUB_HEAD_REF"
+              echo "Detected PR head branch: $targetBranch"
+            else
+              targetBranch=${GITHUB_REF#refs/heads/}
+              echo "Detected target branch: $targetBranch"
+            fi
 
-            echo "Attempting to rebase local changes onto origin/$refName"
-            if git pull --rebase origin "$refName"; then
-              echo "✅ Rebase onto origin/$refName successful"
-              # Push using GITHUB_TOKEN
-              git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
-              echo "✅ Coverage reports pushed successfully"
+            # Fetch the target branch and rebase to avoid push rejections
+            git fetch origin "$targetBranch"
+            echo "Attempting to rebase local changes onto origin/$targetBranch"
+            if git pull --rebase origin "$targetBranch"; then
+              echo "✅ Rebase onto origin/$targetBranch successful"
+              # Push using GITHUB_TOKEN to the branch ref on origin
+              git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:refs/heads/$targetBranch
+              echo "✅ Coverage reports pushed successfully to refs/heads/$targetBranch"
             else
               echo "⚠️ Could not rebase coverage commit on top of remote branch. Aborting push to avoid conflicts."
               # Abort any partial rebase state and leave artifacts for manual inspection
