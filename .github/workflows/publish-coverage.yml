@@ -35,245 +35,143 @@ jobs:
 
           echo "Looking up artifact '${artifact_name}' for workflow run"
           echo "workflow_run.id: ${{ github.event.workflow_run.id }}"
-          echo "workflow_run.run_id: ${{ github.event.workflow_run.run_id }}"
+          name: Publish JaCoCo Coverage
 
-          # Candidate run ids - try the run_id first (common), then id as a fallback
-          candidates=("${{ github.event.workflow_run.run_id }}" "${{ github.event.workflow_run.id }}")
-          artifact_id=""
+          on:
+            workflow_run:
+              workflows: ["Inventory Service CI/CD - CI Build & Test & Docker Build"]
+              types:
+                - completed
 
-          for runid in "${candidates[@]}"; do
-            if [ -z "$runid" ] || [ "$runid" = "null" ]; then
-              continue
-            fi
-            echo "Checking artifacts for run id: $runid"
-            resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/runs/${runid}/artifacts") || true
-            echo "Artifacts response for run $runid:"
-            echo "$resp" | jq -r '.artifacts | length as $n | "count=" + ($n|tostring)'
-            # Try to extract the artifact id for the named artifact
-            aid=$(echo "$resp" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME) | .id' 2>/dev/null || true)
-            if [ -n "$aid" ] && [ "$aid" != "null" ]; then
-              artifact_id="$aid"
-              echo "Found artifact '$artifact_name' (id=$artifact_id) in run $runid"
-              break
-            else
-              echo "Artifact '$artifact_name' not found in run $runid"
-            fi
-          done
+          concurrency:
+            group: publish-coverage-${{ github.run_id }}
+            cancel-in-progress: false
 
-          if [ -z "$artifact_id" ]; then
-            echo "::warning::Could not find artifact '$artifact_name' for any candidate run id. Attempting fallback: search recent successful CI workflow runs on main..."
+          jobs:
+            publish:
+              if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+              runs-on: ubuntu-latest
+              permissions:
+                contents: write
 
-            # Fallback: look up recent successful runs from the CI workflow and try to find the artifact there
-            resp_runs=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/workflows/ci-build.yml/runs?branch=main&status=success&per_page=10") || true
-            run_count=$(echo "$resp_runs" | jq -r '.workflow_runs | length')
-            echo "Found $run_count successful runs to inspect"
+              steps:
+                - name: Diagnostic - show workflow_run context
+                  run: |
+                    echo "workflow_run id: ${{ github.event.workflow_run.id }}"
+                    echo "workflow_run run_id: ${{ github.event.workflow_run.run_id }}"
+                    echo "workflow_run head_branch: ${{ github.event.workflow_run.head_branch }}"
 
-            for i in $(seq 0 $((run_count - 1))); do
-              runid=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].id")
-              run_number=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].run_number")
-              created_at=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].created_at")
-              echo "Checking run #$run_number (id=$runid) created at $created_at"
-              resp2=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/runs/${runid}/artifacts") || true
-              aid=$(echo "$resp2" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME and .expired == false) | .id' 2>/dev/null || true)
-              if [ -n "$aid" ] && [ "$aid" != "null" ]; then
-                artifact_id="$aid"
-                echo "Found artifact '$artifact_name' (id=$artifact_id) in fallback run $runid"
-                break
-              else
-                echo "No non-expired '$artifact_name' in run $runid"
-              fi
-            done
+                - name: Find and download coverage artifact (robust)
+                  env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  run: |
+                    set -euo pipefail
 
-            if [ -z "$artifact_id" ]; then
-              echo "::warning::Fallback search did not find a usable artifact. Listing recent repository-level artifacts for manual inspection..."
-              curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/artifacts" | jq -r '.artifacts[] | {name: .name, id: .id, expired: .expired, size_in_bytes: .size_in_bytes}' || true
-              exit 0
-            fi
-          fi
+                    owner_repo="${{ github.repository }}"
+                    artifact_name="jacoco-coverage"
 
-          # Download the artifact as a zip and unpack to coverage_tmp/
-          echo "Downloading artifact id: $artifact_id"
-          mkdir -p coverage_tmp
-          zip_url="https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}/zip"
-          curl -sL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "$zip_url" -o /tmp/artifact.zip
-          echo "Downloaded /tmp/artifact.zip (size: $(stat -c%s /tmp/artifact.zip) bytes)"
-          unzip -q /tmp/artifact.zip -d coverage_tmp || true
-          echo "Unpacked coverage_tmp/ contents:" && ls -la coverage_tmp | head -50 || true
+                    echo "Looking up artifact '${artifact_name}' for workflow run"
+                    echo "workflow_run.id: ${{ github.event.workflow_run.id }}"
+                    echo "workflow_run.run_id: ${{ github.event.workflow_run.run_id }}"
 
-      - name: Checkout repository (main)
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: main
+                    # Candidate run ids - try the run_id first (common), then id as a fallback
+                    candidates=("${{ github.event.workflow_run.run_id }}" "${{ github.event.workflow_run.id }}")
+                    artifact_id=""
 
-      - name: Prepare git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+                    for runid in "${candidates[@]}"; do
+                      if [ -z "$runid" ] || [ "$runid" = "null" ]; then
+                        continue
+                      fi
+                      echo "Checking artifacts for run id: $runid"
+                      resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/runs/${runid}/artifacts") || true
+                      echo "Artifacts response for run $runid:"
+                      echo "$resp" | jq -r '.artifacts | length as $n | "count=" + ($n|tostring)'
+                      # Try to extract the artifact id for the named artifact
+                      aid=$(echo "$resp" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME) | .id' 2>/dev/null || true)
+                      if [ -n "$aid" ] && [ "$aid" != "null" ]; then
+                        artifact_id="$aid"
+                        echo "Found artifact '$artifact_name' (id=$artifact_id) in run $runid"
+                        break
+                      else
+                        echo "Artifact '$artifact_name' not found in run $runid"
+                      fi
+                    done
 
-      - name: Copy coverage into main
-        run: |
-          set -euo pipefail
-          if [ -d coverage_tmp ] && [ "$(ls -A coverage_tmp | wc -l)" -gt 0 ]; then
-            mkdir -p docs/backend/coverage
-            rm -rf docs/backend/coverage/* || true
-            cp -r coverage_tmp/* docs/backend/coverage/ || true
-            git add docs/backend/coverage/
-          else
-            echo "::warning::No coverage artifact found; skipping commit."
-            exit 0
-          fi
+                    if [ -z "$artifact_id" ]; then
+                      echo "::warning::Could not find artifact '$artifact_name' for any candidate run id. Attempting fallback: search recent successful CI workflow runs on main..."
 
-      - name: Commit and push coverage to main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          if git diff --cached --quiet; then
-            echo "✅ No coverage changes to commit."
-          else
-            git commit -m "chore(coverage): update JaCoCo site [skip ci]" || true
-            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:refs/heads/main
-            echo "✅ Coverage pushed to main"
-          fi
-name: Publish JaCoCo Coverage
-name: Publish JaCoCo Coverage
-on:
-on:
-  workflow_run:
-    workflows: ["Inventory Service CI/CD - CI Build & Test & Docker Build"]
-    types:
-      - completed
+                      # Fallback: look up recent successful runs from the CI workflow and try to find the artifact there
+                      resp_runs=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/workflows/ci-build.yml/runs?branch=main&status=success&per_page=10") || true
+                      run_count=$(echo "$resp_runs" | jq -r '.workflow_runs | length')
+                      echo "Found $run_count successful runs to inspect"
 
-concurrency:
-  group: publish-coverage-${{ github.run_id }}
-  cancel-in-progress: false
+                      for i in $(seq 0 $((run_count - 1))); do
+                        runid=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].id")
+                        run_number=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].run_number")
+                        created_at=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].created_at")
+                        echo "Checking run #$run_number (id=$runid) created at $created_at"
+                        resp2=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/runs/${runid}/artifacts") || true
+                        aid=$(echo "$resp2" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME and .expired == false) | .id' 2>/dev/null || true)
+                        if [ -n "$aid" ] && [ "$aid" != "null" ]; then
+                          artifact_id="$aid"
+                          echo "Found artifact '$artifact_name' (id=$artifact_id) in fallback run $runid"
+                          break
+                        else
+                          echo "No non-expired '$artifact_name' in run $runid"
+                        fi
+                      done
 
-jobs:
-  publish:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+                      if [ -z "$artifact_id" ]; then
+                        echo "::warning::Fallback search did not find a usable artifact. Listing recent repository-level artifacts for manual inspection..."
+                        curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/artifacts" | jq -r '.artifacts[] | {name: .name, id: .id, expired: .expired, size_in_bytes: .size_in_bytes}' || true
+                        exit 0
+                      fi
+                    fi
 
-    steps:
-      - name: Diagnostic - show workflow_run context
-        run: |
-          echo "workflow_run id: ${{ github.event.workflow_run.id }}"
-          echo "workflow_run run_id: ${{ github.event.workflow_run.run_id }}"
-          echo "workflow_run head_branch: ${{ github.event.workflow_run.head_branch }}"
+                    # Download the artifact as a zip and unpack to coverage_tmp/
+                    echo "Downloading artifact id: $artifact_id"
+                    mkdir -p coverage_tmp
+                    zip_url="https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}/zip"
+                    curl -sL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "$zip_url" -o /tmp/artifact.zip
+                    echo "Downloaded /tmp/artifact.zip (size: $(stat -c%s /tmp/artifact.zip) bytes)"
+                    unzip -q /tmp/artifact.zip -d coverage_tmp || true
+                    echo "Unpacked coverage_tmp/ contents:" && ls -la coverage_tmp | head -50 || true
 
-      - name: Find and download coverage artifact (robust)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
+                - name: Checkout repository (main)
+                  uses: actions/checkout@v4
+                  with:
+                    token: ${{ secrets.GITHUB_TOKEN }}
+                    fetch-depth: 0
+                    ref: main
 
-          owner_repo="${{ github.repository }}"
-          artifact_name="jacoco-coverage"
+                - name: Prepare git
+                  run: |
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          echo "Looking up artifact '${artifact_name}' for workflow run"
+                - name: Copy coverage into main
+                  run: |
+                    set -euo pipefail
+                    if [ -d coverage_tmp ] && [ "$(ls -A coverage_tmp | wc -l)" -gt 0 ]; then
+                      mkdir -p docs/backend/coverage
+                      rm -rf docs/backend/coverage/* || true
+                      cp -r coverage_tmp/* docs/backend/coverage/ || true
+                      git add docs/backend/coverage/
+                    else
+                      echo "::warning::No coverage artifact found; skipping commit."
+                      exit 0
+                    fi
+
+                - name: Commit and push coverage to main
+                  env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  run: |
+                    set -euo pipefail
+                    if git diff --cached --quiet; then
+                      echo "✅ No coverage changes to commit."
+                    else
+                      git commit -m "chore(coverage): update JaCoCo site [skip ci]" || true
+                      git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:refs/heads/main
+                      echo "✅ Coverage pushed to main"
+                    fi
           echo "workflow_run.id: ${{ github.event.workflow_run.id }}"
-          echo "workflow_run.run_id: ${{ github.event.workflow_run.run_id }}"
-
-          # Candidate run ids - try the run_id first (common), then id as a fallback
-          candidates=("${{ github.event.workflow_run.run_id }}" "${{ github.event.workflow_run.id }}")
-          artifact_id=""
-
-          for runid in "${candidates[@]}"; do
-            if [ -z "$runid" ] || [ "$runid" = "null" ]; then
-              continue
-            fi
-            echo "Checking artifacts for run id: $runid"
-            resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/runs/${runid}/artifacts") || true
-            echo "Artifacts response for run $runid:"
-            echo "$resp" | jq -r '.artifacts | length as $n | "count=" + ($n|tostring)'
-            # Try to extract the artifact id for the named artifact
-            aid=$(echo "$resp" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME) | .id' 2>/dev/null || true)
-            if [ -n "$aid" ] && [ "$aid" != "null" ]; then
-              artifact_id="$aid"
-              echo "Found artifact '$artifact_name' (id=$artifact_id) in run $runid"
-              break
-            else
-              echo "Artifact '$artifact_name' not found in run $runid"
-            fi
-          done
-
-          if [ -z "$artifact_id" ]; then
-            echo "::warning::Could not find artifact '$artifact_name' for any candidate run id. Attempting fallback: search recent successful CI workflow runs on main..."
-
-            # Fallback: look up recent successful runs from the CI workflow and try to find the artifact there
-            resp_runs=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/workflows/ci-build.yml/runs?branch=main&status=success&per_page=10") || true
-            run_count=$(echo "$resp_runs" | jq -r '.workflow_runs | length')
-            echo "Found $run_count successful runs to inspect"
-
-            for i in $(seq 0 $((run_count - 1))); do
-              runid=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].id")
-              run_number=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].run_number")
-              created_at=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].created_at")
-              echo "Checking run #$run_number (id=$runid) created at $created_at"
-              resp2=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/runs/${runid}/artifacts") || true
-              aid=$(echo "$resp2" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME and .expired == false) | .id' 2>/dev/null || true)
-              if [ -n "$aid" ] && [ "$aid" != "null" ]; then
-                artifact_id="$aid"
-                echo "Found artifact '$artifact_name' (id=$artifact_id) in fallback run $runid"
-                break
-              else
-                echo "No non-expired '$artifact_name' in run $runid"
-              fi
-            done
-
-            if [ -z "$artifact_id" ]; then
-              echo "::warning::Fallback search did not find a usable artifact. Listing recent repository-level artifacts for manual inspection..."
-              curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/artifacts" | jq -r '.artifacts[] | {name: .name, id: .id, expired: .expired, size_in_bytes: .size_in_bytes}' || true
-              exit 0
-            fi
-          fi
-
-          # Download the artifact as a zip and unpack to coverage_tmp/
-          echo "Downloading artifact id: $artifact_id"
-          mkdir -p coverage_tmp
-          zip_url="https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}/zip"
-          curl -sL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "$zip_url" -o /tmp/artifact.zip
-          echo "Downloaded /tmp/artifact.zip (size: $(stat -c%s /tmp/artifact.zip) bytes)"
-          unzip -q /tmp/artifact.zip -d coverage_tmp || true
-          echo "Unpacked coverage_tmp/ contents:" && ls -la coverage_tmp | head -50 || true
-
-      - name: Checkout repository (main)
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: main
-
-      - name: Prepare git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Copy coverage into main
-        run: |
-          set -euo pipefail
-          if [ -d coverage_tmp ] && [ "$(ls -A coverage_tmp | wc -l)" -gt 0 ]; then
-            mkdir -p docs/backend/coverage
-            rm -rf docs/backend/coverage/* || true
-            cp -r coverage_tmp/* docs/backend/coverage/ || true
-            git add docs/backend/coverage/
-          else
-            echo "::warning::No coverage artifact found; skipping commit."
-            exit 0
-          fi
-
-      - name: Commit and push coverage to main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          if git diff --cached --quiet; then
-            echo "✅ No coverage changes to commit."
-          else
-            git commit -m "chore(coverage): update JaCoCo site [skip ci]" || true
-            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:refs/heads/main
-            echo "✅ Coverage pushed to main"
-          fi
