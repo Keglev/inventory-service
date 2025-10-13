@@ -209,10 +209,24 @@ jobs:
           else
             echo "📝 Coverage reports changed, committing..."
             git commit -m "docs: update backend test coverage reports [skip ci]"
-            
-            # Push using GITHUB_TOKEN
-            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
-            echo "✅ Coverage reports pushed successfully"
+
+            # Ensure the branch is up-to-date to avoid push rejections
+            refName=${GITHUB_REF#refs/heads/}
+            echo "Detected target branch: $refName"
+            git fetch origin $refName
+
+            echo "Attempting to rebase local changes onto origin/$refName"
+            if git pull --rebase origin "$refName"; then
+              echo "✅ Rebase onto origin/$refName successful"
+              # Push using GITHUB_TOKEN
+              git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+              echo "✅ Coverage reports pushed successfully"
+            else
+              echo "⚠️ Could not rebase coverage commit on top of remote branch. Aborting push to avoid conflicts."
+              # Abort any partial rebase state and leave artifacts for manual inspection
+              git rebase --abort || true
+              echo "::warning::Coverage commit was not pushed because the remote branch advanced; please re-run workflow or merge manually."
+            fi
           fi
 
       # ---------------------------------------------------------------------
