@@ -144,7 +144,6 @@ Service Documentation:
 . [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html) — direct ReDoc explorer
 . [./docs/api/README.md](./docs/api/README.md) — API index and quick reference
 
-
 <a id="api-endpoints"></a>
 ### API Endpoints (OpenAPI Specs)
 
