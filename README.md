@@ -339,3 +339,5 @@ this following part is only for fetching purposes
 . CI/CD pipeline 
 . GitHub Actions
 . JaCoCo
+c i   t e s t   t r i g g e r    
+ 
