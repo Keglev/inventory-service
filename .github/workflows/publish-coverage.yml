@@ -41,6 +41,7 @@ jobs:
 
           candidates=("${{ github.event.workflow_run.run_id }}" "${{ github.event.workflow_run.id }}")
           artifact_id=""
+          artifact_url=""
 
           for runid in "${candidates[@]}"; do
             if [ -z "$runid" ] || [ "$runid" = "null" ]; then
@@ -48,9 +49,14 @@ jobs:
             fi
             resp=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/runs/${runid}/artifacts") || true
             aid=$(echo "$resp" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME) | .id' 2>/dev/null || true)
+            aid_url=$(echo "$resp" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME) | .archive_download_url' 2>/dev/null || true)
             if [ -n "$aid" ] && [ "$aid" != "null" ]; then
               artifact_id="$aid"
+              artifact_url="$aid_url"
               echo "Found artifact '$artifact_name' (id=$artifact_id) in run $runid"
+              if [ -n "$artifact_url" ] && [ "$artifact_url" != "null" ]; then
+                echo "Using artifact archive_download_url: $artifact_url"
+              fi
               break
             fi
           done
@@ -62,9 +68,14 @@ jobs:
               runid=$(echo "$resp_runs" | jq -r ".workflow_runs[$i].id")
               resp2=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/runs/${runid}/artifacts") || true
               aid=$(echo "$resp2" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME and .expired == false) | .id' 2>/dev/null || true)
+              aid_url=$(echo "$resp2" | jq -r --arg NAME "$artifact_name" '.artifacts[] | select(.name == $NAME and .expired == false) | .archive_download_url' 2>/dev/null || true)
               if [ -n "$aid" ] && [ "$aid" != "null" ]; then
                 artifact_id="$aid"
+                artifact_url="$aid_url"
                 echo "Found artifact '$artifact_name' (id=$artifact_id) in fallback run $runid"
+                if [ -n "$artifact_url" ] && [ "$artifact_url" != "null" ]; then
+                  echo "Using artifact archive_download_url: $artifact_url"
+                fi
                 break
               fi
             done
@@ -76,7 +87,11 @@ jobs:
           fi
 
           mkdir -p coverage_tmp
-          zip_url="https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}/zip"
+          if [ -n "$artifact_url" ] && [ "$artifact_url" != "null" ]; then
+            zip_url="$artifact_url"
+          else
+            zip_url="https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}/zip"
+          fi
           echo "Downloading artifact zip from: $zip_url"
           # Save headers and body separately for diagnostics
           curl -sL -D /tmp/artifact_headers -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "$zip_url" -o /tmp/artifact.zip || true
