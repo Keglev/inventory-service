@@ -194,6 +194,13 @@ jobs:
             echo "⚠️ No JaCoCo reports found in $BACKEND_DIR/target/site/jacoco"
           fi
 
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage
+          path: docs/backend/coverage/
+
       - name: Commit coverage reports
         run: |
           set -e

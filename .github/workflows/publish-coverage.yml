@@ -1,0 +1,63 @@
+name: Publish JaCoCo Coverage
+
+on:
+  workflow_run:
+    workflows: ["Inventory Service CI/CD - CI Build & Test & Docker Build"]
+    types:
+      - completed
+
+concurrency:
+  group: publish-coverage-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-coverage
+          path: coverage_tmp/
+
+      - name: Checkout repository (main)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          ref: main
+
+      - name: Prepare git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Copy coverage into main
+        run: |
+          set -euo pipefail
+          if [ -d coverage_tmp ] && [ "$(ls -A coverage_tmp | wc -l)" -gt 0 ]; then
+            mkdir -p docs/backend/coverage
+            rm -rf docs/backend/coverage/* || true
+            cp -r coverage_tmp/* docs/backend/coverage/ || true
+            git add docs/backend/coverage/
+          else
+            echo "::warning::No coverage artifact found; skipping commit."
+            exit 0
+          fi
+
+      - name: Commit and push coverage to main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if git diff --cached --quiet; then
+            echo "✅ No coverage changes to commit."
+          else
+            git commit -m "chore(coverage): update JaCoCo site [skip ci]" || true
+            git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:refs/heads/main
+            echo "✅ Coverage pushed to main"
+          fi
