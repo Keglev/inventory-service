@@ -137,7 +137,6 @@ Service Documentation:
 - . [StockHistoryService](./docs/architecture/services/stock-history-service.md) — Append-only audit log (🟢 LOW complexity)
 - . [OAuth2 Services](./docs/architecture/services/oauth2-services.md) — Authentication integration (🟡 MEDIUM complexity)
 
-
 <a id="api-documentation-hub"></a>
 ### 🚀 API Documentation Hub
 
