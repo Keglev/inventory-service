@@ -173,7 +173,7 @@ Service Documentation:
 - **MockMvc** for controller layer testing with Spring Security integration
 - **JaCoCo** for code coverage analysis and reporting
 
-📊 **View Live Coverage Reports:**
+📊 **View Coverage Reports:**
 👉 [**Backend Test Coverage (JaCoCo)**](https://keglev.github.io/inventory-service/backend/coverage/index.html)
 
 📚 **Complete Testing Documentation:**
