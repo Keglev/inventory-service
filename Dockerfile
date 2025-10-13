@@ -2,29 +2,17 @@
 # Build Stage
 # ==============================
 
-# /**
-#  * Use Maven with Eclipse Temurin JDK 17 to build the Spring Boot application.
-#  * This stage compiles the code and packages the JAR.
-#  *# =============================================================================
-# Smart Supply Pro — Inventory Microservice (Spring Boot)
-# Dockerfile (Multi-Stage, Production-oriented)
+# Enterprise build notes:
+# - Multi-stage pattern: build with Maven (JDK) and produce a minimal JRE runtime.
+# - CI should pass build-time args for traceability (PROFILE, but never runtime secrets).
+# - Do NOT copy frontend assets into this image; frontend is built separately.
+# - Security posture: run as non-root, do not bake secrets, and prefer runtime secret
+#   injection via platform secret stores (Fly.io/Borg/Secrets Manager).
 #
-# Objectives
-# - Direct-to-prod image (default profile = prod). No dev profile required.
-# - Multi-stage build: compile with Maven, run on a slim JRE only.
-# - Strict separation: NEVER copy the frontend/ tree into the backend image.
-# - Security: do not bake secrets; run as non-root.
-# - Operability: preserve compatibility with start.sh (wallet is decoded at runtime).
-#
-# Build-time inputs (CI passes these via --build-arg):
+# Build-time inputs (examples passed by CI):
 #   PROFILE=prod            # build profile (default prod)
-#   ORACLE_WALLET_B64=...   # accepted for CI parity; NOT used at build time
 #
-# Runtime is driven by start.sh:
-#   - Defaults SPRING_PROFILES_ACTIVE=prod
-#   - Requires ORACLE_WALLET_B64 and ORACLE_WALLET_PASSWORD at runtime
-#   - Sets SERVER_PORT (defaults to 8081)
-# =============================================================================
+# Runtime is driven by start.sh which performs wallet decoding and secure startup.
 
 
 # -----------------------------------------------------------------------------

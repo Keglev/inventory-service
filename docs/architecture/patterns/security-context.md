@@ -1,3 +1,6 @@
+# Security Context
+
+Placeholder for security context propagation strategies, thread-local principals, and request-level context mapping.
 # Security Context Patterns
 
 ## Overview

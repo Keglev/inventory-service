@@ -1,3 +1,6 @@
+# Audit Trail
+
+Placeholder for audit trail patterns: immutable event stores, request trace IDs, and audit logging recommendations.
 # Audit Trail Patterns
 
 ## Overview

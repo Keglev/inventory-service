@@ -30,7 +30,7 @@
 - Complex aggregations
 - No audit trail (read-only operations)
 
-**[📖 Full Documentation](./analytics-service.md)**
+**[📖 Full Documentation](/docs/architecture/services/analytics-service.md)**
 
 ---
 
@@ -53,7 +53,7 @@
 - Inline validation (candidate for extraction)
 - Transactional data management
 
-**[📖 Full Documentation](./inventory-item-service.md)**
+**[📖 Full Documentation](/docs/architecture/services/inventory-item-service.md)**
 
 ---
 
@@ -75,7 +75,7 @@
 - Master data (infrequent changes)
 - Deletion protection (check inventory items)
 
-**[📖 Full Documentation](./supplier-service.md)**
+**[📖 Full Documentation](/docs/architecture/services/supplier-service.md)**
 
 ---
 
@@ -97,7 +97,7 @@
 - No update/delete operations
 - Server-authoritative timestamps
 
-**[📖 Full Documentation](./stock-history-service.md)**
+**[📖 Full Documentation](/docs/architecture/services/stock-history-service.md)**
 
 ---
 
@@ -114,7 +114,7 @@
 - User principal creation
 - First-time user registration
 
-**[📖 Full Documentation](./oauth2-services.md)**
+**[📖 Full Documentation](/docs/architecture/services/oauth2-services.md)**
 
 ---
 
@@ -129,7 +129,7 @@
 - ID token claims processing
 - User principal creation
 
-**[📖 Full Documentation](./oauth2-services.md)**
+**[📖 Full Documentation](/docs/architecture/services/oauth2-services.md)**
 
 ---
 
@@ -296,14 +296,9 @@ Consider **SecurityContextUtils** extraction (used in InventoryItemServiceImpl, 
 | Integration Tests | Controller + Service + DB | `src/test/java/...controller/*Test.java` |
 | Coverage Report | 268 tests, [Live Report](https://keglev.github.io/inventory-service/backend/coverage/index.html) | GitHub Pages |
 
----
 
 ## 📚 Further Reading
 
-- **[Design Patterns](../patterns/README.md)** - Reusable patterns across services
-- **[Refactoring Roadmap](../refactoring/README.md)** - Technical debt and improvements
-- **[API Documentation](../../api.html)** - REST API reference
-- **[Security Overview](../security-overview.md)** - Authentication and authorization
 
 ---
 

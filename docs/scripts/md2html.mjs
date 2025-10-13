@@ -49,7 +49,7 @@ const page = `<!DOCTYPE html>
   </header>
   <nav>
     <a href="../index.html">🏠 Home</a>
-    <a href="../api.html">📘 API Reference</a>
+  <a href="../api/redoc/api.html">📘 API Reference</a>
   </nav>
   <main>
     ${html}

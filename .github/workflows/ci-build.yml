@@ -3,20 +3,20 @@ name: Inventory Service CI/CD - CI Build & Test & Docker Build
 # =============================================================================
 # Smart Supply Pro - Backend (Inventory Service) CI/CD
 #
-# Purpose
-# - Build & test the Spring Boot backend
-# - Build and push Docker images (:dev and :<commit sha>)
-# - Scan images with Trivy; fail on HIGH/CRITICAL issues
+# Enterprise-grade pipeline guidelines (comments below are intentionally
+# descriptive and non-functional):
+# - Purpose: Build, test, and publish backend artifacts and container images.
+# - Traceability: images are tagged by commit SHA and ":dev" for ephemeral flows.
+# - Security: images are scanned (Trivy) and CI fails on HIGH/CRITICAL CVEs.
+# - Layout support: supports both monorepo (repo root) and nested layout
+#   (inventory-service/). The workflow triggers selectively for backend paths
+#   to reduce spurious runs and guard sensitive secrets.
 #
-# Trigger Model (Backend-Only)
-# - Fires ONLY when backend files change (supports both layouts):
-#     A) backend at repo root (pom.xml, src/**, Dockerfile in root)
-#     B) backend under ./inventory-service/
-# - Also fires when this workflow file changes (so you can test pipeline edits)
-#
-# Lint/Schema Friendliness
-# - Avoids step outputs/contexts in conditionals (no "context might be invalid")
-# - Avoids passing env vars to hashFiles(); uses static patterns instead
+# Notes for maintainers:
+# - Keep secret usage minimal and pinned to repository secrets. Avoid leaking
+#   runtime secrets into build logs. Use the least-privilege tokens.
+# - This file focuses on deterministic behavior: avoid runtime envs in hash
+#   computations and prefer static patterns for cache keys.
 # =============================================================================
 
 on:

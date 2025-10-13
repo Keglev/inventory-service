@@ -36,7 +36,7 @@ jobs:
         
       # produces openapi.yaml and api.html inside ./docs It also generates architecture/*.html files
       - name: Bundle & build
-        run: npm run docs     
+        run: npm run docs
 
       # === Commit the generated docs back to the repo (enterprise structure) ===
       - name: Commit generated artifacts
@@ -44,7 +44,9 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add api/openapi/openapi.yaml api/redoc/api.html api/redoc/index.html
+          # Only add the canonical artifacts produced by the docs build. Avoid
+          # committing local development artifacts or intermediate files.
+          git add api/openapi/openapi.yaml api/redoc/api.html api/redoc/index.html || true
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
@@ -52,4 +54,6 @@ jobs:
             git push
           fi
       - name: Reminder
-        run: echo "::notice title=Enterprise Docs Pipeline::This job bundles & builds enterprise API documentation. OpenAPI specs and ReDoc generated in /api structure."  
+        run: |
+          echo "::notice title=Enterprise Docs Pipeline::This job bundles & builds enterprise API documentation."
+          echo "OpenAPI specs and ReDoc generated to docs/api/openapi and docs/api/redoc respectively."

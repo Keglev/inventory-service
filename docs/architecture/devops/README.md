@@ -397,18 +397,19 @@ curl -f https://inventoryservice.fly.dev/api/auth/user
 ## 📚 **Related Documentation**
 
 ### **Infrastructure & Deployment**
-- **[Dockerfile](../../Dockerfile)** - Multi-stage container build configuration
-- **[start.sh](../../start.sh)** - Secure runtime bootstrap script
-- **[fly.toml](../../fly.toml)** - Fly.io production configuration
+- **[Dockerfile](/Dockerfile)** - Multi-stage container build configuration
+- **[start.sh](/start.sh)** - Secure runtime bootstrap script
+- **[fly.toml](/fly.toml)** - Fly.io production configuration
+
 
 ### **CI/CD & Automation**
-- **[GitHub Actions](../../.github/workflows/)** - Complete CI/CD pipeline
-- **[Test Coverage Reports](../backend/coverage/)** - JaCoCo coverage analysis
-- **[API Documentation Pipeline](docs-openapi.yml)** - Documentation automation
+- **[GitHub Actions](/.github/workflows/)** - Complete CI/CD pipeline (workflows for backend, frontend and docs)
+- **[Test Coverage Reports](/docs/backend/coverage/)** - JaCoCo coverage analysis (published via CI)
+- **[API Documentation Pipeline](/.github/workflows/docs-openapi.yml)** - Documentation automation (OpenAPI bundling & ReDoc)
 
 ### **Security & Monitoring**
-- **[Security Architecture](../architecture/patterns/oauth2-security-architecture.md)** - OAuth2 implementation
-- **[Testing Strategy](../architecture/testing/README.md)** - Comprehensive testing approach
+- **[Security Architecture](../patterns/oauth2-security-architecture.md)** - OAuth2 implementation
+- **[Testing Strategy](../testing/README.md)** - Comprehensive testing approach
 
 ---
 

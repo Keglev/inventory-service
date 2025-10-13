@@ -1209,9 +1209,9 @@ class JwtTokenProviderTest {
 
 ## Related Documentation
 
-- [Service Layer Overview](../services/README.md)
-- [Security Architecture](../security/README.md)
-- [API Authentication Guide](../api/authentication.md)
+- [Service Layer Overview](/docs/architecture/services/README.md)
+- [Security Architecture](/docs/architecture/security/README.md)
+- [API Authentication Guide](/docs/api/endpoints/authentication.md)
 - [Role-Based Access Control](../patterns/rbac-patterns.md)
 - [JWT Token Management](../patterns/jwt-patterns.md)
-- [Security Testing Guide](../testing/security-testing.md)
+- [Security Testing Guide](../testing/security/README.md)

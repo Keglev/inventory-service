@@ -13,10 +13,10 @@ RUN npm ci
 # NOTE: Copy the frontend/ subtree into /app
 COPY frontend/ .
 
-# If you use Vite envs at build time, pass them as build args
-# @enterprise
-# - Default to same-origin `/api` so the SPA hits Nginx (which reverse-proxies to Fly).
-# - In Koyeb, you can override this ARG at build time if needed, but `/api` is the stable prod default.
+# If you use Vite envs at build time, pass them as build args.
+# Enterprise guidance:
+# - Default to same-origin `/api` so the SPA can rely on the Nginx reverse-proxy.
+# - For cloud deployments, override this ARG at build time only when necessary.
 ARG VITE_API_BASE="/api"
 ENV VITE_API_BASE=$VITE_API_BASE
 

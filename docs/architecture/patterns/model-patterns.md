@@ -574,11 +574,10 @@ public class InventoryDataMigration {
 
 ## Related Documentation
 
-- [Repository Patterns](./repository-patterns.md) - Data access layer patterns
-- [Validation Patterns](./validation-patterns.md) - Input validation strategies
-- [Service Layer Architecture](../service-layer.md) - Business logic patterns
-- [API Documentation](../../api.html) - External interface contracts
+- [Repository Patterns](/docs/architecture/patterns/repository-patterns.md) - Data access layer patterns
+- [Validation Patterns](/docs/architecture/patterns/validation-patterns.md) - Input validation strategies
+- [Service Layer Architecture](../services/README.md) - Business logic patterns
+ - [API Documentation](../../api/redoc/api.html) - External interface contracts
 
----
 
 *This documentation is maintained alongside the entity implementations. Update patterns when adding new entities or modifying existing ones.*

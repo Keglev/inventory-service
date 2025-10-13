@@ -13,23 +13,23 @@ This directory contains comprehensive enterprise-level architecture documentatio
 
 ### 🏗️ Core Architecture
 
-- **[Security Overview](./security-overview.md)** - Authentication, authorization, OAuth2 integration
-- **[Service Layer Overview](./services/README.md)** - Business logic and service patterns
-- **[Design Patterns](./patterns/README.md)** - Reusable patterns and best practices
-- **[Refactoring Roadmap](./refactoring/README.md)** - Technical debt and improvement plans
+| **[Security Overview](/docs/architecture/security-overview.md)** - Authentication, authorization, OAuth2 integration
+| **[Service Layer Overview](/docs/architecture/services/README.md)** - Business logic and service patterns
+| **[Design Patterns](/docs/architecture/patterns/README.md)** - Reusable patterns and best practices
+-- **[Refactoring Roadmap](/docs/architecture/refactoring/README.md)** - Technical debt and improvement plans
 
 ---
 
 ## 🔧 Service Layer
-
+ **[Validation Delegation](/docs/architecture/patterns/validation-patterns.md) |
 | Service | Complexity | Purpose | Documentation |
-|---------|------------|---------|---------------|
-| **AnalyticsServiceImpl** | 🔴 HIGH | Business insights, WAC algorithm, trend analysis | [📖 Docs](./services/analytics-service.md) |
-| **InventoryItemServiceImpl** | 🟡 MEDIUM | Inventory CRUD, stock history, audit trail | [📖 Docs](./services/inventory-item-service.md) |
-| **SupplierServiceImpl** | 🟢 LOW | Supplier management, referential integrity | [📖 Docs](./services/supplier-service.md) |
-| **StockHistoryService** | 🟢 LOW | Append-only audit log, stock movements | [📖 Docs](./services/stock-history-service.md) |
-| **CustomOAuth2UserService** | 🟡 MEDIUM | OAuth2 user authentication | [📖 Docs](./services/oauth2-services.md) |
-| **CustomOidcUserService** | 🟡 MEDIUM | OIDC token handling | [📖 Docs](./services/oauth2-services.md) |
+ **[Static Mapper Pattern](/docs/architecture/patterns/mapper-patterns.md) |
+| **AnalyticsServiceImpl** | 🔴 HIGH | Business insights, WAC algorithm, trend analysis | [📖 Docs](/docs/architecture/services/analytics-service.md) |
+ **[Security Context Utilities](/docs/architecture/patterns/security-context.md) |
+| **SupplierServiceImpl** | 🟢 LOW | Supplier management, referential integrity | [📖 Docs](/docs/architecture/services/supplier-service.md) |
+ **[Audit Trail](/docs/architecture/patterns/audit-trail.md) |
+| **CustomOAuth2UserService** | 🟡 MEDIUM | OAuth2 user authentication | [📖 Docs](/docs/architecture/services/oauth2-services.md) |
+ **[Repository Query Methods](/docs/architecture/patterns/repository-patterns.md) |
 
 ---
 
@@ -37,11 +37,11 @@ This directory contains comprehensive enterprise-level architecture documentatio
 
 | Pattern | Purpose | Files |
 |---------|---------|-------|
-| **Validation Delegation** | Centralized validation logic | [📖 Docs](./patterns/validation-patterns.md) |
-| **Static Mapper Pattern** | DTO ↔ Entity conversion | [📖 Docs](./patterns/mapper-patterns.md) |
-| **Security Context Utilities** | Authentication user retrieval | [📖 Docs](./patterns/security-context.md) |
-| **Audit Trail** | Track who/when/what changes | [📖 Docs](./patterns/audit-trail.md) |
-| **Repository Query Methods** | Custom JPA queries | [📖 Docs](./patterns/repository-patterns.md) |
+| **Validation Delegation** | Centralized validation logic | [📖 Docs](/docs/architecture/patterns/validation-patterns.md) |
+| **Static Mapper Pattern** | DTO ↔ Entity conversion | [📖 Docs](/docs/architecture/patterns/mapper-patterns.md) |
+| **Security Context Utilities** | Authentication user retrieval | [📖 Docs](/docs/architecture/patterns/security-context.md) |
+| **Audit Trail** | Track who/when/what changes | [📖 Docs](/docs/architecture/patterns/audit-trail.md) |
+| **Repository Query Methods** | Custom JPA queries | [📖 Docs](/docs/architecture/patterns/repository-patterns.md) |
 
 ---
 
@@ -54,45 +54,45 @@ This directory contains comprehensive enterprise-level architecture documentatio
 | ⭐ **LOW** | AuditFieldListener (JPA) | 2-3 entities | 3h | 💡 Optional |
 | ⭐ **LOW** | Caching Strategy (Master Data) | 1 file | 2h | 💡 Optional |
 
-See [Refactoring Roadmap](./refactoring/README.md) for details.
+See [Refactoring Roadmap](/docs/architecture/refactoring/README.md) for details.
 
 ---
 
 ## 📊 Architecture Diagrams
 
-- **[Service Layer Overview](./diagrams/service-layer-overview.md)** - Component relationships
-- **[Stock Movement Flow](./diagrams/stock-movement-flow.md)** - Sequence diagram for inventory changes
-- **[OAuth2 Login Flow](./diagrams/oauth2-login-flow.md)** - Authentication sequence
-- **[Analytics Calculation Flow](./diagrams/analytics-calculation-flow.md)** - WAC algorithm visualization
+- **[Service Layer Overview](/docs/architecture/diagrams/service-layer-overview.md)** - Component relationships
+- **[Stock Movement Flow](/docs/architecture/diagrams/stock-movement-flow.md)** - Sequence diagram for inventory changes
+- **[OAuth2 Login Flow](/docs/architecture/diagrams/oauth2-login-flow.md)** - Authentication sequence
+- **[Analytics Calculation Flow](/docs/architecture/diagrams/analytics-calculation-flow.md)** - WAC algorithm visualization
 
 ---
 
 ## 🔗 Related Documentation
 
-- **[API Documentation (OpenAPI)](../openapi.yaml)** - REST API specification
-- **[API Reference (Redoc)](../api.html)** - Interactive API documentation
+- **[API Documentation (OpenAPI)](/docs/api/openapi/openapi.yaml)** - REST API specification
+- **[API Reference (Redoc)](/docs/api/redoc/api.html)** - Interactive API documentation
 - **[Backend Test Coverage](https://keglev.github.io/inventory-service/backend/coverage/index.html)** - JaCoCo coverage report (268 tests)
-- **[Frontend Documentation](../../frontend/README.md)** - React TypeScript SPA
+- **[Frontend Documentation](/frontend/README.md)** - React TypeScript SPA
 
 ---
 
 ## 📖 Reading Guide
 
 ### For New Developers
-1. Start with [Security Overview](./security-overview.md)
-2. Read [Service Layer Overview](./services/README.md)
+1. Start with [Security Overview](/docs/architecture/security-overview.md)
+2. Read [Service Layer Overview](/docs/architecture/services/README.md)
 3. Review individual service docs based on your task
-4. Check [Design Patterns](./patterns/README.md) for reusable patterns
+4. Check [Design Patterns](/docs/architecture/patterns/README.md) for reusable patterns
 
 ### For Architecture Review
-1. Review [Service Layer Overview](./services/README.md)
-2. Check [Refactoring Roadmap](./refactoring/README.md)
-3. Examine [Design Patterns](./patterns/README.md) for consistency
+1. Review [Service Layer Overview](/docs/architecture/services/README.md)
+2. Check [Refactoring Roadmap](/docs/architecture/refactoring/README.md)
+3. Examine [Design Patterns](/docs/architecture/patterns/README.md) for consistency
 4. Review individual service complexity ratings
 
 ### For API Integration
-1. Start with [API Documentation](../api.html)
-2. Review [Security Overview](./security-overview.md) for authentication
+1. Start with [API Documentation](../api/redoc/api.html)
+2. Review [Security Overview](/docs/architecture/security-overview.md) for authentication
 3. Check individual controller documentation
 4. Test with Swagger UI or Postman
 
