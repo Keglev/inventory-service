@@ -88,7 +88,6 @@ This project simulates a real-world software system for small-to-medium manufact
   - Update frequency per item
   - Low stock alerts
 
-
 ---
 
 <a id="security"></a>
@@ -339,5 +338,6 @@ this following part is only for fetching purposes
 . CI/CD pipeline 
 . GitHub Actions
 . JaCoCo
-c i   t e s t   t r i g g e r    
+c i   t e s t   t r i g g e r   
+ 
  
