@@ -86,7 +86,7 @@ jobs:
             exit 0
           fi
 
-          mkdir -p coverage_tmp
+          mkdir -p "$RUNNER_TEMP/coverage_tmp"
           if [ -n "$artifact_url" ] && [ "$artifact_url" != "null" ]; then
             zip_url="$artifact_url"
           else
@@ -167,8 +167,8 @@ jobs:
               echo "First 400 bytes of the downloaded file:" >&2
               head -c 400 "$final_file" | sed -n '1,200p' || true
             fi
-            unzip -q "$final_file" -d coverage_tmp || true
-            echo "Unpacked coverage_tmp/ contents:" && ls -la coverage_tmp || true
+            unzip -q "$final_file" -d "$RUNNER_TEMP/coverage_tmp" || true
+            echo "Unpacked $RUNNER_TEMP/coverage_tmp/ contents:" && ls -la "$RUNNER_TEMP/coverage_tmp" || true
           fi
 
       - name: Checkout repository (main)
@@ -181,10 +181,13 @@ jobs:
       - name: Copy coverage into main
         run: |
           set -euo pipefail
-          if [ -d coverage_tmp ] && [ "$(ls -A coverage_tmp | wc -l)" -gt 0 ]; then
+          SRC_DIR="$RUNNER_TEMP/coverage_tmp"
+          if [ -d "$SRC_DIR" ] && [ "$(ls -A "$SRC_DIR" | wc -l)" -gt 0 ]; then
             mkdir -p docs/backend/coverage
             rm -rf docs/backend/coverage/* || true
-            cp -r coverage_tmp/* docs/backend/coverage/ || true
+            cp -r "$SRC_DIR"/* docs/backend/coverage/ || true
+            # Add a timestamp file so we commit each publish run even if content is identical
+            echo "Published: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > docs/backend/coverage/.published_at
             git add docs/backend/coverage/
           else
             echo "::warning::No coverage artifact found; skipping commit."
