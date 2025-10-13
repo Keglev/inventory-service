@@ -158,7 +158,7 @@ jobs:
       contents: write
 
     steps:
-      - name: Diagnostic: show workflow_run context
+      - name: Diagnostic - show workflow_run context
         run: |
           echo "workflow_run id: ${{ github.event.workflow_run.id }}"
           echo "workflow_run run_id: ${{ github.event.workflow_run.run_id }}"

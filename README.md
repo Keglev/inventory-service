@@ -237,7 +237,7 @@ GitHub Actions automatically handle:
 
 **Backend CI/CD:**
 - ✅ Builds and tests Spring Boot application using Maven
-- ✅ Runs comprehensive test suite (unit + integration tests with Testcontainers)
+- ✅ Runs comprehensive test suite (unit tests)
 - ✅ Generates and publishes test coverage reports to GitHub Pages
 - ✅ Builds Docker image and pushes to DockerHub with security scanning
 - ✅ Automated deployment ready (manual trigger for Oracle IP restrictions)
