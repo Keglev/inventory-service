@@ -719,7 +719,7 @@ class SecurityThreatTest {
 
 - **Implementation Patterns**: See [Security Implementation Patterns](security-implementation-patterns.md)
 - **Configuration Integration**: See [Configuration Patterns](configuration-patterns.md)
-- **API Documentation**: See [OAuth2 API Documentation](../api/oauth2-endpoints.md)
+- **API Documentation**: See [OAuth2 API Documentation](../../api/endpoints/authentication.md)
 - **Deployment Guide**: See [Production Deployment](../deployment/production-deployment.md)
 - **Security Compliance**: See [Security Compliance](../compliance/security-standards.md)
 

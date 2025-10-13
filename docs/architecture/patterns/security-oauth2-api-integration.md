@@ -1234,7 +1234,7 @@ public class OAuth2MetricsCollector {
 - **Security Architecture**: See [OAuth2 Security Architecture](oauth2-security-architecture.md)
 - **Implementation Patterns**: See [Security Implementation Patterns](security-implementation-patterns.md)
 - **Cross-Cutting Patterns**: See [Security Cross-Cutting Patterns](security-cross-cutting-patterns.md)
-- **API Documentation**: See [REST API Documentation](../api/rest-api-docs.md)
+- **API Documentation**: See [REST API Documentation](../../api/README.md)
 
 ---
 

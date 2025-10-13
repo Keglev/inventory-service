@@ -229,9 +229,9 @@ private SupplierDTO invalidSupplierDto()
 
 | Controller Test | Service Test | Integration Test | Documentation |
 |----------------|--------------|------------------|---------------|
-| `AnalyticsControllerTest` | `AnalyticsServiceImplTest` | `AnalyticsServiceImplWacTest` | [Analytics Service Docs](../services/analytics-service.md) |
-| `InventoryItemControllerTest` | `InventoryItemServiceTest` | `InventoryItemServiceImplTest` | [Inventory Service Docs](../services/inventory-item-service.md) |
-| `SupplierControllerTest` | `SupplierServiceTest` | N/A | [Supplier Service Docs](../services/supplier-service.md) |
+| `AnalyticsControllerTest` | `AnalyticsServiceImplTest` | `AnalyticsServiceImplWacTest` | [Analytics Service Docs](../../services/analytics-service.md) |
+| `InventoryItemControllerTest` | `InventoryItemServiceTest` | `InventoryItemServiceImplTest` | [Inventory Service Docs](../../services/inventory-item-service.md) |
+| `SupplierControllerTest` | `SupplierServiceTest` | N/A | [Supplier Service Docs](../../services/supplier-service.md) |
 
 ### Security Integration
 

@@ -352,7 +352,7 @@ SupplierValidator.assertDeletable(id, checkFunction);
 
 **Comparison**: InventoryItemServiceImpl uses **inline validation** (candidate for refactoring).
 
-See [Validation Patterns](../patterns/validation-patterns.md) for details.
+See [Validation Patterns](/docs/architecture/patterns/validation-patterns.md) for details.
 
 ---
 
@@ -378,7 +378,7 @@ SupplierDTO dto = SupplierMapper.toDTO(entity);
 - ⚠️ **Boilerplate**: Must write mapping code manually
 - ⚠️ **Maintenance**: Must update mapper when entity/DTO changes
 
-See [Mapper Patterns](../patterns/mapper-patterns.md) for details.
+See [Mapper Patterns](/docs/architecture/patterns/mapper-patterns.md) for details.
 
 ---
 
@@ -407,15 +407,15 @@ See [Mapper Patterns](../patterns/mapper-patterns.md) for details.
 
 | Method | Endpoint | Operation | JavaDoc | OpenAPI |
 |--------|----------|-----------|---------|---------|
-| GET | `/api/suppliers` | List all | [Code](../../../../src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L310) | [API Docs](../../api.html#tag/Suppliers/operation/getAllSuppliers) |
-| GET | `/api/suppliers/{id}` | Find by ID | [Code](../../../../src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L335) | [API Docs](../../api.html#tag/Suppliers/operation/getSupplierById) |
-| GET | `/api/suppliers/search?name={name}` | Search by name | [Code](../../../../src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L360) | [API Docs](../../api.html#tag/Suppliers/operation/searchSuppliers) |
-| POST | `/api/suppliers` | Create supplier | [Code](../../../../src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L410) | [API Docs](../../api.html#tag/Suppliers/operation/createSupplier) |
-| PUT | `/api/suppliers/{id}` | Update supplier | [Code](../../../../src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L480) | [API Docs](../../api.html#tag/Suppliers/operation/updateSupplier) |
-| DELETE | `/api/suppliers/{id}` | Delete supplier | [Code](../../../../src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L630) | [API Docs](../../api.html#tag/Suppliers/operation/deleteSupplier) |
-| GET | `/api/suppliers/count` | Count suppliers | [Code](../../../../src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L750) | [API Docs](../../api.html#tag/Suppliers/operation/countSuppliers) |
+| GET | `/api/suppliers` | List all | [Code](https://github.com/Keglev/inventory-service/blob/main/src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L310) | [API Docs](../../api/redoc/api.html#tag/Suppliers/operation/getAllSuppliers) |
+| GET | `/api/suppliers/{id}` | Find by ID | [Code](https://github.com/Keglev/inventory-service/blob/main/src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L335) | [API Docs](../../api/redoc/api.html#tag/Suppliers/operation/getSupplierById) |
+| GET | `/api/suppliers/search?name={name}` | Search by name | [Code](https://github.com/Keglev/inventory-service/blob/main/src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L360) | [API Docs](../../api/redoc/api.html#tag/Suppliers/operation/searchSuppliers) |
+| POST | `/api/suppliers` | Create supplier | [Code](https://github.com/Keglev/inventory-service/blob/main/src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L410) | [API Docs](../../api/redoc/api.html#tag/Suppliers/operation/createSupplier) |
+| PUT | `/api/suppliers/{id}` | Update supplier | [Code](https://github.com/Keglev/inventory-service/blob/main/src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L480) | [API Docs](../../api/redoc/api.html#tag/Suppliers/operation/updateSupplier) |
+| DELETE | `/api/suppliers/{id}` | Delete supplier | [Code](https://github.com/Keglev/inventory-service/blob/main/src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L630) | [API Docs](../../api/redoc/api.html#tag/Suppliers/operation/deleteSupplier) |
+| GET | `/api/suppliers/count` | Count suppliers | [Code](https://github.com/Keglev/inventory-service/blob/main/src/main/java/com/smartsupplypro/inventory/service/impl/SupplierServiceImpl.java#L750) | [API Docs](../../api/redoc/api.html#tag/Suppliers/operation/countSuppliers) |
 
-**Interactive API Documentation**: [Redoc UI](../../api.html)
+**Interactive API Documentation**: [Redoc UI](../../api/redoc/api.html)
 
 ---
 
@@ -500,7 +500,7 @@ ALTER TABLE inventory_items
 
 **Estimated Effort**: 2 hours (entity, migration, service update, testing)
 
-**See**: [SUPPLIERSERVICEIMPL_REFACTORING_ANALYSIS.md](../../../../SUPPLIERSERVICEIMPL_REFACTORING_ANALYSIS.md)
+**See**: [Supplier service refactoring notes](/docs/IMPLEMENTATION_PLAN.md)
 
 ---
 
@@ -535,7 +535,7 @@ public class SecurityContextUtils {
 
 **Estimated Effort**: 2 hours (utility creation, service updates, testing)
 
-**See**: [Cross-Layer Refactoring](../refactoring/cross-layer-utilities.md)
+**See**: [Cross-Layer Refactoring](/docs/architecture/refactoring/cross-layer-utilities.md)
 
 ---
 
@@ -571,7 +571,7 @@ public SupplierDTO create(SupplierDTO dto) { ... }
 
 **Estimated Effort**: 2 hours (config, annotations, testing)
 
-**See**: [SUPPLIERSERVICEIMPL_REFACTORING_ANALYSIS.md - Section 2.4](../../../../SUPPLIERSERVICEIMPL_REFACTORING_ANALYSIS.md#24-caching-strategy--low-priority---future-optimization)
+**See**: [Supplier service refactoring notes - caching section](/docs/IMPLEMENTATION_PLAN.md#supplier-service-refactoring)
 
 ---
 
@@ -658,11 +658,11 @@ void deleteSupplier_HasLinkedItems_Returns409Conflict() { ... }
 
 ## 📚 Further Reading
 
-- **[Validation Patterns](../patterns/validation-patterns.md)** - Delegated validation strategy
-- **[Mapper Patterns](../patterns/mapper-patterns.md)** - Static DTO ↔ Entity conversion
-- **[Audit Trail Patterns](../patterns/audit-trail.md)** - createdBy/updatedBy tracking
+-- **[Validation Patterns](/docs/architecture/patterns/validation-patterns.md)** - Delegated validation strategy
+-- **[Mapper Patterns](/docs/architecture/patterns/mapper-patterns.md)** - Static DTO ↔ Entity conversion
+-- **[Audit Trail Patterns](/docs/architecture/patterns/audit-trail.md)** - createdBy/updatedBy tracking
 - **[Refactoring Roadmap](../refactoring/README.md)** - Cross-layer improvements
-- **[API Documentation](../../api.html)** - REST API reference (Redoc)
+- **[API Documentation](../../api/redoc/api.html)** - REST API reference (Redoc)
 
 ---
 

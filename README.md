@@ -107,32 +107,35 @@ This project simulates a real-world software system for small-to-medium manufact
 <a id="architecture-overview"></a>
 ### 🏗️ Architecture Overview
 
-. [Backend Documentation Hub](./docs/backend/README.md) — architecture landing with service catalog
-. [Service Layer Overview](./docs/architecture/services/README.md) — service responsibilities and patterns
-. [Design Patterns & Security](./docs/architecture/patterns/) — architecture patterns, security, and implementation
-. Key documents:
-  - [OAuth2 Security Architecture](./docs/architecture/patterns/oauth2-security-architecture.md)
-  - [Security Patterns](./docs/architecture/patterns/security-patterns.md)
-  - [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md)
+- . [Index for Backend Documentation](./docs/backend/README.md) — architecture landing with service catalog
+- . [Service Layer Overview](./docs/architecture/services/README.md) — service responsibilities and patterns
+- . [Design Patterns & Security](./docs/architecture/patterns/) — architecture patterns, security, and implementation
+
+Key documents:
+
+  - [OAuth2 Security Architecture](./docs/architecture/patterns/oauth2-security-architecture.md) — detailed OAuth2 and token flow
+  - [Security Patterns](./docs/architecture/patterns/security-patterns.md) — common security patterns used across services
+  - [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md) — cross-cutting concerns and implementations
 
 
 <a id="api-integration-guides"></a>
 ### 📡 API Integration Guides
 
-. **Comprehensive integration documentation** for all backend layers:
+Comprehensive integration documentation for all backend layers:
 
-. **⚠️ Exception Handling:** [docs/architecture/exceptions/](./docs/architecture/exceptions/) *(25,000+ words)*
-. **🗺️ Mapper Patterns:** [docs/architecture/mappers/](./docs/architecture/mappers/) *(35,000+ words)*
-. **📊 Enum Business Logic:** [docs/architecture/enums/](./docs/architecture/enums/)
-. **🔗 Configuration Patterns:** [docs/architecture/patterns/](./docs/architecture/patterns/)
-. **🔄 Refactoring Roadmap:** [docs/architecture/refactoring/](./docs/architecture/refactoring/)
+- . [Exception Handling](./docs/architecture/exceptions/) — comprehensive exception handling patterns *(25,000+ words)*
+- . [Mapper Patterns](./docs/architecture/mappers/) — mapping strategies and DTO patterns *(35,000+ words)*
+- . [Enum Business Logic](./docs/architecture/enums/) — domain enums and business rules
+- . [Configuration Patterns](./docs/architecture/patterns/) — configuration best practices and patterns
+- . [Refactoring Roadmap](./docs/architecture/refactoring/) — planned refactors and migration notes
 
-. **Service Documentation:**
-. [AnalyticsService](./docs/architecture/services/analytics-service.md) - Business insights, WAC algorithm (🔴 HIGH complexity)
-. [InventoryItemService](./docs/architecture/services/inventory-item-service.md) - Inventory CRUD, stock history (🟡 MEDIUM complexity)
-. [SupplierService](./docs/architecture/services/supplier-service.md) - Master data management (🟢 LOW complexity)
-. [StockHistoryService](./docs/architecture/services/stock-history-service.md) - Append-only audit log (🟢 LOW complexity)
-. [OAuth2 Services](./docs/architecture/services/oauth2-services.md) - Authentication integration (🟡 MEDIUM complexity)
+Service Documentation:
+
+- . [AnalyticsService](./docs/architecture/services/analytics-service.md) — Business insights, WAC algorithm (🔴 HIGH complexity)
+- . [InventoryItemService](./docs/architecture/services/inventory-item-service.md) — Inventory CRUD, stock history (🟡 MEDIUM complexity)
+- . [SupplierService](./docs/architecture/services/supplier-service.md) — Master data management (🟢 LOW complexity)
+- . [StockHistoryService](./docs/architecture/services/stock-history-service.md) — Append-only audit log (🟢 LOW complexity)
+- . [OAuth2 Services](./docs/architecture/services/oauth2-services.md) — Authentication integration (🟡 MEDIUM complexity)
 
 
 <a id="api-documentation-hub"></a>

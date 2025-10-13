@@ -1,5 +1,8 @@
 # Validation Patterns
 
+Placeholder for validation patterns (Bean Validation, DTO validation, central validator components). Expand with examples and code snippets as needed.
+# Validation Patterns
+
 ## Overview
 
 This document describes validation patterns used across the Smart Supply Pro inventory service, focusing on **delegated validation** vs **inline validation**, and when to use each approach.

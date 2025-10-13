@@ -1,3 +1,6 @@
+# Configuration & API Integration
+
+Placeholder for configuration-based integration notes (environment-based feature flags, external API integration patterns).
 # Configuration Layer API Integration Patterns
 
 ## Overview

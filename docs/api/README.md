@@ -60,7 +60,7 @@ Welcome to the **SmartSupplyPro API Documentation Hub** - your comprehensive gat
 
 ### **Authentication & Authorization**
 - **[OAuth2 Security Architecture](../architecture/patterns/oauth2-security-architecture.md)** - Complete OAuth2 implementation
-- **[Security Patterns](../architecture/patterns/security-patterns.md)** - Enterprise security patterns
+-- **[Security Patterns](/docs/architecture/patterns/security-patterns.md)** - Enterprise security patterns
 - **[Security Implementation Guide](../architecture/patterns/security-implementation-patterns.md)** - Implementation details
 - **[Cross-Cutting Security](../architecture/patterns/security-cross-cutting-patterns.md)** - Security across layers
 

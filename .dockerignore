@@ -1,14 +1,11 @@
 # =============================================================================
 # Smart Supply Pro — Monorepo Docker Ignore (inventory-service/.dockerignore)
 #
-# Purpose
-# - Keep Docker build context small, fast, and free of secrets.
-# - Work for BOTH backend and frontend images when context is `inventory-service/`.
-# - Avoid ignoring files that the Dockerfiles explicitly COPY (e.g., .mvn/, ops/nginx/).
-#
-# Important
-# - Do NOT add `frontend/**` or `ops/**` to ignores; the frontend image needs them.
-# - We intentionally keep `.mvn/` included because the backend Dockerfile COPYs it.
+# Enterprise guidance:
+# - Keep the Docker build context minimal and free of local secrets.
+# - Do NOT exclude files that the Dockerfiles explicitly COPY (e.g., `.mvn/`, `ops/nginx/`).
+# - Avoid ignoring frontend or ops files since multi-stage builds may require them
+#   when the build context is repo root.
 # =============================================================================
 
 # -----------------------------------------------------------------------------

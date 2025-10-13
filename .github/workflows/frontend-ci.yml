@@ -161,15 +161,21 @@ jobs:
         run: |
           npx vitest --reporter=default --reporter=github-actions --run
 
-      # ----------------------------------------------------------------------
-      # 4) Build & push Docker image (Nginx runtime)
-      #    Design:
-      #      - Build context: '.' (repo root) so Dockerfile can COPY ops/nginx/*.
-      #      - Dockerfile: frontend/Dockerfile (multi-stage: Node build -> Nginx).
-      #      - Tests inside Docker are disabled (RUN_TESTS=false) to avoid duplication.
-      #      - Tagging via docker/metadata-action for 'latest' and immutable 'sha-*'.
-      #      - Root .dockerignore trims context to keep builds fast and reproducible.
-      # ----------------------------------------------------------------------
+  # ----------------------------------------------------------------------
+  # 4) Build & push Docker image (Nginx runtime)
+  #    Design:
+  #      - Build context: '.' (repo root) so Dockerfile can COPY ops/nginx/*.
+  #      - Dockerfile: frontend/Dockerfile (multi-stage: Node build -> Nginx).
+  #      - Tests inside Docker are disabled (RUN_TESTS=false) to avoid duplication.
+  #      - Tagging via docker/metadata-action for 'latest' and immutable 'sha-*'.
+  #      - Root .dockerignore trims context to keep builds fast and reproducible.
+  #
+  # Enterprise notes:
+  # - Ensure secrets (KOYEB_TOKEN, DOCKER_* credentials) are scoped to the
+  #   minimum required repository or org-level secrets and audited regularly.
+  # - Immutable tags (digest) are used for production deployments to enable
+  #   deterministic rollbacks and forensics.
+  # ----------------------------------------------------------------------
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 

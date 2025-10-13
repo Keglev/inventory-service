@@ -1,5 +1,8 @@
 # Repository Patterns
 
+Placeholder for repository/data-access patterns: custom JPA implementations, query optimization, projection DTOs, and transaction boundaries.
+# Repository Patterns
+
 ## Overview
 
 This document describes custom repository patterns used in the Smart Supply Pro inventory service, focusing on **custom query methods**, **performance optimization**, and **Spring Data JPA best practices**.

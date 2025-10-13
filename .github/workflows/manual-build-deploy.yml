@@ -10,6 +10,11 @@ name: Manual Build & Deploy (Emergency)
 #  *
 #  * This workflow builds and pushes images, but does NOT deploy to Fly.io
 #  * (deployment still requires manual `fly deploy` due to Oracle IP restrictions)
+#  
+#  Enterprise notes:
+#  - This workflow is intentionally manual to provide a safe, auditable path
+#    for emergency image builds when automated CI is unavailable.
+#  - Keep secret access minimal and require approvals for production `workflow_dispatch`.
 #  */
 
 on:
