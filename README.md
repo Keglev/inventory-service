@@ -9,8 +9,6 @@ Complete enterprise-style full-stack application for Inventory & Supplier Manage
 ## Description
 This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, OAuth2 authentication, automated CI/CD pipelines, comprehensive testing, and business intelligence visualizations.
 
-> ⚠️ **Still under construction** - Enterprise documentation is not yet complete  
-
 ![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/ci-build.yml/badge.svg)  
 ![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
 
@@ -21,18 +19,30 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ## Table of contents
 
-1. [Still under construction](#project-status---still-under-construction)
+1. [Still under construction](#still-under-construction)
 2. [Screenshots](#screenshots)
-3. [Project status](#project-status---still-under-construction)
+3. [Project status](#project-status)
 4. [Features](#features)
 5. [Security](#security)
 6. [Documentation](#documentation)
-7. [Testing & Code quality](#testing--code-quality)
+  - [Architecture Overview](#architecture-overview)
+  - [API Integration Guides](#api-integration-guides)
+  - [API Documentation Hub](#api-documentation-hub)
+  - [API Endpoints](#api-endpoints)
+7. [Testing & Code quality](#testing-code-quality)
 8. [Tech stack](#tech-stack)
 9. [Environment profiles (Ci/CD)](#environment-profiles)
 10. [Available Scripts](#available-scripts)
 11. [Coming next](#coming-next)
 
+<a id="still-under-construction"></a>
+## Still under construction
+
+> ⚠️ **Still under construction** - Enterprise documentation is not yet complete
+
+---
+
+<a id="screenshots"></a>
 ## Screenshots
 
 <img src="./frontend/src/assets/project-image.png" alt="Analytics Dashboard" width="600" height="300"/>
@@ -41,29 +51,31 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
-## 🎯 **PROJECT STATUS - STILL UNDER CONSTRUCTION**
+<a id="project-status"></a>
+## Project status
 
-**✅ Backend Development - Complete**
+### ✅ Backend Development - Complete
 - ✅ 60,000+ words comprehensive documentation
 - ✅ Professional API documentation with TypeDoc, OpenAPI, and Redoc
 - ✅ Complete backend architecture with enterprise patterns
 - ✅ Working CI/CD pipeline for backend
 - ✅ Controller layer testing architecture complete
 
-**🚧 Frontend Development - In Progress**
+### 🚧 Frontend Development - In Progress
 - ✅ React + TypeScript + Material-UI foundation
 - ✅ CI/CD pipeline working and automatically deployed
 - 🚧 Dashboard UI development ongoing
 - 🚧 CRUD operations implementation needed
 - 🚧 Frontend testing documentation needed
 
-**📚 Documentation Status**
+### 📚 Documentation Status
 - ✅ Backend testing documentation complete
 - 🚧 Frontend testing documentation needed
 - 🚧 Complete integration testing documentation needed
 
 ---
 
+<a id="features"></a>
 ## 🚀 Features
 
 ### 🎯 Core Modules
@@ -79,6 +91,7 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
+<a id="security"></a>
 ## 🛡️ Security
 
 - OAuth2 login with Google integration and role-based access (`ADMIN`, `USER`)
@@ -88,15 +101,10 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
+<a id="documentation"></a>
 ## 📘 Documentation
 
-
-### 🚀 API Documentation Hub
-
-. [Complete API Documentation (ReDoc)](https://keglev.github.io/inventory-service/api/redoc/index.html) — interactive API landing page
-. [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html) — direct ReDoc explorer
-. [./docs/api/README.md](./docs/api/README.md) — API index and quick reference
-
+<a id="architecture-overview"></a>
 ### 🏗️ Architecture Overview
 
 . [Backend Documentation Hub](./docs/backend/README.md) — architecture landing with service catalog
@@ -108,26 +116,37 @@ This project simulates a real-world software system for small-to-medium manufact
   - [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md)
 
 
+<a id="api-integration-guides"></a>
 ### 📡 API Integration Guides
 
-**Comprehensive integration documentation** for all backend layers:
+. **Comprehensive integration documentation** for all backend layers:
 
-- **⚠️ Exception Handling:** [docs/architecture/exceptions/](./docs/architecture/exceptions/) *(25,000+ words)*
-- **🗺️ Mapper Patterns:** [docs/architecture/mappers/](./docs/architecture/mappers/) *(35,000+ words)*
-- **📊 Enum Business Logic:** [docs/architecture/enums/](./docs/architecture/enums/)
-- **🔗 Configuration Patterns:** [docs/architecture/patterns/](./docs/architecture/patterns/)
-- **🔄 Refactoring Roadmap:** [docs/architecture/refactoring/](./docs/architecture/refactoring/)
+. **⚠️ Exception Handling:** [docs/architecture/exceptions/](./docs/architecture/exceptions/) *(25,000+ words)*
+. **🗺️ Mapper Patterns:** [docs/architecture/mappers/](./docs/architecture/mappers/) *(35,000+ words)*
+. **📊 Enum Business Logic:** [docs/architecture/enums/](./docs/architecture/enums/)
+. **🔗 Configuration Patterns:** [docs/architecture/patterns/](./docs/architecture/patterns/)
+. **🔄 Refactoring Roadmap:** [docs/architecture/refactoring/](./docs/architecture/refactoring/)
 
-**Service Documentation:**
-- [AnalyticsService](./docs/architecture/services/analytics-service.md) - Business insights, WAC algorithm (🔴 HIGH complexity)
-- [InventoryItemService](./docs/architecture/services/inventory-item-service.md) - Inventory CRUD, stock history (🟡 MEDIUM complexity)
-- [SupplierService](./docs/architecture/services/supplier-service.md) - Master data management (🟢 LOW complexity)
-- [StockHistoryService](./docs/architecture/services/stock-history-service.md) - Append-only audit log (🟢 LOW complexity)
-- [OAuth2 Services](./docs/architecture/services/oauth2-services.md) - Authentication integration (🟡 MEDIUM complexity)
+. **Service Documentation:**
+. [AnalyticsService](./docs/architecture/services/analytics-service.md) - Business insights, WAC algorithm (🔴 HIGH complexity)
+. [InventoryItemService](./docs/architecture/services/inventory-item-service.md) - Inventory CRUD, stock history (🟡 MEDIUM complexity)
+. [SupplierService](./docs/architecture/services/supplier-service.md) - Master data management (🟢 LOW complexity)
+. [StockHistoryService](./docs/architecture/services/stock-history-service.md) - Append-only audit log (🟢 LOW complexity)
+. [OAuth2 Services](./docs/architecture/services/oauth2-services.md) - Authentication integration (🟡 MEDIUM complexity)
 
+
+<a id="api-documentation-hub"></a>
+### 🚀 API Documentation Hub
+
+. [Complete API Documentation (ReDoc)](https://keglev.github.io/inventory-service/api/redoc/index.html) — interactive API landing page
+. [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html) — direct ReDoc explorer
+. [./docs/api/README.md](./docs/api/README.md) — API index and quick reference
+
+
+<a id="api-endpoints"></a>
 ### API Endpoints (OpenAPI Specs)
 
-**Complete API documentation with interactive exploration:**
+. **Complete API documentation with interactive exploration:**
 
 | Module                | Documentation |
 |-----------------------|----------------|
@@ -140,6 +159,7 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
+<a id="testing-code-quality"></a>
 ## 🧪 Testing & Code Quality
 
 **🚧 Still under construction** - Backend testing complete, frontend testing documentation needed
@@ -166,6 +186,7 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
+<a id="tech-stack"></a>
 ## 🧰 Tech Stack 
 
 ### Backend
@@ -194,6 +215,7 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
+<a id="environment-profiles"></a>
 ## 🌐 Environment Profiles
 
 - `application-dev.yml` — Local development (auto-reload, detailed logging)
@@ -223,6 +245,18 @@ GitHub Actions automatically handle:
 - ✅ Automatically deploys to Koyeb on successful builds
 - ✅ Live deployment at: https://inventory-service.koyeb.app
 - ✅ Health checks and smoke tests included
+
+<a id="available-scripts"></a>
+## Available Scripts
+
+Below are a few common commands used during development:
+
+- Backend (Maven): `./mvnw spring-boot:run`
+- Run tests: `./mvnw test`
+- Frontend (development): `npm run dev` (from `frontend/`)
+- Frontend (build): `npm run build` (from `frontend/`)
+
+---
 
 ## � Deployment
 
@@ -260,6 +294,7 @@ GitHub Actions automatically handle:
 
 ---
 
+<a id="coming-next"></a>
 ## 👀 Coming Next - Still Under Construction
 
 ### 🚧 Frontend Development
