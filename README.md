@@ -320,14 +320,20 @@ this following part is only for fetching purposes
 
 ## Technologies
 
-. Java 17+ with Spring Boot 3.5+
+. Java 17+
 . Spring Security (OAuth2)
-. Oracle Autonomous Database
-. REST APIs (OpenAPI)
-. Docker (multi-stage builds)
-. JUnit 5 + Mockito + Testcontainers
-. React 19 + TypeScript
+. Oracle 
+. REST APIs
+. Docker
+. JUnit 5 
+. Mockito
+. React 19 
+. TypeScript
 . Material-UI (MUI)
-. Vite, React Router, TypeDoc
-. Devops, CI/CD pipeline
-. GitHub Actions, Fly.io, Koyeb
+. Vite
+. React Router
+. TypeDoc
+. Devops
+. CI/CD pipeline 
+. GitHub Actions
+. JaCoCo
