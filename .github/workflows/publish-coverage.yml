@@ -93,24 +93,82 @@ jobs:
             zip_url="https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}/zip"
           fi
           echo "Downloading artifact zip from: $zip_url"
-          # Save headers and body separately for diagnostics
-          curl -sL -D /tmp/artifact_headers -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "$zip_url" -o /tmp/artifact.zip || true
-          echo "--- /tmp/artifact_headers ---" >&2
-          sed -n '1,200p' /tmp/artifact_headers || true
+          # Try several download strategies because some API endpoints return a small JSON
+          # error (HTTP 415) when an Accept header is provided. Strategy order:
+          # 1) no Accept header (prefer this)
+          # 2) Accept: application/octet-stream
+          # 3) legacy /actions/artifacts/{id}/zip without Accept header
+
+          tried_files=()
+
+          attempt_download() {
+            local url="$1"; local out="$2"; local header_out="$3"; shift
+            echo "Attempting download: $url -> $out (headers -> $header_out)"
+            curl -sSL -D "$header_out" -H "Authorization: token ${GITHUB_TOKEN}" "$url" -o "$out" || true
+            tried_files+=("$out")
+            # print headers preview
+            echo "--- $header_out ---" >&2
+            sed -n '1,200p' "$header_out" || true
+          }
+
+          # primary: artifact_url (no Accept)
+          attempt_download "$zip_url" "/tmp/artifact.zip" "/tmp/artifact_headers"
+
+          # if file seems tiny or non-zip, try with Accept: application/octet-stream
+          need_retry=false
           if [ -f /tmp/artifact.zip ]; then
-            echo "/tmp/artifact.zip exists, size: $(stat -c%s /tmp/artifact.zip) bytes"
+            size=$(stat -c%s /tmp/artifact.zip)
+            if [ "$size" -lt 1024 ]; then
+              need_retry=true
+            fi
+          else
+            need_retry=true
+          fi
+
+          if [ "$need_retry" = true ]; then
+            echo "Primary download looks small or missing; retrying with Accept: application/octet-stream"
+            curl -sSL -D /tmp/artifact_headers2 -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "$zip_url" -o /tmp/artifact2.zip || true
+            echo "--- /tmp/artifact_headers2 ---" >&2
+            sed -n '1,200p' /tmp/artifact_headers2 || true
+          fi
+
+          # if still small, try legacy endpoint without Accept header
+          final_file=""
+          if [ -f /tmp/artifact.zip ] && [ $(stat -c%s /tmp/artifact.zip) -ge 1024 ]; then
+            final_file="/tmp/artifact.zip"
+          elif [ -f /tmp/artifact2.zip ] && [ $(stat -c%s /tmp/artifact2.zip) -ge 1024 ]; then
+            final_file="/tmp/artifact2.zip"
+          else
+            echo "Retrying legacy artifacts endpoint as a last resort"
+            legacy_url="https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}/zip"
+            curl -sSL -D /tmp/artifact_headers_legacy -H "Authorization: token ${GITHUB_TOKEN}" "$legacy_url" -o /tmp/artifact_legacy.zip || true
+            echo "--- /tmp/artifact_headers_legacy ---" >&2
+            sed -n '1,200p' /tmp/artifact_headers_legacy || true
+            if [ -f /tmp/artifact_legacy.zip ] && [ $(stat -c%s /tmp/artifact_legacy.zip) -ge 1024 ]; then
+              final_file="/tmp/artifact_legacy.zip"
+            fi
+          fi
+
+          if [ -z "$final_file" ]; then
+            echo "::warning::Download attempts failed or returned small payloads; showing attempted artifact list and repository-level artifacts" >&2
+            for f in "${tried_files[@]}"; do
+              if [ -f "$f" ]; then
+                echo "$f exists size: $(stat -c%s $f) bytes" >&2
+                echo "Preview (first 400 bytes):" >&2
+                head -c 400 "$f" | sed -n '1,200p' || true
+              fi
+            done
+            curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/artifacts" | jq -C '.' || true
+          else
+            echo "$final_file exists, size: $(stat -c%s $final_file) bytes"
             # quick check: is this an HTML error page instead of a zip?
-            if head -n 1 /tmp/artifact.zip | grep -qi '<!DOCTYPE\|<html'; then
+            if head -n 1 "$final_file" | grep -qi '<!DOCTYPE\|<html'; then
               echo "::error::Downloaded artifact looks like HTML (likely an auth/error page)." >&2
               echo "First 400 bytes of the downloaded file:" >&2
-              head -c 400 /tmp/artifact.zip | sed -n '1,200p' || true
+              head -c 400 "$final_file" | sed -n '1,200p' || true
             fi
-            unzip -q /tmp/artifact.zip -d coverage_tmp || true
+            unzip -q "$final_file" -d coverage_tmp || true
             echo "Unpacked coverage_tmp/ contents:" && ls -la coverage_tmp || true
-          else
-            echo "::warning::Download failed - /tmp/artifact.zip not present"
-            echo "Listing repository-level artifacts for inspection:" >&2
-            curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/artifacts" | jq -C '.' || true
           fi
 
       - name: Checkout repository (main)
