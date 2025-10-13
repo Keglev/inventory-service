@@ -148,7 +148,7 @@ Service Documentation:
 <a id="api-endpoints"></a>
 ### API Endpoints (OpenAPI Specs)
 
-. **Complete API documentation with interactive exploration:**
+**Complete API documentation with interactive exploration:**
 
 | Module                | Documentation |
 |-----------------------|----------------|
