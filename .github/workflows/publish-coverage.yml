@@ -87,6 +87,21 @@ jobs:
           fi
 
           mkdir -p coverage_tmp
+          # If we have an artifact ID, fetch the artifact metadata to extract a reliable
+          # archive_download_url. Some API endpoints return a JSON error for the legacy
+          # /artifacts/{id}/zip URL in certain contexts, so prefer the metadata-provided URL.
+          if [ -n "$artifact_id" ]; then
+            resp_art=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}") || true
+            echo "Artifact metadata (raw):" >&2
+            echo "$resp_art" | jq -C '.' || true
+            # Try to read archive_download_url from the artifact metadata
+            artifact_url_meta=$(echo "$resp_art" | jq -r '.archive_download_url' 2>/dev/null || true)
+            if [ -n "$artifact_url_meta" ] && [ "$artifact_url_meta" != "null" ]; then
+              artifact_url="$artifact_url_meta"
+              echo "Resolved artifact archive_download_url from metadata: $artifact_url"
+            fi
+          fi
+
           if [ -n "$artifact_url" ] && [ "$artifact_url" != "null" ]; then
             zip_url="$artifact_url"
           else
