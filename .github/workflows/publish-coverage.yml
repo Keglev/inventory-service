@@ -1,5 +1,6 @@
 name: Publish JaCoCo Coverage
-
+name: Publish JaCoCo Coverage
+on:
 on:
   workflow_run:
     workflows: ["Inventory Service CI/CD - CI Build & Test & Docker Build"]
