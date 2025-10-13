@@ -116,7 +116,6 @@ Key documents:
   - [Security Patterns](./docs/architecture/patterns/security-patterns.md) — common security patterns used across services
   - [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md) — cross-cutting concerns and implementations
 
-
 <a id="api-integration-guides"></a>
 ### 📡 API Integration Guides
 
