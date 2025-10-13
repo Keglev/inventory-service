@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: read
 
     steps:
       - name: Diagnostic - show workflow_run context
@@ -76,8 +77,26 @@ jobs:
 
           mkdir -p coverage_tmp
           zip_url="https://api.github.com/repos/${owner_repo}/actions/artifacts/${artifact_id}/zip"
-          curl -sL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "$zip_url" -o /tmp/artifact.zip
-          unzip -q /tmp/artifact.zip -d coverage_tmp || true
+          echo "Downloading artifact zip from: $zip_url"
+          # Save headers and body separately for diagnostics
+          curl -sL -D /tmp/artifact_headers -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/octet-stream" "$zip_url" -o /tmp/artifact.zip || true
+          echo "--- /tmp/artifact_headers ---" >&2
+          sed -n '1,200p' /tmp/artifact_headers || true
+          if [ -f /tmp/artifact.zip ]; then
+            echo "/tmp/artifact.zip exists, size: $(stat -c%s /tmp/artifact.zip) bytes"
+            # quick check: is this an HTML error page instead of a zip?
+            if head -n 1 /tmp/artifact.zip | grep -qi '<!DOCTYPE\|<html'; then
+              echo "::error::Downloaded artifact looks like HTML (likely an auth/error page)." >&2
+              echo "First 400 bytes of the downloaded file:" >&2
+              head -c 400 /tmp/artifact.zip | sed -n '1,200p' || true
+            fi
+            unzip -q /tmp/artifact.zip -d coverage_tmp || true
+            echo "Unpacked coverage_tmp/ contents:" && ls -la coverage_tmp || true
+          else
+            echo "::warning::Download failed - /tmp/artifact.zip not present"
+            echo "Listing repository-level artifacts for inspection:" >&2
+            curl -s -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${owner_repo}/actions/artifacts" | jq -C '.' || true
+          fi
 
       - name: Checkout repository (main)
         uses: actions/checkout@v4

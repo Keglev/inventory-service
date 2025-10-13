@@ -315,6 +315,9 @@ Below are a few common commands used during development:
 
 📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
 
+
+
+
 this following part is only for fetching purposes
 
 ## Technologies
