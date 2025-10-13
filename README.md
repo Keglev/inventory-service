@@ -330,4 +330,5 @@ this following part is only for fetching purposes
 . React 19 + TypeScript
 . Material-UI (MUI)
 . Vite, React Router, TypeDoc
+. Devops, CI/CD pipeline
 . GitHub Actions, Fly.io, Koyeb
