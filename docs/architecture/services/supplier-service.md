@@ -352,7 +352,7 @@ SupplierValidator.assertDeletable(id, checkFunction);
 
 **Comparison**: InventoryItemServiceImpl uses **inline validation** (candidate for refactoring).
 
-See [Validation Patterns](/docs/architecture/patterns/validation-patterns.md) for details.
+See [Validation Patterns](../patterns/validation-patterns.md) for details.
 
 ---
 
@@ -378,7 +378,7 @@ SupplierDTO dto = SupplierMapper.toDTO(entity);
 - ⚠️ **Boilerplate**: Must write mapping code manually
 - ⚠️ **Maintenance**: Must update mapper when entity/DTO changes
 
-See [Mapper Patterns](/docs/architecture/patterns/mapper-patterns.md) for details.
+See [Mapper Patterns](../patterns/mapper-patterns.md) for details.
 
 ---
 
@@ -500,7 +500,7 @@ ALTER TABLE inventory_items
 
 **Estimated Effort**: 2 hours (entity, migration, service update, testing)
 
-**See**: [Supplier service refactoring notes](/docs/IMPLEMENTATION_PLAN.md)
+**See**: [Supplier service refactoring notes](../../IMPLEMENTATION_PLAN.md)
 
 ---
 
@@ -535,7 +535,7 @@ public class SecurityContextUtils {
 
 **Estimated Effort**: 2 hours (utility creation, service updates, testing)
 
-**See**: [Cross-Layer Refactoring](/docs/architecture/refactoring/cross-layer-utilities.md)
+**See**: [Cross-Layer Refactoring](../refactoring/cross-layer-utilities.md)
 
 ---
 
@@ -658,9 +658,9 @@ void deleteSupplier_HasLinkedItems_Returns409Conflict() { ... }
 
 ## 📚 Further Reading
 
--- **[Validation Patterns](/docs/architecture/patterns/validation-patterns.md)** - Delegated validation strategy
--- **[Mapper Patterns](/docs/architecture/patterns/mapper-patterns.md)** - Static DTO ↔ Entity conversion
--- **[Audit Trail Patterns](/docs/architecture/patterns/audit-trail.md)** - createdBy/updatedBy tracking
+-- **[Validation Patterns](../patterns/validation-patterns.md)** - Delegated validation strategy
+-- **[Mapper Patterns](../patterns/mapper-patterns.md)** - Static DTO ↔ Entity conversion
+-- **[Audit Trail Patterns](../patterns/audit-trail.md)** - createdBy/updatedBy tracking
 - **[Refactoring Roadmap](../refactoring/README.md)** - Cross-layer improvements
 - **[API Documentation](../../api/redoc/api.html)** - REST API reference (Redoc)
 
@@ -668,3 +668,4 @@ void deleteSupplier_HasLinkedItems_Returns409Conflict() { ... }
 
 **Last Updated**: October 7, 2025  
 **Next Review**: After entity audit fields implemented
+

@@ -315,11 +315,11 @@ config.setMaxAge(3600L); // 1-hour preflight cache
 
 ## Related Documentation
 
-- **Security Architecture**: See [Security Patterns](/docs/architecture/patterns/security-patterns.md) for comprehensive security patterns
-- **API Integration**: See [Configuration API Integration](/docs/architecture/patterns/configuration-api-integration.md) for implementation details
-- **Controller Layer**: See [Controller Patterns](/docs/architecture/patterns/controller-patterns.md) for API endpoint security
-- **Service Layer**: See [Service Layer Patterns](/docs/architecture/patterns/service-patterns.md) for method-level security integration
-- **DTO Layer**: See [DTO Patterns](/docs/architecture/patterns/dto-patterns.md) for validation and conditional access
+- **Security Architecture**: See [Security Patterns](security-patterns.md) for comprehensive security patterns
+- **API Integration**: See [Configuration API Integration](configuration-api-integration.md) for implementation details
+- **Controller Layer**: See [Controller Patterns](controller-patterns.md) for API endpoint security
+- **Service Layer**: See [Service Layer Patterns](service-patterns.md) for method-level security integration
+- **DTO Layer**: See [DTO Patterns](dto-patterns.md) for validation and conditional access
 - **Frontend Integration**: CORS and authentication flow documentation
 - **Deployment**: Environment-specific configuration patterns
 

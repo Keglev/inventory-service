@@ -28,22 +28,22 @@
 
 ### Core Patterns
 
--- **🎯 [Controller Patterns](/docs/architecture/patterns/controller-patterns.md)** - REST API design patterns
+-- **🎯 [Controller Patterns](../architecture/patterns/controller-patterns.md)** - REST API design patterns
 - **🔄 [DTO Patterns](../architecture/patterns/dto-patterns.md)** - Data transfer object patterns
--- **🗺️ [Mapper Patterns](/docs/architecture/patterns/mapper-patterns.md)** - Entity-DTO mapping strategies *(35,000+ words)*
--- **🏪 [Repository Patterns](/docs/architecture/patterns/repository-patterns.md)** - Data access layer patterns
--- **✅ [Validation Patterns](/docs/architecture/patterns/validation-patterns.md)** - Input validation strategies
+-- **🗺️ [Mapper Patterns](../architecture/patterns/mapper-patterns.md)** - Entity-DTO mapping strategies *(35,000+ words)*
+-- **🏪 [Repository Patterns](../architecture/patterns/repository-patterns.md)** - Data access layer patterns
+-- **✅ [Validation Patterns](../architecture/patterns/validation-patterns.md)** - Input validation strategies
 
 ### Security Architecture
 
--- **🛡️ [Security Patterns](/docs/architecture/patterns/security-patterns.md)** - Enterprise security implementation *(280+ lines)*
+-- **🛡️ [Security Patterns](../architecture/patterns/security-patterns.md)** - Enterprise security implementation *(280+ lines)*
 - **🔐 [OAuth2 Security Architecture](../architecture/patterns/oauth2-security-architecture.md)** - Complete OAuth2 implementation *(728+ lines)*
 - **⚙️ [Security Implementation](../architecture/patterns/security-implementation-patterns.md)** - Security layer implementation
 - **🔄 [Cross-Cutting Security](../architecture/patterns/security-cross-cutting-patterns.md)** - Security aspect patterns
 
 ### Configuration & Integration
 
--- **⚙️ [Configuration Patterns](/docs/architecture/patterns/configuration-patterns.md)** - Spring Boot configuration strategies
+-- **⚙️ [Configuration Patterns](../architecture/patterns/configuration-patterns.md)** - Spring Boot configuration strategies
 - **🔗 [API Integration Patterns](../architecture/patterns/configuration-api-integration.md)** - External service integration
 - **📊 [Model Patterns](../architecture/patterns/model-patterns.md)** - Entity design patterns
 
@@ -85,7 +85,7 @@
 ### Test Coverage Reports
 
 **📊 JaCoCo Coverage Analysis:**
-- **🌐 [Live Coverage Reports](https://keglev.github.io/inventory-service/backend/coverage/index.html)** - GitHub Pages hosted
+- **🌐 [Live Coverage Reports](/backend/coverage/index.html)** - GitHub Pages hosted
 - **📂 [Local Coverage Reports](./coverage/index.html)** - Generated after each test run
 
 ### Testing Documentation

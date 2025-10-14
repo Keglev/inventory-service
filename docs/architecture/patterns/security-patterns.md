@@ -242,11 +242,11 @@ APP_FRONTEND_BASE_URL=https://your-frontend-domain.com
 
 ## Related Documentation
 
-- **Controller Security**: See [Controller Patterns](/docs/architecture/patterns/controller-patterns.md) for endpoint security
-- **Service Security**: See [Service Layer Patterns](/docs/architecture/patterns/service-patterns.md) for method-level security
-- **Configuration Layer**: See [Configuration Patterns](/docs/architecture/patterns/configuration-patterns.md) for refactoring methodology
-- **API Integration**: See [Configuration API Integration](/docs/architecture/patterns/configuration-api-integration.md) for implementation details
-- **DTO Validation**: See [DTO Patterns](/docs/architecture/patterns/dto-patterns.md) for data validation security
+- **Controller Security**: See [Controller Patterns](controller-patterns.md) for endpoint security
+- **Service Security**: See [Service Layer Patterns](service-patterns.md) for method-level security
+- **Configuration Layer**: See [Configuration Patterns](configuration-patterns.md) for refactoring methodology
+- **API Integration**: See [Configuration API Integration](configuration-api-integration.md) for implementation details
+- **DTO Validation**: See [DTO Patterns](dto-patterns.md) for data validation security
 
 - **OAuth2 Integration**: See `OAuth2LoginSuccessHandler` for user provisioning patterns
 - **Frontend Integration**: See CORS configuration for allowed origins

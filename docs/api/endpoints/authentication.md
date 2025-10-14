@@ -373,6 +373,6 @@ const getInventoryItems = () => {
 ---
 
 **Related Documentation:**
-- [OAuth2 Security Architecture](/docs/architecture/patterns/oauth2-security-architecture.md)
-- [Security Patterns](/docs/architecture/patterns/security-patterns.md)
+- [OAuth2 Security Architecture](../../architecture/patterns/oauth2-security-architecture.md)
+- [Security Patterns](../../architecture/patterns/security-patterns.md)
 - [Error Handling Guide](../integration/error-handling.md)

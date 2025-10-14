@@ -350,12 +350,12 @@ public ResponseEntity<Map<String, Object>> checkDatabaseConnection() {
 
 ### Related Documentation
 - [Model Layer Patterns](model-patterns.md) - Entity and DTO design patterns
-- [Repository Layer Patterns](/docs/architecture/patterns/repository-patterns.md) - Data access patterns
-- [Service Layer Patterns](/docs/architecture/patterns/service-patterns.md) - Business logic patterns
-- [Validation Patterns](/docs/architecture/patterns/validation-patterns.md) - Input validation strategies
-- [Security Configuration Patterns](/docs/architecture/patterns/security-patterns.md) - OAuth2 authentication and authorization
-- [Configuration Patterns](/docs/architecture/patterns/configuration-patterns.md) - Demo mode integration and AppProperties
-- [Configuration API Integration](/docs/architecture/patterns/configuration-api-integration.md) - Role-based API security patterns
+- [Repository Layer Patterns](repository-patterns.md) - Data access patterns
+- [Service Layer Patterns](service-patterns.md) - Business logic patterns
+- [Validation Patterns](validation-patterns.md) - Input validation strategies
+- [Security Configuration Patterns](security-patterns.md) - OAuth2 authentication and authorization
+- [Configuration Patterns](configuration-patterns.md) - Demo mode integration and AppProperties
+- [Configuration API Integration](configuration-api-integration.md) - Role-based API security patterns
 
 ### Configuration Dependencies
 - `AppProperties` - Application configuration for demo mode and frontend URLs

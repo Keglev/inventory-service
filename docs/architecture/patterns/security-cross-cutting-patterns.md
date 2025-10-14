@@ -1102,8 +1102,8 @@ class SecurityCrossCuttingTest {
 - **Security Implementation**: See [Security Implementation Patterns](security-implementation-patterns.md)
 - **OAuth2 Architecture**: See [OAuth2 Security Architecture](oauth2-security-architecture.md)
 - **Configuration Security**: See [Configuration Patterns](configuration-patterns.md)
-- **Service Layer Security**: See [Service Patterns](/docs/architecture/patterns/service-patterns.md)
-- **Controller Security**: See [Controller Patterns](/docs/architecture/patterns/controller-patterns.md)
+- **Service Layer Security**: See [Service Patterns](service-patterns.md)
+- **Controller Security**: See [Controller Patterns](controller-patterns.md)
 
 ---
 

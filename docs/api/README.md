@@ -11,9 +11,9 @@ Welcome to the **SmartSupplyPro API Documentation Hub** - your comprehensive gat
 ## 🚀 Quick Navigation
 
 ### **Core API Documentation**
-- 📖 **[Complete API Reference](../redoc/api.html)** - Interactive ReDoc documentation
-- 📄 **[OpenAPI Specification](../openapi/openapi.yaml)** - Machine-readable API spec
-- 🔗 **[API Index](../redoc/index.html)** - Documentation landing page
+- 📖 **[Complete API Reference](redoc/api.html)** - Interactive ReDoc documentation
+- 📄 **[OpenAPI Specification](openapi/openapi.yaml)** - Machine-readable API spec
+- 🔗 **[API Index](redoc/index.html)** - Documentation landing page
 
 ### **API Endpoints by Domain**
 
@@ -60,7 +60,7 @@ Welcome to the **SmartSupplyPro API Documentation Hub** - your comprehensive gat
 
 ### **Authentication & Authorization**
 - **[OAuth2 Security Architecture](../architecture/patterns/oauth2-security-architecture.md)** - Complete OAuth2 implementation
--- **[Security Patterns](/docs/architecture/patterns/security-patterns.md)** - Enterprise security patterns
+-- **[Security Patterns](../architecture/patterns/security-patterns.md)** - Enterprise security patterns
 - **[Security Implementation Guide](../architecture/patterns/security-implementation-patterns.md)** - Implementation details
 - **[Cross-Cutting Security](../architecture/patterns/security-cross-cutting-patterns.md)** - Security across layers
 
