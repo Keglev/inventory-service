@@ -188,6 +188,8 @@ jobs:
           mkdir -p docs/backend/coverage
           if [ -d "$BACKEND_DIR/target/site/jacoco" ]; then
             cp -r $BACKEND_DIR/target/site/jacoco/* docs/backend/coverage/
+            # Ensure we always have a tiny change to commit so publishing is deterministic
+            echo "Published: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > docs/backend/coverage/.published_at
             echo "✅ JaCoCo coverage reports copied to docs/backend/coverage/"
             ls -la docs/backend/coverage/ | head -10
           else

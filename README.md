@@ -38,7 +38,9 @@ This project simulates a real-world software system for small-to-medium manufact
 <a id="still-under-construction"></a>
 ## Still under construction
 
-> ⚠️ **Still under construction** - Enterprise documentation is not yet complete
+> ⚠️ **Still under construction** 
+      - Enterprise documentation is not yet complete
+      - Frontend development still not complete
 
 ---
 
@@ -312,8 +314,6 @@ Below are a few common commands used during development:
 ---
 
 📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
-
-
 
 
 this following part is only for fetching purposes
