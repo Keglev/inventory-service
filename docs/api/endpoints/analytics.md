@@ -4,6 +4,11 @@ title: Analytics API Endpoints
 
 # Analytics — Endpoints
 
+<a id="analytics-summary"></a>
+# Analytics Summary
+
+Overview and quick links to analytics summary endpoints.
+
 Light index of Analytics endpoints (generated from OpenAPI tags). Use the ReDoc anchor to jump to details: `../redoc/index.html#tag/Analytics`.
 
 | Method | Path | Summary |
@@ -32,6 +37,11 @@ Common endpoints:
 - GET /analytics/monthly-stock-movement — monthly movement reports
 - GET /analytics/item-update-frequency — update frequency metrics
 - GET /analytics/low-stock-items — low stock alerts
+
+<a id="low-stock-items"></a>
+### 🔎 Low stock items
+
+Details and examples for the low-stock-items endpoint.
 
 Responses typically return JSON arrays or aggregated objects. Consult ReDoc for schema details and query parameters.
 

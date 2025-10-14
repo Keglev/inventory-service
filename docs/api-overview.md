@@ -105,50 +105,22 @@ graph LR
 - **Performance Monitoring**: Real-time performance metrics
 - **Error Tracking**: Comprehensive error monitoring with correlation IDs
 
-## 🚀 Quick Start
+### **Business Intelligence**
 
-### **1. Authentication**
-```bash
-# Initiate OAuth2 login
-curl -X GET "http://localhost:8081/api/v1/auth/login"
+- **[📊 Analytics API](api/endpoints/analytics.md)** — Business intelligence and KPIs (usage analytics, performance endpoints and alerting)
 
-# Check authentication status
-curl -X GET "http://localhost:8081/api/v1/auth/status" \
-  --cookie-jar cookies.txt
-```
+## 🧩 Core APIs
 
-### **2. API Requests**
-```javascript
-// Make authenticated API request
-const response = await fetch('/api/v1/inventory', {
-  credentials: 'include',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+- **[📦 Inventory API](api/endpoints/inventory.md)** — Inventory management endpoints
+- **[📈 Stock History API](api/endpoints/stock-history.md)** — Inventory movement tracking
+- **[🏢 Suppliers API](api/endpoints/suppliers.md)** — Supplier management
+- **[🛠️ Exceptions & Integration Patterns](architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md)** — Exception handling strategies across APIs
+- **[� Security Endpoints](api/endpoints/security.md)** — Authentication & session endpoints
 
-const data = await response.json();
-```
 
-### **3. Error Handling**
-```javascript
-try {
-  const response = await fetch('/api/v1/inventory');
-  if (!response.ok) {
-    const error = await response.json();
-    console.error('API Error:', error.message);
-    console.error('Correlation ID:', error.correlationId);
-  }
-} catch (error) {
-  console.error('Network Error:', error);
-}
-```
+## 📞 API Support
 
-## 📞 Support & Resources
-
-- **📧 API Support**: [api-support@smartsupplypro.com](mailto:api-support@smartsupplypro.com)
-- **🐛 Issues**: [GitHub Issues](https://github.com/Keglev/inventory-service/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/Keglev/inventory-service/discussions)
+- **� Open an issue**: [Create a GitHub issue](https://github.com/Keglev/inventory-service/issues/new/choose)
 - **📖 Changelog**: [API Changelog](api/changelog/CHANGELOG.md)
 
 ## 🎯 Enterprise Standards
