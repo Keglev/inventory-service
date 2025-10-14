@@ -1,0 +1,20 @@
+Summary of missing HTML links (generated from scripts/missing_html_links_report.txt)
+
+Files scanned: docs/api/redoc
+
+Total reported entries: 57
+
+Grouped by source file:
+
+- docs/api/redoc/api.html: 21 entries
+  - Likely empty/dynamic href/src placeholders: 21
+
+- docs/api/redoc/index.html: 36 entries
+  - Likely empty/dynamic href/src placeholders: 36
+
+Notes:
+- All 57 entries are empty Target values (href/src empty). These are common in JS-generated ReDoc HTML where dynamic attributes are injected at runtime. Manual verification in a browser is recommended before fixing.
+- Recommended action: keep these excluded from static checks by running the checker with default options (it now ignores empty targets) or re-run with `-ReportEmpty` if you want to capture them.
+
+Created by: automated session helper
+Date: 2025-10-14
