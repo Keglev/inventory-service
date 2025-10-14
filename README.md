@@ -142,6 +142,150 @@ Service Documentation:
 
 . [Complete API Documentation (ReDoc)](/api/redoc/index.html) — interactive API landing page
 . [Interactive API Reference](/api/redoc/api.html) — direct ReDoc explorer
+# SmartSupplyPro
+
+**Enterprise Inventory Management System - Java Spring Boot & React**
+
+## About
+
+Complete enterprise-style full-stack application for Inventory & Supplier Management with comprehensive documentation, security architecture, and CI/CD integration.
+
+## Description
+This project simulates a real-world software system for small-to-medium manufacturing companies, inspired by real job experience in purchasing and production planning. It includes modern technologies, OAuth2 authentication, automated CI/CD pipelines, comprehensive testing, and business intelligence visualizations.
+
+![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/ci-build.yml/badge.svg)  
+![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
+
+**📅 Last Updated:** October 13, 2025 - Controller Layer Testing Architecture Complete  
+**🏗️ Status:** 60,000+ words comprehensive documentation | Enterprise architecture | Working CI/CD pipeline
+
+---
+
+## Table of contents
+
+1. [Still under construction](#still-under-construction)
+2. [Screenshots](#screenshots)
+3. [Project status](#project-status)
+4. [Features](#features)
+5. [Security](#security)
+6. [Documentation](#documentation)
+  - [Architecture Overview](#architecture-overview)
+  - [API Integration Guides](#api-integration-guides)
+  - [API Documentation Hub](#api-documentation-hub)
+  - [API Endpoints](#api-endpoints)
+7. [Testing & Code quality](#testing-code-quality)
+8. [Tech stack](#tech-stack)
+9. [Environment profiles (Ci/CD)](#environment-profiles)
+10. [Available Scripts](#available-scripts)
+11. [Coming next](#coming-next)
+
+<a id="still-under-construction"></a>
+## Still under construction
+
+> ⚠️ **Still under construction**
+> - Enterprise documentation is not yet complete
+> - Frontend development still not complete
+
+---
+
+<a id="screenshots"></a>
+## Screenshots
+
+<img src="./frontend/src/assets/project-image.png" alt="Analytics Dashboard" width="600" height="300"/>
+
+<img src="./frontend/src/assets/barchart.png" alt="Analytics Dashboard" width="600" height="300"/>
+
+---
+
+<a id="project-status"></a>
+## Project status
+
+### ✅ Backend Development - Complete
+- ✅ 60,000+ words comprehensive documentation
+- ✅ Professional API documentation with TypeDoc, OpenAPI, and Redoc
+- ✅ Complete backend architecture with enterprise patterns
+- ✅ Working CI/CD pipeline for backend
+- ✅ Controller layer testing architecture complete
+
+### 🚧 Frontend Development - In Progress
+- ✅ React + TypeScript + Material-UI foundation
+- ✅ CI/CD pipeline working and automatically deployed
+- 🚧 Dashboard UI development ongoing
+- 🚧 CRUD operations implementation needed
+- 🚧 Frontend testing documentation needed
+
+### 📚 Documentation Status
+- ✅ Backend testing documentation complete
+- 🚧 Frontend testing documentation needed
+- 🚧 Complete integration testing documentation needed
+
+---
+
+<a id="features"></a>
+## 🚀 Features
+
+### 🎯 Core Modules
+- ✅ **Authentication** with Google OAuth2 via Spring Security
+- 📦 **Inventory Management** – CRUD items, quantity tracking, stock history
+- 🧾 **Supplier Management** – CRUD supplier data, filtering by name  
+- 📊 **Analytics & Dashboard** – Visual insights including:
+  - Stock value over time
+  - Monthly stock movement
+  - Update frequency per item
+  - Low stock alerts
+
+---
+
+<a id="security"></a>
+## 🛡️ Security
+
+- OAuth2 login with Google integration and role-based access (`ADMIN`, `USER`)
+- All `/api/**` endpoints are secured with Spring Security
+- Fine-grained access control using `@PreAuthorize` annotations
+- **Note**: Swagger is **not used** for security simplification - instead using TypeDoc, OpenAPI, and Redoc for API documentation
+
+---
+
+<a id="documentation"></a>
+## 📘 Documentation
+
+<a id="architecture-overview"></a>
+### 🏗️ Architecture Overview
+
+- . [Index for Backend Documentation](./docs/backend/README.md) — architecture landing with service catalog
+- . [Service Layer Overview](./docs/architecture/services/README.md) — service responsibilities and patterns
+- . [Design Patterns & Security](./docs/architecture/patterns/) — architecture patterns, security, and implementation
+
+Key documents:
+
+  - [OAuth2 Security Architecture](./docs/architecture/patterns/oauth2-security-architecture.md) — detailed OAuth2 and token flow
+  - [Security Patterns](./docs/architecture/patterns/security-patterns.md) — common security patterns used across services
+  - [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md) — cross-cutting concerns and implementations
+
+<a id="api-integration-guides"></a>
+### 📡 API Integration Guides
+
+Comprehensive integration documentation for all backend layers:
+
+- . [Exception Handling](./docs/architecture/exceptions/) — comprehensive exception handling patterns *(25,000+ words)*
+- . [Mapper Patterns](./docs/architecture/mappers/) — mapping strategies and DTO patterns *(35,000+ words)*
+- . [Enum Business Logic](./docs/architecture/enums/) — domain enums and business rules
+- . [Configuration Patterns](./docs/architecture/patterns/) — configuration best practices and patterns
+- . [Refactoring Roadmap](./docs/architecture/refactoring/) — planned refactors and migration notes
+
+Service Documentation:
+
+- . [AnalyticsService](./docs/architecture/services/analytics-service.md) — Business insights, WAC algorithm (🔴 HIGH complexity)
+- . [InventoryItemService](./docs/architecture/services/inventory-item-service.md) — Inventory CRUD, stock history (🟡 MEDIUM complexity)
+- . [SupplierService](./docs/architecture/services/supplier-service.md) — Master data management (🟢 LOW complexity)
+- . [StockHistoryService](./docs/architecture/services/stock-history-service.md) — Append-only audit log (🟢 LOW complexity)
+- . [OAuth2 Services](./docs/architecture/services/oauth2-services.md) — Authentication integration (🟡 MEDIUM complexity)
+
+<a id="api-documentation-hub"></a>
+### 🚀 API Documentation Hub
+
+. [Complete API Documentation (ReDoc)](/api/redoc/index.html) — interactive API landing page
+. [Interactive API Reference](/api/redoc/api.html) — direct ReDoc explorer
 . [./docs/api/README.md](./docs/api/README.md) — API index and quick reference
 
 <a id="api-endpoints"></a>
@@ -259,7 +403,7 @@ Below are a few common commands used during development:
 
 ---
 
-## � Deployment
+## Deployment
 
 ### CI/CD Pipeline Status
 **✅ CI/CD pipelines are working and operational**
@@ -316,8 +460,6 @@ Below are a few common commands used during development:
 📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
 
 
-this following part is only for fetching purposes
-
 ## Technologies
 
 . Java 17+
@@ -337,6 +479,3 @@ this following part is only for fetching purposes
 . CI/CD pipeline 
 . GitHub Actions
 . JaCoCo
-c i   t e s t   t r i g g e r   
- 
- 

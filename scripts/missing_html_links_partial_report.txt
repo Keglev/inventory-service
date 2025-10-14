@@ -1,0 +1,210 @@
+﻿[1] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.controller\AnalyticsController.java.html
+    Attr: href/src
+    Target: &quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\patterns\controller-patterns.md&quot;&gt;Controller
+This file will be removed by cleanup script.
+[2] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.controller\AuthController.java.html
+    Attr: href/src
+    Target: &quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\patterns\controller-patterns.md&quot;&gt;Controller
+
+[3] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.controller\HealthCheckController.java.html
+    Attr: href/src
+    Target: &quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\patterns\controller-patterns.md&quot;&gt;Controller
+
+[4] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.controller\InventoryItemController.java.html
+    Attr: href/src
+    Target: &quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\patterns\controller-patterns.md&quot;&gt;Controller
+
+[5] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.model\AppUser.java.html
+    Attr: href/src
+    Target: &quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\docs\architecture\patterns\model-patterns.md&quot;&gt;Model
+
+[6] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.model\InventoryItem.java.html
+    Attr: href/src
+    Target: &quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\docs\architecture\patterns\model-patterns.md&quot;&gt;Model
+
+[7] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.model\Role.java.html
+    Attr: href/src
+    Target: &quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\docs\architecture\patterns\model-patterns.md&quot;&gt;Model
+
+[8] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.model\StockHistory.java.html
+    Attr: href/src
+    Target: &quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\docs\architecture\patterns\model-patterns.md&quot;&gt;Model
+
+[9] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.repository.custom\StockHistoryCustomRepositoryImpl.java.html
+    Attr: href/src
+    Target: &quot;../../../../../../../docs/architecture/patterns/repository-patterns.md&quot;&gt;Repository
+    Resolved: C:\Users\carlo\Documents\githubprojects\docs\architecture\patterns\repository-patterns.md&quot;&gt;Repository
+
+[10] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#movement-trends&quot;&gt;Movement
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[11] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#low-stock-alerts&quot;&gt;Low
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[12] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#supplier-analytics&quot;&gt;Supplier
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[13] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#advanced-filtering&quot;&gt;Advanced
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[14] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#wac-algorithm&quot;&gt;WAC
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[15] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#low-stock-alerts&quot;&gt;Low
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[16] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: href/src
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md&quot;&gt;Analytics
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md&quot;&gt;Analytics
+
+[17] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#price-history&quot;&gt;Price
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[18] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#supplier-analytics&quot;&gt;Supplier
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[19] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\AnalyticsServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/analytics-service.md#stock-valuation&quot;&gt;Stock
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\analytics-service.md
+
+[20] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\InventoryItemServiceImpl.java.html
+    Attr: href/src
+    Target: &quot;../../../../../../docs/architecture/services/inventory-item-service.md&quot;&gt;Inventory
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\inventory-item-service.md&quot;&gt;Inventory
+
+[21] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\SupplierServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/supplier-service.md#operation-flows&quot;&gt;Operation
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
+
+[22] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\SupplierServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/supplier-service.md#1-create-supplier&quot;&gt;Create
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
+
+[23] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\SupplierServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/supplier-service.md#performance-considerations&quot;&gt;Performance
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
+
+[24] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\SupplierServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/supplier-service.md#3-delete-supplier-referential-integrity&quot;&gt;Delete
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
+
+[25] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\SupplierServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/supplier-service.md#2-update-supplier&quot;&gt;Update
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
+
+[26] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\SupplierServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/supplier-service.md#operation-flows&quot;&gt;Operation
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
+
+[27] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\SupplierServiceImpl.java.html
+    Attr: href/src
+    Target: &quot;../../../../../../docs/architecture/services/supplier-service.md&quot;&gt;Supplier
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md&quot;&gt;Supplier
+
+[28] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service.impl\SupplierServiceImpl.java.html
+    Attr: fragment
+    Target: &quot;../../../../../../docs/architecture/services/supplier-service.md#operation-flows&quot;&gt;Operation
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
+
+[29] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.service\StockHistoryService.java.html
+    Attr: href/src
+    Target: &quot;../../../../../docs/architecture/services/stock-history-service.md&quot;&gt;Stock
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\docs\architecture\services\stock-history-service.md&quot;&gt;Stock
+
+[30] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.validation\InventoryItemSecurityValidator.java.html
+    Attr: href/src
+    Target: &quot;file:../../../../../../docs/architecture/patterns/validation-patterns.md&quot;&gt;Validation
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\patterns\validation-patterns.md&quot;&gt;Validation
+
+[31] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.validation\InventoryItemValidator.java.html
+    Attr: href/src
+    Target: &quot;file:../../../../../../docs/architecture/patterns/validation-patterns.md&quot;&gt;Validation
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\patterns\validation-patterns.md&quot;&gt;Validation
+
+[32] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.validation\StockHistoryValidator.java.html
+    Attr: href/src
+    Target: &quot;file:../../../../../../docs/architecture/patterns/validation-patterns.md&quot;&gt;Validation
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\patterns\validation-patterns.md&quot;&gt;Validation
+
+[33] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory.validation\SupplierValidator.java.html
+    Attr: href/src
+    Target: &quot;file:../../../../../../docs/architecture/patterns/validation-patterns.md&quot;&gt;Validation
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\patterns\validation-patterns.md&quot;&gt;Validation
+
+[34] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory\InventoryServiceApplication.java.html
+    Attr: href/src
+    Target: &quot;https://keglev.github.io/inventory-service/api.html&quot;&gt;API
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory\&quot;https:\\\\keglev.github.io\\inventory-service\\api.html&quot;&gt;API
+
+[35] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory\InventoryServiceApplication.java.html
+    Attr: href/src
+    Target: &quot;https://github.com/Keglev/inventory-service&quot;&gt;GitHub
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\backend\coverage\com.smartsupplypro.inventory\&quot;https:\\\\github.com\\Keglev\\inventory-service&quot;&gt;GitHub
+
+[36] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\lunr\index.html
+    Attr: href/src
+    Target: consoleSrc
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\lunr\consoleSrc
+
+[37] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\lunr\index.html
+    Attr: href/src
+    Target: ('https:'
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\lunr\('https:'
+
+[38] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\across-elements\iframes\across.html
+    Attr: href/src
+    Target: jasmine.getFixtures().fixturesPath
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\across-elements\iframes\jasmine.getFixtures().fixturesPath
+
+[39] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\across-elements\iframes\main.html
+    Attr: href/src
+    Target: jasmine.getFixtures().fixturesPath
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\across-elements\iframes\jasmine.getFixtures().fixturesPath
+
+[40] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\across-elements\iframes\nested.html
+    Attr: href/src
+    Target: jasmine.getFixtures().fixturesPath
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\across-elements\iframes\jasmine.getFixtures().fixturesPath
+
+[41] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\iframes\disabled.html
+    Attr: href/src
+    Target: jasmine.getFixtures().fixturesPath
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\iframes\jasmine.getFixtures().fixturesPath
+
+[42] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\iframes\exclude.html
+    Attr: href/src
+    Target: jasmine.getFixtures().fixturesPath
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\node_modules\mark.js\test\fixtures\iframes\jasmine.getFixtures().fixturesPath
+
