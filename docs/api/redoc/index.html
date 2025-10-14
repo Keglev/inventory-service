@@ -24,11 +24,11 @@
 </head>
 <body>
   <header>
-    <h1>🔐 Security Overview</h1>
+    <h1>API Index HUB</h1>
     <a href="https://github.com/Keglev/inventory-service" target="_blank" style="color: #58a6ff;">View on GitHub ↗</a>
   </header>
   <nav>
-    <a href="../../index.html">🏠 Home</a>
+    <a href="../../README.md">🏠 Home</a>
   <a href="api.html">📘 API Reference</a>
   </nav>
   <main>
@@ -51,59 +51,26 @@
 <li><strong><a href="../endpoints/authentication.md">🔐 Authentication API</a></strong> - OAuth2 security and sessions</li>
 <li><strong><a href="../endpoints/health.md">❤️ Health API</a></strong> - System monitoring and health checks</li>
 </ul>
-<h2>🛡️ Security Architecture</h2>
-<h3><strong>Authentication &amp; Authorization</strong></h3>
-<p>SmartSupplyPro implements <strong>enterprise-grade OAuth2 security</strong> with Google Identity Provider:</p>
+<h2>🛡️ API Security</h2>
+<p>This section links to the security-focused API index and endpoints (authentication, authorization, session management).</p>
 <ul>
-<li><strong>🔐 OAuth2 Authentication</strong> - Secure login with Google accounts</li>
-<li><strong>🍪 Session Management</strong> - HTTPOnly secure cookies with CSRF protection</li>
-<li><strong>🔑 Role-Based Access</strong> - Fine-grained permissions system</li>
-<li><strong>🛡️ CORS Protection</strong> - Cross-origin security policies</li>
+<li><strong><a href="../security-api.md">🔐 Security API index</a></strong> — Index of security endpoints and OAuth2 flows</li>
+<li><strong><a href="../../architecture/patterns/oauth2-security-architecture.md">🏗️ OAuth2 Architecture</a></strong> — Implementation details</li>
 </ul>
-<h3><strong>Comprehensive Security Documentation</strong></h3>
+<h3><strong>Business Intelligence</strong></h3>
 <ul>
-<li><strong><a href="../../architecture/patterns/oauth2-security-architecture.md">🏗️ OAuth2 Security Architecture</a></strong> - Complete OAuth2 implementation (728+ lines)</li>
-<li><strong><a href="../../architecture/patterns/security-patterns.md">🔒 Security Patterns</a></strong> - Enterprise security patterns (280+ lines)</li>
-<li><strong><a href="../../architecture/patterns/security-implementation-patterns.md">⚙️ Security Implementation</a></strong> - Implementation guide</li>
-<li><strong><a href="../../architecture/patterns/security-cross-cutting-patterns.md">🔄 Cross-Cutting Security</a></strong> - Security across all layers</li>
-<li><strong><a href="../../architecture/patterns/security-refactoring-guide.md">🔧 Security Refactoring</a></strong> - Security enhancement guide</li>
+<li><strong><a href="../endpoints/analytics.md">📊 Analytics API</a></strong> — Business intelligence and KPIs (usage analytics, performance endpoints and alerting)</li>
 </ul>
-<h3><strong>Security Features Overview</strong></h3>
-<h4><strong>Authentication Flow</strong></h4>
-<pre><code class="language-mermaid">graph LR
-    A[Client] --&gt; B[OAuth2 Login]
-    B --&gt; C[Google Identity]
-    C --&gt; D[Session Creation]
-    D --&gt; E[Secure Cookie]
-    E --&gt; F[API Access]
-</code></pre>
-<h4><strong>Session Security</strong></h4>
+<h2>📚 API DTOs (Schemas)</h2>
 <ul>
-<li><strong>Secure Cookies</strong>: HTTPOnly, Secure, SameSite=Lax</li>
-<li><strong>Session Timeout</strong>: 4 hours inactivity, 24 hours absolute</li>
-<li><strong>CSRF Protection</strong>: Token-based protection for state changes</li>
-<li><strong>Session Invalidation</strong>: Secure logout with cookie clearing</li>
-</ul>
-<h4><strong>API Security</strong></h4>
-<ul>
-<li><strong>Rate Limiting</strong>: Endpoint-specific rate limits</li>
-<li><strong>Input Validation</strong>: Comprehensive request validation</li>
-<li><strong>Output Sanitization</strong>: Secure response formatting</li>
-<li><strong>Error Handling</strong>: Security-aware error responses</li>
+<li>The API DTOs (schemas) are maintained under the OpenAPI components. See:</li>
+<li><strong><a href="../openapi/components/_index.yaml">📘 OpenAPI Components (Schemas)</a></strong></li>
 </ul>
 <h2>🏗️ Enterprise Architecture</h2>
-<h3><strong>Backend Architecture</strong></h3>
+<h3><strong>Architecture &amp; Integration</strong></h3>
 <ul>
-<li><strong><a href="../../backend/README.md">🏢 Backend Documentation Hub</a></strong> - Complete backend architecture</li>
-<li><strong><a href="../../architecture/">📚 Architecture Patterns</a></strong> - Enterprise patterns and guides</li>
-<li><strong><a href="../../architecture/services/">🔧 Service Layer</a></strong> - Business logic architecture</li>
-<li><strong><a href="../../architecture/patterns/">🗄️ Repository Patterns</a></strong> - Data access patterns</li>
-</ul>
-<h3><strong>API Integration Architecture</strong></h3>
-<ul>
-<li><strong><a href="../../architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md">🔄 Exception Integration</a></strong> - Error handling across APIs</li>
-<li><strong><a href="../../architecture/mappers/API_INTEGRATION_PATTERNS.md">🗺️ Mapper Integration</a></strong> - Data transformation patterns</li>
-<li><strong><a href="../../architecture/patterns/configuration-api-integration.md">⚙️ Configuration Integration</a></strong> - Configuration management</li>
+<li>The architecture and integration guidance is available in a separate page. See:</li>
+<li><strong><a href="../architecture-api.md">� Architecture API</a></strong> — consolidated architecture + API integration index</li>
 </ul>
 <h2>🔧 Developer Resources</h2>
 <h3><strong>API Development</strong></h3>
@@ -122,18 +89,6 @@
 <ul>
 <li><strong><a href="../../backend/coverage/">📊 Backend Test Coverage</a></strong> - JaCoCo coverage reports</li>
 <li><strong><a href="../../backend/testing/">🧪 Testing Documentation</a></strong> - Testing strategies and results</li>
-</ul>
-<h3><strong>Business Intelligence</strong></h3>
-<ul>
-<li><strong><a href="../endpoints/analytics.md">📊 Analytics API</a></strong> — Business intelligence and KPIs (usage analytics, performance endpoints and alerting)</li>
-</ul>
-<h2>🧩 Core APIs</h2>
-<ul>
-<li><strong><a href="../endpoints/inventory.md">📦 Inventory API</a></strong> — Inventory management endpoints</li>
-<li><strong><a href="../endpoints/stock-history.md">📈 Stock History API</a></strong> — Inventory movement tracking</li>
-<li><strong><a href="../endpoints/suppliers.md">🏢 Suppliers API</a></strong> — Supplier management</li>
-<li><strong><a href="../../architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md">🛠️ Exceptions &amp; Integration Patterns</a></strong> — Exception handling strategies across APIs</li>
-<li><strong><a href="../endpoints/security.md">🔐 Security Endpoints</a></strong> — Authentication &amp; session endpoints</li>
 </ul>
 <h2>📞 API Support</h2>
 <ul>
@@ -154,6 +109,6 @@
 <p><strong>SmartSupplyPro API Overview</strong> - Enterprise Inventory Management System<br><em>Version 1.0.0 | Last Updated: October 8, 2025</em></p>
 
   </main>
-  <footer>© 2025 SmartSupplyPro – Security Overview</footer>
+  <footer>© 2025 SmartSupplyPro - Main API Index</footer>
 </body>
 </html>

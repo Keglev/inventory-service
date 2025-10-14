@@ -22,59 +22,27 @@ Welcome to the **SmartSupplyPro API Overview** - your central gateway to compreh
 - **[🔐 Authentication API](../endpoints/authentication.md)** - OAuth2 security and sessions
 - **[❤️ Health API](../endpoints/health.md)** - System monitoring and health checks
 
-## 🛡️ Security Architecture
+## 🛡️ API Security
 
-### **Authentication & Authorization**
-SmartSupplyPro implements **enterprise-grade OAuth2 security** with Google Identity Provider:
+This section links to the security-focused API index and endpoints (authentication, authorization, session management).
 
-- **🔐 OAuth2 Authentication** - Secure login with Google accounts
-- **🍪 Session Management** - HTTPOnly secure cookies with CSRF protection
-- **🔑 Role-Based Access** - Fine-grained permissions system
-- **🛡️ CORS Protection** - Cross-origin security policies
+- **[🔐 Security API index](../security-api.md)** — Index of security endpoints and OAuth2 flows
+- **[🏗️ OAuth2 Architecture](../../architecture/patterns/oauth2-security-architecture.md)** — Implementation details
 
-### **Comprehensive Security Documentation**
-- **[🏗️ OAuth2 Security Architecture](../../architecture/patterns/oauth2-security-architecture.md)** - Complete OAuth2 implementation (728+ lines)
-- **[🔒 Security Patterns](../../architecture/patterns/security-patterns.md)** - Enterprise security patterns (280+ lines)
-- **[⚙️ Security Implementation](../../architecture/patterns/security-implementation-patterns.md)** - Implementation guide
-- **[🔄 Cross-Cutting Security](../../architecture/patterns/security-cross-cutting-patterns.md)** - Security across all layers
-- **[🔧 Security Refactoring](../../architecture/patterns/security-refactoring-guide.md)** - Security enhancement guide
+### **Business Intelligence**
 
-### **Security Features Overview**
+- **[📊 Analytics API](../endpoints/analytics.md)** — Business intelligence and KPIs (usage analytics, performance endpoints and alerting)
 
-#### **Authentication Flow**
-```mermaid
-graph LR
-    A[Client] --> B[OAuth2 Login]
-    B --> C[Google Identity]
-    C --> D[Session Creation]
-    D --> E[Secure Cookie]
-    E --> F[API Access]
-```
+## 📚 API DTOs (Schemas)
 
-#### **Session Security**
-- **Secure Cookies**: HTTPOnly, Secure, SameSite=Lax
-- **Session Timeout**: 4 hours inactivity, 24 hours absolute
-- **CSRF Protection**: Token-based protection for state changes
-- **Session Invalidation**: Secure logout with cookie clearing
-
-#### **API Security**
-- **Rate Limiting**: Endpoint-specific rate limits
-- **Input Validation**: Comprehensive request validation
-- **Output Sanitization**: Secure response formatting
-- **Error Handling**: Security-aware error responses
+- The API DTOs (schemas) are maintained under the OpenAPI components. See:
+- **[📘 OpenAPI Components (Schemas)](../openapi/components/_index.yaml)**
 
 ## 🏗️ Enterprise Architecture
 
-### **Backend Architecture**
-- **[🏢 Backend Documentation Hub](../../backend/README.md)** - Complete backend architecture
-- **[📚 Architecture Patterns](../../architecture/)** - Enterprise patterns and guides
-- **[🔧 Service Layer](../../architecture/services/)** - Business logic architecture
-- **[🗄️ Repository Patterns](../../architecture/patterns/)** - Data access patterns
-
-### **API Integration Architecture**
-- **[🔄 Exception Integration](../../architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md)** - Error handling across APIs
-- **[🗺️ Mapper Integration](../../architecture/mappers/API_INTEGRATION_PATTERNS.md)** - Data transformation patterns
-- **[⚙️ Configuration Integration](../../architecture/patterns/configuration-api-integration.md)** - Configuration management
+### **Architecture & Integration**
+- The architecture and integration guidance is available in a separate page. See:
+- **[� Architecture API](../architecture-api.md)** — consolidated architecture + API integration index
 
 ## 🔧 Developer Resources
 
@@ -91,19 +59,6 @@ graph LR
 ### **Code Coverage & Quality**
 - **[📊 Backend Test Coverage](../../backend/coverage/)** - JaCoCo coverage reports
 - **[🧪 Testing Documentation](../../backend/testing/)** - Testing strategies and results
-
-### **Business Intelligence**
-
-- **[📊 Analytics API](../endpoints/analytics.md)** — Business intelligence and KPIs (usage analytics, performance endpoints and alerting)
-
-## 🧩 Core APIs
-
-- **[📦 Inventory API](../endpoints/inventory.md)** — Inventory management endpoints
-- **[📈 Stock History API](../endpoints/stock-history.md)** — Inventory movement tracking
-- **[🏢 Suppliers API](../endpoints/suppliers.md)** — Supplier management
-- **[🛠️ Exceptions & Integration Patterns](../../architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md)** — Exception handling strategies across APIs
-- **[🔐 Security Endpoints](../endpoints/security.md)** — Authentication & session endpoints
-
 
 ## 📞 API Support
 

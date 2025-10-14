@@ -44,17 +44,17 @@ const page = `<!DOCTYPE html>
 </head>
 <body>
   <header>
-    <h1>🔐 Security Overview</h1>
+    <h1>API Index HUB</h1>
     <a href="https://github.com/Keglev/inventory-service" target="_blank" style="color: #58a6ff;">View on GitHub ↗</a>
   </header>
   <nav>
-    <a href="../../index.html">🏠 Home</a>
+    <a href="../../README.md">🏠 Home</a>
   <a href="api.html">📘 API Reference</a>
   </nav>
   <main>
     ${html}
   </main>
-  <footer>© 2025 SmartSupplyPro – Security Overview</footer>
+  <footer>© 2025 SmartSupplyPro - Main API Index</footer>
 </body>
 </html>`;
 
