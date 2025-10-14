@@ -14,11 +14,11 @@
 
 ### OAuth2 & Authentication
 
--- **🔐 [OAuth2 Security Architecture](/docs/architecture/patterns/oauth2-security-architecture.md)** - Complete OAuth2 implementation *(728+ lines)*
+-- **🔐 [OAuth2 Security Architecture](oauth2-security-architecture.md)** - Complete OAuth2 implementation *(728+ lines)*
   - *Google OAuth2 integration with stateless authentication*
   - *Comprehensive security configuration and flow diagrams*
 
--- **🛡️ [Security Patterns](/docs/architecture/patterns/security-patterns.md)** - Enterprise security implementation *(280+ lines)*
+-- **🛡️ [Security Patterns](security-patterns.md)** - Enterprise security implementation *(280+ lines)*
   - *Role-based access control and authorization strategies*
   - *Security configuration and best practices*
 
@@ -26,17 +26,17 @@
   - *Authentication filters and security contexts*
   - *Custom security components and configurations*
 
--- **🔄 [Cross-Cutting Security Patterns](/docs/architecture/patterns/security-cross-cutting-patterns.md)** - Security aspect patterns
+-- **🔄 [Cross-Cutting Security Patterns](security-cross-cutting-patterns.md)** - Security aspect patterns
   - *Security across all application layers*
   - *Cross-cutting concern implementations*
 
 ### Security Integration & Context
 
--- **🔒 [Security Context](/docs/architecture/patterns/security-context.md)** - Security context management
+-- **🔒 [Security Context](security-context.md)** - Security context management
   - *Thread-local security context handling*
   - *Security propagation across async operations*
 
--- **🔗 [OAuth2 API Integration](/docs/architecture/patterns/security-oauth2-api-integration.md)** - API security integration
+-- **🔗 [OAuth2 API Integration](security-oauth2-api-integration.md)** - API security integration
   - *OAuth2 resource server configuration*
   - *API endpoint security patterns*
 
@@ -50,11 +50,11 @@
 
 ### Layer Architecture
 
--- **🎯 [Controller Patterns](/docs/architecture/patterns/controller-patterns.md)** - REST API design patterns
+-- **🎯 [Controller Patterns](controller-patterns.md)** - REST API design patterns
   - *RESTful endpoint design and implementation*
   - *Request/response handling patterns*
 
--- **🏪 [Repository Patterns](/docs/architecture/patterns/repository-patterns.md)** - Data access layer patterns
+-- **🏪 [Repository Patterns](repository-patterns.md)** - Data access layer patterns
   - *JPA repository patterns and custom implementations*
   - *Query optimization and database interaction*
 
@@ -74,7 +74,7 @@
 
 ### Validation & Quality
 
--- **✅ [Validation Patterns](/docs/architecture/patterns/validation-patterns.md)** - Input validation strategies
+-- **✅ [Validation Patterns](validation-patterns.md)** - Input validation strategies
   - *Bean validation and custom validators*
   - *Multi-layer validation approaches*
 

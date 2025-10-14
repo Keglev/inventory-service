@@ -404,7 +404,7 @@ curl -f https://inventoryservice.fly.dev/api/auth/user
 
 ### **CI/CD & Automation**
 - **[GitHub Actions](/.github/workflows/)** - Complete CI/CD pipeline (workflows for backend, frontend and docs)
-- **[Test Coverage Reports](/docs/backend/coverage/)** - JaCoCo coverage analysis (published via CI)
+- **[Test Coverage Reports](../../backend/coverage/)** - JaCoCo coverage analysis (published via CI)
 - **[API Documentation Pipeline](/.github/workflows/docs-openapi.yml)** - Documentation automation (OpenAPI bundling & ReDoc)
 
 ### **Security & Monitoring**

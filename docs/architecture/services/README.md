@@ -30,7 +30,7 @@
 - Complex aggregations
 - No audit trail (read-only operations)
 
-**[📖 Full Documentation](/docs/architecture/services/analytics-service.md)**
+**[📖 Full Documentation](analytics-service.md)**
 
 ---
 
@@ -53,7 +53,7 @@
 - Inline validation (candidate for extraction)
 - Transactional data management
 
-**[📖 Full Documentation](/docs/architecture/services/inventory-item-service.md)**
+**[📖 Full Documentation](inventory-item-service.md)**
 
 ---
 
@@ -75,7 +75,7 @@
 - Master data (infrequent changes)
 - Deletion protection (check inventory items)
 
-**[📖 Full Documentation](/docs/architecture/services/supplier-service.md)**
+**[📖 Full Documentation](supplier-service.md)**
 
 ---
 
@@ -97,7 +97,7 @@
 - No update/delete operations
 - Server-authoritative timestamps
 
-**[📖 Full Documentation](/docs/architecture/services/stock-history-service.md)**
+**[📖 Full Documentation](stock-history-service.md)**
 
 ---
 
@@ -114,7 +114,7 @@
 - User principal creation
 - First-time user registration
 
-**[📖 Full Documentation](/docs/architecture/services/oauth2-services.md)**
+**[📖 Full Documentation](oauth2-services.md)**
 
 ---
 
@@ -129,7 +129,7 @@
 - ID token claims processing
 - User principal creation
 
-**[📖 Full Documentation](/docs/architecture/services/oauth2-services.md)**
+**[📖 Full Documentation](oauth2-services.md)**
 
 ---
 
@@ -303,3 +303,4 @@ Consider **SecurityContextUtils** extraction (used in InventoryItemServiceImpl, 
 ---
 
 **Last Updated**: October 7, 2025
+

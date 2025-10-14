@@ -364,5 +364,5 @@ public void testFinancialSummaryIntegration() {
 - [Service Layer Overview](../services/README.md)
 - [Stock History Service](stock-history-service.md)
 - [Inventory Item Service](inventory-item-service.md)
-- [Repository Patterns](/docs/architecture/patterns/repository-patterns.md)
-- [Performance Optimization](/docs/architecture/patterns/performance-patterns.md)
+- [Repository Patterns](../patterns/repository-patterns.md)
+- [Performance Optimization](../patterns/performance-patterns.md)

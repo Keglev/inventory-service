@@ -192,20 +192,20 @@ void deleteInventoryItem_UserRole_ShouldReturnForbidden() {
 
 ## 🔗 **Related Documentation**
 
- **[Test Execution Reports](/docs/architecture/testing/test-execution-reports/)** - Surefire/Failsafe reports
- **[Performance Benchmarks](/docs/architecture/testing/performance-benchmarks/)** - Test performance metrics
- [test-containers-setup](/docs/architecture/testing/test-containers-setup.md)
-[unit-testing-strategy](/docs/architecture/testing/unit-testing-strategy.md)
-[integration-testing](/docs/architecture/testing/integration-testing.md)
-**[Enterprise Testing Patterns](/docs/architecture/testing/strategies/enterprise-patterns.md)** - Business context and domain-driven testing
+ **[Test Execution Reports](test-execution-reports/)** - Surefire/Failsafe reports
+ **[Performance Benchmarks](performance-benchmarks/)** - Test performance metrics
+ [test-containers-setup](test-containers-setup.md)
+[unit-testing-strategy](unit-testing-strategy.md)
+[integration-testing](integration-testing.md)
+**[Enterprise Testing Patterns](strategies/enterprise-patterns.md)** - Business context and domain-driven testing
 
 ### **Coverage & Reports**
 - **[Live Coverage Report](../../backend/coverage/index.html)** - JaCoCo coverage analysis
- - **[Test Execution Reports](/docs/architecture/testing/test-execution-reports/)** - Surefire/Failsafe reports
- - **[Performance Benchmarks](/docs/architecture/testing/performance-benchmarks/)** - Test performance metrics
+ - **[Test Execution Reports](test-execution-reports/)** - Surefire/Failsafe reports
+ - **[Performance Benchmarks](performance-benchmarks/)** - Test performance metrics
 **[Live Coverage Report](https://keglev.github.io/inventory-service/backend/coverage/index.html)** - JaCoCo coverage analysis
-**[Test Execution Reports](/docs/architecture/testing/test-execution-reports/)** - Surefire/Failsafe reports
-**[Performance Benchmarks](/docs/architecture/testing/performance-benchmarks/)** - Test performance metrics
+**[Test Execution Reports](test-execution-reports/)** - Surefire/Failsafe reports
+**[Performance Benchmarks](performance-benchmarks/)** - Test performance metrics
 - **[Service Layer Documentation](../services/README.md)** - Business logic architecture
 - **[Security Architecture](../patterns/oauth2-security-architecture.md)** - Security implementation
 

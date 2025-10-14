@@ -1,16 +1,12 @@
-﻿[1] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
-    Target: /docs/architecture/refactoring/cross-layer-utilities.md
-    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\\architecture\\refactoring\\cross-layer-utilities.md
+﻿[1] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\README.md
+    Target: /architecture/patterns/README.md
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\architecture\\patterns\\README.md
 
-[2] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\testing\README.md
-    Target: /docs/architecture/testing/integration-testing.md
-    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\\architecture\\testing\\integration-testing.md
+[2] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\README.md
+    Target: /architecture/services/README.md
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\architecture\\services\\README.md
 
-[3] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\testing\README.md
-    Target: /docs/architecture/testing/unit-testing-strategy.md
-    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\\architecture\\testing\\unit-testing-strategy.md
-
-[4] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\testing\README.md
-    Target: /docs/architecture/testing/test-containers-setup.md
-    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\\architecture\\testing\\test-containers-setup.md
+[3] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\README.md
+    Target: /architecture/security-overview.md
+    Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\architecture\\security-overview.md
 
