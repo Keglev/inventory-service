@@ -1,3 +1,20 @@
+---
+title: Suppliers API Endpoints
+---
+
+# Suppliers — Endpoints
+
+Light index of Suppliers endpoints (generated from OpenAPI tags). Use the ReDoc anchor to jump to details: `../redoc/index.html#tag/Suppliers`.
+
+| Method | Path | Summary |
+|---|---|---|
+| GET | /api/suppliers | List suppliers |
+| GET | /api/suppliers/{id} | Get supplier by id |
+| POST | /api/suppliers | Create supplier |
+| PATCH | /api/suppliers/{id} | Update supplier |
+| DELETE | /api/suppliers/{id} | Delete supplier |
+
+Jump to interactive documentation: [ReDoc — Suppliers](../redoc/index.html#tag/Suppliers)
 # Suppliers API Documentation
 
 **Endpoint Base:** `/api/v1/suppliers`  

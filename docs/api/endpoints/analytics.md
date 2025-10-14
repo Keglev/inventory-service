@@ -1,3 +1,23 @@
+---
+title: Analytics API Endpoints
+---
+
+# Analytics — Endpoints
+
+Light index of Analytics endpoints (generated from OpenAPI tags). Use the ReDoc anchor to jump to details: `../redoc/index.html#tag/Analytics`.
+
+| Method | Path | Summary |
+|---|---|---|
+| GET | /analytics/summary | Analytics summary |
+| GET | /analytics/stock-value | Stock value report |
+| GET | /analytics/stock-per-supplier | Stock per supplier |
+| GET | /analytics/price-trend | Price trend |
+| GET | /analytics/monthly-stock-movement | Monthly stock movement |
+| GET | /analytics/item-update-frequency | Item update frequency |
+| GET | /analytics/low-stock-items | Low stock items |
+| GET | /analytics/financial/summary | Financial summary |
+
+Jump to interactive documentation: [ReDoc — Analytics](../redoc/index.html#tag/Analytics)
 # Analytics API Documentation
 
 **Endpoint Base:** `/api/v1/analytics`  

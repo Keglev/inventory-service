@@ -1,3 +1,17 @@
+---
+title: Stock History API Endpoints
+---
+
+# Stock History — Endpoints
+
+Light index of Stock History endpoints (generated from OpenAPI tags). Use the ReDoc anchor to jump to details: `../redoc/index.html#tag/Stock-History`.
+
+| Method | Path | Summary |
+|---|---|---|
+| GET | /api/stock-history | List stock history entries |
+| POST | /api/stock-history | Append stock history entry |
+
+Jump to interactive documentation: [ReDoc — Stock History](../redoc/index.html#tag/Stock-History)
 # Stock History API
 
 **Stock Movement Tracking & Audit Trail**

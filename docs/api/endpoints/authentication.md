@@ -1,3 +1,19 @@
+---
+title: Authentication API Endpoints
+---
+
+# Authentication — Endpoints
+
+Light index of Authentication endpoints (generated from OpenAPI tags). Use the ReDoc anchor to jump to details: `../redoc/index.html#tag/Authentication`.
+
+| Method | Path | Summary |
+|---|---|---|
+| GET | /api/me | Get current authenticated user's profile |
+| GET | /api/me/authorities | Get user's authorities |
+| POST | /api/auth/logout | Programmatic logout (expires session cookies) |
+| GET | /oauth2/authorization/google | Initiate Google OAuth2 login (Spring Security)
+
+Jump to interactive documentation: [ReDoc — Authentication](../redoc/index.html#tag/Authentication)
 # Authentication API Documentation
 
 **Endpoint Base:** `/api/v1/auth`  

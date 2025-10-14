@@ -1,3 +1,18 @@
+---
+title: Health Check Endpoints
+---
+
+# Health — Endpoints
+
+Light index of Health endpoints (generated from OpenAPI tags). Use the ReDoc anchor to jump to details: `../redoc/index.html#tag/Health-Check`.
+
+| Method | Path | Summary |
+|---|---|---|
+| GET | /health | Service health check |
+| GET | /health/ready | Readiness probe |
+| GET | /health/live | Liveness probe |
+
+Jump to interactive documentation: [ReDoc — Health](../redoc/index.html#tag/Health-Check)
 # Health Check API
 
 **System Monitoring & Application Health**
