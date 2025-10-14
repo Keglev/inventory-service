@@ -115,3 +115,5 @@ OracleWalletConnectionTest.java
 /docs/openapi.yaml
 docs/api.html
 # /docs/architecture/security-overview.html
+# archive of docs backups
+/docs/_bak/
