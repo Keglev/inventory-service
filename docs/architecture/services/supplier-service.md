@@ -352,7 +352,7 @@ SupplierValidator.assertDeletable(id, checkFunction);
 
 **Comparison**: InventoryItemServiceImpl uses **inline validation** (candidate for refactoring).
 
-See [Validation Patterns](../patterns/validation-patterns.md) for details.
+See [Validation Patterns](/docs/architecture/patterns/validation-patterns.md) for details.
 
 ---
 
@@ -378,7 +378,7 @@ SupplierDTO dto = SupplierMapper.toDTO(entity);
 - ⚠️ **Boilerplate**: Must write mapping code manually
 - ⚠️ **Maintenance**: Must update mapper when entity/DTO changes
 
-See [Mapper Patterns](../patterns/mapper-patterns.md) for details.
+See [Mapper Patterns](/docs/architecture/patterns/mapper-patterns.md) for details.
 
 ---
 
@@ -535,7 +535,7 @@ public class SecurityContextUtils {
 
 **Estimated Effort**: 2 hours (utility creation, service updates, testing)
 
-**See**: [Cross-Layer Refactoring](../refactoring/cross-layer-utilities.md)
+**See**: [Cross-Layer Refactoring](/docs/architecture/refactoring/cross-layer-utilities.md)
 
 ---
 

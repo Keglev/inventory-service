@@ -72,7 +72,7 @@ See [Refactoring Roadmap](refactoring/README.md) for details.
 - **[API Documentation (OpenAPI)](../api/openapi/openapi.yaml)** - REST API specification
 - **[API Reference (Redoc)](../api/redoc/api.html)** - Interactive API documentation
 - **[Backend Test Coverage](https://keglev.github.io/inventory-service/backend/coverage/index.html)** - JaCoCo coverage report (268 tests)
-- **[Frontend Documentation](../../frontend/README.md)** - React TypeScript SPA
+- **[Frontend Documentation](/frontend/README.md)** - React TypeScript SPA
 
 ---
 
