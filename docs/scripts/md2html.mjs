@@ -48,8 +48,8 @@ const page = `<!DOCTYPE html>
     <a href="https://github.com/Keglev/inventory-service" target="_blank" style="color: #58a6ff;">View on GitHub ↗</a>
   </header>
   <nav>
-    <a href="../index.html">🏠 Home</a>
-  <a href="../api/redoc/api.html">📘 API Reference</a>
+    <a href="../../index.html">🏠 Home</a>
+  <a href="api.html">📘 API Reference</a>
   </nav>
   <main>
     ${html}
