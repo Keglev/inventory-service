@@ -12,15 +12,15 @@ Welcome to the **SmartSupplyPro API Overview** - your central gateway to compreh
 
 ### **Interactive Documentation**
 - **[🌐 ReDoc API Documentation](api.html)** - Complete interactive API reference
-- **[📋 API Documentation Hub](api/README.md)** - Comprehensive API guide and navigation
+- **[📋 API Documentation Hub](../README.md)** - Comprehensive API guide and navigation
 
 ### **API Endpoints by Domain**
-- **[📦 Inventory Items API](api/endpoints/inventory-items.md)** - Complete inventory management
-- **[🏢 Suppliers API](api/endpoints/suppliers.md)** - Supplier relationship management  
-- **[📊 Analytics API](api/endpoints/analytics.md)** - Business intelligence and KPIs
-- **[📈 Stock History API](api/endpoints/stock-history.md)** - Inventory movement tracking
-- **[🔐 Authentication API](api/endpoints/authentication.md)** - OAuth2 security and sessions
-- **[❤️ Health API](api/endpoints/health.md)** - System monitoring and health checks
+- **[📦 Inventory Items API](../endpoints/inventory-items.md)** - Complete inventory management
+- **[🏢 Suppliers API](../endpoints/suppliers.md)** - Supplier relationship management
+- **[📊 Analytics API](../endpoints/analytics.md)** - Business intelligence and KPIs
+- **[📈 Stock History API](../endpoints/stock-history.md)** - Inventory movement tracking
+- **[🔐 Authentication API](../endpoints/authentication.md)** - OAuth2 security and sessions
+- **[❤️ Health API](../endpoints/health.md)** - System monitoring and health checks
 
 ## 🛡️ Security Architecture
 
@@ -33,11 +33,11 @@ SmartSupplyPro implements **enterprise-grade OAuth2 security** with Google Ident
 - **🛡️ CORS Protection** - Cross-origin security policies
 
 ### **Comprehensive Security Documentation**
-- **[🏗️ OAuth2 Security Architecture](architecture/patterns/oauth2-security-architecture.md)** - Complete OAuth2 implementation (728+ lines)
-- **[🔒 Security Patterns](architecture/patterns/security-patterns.md)** - Enterprise security patterns (280+ lines)
-- **[⚙️ Security Implementation](architecture/patterns/security-implementation-patterns.md)** - Implementation guide
-- **[🔄 Cross-Cutting Security](architecture/patterns/security-cross-cutting-patterns.md)** - Security across all layers
-- **[🔧 Security Refactoring](architecture/patterns/security-refactoring-guide.md)** - Security enhancement guide
+- **[🏗️ OAuth2 Security Architecture](../../architecture/patterns/oauth2-security-architecture.md)** - Complete OAuth2 implementation (728+ lines)
+- **[🔒 Security Patterns](../../architecture/patterns/security-patterns.md)** - Enterprise security patterns (280+ lines)
+- **[⚙️ Security Implementation](../../architecture/patterns/security-implementation-patterns.md)** - Implementation guide
+- **[🔄 Cross-Cutting Security](../../architecture/patterns/security-cross-cutting-patterns.md)** - Security across all layers
+- **[🔧 Security Refactoring](../../architecture/patterns/security-refactoring-guide.md)** - Security enhancement guide
 
 ### **Security Features Overview**
 
@@ -66,62 +66,49 @@ graph LR
 ## 🏗️ Enterprise Architecture
 
 ### **Backend Architecture**
-- **[🏢 Backend Documentation Hub](backend/README.md)** - Complete backend architecture
-- **[📚 Architecture Patterns](architecture/)** - Enterprise patterns and guides
-- **[🔧 Service Layer](architecture/services/)** - Business logic architecture
-- **[🗄️ Repository Patterns](architecture/patterns/)** - Data access patterns
+- **[🏢 Backend Documentation Hub](../../backend/README.md)** - Complete backend architecture
+- **[📚 Architecture Patterns](../../architecture/)** - Enterprise patterns and guides
+- **[🔧 Service Layer](../../architecture/services/)** - Business logic architecture
+- **[🗄️ Repository Patterns](../../architecture/patterns/)** - Data access patterns
 
 ### **API Integration Architecture**
-- **[🔄 Exception Integration](architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md)** - Error handling across APIs
-- **[🗺️ Mapper Integration](architecture/mappers/API_INTEGRATION_PATTERNS.md)** - Data transformation patterns
-- **[⚙️ Configuration Integration](architecture/patterns/configuration-api-integration.md)** - Configuration management
+- **[🔄 Exception Integration](../../architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md)** - Error handling across APIs
+- **[🗺️ Mapper Integration](../../architecture/mappers/API_INTEGRATION_PATTERNS.md)** - Data transformation patterns
+- **[⚙️ Configuration Integration](../../architecture/patterns/configuration-api-integration.md)** - Configuration management
 
 ## 🔧 Developer Resources
 
 ### **API Development**
-- **[📐 API Design Guidelines](api/development/api-design-guidelines.md)** - Standards and best practices
-- **[📝 OpenAPI Guide](api/development/openapi-guide.md)** - Specification maintenance
-- **[🧪 Testing Strategies](api/development/testing-strategies.md)** - Comprehensive testing
+- **[📐 API Design Guidelines](../development/api-design-guidelines.md)** - Standards and best practices
+- **[📝 OpenAPI Guide](../development/openapi-guide.md)** - Specification maintenance
+- **[🧪 Testing Strategies](../development/testing-strategies.md)** - Comprehensive testing
 
 ### **Integration Guides**
-- **[⚛️ React Integration](api/integration/react-integration.md)** - Frontend integration patterns
-- **[🔧 JavaScript SDK](api/integration/javascript-sdk.md)** - Client SDK documentation
-- **[⚠️ Error Handling](api/integration/error-handling.md)** - Error response patterns
+- **[⚛️ React Integration](../integration/react-integration.md)** - Frontend integration patterns
+- **[🔧 JavaScript SDK](../integration/javascript-sdk.md)** - Client SDK documentation
+- **[⚠️ Error Handling](../integration/error-handling.md)** - Error response patterns
 
 ### **Code Coverage & Quality**
-- **[📊 Backend Test Coverage](backend/coverage/)** - JaCoCo coverage reports
-- **[🧪 Testing Documentation](backend/testing/)** - Testing strategies and results
-
-## 📊 API Monitoring
-
-### **Performance Metrics**
-- **Response Times**: < 200ms for cached endpoints, < 2s for computed analytics
-- **Availability**: 99.9% uptime SLA
-- **Rate Limits**: Tiered limits based on operation type
-- **Caching**: Multi-layer caching strategy for optimal performance
-
-### **Business Intelligence**
-- **Usage Analytics**: API endpoint usage patterns
-- **Performance Monitoring**: Real-time performance metrics
-- **Error Tracking**: Comprehensive error monitoring with correlation IDs
+- **[📊 Backend Test Coverage](../../backend/coverage/)** - JaCoCo coverage reports
+- **[🧪 Testing Documentation](../../backend/testing/)** - Testing strategies and results
 
 ### **Business Intelligence**
 
-- **[📊 Analytics API](api/endpoints/analytics.md)** — Business intelligence and KPIs (usage analytics, performance endpoints and alerting)
+- **[📊 Analytics API](../endpoints/analytics.md)** — Business intelligence and KPIs (usage analytics, performance endpoints and alerting)
 
 ## 🧩 Core APIs
 
-- **[📦 Inventory API](api/endpoints/inventory.md)** — Inventory management endpoints
-- **[📈 Stock History API](api/endpoints/stock-history.md)** — Inventory movement tracking
-- **[🏢 Suppliers API](api/endpoints/suppliers.md)** — Supplier management
-- **[🛠️ Exceptions & Integration Patterns](architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md)** — Exception handling strategies across APIs
-- **[� Security Endpoints](api/endpoints/security.md)** — Authentication & session endpoints
+- **[📦 Inventory API](../endpoints/inventory.md)** — Inventory management endpoints
+- **[📈 Stock History API](../endpoints/stock-history.md)** — Inventory movement tracking
+- **[🏢 Suppliers API](../endpoints/suppliers.md)** — Supplier management
+- **[🛠️ Exceptions & Integration Patterns](../../architecture/exceptions/EXCEPTION_INTEGRATION_PATTERNS.md)** — Exception handling strategies across APIs
+- **[🔐 Security Endpoints](../endpoints/security.md)** — Authentication & session endpoints
 
 
 ## 📞 API Support
 
-- **� Open an issue**: [Create a GitHub issue](https://github.com/Keglev/inventory-service/issues/new/choose)
-- **📖 Changelog**: [API Changelog](api/changelog/CHANGELOG.md)
+- **🐛 Open an issue**: [Create a GitHub issue](https://github.com/Keglev/inventory-service/issues/new/choose)
+- **📖 Changelog**: [API Changelog](../changelog/CHANGELOG.md)
 
 ## 🎯 Enterprise Standards
 
