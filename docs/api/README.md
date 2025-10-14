@@ -11,9 +11,9 @@ Welcome to the **SmartSupplyPro API Documentation Hub** - your comprehensive gat
 ## 🚀 Quick Navigation
 
 ### **Core API Documentation**
-- 📖 **[Complete API Reference](redoc/api.html)** - Interactive ReDoc documentation
-- 📄 **[OpenAPI Specification](openapi/openapi.yaml)** - Machine-readable API spec
-- 🔗 **[API Index](redoc/index.html)** - Documentation landing page
+- 📖 **[Complete API Reference](/api/redoc/api.html)** - Interactive ReDoc documentation
+- 📄 **[OpenAPI Specification](/api/openapi/openapi.yaml)** - Machine-readable API spec
+- 🔗 **[API Index](/api/redoc/index.html)** - Documentation landing page
 
 ### **API Endpoints by Domain**
 
@@ -152,11 +152,11 @@ try {
 }
 ```
 
-## 📚 **API Reference Formats**
+- ## 📚 **API Reference Formats**
 
-- **🌐 Interactive Documentation** - [ReDoc Interface](../redoc/api.html)
-- **📄 OpenAPI 3.0 Specification** - [YAML Format](../openapi/openapi.yaml)
-- **📋 Endpoint Documentation** - [Markdown Guides](endpoints/)
+- **🌐 Interactive Documentation** - [/api/redoc/api.html](/api/redoc/api.html)
+- **📄 OpenAPI 3.0 Specification** - [/api/openapi/openapi.yaml](/api/openapi/openapi.yaml)
+- **📋 Endpoint Documentation** - [/api/endpoints/](endpoints/)
 - **🔗 Postman Collection** - [Download Collection](postman/SmartSupplyPro.postman_collection.json)
 
 ## 🎯 **API Versions & Compatibility**
@@ -171,7 +171,7 @@ try {
 - **📧 API Support**: [api-support@smartsupplypro.com](mailto:api-support@smartsupplypro.com)
 - **🐛 Bug Reports**: [GitHub Issues](https://github.com/Keglev/inventory-service/issues)
 - **💬 Community**: [Discussions](https://github.com/Keglev/inventory-service/discussions)
-- **📖 Changelog**: [API Changelog](changelog/CHANGELOG.md)
+- **📖 Changelog**: [API Changelog](https://github.com/Keglev/inventory-service/releases)
 
 ## 🏗️ **Enterprise Architecture**
 
