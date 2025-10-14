@@ -1,4 +1,43 @@
-﻿[1] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
+﻿Missing links / site-path issues report
+Generated: 2025-10-14
+
+Purpose
+-------
+This file lists documentation files that contain links likely to break when the repository is published to GitHub Pages from the `docs/` folder.
+
+Problem pattern
+---------------
+- Links that begin with `/docs/...` should instead be site-root paths without the `/docs` prefix (for example `/docs/architecture/...` -> `/architecture/...`) because GitHub Pages serves the contents of the `docs/` folder at the site root.
+- Some files use relative `../` or `./` which may be OK, but those should be validated per-file.
+
+Summary of matches (top-level)
+------------------------------
+Files with `/docs/` absolute prefixes (should likely drop the `/docs` prefix):
+- docs/architecture/README.md
+- docs/architecture/patterns/README.md
+- docs/architecture/patterns/controller-patterns.md
+- docs/architecture/patterns/security-patterns.md
+- docs/architecture/services/README.md
+- docs/api/README.md
+- docs/backend/README.md
+- docs/backend/coverage/README.md
+- docs/architecture/testing/README.md
+- docs/architecture/security/README.md
+
+Files using relative patterns that should be spot-checked (examples):
+- docs/README.md (uses ../README.md anchors)
+- docs/scripts/md2html.mjs (generates nav with ../index.html)
+- docs/index.html (redirect/fallback link to ./api/redoc/index.html)
+
+Notes and recommended next steps
+-------------------------------
+1) For files under `docs/`, replace occurrences of `/docs/` with `/` so links point to the site root paths. Example: `/docs/architecture/...` -> `/architecture/...`.
+2) Validate `../` relative links in files inside `docs/` (some are correct; some may point outside `docs/` unexpectedly).
+3) Update any generated HTML (JaCoCo / Javadoc) under `docs/backend/coverage/` to use site-root paths for links in breadcrumbs if necessary (this is lower priority but improves UX).
+4) Run `scripts/check_links.ps1` after making replacements and iterate until the report is empty.
+
+If you'd like, I can apply the bulk replacement for `/docs/` -> `/` across files under `docs/` and open a PR, or I can update files one-by-one so you can review each change.
+[1] Source: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\architecture\services\supplier-service.md
     Target: /docs/architecture/refactoring/cross-layer-utilities.md
     Resolved: C:\Users\carlo\Documents\githubprojects\inventory-service\docs\\architecture\\refactoring\\cross-layer-utilities.md
 
