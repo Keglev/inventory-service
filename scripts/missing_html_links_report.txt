@@ -1,10 +1,13 @@
 ﻿
-Source                                                                            A
-                                                                                  t
-                                                                                  t
-                                                                                  r
-------                                                                            -
-C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\api.html h
-C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\api.html h
+Source                                                                             
+------                                                                             
+C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\index.html
+C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\index.html
+C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\index.html
+C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\index.html
+C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\index.html
+C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\index.html
+C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\index.html
+C:\Users\carlo\Documents\githubprojects\inventory-service\docs\api\redoc\index.html
 
 
