@@ -1,3 +1,4 @@
+# Size Parameter
 name: size
 in: query
 description: Page size.

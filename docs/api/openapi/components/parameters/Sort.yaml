@@ -1,6 +1,6 @@
 name: sort
 in: query
-description: >
+description: |
   Sort criteria, e.g. `price,asc` or `name,desc`. Defaults to `price,asc`.
 required: false
 schema:

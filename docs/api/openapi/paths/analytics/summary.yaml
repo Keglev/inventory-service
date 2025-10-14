@@ -1,6 +1,7 @@
 get:
   tags: [Analytics]
   summary: Dashboard summary
+  operationId: getDashboardSummary
   description: >
     Returns a dashboard-ready summary for the specified period and/or supplier.
     If dates are omitted, the service defaults to the last 30 days ending "now".

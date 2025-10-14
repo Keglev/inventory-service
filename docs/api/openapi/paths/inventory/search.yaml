@@ -35,3 +35,9 @@ get:
               first: { type: boolean }
               last: { type: boolean }
               numberOfElements: { type: integer }
+    '400':
+      description: Invalid request
+    '401':
+      $ref: ../../components/responses/UnauthorizedJson.yaml
+    '403':
+      $ref: ../../components/responses/ForbiddenJson.yaml

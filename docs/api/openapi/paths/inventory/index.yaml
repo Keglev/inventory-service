@@ -12,6 +12,12 @@ get:
             type: array
             items:
               $ref: ../../components/schemas/InventoryItemDTO.yaml
+    '400':
+      description: Invalid request
+    '401':
+      $ref: ../../components/responses/UnauthorizedJson.yaml
+    '403':
+      $ref: ../../components/responses/ForbiddenJson.yaml
 post:
   tags: [Inventory]
   summary: Create item (ADMIN)
@@ -36,8 +42,8 @@ post:
     '400':
       description: Validation error
     '401':
-      description: Unauthorized
+      $ref: ../../components/responses/UnauthorizedJson.yaml
     '403':
-      description: Forbidden (requires ADMIN)
+      $ref: ../../components/responses/ForbiddenJson.yaml
     '409':
       description: Duplicate/conflict

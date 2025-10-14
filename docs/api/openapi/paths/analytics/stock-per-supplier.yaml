@@ -1,6 +1,7 @@
 get:
   tags: [Analytics]
   summary: Current total stock per supplier
+  operationId: getStockPerSupplier
   description: Aggregated current stock quantity per supplier for dashboards.
   responses:
     "200":

@@ -1,6 +1,7 @@
 get:
   tags: [Analytics]
   summary: Monthly net stock movement
+  operationId: getMonthlyStockMovement
   description: >
     Returns monthly stock movement (stockIn and stockOut) between two dates.
     Optionally filter by supplier.

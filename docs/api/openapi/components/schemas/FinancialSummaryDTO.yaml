@@ -4,17 +4,17 @@ properties:
   method:
     type: string
     description: Costing method used for this summary.
-    example: "WAC"
+    example: WAC
   fromDate:
     type: string
     format: date
     description: Inclusive start date (yyyy-MM-dd).
-    example: "2025-07-01"
+    example: '2025-07-01'
   toDate:
     type: string
     format: date
     description: Inclusive end date (yyyy-MM-dd).
-    example: "2025-07-31"
+    example: '2025-07-31'
   openingQty:
     type: integer
     format: int64
@@ -22,42 +22,42 @@ properties:
   openingValue:
     type: string
     description: Monetary value as BigDecimal string to preserve precision.
-    example: "345678.90"
+    example: '345678.90'
   purchasesQty:
     type: integer
     format: int64
     example: 4200
   purchasesCost:
     type: string
-    example: "83500.00"
+    example: '83500.00'
   returnsInQty:
     type: integer
     format: int64
     example: 150
   returnsInCost:
     type: string
-    example: "1200.00"
+    example: '1200.00'
   cogsQty:
     type: integer
     format: int64
     example: 3900
   cogsCost:
     type: string
-    example: "76000.00"
+    example: '76000.00'
   writeOffQty:
     type: integer
     format: int64
     example: 35
   writeOffCost:
     type: string
-    example: "550.00"
+    example: '550.00'
   endingQty:
     type: integer
     format: int64
     example: 12415
   endingValue:
     type: string
-    example: "352828.90"
+    example: '352828.90'
 required:
   - method
   - fromDate
@@ -70,3 +70,4 @@ required:
   - cogsCost
   - endingQty
   - endingValue
+ 

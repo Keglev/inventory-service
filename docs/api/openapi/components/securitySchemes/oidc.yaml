@@ -1,0 +1,4 @@
+# OIDC Security Scheme
+oidc:
+  type: openIdConnect
+  openIdConnectUrl: https://accounts.google.com/.well-known/openid-configuration

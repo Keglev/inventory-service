@@ -1,6 +1,7 @@
 get:
   tags: [Analytics]
   summary: Get stock value over time
+  operationId: getStockValueOverTime
   description: Returns daily stock value between two dates (inclusive), optionally filtered by supplier.
   parameters:
     - in: query

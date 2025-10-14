@@ -1,6 +1,7 @@
 get:
   tags: [Analytics]
   summary: Item price trend
+  operationId: getPriceTrend
   description: Historical unit purchase price for an item between two dates (inclusive).
   parameters:
     - in: query

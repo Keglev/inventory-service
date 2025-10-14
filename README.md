@@ -102,6 +102,12 @@ This project simulates a real-world software system for small-to-medium manufact
 
 ---
 
+### Key documents:
+
+- [OAuth2 Security Architecture](./docs/architecture/patterns/oauth2-security-architecture.md) — detailed OAuth2 and token flow
+- [Security Patterns](./docs/architecture/patterns/security-patterns.md) — common security patterns used across services
+- [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md) — cross-cutting concerns and implementations
+
 <a id="documentation"></a>
 ## 📘 Documentation
 
@@ -138,25 +144,11 @@ Service Documentation:
 - . [OAuth2 Services](./docs/architecture/services/oauth2-services.md) — Authentication integration (🟡 MEDIUM complexity)
 
 <a id="api-documentation-hub"></a>
-### 🚀 API Documentation Hub
-
-- . [Complete API Documentation (ReDoc)](/api/redoc/index.html) — interactive API landing page
-- . [Interactive API Reference](/api/redoc/api.html) — direct ReDoc explorer
-- . [./docs/api/README.md](./docs/api/README.md) — API index and quick reference
-
-<a id="api-endpoints"></a>
-### API Endpoints (OpenAPI Specs)
-
-**Complete API documentation with interactive exploration:**
-
-| Module                | Documentation |
-|-----------------------|----------------|
-| 🔐 **Authentication (OAuth2)**     | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Authentication) |
-| 📦 **Inventory Management**        | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Inventory-Items) |
-| 🚚 **Supplier Management**         | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Suppliers) |
-| 🔁 **Stock History Tracking**      | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Stock-History) |
-| 📊 **Analytics & Reports**         | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Analytics) |
-| ❤️ **Health Monitoring**          | [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Health-Check) |
+ ### 🚀 API Documentation Hub
+ 
+ - [Complete API Documentation (ReDoc)](docs/api/redoc/index.html) — interactive API landing page
+ - [Interactive API Reference](docs/api/redoc/api.html) — direct ReDoc explorer
+ - [API index and quick reference](docs/api/README.md) — API index and quick reference
 
 ---
 

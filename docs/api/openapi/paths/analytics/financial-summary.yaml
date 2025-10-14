@@ -1,6 +1,7 @@
 get:
   tags: [Analytics]
   summary: Financial summary (WAC)
+  operationId: getFinancialSummary
   description: >
     Purchases, COGS, returns, write-offs, opening and ending inventory for a date range (inclusive).
     The server calculates using the configured costing method.

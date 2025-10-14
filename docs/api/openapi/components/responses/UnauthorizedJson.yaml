@@ -1,7 +1,9 @@
-description: "Unauthorized (JSON body for API requests with Accept: application/json)"
+description: Unauthorized (missing/invalid token)
 content:
   application/json:
     schema:
       type: object
       properties:
-        message: { type: string, example: Unauthorized }
+        error:
+          type: string
+          example: Unauthorized

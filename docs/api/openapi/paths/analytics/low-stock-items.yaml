@@ -1,6 +1,7 @@
 get:
   tags: [Analytics]
   summary: Low stock items (by supplier)
+  operationId: getLowStockItems
   description: Items below their configured minimum threshold for the specified supplier.
   parameters:
     - in: query
@@ -17,5 +18,7 @@ get:
             type: array
             items:
               $ref: ../../components/schemas/LowStockItemDTO.yaml
-    "400": { description: Invalid request (e.g., missing supplierId)" }
-    "401": { description: Unauthorized }
+    "400":
+      description: Invalid request (e.g., missing supplierId)
+    "401":
+      description: Unauthorized

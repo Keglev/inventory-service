@@ -1,7 +1,9 @@
-description: Forbidden
+description: Forbidden (requires specific permissions)
 content:
   application/json:
     schema:
       type: object
       properties:
-        message: { type: string, example: Forbidden }
+        error:
+          type: string
+          example: Forbidden

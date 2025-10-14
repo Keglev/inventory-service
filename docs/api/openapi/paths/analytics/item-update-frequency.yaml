@@ -1,6 +1,7 @@
 get:
   tags: [Analytics]
   summary: Item update frequency (by supplier)
+  operationId: getItemUpdateFrequency
   description: Returns update counts for items belonging to the specified supplier.
   parameters:
     - in: query
@@ -17,5 +18,6 @@ get:
             type: array
             items:
               $ref: ../../components/schemas/ItemUpdateFrequencyDTO.yaml
-    "400": { description: Invalid request (e.g., missing supplierId)" }
+    "400":
+      description: Invalid request (e.g., missing supplierId)
     "401": { description: Unauthorized }

@@ -40,3 +40,8 @@ parameters:
     $ref: ./parameters/Size.yaml
   Sort:
     $ref: ./parameters/Sort.yaml
+responses:
+  UnauthorizedJson:
+    $ref: ./responses/UnauthorizedJson.yaml
+  ForbiddenJson:
+    $ref: ./responses/ForbiddenJson.yaml
