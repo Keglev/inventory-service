@@ -2,34 +2,993 @@ openapi: 3.0.3
 info:
   title: SmartSupplyPro API
   version: 1.0.0
-  description: >
-    Source OpenAPI spec (manually maintained). The CI bundles this file
-    into openapi.yaml and builds api.html (ReDoc).
-
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  description: |
+    Source OpenAPI spec (manually maintained). The CI bundles this file into openapi.yaml and builds api.html (ReDoc).
 servers:
   - url: https://inventoryservice.fly.dev/api
     description: Production (Fly.io)
-  - url: http://localhost:8081
-    description: Local dev
-
+security:
+  - sessionCookie: []
+  - oidc:
+      - openid
+      - email
+      - profile
 tags:
   - name: Analytics
     description: Read-only analytics and KPIs
   - name: Inventory
     description: CRUD and mutations for inventory items
-
+paths:
+  /analytics/stock-value:
+    get:
+      tags:
+        - Analytics
+      summary: Get stock value over time
+      operationId: getStockValueOverTime
+      description: Returns daily stock value between two dates (inclusive), optionally filtered by supplier.
+      parameters:
+        - in: query
+          name: start
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (yyyy-MM-dd).
+        - in: query
+          name: end
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (yyyy-MM-dd).
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockValueOverTimeDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+  /analytics/stock-per-supplier:
+    get:
+      tags:
+        - Analytics
+      summary: Current total stock per supplier
+      operationId: getStockPerSupplier
+      description: Aggregated current stock quantity per supplier for dashboards.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockPerSupplierDTO'
+        '401':
+          description: Unauthorized
+  /analytics/financial/summary:
+    get:
+      tags:
+        - Analytics
+      summary: Financial summary (WAC)
+      operationId: getFinancialSummary
+      description: |
+        Purchases, COGS, returns, write-offs, opening and ending inventory for a date range (inclusive). The server calculates using the configured costing method.
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (yyyy-MM-dd).
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (yyyy-MM-dd).
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialSummaryDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+  /analytics/price-trend:
+    get:
+      tags:
+        - Analytics
+      summary: Item price trend
+      operationId: getPriceTrend
+      description: Historical unit purchase price for an item between two dates (inclusive).
+      parameters:
+        - in: query
+          name: itemId
+          required: true
+          schema:
+            type: string
+          description: Inventory item id.
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+        - in: query
+          name: start
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (yyyy-MM-dd).
+        - in: query
+          name: end
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (yyyy-MM-dd).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PriceTrendDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+  /analytics/monthly-stock-movement:
+    get:
+      tags:
+        - Analytics
+      summary: Monthly net stock movement
+      operationId: getMonthlyStockMovement
+      description: |
+        Returns monthly stock movement (stockIn and stockOut) between two dates. Optionally filter by supplier.
+      parameters:
+        - in: query
+          name: start
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (yyyy-MM-dd).
+        - in: query
+          name: end
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (yyyy-MM-dd).
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonthlyStockMovementDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+  /analytics/summary:
+    get:
+      tags:
+        - Analytics
+      summary: Dashboard summary
+      operationId: getDashboardSummary
+      description: |
+        Returns a dashboard-ready summary for the specified period and/or supplier. If dates are omitted, the service defaults to the last 30 days ending "now".
+      parameters:
+        - in: query
+          name: supplierId
+          required: false
+          schema:
+            type: string
+          description: Optional supplier filter.
+        - in: query
+          name: startDate
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Inclusive start timestamp (ISO-8601). Defaults to now-30 days if omitted.
+        - in: query
+          name: endDate
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Inclusive end timestamp (ISO-8601). Defaults to now if omitted.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummaryDTO'
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+  /analytics/item-update-frequency:
+    get:
+      tags:
+        - Analytics
+      summary: Item update frequency (by supplier)
+      operationId: getItemUpdateFrequency
+      description: Returns update counts for items belonging to the specified supplier.
+      parameters:
+        - in: query
+          name: supplierId
+          required: true
+          schema:
+            type: string
+          description: Supplier identifier.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemUpdateFrequencyDTO'
+        '400':
+          description: Invalid request (e.g., missing supplierId)
+        '401':
+          description: Unauthorized
+  /analytics/low-stock-items:
+    get:
+      tags:
+        - Analytics
+      summary: Low stock items (by supplier)
+      operationId: getLowStockItems
+      description: Items below their configured minimum threshold for the specified supplier.
+      parameters:
+        - in: query
+          name: supplierId
+          required: true
+          schema:
+            type: string
+          description: Supplier identifier.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LowStockItemDTO'
+        '400':
+          description: Invalid request (e.g., missing supplierId)
+        '401':
+          description: Unauthorized
+  /api/inventory:
+    get:
+      tags:
+        - Inventory
+      summary: List all items (non-paginated)
+      description: For large datasets, prefer `/api/inventory/search`.
+      operationId: listInventoryItems
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryItemDTO'
+        '400':
+          description: Invalid request
+        '401':
+          $ref: '#/components/responses/UnauthorizedJson'
+        '403':
+          $ref: '#/components/responses/ForbiddenJson'
+    post:
+      tags:
+        - Inventory
+      summary: Create item (ADMIN)
+      operationId: createInventoryItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemDTO'
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              description: URI of created resource
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemDTO'
+        '400':
+          description: Validation error
+        '401':
+          $ref: '#/components/responses/UnauthorizedJson'
+        '403':
+          $ref: '#/components/responses/ForbiddenJson'
+        '409':
+          description: Duplicate/conflict
+  /api/inventory/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Inventory
+      summary: Get item by ID
+      operationId: getInventoryItem
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemDTO'
+        '401':
+          description: Unauthorized (missing/invalid token)
+        '403':
+          description: Forbidden (requires USER or ADMIN)
+        '404':
+          description: Not found
+    put:
+      tags:
+        - Inventory
+      summary: Update item
+      description: |
+        Full update. Server ignores any body.id to avoid mismatches (controller sets body.id = null).
+      operationId: updateInventoryItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemDTO'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemDTO'
+        '401':
+          description: Unauthorized (missing/invalid token)
+        '403':
+          description: Forbidden (requires ADMIN)
+        '404':
+          description: Not found
+        '409':
+          description: Conflict (e.g. SKU already exists)
+    delete:
+      tags:
+        - Inventory
+      summary: Delete item (ADMIN)
+      operationId: deleteInventoryItem
+      parameters:
+        - name: reason
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/StockChangeReason'
+          description: Audit reason for deletion.
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized (missing/invalid token)
+        '403':
+          description: Forbidden (requires ADMIN)
+        '404':
+          description: Not found
+  /api/inventory/search:
+    get:
+      tags:
+        - Inventory
+      summary: Search items by name (paged)
+      description: Case-insensitive substring match. Default size 20; default sort by `price`.
+      operationId: searchInventoryItems
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: Case-insensitive substring to search.
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Page of items
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Spring Page wrapper
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryItemDTO'
+                  totalElements:
+                    type: integer
+                    format: int64
+                  totalPages:
+                    type: integer
+                  size:
+                    type: integer
+                  number:
+                    type: integer
+                    description: Current page index (zero-based)
+                  sort:
+                    type: object
+                    nullable: true
+                  first:
+                    type: boolean
+                  last:
+                    type: boolean
+                  numberOfElements:
+                    type: integer
+        '400':
+          description: Invalid request
+        '401':
+          $ref: '#/components/responses/UnauthorizedJson'
+        '403':
+          $ref: '#/components/responses/ForbiddenJson'
+  /api/inventory/{id}/quantity:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Inventory
+      summary: Adjust quantity (±delta)
+      operationId: adjustInventoryQuantity
+      parameters:
+        - name: delta
+          in: query
+          required: true
+          schema:
+            type: integer
+            description: Positive to add stock; negative to remove.
+          example: -3
+        - name: reason
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/StockChangeReason'
+      responses:
+        '200':
+          description: Updated item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemDTO'
+        '400':
+          description: Business rule violation (e.g., negative final quantity)
+        '401':
+          description: Unauthorized (missing/invalid token)
+        '403':
+          description: Forbidden (requires USER or ADMIN)
+        '404':
+          description: Not found
+  /api/inventory/{id}/price:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Inventory
+      summary: Update unit price
+      operationId: updateInventoryPrice
+      parameters:
+        - name: price
+          in: query
+          required: true
+          description: New unit price (> 0)
+          schema:
+            type: number
+            format: double
+            minimum: 0.01
+          example: 24.5
+      responses:
+        '200':
+          description: Updated item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemDTO'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized (missing/invalid token)
+        '403':
+          description: Forbidden (requires USER or ADMIN)
+        '404':
+          description: Not found
+components:
+  schemas:
+    StockValueOverTimeDTO:
+      type: object
+      description: Total inventory value for a specific date.
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2025-07-15'
+        totalValue:
+          type: number
+          format: double
+          example: 123456.78
+      required:
+        - date
+        - totalValue
+    StockPerSupplierDTO:
+      type: object
+      description: Current stock aggregated per supplier.
+      properties:
+        supplierName:
+          type: string
+          example: ACME Tools GmbH
+        totalQuantity:
+          type: integer
+          format: int64
+          example: 9876
+      required:
+        - supplierName
+        - totalQuantity
+    FinancialSummaryDTO:
+      type: object
+      description: Financial summary using the specified costing method (e.g., WAC).
+      properties:
+        method:
+          type: string
+          description: Costing method used for this summary.
+          example: WAC
+        fromDate:
+          type: string
+          format: date
+          description: Inclusive start date (yyyy-MM-dd).
+          example: '2025-07-01'
+        toDate:
+          type: string
+          format: date
+          description: Inclusive end date (yyyy-MM-dd).
+          example: '2025-07-31'
+        openingQty:
+          type: integer
+          format: int64
+          example: 12000
+        openingValue:
+          type: string
+          description: Monetary value as BigDecimal string to preserve precision.
+          example: '345678.90'
+        purchasesQty:
+          type: integer
+          format: int64
+          example: 4200
+        purchasesCost:
+          type: string
+          example: '83500.00'
+        returnsInQty:
+          type: integer
+          format: int64
+          example: 150
+        returnsInCost:
+          type: string
+          example: '1200.00'
+        cogsQty:
+          type: integer
+          format: int64
+          example: 3900
+        cogsCost:
+          type: string
+          example: '76000.00'
+        writeOffQty:
+          type: integer
+          format: int64
+          example: 35
+        writeOffCost:
+          type: string
+          example: '550.00'
+        endingQty:
+          type: integer
+          format: int64
+          example: 12415
+        endingValue:
+          type: string
+          example: '352828.90'
+      required:
+        - method
+        - fromDate
+        - toDate
+        - openingQty
+        - openingValue
+        - purchasesQty
+        - purchasesCost
+        - cogsQty
+        - cogsCost
+        - endingQty
+        - endingValue
+    PriceTrendDTO:
+      type: object
+      description: Historical unit purchase price point for an item.
+      properties:
+        timestamp:
+          type: string
+          format: date
+          description: Date recorded (yyyy-MM-dd), returned as string for DB compatibility.
+          example: '2025-07-15'
+        price:
+          type: string
+          description: Unit purchase price as BigDecimal string to preserve precision.
+          example: '4.99'
+      required:
+        - timestamp
+        - price
+    MonthlyStockMovementDTO:
+      type: object
+      description: Monthly stock movement summary.
+      properties:
+        month:
+          type: string
+          description: 'The month for which the stock movement is reported (format: YYYY-MM).'
+          example: 2025-07
+        stockIn:
+          type: integer
+          format: int64
+          description: Total quantity of stock added (e.g., received, restocked).
+          example: 1200
+        stockOut:
+          type: integer
+          format: int64
+          description: Total quantity of stock removed (e.g., sold, scrapped). Represented as a positive value.
+          example: 800
+      required:
+        - month
+        - stockIn
+        - stockOut
+    LowStockItemDTO:
+      type: object
+      description: Item currently below its configured minimum stock threshold.
+      properties:
+        itemName:
+          type: string
+          example: M8 Hex Bolt
+        quantity:
+          type: integer
+          format: int32
+          description: Current stock quantity available.
+          example: 12
+        minimumQuantity:
+          type: integer
+          format: int32
+          description: Business-defined minimum threshold for this item.
+          example: 25
+      required:
+        - itemName
+        - quantity
+        - minimumQuantity
+    ItemUpdateFrequencyDTO:
+      type: object
+      description: Update frequency for an inventory item.
+      properties:
+        itemName:
+          type: string
+          example: M8 Hex Bolt
+        updateCount:
+          type: integer
+          format: int64
+          description: Number of update events recorded for this item.
+          example: 17
+      required:
+        - itemName
+        - updateCount
+    DashboardSummaryDTO:
+      type: object
+      description: Aggregated, dashboard-ready analytics for the selected window/supplier.
+      properties:
+        stockPerSupplier:
+          type: array
+          description: Current stock aggregated per supplier.
+          items:
+            $ref: '#/components/schemas/StockPerSupplierDTO'
+        lowStockItems:
+          type: array
+          description: Items below their minimum thresholds (may be empty if no supplier filter).
+          items:
+            $ref: '#/components/schemas/LowStockItemDTO'
+        monthlyStockMovement:
+          type: array
+          description: Monthly stock movement (stockIn/stockOut) across the date window.
+          items:
+            $ref: '#/components/schemas/MonthlyStockMovementDTO'
+        topUpdatedItems:
+          type: array
+          description: Items with the highest update frequency during the selected window.
+          items:
+            $ref: '#/components/schemas/ItemUpdateFrequencyDTO'
+      required:
+        - stockPerSupplier
+        - lowStockItems
+        - monthlyStockMovement
+        - topUpdatedItems
+    InventoryItemDTO:
+      type: object
+      description: Data Transfer Object for inventory items used for create/update/read operations.
+      required:
+        - name
+        - quantity
+        - price
+        - supplierId
+      properties:
+        id:
+          type: string
+          description: Unique identifier (server-generated). Must be absent on create.
+          readOnly: true
+          example: a7b6c4a0-12ef-4e3a-98d0-8c6a22f5c111
+          nullable: true
+        name:
+          type: string
+          description: Display name of the item.
+          example: Steel Wrench
+          minLength: 1
+        quantity:
+          type: integer
+          format: int32
+          description: Quantity currently in stock (>= 0).
+          minimum: 0
+          example: 25
+        price:
+          type: number
+          format: double
+          description: Unit price (> 0).
+          minimum: 0.01
+          example: 19.99
+        totalValue:
+          type: number
+          format: double
+          description: Calculated total (quantity × price). Usually populated by backend.
+          readOnly: true
+          example: 499.75
+        supplierId:
+          type: string
+          description: Foreign key of supplier.
+          example: sup-001
+        createdBy:
+          type: string
+          description: Username/ID of creator (audit).
+          example: carlos.k
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp (server-set).
+          readOnly: true
+          example: '2025-08-20T14:25:00Z'
+          nullable: true
+        supplierName:
+          type: string
+          description: Supplier display name (projection/mapping). Set by backend for audit
+          readOnly: true
+          example: ACME Tools GmbH
+          nullable: true
+        minimumQuantity:
+          type: integer
+          format: int32
+          description: Business-defined minimum threshold for low-stock checks.
+          example: 5
+    StockChangeReason:
+      type: string
+      description: Business reason for stock changes.
+      enum:
+        - INITIAL_STOCK
+        - MANUAL_UPDATE
+        - PRICE_CHANGE
+        - SOLD
+        - SCRAPPED
+        - DESTROYED
+        - DAMAGED
+        - EXPIRED
+        - LOST
+        - RETURNED_TO_SUPPLIER
+        - RETURNED_BY_CUSTOMER
+      example: SOLD
+      x-enumDescriptions:
+        INITIAL_STOCK: Initial quantity entered when item is first added to inventory.
+        MANUAL_UPDATE: Manual correction performed by a user (e.g., discrepancy fix).
+        PRICE_CHANGE: Manual correction performed by a user (e.g., new prices).
+        SOLD: Stock was sold to a customer (outbound).
+        SCRAPPED: Item was scrapped due to damage, policy, or internal decision.
+        DESTROYED: Item was destroyed beyond use (e.g., fire or critical damage).
+        DAMAGED: Item is damaged but not yet scrapped or returned.
+        EXPIRED: Item has passed its expiration date and is no longer sellable.
+        LOST: Item is missing or lost during handling, shipping, or storage.
+        RETURNED_TO_SUPPLIER: Stock was returned to the supplier (e.g., defective goods).
+        RETURNED_BY_CUSTOMER: Stock was returned by the customer (e.g., refund or exchange).
+    StockUpdateFilterDTO:
+      type: object
+      description: Filter for querying stock updates.
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          description: Inclusive start timestamp (ISO-8601).
+          example: '2025-07-01T00:00:00'
+        endDate:
+          type: string
+          format: date-time
+          description: Inclusive end timestamp (ISO-8601).
+          example: '2025-07-31T23:59:59'
+        itemName:
+          type: string
+          example: M8 Hex Bolt
+        supplierId:
+          type: string
+          example: sup-123
+        createdBy:
+          type: string
+          example: carlo
+        minChange:
+          type: integer
+          format: int32
+          example: -50
+        maxChange:
+          type: integer
+          format: int32
+          example: 200
+    StockUpdateResultDTO:
+      type: object
+      description: A stock update event with human-readable fields.
+      properties:
+        itemName:
+          type: string
+          example: M8 Hex Bolt
+        supplierName:
+          type: string
+          example: ACME Tools GmbH
+        change:
+          type: integer
+          format: int32
+          description: Signed quantity delta (positive for additions, negative for removals).
+          example: 25
+        reason:
+          type: string
+          example: RECEIVED
+        createdBy:
+          type: string
+          example: carlo
+        timestamp:
+          type: string
+          format: date-time
+          example: '2025-07-15T10:32:00'
+      required:
+        - itemName
+        - supplierName
+        - change
+        - reason
+        - createdBy
+        - timestamp
+  responses:
+    UnauthorizedJson:
+      description: Unauthorized (missing/invalid token)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Unauthorized
+    ForbiddenJson:
+      description: Forbidden (requires specific permissions)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Forbidden
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Zero-based page index.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      description: Page size.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 20
+    Sort:
+      name: sort
+      in: query
+      description: |
+        Sort criteria, e.g. `price,asc` or `name,desc`. Defaults to `price,asc`.
+      required: false
+      schema:
+        type: string
+        example: price,asc
+  securitySchemes:
+    oidc:
+      type: openIdConnect
+      openIdConnectUrl: https://accounts.google.com/.well-known/openid-configuration
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
 x-tagGroups:
   - name: Analytics
-    tags: [Analytics]
+    tags:
+      - Analytics
   - name: Inventory
-    tags: [Inventory]
-   
-paths:
-  $ref: ./paths/_index.yaml
-
-components:
-  $ref: ./components/_index.yaml
-
-security:
-  - sessionCookie: []                 # satisfied if a valid session cookie is present
-  - oidc: [openid, email, profile]    # OR via Google OIDC scopes you actually request
+    tags:
+      - Inventory
