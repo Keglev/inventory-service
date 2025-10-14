@@ -13,6 +13,21 @@ Light index of Health endpoints (generated from OpenAPI tags). Use the ReDoc anc
 | GET | /health/live | Liveness probe |
 
 Jump to interactive documentation: [ReDoc — Health](../redoc/index.html#tag/Health-Check)
+
+---
+
+## GET /health
+
+Summary: Basic service health check (200 = OK)
+
+## GET /health/ready
+
+Summary: Readiness probe (verifies backend dependencies like DB connection)
+
+## GET /health/live
+
+Summary: Liveness probe (simple heartbeat to confirm the process is alive)
+
 # Health Check API
 
 **System Monitoring & Application Health**

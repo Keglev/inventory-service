@@ -14,6 +14,56 @@ Light index of Authentication endpoints (generated from OpenAPI tags). Use the R
 | GET | /oauth2/authorization/google | Initiate Google OAuth2 login (Spring Security)
 
 Jump to interactive documentation: [ReDoc — Authentication](../redoc/index.html#tag/Authentication)
+
+---
+
+## GET /api/me
+
+Summary: Returns the authenticated user's profile information.
+
+Response (200) example:
+
+```json
+{
+  "email": "carlos.k@example.com",
+  "fullName": "Carlos Keglev",
+  "role": "USER",
+  "pictureUrl": "https://lh3.googleusercontent.com/..."
+}
+```
+
+Errors:
+- 401: Unauthorized (no active session)
+
+## GET /api/me/authorities
+
+Summary: Returns a list of authority strings granted to the current user.
+
+Response example:
+
+```json
+["ROLE_USER"]
+```
+
+## POST /api/auth/logout
+
+Summary: Programmatic logout for API clients. Invalidates the session and expires cookies.
+
+Behaviour:
+- Returns 204 No Content on success.
+- Sets `Set-Cookie` headers to expire `JSESSIONID` and `SESSION` with `SameSite=None; Secure`.
+
+Example (curl):
+
+```bash
+curl -X POST --cookie cookies.txt --cookie-jar cookies.txt http://localhost:8081/api/auth/logout -v
+```
+
+## OAuth2 login endpoints (Spring Security)
+
+- Initiate: GET /oauth2/authorization/google — redirect to Google login
+- Callback: /login/oauth2/code/google (handled by Spring Security)
+
 # Authentication API Documentation
 
 **Endpoint Base:** `/api/v1/auth`  

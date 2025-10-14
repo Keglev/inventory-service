@@ -15,6 +15,38 @@ Light index of Suppliers endpoints (generated from OpenAPI tags). Use the ReDoc 
 | DELETE | /api/suppliers/{id} | Delete supplier |
 
 Jump to interactive documentation: [ReDoc — Suppliers](../redoc/index.html#tag/Suppliers)
+
+---
+
+## GET /api/suppliers
+
+Summary: List suppliers (supports filtering and pagination in the interactive spec)
+
+## GET /api/suppliers/{id}
+
+Summary: Get supplier by id
+
+## POST /api/suppliers
+
+Summary: Create supplier
+
+Request example:
+
+```json
+{
+  "name": "ACME Tools GmbH",
+  "contactEmail": "sales@acme.example.com"
+}
+```
+
+## PATCH /api/suppliers/{id}
+
+Summary: Update supplier
+
+## DELETE /api/suppliers/{id}
+
+Summary: Delete supplier (ADMIN)
+
 # Suppliers API Documentation
 
 **Endpoint Base:** `/api/v1/suppliers`  

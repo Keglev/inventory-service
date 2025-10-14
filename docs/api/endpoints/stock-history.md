@@ -12,6 +12,27 @@ Light index of Stock History endpoints (generated from OpenAPI tags). Use the Re
 | POST | /api/stock-history | Append stock history entry |
 
 Jump to interactive documentation: [ReDoc — Stock History](../redoc/index.html#tag/Stock-History)
+
+---
+
+## GET /api/stock-history
+
+Summary: Returns a paginated list of stock history entries (audit records).
+
+## POST /api/stock-history
+
+Summary: Append a stock history record (system or admin operations)
+
+Request example:
+
+```json
+{
+  "inventoryId": "a7b6c4a0-12ef-4e3a-98d0-8c6a22f5c111",
+  "change": -5,
+  "reason": "SALE"
+}
+```
+
 # Stock History API
 
 **Stock Movement Tracking & Audit Trail**

@@ -18,6 +18,23 @@ Light index of Analytics endpoints (generated from OpenAPI tags). Use the ReDoc 
 | GET | /analytics/financial/summary | Financial summary |
 
 Jump to interactive documentation: [ReDoc — Analytics](../redoc/index.html#tag/Analytics)
+
+---
+
+Summary: Read-only analytics endpoints. Use the interactive ReDoc UI for parameterized queries and examples.
+
+Common endpoints:
+
+- GET /analytics/summary — high-level KPIs
+- GET /analytics/stock-value — stock valuation
+- GET /analytics/stock-per-supplier — supplier-level aggregation
+- GET /analytics/price-trend — price trends
+- GET /analytics/monthly-stock-movement — monthly movement reports
+- GET /analytics/item-update-frequency — update frequency metrics
+- GET /analytics/low-stock-items — low stock alerts
+
+Responses typically return JSON arrays or aggregated objects. Consult ReDoc for schema details and query parameters.
+
 # Analytics API Documentation
 
 **Endpoint Base:** `/api/v1/analytics`  
