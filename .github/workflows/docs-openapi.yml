@@ -1,5 +1,33 @@
 name: Docs – OpenAPI bundle & build
 
+# ---------------------------------------------------------------------------
+# Docs – OpenAPI bundle & build
+#
+# CI job that produces the canonical OpenAPI bundle and the ReDoc HTML
+# artifacts used by the enterprise documentation site. This workflow is
+# intentionally scoped to changes under the `docs/` directory and is
+# designed to be safe and idempotent when committing generated artifacts
+# back to the same repository.
+#
+# High-level flow:
+# 1) Checkout repository
+# 2) Install Node.js and dependencies (docs are built with the docs toolchain)
+# 3) Lint (non-blocking) - helps surface documentation issues without failing
+# 4) Run the docs bundler which generates:
+#    - `docs/api/openapi/openapi.yaml` (canonical OpenAPI bundle)
+#    - `docs/api/redoc/api.html` (interactive ReDoc built artifact)
+#    - `docs/api/redoc/index.html` (API landing)
+# 5) Commit only the canonical artifacts back to the repository if there are changes
+#    (commits are marked `[skip ci]` to avoid loops)
+#
+# Important design notes:
+# - The job runs in `docs` as working directory so relative npm scripts resolve.
+# - We explicitly `git add` only the canonical outputs to avoid committing
+#   local dev files or generated temporary assets.
+# - The push uses the actions bot identity. Ensure this account is allowed to push
+#   or adjust the policy to use a dedicated machine user if required.
+# ---------------------------------------------------------------------------
+
 on:
   push:
     branches: [ main ]
@@ -18,9 +46,22 @@ jobs:
         working-directory: docs
 
     steps:
+      # ------------------------------------------------------------------
+      # 1) Source checkout
+      #    - Checkout the repository at the commit that triggered this run.
+      #    - We keep depth default for reliability; shallow clones can be used
+      #      if speed is critical but may impact `git` operations later.
+      # ------------------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ------------------------------------------------------------------
+      # 2) Node toolchain setup
+      #    - Use an LTS Node.js version to run the docs toolchain (bundler,
+      #      markdown processors, asset pipeline).
+      #    - Enable NPM cache to speed subsequent runs; cache key is derived
+      #      from the lockfile path below.
+      # ------------------------------------------------------------------
       - name: Use Node.js LTS
         uses: actions/setup-node@v4
         with:
@@ -28,17 +69,48 @@ jobs:
           cache: 'npm'
           cache-dependency-path: docs/package-lock.json
 
+      # ------------------------------------------------------------------
+      # 3) Install dependencies
+      #    - Use `npm ci` for deterministic, fast installs in CI.
+      #    - Keeps the job reproducible and consistent with lockfile.
+      # ------------------------------------------------------------------
       - name: Install deps
         run: npm ci
 
+      # ------------------------------------------------------------------
+      # 4) Lint documentation (non-blocking)
+      #    - Run a docs-specific linter to catch style and structural issues.
+      #    - Marked non-blocking so documentation issues do not block the
+      #      build; teams can opt to fail fast by removing the `|| true`.
+      # ------------------------------------------------------------------
       - name: Lint (non-blocking)
         run: npm run docs:lint || true
         
-      # produces openapi.yaml and api.html inside ./docs It also generates architecture/*.html files
+      # ------------------------------------------------------------------
+      # 5) Bundle & build
+      #    - Run the docs build script which should:
+      #      * merge OpenAPI fragments into a single `openapi.yaml` bundle
+      #      * render ReDoc HTML (`api.html`) and API landing pages
+      #      * optionally convert architecture markdown to HTML
+      #    - This step is expected to be stable and deterministic. Keep
+      #      logs available for debugging if the build fails.
+      # ------------------------------------------------------------------
       - name: Bundle & build
         run: npm run docs
 
-      # === Commit the generated docs back to the repo (enterprise structure) ===
+      # ------------------------------------------------------------------
+      # 6) Commit generated artifacts back to the repository (optional)
+      #    - Use the GitHub Actions bot identity for non-interactive commits.
+      #    - Only stage canonical outputs to avoid accidental commits of
+      #      intermediate or local dev artifacts.
+      #    - The commit message includes `[skip ci]` to avoid triggering
+      #      additional CI runs for the generated artifacts.
+      #
+      #    Safety notes:
+      #    - Ensure this job has `contents: write` permission (set above).
+      #    - If your organization requires signed commits or disallows the
+      #      actions bot, replace with a machine user and secrets.
+      # ------------------------------------------------------------------
       - name: Commit generated artifacts
         run: |
           set -e
@@ -53,6 +125,12 @@ jobs:
             git commit -m "docs: update enterprise API documentation [skip ci]"
             git push
           fi
+      # ------------------------------------------------------------------
+      # 7) Reminder / developer notice
+      #    - Emit a GitHub workflow notice to explain what the job produced.
+      #    - Useful for quick inspection in the Actions UI without opening
+      #      the full job logs.
+      # ------------------------------------------------------------------
       - name: Reminder
         run: |
           echo "::notice title=Enterprise Docs Pipeline::This job bundles & builds enterprise API documentation."
