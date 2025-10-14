@@ -571,7 +571,7 @@ public SupplierDTO create(SupplierDTO dto) { ... }
 
 **Estimated Effort**: 2 hours (config, annotations, testing)
 
-**See**: [Supplier service refactoring notes - caching section](/docs/IMPLEMENTATION_PLAN.md#supplier-service-refactoring)
+**See**: [Supplier service refactoring notes - caching section](../../IMPLEMENTATION_PLAN.md)
 
 ---
 
