@@ -307,23 +307,4 @@ Below are a few common commands used during development:
 
 📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
 
-
-## Technologies
-
-. Java 17+
-. Spring Security (OAuth2)
-. Oracle 
-. REST APIs
-. Docker
-. JUnit 5 
-. Mockito
-. React 19 
-. TypeScript
-. Material-UI (MUI)
-. Vite
-. React Router
-. TypeDoc
-. Devops
-. CI/CD pipeline 
-. GitHub Actions
 . JaCoCo
