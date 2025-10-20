@@ -146,9 +146,9 @@ Service Documentation:
 <a id="api-documentation-hub"></a>
  ### 🚀 API Documentation Hub
  
- - [Complete API Documentation (ReDoc)](docs/api/redoc/index.html) — interactive API landing page
- - [Interactive API Reference](docs/api/redoc/api.html) — direct ReDoc explorer
- - [API index and quick reference](docs/api/README.md) — API index and quick reference
+ - [Complete API Documentation (ReDoc)](https://keglev.github.io/inventory-service/api/redoc/index.html) — interactive API landing page
+ - [Interactive API Reference](https://keglev.github.io/inventory-service/api/redoc/api.html) — direct ReDoc explorer
+ - [API index and quick reference](https://keglev.github.io/inventory-service/api/) — API index and quick reference
 
 ---
 
