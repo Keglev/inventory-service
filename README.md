@@ -202,8 +202,8 @@ Service Documentation:
 ### DevOps & Infrastructure
 - **GitHub Actions** for automated CI/CD pipelines
 - **Docker Compose** for local development environment
-- **Fly.io** for backend deployment with Oracle DB connectivity
-- **Koyeb** for frontend deployment with automated builds
+- Fly.io for backend deployment with Oracle DB connectivity
+- Koyeb for frontend deployment with automated builds
 - **JaCoCo** + **GitHub Pages** for live test coverage reporting
 
 ---
