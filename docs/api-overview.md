@@ -11,8 +11,8 @@ Welcome to the **SmartSupplyPro API Overview** - your central gateway to compreh
 ## 📖 Complete API Documentation
 
 ### **Interactive Documentation**
-- **[🌐 ReDoc API Documentation](api.html)** - Complete interactive API reference
-- **[📋 API Documentation Hub](../README.md)** - Comprehensive API guide and navigation
+- **[🌐 ReDoc API Documentation](https://keglev.github.io/inventory-service/api/redoc/index.html)** - Complete interactive API reference
+- **[📋 API Documentation Hub](https://keglev.github.io/inventory-service/api/)** - Comprehensive API guide and navigation
 
 ### **API Endpoints by Domain**
 - **[📦 Inventory Items API](../endpoints/inventory-items.md)** - Complete inventory management
