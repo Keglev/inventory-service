@@ -188,7 +188,7 @@ Service Documentation:
 - **Oracle Autonomous Database** (Free Tier with wallet connectivity)
 - **REST APIs** documented via OpenAPI YAML specifications
 - **Docker** containerization with multi-stage builds
-- **JUnit 5** + **Mockito** + **Testcontainers** for comprehensive testing
+- **JUnit 5** + **Mockito**  for comprehensive testing
 
 ### Frontend
 - **React 19** + **TypeScript** for type-safe development
