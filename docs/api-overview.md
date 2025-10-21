@@ -12,7 +12,7 @@ Welcome to the **SmartSupplyPro API Overview** - your central gateway to compreh
 
 ### **Interactive Documentation**
 - **[🌐 ReDoc API Documentation](https://keglev.github.io/inventory-service/api/redoc/api.html)** - Complete interactive API reference
-- **[📋 API Documentation Hub](https://keglev.github.io/inventory-service/api/)** - Comprehensive API guide and navigation
+-- **[📋 API Documentation Hub](https://keglev.github.io/inventory-service/api/redoc/index.html)** - Comprehensive API guide and navigation
 
 ### **API Endpoints by Domain**
 - **[📦 Inventory Items API](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Inventory)** - Complete inventory management
@@ -26,8 +26,8 @@ Welcome to the **SmartSupplyPro API Overview** - your central gateway to compreh
 
 This section links to the security-focused API index and endpoints (authentication, authorization, session management).
 
-- **[🔐 Security API index](../security-api.md)** — Index of security endpoints and OAuth2 flows
-- **[🏗️ OAuth2 Architecture](../../architecture/patterns/oauth2-security-architecture.md)** — Implementation details
+-- **[🔐 Security API index](https://keglev.github.io/inventory-service/api/redoc/security-api.html)** — Index of security endpoints and OAuth2 flows
+-- **[🏗️ OAuth2 Architecture](https://keglev.github.io/inventory-service/api/redoc/oauth2-security-architecture.html)** — Implementation details
 
 ### **Business Intelligence**
 
@@ -42,7 +42,7 @@ This section links to the security-focused API index and endpoints (authenticati
 
 ### **Architecture & Integration**
 - The architecture and integration guidance is available in a separate page. See:
-- **[� Architecture API](../architecture-api.md)** — consolidated architecture + API integration index
+-- **[� Architecture API](https://keglev.github.io/inventory-service/api/redoc/architecture-api.html)** — consolidated architecture + API integration index
 
 ## 🔧 Developer Resources
 
