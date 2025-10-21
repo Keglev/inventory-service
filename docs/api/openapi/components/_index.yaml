@@ -6,6 +6,21 @@ securitySchemes:
     type: apiKey
     in: cookie
     name: JSESSIONID   # change if you use a different cookie name or SESSION if that’s what your server sets
+  cookieAuth:
+    type: apiKey
+    in: cookie
+    name: SESSION
+    description: Session cookie set after OAuth2 login (SameSite=None; Secure)
+  OAuth2:
+    type: oauth2
+    flows:
+      authorizationCode:
+        authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+        tokenUrl: https://oauth2.googleapis.com/token
+        scopes:
+          openid: OpenID Connect scope
+          profile: Access basic profile
+          email: Access email
 
 schemas:
   StockValueOverTimeDTO:
@@ -14,6 +29,20 @@ schemas:
     $ref: ./schemas/StockPerSupplierDTO.yaml
   FinancialSummaryDTO:
     $ref: ./schemas/FinancialSummaryDTO.yaml
+  AppUser:
+    $ref: ./schemas/AppUser.yaml
+  ErrorResponse:
+    $ref: ./schemas/ErrorResponse.yaml
+  StockHistoryDTO:
+    $ref: ./schemas/StockHistoryDTO.yaml
+  PagedStockHistoryDTO:
+    $ref: ./schemas/PagedStockHistoryDTO.yaml
+  SupplierDTO:
+    $ref: ./schemas/SupplierDTO.yaml
+  HealthStatus:
+    $ref: ./schemas/HealthStatus.yaml
+  HealthError:
+    $ref: ./schemas/HealthError.yaml
   PriceTrendDTO:
     $ref: ./schemas/PriceTrendDTO.yaml
   MonthlyStockMovementDTO:

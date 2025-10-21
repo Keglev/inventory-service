@@ -1,40 +1,22 @@
-openapi: 3.0.1
-info:
-  title: Inventory Service - Stock History API
-  description: >
-    Provides read-only access to historical stock changes including filtering by item, reason, and date range.
-  version: "1.0.0"
-  contact:
-    name: Carlos Keglevich
-    url: https://carloskeglevich.vercel.app
-    email: carloskeglevich@gmail.com
-  license:
-    name: MIT License
-    url: https://opensource.org/license/mit/
-servers:
-  - url: https://keglevich.github.io/inventory-service
-    description: GitHub Pages
-paths:
-  /api/stock-history:
-    get:
-      summary: Get all stock history records
-      description: Returns a full list of stock change records. Intended for internal use only.
-      tags: [Stock History]
-      responses:
-        '200':
-          description: A list of stock history entries
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StockHistoryDTO'
+get:
+  tags: [Stock History]
+  summary: Get all stock history records
+  description: Returns a full list of stock change records. Intended for internal use only.
+  responses:
+    '200':
+      description: A list of stock history entries
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../components/schemas/StockHistoryDTO.yaml'
 
-  /api/stock-history/item/{itemId}:
+  # item-specific record
+  /item/{itemId}:
     get:
-      summary: Get stock history by item ID
-      description: Retrieves stock change records for a specific inventory item.
       tags: [Stock History]
+      summary: Get stock history by item ID
       parameters:
         - name: itemId
           in: path
@@ -50,13 +32,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StockHistoryDTO'
+                  $ref: '../../components/schemas/StockHistoryDTO.yaml'
 
-  /api/stock-history/reason/{reason}:
+  /reason/{reason}:
     get:
-      summary: Get stock history by change reason
-      description: Filters stock history based on the change reason (e.g., SOLD, SCRAPPED).
       tags: [Stock History]
+      summary: Get stock history by change reason
       parameters:
         - name: reason
           in: path
@@ -72,14 +53,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StockHistoryDTO'
+                  $ref: '../../components/schemas/StockHistoryDTO.yaml'
 
-  /api/stock-history/search:
+  /search:
     get:
+      tags: [Stock History]
       summary: Filter stock history
       description: >
         Performs advanced filtering with optional start and end date, item name, supplier ID. Supports pagination.
-      tags: [Stock History]
       parameters:
         - in: query
           name: startDate
@@ -99,63 +80,12 @@ paths:
           name: supplierId
           schema:
             type: string
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
+        - $ref: '../../components/parameters/Page.yaml'
+        - $ref: '../../components/parameters/Size.yaml'
       responses:
         '200':
           description: Filtered and paginated stock history
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PagedStockHistoryDTO'
-
-components:
-  schemas:
-    StockHistoryDTO:
-      type: object
-      properties:
-        id:
-          type: string
-        itemId:
-          type: string
-        itemName:
-          type: string
-        changeAmount:
-          type: integer
-        reason:
-          type: string
-        timestamp:
-          type: string
-          format: date-time
-        createdBy:
-          type: string
-
-    PagedStockHistoryDTO:
-      type: object
-      properties:
-        content:
-          type: array
-          items:
-            $ref: '#/components/schemas/StockHistoryDTO'
-        totalElements:
-          type: integer
-        totalPages:
-          type: integer
-        size:
-          type: integer
-        number:
-          type: integer
-
-  parameters:
-    Page:
-      name: page
-      in: query
-      schema:
-        type: integer
-      description: Page number (0-based)
-    Size:
-      name: size
-      in: query
-      schema:
-        type: integer
-      description: Page size
+                $ref: '../../components/schemas/PagedStockHistoryDTO.yaml'

@@ -1,0 +1,20 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: e2b4b77f-6a6b-4e4d-8b45-5a7f718c5e9c
+  email:
+    type: string
+    format: email
+    example: ckbuzin1@gmail.com
+  name:
+    type: string
+    example: Carlos Keglevich
+  role:
+    type: string
+    example: ADMIN
+  createdAt:
+    type: string
+    format: date-time
+    example: '2025-06-30T11:42:00'

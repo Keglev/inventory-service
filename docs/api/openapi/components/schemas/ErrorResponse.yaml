@@ -1,0 +1,13 @@
+type: object
+required:
+  - message
+properties:
+  message:
+    type: string
+    example: Unauthorized
+  path:
+    type: string
+    example: /api/me
+  timestamp:
+    type: string
+    format: date-time

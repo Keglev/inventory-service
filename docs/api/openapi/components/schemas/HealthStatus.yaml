@@ -1,0 +1,8 @@
+type: object
+properties:
+  status:
+    type: string
+    example: UP
+  db:
+    type: string
+    example: reachable

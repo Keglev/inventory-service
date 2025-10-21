@@ -1,0 +1,17 @@
+type: object
+properties:
+  id:
+    type: string
+  itemId:
+    type: string
+  itemName:
+    type: string
+  changeAmount:
+    type: integer
+  reason:
+    type: string
+  timestamp:
+    type: string
+    format: date-time
+  createdBy:
+    type: string
