@@ -11,16 +11,16 @@ Welcome to the **SmartSupplyPro API Overview** - your central gateway to compreh
 ## 📖 Complete API Documentation
 
 ### **Interactive Documentation**
-- **[🌐 ReDoc API Documentation](https://keglev.github.io/inventory-service/api/redoc/index.html)** - Complete interactive API reference
+- **[🌐 ReDoc API Documentation](https://keglev.github.io/inventory-service/api/redoc/api.html)** - Complete interactive API reference
 - **[📋 API Documentation Hub](https://keglev.github.io/inventory-service/api/)** - Comprehensive API guide and navigation
 
 ### **API Endpoints by Domain**
-- **[📦 Inventory Items API](../endpoints/inventory-items.md)** - Complete inventory management
-- **[🏢 Suppliers API](../endpoints/suppliers.md)** - Supplier relationship management
-- **[📊 Analytics API](../endpoints/analytics.md)** - Business intelligence and KPIs
-- **[📈 Stock History API](../endpoints/stock-history.md)** - Inventory movement tracking
-- **[🔐 Authentication API](../endpoints/authentication.md)** - OAuth2 security and sessions
-- **[❤️ Health API](../endpoints/health.md)** - System monitoring and health checks
+- **[📦 Inventory Items API](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Inventory)** - Complete inventory management
+- **[🏢 Suppliers API](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Suppliers)** - Supplier relationship management
+- **[📊 Analytics API](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Analytics)** - Business intelligence and KPIs
+- **[📈 Stock History API](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Stock%20History)** - Inventory movement tracking
+- **[🔐 Authentication API](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Auth)** - OAuth2 security and sessions
+- **[❤️ Health API](https://keglev.github.io/inventory-service/api/redoc/api.html#tag/Health)** - System monitoring and health checks
 
 ## 🛡️ API Security
 
@@ -36,7 +36,7 @@ This section links to the security-focused API index and endpoints (authenticati
 ## 📚 API DTOs (Schemas)
 
 - The API DTOs (schemas) are maintained under the OpenAPI components. See:
-- **[📘 OpenAPI Components (Schemas)](../openapi/components/_index.yaml)**
+- **[📘 OpenAPI Components (Schemas)](https://keglev.github.io/inventory-service/api/redoc/api.html#components/schemas)**
 
 ## 🏗️ Enterprise Architecture
 
