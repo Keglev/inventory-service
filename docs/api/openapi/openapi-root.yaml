@@ -32,6 +32,12 @@ x-tagGroups:
     tags: [Analytics]
   - name: Inventory
     tags: [Inventory]
+  - name: Stock History
+    tags: ["Stock History"]
+  - name: Platform & Support
+    tags: [Auth, Health]
+  - name: Suppliers
+    tags: [Suppliers]
    
 paths:
   $ref: ./paths/_index.yaml

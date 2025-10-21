@@ -1473,3 +1473,13 @@ x-tagGroups:
   - name: Inventory
     tags:
       - Inventory
+  - name: Stock History
+    tags:
+      - Stock History
+  - name: Platform & Support
+    tags:
+      - Auth
+      - Health
+  - name: Suppliers
+    tags:
+      - Suppliers
