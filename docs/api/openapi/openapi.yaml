@@ -675,6 +675,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppUser'
+              examples:
+                sample:
+                  summary: Example authenticated user
+                  value:
+                    id: e2b4b77f-6a6b-4e4d-8b45-5a7f718c5e9c
+                    email: alice@example.com
+                    name: Alice Example
+                    role: USER
+                    createdAt: '2024-01-01T12:00:00Z'
         '401':
           $ref: '#/components/responses/UnauthorizedJson'
   /api/me/authorities:
@@ -695,6 +704,12 @@ paths:
                 items:
                   type: string
                   example: ROLE_USER
+              examples:
+                sample:
+                  summary: Example authorities
+                  value:
+                    - ROLE_USER
+                    - ROLE_ADMIN
         '401':
           $ref: '#/components/responses/UnauthorizedJson'
   /auth/logout:
@@ -707,6 +722,7 @@ paths:
       responses:
         '204':
           description: No Content - logout successful
+          content: {}
         '401':
           $ref: '#/components/responses/UnauthorizedJson'
   /api/health/db:

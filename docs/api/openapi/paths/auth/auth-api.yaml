@@ -10,5 +10,14 @@ get:
         application/json:
           schema:
             $ref: '../../components/schemas/AppUser.yaml'
+          examples:
+            sample:
+              summary: Example authenticated user
+              value:
+                id: e2b4b77f-6a6b-4e4d-8b45-5a7f718c5e9c
+                email: alice@example.com
+                name: Alice Example
+                role: USER
+                createdAt: '2024-01-01T12:00:00Z'
     '401':
       $ref: '../../components/responses/UnauthorizedJson.yaml'

@@ -14,5 +14,9 @@ get:
             items:
               type: string
               example: ROLE_USER
+          examples:
+            sample:
+              summary: Example authorities
+              value: ["ROLE_USER", "ROLE_ADMIN"]
     '401':
       $ref: ../../components/responses/UnauthorizedJson.yaml
