@@ -1,4 +1,3 @@
-```yaml
 post:
   tags: [Auth]
   summary: API logout (expire cookies)
@@ -9,5 +8,3 @@ post:
       description: No Content - logout successful
     '401':
       $ref: ../../components/responses/UnauthorizedJson.yaml
-
-```

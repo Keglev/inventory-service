@@ -34,10 +34,10 @@
 
 /api/me:
   $ref: ./auth/auth-api.yaml
- /api/me/authorities:
+/api/me/authorities:
   $ref: ./auth/authorities.yaml
 
- /auth/logout:
+/auth/logout:
   $ref: ./auth/logout.yaml
 
 /api/health/db:

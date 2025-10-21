@@ -677,6 +677,38 @@ paths:
                 $ref: '#/components/schemas/AppUser'
         '401':
           $ref: '#/components/responses/UnauthorizedJson'
+  /api/me/authorities:
+    get:
+      tags:
+        - Auth
+      summary: Get authenticated user's granted authorities
+      operationId: getCurrentUserAuthorities
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Sorted list of authority strings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: ROLE_USER
+        '401':
+          $ref: '#/components/responses/UnauthorizedJson'
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: API logout (expire cookies)
+      operationId: apiLogout
+      requestBody: {}
+      responses:
+        '204':
+          description: No Content - logout successful
+        '401':
+          $ref: '#/components/responses/UnauthorizedJson'
   /api/health/db:
     get:
       tags:
@@ -1365,6 +1397,24 @@ components:
         createdAt:
           type: string
           format: date-time
+    AppUserProfileDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        fullName:
+          type: string
+          example: Jane Doe
+        role:
+          type: string
+          example: USER
+        pictureUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: https://example.com/avatar.jpg
     ErrorResponse:
       type: object
       required:

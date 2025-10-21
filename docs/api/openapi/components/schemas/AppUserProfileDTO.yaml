@@ -1,4 +1,3 @@
-```yaml
 type: object
 properties:
   email:
@@ -17,4 +16,3 @@ properties:
     nullable: true
     example: https://example.com/avatar.jpg
 
-```
