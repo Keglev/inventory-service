@@ -1,0 +1,21 @@
+```yaml
+get:
+  tags: [Auth]
+  summary: Get authenticated user's granted authorities
+  operationId: getCurrentUserAuthorities
+  security:
+    - cookieAuth: []
+  responses:
+    '200':
+      description: Sorted list of authority strings
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+              example: ROLE_USER
+    '401':
+      $ref: ../../components/responses/UnauthorizedJson.yaml
+
+```

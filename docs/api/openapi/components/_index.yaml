@@ -31,6 +31,8 @@ schemas:
     $ref: ./schemas/FinancialSummaryDTO.yaml
   AppUser:
     $ref: ./schemas/AppUser.yaml
+  AppUserProfileDTO:
+    $ref: ./schemas/AppUserProfileDTO.yaml
   ErrorResponse:
     $ref: ./schemas/ErrorResponse.yaml
   StockHistoryDTO:

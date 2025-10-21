@@ -1,0 +1,13 @@
+```yaml
+post:
+  tags: [Auth]
+  summary: API logout (expire cookies)
+  operationId: apiLogout
+  requestBody: {}
+  responses:
+    '204':
+      description: No Content - logout successful
+    '401':
+      $ref: ../../components/responses/UnauthorizedJson.yaml
+
+```

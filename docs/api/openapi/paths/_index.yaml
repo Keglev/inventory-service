@@ -34,6 +34,11 @@
 
 /api/me:
   $ref: ./auth/auth-api.yaml
+ /api/me/authorities:
+  $ref: ./auth/authorities.yaml
+
+ /auth/logout:
+  $ref: ./auth/logout.yaml
 
 /api/health/db:
   $ref: ./health/health-check-api.yaml
