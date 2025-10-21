@@ -15,6 +15,11 @@
 /analytics/low-stock-items:
   $ref: ./analytics/low-stock-items.yaml
 
+/analytics/stock-updates:
+  $ref: ./analytics/stock-updates.yaml
+/analytics/stock-updates-query:
+  $ref: ./analytics/stock-updates-query.yaml
+
 /api/inventory:
   $ref: ./inventory/index.yaml
 /api/inventory/{id}:
@@ -26,4 +31,17 @@
 /api/inventory/{id}/price:
   $ref: ./inventory/update-price.yaml
   
+
+/api/me:
+  $ref: ./auth/auth-api.yaml
+
+/api/health/db:
+  $ref: ./health/health-check-api.yaml
+
+/api/stock-history:
+  $ref: ./stock-history/stock-history-api.yaml
+
+/api/suppliers:
+  $ref: ./suppliers/supplier-api.yaml
+
 

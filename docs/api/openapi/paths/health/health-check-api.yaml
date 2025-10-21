@@ -52,4 +52,5 @@ paths:
                     example: query failed
                   error:
                     type: string
-                    example: ORA-12541: TNS:no listener
+                    example: "ORA-12541: TNS:no listener"
+
