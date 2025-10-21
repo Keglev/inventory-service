@@ -18,6 +18,14 @@ tags:
     description: Read-only analytics and KPIs
   - name: Inventory
     description: CRUD and mutations for inventory items
+  - name: Auth
+    description: Authentication and profile endpoints
+  - name: Health
+    description: Health and monitoring endpoints
+  - name: Suppliers
+    description: Supplier management endpoints
+  - name: Stock History
+    description: Read-only historical stock change endpoints
 
 x-tagGroups:
   - name: Analytics
