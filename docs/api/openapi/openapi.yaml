@@ -666,6 +666,15 @@ paths:
       tags:
         - Auth
       summary: Get authenticated user's profile
+      parameters:
+        - name: Cookie
+          in: header
+          description: |
+            Authentication cookies. When calling from scripts include the session cookie and any OAuth2 state cookies.
+          required: false
+          schema:
+            type: string
+          example: SESSION=abc123; OAUTH2_AUTH_REQUEST=eyJ...
       security:
         - cookieAuth: []
       responses:
@@ -692,6 +701,14 @@ paths:
         - Auth
       summary: Get authenticated user's granted authorities
       operationId: getCurrentUserAuthorities
+      parameters:
+        - name: Cookie
+          in: header
+          description: Authentication cookies for session-based requests
+          required: false
+          schema:
+            type: string
+          example: SESSION=abc123
       security:
         - cookieAuth: []
       responses:
@@ -718,6 +735,14 @@ paths:
         - Auth
       summary: API logout (expire cookies)
       operationId: apiLogout
+      parameters:
+        - name: Cookie
+          in: header
+          description: Session cookie to be expired by logout
+          required: true
+          schema:
+            type: string
+          example: SESSION=abc123
       requestBody: {}
       responses:
         '204':

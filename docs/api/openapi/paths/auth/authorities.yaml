@@ -2,6 +2,14 @@ get:
   tags: [Auth]
   summary: Get authenticated user's granted authorities
   operationId: getCurrentUserAuthorities
+  parameters:
+    - name: Cookie
+      in: header
+      description: Authentication cookies for session-based requests
+      required: false
+      schema:
+        type: string
+      example: "SESSION=abc123"
   security:
     - cookieAuth: []
   responses:

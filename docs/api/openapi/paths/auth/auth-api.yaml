@@ -1,6 +1,15 @@
 get:
   tags: [Auth]
   summary: Get authenticated user's profile
+  parameters:
+    - name: Cookie
+      in: header
+      description: |
+        Authentication cookies. When calling from scripts include the session cookie and any OAuth2 state cookies.
+      required: false
+      schema:
+        type: string
+      example: "SESSION=abc123; OAUTH2_AUTH_REQUEST=eyJ..."
   security:
     - cookieAuth: []
   responses:
