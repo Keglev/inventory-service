@@ -1,0 +1,24 @@
+```yaml
+# This file provides a small index for the major DTO schemas so ReDoc can link to
+# a logical "schema index" anchor. It intentionally re-exports references to the
+# individual schema files.
+InventoryItemDTO:
+  $ref: ./InventoryItemDTO.yaml
+SupplierDTO:
+  $ref: ./SupplierDTO.yaml
+StockHistoryDTO:
+  $ref: ./StockHistoryDTO.yaml
+PagedStockHistoryDTO:
+  $ref: ./PagedStockHistoryDTO.yaml
+AppUser:
+  $ref: ./AppUser.yaml
+HealthStatus:
+  $ref: ./HealthStatus.yaml
+HealthError:
+  $ref: ./HealthError.yaml
+PriceTrendDTO:
+  $ref: ./PriceTrendDTO.yaml
+FinancialSummaryDTO:
+  $ref: ./FinancialSummaryDTO.yaml
+
+```

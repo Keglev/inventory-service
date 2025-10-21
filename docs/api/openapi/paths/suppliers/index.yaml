@@ -1,0 +1,18 @@
+```yaml
+get:
+  tags: [Suppliers]
+  summary: List suppliers
+  operationId: listSuppliers
+  responses:
+    '200':
+      description: Supplier list
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/SupplierDTO.yaml
+    '400':
+      description: Invalid request
+
+```
