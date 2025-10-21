@@ -654,233 +654,61 @@ paths:
         '404':
           description: Not found
   /api/me:
-    openapi: 3.0.3
-    info:
-      title: Smart Supply Pro API
-      description: |
-        This endpoint allows authenticated users to retrieve their user profile after successful OAuth2 login.
-      version: 1.0.0
-      contact:
-        name: Carlos Keglevich
-        url: https://carloskeglevich.vercel.app
-        email: carloskeglevich@gmail.com
-      license:
-        name: MIT License
-        url: https://opensource.org/license/mit/
-    servers:
-      - url: https://keglevich.github.io/inventory-service
-        description: GitHub Pages
-    security:
-      - cookieAuth: []
-    paths:
-      /api/me:
-        get:
-          summary: Get authenticated user's profile
-          tags:
-            - Auth
-          security:
-            - cookieAuth: []
-          responses:
-            '200':
-              description: Authenticated user's profile returned successfully
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/AppUser'
-            '401':
-              $ref: '#/components/responses/UnauthorizedJson'
-    components:
-      schemas:
-        AppUser:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-              example: e2b4b77f-6a6b-4e4d-8b45-5a7f718c5e9c
-            email:
-              type: string
-              format: email
-              example: ckbuzin1@gmail.com
-            name:
-              type: string
-              example: Carlos Keglevich
-            role:
-              type: string
-              example: ADMIN
-            createdAt:
-              type: string
-              format: date-time
-              example: '2025-06-30T11:42:00'
-        ErrorResponse:
-          type: object
-          required:
-            - message
-          properties:
-            message:
-              type: string
-              example: Unauthorized
-            path:
-              type: string
-              example: /api/me
-            timestamp:
-              type: string
-              format: date-time
-      securitySchemes:
-        OAuth2:
-          type: oauth2
-          flows:
-            authorizationCode:
-              authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
-              tokenUrl: https://oauth2.googleapis.com/token
-              scopes:
-                openid: OpenID Connect scope
-                profile: Access basic profile
-                email: Access email
-        cookieAuth:
-          type: apiKey
-          in: cookie
-          name: SESSION
-          description: |
-            Session cookie set after OAuth2 login. In servlet-only setups this may be JSESSIONID. With Spring Session the cookie is named SESSION (SameSite=None; Secure).
+    get:
+      tags:
+        - Auth
+      summary: Get authenticated user's profile
+      security:
+        - cookieAuth: []
       responses:
-        UnauthorizedJson:
-          description: Not authenticated
+        '200':
+          description: Authenticated user's profile returned successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                default:
-                  value:
-                    message: Unauthorized
-        ForbiddenJson:
-          description: Authenticated but not allowed to access this resource
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                default:
-                  value:
-                    message: Forbidden
-    x-publicPaths:
-      - /health
-      - /actuator/health
-    x-cors:
-      allowedOrigins:
-        - http://localhost:5173
-        - https://localhost:5173
-        - https://inventoryfrontend.fly.dev
-      allowedMethods:
-        - GET
-        - POST
-        - PUT
-        - PATCH
-        - DELETE
-        - OPTIONS
-      allowedHeaders:
-        - '*'
-      allowCredentials: true
-      notes: Matches Spring Security CorsConfiguration; cookies require SameSite=None; Secure.
-    x-csrf:
-      enabled: false
-      notes: |
-        CSRF is disabled globally for this portfolio project. In production, prefer enabling CSRF and ignoring it for REST endpoints (/api/**) only. Session cookie is used with OAuth2 login.
+                $ref: '#/components/schemas/AppUser'
+        '401':
+          $ref: '#/components/responses/UnauthorizedJson'
   /api/health/db:
-    openapi: 3.0.3
-    info:
-      title: Health Check API
+    get:
+      tags:
+        - Health
+      summary: Check Oracle DB connectivity
       description: |
-        This endpoint verifies the status of the Oracle database connection. It is especially useful for Oracle Free Tier deployments to keep the connection alive.
-      version: 1.0.0
-      contact:
-        name: Carlos Keglevich
-        url: https://carloskeglevich.vercel.app
-        email: carls.keglevich@gmail.com
-      license:
-        name: MIT License
-        url: https://opensource.org/license/mit/
-    servers:
-      - url: https://keglevich.github.io/inventory-service
-        description: GitHub Pages
-    paths:
-      /health/db:
-        get:
-          summary: Check Oracle DB connectivity
-          description: |
-            Executes a simple "SELECT 1 FROM DUAL" to verify the database is reachable.
-          tags:
-            - Health
-          responses:
-            '200':
-              description: Database is reachable
-              content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                        example: UP
-                      db:
-                        type: string
-                        example: reachable
-            '503':
-              description: Database is not reachable or query failed
-              content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                        example: DOWN
-                      db:
-                        type: string
-                        example: query failed
-                      error:
-                        type: string
-                        example: 'ORA-12541: TNS:no listener'
+        Executes a simple "SELECT 1 FROM DUAL" to verify the database is reachable.
+      responses:
+        '200':
+          description: Database is reachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: Database is not reachable or query failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthError'
   /api/stock-history:
-    openapi: 3.0.1
-    info:
-      title: Inventory Service - Stock History API
-      description: |
-        Provides read-only access to historical stock changes including filtering by item, reason, and date range.
-      version: 1.0.0
-      contact:
-        name: Carlos Keglevich
-        url: https://carloskeglevich.vercel.app
-        email: carloskeglevich@gmail.com
-      license:
-        name: MIT License
-        url: https://opensource.org/license/mit/
-    servers:
-      - url: https://keglevich.github.io/inventory-service
-        description: GitHub Pages
-    paths:
-      /api/stock-history:
+    get:
+      tags:
+        - Stock History
+      summary: Get all stock history records
+      description: Returns a full list of stock change records. Intended for internal use only.
+      responses:
+        '200':
+          description: A list of stock history entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockHistoryDTO'
+      /item/{itemId}:
         get:
-          summary: Get all stock history records
-          description: Returns a full list of stock change records. Intended for internal use only.
           tags:
             - Stock History
-          responses:
-            '200':
-              description: A list of stock history entries
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/StockHistoryDTO'
-      /api/stock-history/item/{itemId}:
-        get:
           summary: Get stock history by item ID
-          description: Retrieves stock change records for a specific inventory item.
-          tags:
-            - Stock History
           parameters:
             - name: itemId
               in: path
@@ -896,13 +724,12 @@ paths:
                   schema:
                     type: array
                     items:
-                      $ref: '#/components/schemas/StockHistoryDTO'
-      /api/stock-history/reason/{reason}:
+                      $ref: ../../components/schemas/StockHistoryDTO.yaml
+      /reason/{reason}:
         get:
-          summary: Get stock history by change reason
-          description: Filters stock history based on the change reason (e.g., SOLD, SCRAPPED).
           tags:
             - Stock History
+          summary: Get stock history by change reason
           parameters:
             - name: reason
               in: path
@@ -923,14 +750,14 @@ paths:
                   schema:
                     type: array
                     items:
-                      $ref: '#/components/schemas/StockHistoryDTO'
-      /api/stock-history/search:
+                      $ref: ../../components/schemas/StockHistoryDTO.yaml
+      /search:
         get:
+          tags:
+            - Stock History
           summary: Filter stock history
           description: |
             Performs advanced filtering with optional start and end date, item name, supplier ID. Supports pagination.
-          tags:
-            - Stock History
           parameters:
             - in: query
               name: startDate
@@ -950,245 +777,143 @@ paths:
               name: supplierId
               schema:
                 type: string
-            - $ref: '#/components/parameters/Page'
-            - $ref: '#/components/parameters/Size'
+            - $ref: ../../components/parameters/Page.yaml
+            - $ref: ../../components/parameters/Size.yaml
           responses:
             '200':
               description: Filtered and paginated stock history
               content:
                 application/json:
                   schema:
-                    $ref: '#/components/schemas/PagedStockHistoryDTO'
-    components:
-      schemas:
-        StockHistoryDTO:
-          type: object
-          properties:
-            id:
-              type: string
-            itemId:
-              type: string
-            itemName:
-              type: string
-            changeAmount:
-              type: integer
-            reason:
-              type: string
-            timestamp:
-              type: string
-              format: date-time
-            createdBy:
-              type: string
-        PagedStockHistoryDTO:
-          type: object
-          properties:
-            content:
-              type: array
-              items:
-                $ref: '#/components/schemas/StockHistoryDTO'
-            totalElements:
-              type: integer
-            totalPages:
-              type: integer
-            size:
-              type: integer
-            number:
-              type: integer
-      parameters:
-        Page:
-          name: page
-          in: query
-          schema:
-            type: integer
-          description: Page number (0-based)
-        Size:
-          name: size
-          in: query
-          schema:
-            type: integer
-          description: Page size
+                    $ref: ../../components/schemas/PagedStockHistoryDTO.yaml
   /api/suppliers:
-    openapi: 3.0.3
-    info:
-      title: Inventory Service - Supplier API
-      description: |
-        API for managing supplier records including creation, update, deletion, and searching.
-      version: 1.0.0
-      contact:
-        name: Carlos Keglevich
-        url: https://carloskeglevich.vercel.app
-        email: carloskeglevich@gmail.com
-      license:
-        name: MIT License
-        url: https://opensource.org/license/mit/
-    servers:
-      - url: https://keglevich.github.io/inventory-service
-        description: GitHub Pages
-    paths:
-      /api/suppliers:
-        get:
-          summary: Get all suppliers
-          description: Returns a list of all suppliers.
-          tags:
-            - Suppliers
-          security:
-            - OAuth2: []
-          responses:
-            '200':
-              description: A list of suppliers
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SupplierDTO'
-        post:
-          summary: Create a new supplier
-          description: Creates a new supplier. Only accessible to ADMIN users.
-          tags:
-            - Suppliers
-          security:
-            - OAuth2: []
-          requestBody:
+    get:
+      tags:
+        - Suppliers
+      summary: Get all suppliers
+      description: Returns a list of all suppliers.
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: A list of suppliers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupplierDTO'
+    post:
+      tags:
+        - Suppliers
+      summary: Create a new supplier
+      description: Creates a new supplier. Only accessible to ADMIN users.
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierDTO'
+      responses:
+        '201':
+          description: Supplier created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierDTO'
+        '409':
+          description: Duplicate supplier or validation error
+    / {id}:
+      get:
+        tags:
+          - Suppliers
+        summary: Get supplier by ID
+        security:
+          - OAuth2: []
+        parameters:
+          - name: id
+            in: path
             required: true
+            schema:
+              type: string
+            description: Unique supplier ID
+        responses:
+          '200':
+            description: Found the supplier
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/SupplierDTO'
-          responses:
-            '201':
-              description: Supplier created successfully
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/SupplierDTO'
-            '409':
-              description: Duplicate supplier or validation error
-      /api/suppliers/{id}:
-        get:
-          summary: Get supplier by ID
-          description: Fetches a single supplier by its unique ID.
-          tags:
-            - Suppliers
-          security:
-            - OAuth2: []
-          parameters:
-            - name: id
-              in: path
-              required: true
-              schema:
-                type: string
-              description: Unique supplier ID
-          responses:
-            '200':
-              description: Found the supplier
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/SupplierDTO'
-            '404':
-              description: Supplier not found
-        put:
-          summary: Update an existing supplier
-          description: Updates supplier information. Only accessible to ADMIN users.
-          tags:
-            - Suppliers
-          security:
-            - OAuth2: []
-          parameters:
-            - name: id
-              in: path
-              required: true
-              schema:
-                type: string
-              description: Supplier ID to update
-          requestBody:
+                  $ref: ../../components/schemas/SupplierDTO.yaml
+          '404':
+            description: Supplier not found
+      put:
+        tags:
+          - Suppliers
+        summary: Update an existing supplier
+        security:
+          - OAuth2: []
+        parameters:
+          - name: id
+            in: path
             required: true
+            schema:
+              type: string
+            description: Supplier ID to update
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: ../../components/schemas/SupplierDTO.yaml
+        responses:
+          '200':
+            description: Supplier updated successfully
+          '404':
+            description: Supplier not found
+      delete:
+        tags:
+          - Suppliers
+        summary: Delete a supplier
+        security:
+          - OAuth2: []
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: string
+            description: Supplier ID
+        responses:
+          '204':
+            description: Deleted successfully
+          '404':
+            description: Supplier not found
+    /search:
+      get:
+        tags:
+          - Suppliers
+        summary: Search suppliers by name
+        description: Searches suppliers by name (partial or full).
+        security:
+          - OAuth2: []
+        parameters:
+          - name: name
+            in: query
+            required: true
+            schema:
+              type: string
+            description: Name to search
+        responses:
+          '200':
+            description: List of matching suppliers
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/SupplierDTO'
-          responses:
-            '200':
-              description: Supplier updated successfully
-            '404':
-              description: Supplier not found
-        delete:
-          summary: Delete a supplier
-          description: Permanently deletes a supplier. Only accessible to ADMIN users.
-          tags:
-            - Suppliers
-          security:
-            - OAuth2: []
-          parameters:
-            - name: id
-              in: path
-              required: true
-              schema:
-                type: string
-              description: Supplier ID
-          responses:
-            '204':
-              description: Deleted successfully
-            '404':
-              description: Supplier not found
-      /api/suppliers/search:
-        get:
-          summary: Search suppliers by name
-          description: Searches suppliers by name (partial or full).
-          tags:
-            - Suppliers
-          security:
-            - OAuth2: []
-          parameters:
-            - name: name
-              in: query
-              required: true
-              schema:
-                type: string
-              description: Name to search
-          responses:
-            '200':
-              description: List of matching suppliers
-              content:
-                application/json:
-                  schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/SupplierDTO'
-    components:
-      schemas:
-        SupplierDTO:
-          type: object
-          properties:
-            id:
-              type: string
-            name:
-              type: string
-            contactName:
-              type: string
-            email:
-              type: string
-            phone:
-              type: string
-            address:
-              type: string
-            createdBy:
-              type: string
-            createdAt:
-              type: string
-              format: date-time
-    securitySchemes:
-      OAuth2:
-        type: oauth2
-        flows:
-          authorizationCode:
-            authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
-            tokenUrl: https://oauth2.googleapis.com/token
-            scopes:
-              openid: OpenID Connect scope
-              profile: Access basic profile
-              email: Access email
+                  type: array
+                  items:
+                    $ref: ../../components/schemas/SupplierDTO.yaml
 components:
   schemas:
     StockValueOverTimeDTO:
@@ -1552,6 +1277,115 @@ components:
         LOST: Item is missing or lost during handling, shipping, or storage.
         RETURNED_TO_SUPPLIER: Stock was returned to the supplier (e.g., defective goods).
         RETURNED_BY_CUSTOMER: Stock was returned by the customer (e.g., refund or exchange).
+    AppUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: e2b4b77f-6a6b-4e4d-8b45-5a7f718c5e9c
+        email:
+          type: string
+          format: email
+          example: ckbuzin1@gmail.com
+        name:
+          type: string
+          example: Carlos Keglevich
+        role:
+          type: string
+          example: ADMIN
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-06-30T11:42:00'
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: UP
+        db:
+          type: string
+          example: reachable
+    HealthError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: DOWN
+        db:
+          type: string
+          example: query failed
+        error:
+          type: string
+          example: 'ORA-12541: TNS:no listener'
+    StockHistoryDTO:
+      type: object
+      properties:
+        id:
+          type: string
+        itemId:
+          type: string
+        itemName:
+          type: string
+        changeAmount:
+          type: integer
+        reason:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+    SupplierDTO:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Unauthorized
+        path:
+          type: string
+          example: /api/me
+        timestamp:
+          type: string
+          format: date-time
+    PagedStockHistoryDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockHistoryDTO'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
   responses:
     UnauthorizedJson:
       description: Unauthorized (missing/invalid token)
@@ -1609,6 +1443,21 @@ components:
       type: apiKey
       in: cookie
       name: JSESSIONID
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: SESSION
+      description: Session cookie set after OAuth2 login (SameSite=None; Secure)
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+          tokenUrl: https://oauth2.googleapis.com/token
+          scopes:
+            openid: OpenID Connect scope
+            profile: Access basic profile
+            email: Access email
 x-tagGroups:
   - name: Analytics
     tags:
