@@ -100,8 +100,6 @@ This project simulates a real-world software system for small-to-medium manufact
 - Fine-grained access control using `@PreAuthorize` annotations
 - **Note**: Swagger is **not used** for security simplification - instead using TypeDoc, OpenAPI, and Redoc for API documentation
 
----
-
 ### Key documents:
 
 - [OAuth2 Security Architecture](./docs/architecture/patterns/oauth2-security-architecture.md) — detailed OAuth2 and token flow
@@ -117,12 +115,6 @@ This project simulates a real-world software system for small-to-medium manufact
 - . [Index for Backend Documentation](./docs/backend/README.md) — architecture landing with service catalog
 - . [Service Layer Overview](./docs/architecture/services/README.md) — service responsibilities and patterns
 - . [Design Patterns & Security](./docs/architecture/patterns/) — architecture patterns, security, and implementation
-
-Key documents:
-
-  - [OAuth2 Security Architecture](./docs/architecture/patterns/oauth2-security-architecture.md) — detailed OAuth2 and token flow
-  - [Security Patterns](./docs/architecture/patterns/security-patterns.md) — common security patterns used across services
-  - [Cross-Cutting Security](./docs/architecture/patterns/security-cross-cutting-patterns.md) — cross-cutting concerns and implementations
 
 <a id="api-integration-guides"></a>
 ### 📡 API Integration Guides
@@ -164,7 +156,7 @@ Service Documentation:
 - **JaCoCo** for code coverage analysis and reporting
 
 📊 **View Coverage Reports:**
-👉 [**Backend Test Coverage (JaCoCo)**](https://keglev.github.io/inventory-service/backend/coverage/index.html)
+👉 [**Test Coverage for Backend (JaCoCo)**](https://keglev.github.io/inventory-service/backend/coverage/index.html)
 
 📚 **Complete Testing Documentation:**
 👉 [**Testing Architecture Documentation**](./docs/architecture/testing/README.md) - Enterprise testing strategy and implementation guides
@@ -236,7 +228,6 @@ GitHub Actions automatically handle:
 **Frontend CI/CD:**
 - ✅ Builds and tests React application with Vitest
 - ✅ Automatically deploys to Koyeb on successful builds
-- ✅ Live deployment at: https://inventory-service.koyeb.app
 - ✅ Health checks and smoke tests included
 
 <a id="available-scripts"></a>
@@ -273,6 +264,8 @@ Below are a few common commands used during development:
 - ✅ **Live Application**: https://inventory-service.koyeb.app
 - ✅ **Health Checks**: Automated smoke tests and health monitoring
 
+Live Site: 🌐[Inventory-service](https://inventory-service.koyeb.app/)
+
 ### Why This Deployment Strategy Works
 - **Oracle Free Tier**: Requires IP whitelisting for database connections
 - **Fixed IP Solution**: Using Fly.io VM provides stable IP address
@@ -307,4 +300,3 @@ Below are a few common commands used during development:
 
 📬 For questions or contributions, feel free to [open an issue](https://github.com/Keglev/inventory-service/issues).
 
-. JaCoCo
