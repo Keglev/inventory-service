@@ -264,7 +264,9 @@ Below are a few common commands used during development:
 - ✅ **Live Application**: https://inventory-service.koyeb.app
 - ✅ **Health Checks**: Automated smoke tests and health monitoring
 
-Live Site: 🌐[Inventory-service](https://inventory-service.koyeb.app/)
+### Live Application
+
+🌐 **Production URL**:[Inventory-service](https://inventory-service.koyeb.app/)
 
 ### Why This Deployment Strategy Works
 - **Oracle Free Tier**: Requires IP whitelisting for database connections
