@@ -17,10 +17,17 @@ name: 3️⃣ Deploy to Fly.io (Production)
 #
 # Deployment workflow:
 #   1-ci-test.yml → builds & scans image
-#   3-deploy-fly.yml (this file) → deploys to production (manual trigger)
+#   2-deploy-ghpages.yml → publishes documentation
+#   3-deploy-fly.yml (this file) → deploys to production (automatic after CI)
 # =============================================================================
 
 on:
+  workflow_run:
+    workflows: ["1️⃣ CI - Build, Test & Publish"]
+    types:
+      - completed
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       image_tag:
@@ -42,25 +49,48 @@ permissions:
   contents: read
 
 jobs:
-  deploy-fly:
+  deploy:
     runs-on: ubuntu-latest
+    # Only run if the upstream workflow succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     environment:
       name: production
       url: https://inventoryservice.fly.dev
     
     steps:
       # ---------------------------------------------------------------------
-      # 1) Checkout repository (for fly.toml context)
+      # 1) Set deployment variables (manual or automatic)
+      # ---------------------------------------------------------------------
+      - name: 📋 Set deployment variables
+        id: vars
+        run: |
+          # Use manual input if workflow_dispatch, otherwise use commit SHA from upstream workflow
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            IMAGE_TAG="${{ inputs.image_tag }}"
+            STRATEGY="${{ inputs.deployment_strategy }}"
+          else
+            IMAGE_TAG="${{ github.event.workflow_run.head_sha }}"
+            IMAGE_TAG="${IMAGE_TAG:0:7}"  # First 7 chars (short SHA)
+            STRATEGY="immediate"
+          fi
+          
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "strategy=${STRATEGY}" >> $GITHUB_OUTPUT
+          echo "📦 Deploying image: ckbuzin/inventory-service:${IMAGE_TAG}"
+          echo "🎯 Strategy: ${STRATEGY}"
+
+      # ---------------------------------------------------------------------
+      # 2) Checkout repository (for fly.toml context)
       # ---------------------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
       # ---------------------------------------------------------------------
-      # 2) Validate Docker image exists
+      # 3) Validate Docker image exists
       # ---------------------------------------------------------------------
       - name: Validate Docker image
         run: |
-          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/inventory-service:${{ inputs.image_tag }}"
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/inventory-service:${{ steps.vars.outputs.image_tag }}"
           echo "Validating image: $IMAGE_NAME"
           
           # Login to Docker Hub to verify image
@@ -103,17 +133,17 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/inventory-service:${{ inputs.image_tag }}"
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/inventory-service:${{ steps.vars.outputs.image_tag }}"
           
           echo "🚀 Deploying to Fly.io..."
           echo "  App: inventoryservice"
           echo "  Image: $IMAGE_NAME"
-          echo "  Strategy: ${{ inputs.deployment_strategy }}"
+          echo "  Strategy: ${{ steps.vars.outputs.strategy }}"
           
           flyctl deploy \
             --app inventoryservice \
             --image "$IMAGE_NAME" \
-            --strategy "${{ inputs.deployment_strategy }}" \
+            --strategy "${{ steps.vars.outputs.strategy }}" \
             --remote-only \
             --wait-timeout 300
 
@@ -204,8 +234,8 @@ jobs:
           echo "## 🚀 Production Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **App:** \`inventoryservice\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image:** \`${{ secrets.DOCKER_USERNAME }}/inventory-service:${{ inputs.image_tag }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Strategy:** \`${{ inputs.deployment_strategy }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`${{ secrets.DOCKER_USERNAME }}/inventory-service:${{ steps.vars.outputs.image_tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Strategy:** \`${{ steps.vars.outputs.strategy }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **URL:** https://inventoryservice.fly.dev" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Quick Links" >> $GITHUB_STEP_SUMMARY
