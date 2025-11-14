@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryItem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.model</a> &gt; <span class="el_source">InventoryItem.java</span></div><h1>InventoryItem.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.model;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Inventory item entity with stock quantity, pricing, and supplier linkage.
+ * Maps to INVENTORY_ITEM table with audit metadata.
+ *
+ * &lt;p&gt;&lt;strong&gt;Purpose&lt;/strong&gt;: Represents physical/digital items with quantity tracking and low-stock alerts.
+ *
+ * &lt;p&gt;&lt;strong&gt;Usage&lt;/strong&gt;: Inventory management, stock analytics, dashboard reporting.
+ *
+ * @see Supplier
+ * @see StockHistory
+ * @see &lt;a href=&quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model Patterns&lt;/a&gt;
+ */
+@Entity
+@Table(name = &quot;INVENTORY_ITEM&quot;)
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class InventoryItem {
+
+    /** Unique item identifier (UUID). */
+    @Id
+    @Column(name = &quot;ID&quot;, nullable = false, length = 36)
+    private String id;
+
+    /** Item name (unique, for display and lookups). */
+    @Column(name = &quot;NAME&quot;, nullable=false) private String name;
+
+    /** Current stock quantity (non-negative). */
+    @Column(name = &quot;QUANTITY&quot;, nullable=false) private int quantity;
+
+    /** Price per unit. */
+    @Column(name = &quot;PRICE&quot;, nullable=false) private BigDecimal price;
+
+    /** Foreign key to supplier. */
+    @Column(name = &quot;SUPPLIER_ID&quot;, nullable=false)
+    private String supplierId;
+
+    /** Creator username/email. */
+    @Column(name = &quot;CREATED_BY&quot;, nullable=false)
+    private String createdBy;
+
+    /** Minimum quantity threshold for low-stock alerts. */
+    @Column(name = &quot;MINIMUM_QUANTITY&quot;, nullable=false)
+    private int minimumQuantity;
+
+    /** Creation timestamp. */
+    @Column(name = &quot;CREATED_AT&quot;, nullable=false)
+    private LocalDateTime createdAt;
+
+    /**
+     * Supplier entity reference (read-only, for joins).
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;SUPPLIER_ID&quot;, insertable = false, updatable = false)
+    private Supplier supplier;
+
+    /**
+     * Sets creation metadata before persist.
+     */
+    @PrePersist
+    protected void onCreate() {
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">        if (this.id == null || this.id.isBlank()) {</span>
+<span class="nc" id="L83">            this.id = UUID.randomUUID().toString();</span>
+        }
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (this.createdAt == null) {</span>
+<span class="fc" id="L86">            this.createdAt = LocalDateTime.now();</span>
+        }
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">        if (this.createdBy == null || this.createdBy.isBlank()) {</span>
+<span class="fc" id="L89">            this.createdBy = &quot;system&quot;;</span>
+        }
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (this.minimumQuantity &lt;= 0) {</span>
+<span class="fc" id="L92">            this.minimumQuantity = 10; </span>
+        }
+        // Enterprise Comment: Supplier ID Resolution
+        // Handles test scenarios where supplier object is set but supplierId field is null
+<span class="pc bpc" id="L96" title="1 of 6 branches missed.">        if ((this.supplierId == null || this.supplierId.isBlank()) &amp;&amp; this.supplier != null) {</span>
+<span class="fc" id="L97">            this.supplierId = this.supplier.getId();</span>
+<span class="pc bpc" id="L98" title="2 of 6 branches missed.">        } else if ((this.supplierId == null || this.supplierId.isBlank()) &amp;&amp; this.supplier == null) {</span>
+<span class="fc" id="L99">            this.supplierId = &quot;default-supplier&quot;;</span>
+        }
+<span class="fc" id="L101">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

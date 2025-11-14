@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppUser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.model</a> &gt; <span class="el_source">AppUser.java</span></div><h1>AppUser.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.model;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * User entity for OAuth2 authentication and role-based access control.
+ * Persisted in users_app table with Google email as unique identifier.
+ *
+ * &lt;p&gt;&lt;strong&gt;Purpose&lt;/strong&gt;: Tracks registered users, their roles (USER/ADMIN), and registration timestamps.
+ *
+ * &lt;p&gt;&lt;strong&gt;Usage&lt;/strong&gt;: Spring Security role checks, audit trails, API personalization.
+ *
+ * @see Role
+ * @see &lt;a href=&quot;../../../../../docs/architecture/patterns/model-patterns.md&quot;&gt;Model Patterns&lt;/a&gt;
+ */
+@Getter
+@Setter
+@Entity(name = &quot;UsersApp&quot;)
+@Table(name = &quot;users_app&quot;,
+    uniqueConstraints = @UniqueConstraint(name= &quot;uk_users_email&quot;, columnNames = &quot;email&quot;)
+)
+public class AppUser {
+
+    /** Unique user ID (UUID format). */
+<span class="fc" id="L36">    @Id</span>
+    @Column(length = 36)
+<span class="fc" id="L38">    private String id = UUID.randomUUID().toString();</span>
+    
+    /** Google email address (login ID). */
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    /** Full name from OAuth2 provider. */
+    @Column(nullable = false)
+    private String name;
+
+    /** User role: USER or ADMIN (stored as STRING). */
+<span class="fc" id="L49">    @Enumerated(EnumType.STRING)</span>
+    @Column(name = &quot;ROLE&quot;, nullable = false, length = 16)
+    private Role role = Role.USER; 
+
+    /** Registration timestamp. */
+<span class="fc" id="L54">    private LocalDateTime createdAt = LocalDateTime.now();</span>
+
+    /**
+     * Creates new OAuth2 user with email and name.
+     *
+     * @param email Google email
+     * @param name full name
+     */
+<span class="fc" id="L62">    public AppUser(String email, String name) {</span>
+<span class="fc" id="L63">        this.id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L64">        this.email = email;</span>
+<span class="fc" id="L65">        this.name = name;</span>
+<span class="fc" id="L66">        this.createdAt = LocalDateTime.now();</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * No-arg constructor for JPA.
+     */
+<span class="fc" id="L72">    public AppUser() {</span>
+<span class="fc" id="L73">        this.id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Returns user's role enum.
+     *
+     * @return assigned role
+     */
+    public Role getRoleEnum() {
+<span class="nc" id="L82">        return this.role;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

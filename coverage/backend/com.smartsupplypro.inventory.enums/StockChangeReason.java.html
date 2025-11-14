@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockChangeReason.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.enums</a> &gt; <span class="el_source">StockChangeReason.java</span></div><h1>StockChangeReason.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.enums;
+
+import java.util.EnumSet;
+import java.util.Set;
+
+/**
+ * Standardized stock change reasons for inventory movement tracking.
+ * 
+ * &lt;p&gt;Provides enterprise-level categorization for audit compliance, financial reconciliation,
+ * and operational analytics. Used across inventory management, reporting, and compliance systems.
+ * 
+ * &lt;p&gt;Key integrations: StockHistoryDTO, InventoryService, Analytics, Financial reporting.
+ * 
+ * @author Smart Supply Pro Development Team
+ * @version 1.0.0
+ * @since 1.0.0
+ */
+<span class="fc" id="L18">public enum StockChangeReason {</span>
+
+    /** Initial inventory entry during item creation. Critical for audit trail establishment. */
+<span class="fc" id="L21">    INITIAL_STOCK,</span>
+
+    /** Administrative adjustment for inventory discrepancies. Requires manager approval. */
+<span class="fc" id="L24">    MANUAL_UPDATE,</span>
+
+    /** Price adjustment without quantity impact. Financial reporting classification. */
+<span class="fc" id="L27">    PRICE_CHANGE,</span>
+
+    /** Customer purchase transaction. Revenue recognition and COGS calculation trigger. */
+<span class="fc" id="L30">    SOLD,</span>
+
+    /** Quality control removal for damaged/defective items. Loss prevention tracking. */
+<span class="fc" id="L33">    SCRAPPED,</span>
+
+    /** Catastrophic loss requiring insurance claim documentation. Asset write-off trigger. */
+<span class="fc" id="L36">    DESTROYED,</span>
+
+    /** Temporary quality hold pending repair/assessment. Operational impact tracking. */
+<span class="fc" id="L39">    DAMAGED,</span>
+
+    /** Expiration date breach removal. Regulatory compliance and waste management. */
+<span class="fc" id="L42">    EXPIRED,</span>
+
+    /** Inventory shrinkage for unaccounted losses. Security and process review trigger. */
+<span class="fc" id="L45">    LOST,</span>
+
+    /** Vendor return for defective merchandise. Supplier performance tracking. */
+<span class="fc" id="L48">    RETURNED_TO_SUPPLIER,</span>
+
+    /** Customer return processing. Customer satisfaction and refund management. */
+<span class="fc" id="L51">    RETURNED_BY_CUSTOMER;</span>
+
+    // Enterprise utility methods for business logic optimization
+
+    /**
+     * Determines if this reason requires manager approval for processing.
+     * 
+     * @return true if manager approval is required
+     */
+    public boolean requiresManagerApproval() {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        return switch (this) {</span>
+<span class="nc" id="L62">            case MANUAL_UPDATE, DESTROYED, LOST -&gt; true;</span>
+<span class="nc" id="L63">            default -&gt; false;</span>
+        };
+    }
+
+    /**
+     * Checks if this reason affects available inventory quantity.
+     * 
+     * @return true if quantity is affected
+     */
+    public boolean affectsQuantity() {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        return this != PRICE_CHANGE;</span>
+    }
+
+    /**
+     * Determines if this reason represents a financial loss.
+     * 
+     * @return true if it represents a loss
+     */
+    public boolean isLossReason() {
+<span class="nc" id="L82">        return getLossReasons().contains(this);</span>
+    }
+
+    /**
+     * Checks if this reason requires regulatory compliance documentation.
+     * 
+     * @return true if compliance documentation is required
+     */
+    public boolean requiresComplianceDocumentation() {
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        return switch (this) {</span>
+<span class="nc" id="L92">            case EXPIRED, DESTROYED, LOST -&gt; true;</span>
+<span class="nc" id="L93">            default -&gt; false;</span>
+        };
+    }
+
+    /**
+     * Gets the audit severity level for this reason.
+     * 
+     * @return audit severity classification
+     */
+    public AuditSeverity getAuditSeverity() {
+<span class="nc bnc" id="L103" title="All 4 branches missed.">        return switch (this) {</span>
+<span class="nc" id="L104">            case DESTROYED, LOST -&gt; AuditSeverity.CRITICAL;</span>
+<span class="nc" id="L105">            case INITIAL_STOCK, SOLD -&gt; AuditSeverity.HIGH;</span>
+<span class="nc" id="L106">            case MANUAL_UPDATE, SCRAPPED, EXPIRED -&gt; AuditSeverity.MEDIUM;</span>
+<span class="nc" id="L107">            default -&gt; AuditSeverity.LOW;</span>
+        };
+    }
+
+    // Static utility methods for business operations
+
+    /**
+     * Returns all reasons that represent inventory losses.
+     * 
+     * @return immutable set of loss reasons
+     */
+    public static Set&lt;StockChangeReason&gt; getLossReasons() {
+<span class="nc" id="L119">        return EnumSet.of(SCRAPPED, DESTROYED, EXPIRED, LOST);</span>
+    }
+
+    /**
+     * Returns all reasons that represent customer-related transactions.
+     * 
+     * @return immutable set of customer-related reasons
+     */
+    public static Set&lt;StockChangeReason&gt; getCustomerReasons() {
+<span class="nc" id="L128">        return EnumSet.of(SOLD, RETURNED_BY_CUSTOMER);</span>
+    }
+
+    /**
+     * Returns all reasons that represent supplier-related transactions.
+     * 
+     * @return immutable set of supplier-related reasons
+     */
+    public static Set&lt;StockChangeReason&gt; getSupplierReasons() {
+<span class="nc" id="L137">        return EnumSet.of(RETURNED_TO_SUPPLIER);</span>
+    }
+
+    /**
+     * Returns all reasons that require security investigation.
+     * 
+     * @return immutable set of security-sensitive reasons
+     */
+    public static Set&lt;StockChangeReason&gt; getSecuritySensitiveReasons() {
+<span class="nc" id="L146">        return EnumSet.of(LOST, DESTROYED);</span>
+    }
+
+    /**
+     * Safely parses a string to StockChangeReason with detailed error handling.
+     * 
+     * @param reasonString the string to parse
+     * @return the corresponding enum value
+     * @throws IllegalArgumentException if the string is invalid
+     */
+    public static StockChangeReason parseReason(String reasonString) {
+<span class="nc bnc" id="L157" title="All 4 branches missed.">        if (reasonString == null || reasonString.trim().isEmpty()) {</span>
+<span class="nc" id="L158">            throw new IllegalArgumentException(&quot;Stock change reason cannot be null or empty&quot;);</span>
+        }
+        
+        try {
+<span class="nc" id="L162">            return valueOf(reasonString.trim().toUpperCase());</span>
+<span class="nc" id="L163">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L164">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L165">                String.format(&quot;Invalid stock change reason '%s'. Valid options: %s&quot;, </span>
+<span class="nc" id="L166">                    reasonString, java.util.Arrays.toString(values())), e);</span>
+        }
+    }
+
+    // Nested enum for audit severity classification
+<span class="nc" id="L171">    public enum AuditSeverity {</span>
+<span class="nc" id="L172">        LOW, MEDIUM, HIGH, CRITICAL</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

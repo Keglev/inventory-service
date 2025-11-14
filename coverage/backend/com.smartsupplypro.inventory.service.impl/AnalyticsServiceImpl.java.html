@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.service.impl</a> &gt; <span class="el_source">AnalyticsServiceImpl.java</span></div><h1>AnalyticsServiceImpl.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.service.impl;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
+import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
+import com.smartsupplypro.inventory.dto.LowStockItemDTO;
+import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
+import com.smartsupplypro.inventory.dto.PriceTrendDTO;
+import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
+import com.smartsupplypro.inventory.enums.StockChangeReason;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+import com.smartsupplypro.inventory.repository.InventoryItemRepository;
+import com.smartsupplypro.inventory.repository.StockHistoryRepository;
+import com.smartsupplypro.inventory.service.AnalyticsService;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Service implementation for inventory analytics, reporting, and financial calculations.
+ *
+ * &lt;p&gt;&lt;strong&gt;Characteristics&lt;/strong&gt;:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;strong&gt;Read-Only Operations&lt;/strong&gt;: All methods marked {@code @Transactional(readOnly = true)}&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;WAC Calculation&lt;/strong&gt;: Event replay algorithm for Weighted Average Cost reporting&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Data Aggregation&lt;/strong&gt;: Custom repository queries (native SQL/JPQL) for efficiency&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Database Portability&lt;/strong&gt;: Handles H2 (test) and Oracle (prod) type differences&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Date Window Defaults&lt;/strong&gt;: Last 30 days when bounds not specified&lt;/li&gt;
+ *   &lt;li&gt;&lt;strong&gt;Input Validation&lt;/strong&gt;: Date range checks, filter normalization&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;&lt;strong&gt;Core Analytics&lt;/strong&gt;:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Stock valuation over time (daily trends, supplier filtering)&lt;/li&gt;
+ *   &lt;li&gt;Supplier performance metrics (stock distribution, update frequencies)&lt;/li&gt;
+ *   &lt;li&gt;Low stock alerts (threshold-based warnings)&lt;/li&gt;
+ *   &lt;li&gt;Movement trends (monthly stock-in/stock-out)&lt;/li&gt;
+ *   &lt;li&gt;Price history (procurement analysis)&lt;/li&gt;
+ *   &lt;li&gt;Financial summaries (WAC-based: opening, purchases, COGS, write-offs, ending)&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;&lt;strong&gt;Transaction Management&lt;/strong&gt;:
+ * Class-level {@code @Transactional(readOnly = true)} for all analytics operations.
+ *
+ * &lt;p&gt;&lt;strong&gt;Architecture Documentation&lt;/strong&gt;:
+ * For detailed operation flows, WAC algorithm, business rules, and refactoring notes, see:
+ * &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md&quot;&gt;Analytics Service Architecture&lt;/a&gt;
+ *
+ * @see AnalyticsService
+ * @see com.smartsupplypro.inventory.repository.StockHistoryRepository
+ * @see com.smartsupplypro.inventory.repository.InventoryItemRepository
+ */
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class AnalyticsServiceImpl implements AnalyticsService {
+
+    private final StockHistoryRepository stockHistoryRepository;
+    private final InventoryItemRepository inventoryItemRepository;
+
+    /**
+     * Retrieves daily inventory value (quantity × price) over a date range.
+     *
+     * &lt;p&gt;Defaults to last 30 days if bounds are {@code null}.
+     *
+     * @param startDate inclusive start date (nullable)
+     * @param endDate inclusive end date (nullable)
+     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
+     * @return ordered list of daily stock values (ascending by date)
+     * @throws InvalidRequestException if {@code startDate &gt; endDate}
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#stock-valuation&quot;&gt;Stock Valuation&lt;/a&gt;
+     */
+    @Override
+    public List&lt;StockValueOverTimeDTO&gt; getTotalStockValueOverTime(LocalDate startDate,
+                                                                  LocalDate endDate,
+                                                                  String supplierId) {
+
+<span class="fc" id="L93">        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);</span>
+<span class="fc" id="L94">        LocalDateTime from = startOfDay(window[0]);</span>
+<span class="fc" id="L95">        LocalDateTime to   = endOfDay(window[1]);</span>
+
+<span class="fc" id="L97">        List&lt;Object[]&gt; rows =</span>
+<span class="fc" id="L98">                stockHistoryRepository.getStockValueGroupedByDateFiltered(from, to, blankToNull(supplierId));</span>
+
+<span class="fc" id="L100">        return rows.stream()</span>
+<span class="fc" id="L101">                .map(r -&gt; new StockValueOverTimeDTO(</span>
+<span class="fc" id="L102">                        asLocalDate(r[0]),</span>
+<span class="fc" id="L103">                        asNumber(r[1]).doubleValue()</span>
+                ))
+<span class="fc" id="L105">                .toList();</span>
+    }
+
+    /**
+     * Retrieves current stock quantities grouped by supplier.
+     *
+     * @return list of suppliers with total quantities (ordered by quantity desc)
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#supplier-analytics&quot;&gt;Supplier Analytics&lt;/a&gt;
+     */
+    @Override
+    public List&lt;StockPerSupplierDTO&gt; getTotalStockPerSupplier() {
+<span class="fc" id="L116">        List&lt;Object[]&gt; rows = stockHistoryRepository.getTotalStockPerSupplier();</span>
+
+<span class="fc" id="L118">        return rows.stream()</span>
+<span class="fc" id="L119">                .map(r -&gt; new StockPerSupplierDTO(</span>
+                        (String) r[0],
+<span class="fc" id="L121">                        asNumber(r[1]).longValue()</span>
+                ))
+<span class="fc" id="L123">                .toList();</span>
+    }
+
+    /**
+     * Retrieves stock update frequency per item for a supplier.
+     *
+     * &lt;p&gt;Counts stock history entries per item (higher count = more active product).
+     *
+     * @param supplierId supplier identifier (required)
+     * @return list of items with update counts (ordered by count desc)
+     * @throws InvalidRequestException if {@code supplierId} is blank
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#supplier-analytics&quot;&gt;Supplier Analytics&lt;/a&gt;
+     */
+    @Override
+    public List&lt;ItemUpdateFrequencyDTO&gt; getItemUpdateFrequency(String supplierId) {
+<span class="fc" id="L138">        String sid = requireNonBlank(supplierId, &quot;supplierId&quot;);</span>
+
+<span class="fc" id="L140">        List&lt;Object[]&gt; rows = stockHistoryRepository.getUpdateCountPerItemFiltered(sid);</span>
+
+<span class="fc" id="L142">        return rows.stream()</span>
+<span class="fc" id="L143">                .map(r -&gt; new ItemUpdateFrequencyDTO(</span>
+                        (String) r[0],
+<span class="fc" id="L145">                        asNumber(r[1]).longValue()</span>
+                ))
+<span class="fc" id="L147">                .toList();</span>
+    }
+
+    /**
+     * Identifies items below minimum stock threshold for a supplier.
+     *
+     * &lt;p&gt;&lt;strong&gt;Business Rule&lt;/strong&gt;: Low stock when {@code currentQuantity &lt; minimumQuantity}.
+     *
+     * @param supplierId supplier identifier (required)
+     * @return list of low-stock items (ordered by quantity asc, most critical first)
+     * @throws InvalidRequestException if {@code supplierId} is blank
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#low-stock-alerts&quot;&gt;Low Stock Alerts&lt;/a&gt;
+     */
+    @Override
+    public List&lt;LowStockItemDTO&gt; getItemsBelowMinimumStock(String supplierId) {
+<span class="fc" id="L162">        String sid = requireNonBlank(supplierId, &quot;supplierId&quot;);</span>
+
+<span class="fc" id="L164">        List&lt;Object[]&gt; rows = inventoryItemRepository.findItemsBelowMinimumStockFiltered(sid);</span>
+
+<span class="fc" id="L166">        return rows.stream()</span>
+<span class="fc" id="L167">                .map(r -&gt; new LowStockItemDTO(</span>
+                        (String) r[0],
+<span class="fc" id="L169">                        asNumber(r[1]).intValue(),</span>
+<span class="fc" id="L170">                        asNumber(r[2]).intValue()</span>
+                ))
+<span class="fc" id="L172">                .toList();</span>
+    }
+
+    /**
+     * Aggregates stock movements into monthly buckets (stock-in vs stock-out).
+     *
+     * &lt;p&gt;Defaults to last 30 days if bounds are {@code null}.
+     *
+     * @param startDate inclusive start date (nullable)
+     * @param endDate inclusive end date (nullable)
+     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
+     * @return list of monthly movements (YYYY-MM format, ordered by month asc)
+     * @throws InvalidRequestException if {@code startDate &gt; endDate}
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#movement-trends&quot;&gt;Movement Trends&lt;/a&gt;
+     */
+    @Override
+    public List&lt;MonthlyStockMovementDTO&gt; getMonthlyStockMovement(LocalDate startDate,
+                                                                 LocalDate endDate,
+                                                                 String supplierId) {
+
+<span class="fc" id="L192">        LocalDate[] window = defaultAndValidateDateWindow(startDate, endDate);</span>
+<span class="fc" id="L193">        LocalDateTime from = startOfDay(window[0]);</span>
+<span class="fc" id="L194">        LocalDateTime to   = endOfDay(window[1]);</span>
+
+<span class="fc" id="L196">        List&lt;Object[]&gt; rows =</span>
+<span class="fc" id="L197">                stockHistoryRepository.getMonthlyStockMovementFiltered(from, to, blankToNull(supplierId));</span>
+
+<span class="fc" id="L199">        return rows.stream()</span>
+<span class="fc" id="L200">                .map(r -&gt; new MonthlyStockMovementDTO(</span>
+                        (String) r[0],
+<span class="fc" id="L202">                        asNumber(r[1]).longValue(),</span>
+<span class="fc" id="L203">                        asNumber(r[2]).longValue()</span>
+                ))
+<span class="fc" id="L205">                .toList();</span>
+    }
+
+    /**
+     * Total number of items currently below minimum stock threshold.
+     *
+     * @return count of low-stock items (global KPI, no supplier filter)
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#low-stock-alerts&quot;&gt;Low Stock Alerts&lt;/a&gt;
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public long lowStockCount() {
+<span class="nc" id="L217">        return inventoryItemRepository.countWithQuantityBelow(5);</span>
+    }
+
+    /**
+     * Applies flexible filter over stock updates (multi-criteria query).
+     *
+     * &lt;p&gt;Defaults to last 30 days if date bounds are {@code null}.
+     *
+     * @param filter filter object with optional criteria (required, must not be {@code null})
+     * @return list of stock updates (ordered by createdAt DESC)
+     * @throws InvalidRequestException if filter is {@code null} or validation fails
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#advanced-filtering&quot;&gt;Advanced Filtering&lt;/a&gt;
+     */
+    @Override
+    public List&lt;StockUpdateResultDTO&gt; getFilteredStockUpdates(StockUpdateFilterDTO filter) {
+<span class="fc bfc" id="L232" title="All 2 branches covered.">        if (filter == null) {</span>
+<span class="fc" id="L233">            throw new InvalidRequestException(&quot;filter must not be null&quot;);</span>
+        }
+
+<span class="fc" id="L236">        LocalDateTime start = filter.getStartDate();</span>
+<span class="fc" id="L237">        LocalDateTime end   = filter.getEndDate();</span>
+
+<span class="pc bpc" id="L239" title="1 of 4 branches missed.">        if (start == null &amp;&amp; end == null) {</span>
+<span class="fc" id="L240">            end = LocalDateTime.now();</span>
+<span class="fc" id="L241">            start = end.minusDays(30);</span>
+        }
+<span class="pc bpc" id="L243" title="2 of 6 branches missed.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
+<span class="fc" id="L244">            throw new InvalidRequestException(&quot;startDate must be on or before endDate&quot;);</span>
+        }
+
+<span class="fc" id="L247">        Integer min = filter.getMinChange();</span>
+<span class="fc" id="L248">        Integer max = filter.getMaxChange();</span>
+<span class="pc bpc" id="L249" title="1 of 6 branches missed.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
+<span class="fc" id="L250">            throw new InvalidRequestException(&quot;minChange must be &lt;= maxChange&quot;);</span>
+        }
+
+<span class="fc" id="L253">        String itemName   = blankToNull(filter.getItemName());</span>
+<span class="fc" id="L254">        String supplierId = blankToNull(filter.getSupplierId());</span>
+<span class="fc" id="L255">        String createdBy  = blankToNull(filter.getCreatedBy());</span>
+
+<span class="fc" id="L257">        List&lt;Object[]&gt; rows = stockHistoryRepository.findFilteredStockUpdates(</span>
+                start, end, itemName, supplierId, createdBy, min, max
+        );
+
+<span class="fc" id="L261">        return rows.stream()</span>
+<span class="fc" id="L262">                .map(r -&gt; new StockUpdateResultDTO(</span>
+                        (String) r[0],
+                        (String) r[1],
+<span class="fc" id="L265">                        asNumber(r[2]).intValue(),</span>
+                        (String) r[3],
+                        (String) r[4],
+<span class="fc" id="L268">                        asLocalDateTime(r[5])</span>
+                ))
+<span class="fc" id="L270">                .toList();</span>
+    }
+
+    /**
+     * Returns average unit price per day for an item within a date window.
+     *
+     * @param itemId required inventory item identifier
+     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
+     * @param start inclusive start date (required)
+     * @param end inclusive end date (required)
+     * @return ordered list of day/price pairs (ascending by date)
+     * @throws InvalidRequestException if {@code itemId} is blank or {@code start &gt; end}
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#price-history&quot;&gt;Price History&lt;/a&gt;
+     */
+    @Override
+    public List&lt;PriceTrendDTO&gt; getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end) {
+<span class="fc" id="L286">        String iid = requireNonBlank(itemId, &quot;itemId&quot;);</span>
+<span class="fc" id="L287">        LocalDate s = requireNonNull(start, &quot;start&quot;);</span>
+<span class="fc" id="L288">        LocalDate e = requireNonNull(end, &quot;end&quot;);</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        if (s.isAfter(e)) {</span>
+<span class="fc" id="L290">            throw new InvalidRequestException(&quot;start must be on or before end&quot;);</span>
+        }
+
+<span class="fc" id="L293">        LocalDateTime from = startOfDay(s);</span>
+<span class="fc" id="L294">        LocalDateTime to   = endOfDay(e);</span>
+
+<span class="fc" id="L296">        return stockHistoryRepository.getPriceTrend(iid, supplierId, from, to);</span>
+    }
+
+    /**
+     * Produces financial summary using Weighted Average Cost (WAC) method.
+     *
+     * &lt;p&gt;&lt;strong&gt;Computation Model&lt;/strong&gt;:
+     * &lt;ol&gt;
+     *   &lt;li&gt;Opening inventory: Replay events before period to establish baseline WAC per item&lt;/li&gt;
+     *   &lt;li&gt;Period events: Categorize into purchases, returns, COGS, write-offs, returns to supplier&lt;/li&gt;
+     *   &lt;li&gt;Ending inventory: Final state after processing all events&lt;/li&gt;
+     * &lt;/ol&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;WAC Formula&lt;/strong&gt;: {@code newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty}
+     *
+     * &lt;p&gt;&lt;strong&gt;Notes&lt;/strong&gt;:
+     * &lt;ul&gt;
+     *   &lt;li&gt;Algorithm details in inline comments (complex event replay logic)&lt;/li&gt;
+     *   &lt;li&gt;Scale 4, {@link RoundingMode#HALF_UP} for intermediate calculations&lt;/li&gt;
+     *   &lt;li&gt;Guards against negative quantities (clamps at zero)&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param from inclusive start date (required)
+     * @param to inclusive end date (required)
+     * @param supplierId optional supplier filter ({@code null/blank} = all suppliers)
+     * @return WAC-based financial summary with all categories
+     * @throws InvalidRequestException if {@code from/to} is {@code null} or {@code from &gt; to}
+     * @see &lt;a href=&quot;../../../../../../docs/architecture/services/analytics-service.md#wac-algorithm&quot;&gt;WAC Algorithm&lt;/a&gt;
+     */
+    @Override
+    public FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId) {
+        // === Input Validation ===
+<span class="pc bpc" id="L328" title="2 of 4 branches missed.">        if (from == null || to == null) throw new InvalidRequestException(&quot;from/to must be provided&quot;);</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">        if (from.isAfter(to)) throw new InvalidRequestException(&quot;from must be on or before to&quot;);</span>
+
+        // Convert LocalDate to LocalDateTime boundaries (inclusive range)
+<span class="fc" id="L332">        LocalDateTime start = LocalDateTime.of(from, LocalTime.MIN);  // 00:00:00.000</span>
+<span class="fc" id="L333">        LocalDateTime end   = LocalDateTime.of(to,   LocalTime.MAX);  // 23:59:59.999</span>
+
+        // === Fetch Event Stream ===
+        // Retrieve ALL stock history events up to 'end' date, ordered by item then timestamp.
+        // This includes events before 'start' (needed for opening inventory calculation).
+<span class="fc" id="L338">        var events = stockHistoryRepository.findEventsUpTo(end, blankToNull(supplierId));</span>
+
+        // === Initialize Financial Buckets ===
+        // These accumulate the quantities and costs for each financial category.
+        // All costs are calculated using WAC (Weighted Average Cost) at the time of movement.
+<span class="fc" id="L343">        long openingQty = 0, purchasesQty = 0, returnsInQty = 0, cogsQty = 0, writeOffQty = 0, endingQty = 0;</span>
+<span class="fc" id="L344">        BigDecimal openingValue = BigDecimal.ZERO,    // Opening inventory value (qty × WAC)</span>
+<span class="fc" id="L345">                   purchasesCost = BigDecimal.ZERO,   // Total purchase cost in period</span>
+<span class="fc" id="L346">                   returnsInCost = BigDecimal.ZERO,   // Value of customer returns</span>
+<span class="fc" id="L347">                   cogsCost = BigDecimal.ZERO,        // Cost of Goods Sold (items sold at WAC)</span>
+<span class="fc" id="L348">                   writeOffCost = BigDecimal.ZERO,    // Cost of damaged/lost/expired items</span>
+<span class="fc" id="L349">                   endingValue = BigDecimal.ZERO;     // Ending inventory value (qty × WAC)</span>
+
+        // === Per-Item State Tracking ===
+        // Map: itemId -&gt; State(quantity, averageCost)
+        // This tracks the running WAC and quantity for each inventory item as we replay events.
+<span class="fc" id="L354">        Map&lt;String, State&gt; state = new HashMap&lt;&gt;();</span>
+
+        // === Define Reason Categories ===
+        // Group StockChangeReasons into financial buckets for proper categorization.
+<span class="fc" id="L358">        final Set&lt;StockChangeReason&gt; RETURNS_IN = Set.of(StockChangeReason.RETURNED_BY_CUSTOMER);</span>
+<span class="fc" id="L359">        final Set&lt;StockChangeReason&gt; WRITE_OFFS = Set.of(</span>
+                StockChangeReason.DAMAGED, StockChangeReason.DESTROYED,
+                StockChangeReason.SCRAPPED, StockChangeReason.EXPIRED, StockChangeReason.LOST
+        );
+<span class="fc" id="L363">        final Set&lt;StockChangeReason&gt; RETURN_TO_SUPPLIER = Set.of(StockChangeReason.RETURNED_TO_SUPPLIER);</span>
+
+        // ==================================================================================
+        // PHASE 1: Calculate Opening Inventory (events BEFORE the reporting period)
+        // ==================================================================================
+        // Replay all events that occurred before 'start' date to establish the opening
+        // inventory quantity and WAC for each item. This gives us the baseline state
+        // at the beginning of the reporting period.
+        
+<span class="fc bfc" id="L372" title="All 2 branches covered.">        for (var e : events) {</span>
+            // Only process events strictly before the reporting period start
+<span class="fc bfc" id="L374" title="All 2 branches covered.">            if (e.createdAt().isBefore(start)) {</span>
+<span class="fc" id="L375">                State st = state.get(e.itemId());</span>
+                
+                // --- Handle INBOUND events (positive quantity changes) ---
+<span class="pc bpc" id="L378" title="1 of 2 branches missed.">                if (e.quantityChange() &gt; 0) {</span>
+                    // Determine unit cost for this inbound event:
+                    // 1. Use priceAtChange if available (recorded at transaction time)
+                    // 2. Otherwise, use current WAC for this item (maintains cost continuity)
+                    // 3. If no prior state, default to zero (prevents null errors)
+<span class="pc bpc" id="L383" title="1 of 2 branches missed.">                    BigDecimal unit = (e.priceAtChange() != null)</span>
+<span class="fc" id="L384">                            ? e.priceAtChange()</span>
+<span class="pc bnc" id="L385" title="All 2 branches missed.">                            : (st == null ? BigDecimal.ZERO : st.avgCost());</span>
+                    
+                    // Apply inbound: Updates quantity and recalculates WAC
+                    // Formula: newWAC = (oldQty × oldWAC + inboundQty × unitCost) / newQty
+<span class="fc" id="L389">                    st = applyInbound(st, e.quantityChange(), unit);</span>
+<span class="fc" id="L390">                    state.put(e.itemId(), st);</span>
+                    
+                // --- Handle OUTBOUND events (negative quantity changes) ---
+<span class="pc bnc" id="L393" title="All 2 branches missed.">                } else if (e.quantityChange() &lt; 0) {</span>
+                    // Issue (consume) quantity at current WAC
+                    // This reduces quantity but maintains the same WAC for remaining stock
+<span class="nc" id="L396">                    Issue iss = issueAt(st, Math.abs(e.quantityChange()));</span>
+<span class="nc" id="L397">                    state.put(e.itemId(), iss.state());</span>
+                }
+                // Note: quantityChange == 0 (price-only changes) don't affect opening inventory
+            }
+<span class="fc" id="L401">        }</span>
+        
+        // Sum up opening inventory across all items
+        // This represents the total quantity and value on hand at the start of the period
+<span class="fc bfc" id="L405" title="All 2 branches covered.">        for (var st : state.values()) {</span>
+<span class="fc" id="L406">            openingQty += st.qty();</span>
+<span class="fc" id="L407">            openingValue = openingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));</span>
+<span class="fc" id="L408">        }</span>
+
+        // ==================================================================================
+        // PHASE 2: Process Events Within Reporting Period [start..end]
+        // ==================================================================================
+        // Process all events that fall within the reporting period, categorizing them into
+        // financial buckets (Purchases, Returns, COGS, Write-offs) while maintaining
+        // the running WAC state for each item.
+        
+<span class="fc bfc" id="L417" title="All 2 branches covered.">        for (var e : events) {</span>
+            // Skip events before the reporting period (already processed in Phase 1)
+<span class="fc bfc" id="L419" title="All 2 branches covered.">            if (e.createdAt().isBefore(start)) continue;</span>
+
+<span class="fc" id="L421">            State st = state.get(e.itemId());</span>
+
+            // ====================================================================
+            // Handle POSITIVE Quantity Changes (Inbound / Stock-In)
+            // ====================================================================
+<span class="fc bfc" id="L426" title="All 2 branches covered.">            if (e.quantityChange() &gt; 0) {</span>
+                // Determine unit cost for this inbound event
+<span class="pc bpc" id="L428" title="1 of 2 branches missed.">                BigDecimal unit = (e.priceAtChange() != null)</span>
+<span class="fc" id="L429">                        ? e.priceAtChange()</span>
+<span class="pc bnc" id="L430" title="All 2 branches missed.">                        : (st == null ? BigDecimal.ZERO : st.avgCost());</span>
+                
+                // Update state: Add quantity and recalculate WAC
+<span class="fc" id="L433">                State newSt = applyInbound(st, e.quantityChange(), unit);</span>
+<span class="fc" id="L434">                state.put(e.itemId(), newSt);</span>
+
+                // --- Categorize into Financial Buckets ---
+                
+<span class="pc bpc" id="L438" title="1 of 2 branches missed.">                if (RETURNS_IN.contains(e.reason())) {</span>
+                    // Customer returned items → separate bucket from purchases
+<span class="nc" id="L440">                    returnsInQty += e.quantityChange();</span>
+<span class="nc" id="L441">                    returnsInCost = returnsInCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));</span>
+                    
+                } else {
+                    // Purchases or Initial Stock
+                    // Only count as &quot;purchase&quot; if:
+                    // 1. Has a price recorded (priceAtChange != null), OR
+                    // 2. Is marked as INITIAL_STOCK
+<span class="pc bpc" id="L448" title="3 of 4 branches missed.">                    if (e.priceAtChange() != null || e.reason() == StockChangeReason.INITIAL_STOCK) {</span>
+<span class="fc" id="L449">                        purchasesQty += e.quantityChange();</span>
+<span class="fc" id="L450">                        purchasesCost = purchasesCost.add(unit.multiply(BigDecimal.valueOf(e.quantityChange())));</span>
+                    }
+                    // Note: Positive manual adjustments without price still update WAC/quantity
+                    // but don't count as &quot;purchases&quot; for financial reporting purposes
+                }
+
+            // ====================================================================
+            // Handle NEGATIVE Quantity Changes (Outbound / Stock-Out)
+            // ====================================================================
+<span class="pc bpc" id="L459" title="1 of 2 branches missed.">            } else if (e.quantityChange() &lt; 0) {</span>
+<span class="fc" id="L460">                int out = Math.abs(e.quantityChange());</span>
+
+                // --- Categorize by Reason ---
+                
+<span class="pc bpc" id="L464" title="1 of 2 branches missed.">                if (RETURN_TO_SUPPLIER.contains(e.reason())) {</span>
+                    // Returning items to supplier → treat as NEGATIVE purchase
+                    // This reduces both the purchases quantity and cost for the period
+<span class="nc" id="L467">                    Issue iss = issueAt(st, out);</span>
+<span class="nc" id="L468">                    state.put(e.itemId(), iss.state());</span>
+                    
+<span class="nc" id="L470">                    purchasesQty -= out;</span>
+<span class="nc" id="L471">                    purchasesCost = purchasesCost.subtract(iss.cost());  // Cost calculated at WAC</span>
+
+<span class="pc bpc" id="L473" title="1 of 2 branches missed.">                } else if (WRITE_OFFS.contains(e.reason())) {</span>
+                    // Items damaged, lost, expired, destroyed, scrapped
+                    // These are losses valued at current WAC
+<span class="nc" id="L476">                    Issue iss = issueAt(st, out);</span>
+<span class="nc" id="L477">                    state.put(e.itemId(), iss.state());</span>
+                    
+<span class="nc" id="L479">                    writeOffQty += out;</span>
+<span class="nc" id="L480">                    writeOffCost = writeOffCost.add(iss.cost());  // Cost calculated at WAC</span>
+
+<span class="nc" id="L482">                } else {</span>
+                    // Default bucket: COGS (Cost of Goods Sold)
+                    // This includes: SOLD, MANUAL_UPDATE (if negative), and other consumptions
+                    // Valued at current WAC
+<span class="fc" id="L486">                    Issue iss = issueAt(st, out);</span>
+<span class="fc" id="L487">                    state.put(e.itemId(), iss.state());</span>
+                    
+<span class="fc" id="L489">                    cogsQty += out;</span>
+<span class="fc" id="L490">                    cogsCost = cogsCost.add(iss.cost());  // Cost calculated at WAC</span>
+                }
+            }
+            // Note: quantityChange == 0 (price-only adjustments like PRICE_CHANGE reason)
+            // don't affect quantities or financial buckets, but they update WAC state.
+<span class="fc" id="L495">        }</span>
+
+        // ==================================================================================
+        // PHASE 3: Calculate Ending Inventory
+        // ==================================================================================
+        // Sum the final state across all items after all events have been processed.
+        // This represents the quantity and value on hand at the end of the reporting period.
+        
+<span class="fc bfc" id="L503" title="All 2 branches covered.">        for (var st : state.values()) {</span>
+<span class="fc" id="L504">            endingQty += st.qty();</span>
+<span class="fc" id="L505">            endingValue = endingValue.add(st.avgCost().multiply(BigDecimal.valueOf(st.qty())));</span>
+<span class="fc" id="L506">        }</span>
+
+        // ==================================================================================
+        // Build and Return Financial Summary DTO
+        // ==================================================================================
+        // Package all calculated metrics into a structured DTO for frontend consumption.
+        // 
+        // Financial Equation Check (should balance):
+        // Opening Value + Purchases Cost + Returns In Cost - COGS Cost - Write-off Cost = Ending Value
+        
+<span class="fc" id="L516">        return FinancialSummaryDTO.builder()</span>
+<span class="fc" id="L517">                .method(&quot;WAC&quot;)</span>
+<span class="fc" id="L518">                .fromDate(from.toString())</span>
+<span class="fc" id="L519">                .toDate(to.toString())</span>
+<span class="fc" id="L520">                .openingQty(openingQty)</span>
+<span class="fc" id="L521">                .openingValue(openingValue)</span>
+<span class="fc" id="L522">                .purchasesQty(purchasesQty)</span>
+<span class="fc" id="L523">                .purchasesCost(purchasesCost)</span>
+<span class="fc" id="L524">                .returnsInQty(returnsInQty)</span>
+<span class="fc" id="L525">                .returnsInCost(returnsInCost)</span>
+<span class="fc" id="L526">                .cogsQty(cogsQty)</span>
+<span class="fc" id="L527">                .cogsCost(cogsCost)</span>
+<span class="fc" id="L528">                .writeOffQty(writeOffQty)</span>
+<span class="fc" id="L529">                .writeOffCost(writeOffCost)</span>
+<span class="fc" id="L530">                .endingQty(endingQty)</span>
+<span class="fc" id="L531">                .endingValue(endingValue)</span>
+<span class="fc" id="L532">                .build();</span>
+    }
+
+    // ---------------------------------------------------------------------
+    // Helpers (validation, casting, defaults)
+    // ---------------------------------------------------------------------
+
+    /**
+     * Applies defaults for a date window (last 30 days ending today) and validates {@code start &lt;= end}.
+     *
+     * @param start nullable inclusive start date
+     * @param end   nullable inclusive end date
+     * @return a 2-element array containing the effective start and end
+     * @throws InvalidRequestException if the effective start is after the effective end
+     */
+    private static LocalDate[] defaultAndValidateDateWindow(LocalDate start, LocalDate end) {
+<span class="fc bfc" id="L548" title="All 2 branches covered.">        LocalDate s = (start == null) ? LocalDate.now().minusDays(30) : start;</span>
+<span class="fc bfc" id="L549" title="All 2 branches covered.">        LocalDate e = (end == null) ? LocalDate.now() : end;</span>
+<span class="fc bfc" id="L550" title="All 2 branches covered.">        if (s.isAfter(e)) {</span>
+<span class="fc" id="L551">            throw new InvalidRequestException(&quot;start must be on or before end&quot;);</span>
+        }
+<span class="fc" id="L553">        return new LocalDate[]{s, e};</span>
+    }
+
+    /** @return start of day (00:00:00.000000000) for the given date. */
+    private static LocalDateTime startOfDay(LocalDate d) {
+<span class="fc" id="L558">        return LocalDateTime.of(d, LocalTime.MIN);</span>
+    }
+
+    /** @return end of day (23:59:59.999999999) for the given date. */
+    private static LocalDateTime endOfDay(LocalDate d) {
+<span class="fc" id="L563">        return LocalDateTime.of(d, LocalTime.MAX);</span>
+    }
+
+    /** Normalizes a String to {@code null} if blank; otherwise returns a trimmed value. */
+    private static String blankToNull(String s) {
+<span class="fc bfc" id="L568" title="All 4 branches covered.">        return (s == null || s.trim().isEmpty()) ? null : s.trim();</span>
+    }
+
+    /** Ensures a String is non-blank; returns trimmed value or throws {@link InvalidRequestException}. */
+    private static String requireNonBlank(String v, String name) {
+<span class="pc bpc" id="L573" title="1 of 4 branches missed.">        if (v == null || v.trim().isEmpty()) {</span>
+<span class="fc" id="L574">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
+        }
+<span class="fc" id="L576">        return v.trim();</span>
+    }
+
+    /** Ensures a reference is non-null; returns it or throws {@link InvalidRequestException}. */
+    private static &lt;T&gt; T requireNonNull(T v, String name) {
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">        if (v == null) {</span>
+<span class="nc" id="L582">            throw new InvalidRequestException(name + &quot; must not be null&quot;);</span>
+        }
+<span class="fc" id="L584">        return v;</span>
+    }
+
+    /**
+    * Converts a date-like value to {@link LocalDate}.
+    *
+    * &lt;p&gt;Accepts:
+    * &lt;ul&gt;
+    *   &lt;li&gt;{@link LocalDate}&lt;/li&gt;
+    *   &lt;li&gt;{@link java.sql.Date} (converted via {@code toLocalDate()})&lt;/li&gt;
+    *   &lt;li&gt;{@link java.sql.Timestamp} (converted via {@code toLocalDateTime().toLocalDate()})&lt;/li&gt;
+    *   &lt;li&gt;{@link CharSequence} in formats starting with {@code yyyy-MM-dd}, e.g. {@code &quot;2025-03-15 00:00:00.0&quot;}&lt;/li&gt;
+    * &lt;/ul&gt;
+    * Falls back to parsing the first 10 characters as {@code yyyy-MM-dd} for vendor-specific projections.
+    *
+    * @param o raw value from native projections (DATE/TIMESTAMP/STRING)
+    * @return the corresponding {@link LocalDate}
+    * @throws IllegalStateException if the value cannot be interpreted as a date
+    */
+    private static LocalDate asLocalDate(Object o) {
+<span class="pc bpc" id="L604" title="1 of 2 branches missed.">        if (o instanceof LocalDate ld) return ld;</span>
+
+<span class="pc bpc" id="L606" title="1 of 2 branches missed.">        if (o instanceof java.sql.Date d) return d.toLocalDate();</span>
+
+<span class="nc bnc" id="L608" title="All 2 branches missed.">        if (o instanceof java.sql.Timestamp ts) return ts.toLocalDateTime().toLocalDate();</span>
+
+<span class="nc bnc" id="L610" title="All 2 branches missed.">        if (o instanceof CharSequence cs) {</span>
+<span class="nc" id="L611">            String s = cs.toString();</span>
+<span class="nc bnc" id="L612" title="All 2 branches missed.">            if (s.length() &gt;= 10) {</span>
+            // e.g. &quot;2025-03-15 00:00:00.0&quot; → &quot;2025-03-15&quot;
+<span class="nc" id="L614">            return LocalDate.parse(s.substring(0, 10));</span>
+            }
+        }
+
+        // Last resort: try toString().substring(0,10) if it looks like a timestamp literal
+<span class="nc" id="L619">        String s = String.valueOf(o);</span>
+<span class="nc bnc" id="L620" title="All 8 branches missed.">        if (s != null &amp;&amp; s.length() &gt;= 10 &amp;&amp; s.charAt(4) == '-' &amp;&amp; s.charAt(7) == '-') {</span>
+<span class="nc" id="L621">            return LocalDate.parse(s.substring(0, 10));</span>
+        }
+
+<span class="nc" id="L624">        throw new IllegalStateException(&quot;Expected LocalDate/Date/ Timestamp/String but got: &quot; +</span>
+<span class="nc bnc" id="L625" title="All 2 branches missed.">                (o == null ? &quot;null&quot; : o.getClass().getName() + &quot; -&gt; &quot; + o));</span>
+    }
+
+    /**
+     * Converts a timestamp-like object to {@link LocalDateTime}.
+     * Accepts {@link LocalDateTime} or {@link java.sql.Timestamp}.
+     *
+     * @throws IllegalStateException if the object type is unsupported
+     */
+    private static LocalDateTime asLocalDateTime(Object o) {
+<span class="fc bfc" id="L635" title="All 2 branches covered.">        if (o instanceof LocalDateTime ldt) return ldt;</span>
+<span class="pc bpc" id="L636" title="1 of 2 branches missed.">        if (o instanceof Timestamp ts) return ts.toLocalDateTime();</span>
+<span class="nc" id="L637">        throw new IllegalStateException(&quot;Expected LocalDateTime or java.sql.Timestamp but got: &quot; + o);</span>
+    }
+
+    /**
+     * Safely unboxes any numeric projection value via {@link Number}.
+     * Accepts {@code null} (treated as zero), {@link Number}, and {@link BigDecimal}.
+    */
+    private static Number asNumber(Object o) {
+<span class="pc bpc" id="L645" title="1 of 2 branches missed.">        if (o == null) return java.math.BigDecimal.ZERO;</span>
+<span class="fc bfc" id="L646" title="All 2 branches covered.">        if (o instanceof Number n) return n;</span>
+<span class="pc bpc" id="L647" title="1 of 2 branches missed.">        if (o instanceof java.math.BigDecimal bd) return bd;</span>
+<span class="fc" id="L648">        throw new IllegalStateException(&quot;Expected numeric type but got: &quot; + o);</span>
+    }
+
+    // ==================================================================================
+    // WAC (Weighted Average Cost) Algorithm - Core Data Structures
+    // ==================================================================================
+    
+    /**
+     * Represents the current inventory state for a single item.
+     * &lt;p&gt;
+     * This immutable record tracks two critical pieces of information:
+     * &lt;ul&gt;
+     *   &lt;li&gt;&lt;strong&gt;qty&lt;/strong&gt;: Current on-hand quantity&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;avgCost&lt;/strong&gt;: Current Weighted Average Cost (WAC) per unit&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;WAC Calculation&lt;/strong&gt;: When new stock arrives at a different price,
+     * the WAC is recalculated using the formula:
+     * &lt;pre&gt;
+     * newWAC = (oldQty × oldWAC + inboundQty × inboundPrice) / (oldQty + inboundQty)
+     * &lt;/pre&gt;
+     * &lt;/p&gt;
+     *
+     * @param qty the current on-hand quantity for this item
+     * @param avgCost the current weighted average cost per unit
+     */
+<span class="fc" id="L675">    private record State(long qty, BigDecimal avgCost) {}</span>
+
+    /**
+     * Represents the result of an outbound (issue/consumption) operation.
+     * &lt;p&gt;
+     * When items are consumed (sold, damaged, etc.), we need to track:
+     * &lt;ul&gt;
+     *   &lt;li&gt;&lt;strong&gt;state&lt;/strong&gt;: Updated inventory state after the issue (reduced quantity, same WAC)&lt;/li&gt;
+     *   &lt;li&gt;&lt;strong&gt;cost&lt;/strong&gt;: Total cost of the issued quantity at the current WAC&lt;/li&gt;
+     * &lt;/ul&gt;
+     * This cost value is used for COGS, write-off, or return-to-supplier calculations.
+     * &lt;/p&gt;
+     *
+     * @param state the updated State after issuing the quantity
+     * @param cost the total cost of the issued quantity (qtyOut × currentWAC)
+     */
+<span class="fc" id="L691">    private record Issue(State state, BigDecimal cost) {}</span>
+
+    // ==================================================================================
+    // WAC (Weighted Average Cost) Algorithm - Core Operations
+    // ==================================================================================
+    
+    /**
+     * Applies an inbound stock movement and recalculates the Weighted Average Cost.
+     * &lt;p&gt;
+     * This method implements the core WAC algorithm for purchasing/receiving inventory.
+     * When new stock arrives at a different unit cost, the average cost is recalculated
+     * to blend the old and new costs proportionally.
+     * &lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Algorithm&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;pre&gt;
+     * oldValue = oldQty × oldWAC
+     * inboundValue = inboundQty × inboundUnitCost
+     * newQty = oldQty + inboundQty
+     * newWAC = (oldValue + inboundValue) / newQty
+     * &lt;/pre&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Example&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;Current state: 100 units @ $10 WAC = $1,000 value&lt;/li&gt;
+     *   &lt;li&gt;Purchase: 50 units @ $12 per unit = $600 value&lt;/li&gt;
+     *   &lt;li&gt;New state: 150 units @ $10.67 WAC = $1,600 value&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Edge Cases&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;If {@code st} is null, treats as first purchase (no existing inventory)&lt;/li&gt;
+     *   &lt;li&gt;If result quantity is zero, WAC defaults to zero&lt;/li&gt;
+     *   &lt;li&gt;Precision: 4 decimal places, HALF_UP rounding&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param st current state (nullable for first purchase)
+     * @param qtyIn quantity being added (must be positive)
+     * @param unitCost unit cost of the inbound stock
+     * @return new {@link State} with updated quantity and recalculated WAC
+     */
+    private static State applyInbound(State st, int qtyIn, BigDecimal unitCost) {
+        // Extract current values (default to zero if no prior state)
+<span class="fc bfc" id="L734" title="All 2 branches covered.">        long q0 = (st == null) ? 0 : st.qty();</span>
+<span class="fc bfc" id="L735" title="All 2 branches covered.">        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
+        
+        // Calculate new quantity
+<span class="fc" id="L738">        long q1 = q0 + qtyIn;</span>
+        
+        // Calculate total values
+<span class="fc" id="L741">        BigDecimal v0  = c0.multiply(BigDecimal.valueOf(q0));        // Existing inventory value</span>
+<span class="fc" id="L742">        BigDecimal vin = unitCost.multiply(BigDecimal.valueOf(qtyIn)); // Inbound inventory value</span>
+        
+        // Calculate new WAC (weighted average of old and new)
+<span class="pc bpc" id="L745" title="1 of 2 branches missed.">        BigDecimal avg1 = (q1 == 0)</span>
+<span class="nc" id="L746">                ? BigDecimal.ZERO</span>
+<span class="fc" id="L747">                : v0.add(vin).divide(BigDecimal.valueOf(q1), 4, RoundingMode.HALF_UP);</span>
+        
+<span class="fc" id="L749">        return new State(q1, avg1);</span>
+    }
+
+    /**
+     * Issues (consumes) inventory at the current Weighted Average Cost.
+     * &lt;p&gt;
+     * This method handles outbound stock movements (sales, consumption, write-offs, returns)
+     * where items are removed from inventory at the current WAC. Unlike inbound operations,
+     * issuing stock does NOT change the WAC - it only reduces quantity.
+     * &lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Algorithm&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;pre&gt;
+     * newQty = oldQty - qtyOut
+     * cost = qtyOut × currentWAC
+     * WAC remains unchanged
+     * &lt;/pre&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Example&lt;/strong&gt;:&lt;/p&gt;
+     * &lt;ul&gt;
+     *   &lt;li&gt;Current state: 150 units @ $10.67 WAC&lt;/li&gt;
+     *   &lt;li&gt;Issue: 50 units&lt;/li&gt;
+     *   &lt;li&gt;New state: 100 units @ $10.67 WAC (WAC unchanged)&lt;/li&gt;
+     *   &lt;li&gt;Cost of issue: 50 × $10.67 = $533.50&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Negative Quantity Guard&lt;/strong&gt;: If the issue would result in negative
+     * quantity (data integrity issue), the quantity is clamped to zero. This prevents
+     * runtime errors but indicates a potential data problem that should be investigated.&lt;/p&gt;
+     *
+     * @param st current state (nullable for safety, treated as zero quantity/cost)
+     * @param qtyOut quantity being issued/consumed (must be positive)
+     * @return {@link Issue} containing the updated state and the cost of issued quantity
+     */
+    private static Issue issueAt(State st, int qtyOut) {
+        // Extract current values (default to zero if no prior state)
+<span class="pc bpc" id="L785" title="1 of 2 branches missed.">        long q0 = (st == null) ? 0 : st.qty();</span>
+<span class="pc bpc" id="L786" title="1 of 2 branches missed.">        BigDecimal c0 = (st == null) ? BigDecimal.ZERO : st.avgCost();</span>
+        
+        // Calculate new quantity (guard against negative)
+<span class="fc" id="L789">        long q1 = q0 - qtyOut;</span>
+<span class="pc bpc" id="L790" title="1 of 2 branches missed.">        if (q1 &lt; 0) {</span>
+            // Data integrity issue: issuing more than available
+            // Clamp to zero to prevent errors, but this indicates a problem
+<span class="nc" id="L793">            q1 = 0;</span>
+        }
+        
+        // Calculate cost of the issue at current WAC
+<span class="fc" id="L797">        BigDecimal cost = c0.multiply(BigDecimal.valueOf(qtyOut));</span>
+        
+        // Return new state (reduced quantity, same WAC) and issue cost
+<span class="fc" id="L800">        return new Issue(new State(q1, c0), cost);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

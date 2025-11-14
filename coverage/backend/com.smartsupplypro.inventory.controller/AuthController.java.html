@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.smartsupplypro.inventory.model.AppUser;
+import com.smartsupplypro.inventory.repository.AppUserRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Authentication controller for user profile and logout operations.
+ *
+ * &lt;p&gt;Provides current user profile data and API logout functionality.
+ * Works with OAuth2 authentication principals and Spring Security.&lt;/p&gt;
+ *
+ * @see AppUserRepository
+ * @see &lt;a href=&quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller Patterns&lt;/a&gt;
+ */
+@RestController
+@RequestMapping(&quot;/api&quot;)
+public class AuthController {
+
+    private final AppUserRepository appUserRepository;
+
+<span class="fc" id="L36">    public AuthController(AppUserRepository appUserRepository) {</span>
+<span class="fc" id="L37">        this.appUserRepository = appUserRepository;</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * DTO for user profile response with frontend-specific fields.
+     *
+     * @param email      user email address
+     * @param fullName   user display name
+     * @param role       user role (ADMIN/USER)
+     * @param pictureUrl optional profile picture URL
+     */
+<span class="fc" id="L48">    public record AppUserProfileDTO(</span>
+            String email,
+            String fullName,
+            String role,
+            String pictureUrl
+    ) {}
+
+    /**
+     * Gets authenticated user's profile information.
+     *
+     * @param principal OAuth2 authentication principal
+     * @return user profile with email, name, role, and optional picture
+     * @throws ResponseStatusException 401 if not authenticated or user not found
+     */
+    @GetMapping(&quot;/me&quot;)
+    public AppUserProfileDTO me(@AuthenticationPrincipal OAuth2User principal) {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L65">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication provided&quot;);</span>
+        }
+        
+        // Enterprise Comment: OAuth2 Identity Resolution
+        // 1. Extract email from OAuth2 provider (Google)
+        // 2. Load corresponding AppUser entity (created during first login)
+        // 3. Return frontend-friendly profile shape
+<span class="fc" id="L72">        String email = principal.getAttribute(&quot;email&quot;);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (email == null) {</span>
+<span class="fc" id="L74">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;Email not provided by OAuth2 provider&quot;);</span>
+        }
+
+<span class="fc" id="L77">        AppUser user = appUserRepository.findByEmail(email)</span>
+<span class="fc" id="L78">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not found&quot;));</span>
+
+<span class="fc" id="L80">        String picture = principal.getAttribute(&quot;picture&quot;);</span>
+
+<span class="fc" id="L82">        return new AppUserProfileDTO(</span>
+<span class="fc" id="L83">                user.getEmail(),</span>
+<span class="fc" id="L84">                user.getName(),              // map to fullName</span>
+<span class="fc" id="L85">                user.getRole().name(),       // single role string</span>
+                picture
+        );
+    }
+    /**
+     * Gets user's granted authorities for authorization checks.
+     *
+     * @param principal OAuth2 authentication principal
+     * @return sorted list of authority strings (e.g., ROLE_USER, ROLE_ADMIN)
+     * @throws ResponseStatusException 401 if not authenticated
+     */
+    @GetMapping(&quot;/me/authorities&quot;)
+    public java.util.List&lt;String&gt; meAuthorities(
+            @AuthenticationPrincipal OAuth2User principal) {
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L100">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;No authentication&quot;);</span>
+        }
+<span class="nc" id="L102">        return principal.getAuthorities().stream()</span>
+<span class="nc" id="L103">                .map(org.springframework.security.core.GrantedAuthority::getAuthority)</span>
+<span class="nc" id="L104">                .distinct()</span>
+<span class="nc" id="L105">                .sorted()</span>
+<span class="nc" id="L106">                .toList();</span>
+    }
+
+    /**
+     * API logout endpoint for programmatic clients.
+     *
+     * &lt;p&gt;Invalidates session and expires cookies.
+     * For browser clients, prefer the standard POST /logout endpoint.&lt;/p&gt;
+     *
+     * @param request  HTTP servlet request
+     * @param response HTTP servlet response
+     * @return 204 No Content response
+     */
+    @PostMapping(&quot;/auth/logout&quot;)
+    public ResponseEntity&lt;Void&gt; apiLogout(HttpServletRequest request, HttpServletResponse response) {
+<span class="fc" id="L121">        new SecurityContextLogoutHandler().logout(request, response, null);</span>
+
+        // Enterprise Comment: Cookie Expiration Strategy
+        // Explicitly expire session cookies for API clients with secure settings
+        // Required for proper logout in SPA and mobile applications
+<span class="fc" id="L126">        ResponseCookie jsess = ResponseCookie.from(&quot;JSESSIONID&quot;, &quot;&quot;)</span>
+<span class="fc" id="L127">                .path(&quot;/&quot;)</span>
+<span class="fc" id="L128">                .httpOnly(true)</span>
+<span class="fc" id="L129">                .secure(true)</span>
+<span class="fc" id="L130">                .sameSite(&quot;None&quot;)</span>
+<span class="fc" id="L131">                .maxAge(0)</span>
+<span class="fc" id="L132">                .build();</span>
+
+<span class="fc" id="L134">        ResponseCookie session = ResponseCookie.from(&quot;SESSION&quot;, &quot;&quot;)</span>
+<span class="fc" id="L135">                .path(&quot;/&quot;)</span>
+<span class="fc" id="L136">                .httpOnly(true)</span>
+<span class="fc" id="L137">                .secure(true)</span>
+<span class="fc" id="L138">                .sameSite(&quot;None&quot;)</span>
+<span class="fc" id="L139">                .maxAge(0)</span>
+<span class="fc" id="L140">                .build();</span>
+
+<span class="fc" id="L142">        return ResponseEntity.noContent()</span>
+<span class="fc" id="L143">                .header(&quot;Set-Cookie&quot;, jsess.toString())</span>
+<span class="fc" id="L144">                .header(&quot;Set-Cookie&quot;, session.toString())</span>
+<span class="fc" id="L145">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
