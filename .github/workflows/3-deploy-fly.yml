@@ -23,7 +23,7 @@ name: 3️⃣ Deploy to Fly.io (Production)
 
 on:
   workflow_run:
-    workflows: ["1️⃣ CI - Build, Test & Publish"]
+    workflows: ["1️⃣ Backend CI - Build & Test"]
     types:
       - completed
     branches:
