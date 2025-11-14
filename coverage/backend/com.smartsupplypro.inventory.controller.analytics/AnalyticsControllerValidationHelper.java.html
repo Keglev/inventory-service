@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsControllerValidationHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller.analytics</a> &gt; <span class="el_source">AnalyticsControllerValidationHelper.java</span></div><h1>AnalyticsControllerValidationHelper.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller.analytics;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.springframework.stereotype.Component;
+
+import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
+import com.smartsupplypro.inventory.exception.InvalidRequestException;
+
+/**
+ * Validation helper for analytics controller request parameters.
+ *
+ * &lt;p&gt;Centralizes validation logic for:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Date range validation (start ≤ end)&lt;/li&gt;
+ *   &lt;li&gt;Non-blank string parameters&lt;/li&gt;
+ *   &lt;li&gt;Filter DTO validation (date ranges, numeric ranges)&lt;/li&gt;
+ *   &lt;li&gt;Default date window application (last 30 days)&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Smart Supply Pro Development Team
+ * @version 1.0.0
+ * @since 2.0.0
+ */
+@Component
+<span class="fc" id="L27">public class AnalyticsControllerValidationHelper {</span>
+
+    /**
+     * Validates LocalDate range parameters.
+     *
+     * @param start start date (must not be null)
+     * @param end end date (must not be null and &gt;= start)
+     * @param startName parameter name for error messages
+     * @param endName parameter name for error messages
+     * @throws InvalidRequestException if validation fails
+     */
+    public void validateDateRange(LocalDate start, LocalDate end, String startName, String endName) {
+<span class="nc bnc" id="L39" title="All 4 branches missed.">        if (start == null || end == null) {</span>
+<span class="nc" id="L40">            throw new InvalidRequestException(startName + &quot; and &quot; + endName + &quot; are required&quot;);</span>
+        }
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (start.isAfter(end)) {</span>
+<span class="nc" id="L43">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
+        }
+<span class="nc" id="L45">    }</span>
+
+    /**
+     * Validates LocalDateTime range parameters.
+     *
+     * @param start start datetime
+     * @param end end datetime
+     * @param startName parameter name for error messages
+     * @param endName parameter name for error messages
+     * @throws InvalidRequestException if start &gt; end
+     */
+    public void validateDateTimeRange(LocalDateTime start, LocalDateTime end, String startName, String endName) {
+<span class="nc bnc" id="L57" title="All 6 branches missed.">        if (start != null &amp;&amp; end != null &amp;&amp; start.isAfter(end)) {</span>
+<span class="nc" id="L58">            throw new InvalidRequestException(startName + &quot; must be on or before &quot; + endName);</span>
+        }
+<span class="nc" id="L60">    }</span>
+
+    /**
+     * Validates string parameter is not blank.
+     *
+     * @param value parameter value to check
+     * @param name parameter name for error messages
+     * @throws InvalidRequestException if value is blank
+     */
+    public void requireNonBlank(String value, String name) {
+<span class="nc bnc" id="L70" title="All 4 branches missed.">        if (value == null || value.trim().isEmpty()) {</span>
+<span class="nc" id="L71">            throw new InvalidRequestException(name + &quot; must not be blank&quot;);</span>
+        }
+<span class="nc" id="L73">    }</span>
+
+    /**
+     * Validates numeric range parameters.
+     *
+     * @param min minimum value
+     * @param max maximum value
+     * @param minName parameter name for error messages
+     * @param maxName parameter name for error messages
+     * @throws InvalidRequestException if min &gt; max
+     */
+    public void validateNumericRange(Integer min, Integer max, String minName, String maxName) {
+<span class="nc bnc" id="L85" title="All 6 branches missed.">        if (min != null &amp;&amp; max != null &amp;&amp; min &gt; max) {</span>
+<span class="nc" id="L86">            throw new InvalidRequestException(minName + &quot; must be &lt;= &quot; + maxName);</span>
+        }
+<span class="nc" id="L88">    }</span>
+
+    /**
+     * Applies default date window (last 30 days) if both dates are null.
+     *
+     * @param startDate current start date (nullable)
+     * @param endDate current end date (nullable)
+     * @return array with [startDate, endDate] with defaults applied
+     */
+    public LocalDateTime[] applyDefaultDateWindow(LocalDateTime startDate, LocalDateTime endDate) {
+<span class="nc bnc" id="L98" title="All 4 branches missed.">        if (startDate == null &amp;&amp; endDate == null) {</span>
+<span class="nc" id="L99">            endDate = LocalDateTime.now();</span>
+<span class="nc" id="L100">            startDate = endDate.minusDays(30);</span>
+        }
+<span class="nc" id="L102">        return new LocalDateTime[]{startDate, endDate};</span>
+    }
+
+    /**
+     * Validates stock update filter DTO constraints.
+     *
+     * @param filter the filter DTO to validate
+     * @throws InvalidRequestException if validation fails
+     */
+    public void validateStockUpdateFilter(StockUpdateFilterDTO filter) {
+<span class="nc" id="L112">        validateDateTimeRange(filter.getStartDate(), filter.getEndDate(), &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="nc" id="L113">        validateNumericRange(filter.getMinChange(), filter.getMaxChange(), &quot;minChange&quot;, &quot;maxChange&quot;);</span>
+<span class="nc" id="L114">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -48,7 +48,7 @@ public class InventoryItemValidator {
 <span class="pc bpc" id="L48" title="1 of 4 branches missed.">        if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
 <span class="fc" id="L49">            throw new IllegalArgumentException(&quot;Price must be positive or greater than zero&quot;);</span>
         }
-<span class="fc bfc" id="L51" title="All 4 branches covered.">        if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {</span>
+<span class="pc bpc" id="L51" title="1 of 4 branches missed.">        if (dto.getSupplierId() == null || dto.getSupplierId().trim().isEmpty()) {</span>
 <span class="fc" id="L52">            throw new IllegalArgumentException(&quot;Supplier ID must be provided&quot;);</span>
         }
 <span class="pc bpc" id="L54" title="1 of 4 branches missed.">        if (dto.getCreatedBy() == null || dto.getCreatedBy().trim().isEmpty()) {</span>
@@ -106,8 +106,8 @@ public class InventoryItemValidator {
      * @throws ResponseStatusException 404 if not found
      */
     public static InventoryItem validateExists(String id, InventoryItemRepository inventoryRepo) {
-<span class="fc" id="L109">        return inventoryRepo.findById(id).orElseThrow(() -&gt;</span>
-<span class="fc" id="L110">        new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found: &quot; + id)</span>
+<span class="nc" id="L109">        return inventoryRepo.findById(id).orElseThrow(() -&gt;</span>
+<span class="nc" id="L110">        new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found: &quot; + id)</span>
         );
     }
     

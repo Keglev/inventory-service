@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DatabaseDialectDetector.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.repository.custom.util</a> &gt; <span class="el_source">DatabaseDialectDetector.java</span></div><h1>DatabaseDialectDetector.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.repository.custom.util;
+
+import java.util.Arrays;
+
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+/**
+ * Database dialect detection utility for multi-database support.
+ *
+ * &lt;p&gt;Determines active database engine (H2 vs Oracle) based on Spring profiles,
+ * enabling dialect-specific SQL generation in custom repositories without
+ * hardcoding environment checks.
+ *
+ * &lt;p&gt;&lt;strong&gt;Usage Pattern&lt;/strong&gt;:
+ * &lt;pre&gt;
+ * String sql = dialectDetector.isH2()
+ *     ? &quot;SELECT YEAR(created_at) ...&quot; // H2 syntax
+ *     : &quot;SELECT TO_CHAR(created_at, 'YYYY') ...&quot;; // Oracle syntax
+ * &lt;/pre&gt;
+ *
+ * @author Smart Supply Pro Development Team
+ * @version 1.0.0
+ * @since 2.0.0
+ */
+@Component
+public class DatabaseDialectDetector {
+
+    private final Environment environment;
+
+<span class="fc" id="L31">    public DatabaseDialectDetector(Environment environment) {</span>
+<span class="fc" id="L32">        this.environment = environment;</span>
+<span class="fc" id="L33">    }</span>
+
+    /**
+     * Detects H2 database mode based on active Spring profiles.
+     * Returns true if 'test' or 'h2' profile is active.
+     *
+     * @return true if H2 dialect should be used, false for Oracle
+     */
+    public boolean isH2() {
+<span class="fc" id="L42">        return Arrays.stream(environment.getActiveProfiles())</span>
+<span class="pc bpc" id="L43" title="3 of 4 branches missed.">                .anyMatch(p -&gt; p.equalsIgnoreCase(&quot;test&quot;) || p.equalsIgnoreCase(&quot;h2&quot;));</span>
+    }
+
+    /**
+     * Detects Oracle database mode (inverse of H2 check).
+     *
+     * @return true if Oracle dialect should be used
+     */
+    public boolean isOracle() {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        return !isH2();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

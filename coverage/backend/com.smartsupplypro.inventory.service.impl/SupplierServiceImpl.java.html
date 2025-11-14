@@ -120,11 +120,9 @@ public class SupplierServiceImpl implements SupplierService {
 <span class="fc" id="L120">        Supplier entity = SupplierMapper.toEntity(dto);</span>
 <span class="fc" id="L121">        entity.setId(UUID.randomUUID().toString());</span>
 <span class="fc" id="L122">        entity.setCreatedAt(LocalDateTime.now());</span>
-        
-        // TODO: entity.setCreatedBy(SecurityContextUtils.getCurrentUsername());
 
-<span class="fc" id="L126">        Supplier saved = supplierRepository.save(entity);</span>
-<span class="fc" id="L127">        return SupplierMapper.toDTO(saved);</span>
+<span class="fc" id="L124">        Supplier saved = supplierRepository.save(entity);</span>
+<span class="fc" id="L125">        return SupplierMapper.toDTO(saved);</span>
     }
 
     /**
@@ -147,22 +145,19 @@ public class SupplierServiceImpl implements SupplierService {
      */
     @Override
     public SupplierDTO update(String id, SupplierDTO dto) {
-<span class="fc" id="L150">        Supplier existing = supplierRepository.findById(id)</span>
-<span class="fc" id="L151">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
+<span class="fc" id="L148">        Supplier existing = supplierRepository.findById(id)</span>
+<span class="fc" id="L149">                .orElseThrow(() -&gt; new NoSuchElementException(&quot;Supplier not found: &quot; + id));</span>
 
-<span class="fc" id="L153">        SupplierValidator.validateBase(dto);</span>
-<span class="fc" id="L154">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
+<span class="fc" id="L151">        SupplierValidator.validateBase(dto);</span>
+<span class="fc" id="L152">        SupplierValidator.assertUniqueName(supplierRepository, dto.getName(), id);</span>
 
-<span class="fc" id="L156">        existing.setName(dto.getName());</span>
-<span class="fc" id="L157">        existing.setContactName(dto.getContactName());</span>
-<span class="fc" id="L158">        existing.setPhone(dto.getPhone());</span>
-<span class="fc" id="L159">        existing.setEmail(dto.getEmail());</span>
+<span class="fc" id="L154">        existing.setName(dto.getName());</span>
+<span class="fc" id="L155">        existing.setContactName(dto.getContactName());</span>
+<span class="fc" id="L156">        existing.setPhone(dto.getPhone());</span>
+<span class="fc" id="L157">        existing.setEmail(dto.getEmail());</span>
 
-        // TODO: existing.setUpdatedAt(LocalDateTime.now());
-        // TODO: existing.setUpdatedBy(SecurityContextUtils.getCurrentUsername());
-
-<span class="fc" id="L164">        Supplier saved = supplierRepository.save(existing);</span>
-<span class="fc" id="L165">        return SupplierMapper.toDTO(saved);</span>
+<span class="fc" id="L159">        Supplier saved = supplierRepository.save(existing);</span>
+<span class="fc" id="L160">        return SupplierMapper.toDTO(saved);</span>
     }
 
     /**
@@ -178,17 +173,17 @@ public class SupplierServiceImpl implements SupplierService {
      */
     @Override
     public void delete(String id) {
-<span class="fc" id="L181">        SupplierValidator.assertDeletable(</span>
+<span class="fc" id="L176">        SupplierValidator.assertDeletable(</span>
             id, 
-<span class="fc" id="L183">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
+<span class="fc" id="L178">            () -&gt; inventoryItemRepository.existsActiveStockForSupplier(id, 0)</span>
         );
 
-<span class="fc bfc" id="L186" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
-<span class="fc" id="L187">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        if (!supplierRepository.existsById(id)) {</span>
+<span class="fc" id="L182">            throw new NoSuchElementException(&quot;Supplier not found: &quot; + id);</span>
         }
         
-<span class="fc" id="L190">        supplierRepository.deleteById(id);</span>
-<span class="fc" id="L191">    }</span>
+<span class="fc" id="L185">        supplierRepository.deleteById(id);</span>
+<span class="fc" id="L186">    }</span>
 
     /**
      * Returns the total number of suppliers (KPI metric).
@@ -199,7 +194,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public long countSuppliers() {
-<span class="nc" id="L202">        return supplierRepository.count();</span>
+<span class="nc" id="L197">        return supplierRepository.count();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
