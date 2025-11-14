@@ -42,6 +42,7 @@ import com.smartsupplypro.inventory.service.impl.SupplierServiceImpl;
  *   <li>Validator rules: name is required/non-blank; uniqueness enforced via repository.</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 class SupplierServiceTest {
 
     private SupplierRepository supplierRepository;

@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * and should return 401 Unauthorized for anonymous requests. 
  * </ul>
  */
+@SuppressWarnings("unused")
 @DisplayName("Analytics Security: Supplier-Scoped Lists")
 class AnalyticsControllerSupplierScopedSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 

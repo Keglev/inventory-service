@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <li>Authorized access for users with the USER AND ADMIN role</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 @DisplayName("Analytics Security: Trends")
 class AnalyticsControllerTrendsSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 

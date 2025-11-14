@@ -120,8 +120,6 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier entity = SupplierMapper.toEntity(dto);
         entity.setId(UUID.randomUUID().toString());
         entity.setCreatedAt(LocalDateTime.now());
-        
-        // TODO: entity.setCreatedBy(SecurityContextUtils.getCurrentUsername());
 
         Supplier saved = supplierRepository.save(entity);
         return SupplierMapper.toDTO(saved);
@@ -157,9 +155,6 @@ public class SupplierServiceImpl implements SupplierService {
         existing.setContactName(dto.getContactName());
         existing.setPhone(dto.getPhone());
         existing.setEmail(dto.getEmail());
-
-        // TODO: existing.setUpdatedAt(LocalDateTime.now());
-        // TODO: existing.setUpdatedBy(SecurityContextUtils.getCurrentUsername());
 
         Supplier saved = supplierRepository.save(existing);
         return SupplierMapper.toDTO(saved);

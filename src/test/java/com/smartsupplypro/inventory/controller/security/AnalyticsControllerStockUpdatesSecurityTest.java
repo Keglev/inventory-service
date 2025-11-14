@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This class extends AbstractAnalyticsControllerSecurityTest to inherit common security test setup.
  * 
  */
+@SuppressWarnings("unused")
 @DisplayName("Analytics Security: Stock Updates")
 class AnalyticsControllerStockUpdatesSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 

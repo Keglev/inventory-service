@@ -1,6 +1,13 @@
 package com.smartsupplypro.inventory.controller.security;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,7 +23,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.smartsupplypro.inventory.controller.AnalyticsController;
-import com.smartsupplypro.inventory.service.AnalyticsService;
+import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
+import com.smartsupplypro.inventory.controller.analytics.AnalyticsDashboardHelper;
+import com.smartsupplypro.inventory.service.impl.analytics.FinancialAnalyticsService;
+import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 /**
  * Abstract base for security slice tests of {@link AnalyticsController}.
@@ -26,7 +36,7 @@ import com.smartsupplypro.inventory.service.AnalyticsService;
  *   <li>A minimal MVC + Security context targeting {@link AnalyticsController} only.</li>
  *   <li>A test-only security chain that allows any authenticated user (USER/ADMIN) on
  *       <code>/api/analytics/**</code> and challenges anonymous requests.</li>
- *   <li>A Mockito-backed {@link AnalyticsService} to satisfy controller wiring.</li>
+ *   <li>Mockito-backed service and helper dependencies to satisfy controller wiring.</li>
  * </ul>
  *
  * <p>Concrete endpoint suites extend this base and implement their own request/response assertions.</p>
@@ -51,7 +61,7 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
     /**
      * Test-scope support configuration:
      * <ul>
-     *   <li>Mocks the business service to decouple security from analytics logic.</li>
+     *   <li>Mocks the specialized analytics services and helpers to decouple security from business logic.</li>
      *   <li>Installs a simple {@link SecurityFilterChain} for the analytics policy.</li>
      * </ul>
      */
@@ -59,11 +69,55 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
     @EnableMethodSecurity
     static class TestSupport {
 
-        /** Provides a Mockito mock for the service layer dependency. */
+        /** Provides Mockito mocks for the service layer dependencies. */
         @Bean
         @SuppressWarnings("unused")
-        AnalyticsService analyticsService() {
-            return Mockito.mock(AnalyticsService.class);
+        StockAnalyticsService stockAnalyticsService() {
+            StockAnalyticsService mock = Mockito.mock(StockAnalyticsService.class);
+            // Configure mock to return empty collections for all methods
+            when(mock.getFilteredStockUpdates(any())).thenReturn(Collections.emptyList());
+            when(mock.getTotalStockPerSupplier()).thenReturn(Collections.emptyList());
+            when(mock.getItemsBelowMinimumStock(anyString())).thenReturn(Collections.emptyList());
+            when(mock.getMonthlyStockMovement(any(LocalDate.class), any(LocalDate.class), anyString())).thenReturn(Collections.emptyList());
+            when(mock.getItemUpdateFrequency(anyString())).thenReturn(Collections.emptyList());
+            when(mock.getTotalStockValueOverTime(any(LocalDate.class), any(LocalDate.class), anyString())).thenReturn(Collections.emptyList());
+            when(mock.getPriceTrend(anyString(), anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+            return mock;
+        }
+        
+        @Bean
+        @SuppressWarnings("unused")
+        FinancialAnalyticsService financialAnalyticsService() {
+            FinancialAnalyticsService mock = Mockito.mock(FinancialAnalyticsService.class);
+            // Configure mock to return empty/default financial summaries
+            when(mock.getFinancialSummaryWAC(any(LocalDate.class), any(LocalDate.class), anyString()))
+                .thenReturn(new com.smartsupplypro.inventory.dto.FinancialSummaryDTO());
+            return mock;
+        }
+        
+        @Bean
+        @SuppressWarnings("unused")
+        AnalyticsControllerValidationHelper analyticsControllerValidationHelper() {
+            AnalyticsControllerValidationHelper mock = Mockito.mock(AnalyticsControllerValidationHelper.class);
+            // Configure mock to return default date window (last 30 days)
+            when(mock.applyDefaultDateWindow(any(), any())).thenAnswer(invocation -> {
+                LocalDateTime start = invocation.getArgument(0);
+                LocalDateTime end = invocation.getArgument(1);
+                if (start == null) start = LocalDateTime.now().minusDays(30);
+                if (end == null) end = LocalDateTime.now();
+                return new LocalDateTime[] { start, end };
+            });
+            return mock;
+        }
+        
+        @Bean
+        @SuppressWarnings("unused")
+        AnalyticsDashboardHelper analyticsDashboardHelper() {
+            AnalyticsDashboardHelper mock = Mockito.mock(AnalyticsDashboardHelper.class);
+            // Configure mock to return empty dashboard summary
+            when(mock.buildDashboardSummary(anyString(), any(), any()))
+                .thenReturn(new com.smartsupplypro.inventory.dto.DashboardSummaryDTO());
+            return mock;
         }
 
         /**

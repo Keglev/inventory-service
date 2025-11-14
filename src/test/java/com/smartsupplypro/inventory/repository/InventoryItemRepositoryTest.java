@@ -11,12 +11,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.model.Supplier;
+import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 
 /**
  * Integration test class for {@link InventoryItemRepository} using H2 in-memory database.
@@ -24,8 +26,10 @@ import com.smartsupplypro.inventory.model.Supplier;
  * Covers full repository functionality including filtering, pagination, sorting,
  * supplier-based queries, and inventory threshold calculations.
  */
+@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
+@Import(DatabaseDialectDetector.class)
 class InventoryItemRepositoryTest {
 
     @Autowired

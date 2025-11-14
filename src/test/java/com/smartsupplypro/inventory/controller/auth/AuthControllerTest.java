@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller;
+package com.smartsupplypro.inventory.controller.auth;
 
 import static java.util.Collections.singletonList;
 import java.util.Map;
@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
+import com.smartsupplypro.inventory.controller.AuthController;
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
@@ -49,6 +50,7 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
  * <p><strong>TEST ARCHITECTURE:</strong> Uses Spring Security test support with OAuth2AuthenticationToken
  * simulation, MockMvc for HTTP layer testing, and Mockito for AppUserRepository isolation.</p>
  */
+@SuppressWarnings("unused")
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = true) // Keep Spring Security filters active
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

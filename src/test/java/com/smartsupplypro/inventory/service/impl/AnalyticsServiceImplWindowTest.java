@@ -22,10 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
+import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 /**
- * Unit tests for {@link AnalyticsServiceImpl} focusing on date-window defaulting and validation
+ * Unit tests for {@link StockAnalyticsService} focusing on date-window defaulting and validation
  * via public methods (no direct access to private helpers).
  *
  * <p><strong>Purpose</strong></p>
@@ -36,27 +36,24 @@ import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomReposito
  * </ul>
  * 
  * Unit tests focused on date-window defaulting and validation for
- * {@link AnalyticsServiceImpl#getMonthlyStockMovement(LocalDate, LocalDate, String)}
- * and parameter validation for {@link AnalyticsServiceImpl#getPriceTrend(String, String, LocalDate, LocalDate)}.
+ * {@link StockAnalyticsService#getMonthlyStockMovement(LocalDate, LocalDate, String)}
+ * and parameter validation for {@link StockAnalyticsService#getPriceTrend(String, String, LocalDate, LocalDate)}.
  *
  * <p><strong>Scope</strong></p>
  * <ul>
  *   <li>Mockito-only unit tests: no Spring context, no DB, no controller layer.</li>
- *   <li>We capture arguments sent to {@link StockHistoryCustomRepository} to assert defaulting/normalization.</li>
+ *   <li>We capture arguments sent to repositories to assert defaulting/normalization.</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class AnalyticsServiceImplWindowTest {
 
-  // Unused in this class but required for constructor injection of AnalyticsServiceImpl
-  @SuppressWarnings("unused")
   @Mock private StockHistoryRepository stockHistoryRepository;
 
-  // Unused in this class but required for constructor injection of AnalyticsServiceImpl
-  @SuppressWarnings("unused")
   @Mock private InventoryItemRepository inventoryItemRepository;
 
-  @InjectMocks private AnalyticsServiceImpl service;
+  @InjectMocks private StockAnalyticsService service;
 
   @Test
   @DisplayName("getMonthlyStockMovement(null,null,null) → defaults dates and passes normalized args")
@@ -64,7 +61,7 @@ class AnalyticsServiceImplWindowTest {
     Object[] r = new Object[] { "2024-02", 0L, 0L }; // three columns: YYYY-MM, stockIn, stockOut
     java.util.List<Object[]> rows = java.util.Collections.singletonList(r);
 
-    when(stockHistoryRepository.getMonthlyStockMovementFiltered(any(), any(), isNull()))
+    when(stockHistoryRepository.getMonthlyStockMovementBySupplier(any(), any(), isNull()))
         .thenReturn(rows);
 
     service.getMonthlyStockMovement(null, null, null);
@@ -73,7 +70,7 @@ class AnalyticsServiceImplWindowTest {
     var endCap   = ArgumentCaptor.forClass(LocalDateTime.class);
     var supplierCap = ArgumentCaptor.forClass(String.class);
 
-    verify(stockHistoryRepository).getMonthlyStockMovementFiltered(
+    verify(stockHistoryRepository).getMonthlyStockMovementBySupplier(
         startCap.capture(), endCap.capture(), supplierCap.capture()
     );
 

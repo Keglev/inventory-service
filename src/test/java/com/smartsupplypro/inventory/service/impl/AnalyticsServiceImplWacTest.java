@@ -22,12 +22,12 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
+import com.smartsupplypro.inventory.service.impl.analytics.FinancialAnalyticsService;
 
 /**
 * # AnalyticsServiceImplWacTest
 *
-* Unit tests for {@link AnalyticsServiceImpl#getFinancialSummaryWAC(LocalDate, LocalDate, String)}.
+* Unit tests for {@link FinancialAnalyticsService#getFinancialSummaryWAC(LocalDate, LocalDate, String)}.
 *
 * <p><strong>Verification goals</strong></p>
 * <ul>
@@ -39,24 +39,19 @@ import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomReposito
 *
 * <p><strong>Notes</strong></p>
 * <ul>
-*   <li>This method reads from {@link StockHistoryCustomRepository#findEventsUpTo(LocalDateTime, String)}.</li>
+*   <li>This method reads from {@link StockHistoryRepository#streamEventsForWAC(LocalDateTime, String)}.</li>
 *   <li>No Spring context or DB required (Mockito-only unit test).</li>
 * </ul>
 */
+@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class AnalyticsServiceImplWacTest {
     
-    // ctor-only dependencies (unused directly here)
-    @SuppressWarnings("unused")
     @Mock private StockHistoryRepository stockHistoryRepository;
     
-    @SuppressWarnings("unused")
     @Mock private InventoryItemRepository inventoryItemRepository;
     
-    // IMPORTANT: WAC replays use the CUSTOM repository:
-    @Mock private StockHistoryCustomRepository stockHistoryCustomRepository;
-    
-    @InjectMocks private AnalyticsServiceImpl service;
+    @InjectMocks private FinancialAnalyticsService service;
     
     // ---------------------------------------------------------------------
     // Helpers
@@ -84,9 +79,7 @@ class AnalyticsServiceImplWacTest {
         new StockEventRowDTO("item1","sup1", at(2024,2,1,10,0), 10, new BigDecimal("5.00"), StockChangeReason.INITIAL_STOCK),
         new StockEventRowDTO("item1","sup1", at(2024,2,2, 9,0), -4, null,                   StockChangeReason.SOLD)
         );
-        lenient().when(stockHistoryCustomRepository.findEventsUpTo(any(), any()))
-        .thenReturn(events);
-        lenient().when(stockHistoryRepository.findEventsUpTo(any(), any()))
+        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
         .thenReturn(events);
         
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
@@ -123,9 +116,7 @@ class AnalyticsServiceImplWacTest {
         new StockEventRowDTO("item1","sup1", at(2024,2, 1,10,0),  5, new BigDecimal("6.00"), StockChangeReason.INITIAL_STOCK),
         new StockEventRowDTO("item1","sup1", at(2024,2, 2,10,0), -4, null,                   StockChangeReason.SOLD)
         );
-        lenient().when(stockHistoryCustomRepository.findEventsUpTo(any(), any()))
-        .thenReturn(events);
-        lenient().when(stockHistoryRepository.findEventsUpTo(any(), any()))
+        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
         .thenReturn(events);
         
         FinancialSummaryDTO dto = service.getFinancialSummaryWAC(
@@ -156,7 +147,7 @@ class AnalyticsServiceImplWacTest {
         new StockEventRowDTO("i","s", at(2024,2,1,9,0), +5, new BigDecimal("2.00"), StockChangeReason.INITIAL_STOCK),
         new StockEventRowDTO("i","s", at(2024,2,2,9,0), -5, null,                      StockChangeReason.SOLD)
         );
-        lenient().when(stockHistoryCustomRepository.findEventsUpTo(any(), any()))
+        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
         .thenReturn(events);
         
         var dto = service.getFinancialSummaryWAC(LocalDate.parse("2024-02-01"), LocalDate.parse("2024-02-28"), "s");
@@ -174,7 +165,7 @@ class AnalyticsServiceImplWacTest {
         new StockEventRowDTO("i","s", at(2024,2,1,9,0), +3, new BigDecimal("2.00"), StockChangeReason.INITIAL_STOCK),
         new StockEventRowDTO("i","s", at(2024,2,2,9,0), -4, null,                      StockChangeReason.SOLD)
         );
-        lenient().when(stockHistoryCustomRepository.findEventsUpTo(any(), any()))
+        lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
         .thenReturn(events);
         
         var dto = service.getFinancialSummaryWAC(

@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller;
+package com.smartsupplypro.inventory.controller.stockhistory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,20 +30,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
+import com.smartsupplypro.inventory.controller.StockHistoryController;
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.GlobalExceptionHandler;
 import com.smartsupplypro.inventory.service.StockHistoryService;
 
 /**
- * Web layer validation for stock history tracking operations.
- * Ensures temporal data integrity and inventory movement visibility
- * across all enterprise stakeholders and audit scenarios.
- *
- * <p>Stock history tracking provides comprehensive audit trail
- * for inventory movements, supporting compliance requirements
- * and operational transparency across supply chain operations.
+ * MVC tests for StockHistoryController - HTTP contract and pagination validation.
+ * 
+ * Web layer testing for stock history audit trail endpoints.
+ * Role-based access control tested via parameterized tests.
  */
+@SuppressWarnings("unused")
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class})
 @WebMvcTest(StockHistoryController.class)
 @ActiveProfiles("test")
@@ -58,11 +57,7 @@ class StockHistoryControllerTest {
     private StockHistoryDTO history;
 
     /**
-     * Configures comprehensive stock history test scenario.
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Stock history records provide critical audit trail for
-     * inventory movements supporting compliance and operational visibility.
+     * Configures stock history test data.
      */
     @BeforeEach
     @SuppressWarnings("unused")
@@ -78,16 +73,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates comprehensive stock history retrieval for all enterprise roles.
-     *
-     * <p><strong>Given:</strong> Historical stock movement data exists in system<br>
-     * <strong>When:</strong> Authorized user requests complete history listing<br>
-     * <strong>Then:</strong> Returns comprehensive audit trail with proper structure
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * All authenticated users require visibility into inventory movements
-     * for operational transparency and audit compliance. Stock history access
-     * supports decision-making across procurement, sales, and operations teams.
+     * Tests stock history retrieval for authenticated users.
+     * Given: Historical stock movement data exists
+     * When: Authorized user requests complete history
+     * Then: Returns 200 with audit trail
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -103,16 +92,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates item-specific historical tracking across enterprise operations.
-     *
-     * <p><strong>Given:</strong> Stock movements exist for specific inventory item<br>
-     * <strong>When:</strong> User requests item-specific history by identifier<br>
-     * <strong>Then:</strong> Returns complete movement timeline for target item
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Item-specific history tracking enables precise inventory analysis
-     * and troubleshooting. Critical for identifying movement patterns,
-     * investigating discrepancies, and supporting audit requirements.
+     * Tests item-specific history retrieval.
+     * Given: Stock movements exist for specific item
+     * When: User requests history by item ID
+     * Then: Returns 200 with movement timeline
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -127,16 +110,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates stock movement categorization by business reason codes.
-     *
-     * <p><strong>Given:</strong> Stock changes categorized by operational reasons<br>
-     * <strong>When:</strong> User filters history by specific change reason<br>
-     * <strong>Then:</strong> Returns movements matching requested category
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Reason-based filtering enables operational analysis and performance
-     * measurement. Critical for understanding sales patterns, loss analysis,
-     * and operational efficiency across business units.
+     * Tests history filtering by stock change reason.
+     * Given: Stock changes categorized by operational reasons
+     * When: User filters by specific change reason
+     * Then: Returns 200 with matching movements
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -151,16 +128,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates advanced search capabilities with multi-criteria filtering.
-     *
-     * <p><strong>Given:</strong> Stock history with diverse filterable attributes<br>
-     * <strong>When:</strong> User performs search with specific criteria<br>
-     * <strong>Then:</strong> Returns paginated results matching all filters
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Advanced search supports operational analysis and reporting.
-     * Multi-criteria filtering enables precise data extraction for
-     * business intelligence and compliance reporting.
+     * Tests advanced search with multi-criteria filtering.
+     * Given: Stock history with filterable attributes
+     * When: User searches with specific criteria
+     * Then: Returns 200 with paginated results
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -179,16 +150,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates graceful handling of empty historical data scenarios.
-     *
-     * <p><strong>Given:</strong> No stock movement records exist in system<br>
-     * <strong>When:</strong> User requests complete history listing<br>
-     * <strong>Then:</strong> Returns empty collection with proper HTTP status
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Empty state handling ensures consistent API behavior during
-     * system initialization or after data purging operations.
-     * Critical for maintaining client application stability.
+     * Tests empty history retrieval.
+     * Given: No stock movement records exist
+     * When: User requests complete history
+     * Then: Returns 200 with empty array
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -203,16 +168,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates search behavior with non-matching filter criteria.
-     *
-     * <p><strong>Given:</strong> Stock history exists but doesn't match search filters<br>
-     * <strong>When:</strong> User performs search with non-matching criteria<br>
-     * <strong>Then:</strong> Returns empty page with proper pagination structure
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * No-match scenarios ensure robust search functionality and
-     * consistent pagination behavior. Supports user confidence
-     * in search accuracy and system reliability.
+     * Tests search with non-matching criteria.
+     * Given: Stock history exists but doesn't match filters
+     * When: User searches with non-matching criteria
+     * Then: Returns 200 with empty page
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -231,16 +190,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates input validation for invalid stock change reason codes.
-     *
-     * <p><strong>Given:</strong> Invalid reason enumeration value provided<br>
-     * <strong>When:</strong> User requests history filtering by invalid reason<br>
-     * <strong>Then:</strong> Returns client error with appropriate status code
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Input validation protects data integrity and prevents
-     * system errors from invalid parameter values. Ensures
-     * robust API behavior under malformed requests.
+     * Tests invalid stock change reason handling.
+     * Given: Invalid reason enumeration value
+     * When: User filters by invalid reason
+     * Then: Returns 400 Bad Request
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -252,16 +205,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates search functionality with minimal parameter requirements.
-     *
-     * <p><strong>Given:</strong> Search endpoint available without mandatory filters<br>
-     * <strong>When:</strong> User performs search without any filter parameters<br>
-     * <strong>Then:</strong> Returns paginated results with default behavior
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Parameter-free search enables broad data exploration and
-     * simplifies initial user interactions. Supports flexible
-     * reporting requirements across business units.
+     * Tests search without filter parameters.
+     * Given: Search endpoint available without mandatory filters
+     * When: User searches without parameters
+     * Then: Returns 200 with default paginated results
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -277,16 +224,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates partial search criteria handling with single filter.
-     *
-     * <p><strong>Given:</strong> Search supports multiple optional filter parameters<br>
-     * <strong>When:</strong> User provides only item name filter parameter<br>
-     * <strong>Then:</strong> Returns filtered results based on single criterion
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Partial filtering enables flexible search patterns and
-     * accommodates varied reporting needs. Supports incremental
-     * query refinement for user-friendly data exploration.
+     * Tests partial search with single filter parameter.
+     * Given: Search supports multiple optional filters
+     * When: User provides only item name parameter
+     * Then: Returns 200 with filtered results
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -303,16 +244,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates strict enumeration case sensitivity for reason codes.
-     *
-     * <p><strong>Given:</strong> Reason enumeration requires exact case matching<br>
-     * <strong>When:</strong> User provides lowercase reason code instead of uppercase<br>
-     * <strong>Then:</strong> Returns client error indicating invalid parameter
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Case-sensitive validation ensures data consistency and
-     * prevents ambiguous interpretations. Maintains strict
-     * API contracts for reliable system integration.
+     * Tests case sensitivity for reason enumeration.
+     * Given: Reason enumeration requires exact case matching
+     * When: User provides lowercase reason code
+     * Then: Returns 400 Bad Request
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -324,16 +259,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates temporal data integrity with invalid date range parameters.
-     *
-     * <p><strong>Given:</strong> Date range validation rules enforce logical chronology<br>
-     * <strong>When:</strong> User provides end date before start date<br>
-     * <strong>Then:</strong> Returns validation error without service layer invocation
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Date range validation prevents temporal data inconsistencies
-     * and protects against nonsensical reporting parameters.
-     * Early validation improves system performance and user experience.
+     * Tests date range validation for temporal integrity.
+     * Given: Date range rules enforce logical chronology
+     * When: User provides end date before start date
+     * Then: Returns 400 without service invocation
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})
@@ -350,16 +279,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates authentication enforcement for stock history access.
-     *
-     * <p><strong>Given:</strong> Stock history endpoints require authentication<br>
-     * <strong>When:</strong> Unauthenticated user attempts to access history data<br>
-     * <strong>Then:</strong> Returns unauthorized status without data exposure
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Authentication enforcement protects sensitive inventory data
-     * and ensures compliance with security policies. Critical
-     * for preventing unauthorized access to operational intelligence.
+     * Tests authentication enforcement.
+     * Given: Stock history endpoints require authentication
+     * When: Unauthenticated user accesses endpoint
+     * Then: Returns 401 Unauthorized
      */
     @Test
     @DisplayName("GET /api/stock-history (no auth) -> 401")
@@ -369,16 +292,10 @@ class StockHistoryControllerTest {
     }
 
     /**
-     * Validates defensive pagination limits for performance protection.
-     *
-     * <p><strong>Given:</strong> System enforces maximum page size limits<br>
-     * <strong>When:</strong> User requests oversized page exceeding system limits<br>
-     * <strong>Then:</strong> Automatically caps page size to protect system performance
-     *
-     * <p><strong>Enterprise Context:</strong>
-     * Page size limits prevent resource exhaustion and maintain
-     * system responsiveness under heavy load. Protects against
-     * accidental or malicious oversized data requests.
+     * Tests pagination size capping for performance protection.
+     * Given: System enforces maximum page size limits
+     * When: User requests oversized page (1000)
+     * Then: Caps page size to 200 maximum
      */
     @ParameterizedTest
     @ValueSource(strings = {"USER", "ADMIN"})

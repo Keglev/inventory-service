@@ -11,9 +11,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.model.InventoryItem;
+import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -30,8 +32,10 @@ import jakarta.persistence.PersistenceContext;
  * </ul>
  * This ensures the repository's native query filters by {@code supplier_id} exactly as expected.
  */
+@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
+@Import(DatabaseDialectDetector.class)
 class InventoryItemRepositoryAnalyticsTest {
 
     @Autowired

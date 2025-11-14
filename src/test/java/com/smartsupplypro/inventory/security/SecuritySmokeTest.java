@@ -54,6 +54,7 @@ import com.smartsupplypro.inventory.service.CustomOidcUserService;
  *   <li><b>OAuth:</b> /oauth2/authorization/google is reachable and redirects.</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 @WebMvcTest(controllers = AdminStubController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @Import({ SecurityConfig.class, SecuritySmokeTest.TestBeans.class })
@@ -159,11 +160,58 @@ class SecuritySmokeTest {
         @SuppressWarnings("unused")
         CustomOidcUserService customOidcUserService(AppUserRepository appUserRepository) {
             // SecurityConfig wires an OIDC user service for Google logins.
-            // In a @WebMvcTest slice we don’t hit the real provider, so a mock is sufficient.
+            // In a @WebMvcTest slice we don't hit the real provider, so a mock is sufficient.
             return Mockito.mock(CustomOidcUserService.class);
         }
 
+        @Bean
+        @SuppressWarnings("unused")
+        com.smartsupplypro.inventory.config.SecurityFilterHelper securityFilterHelper() {
+            com.smartsupplypro.inventory.config.SecurityFilterHelper mock = Mockito.mock(com.smartsupplypro.inventory.config.SecurityFilterHelper.class);
+            // Return a real filter to avoid null
+            Mockito.when(mock.createApiDetectionFilter()).thenReturn(new org.springframework.web.filter.OncePerRequestFilter() {
+                @Override
+                protected void doFilterInternal(@org.springframework.lang.NonNull jakarta.servlet.http.HttpServletRequest req,
+                                                @org.springframework.lang.NonNull jakarta.servlet.http.HttpServletResponse res,
+                                                @org.springframework.lang.NonNull jakarta.servlet.FilterChain chain)
+                        throws jakarta.servlet.ServletException, java.io.IOException {
+                    chain.doFilter(req, res);
+                }
+            });
+            return mock;
+        }
+
+        @Bean
+        @SuppressWarnings("unused")
+        com.smartsupplypro.inventory.config.SecurityEntryPointHelper securityEntryPointHelper() {
+            com.smartsupplypro.inventory.config.SecurityEntryPointHelper mock = Mockito.mock(com.smartsupplypro.inventory.config.SecurityEntryPointHelper.class);
+            // Return real entry points to avoid null
+            Mockito.when(mock.createApiEntryPoint()).thenReturn((req, res, ex) -> {
+                res.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+            });
+            Mockito.when(mock.createWebEntryPoint(Mockito.anyString())).thenReturn((req, res, ex) -> {
+                res.sendRedirect("/");
+            });
+            return mock;
+        }
+
+        @Bean
+        @SuppressWarnings("unused")
+        com.smartsupplypro.inventory.config.SecurityAuthorizationHelper securityAuthorizationHelper() {
+            com.smartsupplypro.inventory.config.SecurityAuthorizationHelper mock = Mockito.mock(com.smartsupplypro.inventory.config.SecurityAuthorizationHelper.class);
+            // configureAuthorization returns void, so use doAnswer
+            Mockito.doAnswer(invocation -> {
+                org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<?>.AuthorizationManagerRequestMatcherRegistry auth =
+                    invocation.getArgument(0);
+                // Apply minimal authorization for tests
+                auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+                auth.anyRequest().authenticated();
+                return null;
+            }).when(mock).configureAuthorization(Mockito.any(), Mockito.anyBoolean());
+            return mock;
+        }
+
         // IMPORTANT: Do NOT declare an AppProperties @Bean here.
-        // SecurityConfig’s @EnableConfigurationProperties(AppProperties.class) already provides it.
+        // SecurityConfig's @EnableConfigurationProperties(AppProperties.class) already provides it.
     }
 }

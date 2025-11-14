@@ -37,6 +37,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *  - Unauthenticated GET /api/analytics/** is permitted (200)
  *  - Unauthenticated WRITE (PATCH/POST/PUT/DELETE) stays protected (401 JSON)
  */
+@SuppressWarnings("unused")
 @WebMvcTest(controllers = TestApiStubController.class)   // << limit to ONLY the stub
 @AutoConfigureMockMvc(addFilters = true)                 // enable Spring Security filters
 @Import(DemoReadonlySecurityTest.DemoReadonlyTestSecurityConfig.class)

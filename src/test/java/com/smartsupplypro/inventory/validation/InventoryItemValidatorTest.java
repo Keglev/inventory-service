@@ -21,6 +21,7 @@ import com.smartsupplypro.inventory.repository.InventoryItemRepository;
  * inventory item creation and duplicate name checks. Includes both positive and
  * negative scenarios to ensure robust validation.
  */
+@SuppressWarnings("unused")
 @ActiveProfiles("test")
 public class InventoryItemValidatorTest {
 

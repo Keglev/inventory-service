@@ -15,6 +15,7 @@ import com.smartsupplypro.inventory.exception.InvalidRequestException;
  * for stock history changes in the inventory system. Covers edge cases including invalid input,
  * blank fields, unsupported change reasons, and correct handling of enum values.
  */
+@SuppressWarnings("unused")
 @ActiveProfiles("test")
 public class StockHistoryValidationTest {
 

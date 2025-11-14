@@ -17,8 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
@@ -26,18 +25,19 @@ import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.InventoryItem;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.model.Supplier;
-import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
+import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 
 /**
- * Integration test class for {@link StockHistoryRepository}, verifying filtering, reporting,
- * and analytics queries using an in-memory H2 database.
- *
- * <p>Tests cover: date filtering, pagination, native SQL aggregation, supplier-specific analysis,
- * and DTO projection.
+ * Tests for StockHistoryRepository analytics and aggregation operations.
+ * 
+ * Verifies native SQL aggregations, DTO projections, and supplier-specific analytics.
+ * Uses H2 in-memory database with fixed clock for deterministic results.
  */
+@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
-class StockHistoryRepositoryTest {
+@Import(DatabaseDialectDetector.class)
+class StockHistoryRepositoryAnalyticsTest {
 
     @Autowired
     private StockHistoryRepository stockHistoryRepository;
@@ -62,10 +62,9 @@ class StockHistoryRepositoryTest {
     private LocalDateTime now;
 
     /**
-     * Preloads sample suppliers, inventory items, and stock history with fixed timestamps.
+     * Preloads sample data for analytics tests.
      */
     @BeforeEach
-    @SuppressWarnings("unused")
     void setup() {
         now = LocalDateTime.now(fixedClock);
 
@@ -115,14 +114,14 @@ class StockHistoryRepositoryTest {
                 .price(BigDecimal.valueOf(12))
                 .quantity(80)
                 .minimumQuantity(10)
-                .supplier(supplierA) // Same supplier as item1
+                .supplier(supplierA)
                 .createdBy("admin")
                 .build());
 
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-1")
                 .itemId(item1.getId())
-                .supplierId(item1.getSupplier().getId()) // Ensure supplier ID is set
+                .supplierId(item1.getSupplier().getId())
                 .change(10)
                 .reason(StockChangeReason.INITIAL_STOCK)
                 .createdBy("admin")
@@ -133,19 +132,18 @@ class StockHistoryRepositoryTest {
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-2")
                 .itemId(item1.getId())
-                .supplierId(item1.getSupplier().getId()) // Ensure supplier ID is set
+                .supplierId(item1.getSupplier().getId())
                 .change(-5)
                 .reason(StockChangeReason.SOLD)
                 .createdBy("admin")
                 .timestamp(now.minusDays(1))
                 .priceAtChange(BigDecimal.valueOf(20))
                 .build());
-        
-        
+
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-3")
                 .itemId(item3.getId())
-                .supplierId(item3.getSupplier().getId())  // Ensure supplier ID is set (same supplier as item1)
+                .supplierId(item3.getSupplier().getId())
                 .change(15)
                 .reason(StockChangeReason.MANUAL_UPDATE)
                 .createdBy("admin")
@@ -153,12 +151,11 @@ class StockHistoryRepositoryTest {
                 .priceAtChange(BigDecimal.valueOf(12))
                 .build());
 
-        // Create stock history for item2 to support the low-stock test
         stockHistoryRepository.save(StockHistory.builder()
                 .id("sh-4")
                 .itemId(item2.getId())
-                .supplierId(item2.getSupplier().getId()) 
-                .change(-20)  // This will help with the movement tests
+                .supplierId(item2.getSupplier().getId())
+                .change(-20)
                 .reason(StockChangeReason.SOLD)
                 .createdBy("admin")
                 .timestamp(now.minusDays(1))
@@ -167,56 +164,12 @@ class StockHistoryRepositoryTest {
     }
 
     /**
-     * Verifies paginated filtering by date range, item name, and supplier.
-     */
-    @Test
-    @DisplayName("Should filter stock history with pagination and optional filters")
-    void testFindFiltered_withAllFilters() {
-        Page<StockHistory> result = stockHistoryRepository.findFiltered(
-                now.minusDays(3),
-                now,
-                "Wrench",
-                supplierA.getId(),
-                PageRequest.of(0, 10)
-        );
-
-        assertEquals(2, result.getTotalElements());
-    }
-
-    /**
-     * Verifies filtering by item ID.
-     */
-    @Test
-    @DisplayName("Should return stock history by item ID")
-    void testFindByItemId() {
-        List<StockHistory> result = stockHistoryRepository.findByItemId(item1.getId());
-
-        assertEquals(2, result.size());
-        assertTrue(result.stream().allMatch(h -> h.getItemId().equals(item1.getId())));
-    }
-
-    /**
-    * Verifies filtering by change reason (enum).
-    */
-    @Test
-    @DisplayName("Should return stock history by reason")
-    void testFindByReason() {
-        List<StockHistory> result = stockHistoryRepository.findByReason(StockChangeReason.INITIAL_STOCK);
-    
-        // First check that one result is returned
-        assertEquals(1, result.size());
-
-        // Then check that the reason matches the expected enum value
-        assertEquals(StockChangeReason.INITIAL_STOCK, result.get(0).getReason());
-    }
-
-    /**
-     * Verifies aggregation of stock value grouped by day.
+     * Tests stock value aggregation grouped by day.
      */
     @Test
     @DisplayName("Should return stock value aggregated by day")
     void testGetStockValueGroupedByDateFiltered() {
-        List<Object[]> result = stockHistoryRepository.getStockValueGroupedByDateFiltered(
+        List<Object[]> result = stockHistoryRepository.getDailyStockValuation(
                 now.minusDays(3), now, null
         );
 
@@ -228,12 +181,12 @@ class StockHistoryRepositoryTest {
     }
 
     /**
-     * Verifies supplier-specific aggregation of total stock quantity.
+     * Tests total stock aggregation per supplier.
      */
     @Test
     @DisplayName("Should return total stock per supplier")
     void testGetTotalStockPerSupplier() {
-        List<Object[]> result = stockHistoryRepository.getTotalStockPerSupplier();
+        List<Object[]> result = stockHistoryRepository.getTotalStockBySupplier();
 
         assertTrue(result.size() >= 2);
         for (Object[] row : result) {
@@ -243,12 +196,12 @@ class StockHistoryRepositoryTest {
     }
 
     /**
-     * Verifies analytics endpoint for update frequency per item.
+     * Tests update frequency analytics for single item.
      */
     @Test
     @DisplayName("Should return update count per item filtered by supplier (single item)")
-    void testGetUpdateCountPerItemFiltered_singleItem() {
-        List<Object[]> result = stockHistoryRepository.getUpdateCountPerItemFiltered(supplierA.getId());
+    void testgetUpdateCountByItem_singleItem() {
+        List<Object[]> result = stockHistoryRepository.getUpdateCountByItem(supplierA.getId());
 
         Optional<Object[]> wrenchEntry = result.stream()
             .filter(row -> "Wrench".equals(row[0]))
@@ -256,11 +209,32 @@ class StockHistoryRepositoryTest {
 
         assertTrue(wrenchEntry.isPresent());
         assertEquals(2L, ((Number) wrenchEntry.get()[1]).longValue());
-
     }
 
     /**
-     * Verifies global monthly stock movement aggregation.
+     * Tests update frequency analytics for multiple items.
+     */
+    @Test
+    @DisplayName("Should return update count per item filtered by supplier (multiple items)")
+    void testgetUpdateCountByItem_multipleItems() {
+        List<Object[]> result = stockHistoryRepository.getUpdateCountByItem(supplierA.getId());
+
+        assertEquals(2, result.size());
+
+        for (Object[] row : result) {
+            String itemName = (String) row[0];
+            long updateCount = ((Number) row[1]).longValue();
+
+            switch (itemName) {
+                case "Wrench" -> assertEquals(2L, updateCount);
+                case "Screwdriver" -> assertEquals(1L, updateCount);
+                default -> fail("Unexpected item name: " + itemName);
+            }
+        }
+    }
+
+    /**
+     * Tests global monthly stock movement aggregation.
      */
     @Test
     @DisplayName("Should return monthly stock movement globally")
@@ -271,30 +245,30 @@ class StockHistoryRepositoryTest {
 
         assertEquals(1, result.size());
         Object[] row = result.get(0);
-        assertTrue(row[0].toString().matches("\\d{4}-\\d{2}")); // month
+        assertTrue(row[0].toString().matches("\\d{4}-\\d{2}")); // month format
         assertNotNull(row[1]); // stock_in
         assertNotNull(row[2]); // stock_out
     }
 
     /**
-     * Verifies supplier-specific monthly stock movement.
+     * Tests supplier-specific monthly stock movement.
      */
     @Test
     @DisplayName("Should return monthly stock movement filtered by supplier")
     void testGetMonthlyStockMovementFiltered() {
-        List<Object[]> result = stockHistoryRepository.getMonthlyStockMovementFiltered(
+        List<Object[]> result = stockHistoryRepository.getMonthlyStockMovementBySupplier(
                 now.minusMonths(1), now.plusDays(1), supplierA.getId()
         );
 
         assertEquals(1, result.size());
         Object[] row = result.get(0);
-        assertTrue(row[0].toString().matches("\\d{4}-\\d{2}")); // month
-        assertNotNull(row[1]); // stock_in
-        assertNotNull(row[2]); // stock_out
+        assertTrue(row[0].toString().matches("\\d{4}-\\d{2}"));
+        assertNotNull(row[1]);
+        assertNotNull(row[2]);
     }
 
     /**
-     * Verifies low-stock items for reporting dashboards.
+     * Tests low-stock items query for dashboard reporting.
      */
     @Test
     @DisplayName("Should return items below minimum stock")
@@ -303,17 +277,17 @@ class StockHistoryRepositoryTest {
         item2.setMinimumQuantity(5);
         inventoryItemRepository.save(item2);
 
-        List<Object[]> result = stockHistoryRepository.findItemsBelowMinimumStockFiltered(supplierB.getId());
+        List<Object[]> result = stockHistoryRepository.findItemsBelowMinimumStock(supplierB.getId());
         assertEquals(1, result.size());
     }
 
     /**
-     * Verifies exportable filtered stock updates based on all available filters.
+     * Tests filtered stock updates for tabular export.
      */
     @Test
     @DisplayName("Should return filtered stock updates for tabular export")
     void testFindFilteredStockUpdates() {
-        List<Object[]> result = stockHistoryRepository.findFilteredStockUpdates(
+        List<Object[]> result = stockHistoryRepository.searchStockUpdates(
                 now.minusDays(3),
                 now,
                 "Wrench",
@@ -331,7 +305,7 @@ class StockHistoryRepositoryTest {
     }
 
     /**
-     * Verifies projected DTO result for price trend queries.
+     * Tests price trend DTO projection.
      */
     @Test
     @DisplayName("Should return price trend DTOs for given item and date range")
@@ -346,39 +320,16 @@ class StockHistoryRepositoryTest {
         assertTrue(result.get(0).getPrice().compareTo(BigDecimal.ZERO) > 0);
     }
 
-   /**
-    * Verifies supplier-specific price trend DTO projection using native SQL fallback logic.
-    */
+    /**
+     * Tests supplier-filtered price trend using custom repository.
+     */
     @Test
     @DisplayName("Should return supplier-filtered price trend DTOs using custom fallback SQL")
     void testGetPriceTrendFiltered() {
-        List<PriceTrendDTO> result = ((StockHistoryCustomRepository) stockHistoryRepository)
-            .   getPriceTrend(item1.getId(), supplierA.getId(), now.minusDays(3), now);
+        List<PriceTrendDTO> result = stockHistoryRepository
+            .getItemPriceTrend(item1.getId(), supplierA.getId(), now.minusDays(3), now);
 
         assertEquals(2, result.size());
         assertNotNull(result.get(0).getPrice());
     }
-
-
-    @Test
-    @DisplayName("Should return update count per item filtered by supplier (multiple items)")
-    void testGetUpdateCountPerItemFiltered_multipleItems() {
-        List<Object[]> result = stockHistoryRepository.getUpdateCountPerItemFiltered(supplierA.getId());
-
-        // Expect 2 items under supplierA (Wrench and Screwdriver)
-        assertEquals(2, result.size());
-
-        for (Object[] row : result) {
-            String itemName = (String) row[0];
-            long updateCount = ((Number) row[1]).longValue();
-
-            switch (itemName) {
-                case "Wrench" -> assertEquals(2L, updateCount);
-                case "Screwdriver" -> assertEquals(1L, updateCount);
-                default -> fail("Unexpected item name: " + itemName);
-            }
-        }
-    }
-
 }
-

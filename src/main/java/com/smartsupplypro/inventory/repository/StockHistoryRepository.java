@@ -12,7 +12,9 @@ import org.springframework.data.repository.query.Param;
 import com.smartsupplypro.inventory.dto.PriceTrendDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
-import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
+import com.smartsupplypro.inventory.repository.custom.StockDetailQueryRepository;
+import com.smartsupplypro.inventory.repository.custom.StockMetricsRepository;
+import com.smartsupplypro.inventory.repository.custom.StockTrendAnalyticsRepository;
 
 /**
  * Repository for stock history audit data with analytics support.
@@ -22,7 +24,7 @@ import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomReposito
  *   <li><strong>Paginated Filtering</strong>: Time range, item name, supplier queries</li>
  *   <li><strong>Ordered Finders</strong>: Newest-first sorting to avoid in-memory sorts</li>
  *   <li><strong>Price Trends</strong>: Historical price snapshots for item analytics</li>
- *   <li><strong>Custom Queries</strong>: Extends StockHistoryCustomRepository for complex analytics</li>
+ *   <li><strong>Custom Queries</strong>: Extends specialized analytics repositories for complex operations</li>
  * </ul>
  *
  * <p><strong>Design Notes</strong>:
@@ -34,11 +36,16 @@ import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomReposito
  * </ul>
  *
  * @see StockHistory
- * @see StockHistoryCustomRepository
+ * @see StockTrendAnalyticsRepository
+ * @see StockMetricsRepository
+ * @see StockDetailQueryRepository
  * @see <a href="file:../../../../../../docs/architecture/patterns/repository-patterns.md">Repository Patterns</a>
  */
 public interface StockHistoryRepository
-        extends JpaRepository<StockHistory, String>, StockHistoryCustomRepository {
+        extends JpaRepository<StockHistory, String>,
+                StockTrendAnalyticsRepository,
+                StockMetricsRepository,
+                StockDetailQueryRepository {
 
     /**
      * Paginated stock history with optional time/item/supplier filters.

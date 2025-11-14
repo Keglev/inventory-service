@@ -1,4 +1,4 @@
-package com.smartsupplypro.inventory.controller;
+package com.smartsupplypro.inventory.controller.auth;
 
 import static java.util.Collections.singletonList;
 import java.util.List;
@@ -24,11 +24,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content; // used in unauth check (optional)
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath; // used in unauth check (optional)
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
+import com.smartsupplypro.inventory.controller.AuthController;
 import com.smartsupplypro.inventory.repository.AppUserRepository;
 
 import jakarta.annotation.Resource;
@@ -53,6 +54,7 @@ import jakarta.annotation.Resource;
  * <p><strong>TEST ARCHITECTURE:</strong> Uses Spring Security test support with OAuth2
  * authentication simulation and MockMvc for HTTP layer session management validation.</p>
  */
+@SuppressWarnings("unused")
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @Import(TestSecurityConfig.class)
@@ -105,6 +107,7 @@ class AuthControllerLogoutTest {
         // WHEN: Logout request is made by authenticated user
         var result = mockMvc.perform(post("/api/auth/logout")
                         .with(authentication(authToken("user@example.com", "USER")))
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                         .accept(MediaType.APPLICATION_JSON))
                 // THEN: Logout succeeds with no content response
                 .andExpect(status().isNoContent())

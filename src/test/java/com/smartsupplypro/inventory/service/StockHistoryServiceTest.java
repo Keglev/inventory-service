@@ -31,6 +31,7 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
  * log stock changes under various input conditions. Ensures persistence behavior
  * and input validation rules for audit logs.
  */
+@SuppressWarnings("unused")
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -49,7 +50,6 @@ public class StockHistoryServiceTest {
      * Initializes mock objects before each test case.
      */
     @BeforeEach
-    @SuppressWarnings("unused")
     void setUp() {
         // Default stubs used by most tests:
         when(itemRepository.findById("item-1"))

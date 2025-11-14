@@ -21,13 +21,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.repository.InventoryItemRepository;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
-import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomRepository;
+import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 /**
- * # AnalyticsServiceImplConvertersTest
+ * # StockAnalyticsService Converter Test
  *
- * Indirectly tests converter helpers of {@link AnalyticsServiceImpl} via
- * {@link AnalyticsServiceImpl#getFilteredStockUpdates(StockUpdateFilterDTO)}.
+ * Tests converter helpers used by {@link StockAnalyticsService} via
+ * {@link StockAnalyticsService#getFilteredStockUpdates(StockUpdateFilterDTO)}.
  *
  * <p><strong>What we validate</strong></p>
  * <ul>
@@ -37,21 +37,17 @@ import com.smartsupplypro.inventory.repository.custom.StockHistoryCustomReposito
  * </ul>
  *
  * <p><strong>Important</strong>: The service calls
- * {@link StockHistoryRepository#findFilteredStockUpdates(LocalDateTime, LocalDateTime, String, String, String, Integer, Integer)}.</p>
+ * {@link StockHistoryRepository#searchStockUpdates(LocalDateTime, LocalDateTime, String, String, String, Integer, Integer)}.</p>
  */
+@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class AnalyticsServiceImplConverterTest {
 
-  // ctor-only dependencies (unused directly in these tests)
-  @SuppressWarnings("unused")
-  @Mock private InventoryItemRepository inventoryItemRepository;
-
   @Mock private StockHistoryRepository stockHistoryRepository;
 
-  @SuppressWarnings("unused")
-  @Mock private StockHistoryCustomRepository stockHistoryCustomRepository;
+  @Mock private InventoryItemRepository inventoryItemRepository;
 
-  @InjectMocks private AnalyticsServiceImpl service;
+  @InjectMocks private StockAnalyticsService service;
 
   // ---- helpers ------------------------------------------------------------
 
@@ -79,7 +75,7 @@ class AnalyticsServiceImplConverterTest {
         row(ts, "C", "S", new BigDecimal("5"), "SOLD", "u3")               // BigDecimal
     );
 
-    when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
+    when(stockHistoryRepository.searchStockUpdates(any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(rows);
 
     var out = service.getFilteredStockUpdates(new StockUpdateFilterDTO());
@@ -103,7 +99,7 @@ class AnalyticsServiceImplConverterTest {
         row(ldt, "C", "S", 1, "SOLD", "u1")
     );
 
-    when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
+    when(stockHistoryRepository.searchStockUpdates(any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(rows);
 
     var out = service.getFilteredStockUpdates(new StockUpdateFilterDTO());
@@ -118,7 +114,7 @@ class AnalyticsServiceImplConverterTest {
     Object[] r = row(ts, "A", "S", "not-a-number", "SOLD", "u");
     List<Object[]> rows = Collections.singletonList(r);
 
-    when(stockHistoryRepository.findFilteredStockUpdates(any(), any(), any(), any(), any(), any(), any()))
+    when(stockHistoryRepository.searchStockUpdates(any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(rows);
 
     var ex = assertThrows(IllegalStateException.class,

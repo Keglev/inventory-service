@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 
  * </ul>
  */
+@SuppressWarnings("unused")
 @DisplayName("Analytics Security: Summaries")
 class AnalyticsControllerSummarySecurityTest extends AbstractAnalyticsControllerSecurityTest {
 

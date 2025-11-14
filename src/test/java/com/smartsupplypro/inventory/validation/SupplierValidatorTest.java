@@ -1,17 +1,21 @@
 package com.smartsupplypro.inventory.validation;
 
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import org.springframework.test.context.ActiveProfiles;
+
 import com.smartsupplypro.inventory.dto.SupplierDTO;
 import com.smartsupplypro.inventory.exception.DuplicateResourceException;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.model.Supplier;
 import com.smartsupplypro.inventory.repository.SupplierRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.context.ActiveProfiles;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link SupplierValidator}.
@@ -30,6 +34,7 @@ import static org.mockito.Mockito.*;
  *   <li>Audit fields like {@code createdBy} are server-managed and not enforced here.</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 @ActiveProfiles("test")
 class SupplierValidatorTest {
 

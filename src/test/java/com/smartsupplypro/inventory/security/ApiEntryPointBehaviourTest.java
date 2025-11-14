@@ -30,6 +30,7 @@ import jakarta.annotation.Resource;
  * - /api/** with Accept: application/json → 401 JSON body
  * - Non-API (or API without JSON Accept) → 302 redirect to OAuth login
  */
+@SuppressWarnings("unused")
 @WebMvcTest(controllers = ApiEntryPointBehaviourTest.StubController.class)
 @AutoConfigureMockMvc(addFilters = true)
 @Import(ApiEntryPointBehaviourTest.TestSecurityConfig.class)

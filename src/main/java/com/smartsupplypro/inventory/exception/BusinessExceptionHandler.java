@@ -36,7 +36,7 @@ import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
  * @see GlobalExceptionHandler
  * @see ErrorResponse
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 1)  // Runs after GlobalExceptionHandler
+@Order(Ordered.HIGHEST_PRECEDENCE)  // Runs before GlobalExceptionHandler to catch business exceptions first
 @RestControllerAdvice
 public class BusinessExceptionHandler {
 

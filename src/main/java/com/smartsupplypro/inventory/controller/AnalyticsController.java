@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
+import com.smartsupplypro.inventory.controller.analytics.AnalyticsDashboardHelper;
 import com.smartsupplypro.inventory.dto.DashboardSummaryDTO;
 import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
 import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
@@ -26,8 +28,8 @@ import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
 import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
 import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
-import com.smartsupplypro.inventory.exception.InvalidRequestException;
-import com.smartsupplypro.inventory.service.AnalyticsService;
+import com.smartsupplypro.inventory.service.impl.analytics.FinancialAnalyticsService;
+import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,32 +37,41 @@ import lombok.RequiredArgsConstructor;
 /**
  * Analytics REST controller for inventory reporting and dashboard data.
  *
- * <p>Provides time-series analytics, KPIs, and filtered reports.
- * Supports demo mode for read-only endpoints, authenticated access for mutations.</p>
+ * <p>Delegates to specialized helpers for validation and dashboard aggregation
+ * while maintaining the original REST API contract.
  *
- * @see AnalyticsService
- * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
+ * <p><strong>Delegation Strategy</strong>:
+ * <ul>
+ *   <li>{@link AnalyticsControllerValidationHelper} - Parameter validation</li>
+ *   <li>{@link AnalyticsDashboardHelper} - Dashboard data aggregation</li>
+ *   <li>{@link StockAnalyticsService} - Stock metrics and trends</li>
+ *   <li>{@link FinancialAnalyticsService} - Financial summaries</li>
+ * </ul>
+ *
+ * @author Smart Supply Pro Development Team
+ * @version 2.0.0
+ * @since 1.0.0
+ * @see StockAnalyticsService
+ * @see FinancialAnalyticsService
  */
 @RestController
 @RequestMapping(value = "/api/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Validated
-public class AnalyticsController{
+public class AnalyticsController {
 
-    // Enterprise Comment: Demo Mode Security Pattern
-    // Read-only endpoints use: @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
-    // This allows public access in demo mode while maintaining authentication for production.
-    // Mutating operations (POST/PUT/PATCH/DELETE) always require authentication.
-    private final AnalyticsService analyticsService;
+    private final StockAnalyticsService stockAnalyticsService;
+    private final FinancialAnalyticsService financialAnalyticsService;
+    private final AnalyticsControllerValidationHelper validationHelper;
+    private final AnalyticsDashboardHelper dashboardHelper;
 
     /**
      * Gets time series of total stock value between dates.
      *
-     * @param start      inclusive start date (ISO yyyy-MM-dd)
-     * @param end        inclusive end date (ISO yyyy-MM-dd)
+     * @param start inclusive start date (ISO yyyy-MM-dd)
+     * @param end inclusive end date (ISO yyyy-MM-dd)
      * @param supplierId optional supplier filter
      * @return list of stock value points over time
-     * @throws InvalidRequestException if date range is invalid
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-value")
@@ -69,8 +80,8 @@ public class AnalyticsController{
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
 
-        validateDateRange(start, end, "start", "end");
-        return ResponseEntity.ok(analyticsService.getTotalStockValueOverTime(start, end, supplierId));
+        validationHelper.validateDateRange(start, end, "start", "end");
+        return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));
     }
 
     /**
@@ -81,7 +92,7 @@ public class AnalyticsController{
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-per-supplier")
     public ResponseEntity<List<StockPerSupplierDTO>> getStockPerSupplier() {
-        return ResponseEntity.ok(analyticsService.getTotalStockPerSupplier());
+        return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());
     }
 
     /**
@@ -92,7 +103,7 @@ public class AnalyticsController{
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/low-stock/count")
     public long getLowStockCount() {
-        return analyticsService.lowStockCount();
+        return stockAnalyticsService.lowStockCount();
     }
 
     /**
@@ -106,8 +117,8 @@ public class AnalyticsController{
     public ResponseEntity<List<ItemUpdateFrequencyDTO>> getItemUpdateFrequency(
             @RequestParam(name = "supplierId") String supplierId) {
 
-        requireNonBlank(supplierId, "supplierId");
-        return ResponseEntity.ok(analyticsService.getItemUpdateFrequency(supplierId));
+        validationHelper.requireNonBlank(supplierId, "supplierId");
+        return ResponseEntity.ok(stockAnalyticsService.getItemUpdateFrequency(supplierId));
     }
 
     /**
@@ -121,17 +132,12 @@ public class AnalyticsController{
     public ResponseEntity<List<LowStockItemDTO>> getLowStockItems(
             @RequestParam(name = "supplierId") String supplierId) {
 
-        requireNonBlank(supplierId, "supplierId");
-        return ResponseEntity.ok(analyticsService.getItemsBelowMinimumStock(supplierId));
+        validationHelper.requireNonBlank(supplierId, "supplierId");
+        return ResponseEntity.ok(stockAnalyticsService.getItemsBelowMinimumStock(supplierId));
     }
 
     /**
      * Gets monthly stock movement within date range.
-     *
-     * @param start      inclusive start date (ISO yyyy-MM-dd)
-     * @param end        inclusive end date (ISO yyyy-MM-dd)
-     * @param supplierId optional supplier filter
-     * @return list of monthly stock movement data
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/monthly-stock-movement")
@@ -140,23 +146,12 @@ public class AnalyticsController{
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
 
-        validateDateRange(start, end, "start", "end");
-        return ResponseEntity.ok(analyticsService.getMonthlyStockMovement(start, end, supplierId));
+        validationHelper.validateDateRange(start, end, "start", "end");
+        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));
     }
 
     /**
-     * Gets filtered stock updates via query parameters.
-     *
-     * <p>Defaults to last 30 days if no dates provided.</p>
-     *
-     * @param startDate  optional start timestamp
-     * @param endDate    optional end timestamp
-     * @param itemName   optional item name filter
-     * @param supplierId optional supplier filter
-     * @param createdBy  optional creator filter
-     * @param minChange  optional minimum quantity change
-     * @param maxChange  optional maximum quantity change
-     * @return list of filtered stock updates
+     * Gets filtered stock updates via query parameters (defaults to last 30 days).
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-updates")
@@ -169,20 +164,14 @@ public class AnalyticsController{
             @RequestParam(required = false) Integer minChange,
             @RequestParam(required = false) Integer maxChange) {
 
-        // Enterprise Comment: Default Date Window Strategy
-        // When no dates provided, default to last 30 days to prevent unbounded queries
-        // that could impact performance on large datasets
-        if (startDate == null && endDate == null) {
-            endDate = LocalDateTime.now();
-            startDate = endDate.minusDays(30);
-        }
+        // Apply default date window (last 30 days)
+        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);
+        startDate = dateWindow[0];
+        endDate = dateWindow[1];
+        
         // Validate date & numeric params
-        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
-            throw new InvalidRequestException("startDate must be on or before endDate");
-        }
-        if (minChange != null && maxChange != null && minChange > maxChange) {
-            throw new InvalidRequestException("minChange must be <= maxChange");
-        }
+        validationHelper.validateDateTimeRange(startDate, endDate, "startDate", "endDate");
+        validationHelper.validateNumericRange(minChange, maxChange, "minChange", "maxChange");
 
         StockUpdateFilterDTO filter = new StockUpdateFilterDTO();
         filter.setStartDate(startDate);
@@ -193,7 +182,7 @@ public class AnalyticsController{
         filter.setMinChange(minChange);
         filter.setMaxChange(maxChange);
 
-        return ResponseEntity.ok(analyticsService.getFilteredStockUpdates(filter));
+        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));
     }
 
     /**
@@ -207,27 +196,12 @@ public class AnalyticsController{
     public ResponseEntity<List<StockUpdateResultDTO>> getFilteredStockUpdatesPost(
             @RequestBody @Valid StockUpdateFilterDTO filter) {
 
-        if (filter.getStartDate() != null && filter.getEndDate() != null
-                && filter.getStartDate().isAfter(filter.getEndDate())) {
-            throw new InvalidRequestException("startDate must be on or before endDate");
-        }
-        if (filter.getMinChange() != null && filter.getMaxChange() != null
-                && filter.getMinChange() > filter.getMaxChange()) {
-            throw new InvalidRequestException("minChange must be <= maxChange");
-        }
-
-        return ResponseEntity.ok(analyticsService.getFilteredStockUpdates(filter));
+        validationHelper.validateStockUpdateFilter(filter);
+        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));
     }
 
     /**
-     * Gets dashboard summary with multiple analytics.
-     *
-     * <p>Defaults to last 30 days if no dates provided.</p>
-     *
-     * @param supplierId optional supplier filter
-     * @param startDate  optional start timestamp
-     * @param endDate    optional end timestamp
-     * @return dashboard summary with multiple data sets
+     * Gets dashboard summary with multiple analytics (defaults to last 30 days).
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/summary")
@@ -236,37 +210,18 @@ public class AnalyticsController{
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
-        if (startDate == null) startDate = LocalDateTime.now().minusDays(30);
-        if (endDate == null) endDate = LocalDateTime.now();
-        if (startDate.isAfter(endDate)) {
-            throw new InvalidRequestException("startDate must be on or before endDate");
-        }
+        // Apply default date window
+        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);
+        startDate = dateWindow[0];
+        endDate = dateWindow[1];
+        
+        validationHelper.validateDateTimeRange(startDate, endDate, "startDate", "endDate");
 
-        DashboardSummaryDTO summary = new DashboardSummaryDTO();
-        summary.setStockPerSupplier(analyticsService.getTotalStockPerSupplier());
-
-        summary.setLowStockItems(supplierId != null && !supplierId.isBlank()
-                ? analyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList()
-                : List.of());
-
-        summary.setMonthlyStockMovement(analyticsService.getMonthlyStockMovement(
-                startDate.toLocalDate(), endDate.toLocalDate(), supplierId));
-
-        summary.setTopUpdatedItems(supplierId != null && !supplierId.isBlank()
-                ? analyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList()
-                : List.of());
-
-        return ResponseEntity.ok(summary);
+        return ResponseEntity.ok(dashboardHelper.buildDashboardSummary(supplierId, startDate, endDate));
     }
 
     /**
      * Gets historical price changes for an item.
-     *
-     * @param itemId     required inventory item ID
-     * @param supplierId optional supplier filter
-     * @param start      inclusive start date (ISO yyyy-MM-dd)
-     * @param end        inclusive end date (ISO yyyy-MM-dd)
-     * @return list of price trend data points
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/price-trend")
@@ -276,18 +231,13 @@ public class AnalyticsController{
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
 
-        requireNonBlank(itemId, "itemId");
-        validateDateRange(start, end, "start", "end");
-        return ResponseEntity.ok(analyticsService.getPriceTrend(itemId, supplierId, start, end));
+        validationHelper.requireNonBlank(itemId, "itemId");
+        validationHelper.validateDateRange(start, end, "start", "end");
+        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));
     }
 
     /**
      * Gets financial summary with WAC calculations.
-     *
-     * @param from       inclusive start date (ISO yyyy-MM-dd)
-     * @param to         inclusive end date (ISO yyyy-MM-dd)
-     * @param supplierId optional supplier filter
-     * @return financial summary with purchases, COGS, write-offs
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/financial/summary")
@@ -296,44 +246,7 @@ public class AnalyticsController{
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) String supplierId) {
 
-        // reuse helper for date validation
-        validateDateRange(from, to, "from", "to");
-        return ResponseEntity.ok(analyticsService.getFinancialSummaryWAC(from, to, supplierId));
-    }
-
-    // ------------------------------------------------------------------------
-    // Validation Helpers
-    // ------------------------------------------------------------------------
-
-    /**
-     * Validates date range parameters.
-     *
-     * @param start     start date (must not be null)
-     * @param end       end date (must not be null and >= start)
-     * @param startName parameter name for error messages
-     * @param endName   parameter name for error messages
-     * @throws InvalidRequestException if validation fails
-     */
-    private static void validateDateRange(LocalDate start, LocalDate end,
-                                          String startName, String endName) {
-        if (start == null || end == null) {
-            throw new InvalidRequestException(startName + " and " + endName + " are required");
-        }
-        if (start.isAfter(end)) {
-            throw new InvalidRequestException(startName + " must be on or before " + endName);
-        }
-    }
-
-    /**
-     * Validates string parameter is not blank.
-     *
-     * @param value parameter value to check
-     * @param name  parameter name for error messages
-     * @throws InvalidRequestException if value is blank
-     */
-    private static void requireNonBlank(String value, String name) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new InvalidRequestException(name + " must not be blank");
-        }
+        validationHelper.validateDateRange(from, to, "from", "to");
+        return ResponseEntity.ok(financialAnalyticsService.getFinancialSummaryWAC(from, to, supplierId));
     }
 }

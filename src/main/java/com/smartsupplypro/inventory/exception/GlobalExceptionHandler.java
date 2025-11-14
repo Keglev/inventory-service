@@ -38,7 +38,7 @@ import jakarta.validation.ConstraintViolationException;
  * @see BusinessExceptionHandler
  * @see ErrorResponse
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)  // Runs after BusinessExceptionHandler as a catch-all
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -198,7 +198,6 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
-        // TODO: Add structured logging: log.error("Unhandled exception", ex);
         return ErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .message("Unexpected server error")

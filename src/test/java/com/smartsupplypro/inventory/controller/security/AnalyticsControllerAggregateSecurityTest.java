@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>GET /api/analytics/stock-per-supplier</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 @DisplayName("Analytics Security: Aggregates")
 class AnalyticsControllerAggregateSecurityTest extends AbstractAnalyticsControllerSecurityTest {
 

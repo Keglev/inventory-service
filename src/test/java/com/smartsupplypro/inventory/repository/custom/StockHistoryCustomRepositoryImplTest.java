@@ -10,30 +10,40 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.dto.StockEventRowDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.model.StockHistory;
 import com.smartsupplypro.inventory.repository.StockHistoryRepository;
+import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 
 import jakarta.persistence.EntityManager;
 
 /**
- * Slice tests for {@link StockHistoryCustomRepositoryImpl}.
+ * Repository integration tests for {@link StockHistoryRepository} custom query methods.
  *
- * <p>Focuses on the JPQL projection method {@code findEventsUpTo}, which feeds the WAC algorithm.
+ * <p>Tests the specialized repository implementations that provide custom analytics queries:
+ * <ul>
+ *   <li>{@link StockDetailQueryRepositoryImpl} - Event streaming for WAC calculations</li>
+ *   <li>{@link StockTrendAnalyticsRepositoryImpl} - Time-series analytics</li>
+ *   <li>{@link StockMetricsRepositoryImpl} - Dashboard KPIs</li>
+ * </ul>
+ *
+ * <p>Focuses on the JPQL projection method {@code streamEventsForWAC}, which feeds the WAC algorithm.
  * Verifies supplier filtering and ordering by (itemId ASC, createdAt ASC).</p>
  */
+@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
+@Import(DatabaseDialectDetector.class)
 class StockHistoryCustomRepositoryImplTest {
 
     @Autowired private EntityManager em;
-    @Autowired private StockHistoryRepository customRepo;
+    @Autowired private StockHistoryRepository repository;
 
     @BeforeEach
-    @SuppressWarnings("unused")
     void setUp() {
         // clean in FK-safe order
         em.createNativeQuery("DELETE FROM stock_history").executeUpdate();
@@ -81,7 +91,7 @@ class StockHistoryCustomRepositoryImplTest {
         em.clear();
 
         LocalDateTime endInclusive = at(2024,2,28,23,59);
-        List<StockEventRowDTO> out = customRepo.findEventsUpTo(endInclusive, "sup1");
+        List<StockEventRowDTO> out = repository.streamEventsForWAC(endInclusive, "sup1");
 
         // assertions unchanged …
         assertEquals(3, out.size());

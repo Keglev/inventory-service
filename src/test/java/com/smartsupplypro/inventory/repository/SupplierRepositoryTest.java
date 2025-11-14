@@ -11,9 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.model.Supplier;
+import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 
 /**
  * JPA slice tests for {@link SupplierRepository} backed by an in‑memory database.
@@ -32,9 +34,11 @@ import com.smartsupplypro.inventory.model.Supplier;
  *   <li>Seeds via the repository to keep tests framework‑agnostic and portable.</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY) // force embedded
 @ActiveProfiles("test")
+@Import(DatabaseDialectDetector.class)
 class SupplierRepositoryTest {
 
     @Autowired

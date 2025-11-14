@@ -10,11 +10,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.smartsupplypro.inventory.model.AppUser;
 import com.smartsupplypro.inventory.model.Role;
+import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
 
 /**
  * Integration test class for {@link AppUserRepository} using an in-memory H2 database.
@@ -22,8 +24,10 @@ import com.smartsupplypro.inventory.model.Role;
  * Verifies persistence operations related to application users authenticated via OAuth2,
  * including lookup by email, user count tracking, and entity storage.
  */
+@SuppressWarnings("unused")
 @DataJpaTest
 @ActiveProfiles("test")
+@Import(DatabaseDialectDetector.class)
 class AppUserRepositoryTest {
 
     @Autowired

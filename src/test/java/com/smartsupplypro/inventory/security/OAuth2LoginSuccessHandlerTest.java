@@ -52,6 +52,7 @@ import com.smartsupplypro.inventory.repository.AppUserRepository;
  *       success handlers perform more than one redirect in the same call chain.</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class OAuth2LoginSuccessHandlerTest {
 
