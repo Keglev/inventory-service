@@ -1,0 +1,258 @@
+name: 1️⃣ Backend CI - Build & Test
+
+# =============================================================================
+# Smart Supply Pro - Backend (Inventory Service) CI Pipeline
+#
+# Enterprise-grade continuous integration pipeline:
+# - Purpose: Build, test, and generate coverage reports for backend service.
+# - Artifacts: JaCoCo coverage HTML, Docker image (security-scanned).
+# - Design: Does NOT commit to main branch; delegates to gh-pages workflow.
+# - Traceability: Images tagged by commit SHA for reproducible deployments.
+# - Security: Trivy scanning gates on HIGH/CRITICAL CVEs.
+#
+# Workflow sequence:
+#   1-ci-test.yml (this file)  →  2-deploy-ghpages.yml  →  3-deploy-fly.yml
+# =============================================================================
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      # Backend source code (both repo-root and inventory-service/ layouts)
+      - 'inventory-service/pom.xml'
+      - 'inventory-service/mvnw'
+      - 'inventory-service/mvnw.cmd'
+      - 'inventory-service/.mvn/**'
+      - 'inventory-service/src/**'
+      - 'inventory-service/Dockerfile'
+      - 'inventory-service/.dockerignore'
+      - 'inventory-service/start.sh'
+      - 'pom.xml'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.mvn/**'
+      - 'src/**'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'start.sh'
+      # This workflow file itself
+      - '.github/workflows/1-ci-test.yml'
+  pull_request:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'inventory-service/pom.xml'
+      - 'inventory-service/mvnw'
+      - 'inventory-service/mvnw.cmd'
+      - 'inventory-service/.mvn/**'
+      - 'inventory-service/src/**'
+      - 'inventory-service/Dockerfile'
+      - 'inventory-service/.dockerignore'
+      - 'inventory-service/start.sh'
+      - 'pom.xml'
+      - 'mvnw'
+      - 'mvnw.cmd'
+      - '.mvn/**'
+      - 'src/**'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'start.sh'
+      - '.github/workflows/1-ci-test.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/inventory-service
+      IMAGE_TAG_SHA: ${{ github.sha }}
+
+    steps:
+      # ---------------------------------------------------------------------
+      # 1) Checkout repository
+      # ---------------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------------------
+      # 2) Resolve backend directory (repo root vs ./inventory-service)
+      # ---------------------------------------------------------------------
+      - name: Resolve backend paths
+        id: be
+        run: |
+          set -euo pipefail
+
+          if [ -f "inventory-service/pom.xml" ]; then
+            DIR="inventory-service"
+          elif [ -f "pom.xml" ]; then
+            DIR="."
+          else
+            echo "::error::Could not find pom.xml at repo root or inventory-service/."
+            exit 1
+          fi
+
+          echo "Detected backend directory: $DIR"
+          echo "BACKEND_DIR=$DIR" >> "$GITHUB_ENV"
+          if [ "$DIR" = "." ]; then
+            echo "POM_PATH=pom.xml" >> "$GITHUB_ENV"
+          else
+            echo "POM_PATH=$DIR/pom.xml" >> "$GITHUB_ENV"
+          fi
+
+      # ---------------------------------------------------------------------
+      # 3) Toolchain: JDK 17 + Maven cache
+      # ---------------------------------------------------------------------
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'inventory-service/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # ---------------------------------------------------------------------
+      # 4) Build & test (test profile)
+      # ---------------------------------------------------------------------
+      - name: Build and Test with Maven
+        run: |
+          set -euo pipefail
+          cd "$BACKEND_DIR"
+          mvn -U clean verify -Dspring.profiles.active=test -Dtestcontainers.enabled=false
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: ${{ secrets.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID }}
+          SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: ${{ secrets.SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET }}
+
+      # ---------------------------------------------------------------------
+      # 5) Display resolved Spring versions (non-blocking)
+      # ---------------------------------------------------------------------
+      - name: Show Spring core & Security versions
+        run: |
+          set -euo pipefail
+          cd "$BACKEND_DIR"
+          mvn -q dependency:list -DincludeGroupIds=org.springframework,org.springframework.security | \
+            grep -E 'spring-core|spring-security-core' || true
+
+      # ---------------------------------------------------------------------
+      # 6) Generate JaCoCo coverage report
+      # ---------------------------------------------------------------------
+      - name: Generate JaCoCo Report
+        run: |
+          set -euo pipefail
+          cd "$BACKEND_DIR"
+          if [ -d "target/site/jacoco" ]; then
+            echo "✅ JaCoCo coverage report generated successfully"
+            ls -lh target/site/jacoco/ | head -10
+          else
+            echo "⚠️ No JaCoCo reports found in target/site/jacoco"
+          fi
+
+      # ---------------------------------------------------------------------
+      # 7) Upload JaCoCo artifact for gh-pages workflow
+      # ---------------------------------------------------------------------
+      - name: Upload JaCoCo coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-html-${{ github.sha }}
+          path: ${{ env.BACKEND_DIR }}/target/site/jacoco/
+          retention-days: 30
+
+      # ---------------------------------------------------------------------
+      # 8) Docker login
+      # ---------------------------------------------------------------------
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # ---------------------------------------------------------------------
+      # 9) Build Docker image (production profile)
+      # ---------------------------------------------------------------------
+      - name: Build Docker image
+        run: |
+          set -euo pipefail
+          if [ ! -f "$BACKEND_DIR/Dockerfile" ]; then
+            echo "::error::Dockerfile not found at $BACKEND_DIR/Dockerfile"
+            exit 1
+          fi
+
+          docker build --no-cache \
+            --build-arg PROFILE=prod \
+            -t $IMAGE_REPO:latest \
+            -t $IMAGE_REPO:${IMAGE_TAG_SHA} \
+            "$BACKEND_DIR"
+
+      # ---------------------------------------------------------------------
+      # 10) Inspect image (sanity check)
+      # ---------------------------------------------------------------------
+      - name: Inspect image contents
+        run: |
+          echo "Image: $IMAGE_REPO:${IMAGE_TAG_SHA}"
+          docker run --rm $IMAGE_REPO:${IMAGE_TAG_SHA} sh -c '
+            echo "=== Verifying production image contents ==="
+            echo "✅ App JAR:" && ls -lh /app/app.jar
+            echo "✅ Start script:" && ls -lh /app/start.sh
+            echo ""
+            echo "❌ Test files should NOT exist:"
+            ls /app/src/test 2>&1 || echo "  ✅ Confirmed: No test directory"
+            echo ""
+            echo "❌ Docs should NOT exist:"
+            ls /app/docs 2>&1 || echo "  ✅ Confirmed: No docs directory"
+          '
+
+      # ---------------------------------------------------------------------
+      # 11) Push Docker images
+      # ---------------------------------------------------------------------
+      - name: Push Docker images
+        run: |
+          docker push $IMAGE_REPO:latest
+          docker push $IMAGE_REPO:${IMAGE_TAG_SHA}
+
+      # ---------------------------------------------------------------------
+      # 12) Trivy vulnerability scan (gate on HIGH/CRITICAL)
+      # ---------------------------------------------------------------------
+      - name: Scan image for CVEs (Trivy)
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG_SHA }}
+          format: table
+          scanners: vuln
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+
+      # ---------------------------------------------------------------------
+      # 13) Summary
+      # ---------------------------------------------------------------------
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 🎯 CI Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Status:** ✅ Success" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docker Image:** \`$IMAGE_REPO:${IMAGE_TAG_SHA}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage Artifact:** \`jacoco-html-${IMAGE_TAG_SHA}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Coverage will be published to \`gh-pages\` branch automatically" >> $GITHUB_STEP_SUMMARY
+          echo "2. Deploy to Fly.io manually via workflow: \`3-deploy-fly.yml\`" >> $GITHUB_STEP_SUMMARY

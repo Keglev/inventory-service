@@ -112,8 +112,14 @@ OracleWalletConnectionTest.java
 ###############################################################################
 # Documentation
 ###############################################################################
-/docs/openapi.yaml
-docs/api.html
+# Generated HTML files (published to gh-pages branch only)
+docs/backend/coverage/
+docs/api/redoc/api.html
+docs/api/openapi/openapi.yaml
+
+# Keep source documentation files in git (*.md, *.yml in docs/)
+# /docs/openapi.yaml
+# docs/api.html
 # /docs/architecture/security-overview.html
 # archive of docs backups
 /docs/_bak/

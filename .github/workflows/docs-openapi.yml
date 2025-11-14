@@ -99,32 +99,27 @@ jobs:
         run: npm run docs
 
       # ------------------------------------------------------------------
-      # 6) Commit generated artifacts back to the repository (optional)
-      #    - Use the GitHub Actions bot identity for non-interactive commits.
-      #    - Only stage canonical outputs to avoid accidental commits of
-      #      intermediate or local dev artifacts.
-      #    - The commit message includes `[skip ci]` to avoid triggering
-      #      additional CI runs for the generated artifacts.
-      #
-      #    Safety notes:
-      #    - Ensure this job has `contents: write` permission (set above).
-      #    - If your organization requires signed commits or disallows the
-      #      actions bot, replace with a machine user and secrets.
+      # 5.5) Upload ReDoc artifacts for gh-pages deployment
+      #    - Uploads generated HTML files as workflow artifacts
+      #    - These will be picked up by 2-deploy-ghpages.yml workflow
+      #    - Source .md files remain in main branch; only HTML goes to gh-pages
       # ------------------------------------------------------------------
-      - name: Commit generated artifacts
-        run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Only add the canonical artifacts produced by the docs build. Avoid
-          # committing local development artifacts or intermediate files.
-          git add api/openapi/openapi.yaml api/redoc/api.html api/redoc/index.html || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "docs: update enterprise API documentation [skip ci]"
-            git push
-          fi
+      - name: Upload ReDoc artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: redoc-html
+          path: docs/api/redoc/
+          retention-days: 30
+
+      # ------------------------------------------------------------------
+      # 6) Note on artifact publication
+      #    - Generated ReDoc HTML is now uploaded as a workflow artifact.
+      #    - The 2-deploy-ghpages.yml workflow will automatically publish
+      #      these artifacts to the gh-pages branch.
+      #    - This prevents pollution of the main branch with generated files.
+      #    - Source .md and .yml files remain in main branch for version control.
+      # ------------------------------------------------------------------
+
       # ------------------------------------------------------------------
       # 7) Reminder / developer notice
       #    - Emit a GitHub workflow notice to explain what the job produced.
