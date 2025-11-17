@@ -1,7 +1,5 @@
 package com.smartsupplypro.inventory.controller.analytics;
 
-import com.smartsupplypro.inventory.controller.AnalyticsController;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,8 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.smartsupplypro.inventory.config.TestSecurityConfig;
-import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
-import com.smartsupplypro.inventory.controller.analytics.AnalyticsDashboardHelper;
+import com.smartsupplypro.inventory.controller.AnalyticsController;
 import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
 import com.smartsupplypro.inventory.dto.LowStockItemDTO;
 import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
