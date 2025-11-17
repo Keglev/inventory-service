@@ -1,9 +1,0 @@
-description: Unauthorized (missing/invalid token)
-content:
-  application/json:
-    schema:
-      type: object
-      properties:
-        error:
-          type: string
-          example: Unauthorized

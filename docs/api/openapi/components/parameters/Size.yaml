@@ -1,9 +1,0 @@
-# Size Parameter
-name: size
-in: query
-description: Page size.
-required: false
-schema:
-  type: integer
-  minimum: 1
-  default: 20
