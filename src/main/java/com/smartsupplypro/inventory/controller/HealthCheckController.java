@@ -58,7 +58,7 @@ public class HealthCheckController {
         try (
             Connection conn = dataSource.getConnection();
 
-            // Enterprise Comment: Oracle Health Check Strategy
+            // Oracle Health Check Strategy
             // Use SYS_CONTEXT query instead of simple SELECT 1 FROM DUAL
             // to verify actual Oracle functionality and return diagnostic info
             PreparedStatement stmt = conn.prepareStatement("SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL");
