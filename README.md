@@ -112,7 +112,7 @@ This project simulates a real-world software system for small-to-medium manufact
 <a id="architecture-overview"></a>
 ### 🏗️ Architecture Overview
 
-- . [Index for Backend Documentation](./docs/backend/README.md) — architecture landing with service catalog
+- . [Index for Backend Documentation](https://keglev.github.io/inventory-service/architecture/index.html) — architecture landing with service catalog
 - . [Service Layer Overview](./docs/architecture/services/README.md) — service responsibilities and patterns
 - . [Design Patterns & Security](./docs/architecture/patterns/) — architecture patterns, security, and implementation
 
