@@ -10,6 +10,7 @@ on:
     branches: [ main ]
     paths:
       - 'docs/**'
+      - 'scripts/**'
       - '.github/workflows/docs-pipeline.yml'
 
 permissions:
