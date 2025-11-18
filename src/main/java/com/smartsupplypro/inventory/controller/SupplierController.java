@@ -91,7 +91,7 @@ public class SupplierController {
     @PostMapping
     public ResponseEntity<SupplierDTO> create(@Valid @RequestBody SupplierDTO dto) {
         if (dto.getId() != null) {
-            // Enterprise Comment: ID consistency validation - prevent client-generated IDs on creation
+            // ID consistency validation - prevent client-generated IDs on creation
             // to maintain server-side ID generation control and avoid potential ID conflicts
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID must be null on create");
         }
