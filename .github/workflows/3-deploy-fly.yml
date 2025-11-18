@@ -68,7 +68,6 @@ jobs:
             STRATEGY="${{ inputs.deployment_strategy }}"
           else
             IMAGE_TAG="${{ github.event.workflow_run.head_sha }}"
-            IMAGE_TAG="${IMAGE_TAG:0:7}"  # First 7 chars (short SHA)
             STRATEGY="immediate"
           fi
           
