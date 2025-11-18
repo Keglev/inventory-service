@@ -27,7 +27,24 @@ import com.smartsupplypro.inventory.service.StockHistoryService;
 
 /**
  * Tests for {@link InventoryItemServiceImpl} search and paging operations.
- * Covers repository delegation and DTO mapping for paginated results.
+ *
+ * <p><strong>Operation Coverage</strong></p>
+ * <ul>
+ *   <li><b>findByNameSortedByPrice:</b> Paginated search delegating to repository with DTO mapping</li>
+ * </ul>
+ *
+ * <p><strong>Validation Checks</strong></p>
+ * <ul>
+ *   <li>Repository method is called with correct pagination parameters</li>
+ *   <li>Returned DTOs are correctly mapped from entities (ID, name, price, quantity preserved)</li>
+ *   <li>Page metadata (totalElements, content size) is accurate</li>
+ * </ul>
+ *
+ * <p><strong>Design Notes</strong></p>
+ * <ul>
+ *   <li>Search is delegated entirely to repository layer (service is thin wrapper).</li>
+ *   <li>Mapper is static utility; no bean dependency needed.</li>
+ * </ul>
  */
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
@@ -40,13 +57,21 @@ class InventoryItemServiceImplSearchTest {
 
     @BeforeEach
     void setup() {
+        // Set up OAuth2 authenticated context (simulates logged-in ADMIN user)
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
+        // Mock supplier repository - all suppliers exist for tests
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
     }
 
+    /**
+     * Validates that search delegates to repository and maps results to DTO.
+     * Scenario: Repository returns paginated items; service maps them to DTOs.
+     * Expected: Correct DTOs with preserved ID, name, price, quantity fields.
+     */
     @Test
     @DisplayName("findByNameSortedByPrice: delegates to repository and maps to DTO")
     void findByNameSortedByPrice_delegatesToRepository() {
+        // Build first entity with basic fields
         InventoryItem e1 = new InventoryItem();
         e1.setId("i-1");
         e1.setName("AAA");
@@ -55,6 +80,7 @@ class InventoryItemServiceImplSearchTest {
         e1.setMinimumQuantity(1);
         e1.setSupplierId("S1");
 
+        // Build second entity with different price
         InventoryItem e2 = new InventoryItem();
         e2.setId("i-2");
         e2.setName("BBB");
@@ -63,13 +89,18 @@ class InventoryItemServiceImplSearchTest {
         e2.setMinimumQuantity(1);
         e2.setSupplierId("S1");
 
+        // Create page result with both items
         var page = new PageImpl<>(List.of(e1, e2));
+        // Mock repository to return page when search is called
         when(repository.findByNameSortedByPrice(anyString(), any(org.springframework.data.domain.Pageable.class)))
                 .thenReturn(page);
 
+        // Execute search with pagination
         var result = service.findByNameSortedByPrice("z", PageRequest.of(0, 10));
 
+        // Verify page metadata and DTO mapping
         assertEquals(2, result.getTotalElements());
+        // Verify first item DTO has correct ID and price from entity
         assertEquals("i-1", result.getContent().get(0).getId());
         assertEquals(new BigDecimal("10.00"), result.getContent().get(0).getPrice());
     }

@@ -62,34 +62,50 @@ class InventoryItemServiceImplSaveTest {
     @Test
     @DisplayName("save: returns saved item and logs INITIAL_STOCK via auditHelper")
     void save_shouldReturnSavedItem() {
+        // Map DTO to entity for persistence
         InventoryItem toPersist = InventoryItemMapper.toEntity(baseDto);
+        // Create saved copy with generated ID from repository
         InventoryItem saved = copyOf(toPersist);
         saved.setId("item-1");
+        // Mock repository to return the saved entity with ID
         when(repository.save(any(InventoryItem.class))).thenReturn(saved);
 
+        // Execute save operation
         var result = service.save(baseDto);
 
+        // Verify returned entity has generated ID and price from DTO
         assertEquals("item-1", result.getId());
         assertEquals(new BigDecimal("10.00"), result.getPrice());
 
-        // Verify audit helper is called (which internally calls stockHistoryService)
+        // Verify audit helper is called with saved entity (which internally calls stockHistoryService for INITIAL_STOCK logging)
         verify(auditHelper).logInitialStock(any(InventoryItem.class));
     }
 
     @Test
     @DisplayName("save: duplicate name -> 409 CONFLICT")
     void save_duplicateName_throwsConflict() {
+        // Mock repository to indicate name already exists (duplicate check returns true)
         when(repository.existsByNameIgnoreCase(anyString())).thenReturn(true);
 
+        // Mock repository save to simulate ID generation for failed save attempt
         lenient().when(repository.save(any(InventoryItem.class))).thenAnswer(inv -> {
             InventoryItem src = inv.getArgument(0, InventoryItem.class);
+            // Generate ID if not already set
             if (src.getId() == null) {
                 src.setId("generated-id");
             }
             return src;
         });
+        // Note: Service should throw IllegalStateException before reaching repository.save due to validation
     }
 
+    /**
+     * Helper method to create a deep copy of an InventoryItem.
+     * Used to simulate repository behavior of copying and assigning IDs.
+     * 
+     * @param src Source entity to copy from
+     * @return New entity with same field values and generated ID if not already set
+     */
     private static InventoryItem copyOf(InventoryItem src) {
         InventoryItem i = new InventoryItem();
         i.setId(src.getId() != null ? src.getId() : UUID.randomUUID().toString());

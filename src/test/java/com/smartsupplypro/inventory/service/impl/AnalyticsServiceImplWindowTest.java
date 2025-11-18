@@ -58,59 +58,68 @@ class AnalyticsServiceImplWindowTest {
   @Test
   @DisplayName("getMonthlyStockMovement(null,null,null) → defaults dates and passes normalized args")
   void monthlyStockMovement_defaultsWhenDatesNull() {
-    Object[] r = new Object[] { "2024-02", 0L, 0L }; // three columns: YYYY-MM, stockIn, stockOut
+    // Mock result row from repository with 3 columns: YYYY-MM, stockIn count, stockOut count
+    Object[] r = new Object[] { "2024-02", 0L, 0L };
     java.util.List<Object[]> rows = java.util.Collections.singletonList(r);
 
+    // Mock repository to return aggregated monthly stock movement
     when(stockHistoryRepository.getMonthlyStockMovementBySupplier(any(), any(), isNull()))
         .thenReturn(rows);
 
+    // Execute service with all null parameters (should trigger defaulting)
     service.getMonthlyStockMovement(null, null, null);
 
+    // Capture the LocalDateTime arguments passed to repository (service should compute defaults)
     var startCap = ArgumentCaptor.forClass(LocalDateTime.class);
     var endCap   = ArgumentCaptor.forClass(LocalDateTime.class);
     var supplierCap = ArgumentCaptor.forClass(String.class);
 
+    // Verify repository was called with normalized arguments
     verify(stockHistoryRepository).getMonthlyStockMovementBySupplier(
         startCap.capture(), endCap.capture(), supplierCap.capture()
     );
 
-    // We don't enforce a specific default window here; we assert it is coherent and ordered.
+    // Assert that service computed a sensible default window
     LocalDateTime start = startCap.getValue();
     LocalDateTime end   = endCap.getValue();
 
+    // Defaulted start must not be null
     assertNotNull(start, "defaulted start must not be null");
+    // Defaulted end must not be null
     assertNotNull(end,   "defaulted end must not be null");
+    // Ensure chronological ordering: end must be >= start
     assertFalse(end.isBefore(start), "end must be >= start");
+    // Supplier remains null when no value specified
     assertNull(supplierCap.getValue(), "supplier should remain null when unspecified");
   }
 
   @Test
   @DisplayName("getMonthlyStockMovement → start after end throws InvalidRequestException")
   void monthlyStockMovement_startAfterEnd_throws() {
+    // Execute service with invalid date range: start (2024-03-10) > end (2024-03-01)
     var ex = assertThrows(InvalidRequestException.class,
         () -> service.getMonthlyStockMovement(
-            LocalDate.parse("2024-03-10"),
-            LocalDate.parse("2024-03-01"),
-            null
+            LocalDate.parse("2024-03-10"),  // start date (later)
+            LocalDate.parse("2024-03-01"),  // end date (earlier) - invalid ordering
+            null                             // no supplier filter
         ));
-    // If your service has a stable message, assert it:
-    // assertTrue(ex.getMessage().contains("start must be on/before end"));
-    assertNotNull(ex.getMessage());
+    // Verify exception was thrown with explanatory message
+    assertNotNull(ex.getMessage(), "InvalidRequestException should include error message");
   }
 
   @Test
   @DisplayName("getPriceTrend → blank itemId triggers InvalidRequestException")
   void getPriceTrend_blankItemId_throws() {
+    // Execute service with blank itemId (whitespace-only string)
     var ex = assertThrows(InvalidRequestException.class,
         () -> service.getPriceTrend(
-            "   ",               // blank
-            null,                // supplier
-            LocalDate.now().minusDays(1),
-            LocalDate.now()
+            "   ",                           // blank itemId (validation should reject)
+            null,                            // optional supplier filter
+            LocalDate.now().minusDays(1),   // start date
+            LocalDate.now()                  // end date
         ));
-    // If message is stable, assert concrete text:
-    // assertTrue(ex.getMessage().contains("itemId must not be blank"));
-    assertNotNull(ex.getMessage());
+    // Verify exception was thrown with validation error message
+    assertNotNull(ex.getMessage(), "InvalidRequestException should explain blank itemId validation failure");
   }
 }
 
