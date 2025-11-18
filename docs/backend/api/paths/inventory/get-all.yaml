@@ -1,0 +1,25 @@
+get:
+  tags:
+    - Inventory
+  summary: Get all inventory items
+  description: |
+    Retrieves all inventory items in the system (non-paginated).
+    Includes supplier names and calculated total values.
+    
+    **Note:** For large datasets, consider using the search endpoint with pagination.
+  operationId: getAllInventoryItems
+  security:
+    - oauth2: [openid]
+  responses:
+    '200':
+      description: List of all inventory items
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/InventoryItemDTO'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

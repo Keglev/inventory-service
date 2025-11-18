@@ -1,0 +1,161 @@
+components:
+  schemas:
+    InventoryItemDTO:
+      type: object
+      required:
+        - id
+        - name
+        - quantity
+        - price
+        - supplierId
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique system-generated identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          minLength: 1
+          description: Display name of the inventory item
+          example: "Premium Widget"
+        quantity:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Current stock quantity (non-negative)
+          example: 150
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          description: Price per unit (positive value required)
+          example: 29.99
+        totalValue:
+          type: number
+          format: double
+          readOnly: true
+          description: Calculated total value (quantity × price), backend-populated
+          example: 4498.50
+        supplierId:
+          type: string
+          description: Associated supplier identifier
+          example: "supplier-123"
+        supplierName:
+          type: string
+          readOnly: true
+          description: Supplier name for UI display (projection field)
+          example: "Acme Corp"
+        minimumQuantity:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Minimum stock threshold for low-stock alerts
+          example: 50
+        createdBy:
+          type: string
+          readOnly: true
+          description: User who created this record (audit trail)
+          example: "admin@example.com"
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Creation timestamp (system-generated)
+          example: "2025-11-01T10:00:00Z"
+      description: |
+        Full inventory item with all fields including audit trail and calculated values.
+        Used for responses from GET, PUT, PATCH operations.
+
+    CreateInventoryItemRequest:
+      type: object
+      required:
+        - name
+        - quantity
+        - price
+        - supplierId
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Display name of the inventory item
+          example: "Premium Widget"
+        quantity:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Initial stock quantity
+          example: 100
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          description: Price per unit
+          example: 29.99
+        supplierId:
+          type: string
+          description: Associated supplier identifier
+          example: "supplier-123"
+        minimumQuantity:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Minimum stock threshold for low-stock alerts
+          example: 50
+      description: |
+        Request body for creating new inventory items.
+        ID and audit fields are system-generated and must be omitted.
+
+    UpdateInventoryItemRequest:
+      type: object
+      required:
+        - name
+        - quantity
+        - price
+        - supplierId
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Display name of the inventory item
+          example: "Premium Widget (Updated)"
+        quantity:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Current stock quantity
+          example: 120
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          description: Price per unit
+          example: 34.99
+        supplierId:
+          type: string
+          description: Associated supplier identifier
+          example: "supplier-123"
+        minimumQuantity:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Minimum stock threshold
+          example: 60
+      description: |
+        Request body for updating existing inventory items.
+        Path parameter ID takes precedence; request body ID is ignored.
+
+    InventoryItemPageResponse:
+      type: object
+      required:
+        - content
+        - page
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryItemDTO'
+          description: List of inventory items in current page
+        page:
+          $ref: '../common/common.yaml#/components/schemas/PageMetadata'
+      description: Paginated response for inventory item search results

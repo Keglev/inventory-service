@@ -62,6 +62,7 @@ security:
   - oauth2: [openid, profile, email]
 
 paths:
+  # Auth endpoints
   /api/me:
     get:
       $ref: './paths/auth/me.yaml#/get'
@@ -73,3 +74,34 @@ paths:
   /api/auth/logout:
     post:
       $ref: './paths/auth/logout.yaml#/post'
+  
+  # Inventory endpoints
+  /api/inventory:
+    get:
+      $ref: './paths/inventory/get-all.yaml#/get'
+    post:
+      $ref: './paths/inventory/create.yaml#/post'
+  
+  /api/inventory/{id}:
+    get:
+      $ref: './paths/inventory/get-by-id.yaml#/get'
+    put:
+      $ref: './paths/inventory/update.yaml#/put'
+    delete:
+      $ref: './paths/inventory/delete.yaml#/delete'
+  
+  /api/inventory/count:
+    get:
+      $ref: './paths/inventory/count.yaml#/get'
+  
+  /api/inventory/search:
+    get:
+      $ref: './paths/inventory/search.yaml#/get'
+  
+  /api/inventory/{id}/quantity:
+    patch:
+      $ref: './paths/inventory/adjust-quantity.yaml#/patch'
+  
+  /api/inventory/{id}/price:
+    patch:
+      $ref: './paths/inventory/update-price.yaml#/patch'

@@ -1,0 +1,48 @@
+delete:
+  tags:
+    - Inventory
+  summary: Delete inventory item
+  description: |
+    Deletes an inventory item permanently. Requires ADMIN role.
+    
+    **Audit Trail:**
+    - Reason parameter is required for compliance tracking
+    - Deletion is logged in stock history
+  operationId: deleteInventoryItem
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: Inventory item identifier
+      schema:
+        type: string
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    - name: reason
+      in: query
+      required: true
+      description: Business reason for deletion (audit trail)
+      schema:
+        type: string
+        enum:
+          - SALE
+          - RETURN
+          - DAMAGED
+          - EXPIRED
+          - RESTOCK
+          - MANUAL_ADJUSTMENT
+          - INVENTORY_COUNT
+          - INITIAL_STOCK
+      example: "DAMAGED"
+  responses:
+    '204':
+      description: Inventory item deleted successfully (no content)
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '403':
+      $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
+    '404':
+      $ref: '../../responses/errors.yaml#/components/responses/NotFound'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

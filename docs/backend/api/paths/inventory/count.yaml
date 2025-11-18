@@ -1,0 +1,21 @@
+get:
+  tags:
+    - Inventory
+  summary: Get total item count
+  description: Returns the total number of inventory items in the system.
+  operationId: countInventoryItems
+  security:
+    - oauth2: [openid]
+  responses:
+    '200':
+      description: Total count of inventory items
+      content:
+        application/json:
+          schema:
+            type: integer
+            format: int64
+            example: 142
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

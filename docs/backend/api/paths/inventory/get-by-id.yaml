@@ -1,0 +1,31 @@
+get:
+  tags:
+    - Inventory
+  summary: Get inventory item by ID
+  description: |
+    Retrieves a single inventory item by its unique identifier.
+    Includes supplier name and calculated total value.
+  operationId: getInventoryItemById
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: Unique inventory item identifier
+      schema:
+        type: string
+      example: "550e8400-e29b-41d4-a716-446655440000"
+  responses:
+    '200':
+      description: Inventory item found
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/InventoryItemDTO'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '404':
+      $ref: '../../responses/errors.yaml#/components/responses/NotFound'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

@@ -1,0 +1,55 @@
+post:
+  tags:
+    - Inventory
+  summary: Create new inventory item
+  description: |
+    Creates a new inventory item. Requires ADMIN role.
+    
+    **Validation:**
+    - ID must be absent (system-generated)
+    - Name, quantity, price, and supplierId are required
+    - Price must be positive
+    - Quantity must be zero or positive
+    
+    **Response:**
+    - 201 Created with Location header pointing to new resource
+    - Body contains the created item with system-generated ID and timestamps
+  operationId: createInventoryItem
+  security:
+    - oauth2: [openid]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/CreateInventoryItemRequest'
+        example:
+          name: "Premium Widget"
+          quantity: 100
+          price: 29.99
+          supplierId: "supplier-123"
+          minimumQuantity: 50
+  responses:
+    '201':
+      description: Inventory item created successfully
+      headers:
+        Location:
+          description: URI of the newly created resource
+          schema:
+            type: string
+            format: uri
+          example: "/api/inventory/550e8400-e29b-41d4-a716-446655440000"
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/InventoryItemDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '403':
+      $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
+    '409':
+      $ref: '../../responses/errors.yaml#/components/responses/Conflict'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

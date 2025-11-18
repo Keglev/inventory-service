@@ -1,0 +1,64 @@
+patch:
+  tags:
+    - Inventory
+  summary: Adjust inventory quantity
+  description: |
+    Adjusts the quantity of an inventory item by a delta amount.
+    
+    **Delta Logic:**
+    - Positive delta: Add stock (e.g., +50 to increase by 50 units)
+    - Negative delta: Remove stock (e.g., -25 to decrease by 25 units)
+    
+    **Audit Trail:**
+    - All quantity changes are logged in stock history
+    - Reason parameter is required for compliance tracking
+  operationId: adjustInventoryQuantity
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: Inventory item identifier
+      schema:
+        type: string
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    - name: delta
+      in: query
+      required: true
+      description: Quantity change (positive to add, negative to remove)
+      schema:
+        type: integer
+        format: int32
+      example: -25
+    - name: reason
+      in: query
+      required: true
+      description: Business reason for quantity adjustment
+      schema:
+        type: string
+        enum:
+          - SALE
+          - RETURN
+          - DAMAGED
+          - EXPIRED
+          - RESTOCK
+          - MANUAL_ADJUSTMENT
+          - INVENTORY_COUNT
+          - INITIAL_STOCK
+      example: "SALE"
+  responses:
+    '200':
+      description: Quantity adjusted successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/InventoryItemDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '404':
+      $ref: '../../responses/errors.yaml#/components/responses/NotFound'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

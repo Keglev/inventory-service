@@ -1,0 +1,42 @@
+components:
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number (0-indexed)
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 0
+      example: 0
+    
+    size:
+      name: size
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 20
+    
+    sort:
+      name: sort
+      in: query
+      description: |
+        Sort criteria in format: `property,direction`.
+        Multiple sort criteria can be specified.
+        
+        **Examples:**
+        - `name,asc` - Sort by name ascending
+        - `price,desc` - Sort by price descending
+        - `createdAt,desc` - Sort by creation date descending
+      required: false
+      schema:
+        type: string
+      example: "price,desc"

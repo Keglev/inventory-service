@@ -1,0 +1,51 @@
+get:
+  tags:
+    - Inventory
+  summary: Search inventory items by name
+  description: |
+    Searches for inventory items by name with pagination and sorting support.
+    Name search is case-insensitive and matches substrings.
+  operationId: searchInventoryItems
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: name
+      in: query
+      required: true
+      description: Case-insensitive name substring to search for
+      schema:
+        type: string
+      example: "widget"
+    - $ref: '../../parameters/common.yaml#/components/parameters/page'
+    - $ref: '../../parameters/common.yaml#/components/parameters/size'
+    - $ref: '../../parameters/common.yaml#/components/parameters/sort'
+  responses:
+    '200':
+      description: Paginated search results
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/inventory/inventory-item.yaml#/components/schemas/InventoryItemPageResponse'
+          example:
+            content:
+              - id: "550e8400-e29b-41d4-a716-446655440000"
+                name: "Premium Widget"
+                quantity: 150
+                price: 29.99
+                totalValue: 4498.50
+                supplierId: "supplier-123"
+                supplierName: "Acme Corp"
+                minimumQuantity: 50
+                createdBy: "admin@example.com"
+                createdAt: "2025-11-01T10:00:00Z"
+            page:
+              number: 0
+              size: 20
+              totalElements: 1
+              totalPages: 1
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'
