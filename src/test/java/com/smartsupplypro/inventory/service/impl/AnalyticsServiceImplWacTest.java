@@ -25,24 +25,30 @@ import com.smartsupplypro.inventory.repository.StockHistoryRepository;
 import com.smartsupplypro.inventory.service.impl.analytics.FinancialAnalyticsService;
 
 /**
-* # AnalyticsServiceImplWacTest
-*
-* Unit tests for {@link FinancialAnalyticsService#getFinancialSummaryWAC(LocalDate, LocalDate, String)}.
-*
-* <p><strong>Verification goals</strong></p>
-* <ul>
-*   <li>WAC replay over an event stream (opening, purchases, returns, write-offs, COGS, ending).</li>
-*   <li>Correct bucketing by {@link StockChangeReason}.</li>
-*   <li>Window validation (start ≤ end) throws {@link InvalidRequestException}.</li>
-*   <li>Over-issuing is clamped to zero (current service behavior), not an exception.</li>
-* </ul>
-*
-* <p><strong>Notes</strong></p>
-* <ul>
-*   <li>This method reads from {@link StockHistoryRepository#streamEventsForWAC(LocalDateTime, String)}.</li>
-*   <li>No Spring context or DB required (Mockito-only unit test).</li>
-* </ul>
-*/
+ * # AnalyticsServiceImplWacTest
+ *
+ * Unit tests for {@link FinancialAnalyticsService#getFinancialSummaryWAC(LocalDate, LocalDate, String)}.
+ *
+ * <p><strong>Purpose</strong></p>
+ * Verify Weighted Average Cost (WAC) calculation and inventory valuation over a date window.
+ * Tests the replay of opening inventory, purchases, sales (COGS), and ending inventory computation.
+ *
+ * <p><strong>Operations Tested</strong></p>
+ * <ul>
+ *   <li>WAC replay over an event stream (opening, purchases, returns, write-offs, COGS, ending).</li>
+ *   <li>Correct bucketing by {@link StockChangeReason} (INITIAL_STOCK, SOLD, etc.).</li>
+ *   <li>Window validation (start ≤ end) throws {@link InvalidRequestException} for invalid ranges.</li>
+ *   <li>Over-issuing is clamped to zero (current service behavior), not an exception.</li>
+ * </ul>
+ *
+ * <p><strong>Design Notes</strong></p>
+ * <ul>
+ *   <li>WAC formula: Cost = (Opening Value + Purchases) / (Opening Qty + Purchase Qty). COGS = Issued Qty × WAC.</li>
+ *   <li>Opening inventory computed from pre-window events; in-window INITIAL_STOCK classified per impl/profile.</li>
+ *   <li>This method reads from {@link StockHistoryRepository#streamEventsForWAC(LocalDateTime, String)}.</li>
+ *   <li>No Spring context or DB required (Mockito-only unit test).</li>
+ * </ul>
+ */
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
 class AnalyticsServiceImplWacTest {
@@ -67,12 +73,12 @@ class AnalyticsServiceImplWacTest {
     }
     
     /**
-    * Basic WAC flow with an in-window seed and a sale.
-    *
-    * <p>We assert stable invariants (method, COGS for the sale, ending qty/value) and
-    * avoid asserting the purchases bucket, which depends on how INITIAL_STOCK is
-    * classified in the current profile/impl.</p>
-    */
+     * Validates WAC calculation with basic purchase and sale flow.
+     * 
+     * <p><strong>Scenario</strong>: Item has opening inventory (10 units @ $5.00), then 4 units are sold.</p>
+     * 
+     * <p><strong>Expected</strong>: COGS qty=4, COGS cost=$20.00, ending qty=6, ending value=$30.00.</p>
+     */
     @Test
     void wac_basicPurchaseThenSale() {
         var events = List.of(
@@ -103,12 +109,12 @@ class AnalyticsServiceImplWacTest {
     }
     
     /**
-    * Opening inventory is built from pre-window events; then an in-window seed and a sale.
-    *
-    * <p>We assert opening from the pre-window event, COGS, and ending qty/value.
-    * We purposely do not assert the purchases bucket because in-window INITIAL_STOCK
-    * classification differs between implementations/profiles.</p>
-    */
+     * Validates WAC calculation with pre-window opening plus in-window purchase and sale.
+     * 
+     * <p><strong>Scenario</strong>: Pre-window event (Jan 31) = 5 units @ $4.00; In-window event (Feb 1) = 5 units @ $6.00; 4 units sold.</p>
+     * 
+     * <p><strong>Expected</strong>: Opening qty=5 @ $20.00; COGS qty=4 @ blended WAC; Ending qty=6 @ $30.00.</p>
+     */
     @Test
     void wac_openingInventoryIsReplayed_thenPurchaseAndSale() {
         var events = List.of(
@@ -140,40 +146,60 @@ class AnalyticsServiceImplWacTest {
         assertMoneyEquals("30.00", dto.getEndingValue());
     }
     
-    
+    /**
+     * Validates WAC calculation when all inventory is issued (exact match).
+     * 
+     * <p><strong>Scenario</strong>: 5 units @ $2.00, then all 5 units sold.</p>
+     * 
+     * <p><strong>Expected</strong>: Ending qty=0, Ending value=$0.00.</p>
+     */
     @Test
     void wac_issueExactlyAvailable_ok() {
         var events = List.of(
-        new StockEventRowDTO("i","s", at(2024,2,1,9,0), +5, new BigDecimal("2.00"), StockChangeReason.INITIAL_STOCK),
-        new StockEventRowDTO("i","s", at(2024,2,2,9,0), -5, null,                      StockChangeReason.SOLD)
+            // Purchase: 5 units @ $2.00
+            new StockEventRowDTO("i","s", at(2024,2,1,9,0), +5, new BigDecimal("2.00"), StockChangeReason.INITIAL_STOCK),
+            // Sale: issue all 5 units
+            new StockEventRowDTO("i","s", at(2024,2,2,9,0), -5, null,                      StockChangeReason.SOLD)
         );
+        // Mock repository to return event stream
         lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
-        .thenReturn(events);
+            .thenReturn(events);
         
+        // Execute WAC calculation
         var dto = service.getFinancialSummaryWAC(LocalDate.parse("2024-02-01"), LocalDate.parse("2024-02-28"), "s");
+        
+        // Verify inventory completely consumed
         assertEquals(0, dto.getEndingQty());
         assertEquals(0, BigDecimal.ZERO.compareTo(dto.getEndingValue()));
     }
     
     /**
-    * Over-issuing does not throw in the current implementation; it clamps to zero.
-    * If you intend to throw, change the service logic and adjust this test accordingly.
-    */
+     * Validates WAC behavior when quantity issued exceeds available inventory (over-issuing).
+     * 
+     * <p><strong>Scenario</strong>: 3 units @ $2.00, but 4 units issued (over-issue by 1).</p>
+     * 
+     * <p><strong>Expected</strong>: Ending qty=0, Ending value=$0.00 (clamped, not negative).</p>
+     */
     @Test
     void wac_issueMoreThanAvailable_clampsToZero() {
         var events = List.of(
-        new StockEventRowDTO("i","s", at(2024,2,1,9,0), +3, new BigDecimal("2.00"), StockChangeReason.INITIAL_STOCK),
-        new StockEventRowDTO("i","s", at(2024,2,2,9,0), -4, null,                      StockChangeReason.SOLD)
+            // Purchase: 3 units @ $2.00 (limited supply)
+            new StockEventRowDTO("i","s", at(2024,2,1,9,0), +3, new BigDecimal("2.00"), StockChangeReason.INITIAL_STOCK),
+            // Sale: issue 4 units (1 more than available - over-issue)
+            new StockEventRowDTO("i","s", at(2024,2,2,9,0), -4, null,                      StockChangeReason.SOLD)
         );
+        // Mock repository to return event stream with over-issue condition
         lenient().when(stockHistoryRepository.streamEventsForWAC(any(), any()))
-        .thenReturn(events);
+            .thenReturn(events);
         
+        // Execute WAC calculation (should handle gracefully by clamping)
         var dto = service.getFinancialSummaryWAC(
-        LocalDate.parse("2024-02-01"),
-        LocalDate.parse("2024-02-28"),
-        "s"
+            LocalDate.parse("2024-02-01"),
+            LocalDate.parse("2024-02-28"),
+            "s"
         );
         
+        // Verify clamping behavior: ending qty clamped to 0 (not negative)
         assertEquals(0, dto.getEndingQty());
         assertEquals(0, BigDecimal.ZERO.compareTo(dto.getEndingValue()));
     }
@@ -182,13 +208,23 @@ class AnalyticsServiceImplWacTest {
     // Validation
     // ---------------------------------------------------------------------
     
+    /**
+     * Validates that invalid date ranges are rejected (start > end).
+     * 
+     * <p><strong>Scenario</strong>: Start date (Mar 1) after end date (Feb 1), invalid ordering.</p>
+     * 
+     * <p><strong>Expected</strong>: InvalidRequestException thrown with error message.</p>
+     */
     @Test
     void wac_invalidRange_throws() {
+        // Execute with invalid date range: start (2024-03-01) > end (2024-02-01)
         InvalidRequestException ex = assertThrows(InvalidRequestException.class,
-        () -> service.getFinancialSummaryWAC(
-        LocalDate.parse("2024-03-01"),
-        LocalDate.parse("2024-02-01"),
-        "sup1"));
+            () -> service.getFinancialSummaryWAC(
+                LocalDate.parse("2024-03-01"),  // start (later)
+                LocalDate.parse("2024-02-01"),  // end (earlier) - invalid ordering
+                "sup1"
+            ));
+        // Verify exception includes validation error message
         assertNotNull(ex.getMessage());
     }
 }

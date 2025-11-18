@@ -29,15 +29,23 @@ import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService
  * Tests converter helpers used by {@link StockAnalyticsService} via
  * {@link StockAnalyticsService#getFilteredStockUpdates(StockUpdateFilterDTO)}.
  *
- * <p><strong>What we validate</strong></p>
+ * <p><strong>Purpose</strong></p>
+ * Verify that numeric and date conversions handle various input types and edge cases
+ * when mapping repository result rows to DTOs.
+ *
+ * <p><strong>Operations Tested</strong></p>
  * <ul>
- *   <li>Numeric parsing: Integer, Long, BigDecimal, and String.</li>
- *   <li>Timestamp parsing: {@code LocalDateTime} and {@code java.sql.Timestamp} (as per service).</li>
- *   <li>Error branch on malformed numeric strings (throws {@link IllegalStateException}).</li>
+ *   <li>Numeric parsing: Integer, Long, BigDecimal, and String inputs</li>
+ *   <li>Timestamp parsing: {@code java.sql.Timestamp} and {@code LocalDateTime} inputs</li>
+ *   <li>Error handling: Malformed numeric strings throw {@link IllegalStateException}</li>
  * </ul>
  *
- * <p><strong>Important</strong>: The service calls
- * {@link StockHistoryRepository#searchStockUpdates(LocalDateTime, LocalDateTime, String, String, String, Integer, Integer)}.</p>
+ * <p><strong>Design Notes</strong></p>
+ * <ul>
+ *   <li>The service calls {@link StockHistoryRepository#searchStockUpdates(LocalDateTime, LocalDateTime, String, String, String, Integer, Integer)}.</li>
+ *   <li>Converter must handle mixed numeric types from heterogeneous repository queries</li>
+ *   <li>Invalid conversions fail fast with descriptive errors</li>\n *   <li>No Spring context or DB required (Mockito-only unit test).</li>
+ * </ul>
  */
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
@@ -67,58 +75,75 @@ class AnalyticsServiceImplConverterTest {
   @Test
   @DisplayName("getFilteredStockUpdates → parses change from Integer/Long/BigDecimal/String")
   void filteredStockUpdates_mapsVariousNumberTypes() {
+    // Setup timestamp for all result rows
     var ts = Timestamp.valueOf(at(2024, 2, 1, 10, 0));
 
+    // Create result rows with different numeric types for quantity change
     List<Object[]> rows = List.of(
-        row(ts, "A", "S", 3,                   "SOLD", "u1"),               // Integer (autobox)
-        row(ts, "B", "S", 4L,                  "SOLD", "u2"),               // Long (autobox)
-        row(ts, "C", "S", new BigDecimal("5"), "SOLD", "u3")               // BigDecimal
+        row(ts, "A", "S", 3,                   "SOLD", "u1"),  // Integer (autobox)
+        row(ts, "B", "S", 4L,                  "SOLD", "u2"),  // Long (autobox)
+        row(ts, "C", "S", new BigDecimal("5"), "SOLD", "u3")   // BigDecimal
     );
 
+    // Mock repository to return rows with various numeric types
     when(stockHistoryRepository.searchStockUpdates(any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(rows);
 
+    // Execute filtered query (which should normalize all numeric types)
     var out = service.getFilteredStockUpdates(new StockUpdateFilterDTO());
 
+    // Verify all numeric types converted correctly to long
     assertEquals(3, out.size());
-    assertEquals(3, out.get(0).getChange());
-    assertEquals(4, out.get(1).getChange());
-    assertEquals(5, out.get(2).getChange());
+    assertEquals(3, out.get(0).getChange());  // Integer → long
+    assertEquals(4, out.get(1).getChange());  // Long → long
+    assertEquals(5, out.get(2).getChange());  // BigDecimal → long
   }
 
   @Test
   @DisplayName("getFilteredStockUpdates → accepts Timestamp and LocalDateTime for createdAt")
   void filteredStockUpdates_mapsDateVariants_supportedByService() {
-    var ts1 = Timestamp.valueOf(at(2024, 2, 1, 11, 0));   // supported by asLocalDateTime
-    var ts2 = Timestamp.valueOf(at(2024, 2, 2,  0, 0));   // supported by asLocalDateTime
-    var ldt = at(2024, 2, 3, 12, 0);                      // supported by asLocalDateTime
+    // Setup different date/time types (all should be convertible to LocalDateTime)
+    var ts1 = Timestamp.valueOf(at(2024, 2, 1, 11, 0));   // java.sql.Timestamp (supported)
+    var ts2 = Timestamp.valueOf(at(2024, 2, 2,  0, 0));   // java.sql.Timestamp (supported)
+    var ldt = at(2024, 2, 3, 12, 0);                      // LocalDateTime (supported)
 
+    // Create result rows with different date/time types
     List<Object[]> rows = List.of(
-        row(ts1, "A", "S", 1, "SOLD", "u1"),
-        row(ts2, "B", "S", 1, "SOLD", "u1"),
-        row(ldt, "C", "S", 1, "SOLD", "u1")
+        row(ts1, "A", "S", 1, "SOLD", "u1"),  // Timestamp type
+        row(ts2, "B", "S", 1, "SOLD", "u1"),  // Timestamp type
+        row(ldt, "C", "S", 1, "SOLD", "u1")   // LocalDateTime type
     );
 
+    // Mock repository to return rows with various date/time types
     when(stockHistoryRepository.searchStockUpdates(any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(rows);
 
+    // Execute filtered query (which should normalize all date/time types)
     var out = service.getFilteredStockUpdates(new StockUpdateFilterDTO());
+    
+    // Verify all date types were converted (no exception and correct count)
     assertEquals(3, out.size());
   }
 
   @Test
   @DisplayName("getFilteredStockUpdates → malformed numeric string triggers IllegalStateException")
   void filteredStockUpdates_badNumberString_throws() {
+    // Setup timestamp for result row
     var ts = Timestamp.valueOf(at(2024, 2, 1, 10, 0));
 
-    Object[] r = row(ts, "A", "S", "not-a-number", "SOLD", "u");
+    // Create result row with non-numeric string for quantity change field
+    Object[] r = row(ts, "A", "S", "not-a-number", "SOLD", "u");  // invalid numeric value
     List<Object[]> rows = Collections.singletonList(r);
 
+    // Mock repository to return row with malformed numeric data
     when(stockHistoryRepository.searchStockUpdates(any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(rows);
 
+    // Execute filtered query (should fail during numeric conversion)
     var ex = assertThrows(IllegalStateException.class,
         () -> service.getFilteredStockUpdates(new StockUpdateFilterDTO()));
+    
+    // Verify exception includes descriptive error message
     assertNotNull(ex.getMessage());
   }
 }
