@@ -7,7 +7,7 @@ OUTPUT_DIR="$PROJECT_DIR/target/docs"
 TEMPLATE="$DOCS_DIR/templates/app-docs.html"   # already created
 LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
 
-mkdir -p "$OUTPUT_DIR/backend/architecture" "$OUTPUT_DIR/frontend/architecture"
+mkdir -p "$OUTPUT_DIR/architecture" "$OUTPUT_DIR/frontend/architecture"
 
 # Lua filter: convert .md links → .html and mermaid blocks → <div class="mermaid">
 cat > "$LUA_FILTER" << 'EOF'
@@ -32,7 +32,11 @@ EOF
 convert_arch() {
   local CONTEXT="$1"   # backend or frontend
   local SRC_DIR="$DOCS_DIR/$CONTEXT/architecture"
-  local DST_DIR="$OUTPUT_DIR/$CONTEXT/architecture"
+  # Output: backend/ → architecture/, frontend/ → frontend/architecture/
+  local DST_DIR="$OUTPUT_DIR/architecture"
+  if [ "$CONTEXT" = "frontend" ]; then
+    DST_DIR="$OUTPUT_DIR/frontend/architecture"
+  fi
 
   if [ ! -d "$SRC_DIR" ]; then
     echo "ℹ️  No architecture docs directory at $SRC_DIR (skipping)"
