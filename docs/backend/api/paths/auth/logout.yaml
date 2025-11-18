@@ -1,0 +1,39 @@
+post:
+  tags:
+    - Auth
+  summary: API logout endpoint
+  description: |
+    Programmatic logout endpoint for API clients (SPAs, mobile apps).
+    
+    **What it does:**
+    - Invalidates the Spring Security session
+    - Expires JSESSIONID and SESSION cookies
+    - Returns 204 No Content
+    
+    **Cookie settings:**
+    - HttpOnly: true (prevents JavaScript access)
+    - Secure: true (HTTPS only)
+    - SameSite: None (cross-origin support)
+    - MaxAge: 0 (immediate expiration)
+    
+    **Note:** Browser clients should prefer the standard POST /logout endpoint.
+  operationId: apiLogout
+  security:
+    - oauth2: [openid]
+  responses:
+    '204':
+      description: Logout successful, session invalidated
+      headers:
+        Set-Cookie:
+          description: Expired session cookies
+          schema:
+            type: string
+          examples:
+            jsessionid:
+              value: JSESSIONID=; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=0
+            session:
+              value: SESSION=; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=0
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

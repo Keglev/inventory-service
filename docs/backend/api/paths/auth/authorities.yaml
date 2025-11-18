@@ -1,0 +1,28 @@
+get:
+  tags:
+    - Auth
+  summary: Get user authorities
+  description: |
+    Returns the list of granted authorities (roles and permissions) for the
+    authenticated user. Used for frontend authorization checks.
+    
+    Authorities are returned as sorted strings (e.g., ROLE_USER, ROLE_ADMIN).
+  operationId: getUserAuthorities
+  security:
+    - oauth2: [openid, profile, email]
+  responses:
+    '200':
+      description: List of user authorities
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+            example:
+              - ROLE_USER
+              - ROLE_ADMIN
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

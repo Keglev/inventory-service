@@ -1,0 +1,50 @@
+get:
+  tags:
+    - Auth
+  summary: Get authenticated user profile
+  description: |
+    Returns the current authenticated user's profile information including email,
+    full name, role, and profile picture URL from OAuth2 provider.
+    
+    User data is loaded from the database based on OAuth2 email claim.
+  operationId: getCurrentUser
+  security:
+    - oauth2: [openid, profile, email]
+  responses:
+    '200':
+      description: User profile retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/auth/auth.yaml#/components/schemas/AppUserProfileDTO'
+          examples:
+            admin:
+              summary: Admin user profile
+              value:
+                email: admin@example.com
+                fullName: Admin User
+                role: ADMIN
+                pictureUrl: https://lh3.googleusercontent.com/a/example123
+            user:
+              summary: Regular user profile
+              value:
+                email: user@example.com
+                fullName: John Doe
+                role: USER
+                pictureUrl: https://lh3.googleusercontent.com/a/example456
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '404':
+      description: User not found in database
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            message: User not found
+            status: 404
+            timestamp: '2025-11-18T10:30:00Z'
+            path: /api/me
+            errors: []
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

@@ -62,10 +62,14 @@ security:
   - oauth2: [openid, profile, email]
 
 paths:
-  # Auth endpoints
   /api/me:
-    $ref: './paths/auth/auth.yaml#/paths/~1api~1me'
+    get:
+      $ref: './paths/auth/me.yaml#/get'
+  
   /api/me/authorities:
-    $ref: './paths/auth/auth.yaml#/paths/~1api~1me~1authorities'
+    get:
+      $ref: './paths/auth/authorities.yaml#/get'
+  
   /api/auth/logout:
-    $ref: './paths/auth/auth.yaml#/paths/~1api~1auth~1logout'
+    post:
+      $ref: './paths/auth/logout.yaml#/post'
