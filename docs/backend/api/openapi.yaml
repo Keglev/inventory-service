@@ -128,3 +128,20 @@ paths:
   /api/suppliers/search:
     get:
       $ref: './paths/suppliers/search.yaml#/get'
+  
+  # Stock History endpoints
+  /api/stock-history:
+    get:
+      $ref: './paths/stock-history/get-all.yaml#/get'
+  
+  /api/stock-history/item/{itemId}:
+    get:
+      $ref: './paths/stock-history/get-by-item.yaml#/get'
+  
+  /api/stock-history/reason/{reason}:
+    get:
+      $ref: './paths/stock-history/get-by-reason.yaml#/get'
+  
+  /api/stock-history/search:
+    get:
+      $ref: './paths/stock-history/search.yaml#/get'

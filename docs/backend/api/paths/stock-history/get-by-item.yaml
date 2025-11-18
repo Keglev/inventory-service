@@ -1,0 +1,48 @@
+get:
+  tags:
+    - Stock History
+  summary: Get stock history for item
+  description: |
+    Retrieves all stock movement history for a specific inventory item.
+    Shows the complete change timeline for an item with reasons and actors.
+  operationId: getStockHistoryByItem
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: itemId
+      in: path
+      required: true
+      description: Inventory item identifier
+      schema:
+        type: string
+      example: "550e8400-e29b-41d4-a716-446655440000"
+  responses:
+    '200':
+      description: List of stock changes for the item
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/stock-history/stock-history.yaml#/components/schemas/StockHistoryDTO'
+          example:
+            - id: "hist-001"
+              itemId: "550e8400-e29b-41d4-a716-446655440000"
+              change: 100
+              reason: "INITIAL_STOCK"
+              createdBy: "admin@example.com"
+              timestamp: "2025-01-15T10:00:00Z"
+              priceAtChange: 29.99
+            - id: "hist-002"
+              itemId: "550e8400-e29b-41d4-a716-446655440000"
+              change: -25
+              reason: "SALE"
+              createdBy: "user@example.com"
+              timestamp: "2025-11-10T14:30:00Z"
+              priceAtChange: 29.99
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '404':
+      $ref: '../../responses/errors.yaml#/components/responses/NotFound'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

@@ -1,0 +1,23 @@
+get:
+  tags:
+    - Stock History
+  summary: Get all stock history entries
+  description: |
+    Retrieves all stock history entries without pagination.
+    Use for comprehensive audit trail export or analysis.
+  operationId: getAllStockHistory
+  security:
+    - oauth2: [openid]
+  responses:
+    '200':
+      description: List of all stock history entries
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/stock-history/stock-history.yaml#/components/schemas/StockHistoryDTO'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

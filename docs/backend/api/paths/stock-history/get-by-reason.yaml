@@ -1,0 +1,57 @@
+get:
+  tags:
+    - Stock History
+  summary: Get stock history by change reason
+  description: |
+    Filters stock history entries by the reason for change.
+    Useful for tracking all sales, returns, damages, etc.
+  operationId: getStockHistoryByReason
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: reason
+      in: path
+      required: true
+      description: Stock change reason
+      schema:
+        type: string
+        enum:
+          - SALE
+          - RETURN
+          - DAMAGED
+          - EXPIRED
+          - RESTOCK
+          - MANUAL_ADJUSTMENT
+          - INVENTORY_COUNT
+          - INITIAL_STOCK
+      example: "SALE"
+  responses:
+    '200':
+      description: List of stock changes with matching reason
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/stock-history/stock-history.yaml#/components/schemas/StockHistoryDTO'
+          example:
+            - id: "hist-002"
+              itemId: "550e8400-e29b-41d4-a716-446655440000"
+              change: -25
+              reason: "SALE"
+              createdBy: "user@example.com"
+              timestamp: "2025-11-10T14:30:00Z"
+              priceAtChange: 29.99
+            - id: "hist-003"
+              itemId: "660e8400-e29b-41d4-a716-446655440001"
+              change: -10
+              reason: "SALE"
+              createdBy: "user@example.com"
+              timestamp: "2025-11-12T16:45:00Z"
+              priceAtChange: 49.99
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

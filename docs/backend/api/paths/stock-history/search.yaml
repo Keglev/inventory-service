@@ -1,0 +1,121 @@
+get:
+  tags:
+    - Stock History
+  summary: Search stock history with advanced filters
+  description: |
+    Advanced paginated search with multiple filter criteria and date range bounds.
+    
+    **Filters (all optional):**
+    - Date range: startDate to endDate (inclusive, ISO-8601 format)
+    - Item name: Partial name matching for inventory items
+    - Supplier ID: Filter by supplier identifier
+    
+    **Validation:**
+    - endDate must be >= startDate if both provided
+    - Page size is capped at 200 to prevent memory issues
+    
+    **Default sorting:** timestamp DESC (newest first)
+  operationId: searchStockHistory
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: startDate
+      in: query
+      description: Inclusive start timestamp (ISO-8601)
+      required: false
+      schema:
+        type: string
+        format: date-time
+      example: "2025-11-01T00:00:00Z"
+    - name: endDate
+      in: query
+      description: Inclusive end timestamp (ISO-8601)
+      required: false
+      schema:
+        type: string
+        format: date-time
+      example: "2025-11-30T23:59:59Z"
+    - name: itemName
+      in: query
+      description: Partial inventory item name to filter by
+      required: false
+      schema:
+        type: string
+      example: "Widget"
+    - name: supplierId
+      in: query
+      description: Supplier identifier to filter by
+      required: false
+      schema:
+        type: string
+      example: "supplier-123"
+    - $ref: '../../parameters/common.yaml#/components/parameters/page'
+    - name: size
+      in: query
+      description: Number of items per page (max 200, default 50)
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 200
+        default: 50
+      example: 50
+    - name: sort
+      in: query
+      description: |
+        Sort criteria in format: `property,direction`.
+        Default: `timestamp,desc`
+        
+        **Examples:**
+        - `timestamp,desc` - Newest changes first
+        - `itemId,asc` - Grouped by item
+        - `change,desc` - Largest changes first
+      required: false
+      schema:
+        type: string
+      example: "timestamp,desc"
+  responses:
+    '200':
+      description: Paginated search results
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/stock-history/stock-history.yaml#/components/schemas/StockHistoryPageResponse'
+          example:
+            content:
+              - id: "hist-001"
+                itemId: "550e8400-e29b-41d4-a716-446655440000"
+                change: -25
+                reason: "SALE"
+                createdBy: "user@example.com"
+                timestamp: "2025-11-15T14:30:00Z"
+                priceAtChange: 29.99
+              - id: "hist-002"
+                itemId: "660e8400-e29b-41d4-a716-446655440001"
+                change: -10
+                reason: "SALE"
+                createdBy: "user@example.com"
+                timestamp: "2025-11-12T16:45:00Z"
+                priceAtChange: 49.99
+            page:
+              number: 0
+              size: 50
+              totalElements: 243
+              totalPages: 5
+    '400':
+      description: Invalid request (e.g., endDate before startDate)
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            message: "endDate must be >= startDate"
+            status: 400
+            timestamp: "2025-11-18T14:30:00Z"
+            path: "/api/stock-history/search"
+            errors: []
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

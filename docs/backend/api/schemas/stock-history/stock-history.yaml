@@ -1,0 +1,87 @@
+components:
+  schemas:
+    StockHistoryDTO:
+      type: object
+      required:
+        - id
+        - itemId
+        - change
+        - reason
+        - createdBy
+        - timestamp
+      properties:
+        id:
+          type: string
+          description: Unique audit record identifier
+          example: "hist-001"
+        itemId:
+          type: string
+          format: uuid
+          description: Inventory item affected by this change
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        change:
+          type: integer
+          format: int32
+          description: |
+            Quantity delta (positive for inbound, negative for outbound).
+            
+            **Examples:**
+            - `100` - Added 100 units (RESTOCK)
+            - `-25` - Removed 25 units (SALE)
+            - `5` - Corrected by +5 units (INVENTORY_COUNT)
+          example: -25
+        reason:
+          type: string
+          enum:
+            - SALE
+            - RETURN
+            - DAMAGED
+            - EXPIRED
+            - RESTOCK
+            - MANUAL_ADJUSTMENT
+            - INVENTORY_COUNT
+            - INITIAL_STOCK
+          description: |
+            Reason code for the stock change:
+            - **SALE**: Sold to customer
+            - **RETURN**: Returned by customer
+            - **DAMAGED**: Damaged/defective
+            - **EXPIRED**: Expired/obsolete
+            - **RESTOCK**: Replenished inventory
+            - **MANUAL_ADJUSTMENT**: Manual correction
+            - **INVENTORY_COUNT**: Physical count adjustment
+            - **INITIAL_STOCK**: Initial inventory load
+          example: "SALE"
+        createdBy:
+          type: string
+          description: User or process that triggered this change
+          example: "user@example.com"
+        timestamp:
+          type: string
+          format: date-time
+          description: When this change was recorded
+          example: "2025-11-10T14:30:00Z"
+        priceAtChange:
+          type: number
+          format: double
+          nullable: true
+          description: Item price at time of change (for value tracking)
+          example: 29.99
+      description: |
+        Complete stock change audit trail record.
+        Records what changed, when, why, and who performed each operation.
+
+    StockHistoryPageResponse:
+      type: object
+      required:
+        - content
+        - page
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockHistoryDTO'
+          description: List of stock history entries in current page
+        page:
+          $ref: '../common/common.yaml#/components/schemas/PageMetadata'
+      description: Paginated response for stock history search results
