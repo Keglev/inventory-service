@@ -32,11 +32,26 @@ jobs:
 
       - name: Sync docs-site into gh-pages
         run: |
+          # Debug: show what was downloaded
+          echo "Contents of docs-site directory:"
+          ls -la docs-site/ || echo "docs-site directory not found"
+          echo ""
+          echo "Contents with find:"
+          find docs-site -type f | head -20 || echo "No files found"
+          echo ""
+          
           # keep .git and .github, remove everything else
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' -exec rm -rf {} +
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' ! -name 'docs-site' -exec rm -rf {} +
 
-          cp -R docs-site/* .
-          rm -rf docs-site
+          # Copy docs-site contents to root
+          if [ -d "docs-site" ] && [ "$(ls -A docs-site)" ]; then
+            cp -R docs-site/* .
+            rm -rf docs-site
+            echo "✅ Copied docs-site to root"
+          else
+            echo "❌ docs-site directory is empty or missing"
+            exit 1
+          fi
 
       - name: Commit and push to gh-pages
         run: |
