@@ -1,0 +1,47 @@
+get:
+  tags:
+    - Analytics
+  summary: Get financial summary
+  description: |
+    Gets financial summary with Weighted Average Cost (WAC) calculations.
+    Shows inventory costs, valuations, and financial metrics.
+  operationId: getFinancialSummary
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: from
+      in: query
+      required: true
+      description: Start date (ISO yyyy-MM-dd)
+      schema:
+        type: string
+        format: date
+      example: "2025-09-01"
+    - name: to
+      in: query
+      required: true
+      description: End date (ISO yyyy-MM-dd)
+      schema:
+        type: string
+        format: date
+      example: "2025-11-30"
+    - name: supplierId
+      in: query
+      required: false
+      description: Optional supplier filter
+      schema:
+        type: string
+      example: "supplier-123"
+  responses:
+    '200':
+      description: Financial summary with WAC calculations
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/FinancialSummaryDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

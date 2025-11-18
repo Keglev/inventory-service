@@ -1,0 +1,86 @@
+get:
+  tags:
+    - Analytics
+  summary: Get filtered stock updates (query params)
+  description: |
+    Gets filtered stock updates via query parameters.
+    Defaults to last 30 days if dates not specified.
+    
+    **Filters (all optional):**
+    - Date range: startDate to endDate (ISO-8601 datetime)
+    - Item name: Partial name matching
+    - Supplier: By supplierId
+    - User: By createdBy (who made the change)
+    - Quantity: Min and max change values
+  operationId: getFilteredStockUpdatesFromParams
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: startDate
+      in: query
+      description: Start timestamp (ISO-8601, defaults to 30 days ago)
+      required: false
+      schema:
+        type: string
+        format: date-time
+      example: "2025-10-20T00:00:00Z"
+    - name: endDate
+      in: query
+      description: End timestamp (ISO-8601, defaults to now)
+      required: false
+      schema:
+        type: string
+        format: date-time
+      example: "2025-11-20T23:59:59Z"
+    - name: itemName
+      in: query
+      description: Partial item name filter
+      required: false
+      schema:
+        type: string
+      example: "Widget"
+    - name: supplierId
+      in: query
+      description: Supplier identifier filter
+      required: false
+      schema:
+        type: string
+      example: "supplier-123"
+    - name: createdBy
+      in: query
+      description: User who made the change
+      required: false
+      schema:
+        type: string
+      example: "user@example.com"
+    - name: minChange
+      in: query
+      description: Minimum quantity change (inclusive)
+      required: false
+      schema:
+        type: integer
+        format: int32
+      example: -100
+    - name: maxChange
+      in: query
+      description: Maximum quantity change (inclusive)
+      required: false
+      schema:
+        type: integer
+        format: int32
+      example: 100
+  responses:
+    '200':
+      description: Filtered stock update results
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/StockUpdateResultDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

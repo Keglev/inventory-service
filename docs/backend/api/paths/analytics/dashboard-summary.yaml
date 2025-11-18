@@ -1,0 +1,49 @@
+get:
+  tags:
+    - Analytics
+  summary: Get dashboard summary
+  description: |
+    Gets comprehensive dashboard summary with multiple analytics aggregated.
+    Includes supplier distribution, low stock items, trends, and activity.
+    
+    **Defaults:** If dates not provided, uses last 30 days.
+  operationId: getDashboardSummary
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: supplierId
+      in: query
+      required: false
+      description: Optional supplier filter
+      schema:
+        type: string
+      example: "supplier-123"
+    - name: startDate
+      in: query
+      required: false
+      description: Start timestamp (defaults to 30 days ago)
+      schema:
+        type: string
+        format: date-time
+      example: "2025-10-20T00:00:00Z"
+    - name: endDate
+      in: query
+      required: false
+      description: End timestamp (defaults to now)
+      schema:
+        type: string
+        format: date-time
+      example: "2025-11-20T23:59:59Z"
+  responses:
+    '200':
+      description: Aggregated dashboard summary
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/DashboardSummaryDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

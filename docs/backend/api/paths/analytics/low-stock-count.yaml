@@ -1,0 +1,23 @@
+get:
+  tags:
+    - Analytics
+  summary: Get low stock count
+  description: |
+    Gets the count of items below their minimum stock threshold.
+    Useful for quick dashboard indicators.
+  operationId: getLowStockCount
+  security:
+    - oauth2: [openid]
+  responses:
+    '200':
+      description: Number of low-stock items
+      content:
+        application/json:
+          schema:
+            type: integer
+            format: int64
+            example: 12
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

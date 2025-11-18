@@ -1,0 +1,33 @@
+get:
+  tags:
+    - Analytics
+  summary: Get low stock items
+  description: |
+    Gets items below minimum stock threshold for a supplier.
+    Lists items requiring reorder with current and recommended levels.
+  operationId: getLowStockItems
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: supplierId
+      in: query
+      required: true
+      description: Supplier identifier
+      schema:
+        type: string
+      example: "supplier-123"
+  responses:
+    '200':
+      description: Low-stock items for supplier
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/LowStockItemDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

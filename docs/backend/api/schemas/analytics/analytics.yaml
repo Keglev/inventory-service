@@ -1,0 +1,301 @@
+components:
+  schemas:
+    StockValueOverTimeDTO:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Date of the measurement
+          example: "2025-11-15"
+        totalValue:
+          type: number
+          format: double
+          description: Total inventory value on this date
+          example: 45000.00
+      description: Time series data point for stock value tracking
+
+    StockPerSupplierDTO:
+      type: object
+      required:
+        - supplierId
+        - supplierName
+        - totalQuantity
+        - totalValue
+      properties:
+        supplierId:
+          type: string
+          description: Supplier identifier
+          example: "supplier-123"
+        supplierName:
+          type: string
+          description: Supplier display name
+          example: "Acme Corp"
+        totalQuantity:
+          type: integer
+          format: int64
+          description: Total units from this supplier
+          example: 1500
+        totalValue:
+          type: number
+          format: double
+          description: Total monetary value from this supplier
+          example: 45000.00
+      description: Stock distribution metrics per supplier
+
+    LowStockItemDTO:
+      type: object
+      properties:
+        itemId:
+          type: string
+          format: uuid
+          description: Inventory item identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        itemName:
+          type: string
+          description: Item display name
+          example: "Premium Widget"
+        currentQuantity:
+          type: integer
+          format: int32
+          description: Current stock quantity
+          example: 15
+        minimumQuantity:
+          type: integer
+          format: int32
+          description: Minimum threshold
+          example: 50
+        supplierId:
+          type: string
+          description: Associated supplier
+          example: "supplier-123"
+        supplierName:
+          type: string
+          description: Supplier name
+          example: "Acme Corp"
+      description: Item requiring reorder due to low stock
+
+    ItemUpdateFrequencyDTO:
+      type: object
+      properties:
+        itemId:
+          type: string
+          format: uuid
+          description: Inventory item identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        itemName:
+          type: string
+          description: Item display name
+          example: "Premium Widget"
+        updateCount:
+          type: integer
+          format: int64
+          description: Number of updates in period
+          example: 45
+      description: Item update frequency metrics
+
+    MonthlyStockMovementDTO:
+      type: object
+      properties:
+        year:
+          type: integer
+          format: int32
+          description: Calendar year
+          example: 2025
+        month:
+          type: integer
+          format: int32
+          description: Month (1-12)
+          example: 11
+        inboundQuantity:
+          type: integer
+          format: int64
+          description: Total inbound (restocks, returns)
+          example: 500
+        outboundQuantity:
+          type: integer
+          format: int64
+          description: Total outbound (sales, adjustments)
+          example: 250
+        netChange:
+          type: integer
+          format: int64
+          description: Net change (inbound - outbound)
+          example: 250
+      description: Monthly inventory flow metrics
+
+    StockUpdateResultDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Update record identifier
+          example: "update-001"
+        itemId:
+          type: string
+          format: uuid
+          description: Affected inventory item
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        itemName:
+          type: string
+          description: Item display name
+          example: "Premium Widget"
+        change:
+          type: integer
+          format: int32
+          description: Quantity change (positive/negative)
+          example: -25
+        reason:
+          type: string
+          description: Change reason code
+          example: "SALE"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the update occurred
+          example: "2025-11-15T14:30:00Z"
+        createdBy:
+          type: string
+          description: User who made the change
+          example: "user@example.com"
+        supplierId:
+          type: string
+          description: Associated supplier
+          example: "supplier-123"
+        supplierName:
+          type: string
+          description: Supplier name
+          example: "Acme Corp"
+      description: Stock update result with full context
+
+    StockUpdateFilterDTO:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Start timestamp (defaults to 30 days ago)
+          example: "2025-10-20T00:00:00Z"
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: End timestamp (defaults to now)
+          example: "2025-11-20T23:59:59Z"
+        itemName:
+          type: string
+          nullable: true
+          description: Partial item name filter
+          example: "Widget"
+        supplierId:
+          type: string
+          nullable: true
+          description: Supplier identifier filter
+          example: "supplier-123"
+        createdBy:
+          type: string
+          nullable: true
+          description: User who made the change
+          example: "user@example.com"
+        minChange:
+          type: integer
+          format: int32
+          nullable: true
+          description: Minimum quantity change
+          example: -100
+        maxChange:
+          type: integer
+          format: int32
+          nullable: true
+          description: Maximum quantity change
+          example: 100
+      description: Filter criteria for stock update queries
+
+    PriceTrendDTO:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Date of the price point
+          example: "2025-11-15"
+        price:
+          type: number
+          format: double
+          description: Unit price on this date
+          example: 29.99
+        quantity:
+          type: integer
+          format: int32
+          description: Quantity at this price point
+          example: 150
+      description: Historical price change data point
+
+    DashboardSummaryDTO:
+      type: object
+      properties:
+        stockPerSupplier:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockPerSupplierDTO'
+          description: Stock distribution across suppliers
+        lowStockItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LowStockItemDTO'
+          description: Items requiring attention
+        monthlyStockMovement:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyStockMovementDTO'
+          description: Monthly inventory flow trends
+        topUpdatedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemUpdateFrequencyDTO'
+          description: Most frequently updated items
+      description: |
+        Comprehensive dashboard summary with multiple analytics aggregated.
+        Provides executive-level inventory overview for decision making.
+
+    FinancialSummaryDTO:
+      type: object
+      properties:
+        totalInventoryValue:
+          type: number
+          format: double
+          description: Total current inventory value
+          example: 157500.00
+        totalQuantity:
+          type: integer
+          format: int64
+          description: Total units in inventory
+          example: 5243
+        weightedAverageCost:
+          type: number
+          format: double
+          description: Weighted average cost per unit
+          example: 30.04
+        totalCost:
+          type: number
+          format: double
+          description: Total cost value (WAC × quantity)
+          example: 157500.00
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date
+              description: Period start date
+              example: "2025-09-01"
+            to:
+              type: string
+              format: date
+              description: Period end date
+              example: "2025-11-30"
+          description: Financial reporting period
+      description: |
+        Financial summary with Weighted Average Cost (WAC) calculations.
+        Used for accounting, cost analysis, and financial reporting.

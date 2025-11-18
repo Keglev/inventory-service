@@ -1,0 +1,33 @@
+get:
+  tags:
+    - Analytics
+  summary: Get item update frequency
+  description: |
+    Gets item update frequency for a specific supplier.
+    Shows which items are updated most frequently, indicating high activity.
+  operationId: getItemUpdateFrequency
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: supplierId
+      in: query
+      required: true
+      description: Supplier identifier
+      schema:
+        type: string
+      example: "supplier-123"
+  responses:
+    '200':
+      description: Item update frequencies for supplier
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/ItemUpdateFrequencyDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

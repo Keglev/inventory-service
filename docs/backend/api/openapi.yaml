@@ -145,3 +145,48 @@ paths:
   /api/stock-history/search:
     get:
       $ref: './paths/stock-history/search.yaml#/get'
+  
+  # Analytics endpoints
+  /api/analytics/stock-value:
+    get:
+      $ref: './paths/analytics/stock-value-over-time.yaml#/get'
+  
+  /api/analytics/stock-per-supplier:
+    get:
+      $ref: './paths/analytics/stock-per-supplier.yaml#/get'
+  
+  /api/analytics/low-stock/count:
+    get:
+      $ref: './paths/analytics/low-stock-count.yaml#/get'
+  
+  /api/analytics/item-update-frequency:
+    get:
+      $ref: './paths/analytics/item-update-frequency.yaml#/get'
+  
+  /api/analytics/low-stock-items:
+    get:
+      $ref: './paths/analytics/low-stock-items.yaml#/get'
+  
+  /api/analytics/monthly-stock-movement:
+    get:
+      $ref: './paths/analytics/monthly-stock-movement.yaml#/get'
+  
+  /api/analytics/stock-updates:
+    get:
+      $ref: './paths/analytics/stock-updates-query.yaml#/get'
+  
+  /api/analytics/stock-updates/query:
+    post:
+      $ref: './paths/analytics/stock-updates-post.yaml#/post'
+  
+  /api/analytics/summary:
+    get:
+      $ref: './paths/analytics/dashboard-summary.yaml#/get'
+  
+  /api/analytics/price-trend:
+    get:
+      $ref: './paths/analytics/price-trend.yaml#/get'
+  
+  /api/analytics/financial/summary:
+    get:
+      $ref: './paths/analytics/financial-summary.yaml#/get'

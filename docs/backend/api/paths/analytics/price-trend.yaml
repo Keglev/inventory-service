@@ -1,0 +1,56 @@
+get:
+  tags:
+    - Analytics
+  summary: Get price trend for item
+  description: |
+    Gets historical price changes for a specific inventory item.
+    Shows price evolution over a date range with optional supplier filtering.
+  operationId: getPriceTrend
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: itemId
+      in: query
+      required: true
+      description: Inventory item identifier
+      schema:
+        type: string
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    - name: supplierId
+      in: query
+      required: false
+      description: Optional supplier filter
+      schema:
+        type: string
+      example: "supplier-123"
+    - name: start
+      in: query
+      required: true
+      description: Inclusive start date (ISO yyyy-MM-dd)
+      schema:
+        type: string
+        format: date
+      example: "2025-09-01"
+    - name: end
+      in: query
+      required: true
+      description: Inclusive end date (ISO yyyy-MM-dd)
+      schema:
+        type: string
+        format: date
+      example: "2025-11-30"
+  responses:
+    '200':
+      description: Price trend data points
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/PriceTrendDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

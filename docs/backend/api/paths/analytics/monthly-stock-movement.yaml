@@ -1,0 +1,49 @@
+get:
+  tags:
+    - Analytics
+  summary: Get monthly stock movement
+  description: |
+    Gets monthly stock movement (inbound/outbound) within a date range.
+    Shows inventory flow trends with optional supplier filtering.
+  operationId: getMonthlyStockMovement
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: start
+      in: query
+      required: true
+      description: Inclusive start date (ISO yyyy-MM-dd)
+      schema:
+        type: string
+        format: date
+      example: "2025-09-01"
+    - name: end
+      in: query
+      required: true
+      description: Inclusive end date (ISO yyyy-MM-dd)
+      schema:
+        type: string
+        format: date
+      example: "2025-11-30"
+    - name: supplierId
+      in: query
+      required: false
+      description: Optional supplier filter
+      schema:
+        type: string
+      example: "supplier-123"
+  responses:
+    '200':
+      description: Monthly stock movement data
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/MonthlyStockMovementDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

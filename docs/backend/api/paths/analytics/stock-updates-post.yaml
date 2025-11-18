@@ -1,0 +1,39 @@
+post:
+  tags:
+    - Analytics
+  summary: Get filtered stock updates (JSON body)
+  description: |
+    Gets filtered stock updates via JSON request body.
+    Allows complex filtering criteria in structured format.
+  operationId: getFilteredStockUpdatesPost
+  security:
+    - oauth2: [openid]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/StockUpdateFilterDTO'
+        example:
+          startDate: "2025-10-20T00:00:00Z"
+          endDate: "2025-11-20T23:59:59Z"
+          itemName: "Widget"
+          supplierId: "supplier-123"
+          createdBy: "user@example.com"
+          minChange: -100
+          maxChange: 100
+  responses:
+    '200':
+      description: Filtered stock update results
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/analytics/analytics.yaml#/components/schemas/StockUpdateResultDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'
