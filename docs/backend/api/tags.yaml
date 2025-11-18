@@ -1,0 +1,13 @@
+tags:
+  - name: Auth
+    description: Authentication and user profile operations
+  - name: Inventory
+    description: Inventory item CRUD operations
+  - name: Suppliers
+    description: Supplier management
+  - name: Stock History
+    description: Stock movement tracking and history
+  - name: Analytics
+    description: Dashboard KPIs and analytics
+  - name: System
+    description: Health checks and system information

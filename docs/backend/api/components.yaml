@@ -1,0 +1,12 @@
+components:
+  securitySchemes:
+    $ref: './security/security-schemes.yaml#/components/securitySchemes'
+
+  parameters:
+    $ref: './parameters/ids.yaml#/components/parameters'
+
+  responses:
+    $ref: './responses/errors.yaml#/components/responses'
+
+  examples:
+    $ref: './examples/common.yaml#/components/examples'

@@ -1,0 +1,138 @@
+paths:
+  # Auth endpoints
+  /api/me:
+    get:
+      $ref: './auth/me.yaml#/get'
+
+  /api/me/authorities:
+    get:
+      $ref: './auth/authorities.yaml#/get'
+
+  /api/auth/logout:
+    post:
+      $ref: './auth/logout.yaml#/post'
+
+  # Inventory endpoints
+  /api/inventory:
+    get:
+      $ref: './inventory/get-all.yaml#/get'
+    post:
+      $ref: './inventory/create.yaml#/post'
+
+  /api/inventory/{id}:
+    get:
+      $ref: './inventory/get-by-id.yaml#/get'
+    put:
+      $ref: './inventory/update.yaml#/put'
+    delete:
+      $ref: './inventory/delete.yaml#/delete'
+
+  /api/inventory/count:
+    get:
+      $ref: './inventory/count.yaml#/get'
+
+  /api/inventory/search:
+    get:
+      $ref: './inventory/search.yaml#/get'
+
+  /api/inventory/{id}/quantity:
+    patch:
+      $ref: './inventory/adjust-quantity.yaml#/patch'
+
+  /api/inventory/{id}/price:
+    patch:
+      $ref: './inventory/update-price.yaml#/patch'
+
+  # Suppliers endpoints
+  /api/suppliers:
+    get:
+      $ref: './suppliers/get-all.yaml#/get'
+    post:
+      $ref: './suppliers/create.yaml#/post'
+
+  /api/suppliers/{id}:
+    get:
+      $ref: './suppliers/get-by-id.yaml#/get'
+    put:
+      $ref: './suppliers/update.yaml#/put'
+    delete:
+      $ref: './suppliers/delete.yaml#/delete'
+
+  /api/suppliers/count:
+    get:
+      $ref: './suppliers/count.yaml#/get'
+
+  /api/suppliers/search:
+    get:
+      $ref: './suppliers/search.yaml#/get'
+
+  # Stock History endpoints
+  /api/stock-history:
+    get:
+      $ref: './stock-history/get-all.yaml#/get'
+
+  /api/stock-history/item/{itemId}:
+    get:
+      $ref: './stock-history/get-by-item.yaml#/get'
+
+  /api/stock-history/reason/{reason}:
+    get:
+      $ref: './stock-history/get-by-reason.yaml#/get'
+
+  /api/stock-history/search:
+    get:
+      $ref: './stock-history/search.yaml#/get'
+
+  # Analytics endpoints
+  /api/analytics/stock-value:
+    get:
+      $ref: './analytics/stock-value-over-time.yaml#/get'
+
+  /api/analytics/stock-per-supplier:
+    get:
+      $ref: './analytics/stock-per-supplier.yaml#/get'
+
+  /api/analytics/low-stock/count:
+    get:
+      $ref: './analytics/low-stock-count.yaml#/get'
+
+  /api/analytics/item-update-frequency:
+    get:
+      $ref: './analytics/item-update-frequency.yaml#/get'
+
+  /api/analytics/low-stock-items:
+    get:
+      $ref: './analytics/low-stock-items.yaml#/get'
+
+  /api/analytics/monthly-stock-movement:
+    get:
+      $ref: './analytics/monthly-stock-movement.yaml#/get'
+
+  /api/analytics/stock-updates:
+    get:
+      $ref: './analytics/stock-updates-query.yaml#/get'
+
+  /api/analytics/stock-updates/query:
+    post:
+      $ref: './analytics/stock-updates-post.yaml#/post'
+
+  /api/analytics/summary:
+    get:
+      $ref: './analytics/dashboard-summary.yaml#/get'
+
+  /api/analytics/price-trend:
+    get:
+      $ref: './analytics/price-trend.yaml#/get'
+
+  /api/analytics/financial/summary:
+    get:
+      $ref: './analytics/financial-summary.yaml#/get'
+
+  # System endpoints
+  /health:
+    get:
+      $ref: './system/health.yaml#/get'
+
+  /health/db:
+    get:
+      $ref: './system/health-db.yaml#/get'
