@@ -1,0 +1,48 @@
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: |
+        Google OAuth2 authentication using Authorization Code flow.
+        
+        The API uses OAuth2 with Google as the identity provider.
+        Access tokens are managed via secure HTTP-only cookies.
+        
+        **Flow:**
+        1. User clicks "Sign in with Google"
+        2. Redirected to Google authorization endpoint
+        3. User grants permissions (openid, profile, email)
+        4. Google redirects back with authorization code
+        5. Backend exchanges code for ID token and access token
+        6. Token stored in secure HTTP-only cookie
+        7. Subsequent requests include cookie with JWT token
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+          tokenUrl: https://oauth2.googleapis.com/token
+          scopes:
+            openid: OpenID Connect standard claims
+            profile: User profile information (name, picture, etc.)
+            email: User email address
+          refreshUrl: https://oauth2.googleapis.com/token
+    
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT Bearer token authentication.
+        
+        Token is automatically managed via HTTP-only cookie.
+        Include in Authorization header as: `Authorization: Bearer <token>`
+        
+        **Token Claims:**
+        - `sub`: User ID (Google ID)
+        - `email`: User email
+        - `name`: User full name
+        - `picture`: Profile picture URL
+        - `roles`: User roles (ADMIN, USER)
+
+security:
+  - oauth2: [openid, profile, email]
+  - bearerAuth: []

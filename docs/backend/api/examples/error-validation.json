@@ -1,0 +1,23 @@
+{
+  "status": 400,
+  "message": "Validation failed",
+  "timestamp": "2025-11-18T14:30:00Z",
+  "path": "/api/inventory",
+  "errors": [
+    {
+      "field": "name",
+      "message": "Name is required and must be between 1 and 255 characters",
+      "rejectedValue": ""
+    },
+    {
+      "field": "price",
+      "message": "Price must be greater than 0",
+      "rejectedValue": -10.50
+    },
+    {
+      "field": "supplierId",
+      "message": "Supplier not found",
+      "rejectedValue": 99999
+    }
+  ]
+}

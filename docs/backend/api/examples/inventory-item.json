@@ -1,0 +1,15 @@
+{
+  "id": 101,
+  "sku": "INV-2025-001",
+  "name": "Industrial Bearing Set",
+  "description": "High-precision ball bearings for machinery",
+  "quantity": 1250,
+  "price": 45.99,
+  "supplierId": 5,
+  "supplierName": "Precision Parts Co.",
+  "reorderLevel": 100,
+  "unitOfMeasure": "box",
+  "category": "Components",
+  "createdAt": "2025-01-15T08:30:00Z",
+  "updatedAt": "2025-11-18T14:22:30Z"
+}

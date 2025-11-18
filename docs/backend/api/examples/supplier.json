@@ -1,0 +1,16 @@
+{
+  "id": 5,
+  "name": "Precision Parts Co.",
+  "contactEmail": "sales@precisionparts.com",
+  "contactPhone": "+1-555-0123",
+  "address": "123 Industrial Drive, Springfield, IL 62701",
+  "city": "Springfield",
+  "state": "IL",
+  "country": "USA",
+  "zipCode": "62701",
+  "website": "https://www.precisionparts.com",
+  "paymentTerms": "Net 30",
+  "isActive": true,
+  "createdAt": "2025-03-10T09:15:00Z",
+  "updatedAt": "2025-11-15T16:45:30Z"
+}

@@ -1,0 +1,50 @@
+components:
+  parameters:
+    id:
+      name: id
+      in: path
+      description: Unique identifier for the resource
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 42
+    
+    itemId:
+      name: itemId
+      in: path
+      description: Unique identifier for an inventory item
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 101
+    
+    supplierId:
+      name: supplierId
+      in: path
+      description: Unique identifier for a supplier
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 5
+    
+    reason:
+      name: reason
+      in: path
+      description: |
+        Stock change reason filter. One of:
+        - SALE: Items sold to customers
+        - RETURN: Customer returns
+        - DAMAGED: Damaged stock removal
+        - EXPIRED: Expired items
+        - RESTOCK: New inventory received
+        - MANUAL_ADJUSTMENT: Manual count corrections
+        - INVENTORY_COUNT: Periodic inventory count
+        - INITIAL_STOCK: Initial stock entry
+      required: true
+      schema:
+        type: string
+        enum: [SALE, RETURN, DAMAGED, EXPIRED, RESTOCK, MANUAL_ADJUSTMENT, INVENTORY_COUNT, INITIAL_STOCK]
+      example: SALE
