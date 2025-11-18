@@ -34,7 +34,18 @@ convert_arch() {
   local SRC_DIR="$DOCS_DIR/$CONTEXT/architecture"
   local DST_DIR="$OUTPUT_DIR/$CONTEXT/architecture"
 
-  [ -d "$SRC_DIR" ] || return
+  if [ ! -d "$SRC_DIR" ]; then
+    echo "ℹ️  No architecture docs directory at $SRC_DIR (skipping)"
+    return 0
+  fi
+
+  local md_count
+  md_count=$(find "$SRC_DIR" -type f -name "*.md" 2>/dev/null | wc -l)
+  
+  if [ "$md_count" -eq 0 ]; then
+    echo "ℹ️  No .md files found in $SRC_DIR (skipping)"
+    return 0
+  fi
 
   find "$SRC_DIR" -type f -name "*.md" | while read -r md; do
     rel="${md#$SRC_DIR/}"
@@ -56,5 +67,7 @@ convert_arch() {
   done
 }
 
+echo "==> [build-architecture-docs] Building architecture documentation..."
 convert_arch backend
 convert_arch frontend
+echo "✓ Architecture docs build complete"
