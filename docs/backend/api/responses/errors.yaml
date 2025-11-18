@@ -1,0 +1,87 @@
+components:
+  responses:
+    Unauthorized:
+      description: Unauthorized - Authentication required or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            message: No authentication provided
+            status: 401
+            timestamp: '2025-11-18T10:30:00Z'
+            path: /api/me
+
+    Forbidden:
+      description: Forbidden - User lacks required permissions
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            message: Access denied
+            status: 403
+            timestamp: '2025-11-18T10:30:00Z'
+            path: /api/items
+
+    NotFound:
+      description: Not Found - Requested resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            message: Resource not found
+            status: 404
+            timestamp: '2025-11-18T10:30:00Z'
+            path: /api/items/123
+
+    ValidationError:
+      description: Bad Request - Validation failed
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '../schemas/common/common.yaml#/components/schemas/ValidationError'
+          example:
+            message: Validation failed
+            status: 400
+            timestamp: '2025-11-18T10:30:00Z'
+            path: /api/items
+            errors:
+              - field: name
+                message: must not be blank
+                rejectedValue: null
+              - field: price
+                message: must be greater than 0
+                rejectedValue: -10
+
+    Conflict:
+      description: Conflict - Resource already exists or duplicate detected
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            message: Item already exists with same name and price
+            status: 409
+            timestamp: '2025-11-18T10:30:00Z'
+            path: /api/items
+
+    InternalServerError:
+      description: Internal Server Error - Unexpected server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            message: An unexpected error occurred
+            status: 500
+            timestamp: '2025-11-18T10:30:00Z'
+            path: /api/items

@@ -1,0 +1,71 @@
+openapi: 3.0.3
+info:
+  title: Smart Supply Pro – Backend API
+  version: 1.0.0
+  description: |
+    Enterprise REST API for Smart Supply Pro inventory and supplier management system.
+    
+    ## Features
+    - OAuth2 authentication with Google
+    - Inventory item management with audit trail
+    - Supplier relationship management
+    - Stock movement tracking and analytics
+    - Real-time dashboard KPIs
+    
+    ## Authentication
+    All endpoints (except health checks) require OAuth2 authentication via Google.
+    The API uses JWT tokens managed through secure HTTP-only cookies.
+
+  contact:
+    name: Smart Supply Pro Team
+    url: https://github.com/Keglev/inventory-service
+
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://inventoryservice.fly.dev
+    description: Production
+  - url: http://localhost:8080
+    description: Local development
+
+tags:
+  - name: Auth
+    description: Authentication and user profile operations
+  - name: Inventory
+    description: Inventory item CRUD operations
+  - name: Suppliers
+    description: Supplier management
+  - name: Stock History
+    description: Stock movement tracking and history
+  - name: Analytics
+    description: Dashboard KPIs and analytics
+  - name: System
+    description: Health checks and system information
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: Google OAuth2 authentication
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+          tokenUrl: https://oauth2.googleapis.com/token
+          scopes:
+            openid: OpenID Connect
+            profile: User profile information
+            email: User email address
+
+security:
+  - oauth2: [openid, profile, email]
+
+paths:
+  # Auth endpoints
+  /api/me:
+    $ref: './paths/auth/auth.yaml#/paths/~1api~1me'
+  /api/me/authorities:
+    $ref: './paths/auth/auth.yaml#/paths/~1api~1me~1authorities'
+  /api/auth/logout:
+    $ref: './paths/auth/auth.yaml#/paths/~1api~1auth~1logout'

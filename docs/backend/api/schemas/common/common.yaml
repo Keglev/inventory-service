@@ -1,0 +1,84 @@
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - message
+        - status
+        - timestamp
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+          example: Resource not found
+        status:
+          type: integer
+          description: HTTP status code
+          example: 404
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the error occurred
+          example: '2025-11-18T10:30:00Z'
+        path:
+          type: string
+          description: Request path that caused the error
+          example: /api/items/123
+        errors:
+          type: array
+          description: Validation errors (for 400 Bad Request)
+          items:
+            $ref: '#/components/schemas/ValidationError'
+      description: |
+        Standard error response format used across all API endpoints.
+        Includes timestamp, status code, and detailed error information.
+
+    ValidationError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          description: The field that failed validation
+          example: email
+        message:
+          type: string
+          description: Validation error message
+          example: must be a valid email address
+        rejectedValue:
+          description: The value that was rejected
+          example: invalid-email
+      description: Individual field validation error
+
+    PageMetadata:
+      type: object
+      required:
+        - page
+        - size
+        - totalElements
+        - totalPages
+      properties:
+        page:
+          type: integer
+          minimum: 0
+          description: Current page number (0-indexed)
+          example: 0
+        size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Number of items per page
+          example: 20
+        totalElements:
+          type: integer
+          minimum: 0
+          description: Total number of items across all pages
+          example: 150
+        totalPages:
+          type: integer
+          minimum: 0
+          description: Total number of pages
+          example: 8
+      description: Pagination metadata for list responses

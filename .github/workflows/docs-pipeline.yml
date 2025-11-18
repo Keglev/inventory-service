@@ -1,0 +1,108 @@
+name: Docs Pipeline – OpenAPI & Architecture
+
+on:
+# A) After CI: for code changes
+  workflow_run:
+    workflows: ["1️⃣ Backend CI - Build & Test"]
+    types: [completed]
+# B) Directly on docs-only changes
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs-pipeline.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build-docs:
+    # For workflow_run: only if CI succeeded
+    # For push: always (we'll treat it as docs-only)
+    runs-on: ubuntu-latest
+    if: >
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+      || github.event_name == 'push'
+
+    steps:
+      # A) Checkout for workflow_run (after CI)
+      - name: Checkout (from CI head_sha)
+        if: github.event_name == 'workflow_run'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+      # B) Checkout for direct docs push
+      - name: Checkout (push docs)
+        if: github.event_name == 'push'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2) Detect project root (root vs backend/)
+      - name: Detect project root
+        id: where
+        run: |
+          if [ -f "pom.xml" ] && [ -d "docs" ]; then
+            echo "dir=." >> $GITHUB_OUTPUT
+          elif [ -f "backend/pom.xml" ] && [ -d "backend/docs" ]; then
+            echo "dir=backend" >> $GITHUB_OUTPUT
+          else
+            echo "::error::No suitable project root found (no pom.xml + docs/)"
+            exit 1
+          fi
+          echo "Using project directory:"
+          cat $GITHUB_OUTPUT
+
+      # 3) Download JaCoCo artifact from CI (name matches ci-test.yml)
+      - name: Download JaCoCo artifact
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-html-${{ github.event.workflow_run.head_sha }}
+          path: ${{ steps.where.outputs.dir }}/target/site/jacoco
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 4) Node + ReDoc CLI (for OpenAPI → ReDoc)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ReDoc CLI
+        run: npm install -g @redocly/cli
+
+      # 5) Pandoc (for Markdown → HTML)
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
+      # 6) Build OpenAPI docs & copy coverage (your script)
+      - name: Build OpenAPI docs & copy coverage
+        run: |
+          PROJECT_DIR="${{ steps.where.outputs.dir }}"
+          bash "$PROJECT_DIR/scripts/build-openapi-docs.sh" "$PROJECT_DIR"
+
+      # 7) Build architecture & other markdown (your script with Lua filter)
+      - name: Build architecture & markdown docs
+        run: |
+          PROJECT_DIR="${{ steps.where.outputs.dir }}"
+          bash "$PROJECT_DIR/scripts/build-architecture-docs.sh" "$PROJECT_DIR"
+
+      # 8) Sanity check
+      - name: Verify docs tree
+        run: |
+          PROJECT_DIR="${{ steps.where.outputs.dir }}"
+          OUTPUT_DIR="$PROJECT_DIR/target/docs"
+          echo "Files in $OUTPUT_DIR: $(find "$OUTPUT_DIR" -type f | wc -l || echo 0)"
+          du -sh "$OUTPUT_DIR" || echo "(size unavailable)"
+
+      # 9) Upload docs-site artifact
+      - name: Upload docs-site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: ${{ steps.where.outputs.dir }}/target/docs

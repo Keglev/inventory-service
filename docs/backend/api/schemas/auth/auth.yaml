@@ -1,0 +1,37 @@
+components:
+  schemas:
+    AppUserProfileDTO:
+      type: object
+      required:
+        - email
+        - fullName
+        - role
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address from OAuth2 provider
+          example: user@example.com
+        fullName:
+          type: string
+          description: User's display name
+          example: John Doe
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - USER
+          description: |
+            User's role in the system:
+            - **ADMIN**: Full access to all operations
+            - **USER**: Read-only access to inventory data
+          example: USER
+        pictureUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: Optional profile picture URL from OAuth2 provider (Google)
+          example: https://lh3.googleusercontent.com/a/example123
+      description: |
+        User profile DTO returned by /api/me endpoint.
+        Contains frontend-friendly user information for display and authorization.
