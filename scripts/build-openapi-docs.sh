@@ -21,6 +21,12 @@ if [ -d "$TEMPLATES_SRC" ]; then
   cp -R "$TEMPLATES_SRC/." "$OUTPUT_DIR/templates/" || true
 fi
 
+# Copy root index.html from templates to output root (landing page)
+if [ -f "$TEMPLATES_SRC/index.html" ]; then
+  cp "$TEMPLATES_SRC/index.html" "$OUTPUT_DIR/index.html"
+  echo "✓ Copied templates/index.html to output root"
+fi
+
 # Check OpenAPI YAML
 if [ ! -f "$OPENAPI_YAML" ]; then
   echo "❌ OpenAPI YAML not found at $OPENAPI_YAML"
