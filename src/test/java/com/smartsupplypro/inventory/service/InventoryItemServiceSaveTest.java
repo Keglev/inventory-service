@@ -3,7 +3,6 @@ package com.smartsupplypro.inventory.service;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,7 +40,34 @@ import com.smartsupplypro.inventory.service.impl.InventoryItemServiceImpl;
 
 /**
  * Save operation tests for {@link InventoryItemServiceImpl}.
- * Tests validation rules, supplier checks, and history logging.
+ *
+ * <p><strong>Operation Coverage:</strong></p>
+ * <ul>
+ *   <li><b>save:</b> Persist new inventory items with full validation</li>
+ * </ul>
+ *
+ * <p><strong>Validation Layers:</strong></p>
+ * <ul>
+ *   <li><b>Base validation:</b> Name, quantity, price non-null and valid ranges</li>
+ *   <li><b>Supplier check:</b> Supplier ID must exist in repository</li>
+ *   <li><b>Audit setup:</b> CreatedBy derived from OAuth2 context if not provided</li>
+ *   <li><b>History logging:</b> Initial stock recorded via auditHelper</li>
+ * </ul>
+ *
+ * <p><strong>Exception Mapping:</strong></p>
+ * <ul>
+ *   <li>Missing/blank name → {@link IllegalArgumentException}</li>
+ *   <li>Negative quantity → {@link IllegalArgumentException}</li>
+ *   <li>Non-positive price → {@link IllegalArgumentException}</li>
+ *   <li>Missing/invalid supplier → {@link IllegalArgumentException}</li>
+ * </ul>
+ *
+ * <p><strong>Design Notes:</strong></p>
+ * <ul>
+ *   <li>validationHelper is mocked to test validation integration without implementation.</li>
+ *   <li>auditHelper is mocked to verify initial stock logging is called.</li>
+ *   <li>OAuth2 context is mocked to simulate authenticated users.</li>
+ * </ul>
  */
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
@@ -71,6 +97,7 @@ public class InventoryItemServiceSaveTest {
 
     @BeforeEach
     void setUp() {
+        // Build test DTO with valid sample data
         dto = new InventoryItemDTO();
         dto.setId("item-1");
         dto.setName("SSD");
@@ -79,13 +106,15 @@ public class InventoryItemServiceSaveTest {
         dto.setSupplierId("supplier-1");
         dto.setCreatedBy("admin");
 
+        // Convert DTO to entity for mock returns
         entity = InventoryItemMapper.toEntity(dto);
 
+        // Default mocks: supplier exists and repo operations succeed
         when(supplierRepository.existsById(anyString())).thenReturn(true);
         when(inventoryItemRepository.findById(anyString())).thenReturn(Optional.of(entity));
         when(inventoryItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         
-        // Configure validation helper to delegate to actual validation logic
+        // Configure validation helper to simulate actual validation logic
         org.mockito.Mockito.doAnswer(invocation -> {
             InventoryItemDTO dtoArg = invocation.getArgument(0);
             // Set createdBy from security context if missing
@@ -118,17 +147,27 @@ public class InventoryItemServiceSaveTest {
     }
 
     private void mockOAuth2Authentication(String email, String... roles) {
+        // Create OAuth2 attributes with email
         Map<String, Object> attributes = Map.of("email", email);
+        // Convert roles to GrantedAuthority collection
         Collection<GrantedAuthority> authorities = Arrays.stream(roles)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+        // Create OAuth2User with email attribute as principal
         OAuth2User oauth2User = new DefaultOAuth2User(authorities, attributes, "email");
+        // Create authentication token with OAuth2User principal
         Authentication auth = new TestingAuthenticationToken(oauth2User, null, authorities);
+        // Set authentication in security context (simulates logged-in user)
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(auth);
         SecurityContextHolder.setContext(context);
     }
 
+    /**
+     * Validates that valid inventory items are persisted and initial stock is logged.
+     * Scenario: New item with all valid fields and OAuth2 authenticated user.
+     * Expected: Item saved and auditHelper.logInitialStock called for audit trail.
+     */
     @Test
     void testSave_callsStockHistoryServiceWithInitialStock() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
@@ -141,6 +180,11 @@ public class InventoryItemServiceSaveTest {
         verify(auditHelper).logInitialStock(any(InventoryItem.class));
     }
 
+    /**
+     * Validates that items with zero quantity (no stock on hand) can be created.
+     * Scenario: New item with quantity = 0.
+     * Expected: Item saved with 0 quantity and audit log still created.
+     */
     @Test
     void testSave_withZeroQuantity_shouldSucceed() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
@@ -153,6 +197,11 @@ public class InventoryItemServiceSaveTest {
         verify(auditHelper).logInitialStock(any(InventoryItem.class));
     }
 
+    /**
+     * Validates that null product name is rejected.
+     * Scenario: Item name is null.
+     * Expected: {@link IllegalArgumentException} with descriptive message.
+     */
     @Test
     void testSave_withNullName_shouldThrowException() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
@@ -162,6 +211,11 @@ public class InventoryItemServiceSaveTest {
         assertEquals("Product name cannot be null or empty", ex.getMessage());
     }
 
+    /**
+     * Validates that negative quantities are rejected.
+     * Scenario: Item quantity is negative (invalid state).
+     * Expected: {@link IllegalArgumentException}.
+     */
     @Test
     void testSave_withNegativeQuantity_shouldThrowException() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
@@ -171,6 +225,11 @@ public class InventoryItemServiceSaveTest {
         assertEquals("Quantity cannot be negative", ex.getMessage());
     }
 
+    /**
+     * Validates that non-positive prices are rejected.
+     * Scenario: Item price is negative (invalid cost).
+     * Expected: {@link IllegalArgumentException}.
+     */
     @Test
     void testSave_withNegativePrice_shouldThrowException() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
@@ -180,6 +239,11 @@ public class InventoryItemServiceSaveTest {
         assertEquals("Price must be positive or greater than zero", ex.getMessage());
     }
 
+    /**
+     * Validates that missing supplier ID is rejected.
+     * Scenario: Supplier ID is null (no supplier linked).
+     * Expected: {@link IllegalArgumentException}.
+     */
     @Test
     void testSave_withNullSupplierId_shouldThrowException() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
@@ -189,6 +253,11 @@ public class InventoryItemServiceSaveTest {
         assertEquals("Supplier ID must be provided", ex.getMessage());
     }
 
+    /**
+     * Validates that non-existent supplier is rejected.
+     * Scenario: Supplier ID exists in request but supplier does not exist in repository.
+     * Expected: {@link IllegalArgumentException}.
+     */
     @Test
     void testValidateSupplierExists_withNonExistingSupplier_shouldThrow() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
@@ -200,6 +269,11 @@ public class InventoryItemServiceSaveTest {
         assertEquals("Supplier does not exist", e.getMessage());
     }
 
+    /**
+     * Validates that missing createdBy is derived from OAuth2 context.
+     * Scenario: CreatedBy not provided in DTO; should be populated from authentication.
+     * Expected: Item saved with email from OAuth2 principal as createdBy.
+     */
     @Test
     void testSave_withEmptyCreatedBy_shouldSucceed() {
         mockOAuth2Authentication("admin", "ROLE_ADMIN");
@@ -210,13 +284,20 @@ public class InventoryItemServiceSaveTest {
         assertEquals("admin", result.getCreatedBy());
     }
 
+    /**
+     * Validates the happy path: new item with no duplicates is saved successfully.
+     * Scenario: New unique item created with supplier that exists.
+     * Expected: Item persisted and audit helper called.
+     */
     @Test
     void shouldSaveItemSuccessfullyWhenNoDuplicateExists() {
         mockOAuth2Authentication("tester", "ROLE_ADMIN");
 
-        when(inventoryItemRepository.findByNameIgnoreCase("Widget")).thenReturn(List.of());
+        // Mock: no existing items with this name
+        when(inventoryItemRepository.findByNameIgnoreCase("Widget")).thenReturn(java.util.List.of());
         when(supplierRepository.existsById("some-supplier")).thenReturn(true);
 
+        // Mock: repository returns saved entity with generated ID
         InventoryItem savedEntity = InventoryItem.builder()
                 .id("new-id")
                 .name("Widget")
@@ -229,6 +310,7 @@ public class InventoryItemServiceSaveTest {
 
         when(inventoryItemRepository.save(any())).thenReturn(savedEntity);
 
+        // Set up request DTO
         dto.setName("Widget");
         dto.setPrice(BigDecimal.valueOf(10.0));
         dto.setQuantity(5);
@@ -237,6 +319,7 @@ public class InventoryItemServiceSaveTest {
 
         InventoryItemDTO result = inventoryItemService.save(dto);
 
+        // Verify result and audit call
         assertNotNull(result);
         assertEquals("Widget", result.getName());
         // Verify audit helper is called (which internally calls stockHistoryService)

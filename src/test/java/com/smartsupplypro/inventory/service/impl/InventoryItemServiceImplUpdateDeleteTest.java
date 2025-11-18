@@ -35,7 +35,33 @@ import com.smartsupplypro.inventory.service.StockHistoryService;
 
 /**
  * Tests for {@link InventoryItemServiceImpl} update and delete operations.
- * Covers not-found, conflict, optimistic lock, and history logging scenarios.
+ *
+ * <p><strong>Operation Coverage:</strong></p>
+ * <ul>
+ *   <li><b>update:</b> Modify existing items with uniqueness and existence checks</li>
+ *   <li><b>delete:</b> Remove items with valid deletion reasons and history logging</li>
+ * </ul>
+ *
+ * <p><strong>Validation Layers (Update):</strong></p>
+ * <ul>
+ *   <li>Item must exist (not-found check)</li>
+ *   <li>Name/price combination must be unique (conflict check)</li>
+ *   <li>Optimistic locking errors propagated</li>
+ * </ul>
+ *
+ * <p><strong>Exception Mapping:</strong></p>
+ * <ul>
+ *   <li>Item not found → {@link IllegalArgumentException} (404)</li>
+ *   <li>Duplicate name/price → {@link DuplicateResourceException} or ResponseStatusException (409)</li>
+ *   <li>Optimistic lock → {@link ObjectOptimisticLockingFailureException}</li>
+ * </ul>
+ *
+ * <p><strong>Design Notes:</strong></p>
+ * <ul>
+ *   <li>validationHelper mocks test the integration points; actual validation is not tested here.</li>
+ *   <li>auditHelper.logFullRemoval integrates deletion history logging.</li>
+ *   <li>OAuth2 context mocked to simulate authenticated user context.</li>
+ * </ul>
  */
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
@@ -53,8 +79,10 @@ class InventoryItemServiceImplUpdateDeleteTest {
 
     @BeforeEach
     void setup() {
+        // Set up OAuth2 authentication context (simulates logged-in ADMIN user)
         InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin", "ADMIN");
 
+        // Build test DTO with valid sample data
         baseDto = new InventoryItemDTO();
         baseDto.setName("Widget");
         baseDto.setQuantity(100);
@@ -63,6 +91,7 @@ class InventoryItemServiceImplUpdateDeleteTest {
         baseDto.setSupplierId("S1");
         baseDto.setCreatedBy("admin");
 
+        // Build entity to return from mocks
         existing = new InventoryItem();
         existing.setId("item-1");
         existing.setName("Widget");
@@ -71,10 +100,11 @@ class InventoryItemServiceImplUpdateDeleteTest {
         existing.setPrice(new BigDecimal("10.00"));
         existing.setSupplierId("S1");
 
+        // Default mocks: supplier exists, name is unique, save succeeds
         lenient().when(supplierRepository.existsById(anyString())).thenReturn(true);
         lenient().when(repository.existsByNameIgnoreCase(anyString())).thenReturn(false);
         
-        // Configure validation helper default behaviors
+        // Configure validation helper to return item if found
         lenient().when(validationHelper.validateExists(anyString())).thenAnswer(inv -> {
             String id = inv.getArgument(0);
             return repository.findById(id)
@@ -86,16 +116,18 @@ class InventoryItemServiceImplUpdateDeleteTest {
                     .orElseThrow(() -> new IllegalArgumentException("Item not found for update"));
         });
         
-        // Configure uniqueness validation to throw DuplicateResourceException
+        // Configure uniqueness validation to throw DuplicateResourceException on conflict
         lenient().doAnswer(inv -> {
             String id = inv.getArgument(0);
             InventoryItem existingItem = inv.getArgument(1);
             InventoryItemDTO dto = inv.getArgument(2);
             
+            // Check if name or price changed
             boolean nameChanged = !existingItem.getName().equalsIgnoreCase(dto.getName());
             boolean priceChanged = !existingItem.getPrice().equals(dto.getPrice());
             
             if (nameChanged || priceChanged) {
+                // Look for conflicting items with same name and price
                 java.util.List<InventoryItem> conflicts = repository.findByNameIgnoreCase(dto.getName());
                 for (InventoryItem item : conflicts) {
                     if (!item.getId().equals(id) && item.getPrice().equals(dto.getPrice())) {
@@ -112,23 +144,29 @@ class InventoryItemServiceImplUpdateDeleteTest {
     @Test
     @DisplayName("update: not found -> IllegalArgumentException")
     void update_shouldThrow_whenNotFound() {
+        // Mock: item with ID "missing-id" does not exist
         when(repository.findById("missing-id")).thenReturn(Optional.empty());
 
         InventoryItemDTO updateDto = copyOf(baseDto);
+        // Attempt to update non-existent item
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.update("missing-id", updateDto));
 
+        // Verify error message indicates not found
         assertTrue(ex.getMessage().contains("not found"));
     }
 
     @Test
     @DisplayName("update: duplicate name -> 409 CONFLICT")
     void update_duplicateName_throwsConflict() {
+        // Mock: item with ID "id-1" exists
         when(repository.findById("id-1")).thenReturn(Optional.of(copyOf(existing)));
 
+        // Build update DTO with new name
         InventoryItemDTO updateDto = copyOf(baseDto);
         updateDto.setName("Widget-2");
 
+        // Mock: another item with name "Widget-2" already exists
         InventoryItem conflict = new InventoryItem();
         conflict.setId("other-id");
         conflict.setName("Widget-2");
@@ -145,11 +183,13 @@ class InventoryItemServiceImplUpdateDeleteTest {
         });
 
         try {
+            // Attempt to update to conflicting name
             ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                     () -> service.update("id-1", updateDto));
             assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
             assertTrue(safeReason(ex).contains("already"));
         } catch (org.opentest4j.AssertionFailedError ignored) {
+            // Alternative path: DuplicateResourceException thrown directly
             com.smartsupplypro.inventory.exception.DuplicateResourceException ex2 =
                     assertThrows(com.smartsupplypro.inventory.exception.DuplicateResourceException.class,
                             () -> service.update("id-1", updateDto));
@@ -160,13 +200,16 @@ class InventoryItemServiceImplUpdateDeleteTest {
     @Test
     @DisplayName("update: optimistic lock -> propagated exception")
     void update_optimisticLock_isSurfacedAsConflict() {
+        // Mock: item exists and is found
         when(repository.findById("id-1")).thenReturn(Optional.of(copyOf(existing)));
+        // Mock: save throws optimistic lock exception (version mismatch)
         when(repository.save(any())).thenThrow(
                 new ObjectOptimisticLockingFailureException(InventoryItem.class, "id-1")
         );
 
         InventoryItemDTO updateDto = copyOf(baseDto);
 
+        // Attempt to update when another thread modified item
         ObjectOptimisticLockingFailureException ex = assertThrows(
                 ObjectOptimisticLockingFailureException.class,
                 () -> service.update("id-1", updateDto)
@@ -177,8 +220,10 @@ class InventoryItemServiceImplUpdateDeleteTest {
     @Test
     @DisplayName("delete: not found -> IllegalArgumentException")
     void delete_shouldThrow_whenItemNotFound() {
+        // Mock: item with ID "missing-id" does not exist
         when(repository.findById("missing-id")).thenReturn(Optional.empty());
 
+        // Attempt to delete non-existent item
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> service.delete("missing-id", StockChangeReason.SCRAPPED));
         assertTrue(ex.getMessage() != null && ex.getMessage().toLowerCase().contains("not found"));
@@ -187,27 +232,33 @@ class InventoryItemServiceImplUpdateDeleteTest {
     @Test
     @DisplayName("delete: logs negative stock once with priceAtChange then deletes")
     void delete_shouldRemoveItemAndRecordHistory() {
+        // Mock: item exists and is found
         InventoryItem found = copyOf(existing);
         when(repository.findById("item-1")).thenReturn(Optional.of(found));
 
+        // Execute delete operation
         service.delete("item-1", StockChangeReason.SCRAPPED);
 
+        // Verify audit helper recorded the removal with reason
         verify(auditHelper).logFullRemoval(any(InventoryItem.class), eq(StockChangeReason.SCRAPPED));
+        // Verify repository deleteById was called
         verify(repository).deleteById("item-1");
     }
 
     @Test
     @DisplayName("delete: supports null price at change (graceful log)")
     void delete_logsHistoryThenDeletes() {
+        // Build item with null price (edge case)
         InventoryItem found = copyOf(existing);
         found.setId("i-1");
         found.setQuantity(7);
-        found.setPrice(null);
+        found.setPrice(null); // Edge case: null price
         when(repository.findById("i-1")).thenReturn(Optional.of(found));
 
+        // Execute delete - should handle null price gracefully
         service.delete("i-1", StockChangeReason.SCRAPPED);
 
-        // Verify audit helper is called (which internally calls stockHistoryService)
+        // Verify deletion was logged and executed
         verify(auditHelper).logFullRemoval(any(InventoryItem.class), eq(StockChangeReason.SCRAPPED));
         verify(repository).deleteById("i-1");
     }

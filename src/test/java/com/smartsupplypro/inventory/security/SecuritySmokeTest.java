@@ -71,12 +71,17 @@ class SecuritySmokeTest {
     @Test
     @DisplayName("Wiring sanity: required beans are present")
     void wiringSanity() {
+        // Verify all critical security beans are properly wired and available
         assertThat(successHandler).isNotNull();
         assertThat(customOAuth2UserService).isNotNull();
         assertThat(clientRegistrationRepository.findByRegistrationId("google")).isNotNull();
         assertThat(appProperties).isNotNull();
     }
 
+    /**
+     * Validates that users with ADMIN role can access admin-restricted endpoints.
+     * Tests the role-based access control (RBAC) mechanism.
+     */
     @Test
     @DisplayName("ADMIN role gets 200 on /api/admin/ping")
     @WithMockUser(username = "admin", roles = "ADMIN")
@@ -86,6 +91,10 @@ class SecuritySmokeTest {
            .andExpect(content().string("admin ok"));
     }
 
+    /**
+     * Validates that users with USER role are denied access to admin endpoints.
+     * Tests that authorization rules properly reject insufficiently-privileged users.
+     */
     @Test
     @DisplayName("USER role gets 403 on /api/admin/ping")
     @WithMockUser(username = "user", roles = "USER")
@@ -94,6 +103,11 @@ class SecuritySmokeTest {
            .andExpect(status().isForbidden());
     }
 
+    /**
+     * Validates that CORS (Cross-Origin Resource Sharing) preflight requests
+     * from the dev frontend (http://localhost:5173) are allowed with credentials.
+     * Tests that frontend can make requests to the backend API.
+     */
     @Test
     @DisplayName("CORS preflight allows http://localhost:5173 with credentials")
     void corsPreflightForDevOrigin() throws Exception {
@@ -105,6 +119,11 @@ class SecuritySmokeTest {
            .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
     }
 
+    /**
+     * Validates that the OAuth2 authorization endpoint is accessible
+     * and properly redirects to the OAuth provider (Google).
+     * Tests that the OAuth flow entry point is reachable.
+     */
     @Test
     @DisplayName("OAuth authorization endpoint is permitted (redirects)")
     void oauthAuthorizationEndpointIsPermitted() throws Exception {
@@ -114,33 +133,57 @@ class SecuritySmokeTest {
 
     /**
      * Test-time beans required by SecurityConfig, provided up-front.
-     * No @MockBean / @MockitoBean is used; these are standard @Bean definitions.
+     * 
+     * <p>This inner class provides all dependencies that {@link SecurityConfig} needs
+     * during test context initialization. Using @Bean methods (not @MockBean/@MockitoBean)
+     * ensures these beans exist before the Spring context refreshes, allowing proper
+     * autowiring throughout the configuration.</p>
+     * 
+     * <p><strong>Why not use @MockBean?</strong> Because @MockBean is created after the
+     * context starts, causing SecurityConfig to fail autowiring during its initialization.</p>
      */
     @TestConfiguration
     static class TestBeans {
 
+        /**
+         * Provides a mock {@link OAuth2LoginSuccessHandler}.
+         * Used by SecurityConfig to handle successful OAuth2 logins.
+         * For this smoke test, no specific behavior is needed.
+         */
         @Bean
-        @SuppressWarnings("unused")
         OAuth2LoginSuccessHandler successHandler() {
             return Mockito.mock(OAuth2LoginSuccessHandler.class);
         }
 
+        /**
+         * Provides a mock {@link AppUserRepository}.
+         * Used by CustomOAuth2UserService to persist/retrieve user data.
+         * Not invoked in these smoke tests but required for autowiring.
+         */
         @Bean
-        @SuppressWarnings("unused")
         AppUserRepository appUserRepository() {
             return Mockito.mock(AppUserRepository.class);
         }
 
+        /**
+         * Provides a mock {@link CustomOAuth2UserService}.
+         * Responsible for mapping OAuth2 user info to application users.
+         * Requires AppUserRepository as a dependency.
+         */
         @Bean
-        @SuppressWarnings("unused")
         CustomOAuth2UserService customOAuth2UserService(AppUserRepository appUserRepository) {
             // Provide the mock; Spring will still run autowiring and find the repo above.
             return Mockito.mock(CustomOAuth2UserService.class);
         }
 
+        /**
+         * Provides an in-memory {@link ClientRegistrationRepository} with a dummy Google OAuth config.
+         * Allows the security configuration to find and use the "google" client registration.
+         * Uses dummy credentials since we don't perform real OAuth flows in this test.
+         */
         @Bean
-        @SuppressWarnings("unused")
         ClientRegistrationRepository clientRegistrationRepository() {
+            // Build a dummy Google OAuth2 client registration for testing
             ClientRegistration google = ClientRegistration.withRegistrationId("google")
                 .clientId("dummy")
                 .clientSecret("dummy")
@@ -153,59 +196,96 @@ class SecuritySmokeTest {
                 .scope("openid", "profile", "email")
                 .clientName("Google")
                 .build();
+            // Store in memory repository for SecurityConfig to access
             return new InMemoryClientRegistrationRepository(google);
         }
 
+        /**
+         * Provides a mock {@link CustomOidcUserService}.
+         * Handles OIDC (OpenID Connect) user mapping for Google logins.
+         * In a @WebMvcTest we don't hit the real provider, so a mock is sufficient.
+         */
         @Bean
-        @SuppressWarnings("unused")
         CustomOidcUserService customOidcUserService(AppUserRepository appUserRepository) {
             // SecurityConfig wires an OIDC user service for Google logins.
             // In a @WebMvcTest slice we don't hit the real provider, so a mock is sufficient.
             return Mockito.mock(CustomOidcUserService.class);
         }
 
+        /**
+         * Provides a mock {@link com.smartsupplypro.inventory.config.SecurityFilterHelper}
+         * with a real pass-through filter for API detection.
+         * 
+         * <p>The filter is configured to simply delegate to the next filter in the chain,
+         * allowing requests to pass through without modification during tests.</p>
+         */
         @Bean
-        @SuppressWarnings("unused")
         com.smartsupplypro.inventory.config.SecurityFilterHelper securityFilterHelper() {
-            com.smartsupplypro.inventory.config.SecurityFilterHelper mock = Mockito.mock(com.smartsupplypro.inventory.config.SecurityFilterHelper.class);
+            com.smartsupplypro.inventory.config.SecurityFilterHelper mock = 
+                Mockito.mock(com.smartsupplypro.inventory.config.SecurityFilterHelper.class);
             // Return a real filter to avoid null
-            Mockito.when(mock.createApiDetectionFilter()).thenReturn(new org.springframework.web.filter.OncePerRequestFilter() {
-                @Override
-                protected void doFilterInternal(@org.springframework.lang.NonNull jakarta.servlet.http.HttpServletRequest req,
-                                                @org.springframework.lang.NonNull jakarta.servlet.http.HttpServletResponse res,
-                                                @org.springframework.lang.NonNull jakarta.servlet.FilterChain chain)
-                        throws jakarta.servlet.ServletException, java.io.IOException {
-                    chain.doFilter(req, res);
-                }
-            });
+            Mockito.when(mock.createApiDetectionFilter()).thenReturn(
+                new org.springframework.web.filter.OncePerRequestFilter() {
+                    @Override
+                    protected void doFilterInternal(
+                            @org.springframework.lang.NonNull jakarta.servlet.http.HttpServletRequest req,
+                            @org.springframework.lang.NonNull jakarta.servlet.http.HttpServletResponse res,
+                            @org.springframework.lang.NonNull jakarta.servlet.FilterChain chain)
+                            throws jakarta.servlet.ServletException, java.io.IOException {
+                        // Pass through without modification - just continue the chain
+                        chain.doFilter(req, res);
+                    }
+                });
             return mock;
         }
 
+        /**
+         * Provides a mock {@link com.smartsupplypro.inventory.config.SecurityEntryPointHelper}
+         * with real entry points for API and web contexts.
+         * 
+         * <p>Entry points determine how to handle authentication failures:</p>
+         * <ul>
+         *   <li>API: Send 401 Unauthorized response</li>
+         *   <li>Web: Redirect to landing page (e.g., /)</li>
+         * </ul>
+         */
         @Bean
-        @SuppressWarnings("unused")
         com.smartsupplypro.inventory.config.SecurityEntryPointHelper securityEntryPointHelper() {
-            com.smartsupplypro.inventory.config.SecurityEntryPointHelper mock = Mockito.mock(com.smartsupplypro.inventory.config.SecurityEntryPointHelper.class);
+            com.smartsupplypro.inventory.config.SecurityEntryPointHelper mock = 
+                Mockito.mock(com.smartsupplypro.inventory.config.SecurityEntryPointHelper.class);
             // Return real entry points to avoid null
             Mockito.when(mock.createApiEntryPoint()).thenReturn((req, res, ex) -> {
+                // API context: return 401 Unauthorized
                 res.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
             });
             Mockito.when(mock.createWebEntryPoint(Mockito.anyString())).thenReturn((req, res, ex) -> {
+                // Web context: redirect to landing page (/)
                 res.sendRedirect("/");
             });
             return mock;
         }
 
+        /**
+         * Provides a mock {@link com.smartsupplypro.inventory.config.SecurityAuthorizationHelper}
+         * that configures endpoint-level authorization rules.
+         * 
+         * <p>This mock applies minimal authorization for tests:</p>
+         * <ul>
+         *   <li>/api/admin/** requires ADMIN role</li>
+         *   <li>All other endpoints require authentication</li>
+         * </ul>
+         */
         @Bean
-        @SuppressWarnings("unused")
         com.smartsupplypro.inventory.config.SecurityAuthorizationHelper securityAuthorizationHelper() {
-            com.smartsupplypro.inventory.config.SecurityAuthorizationHelper mock = Mockito.mock(com.smartsupplypro.inventory.config.SecurityAuthorizationHelper.class);
-            // configureAuthorization returns void, so use doAnswer
+            com.smartsupplypro.inventory.config.SecurityAuthorizationHelper mock = 
+                Mockito.mock(com.smartsupplypro.inventory.config.SecurityAuthorizationHelper.class);
+            // configureAuthorization returns void, so use doAnswer to configure behavior
             Mockito.doAnswer(invocation -> {
                 org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<?>.AuthorizationManagerRequestMatcherRegistry auth =
                     invocation.getArgument(0);
-                // Apply minimal authorization for tests
-                auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
-                auth.anyRequest().authenticated();
+                // Apply test authorization rules
+                auth.requestMatchers("/api/admin/**").hasRole("ADMIN"); // Admin endpoints require ADMIN role
+                auth.anyRequest().authenticated();                       // Everything else requires authentication
                 return null;
             }).when(mock).configureAuthorization(Mockito.any(), Mockito.anyBoolean());
             return mock;

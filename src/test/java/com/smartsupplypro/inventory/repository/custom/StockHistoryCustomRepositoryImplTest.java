@@ -115,18 +115,22 @@ class StockHistoryCustomRepositoryImplTest {
 
     // ---- helpers ----------------------------------------------------------
 
+    // Helper to create LocalDateTime
     private static LocalDateTime at(int y,int m,int d,int H,int M) {
         return LocalDateTime.of(y, m, d, H, M);
     }
 
+    // Helper to create BigDecimal
     private static BigDecimal bd(String v) {
         return new BigDecimal(v);
     }
 
+    // Helper to persist StockHistory
     private void persist(StockHistory sh) {
         em.persist(sh);
     }
 
+    // Helper to create StockHistory
     private static StockHistory sh(String itemId, String supplierId,
                                    LocalDateTime createdAt,
                                    int quantityChange,
