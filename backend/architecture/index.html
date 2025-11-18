@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/templates/index.html" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/backend/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#backend-architecture-index"
+        id="toc-backend-architecture-index">Backend Architecture
+        Index</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#documentation-structure"
+        id="toc-documentation-structure">Documentation Structure</a>
+        <ul>
+        <li><a href="#core-architecture" id="toc-core-architecture">Core
+        Architecture</a></li>
+        <li><a href="#detailed-sections"
+        id="toc-detailed-sections">Detailed Sections</a></li>
+        </ul></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a>
+        <ul>
+        <li><a href="#by-audience" id="toc-by-audience">By
+        Audience</a></li>
+        </ul></li>
+        <li><a href="#key-architectural-principles"
+        id="toc-key-architectural-principles">Key Architectural
+        Principles</a></li>
+        <li><a href="#technology-stack"
+        id="toc-technology-stack">Technology Stack</a></li>
+        <li><a href="#getting-started" id="toc-getting-started">Getting
+        Started</a></li>
+        <li><a href="#recent-updates" id="toc-recent-updates">Recent
+        Updates</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="backend-architecture-index">Backend Architecture
+        Index</h1>
+        <p>Welcome to the Smart Supply Pro backend architecture
+        documentation. This section provides comprehensive information
+        about the system’s design, structure, and implementation
+        patterns.</p>
+        <h2 id="overview">Overview</h2>
+        <p>The Smart Supply Pro inventory management backend is built
+        with <strong>Spring Boot</strong> and follows a layered
+        architecture pattern with clear separation of concerns. The
+        system manages supplier relationships, inventory items, stock
+        history tracking, and advanced analytics.</p>
+        <h2 id="documentation-structure">Documentation Structure</h2>
+        <h3 id="core-architecture">Core Architecture</h3>
+        <ul>
+        <li><strong><a href="./overview.html">High-level Overview
+        (English)</a></strong> - Comprehensive English overview of the
+        backend architecture, layers, and key components</li>
+        <li><strong><a href="./overview-de.html">Überblick
+        (German)</a></strong> - Deutschsprachige Zusammenfassung der
+        Backend-Architektur</li>
+        </ul>
+        <h3 id="detailed-sections">Detailed Sections</h3>
+        <ul>
+        <li><strong><a href="./layers.html">Layers
+        Architecture</a></strong> - Detailed breakdown of controller,
+        service, repository, and data layers</li>
+        <li><strong><a href="./security.html">Security
+        Architecture</a></strong> - Authentication, authorization, and
+        OAuth2 integration</li>
+        <li><strong><a href="./deployment.html">Deployment &amp;
+        Infrastructure</a></strong> - Containerization, CI/CD, and cloud
+        deployment strategies</li>
+        <li><strong><a href="./config.html">Configuration
+        Management</a></strong> - Application properties, profiles, and
+        environment setup</li>
+        <li><strong><a href="./model.html">Data Models &amp;
+        Entities</a></strong> - Domain entities, relationships, and
+        database schema</li>
+        <li><strong><a href="./dto.html">DTOs &amp; Data
+        Transfer</a></strong> - Data transfer objects and API contract
+        definitions</li>
+        <li><strong><a href="./exceptions.html">Exceptions &amp; Error
+        Handling</a></strong> - Exception hierarchy and error response
+        patterns</li>
+        <li><strong><a href="./validation.html">Validation
+        Framework</a></strong> - Input validation strategies and custom
+        validators</li>
+        <li><strong><a href="./testing.html">Testing
+        Strategy</a></strong> - Unit testing, integration testing, and
+        test patterns</li>
+        </ul>
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <h3 id="by-audience">By Audience</h3>
+        <p><strong>Developers implementing features:</strong> 1. Start
+        with <a href="./overview.html">High-level Overview</a> 2. Review
+        <a href="./layers.html">Layers Architecture</a> 3. Explore
+        relevant layer documentation (e.g., <a href="./model.html">Data
+        Models</a>, <a href="./dto.html">DTOs</a>) 4. Check <a
+        href="./validation.html">Validation Framework</a> for input
+        handling 5. Review <a href="./testing.html">Testing Strategy</a>
+        for test patterns</p>
+        <p><strong>DevOps / Infrastructure teams:</strong> 1. Review <a
+        href="./deployment.html">Deployment &amp; Infrastructure</a> 2.
+        Check <a href="./config.html">Configuration Management</a> 3.
+        Understand <a href="./security.html">Security
+        Architecture</a></p>
+        <p><strong>Security reviewers:</strong> 1. Start with <a
+        href="./security.html">Security Architecture</a> 2. Review <a
+        href="./exceptions.html">Exceptions &amp; Error Handling</a> 3.
+        Check <a href="./validation.html">Validation Framework</a></p>
+        <p><strong>New team members:</strong> 1. Read <a
+        href="./overview.html">High-level Overview</a> first 2. Explore
+        <a href="./layers.html">Layers Architecture</a> to understand
+        separation of concerns 3. Review <a
+        href="./testing.html">Testing Strategy</a> to learn team
+        conventions</p>
+        <h2 id="key-architectural-principles">Key Architectural
+        Principles</h2>
+        <ol type="1">
+        <li><strong>Separation of Concerns</strong> - Clear boundaries
+        between controller, service, repository, and data layers</li>
+        <li><strong>Dependency Injection</strong> - Spring framework
+        manages all bean dependencies</li>
+        <li><strong>RESTful API Design</strong> - Standard HTTP methods
+        and status codes for all endpoints</li>
+        <li><strong>Security First</strong> - OAuth2 authentication and
+        role-based access control (RBAC)</li>
+        <li><strong>Data Validation</strong> - Multi-layer validation
+        from DTO to entity level</li>
+        <li><strong>Exception Handling</strong> - Consistent error
+        response format with appropriate HTTP status codes</li>
+        <li><strong>Testing</strong> - Comprehensive unit and
+        integration tests with mocking patterns</li>
+        <li><strong>Documentation</strong> - Code comments, JavaDoc, and
+        architectural documentation</li>
+        </ol>
+        <h2 id="technology-stack">Technology Stack</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Component</th>
+        <th>Technology</th>
+        <th>Version</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Framework</strong></td>
+        <td>Spring Boot</td>
+        <td>2.7.x</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Language</strong></td>
+        <td>Java</td>
+        <td>11+</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Database</strong></td>
+        <td>Oracle DB / PostgreSQL</td>
+        <td>Latest</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Build Tool</strong></td>
+        <td>Maven</td>
+        <td>3.x+</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Testing</strong></td>
+        <td>JUnit 5, Mockito</td>
+        <td>Latest</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Security</strong></td>
+        <td>Spring Security, OAuth2</td>
+        <td>2.7.x</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Containerization</strong></td>
+        <td>Docker</td>
+        <td>Latest</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="getting-started">Getting Started</h2>
+        <ol type="1">
+        <li><strong>Clone the repository</strong> and navigate to the
+        root directory</li>
+        <li><strong>Review the <a href="./overview.html">High-level
+        Overview</a></strong> to understand the big picture</li>
+        <li><strong>Examine the <a href="./layers.html">Layers
+        Architecture</a></strong> to learn component interactions</li>
+        <li><strong>Explore the code</strong> in
+        <code>/src/main/java/com/smartsupplypro/inventory/</code></li>
+        <li><strong>Check tests</strong> in <code>/src/test/java/</code>
+        to understand testing patterns</li>
+        <li><strong>Deploy locally</strong> using the <a
+        href="./deployment.html">Deployment Guide</a></li>
+        </ol>
+        <h2 id="recent-updates">Recent Updates</h2>
+        <ul>
+        <li>Enhanced backend architecture documentation with
+        comprehensive guides</li>
+        <li>Improved test documentation with JavaDoc and inline
+        comments</li>
+        <li>Expanded API reference with all 45 endpoints documented</li>
+        <li>Enhanced CI/CD pipeline with improved coverage
+        reporting</li>
+        </ul>
+        <hr />
+        <p><em>Last updated: November 2024</em></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

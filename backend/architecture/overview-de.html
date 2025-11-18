@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · overview-de · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/templates/index.html" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/backend/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/backend/architecture/layers.html">Layers</a></li>
+        <li><a href="/inventory-service/backend/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/backend/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#backend-architektur-überblick"
+        id="toc-backend-architektur-überblick">Backend-Architektur-Überblick</a>
+        <ul>
+        <li><a href="#einführung"
+        id="toc-einführung">Einführung</a></li>
+        <li><a href="#system-architektur-diagramm"
+        id="toc-system-architektur-diagramm">System-Architektur-Diagramm</a></li>
+        <li><a href="#kern-schichten"
+        id="toc-kern-schichten">Kern-Schichten</a>
+        <ul>
+        <li><a href="#apicontroller-schicht"
+        id="toc-apicontroller-schicht">1.
+        <strong>API/Controller-Schicht</strong></a></li>
+        <li><a href="#service-schicht" id="toc-service-schicht">2.
+        <strong>Service-Schicht</strong></a></li>
+        <li><a href="#validierungs-schicht"
+        id="toc-validierungs-schicht">3.
+        <strong>Validierungs-Schicht</strong></a></li>
+        <li><a href="#repository-schicht" id="toc-repository-schicht">4.
+        <strong>Repository-Schicht</strong></a></li>
+        <li><a href="#daten-schicht" id="toc-daten-schicht">5.
+        <strong>Daten-Schicht</strong></a></li>
+        </ul></li>
+        <li><a href="#authentifizierung-sicherheit"
+        id="toc-authentifizierung-sicherheit">Authentifizierung &amp;
+        Sicherheit</a>
+        <ul>
+        <li><a href="#oauth2-integration"
+        id="toc-oauth2-integration">OAuth2-Integration</a></li>
+        <li><a href="#autorisierungs-modell"
+        id="toc-autorisierungs-modell">Autorisierungs-Modell</a></li>
+        <li><a href="#request-scoped-sicherheit"
+        id="toc-request-scoped-sicherheit">Request-Scoped
+        Sicherheit</a></li>
+        </ul></li>
+        <li><a href="#exception-handling"
+        id="toc-exception-handling">Exception-Handling</a></li>
+        <li><a href="#datenfluss-beispiel-erstellen-eines-bestandsitems"
+        id="toc-datenfluss-beispiel-erstellen-eines-bestandsitems">Datenfluss-Beispiel:
+        Erstellen eines Bestandsitems</a></li>
+        <li><a href="#wichtigste-design-muster"
+        id="toc-wichtigste-design-muster">Wichtigste Design-Muster</a>
+        <ul>
+        <li><a href="#dependency-injection"
+        id="toc-dependency-injection">1. <strong>Dependency
+        Injection</strong></a></li>
+        <li><a href="#repository-muster" id="toc-repository-muster">2.
+        <strong>Repository-Muster</strong></a></li>
+        <li><a href="#dto-muster" id="toc-dto-muster">3.
+        <strong>DTO-Muster</strong></a></li>
+        <li><a href="#service-locator-via-spring"
+        id="toc-service-locator-via-spring">4. <strong>Service Locator
+        (via Spring)</strong></a></li>
+        <li><a href="#exception-übersetzung"
+        id="toc-exception-übersetzung">5.
+        <strong>Exception-Übersetzung</strong></a></li>
+        <li><a href="#validierungs-helfer"
+        id="toc-validierungs-helfer">6.
+        <strong>Validierungs-Helfer</strong></a></li>
+        </ul></li>
+        <li><a href="#performance-überlegungen"
+        id="toc-performance-überlegungen">Performance-Überlegungen</a></li>
+        <li><a href="#skalierungsstrategie"
+        id="toc-skalierungsstrategie">Skalierungsstrategie</a></li>
+        <li><a href="#test-architektur"
+        id="toc-test-architektur">Test-Architektur</a></li>
+        <li><a href="#nächste-schritte"
+        id="toc-nächste-schritte">Nächste Schritte</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Zurück zum
+        Architektur-Index</a></p>
+        <h1
+        id="backend-architektur-überblick">Backend-Architektur-Überblick</h1>
+        <h2 id="einführung">Einführung</h2>
+        <p>Das Backend von Smart Supply Pro ist ein modernes,
+        Spring-Boot-basiertes Lagerverwaltungssystem, das für die
+        Verwaltung komplexer Lieferantenbeziehungen, Bestandsverfolgung
+        und Echtzeit-Bestandsanalysen konzipiert ist. Die Architektur
+        betont <strong>Skalierbarkeit</strong>,
+        <strong>Wartbarkeit</strong> und <strong>Sicherheit</strong>
+        durch wohldefinierteverstandteile Ebenen und klare Separation of
+        Concerns.</p>
+        <h2
+        id="system-architektur-diagramm">System-Architektur-Diagramm</h2>
+        <div class="mermaid">
+        graph TB
+            Client["Client-Anwendungen"]
+            API["REST-API-Schicht"]
+            Controller["Controller"]
+            Service["Geschäftslogik-Schicht"]
+            Validation["Validierungs-Schicht"]
+            Repository["Repository-Schicht"]
+            Database["Datenbank"]
+            Cache["Cache"]
+            Security["Sicherheit & Authentifizierung"]
+
+            Client -->|HTTP-Anfragen| API
+            API --> Security
+            Security -->|Authentifiziert| Controller
+            Controller --> Service
+            Service --> Validation
+            Service --> Repository
+            Repository -->|CRUD-Operationen| Database
+            Repository -->|Query-Cache| Cache
+            Service -.->|Aktuellen Benutzer abrufen| Security
+
+            style Client fill:#e1f5ff
+            style API fill:#b3e5fc
+            style Controller fill:#81d4fa
+            style Service fill:#4fc3f7
+            style Validation fill:#29b6f6
+            style Repository fill:#03a9f4
+            style Database fill:#0288d1
+            style Cache fill:#0277bd
+            style Security fill:#e0f2f1
+        </div>
+        <h2 id="kern-schichten">Kern-Schichten</h2>
+        <h3 id="apicontroller-schicht">1.
+        <strong>API/Controller-Schicht</strong></h3>
+        <p>Der Einstiegspunkt für alle HTTP-Anfragen. Controller
+        verwalten: - <strong>Request-Routing</strong> - Ordnet
+        HTTP-Endpunkte Controller-Methoden zu -
+        <strong>DTO-Konvertierung</strong> - Konvertiert eingehende JSON
+        in DTOs - <strong>Response-Formatierung</strong> - Serialisiert
+        Domain-Objekte zu JSON -
+        <strong>Basis-Parametervalidierung</strong> - Spring’s <span
+        class="citation" data-cites="Valid">@Valid</span> Annotation</p>
+        <p><strong>Wichtigste Komponenten:</strong> -
+        <code>SupplierController</code> - Verwaltet CRUD-Operationen für
+        Lieferanten - <code>InventoryItemController</code> - Handhabt
+        Bestandsverwaltung - <code>StockHistoryController</code> -
+        Verfolgt Bestandsänderungen und Auditing -
+        <code>AnalyticsController</code> - Stellt Analytics- und
+        Report-Endpunkte bereit - <code>AuthController</code> -
+        OAuth2-Authentifizierungs-Endpunkte</p>
+        <p><strong>Beispiel-Muster:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">createSupplier</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    SupplierDTO created <span class="op">=</span> supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>created<span class="op">);</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="service-schicht">2.
+        <strong>Service-Schicht</strong></h3>
+        <p>Enthält die gesamte Geschäftslogik und koordiniert
+        Operationen: - <strong>Geschäftsregel-Validierung</strong> -
+        Komplexe Validierung über einfache Constraints hinaus -
+        <strong>Transaktionsverwaltung</strong> - Koordiniert
+        Datenbankoperationen - <strong>Cross-Cutting Concerns</strong> -
+        Logging, Auditing und Exception-Mapping -
+        <strong>Datentransformation</strong> - Konvertiert zwischen DTOs
+        und Entities - <strong>Externe Integrationen</strong> - Aufrufe
+        zu externen APIs oder Services</p>
+        <p><strong>Wichtigste Services:</strong> -
+        <code>SupplierService</code> -
+        Lieferanten-Lebenszyklusverwaltung mit Lösch-Validierung -
+        <code>InventoryItemService</code> - Item-Verwaltung mit
+        Bestandsverfolgung - <code>StockHistoryService</code> -
+        Audit-Trail und Bestandsbewegungsprotokollierung -
+        <code>AnalyticsService</code> - Finanzielle Analyse (WAC, FIFO)
+        und Reporting</p>
+        <p><strong>Design-Muster:</strong> - <strong>Dependency
+        Injection</strong> - Alle Abhängigkeiten von Spring autowired -
+        <strong>Exception-Übersetzung</strong> - Geschäftsexceptions auf
+        HTTP-Status-Codes gemappt - <strong>Validierungs-Helfer</strong>
+        - Separate Helfer-Klassen für komplexe Validierungen -
+        <strong>Audit-Protokollierung</strong> - Integration mit
+        Audit-Service für Änderungsverfolgung</p>
+        <h3 id="validierungs-schicht">3.
+        <strong>Validierungs-Schicht</strong></h3>
+        <p>Multi-Ebenen-Validierung gewährleistet Datenintegrität:</p>
+        <p><strong>Ebene 1 - Controller-Ebene:</strong> Spring’s
+        <code>@Valid</code> Annotation mit <code>@NotBlank</code>,
+        <code>@NotNull</code>, etc.</p>
+        <p><strong>Ebene 2 - Service-Ebene:</strong>
+        Geschäftsregel-Validierung - Eindeutigkeitsprüfungen
+        (Lieferantenname, Item-Name) - Beziehungsvalidierung (Items
+        müssen gültigen Lieferanten haben) - Zustandsvalidierung (können
+        Lieferanten mit Bestand nicht löschen)</p>
+        <p><strong>Ebene 3 - Repository-Ebene:</strong>
+        Datenbank-Constraints und eindeutige Indizes</p>
+        <p><strong>Validierungs-Komponenten:</strong> -
+        <code>SupplierValidator</code> - Lieferanten-spezifische Regeln
+        - <code>InventoryItemValidator</code> - Item-Eindeutigkeit und
+        Lieferanten-Validierung - Benutzerdefinierte Validatoren für
+        Enums und Geschäftsregeln</p>
+        <p><strong>Beispiel:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">validateUniquenessOnCreate</span><span class="op">(</span><span class="bu">String</span> name<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>repository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span>name<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Lieferantenname existiert bereits: &quot;</span> <span class="op">+</span> name<span class="op">);</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="repository-schicht">4.
+        <strong>Repository-Schicht</strong></h3>
+        <p>Verwaltet alle Datenbank-Interaktionen: -
+        <strong>CRUD-Operationen</strong> - Erstellen, Lesen,
+        Aktualisieren, Löschen von Entities - <strong>Benutzerdefinierte
+        Queries</strong> - Komplexe Such- und Aggregationsabfragen -
+        <strong>Pagination</strong> - Paginierung großer Datenmengen -
+        <strong>Performance-Optimierung</strong> - Query-Optimierung und
+        Indexierung</p>
+        <p><strong>Wichtigste Repositories:</strong> -
+        <code>SupplierRepository</code> - Lieferanten-Datenzugriff -
+        <code>InventoryItemRepository</code> - Bestandsdatenzugriff mit
+        erweiterter Suche - <code>StockHistoryRepository</code> -
+        Bestandsbewegung Audit-Trail und Analytics -
+        <code>CustomQueryRepository</code> - Komplexe Aggregation und
+        Analytics-Abfragen</p>
+        <p><strong>Spring Data JPA Funktionen:</strong> - Automatische
+        Pagination-Unterstützung via <code>Pageable</code> Interface -
+        Benutzerdefinierte <code>@Query</code> Methoden für komplexe
+        Operationen - Method-Name-Konventionen für einfache Queries -
+        Transaktionsverwaltung durch <code>@Transactional</code></p>
+        <h3 id="daten-schicht">5. <strong>Daten-Schicht</strong></h3>
+        <p>Die Persistierungs-Ebene mit Entities und Beziehungen: -
+        <code>Supplier</code> - Lieferanten-Informationen und
+        Kontaktdetails - <code>InventoryItem</code> -
+        Produkt-/Bestandsdaten - <code>StockHistory</code> - Audit-Trail
+        aller Bestandsbewegungen - JPA-Beziehungen mit Cascading und
+        Fetch-Strategien</p>
+        <p><strong>Wichtigste Design-Entscheidungen:</strong> -
+        <strong>Optimistic Locking</strong> - Versionsfelde verhindern
+        Konflikte bei gleichzeitigen Updates - <strong>Soft
+        Deletes</strong> - Logisches Löschen statt physischem Entfernen
+        wo nötig - <strong>Audit-Felder</strong> -
+        <code>createdAt</code>, <code>updatedAt</code>,
+        <code>createdBy</code> Verfolgung -
+        <strong>Enum-Spalten</strong> - Typsichere
+        Aufzählungsspeicherung</p>
+        <h2 id="authentifizierung-sicherheit">Authentifizierung &amp;
+        Sicherheit</h2>
+        <h3 id="oauth2-integration">OAuth2-Integration</h3>
+        <p>Smart Supply Pro verwendet <strong>OAuth2</strong> für
+        Authentifizierung mit Unterstützung für mehrere Provider (z.B.
+        Google, GitHub).</p>
+        <div class="mermaid">
+        sequenceDiagram
+            Client->>OAuth2Provider: Autorisierung anfordern
+            OAuth2Provider->>Client: Autorisierungscode
+            Client->>Controller: Autorisierungscode einreichen
+            Controller->>AuthService: Code gegen Token austauschen
+            AuthService->>OAuth2Provider: Token validieren
+            OAuth2Provider->>AuthService: Token gültig + Benutzerinformationen
+            AuthService->>Client: JWT/Session-Token
+            Client->>API: Token in Headers einfügen
+            API->>SecurityContext: Token validieren & Principal aufbauen
+            SecurityContext->>Controller: Mit authentifiziertem Principal ausführen
+        </div>
+        <h3 id="autorisierungs-modell">Autorisierungs-Modell</h3>
+        <p><strong>Rollenbasierte Zugriffskontrolle (RBAC):</strong> -
+        <strong>ADMIN</strong> - Vollständiger Systemzugriff, kann alle
+        Operationen durchführen - <strong>USER</strong> - Limitierter
+        Zugriff auf Bestandsanzeige und grundlegende Operationen</p>
+        <p><strong>Implementierung:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;USER&#39;) or hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">searchItems</span><span class="op">(</span><span class="bu">String</span> name<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div>
+        <h3 id="request-scoped-sicherheit">Request-Scoped
+        Sicherheit</h3>
+        <p>Jede Anfrage wird über Spring Security authentifiziert: 1.
+        Token aus Authorization-Header extrahiert 2. Token gegen
+        OAuth2-Provider validiert 3. Principal (Benutzer) im
+        SecurityContext etabliert 4. <span class="citation"
+        data-cites="PreAuthorize">@PreAuthorize</span> Checks
+        durchgeführt vor Method-Ausführung 5. Audit-Informationen
+        erfasst (<code>createdBy</code> Feld) aus SecurityContext</p>
+        <h2 id="exception-handling">Exception-Handling</h2>
+        <p>Konsistentes Exception-Handling in der gesamten
+        Anwendung:</p>
+        <div class="mermaid">
+        graph LR
+            Service["Service-Logik"]
+            BusinessEx["Geschäfts-Exception"]
+            DataEx["Daten-Exception"]
+            ControllerAdv["Exception-Handler"]
+            ErrorResponse["Error-Response<br/>HTTP-Status + Nachricht"]
+
+            Service -->|Validierung fehlgeschlagen| BusinessEx
+            Service -->|DB-Constraint| DataEx
+            BusinessEx --> ControllerAdv
+            DataEx --> ControllerAdv
+            ControllerAdv --> ErrorResponse
+        </div>
+        <p><strong>Exception-Hierarchie:</strong> -
+        <code>IllegalArgumentException</code> → HTTP 400 Bad Request -
+        <code>IllegalStateException</code> → HTTP 409 Conflict -
+        <code>DataIntegrityViolationException</code> → HTTP 409 Conflict
+        - <code>EntityNotFoundException</code> → HTTP 404 Not Found -
+        <code>AccessDeniedException</code> → HTTP 403 Forbidden -
+        <code>Exception</code> → HTTP 500 Internal Server Error</p>
+        <p><strong>Beispiel:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">IllegalStateException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleIllegalState</span><span class="op">(</span><span class="bu">IllegalStateException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">body</span><span class="op">(</span><span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="st">&quot;CONFLICT&quot;</span><span class="op">,</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()));</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2
+        id="datenfluss-beispiel-erstellen-eines-bestandsitems">Datenfluss-Beispiel:
+        Erstellen eines Bestandsitems</h2>
+        <p>So fließt eine Anfrage durch die Architektur:</p>
+        <pre><code>1. HTTP POST /inventory/items
+   ↓
+2. InventoryItemController.create(CreateItemDTO)
+   - DTO-Struktur mit @Valid validieren
+   ↓
+3. InventoryItemService.save(CreateItemDTO)
+   - DTO zu Entity konvertieren
+   - Item-Namen-Eindeutigkeit validieren
+   - Lieferant existiert validieren
+   ↓
+4. InventoryItemRepository.save(InventoryItem)
+   - Datenbank INSERT mit Constraints
+   ↓
+5. StockHistoryService.logInitialStock(InventoryItem)
+   - Audit-Eintrag erstellen
+   ↓
+6. Response: InventoryItemDTO mit generierter ID</code></pre>
+        <h2 id="wichtigste-design-muster">Wichtigste Design-Muster</h2>
+        <h3 id="dependency-injection">1. <strong>Dependency
+        Injection</strong></h3>
+        <p>Alle Komponenten verwenden Constructor Injection für bessere
+        Testbarkeit und explizite Abhängigkeiten.</p>
+        <h3 id="repository-muster">2.
+        <strong>Repository-Muster</strong></h3>
+        <p>Abstrahiert Datenbankzugriff durch Repository-Interfaces,
+        ermöglicht einfaches Testen mit Mocks.</p>
+        <h3 id="dto-muster">3. <strong>DTO-Muster</strong></h3>
+        <p>Daten-Transfer-Objekte entkoppeln API-Verträge von internen
+        Domain-Modellen.</p>
+        <h3 id="service-locator-via-spring">4. <strong>Service Locator
+        (via Spring)</strong></h3>
+        <p>Spring verwaltet Bean-Lebenszyklus und
+        Abhängigkeitsauflösung.</p>
+        <h3 id="exception-übersetzung">5.
+        <strong>Exception-Übersetzung</strong></h3>
+        <p>Geschäfts-Exceptions werden auf angemessene HTTP-Status-Codes
+        und Error-Responses übersetzt.</p>
+        <h3 id="validierungs-helfer">6.
+        <strong>Validierungs-Helfer</strong></h3>
+        <p>Separate Validator-Klassen für komplexe
+        Geschäftsregel-Validierung.</p>
+        <h2 id="performance-überlegungen">Performance-Überlegungen</h2>
+        <ol type="1">
+        <li><strong>Pagination</strong> - Große Ergebnis-Mengen sind
+        standardmäßig paginiert</li>
+        <li><strong>Query-Optimierung</strong> - Benutzerdefinierte
+        <code>@Query</code> Methoden für komplexe Aggregationen</li>
+        <li><strong>Caching</strong> - Strategisches Caching häufig
+        abgerufener Daten</li>
+        <li><strong>Lazy Loading</strong> - Sorgfältige Verwaltung von
+        JPA-Beziehungen um N+1-Abfragen zu vermeiden</li>
+        <li><strong>Datenbank-Indexierung</strong> - Indizes auf häufig
+        gesuchten Spalten (Name, Lieferant, etc.)</li>
+        </ol>
+        <h2 id="skalierungsstrategie">Skalierungsstrategie</h2>
+        <ol type="1">
+        <li><strong>Stateless Services</strong> - Kein Session-State auf
+        Servern, ermöglicht horizontale Skalierung</li>
+        <li><strong>Datenbank-Optimierung</strong> - Indizes und
+        Query-Optimierung für Performance</li>
+        <li><strong>Async-Verarbeitung</strong> - Langfristige
+        Operationen werden asynchron verwaltet</li>
+        <li><strong>Load Balancing</strong> - Mehrere Instanzen können
+        hinter einem Load Balancer bereitgestellt werden</li>
+        <li><strong>Caching-Schichten</strong> - Redis oder ähnlich für
+        verteiltes Caching</li>
+        </ol>
+        <h2 id="test-architektur">Test-Architektur</h2>
+        <div class="mermaid">
+        graph TB
+            UnitTests["Unit Tests<br/>Services, Validatoren"]
+            IntegrationTests["Integration Tests<br/>Controller, Repositories"]
+            E2ETests["E2E Tests<br/>Vollständiger Request-Zyklus"]
+            Coverage["Code-Abdeckung<br/>JaCoCo-Berichte"]
+
+            UnitTests --> Coverage
+            IntegrationTests --> Coverage
+            E2ETests --> Coverage
+
+            style UnitTests fill:#c8e6c9
+            style IntegrationTests fill:#a5d6a7
+            style E2ETests fill:#81c784
+            style Coverage fill:#66bb6a
+        </div>
+        <p><strong>Test-Muster:</strong> - <strong>Unit Tests</strong> -
+        Alle externen Abhängigkeiten mocken, Fokus auf Logik -
+        <strong>Integration Tests</strong> -
+        <code>@SpringBootTest</code> mit TestContainers für Datenbanken
+        nutzen - <strong>Mocking</strong> - Mockito für Service- und
+        Repository-Mocking - <strong>Test-Fixtures</strong> - Builder
+        und Factory-Methoden für Test-Daten</p>
+        <h2 id="nächste-schritte">Nächste Schritte</h2>
+        <ol type="1">
+        <li><strong>Erkunden Sie <a
+        href="./layers.html">Schichten-Architektur</a></strong> -
+        Detaillierte Aufschlüsselung jeder Schicht</li>
+        <li><strong>Überprüfen Sie <a
+        href="./security.html">Sicherheits-Architektur</a></strong> -
+        Detaillierte Sicherheitsimplementierung</li>
+        <li><strong>Überprüfen Sie <a
+        href="./model.html">Datenmodelle</a></strong> -
+        Entity-Beziehungen und Schema</li>
+        <li><strong>Studieren Sie <a
+        href="./testing.html">Test-Strategie</a></strong> - Test-Muster
+        und Best Practices</li>
+        <li><strong>Untersuchen Sie den Quellcode</strong> - Navigieren
+        Sie zu
+        <code>/src/main/java/com/smartsupplypro/inventory/</code></li>
+        </ol>
+        <hr />
+        <p><a href="./index.html">⬅️ Zurück zum
+        Architektur-Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
