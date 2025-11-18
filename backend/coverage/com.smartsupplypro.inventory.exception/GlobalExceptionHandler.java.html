@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.exception;
+
+import java.util.NoSuchElementException;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.smartsupplypro.inventory.exception.dto.ErrorResponse;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+
+/**
+ * Enterprise global exception handler for REST API standardization.
+ *
+ * &lt;p&gt;Handles framework-level exceptions (validation, security, HTTP). Domain business
+ * logic exceptions are handled by {@link BusinessExceptionHandler}.
+ *
+ * &lt;p&gt;&lt;strong&gt;Status Mapping&lt;/strong&gt;: 400 (validation), 401 (auth), 403 (authz),
+ * 404 (not found), 409 (conflicts), 500 (unexpected).
+ * 
+ * @author Smart Supply Pro Development Team
+ * @version 2.0.0
+ * @see BusinessExceptionHandler
+ * @see ErrorResponse
+ */
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)  // Runs after BusinessExceptionHandler as a catch-all
+@RestControllerAdvice
+<span class="fc" id="L43">public class GlobalExceptionHandler {</span>
+
+    /* =======================================================================
+     * 400 BAD REQUEST - Validation &amp; Parameter Errors
+     * ======================================================================= */
+
+    /** Handles {@code @Valid} validation failures. Extracts first field error. */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleValidation(MethodArgumentNotValidException ex) {
+<span class="fc" id="L52">        String message = ex.getBindingResult().getFieldErrors().stream()</span>
+<span class="fc" id="L53">                .findFirst()</span>
+<span class="fc" id="L54">                .map(fe -&gt; fe.getField() + &quot; &quot; + fe.getDefaultMessage())</span>
+<span class="fc" id="L55">                .orElse(&quot;Validation failed&quot;);</span>
+        
+<span class="fc" id="L57">        return ErrorResponse.builder()</span>
+<span class="fc" id="L58">                .status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L59">                .message(sanitize(message))</span>
+<span class="fc" id="L60">                .build();</span>
+    }
+
+    /** Handles JSR-380 constraint violations ({@code @NotNull}, {@code @Size}). */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleConstraint(ConstraintViolationException ex) {
+<span class="nc" id="L66">        String message = ex.getConstraintViolations().stream()</span>
+<span class="nc" id="L67">                .findFirst()</span>
+<span class="nc" id="L68">                .map(v -&gt; v.getPropertyPath() + &quot; &quot; + v.getMessage())</span>
+<span class="nc" id="L69">                .orElse(&quot;Constraint violation&quot;);</span>
+        
+<span class="nc" id="L71">        return ErrorResponse.builder()</span>
+<span class="nc" id="L72">                .status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L73">                .message(sanitize(message))</span>
+<span class="nc" id="L74">                .build();</span>
+    }
+
+    /** Handles malformed JSON payloads and deserialization errors. */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleParsingError(HttpMessageNotReadableException ex) {
+<span class="nc" id="L80">        return ErrorResponse.builder()</span>
+<span class="nc" id="L81">                .status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L82">                .message(&quot;Request body is invalid or unreadable&quot;)</span>
+<span class="nc" id="L83">                .build();</span>
+    }
+
+    /** Handles missing parameters and type conversion failures. */
+    @ExceptionHandler({
+        MissingServletRequestParameterException.class,
+        MethodArgumentTypeMismatchException.class
+    })
+    public ResponseEntity&lt;ErrorResponse&gt; handleParameterError(Exception ex) {
+        String message;
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (ex instanceof MissingServletRequestParameterException missingParam) {</span>
+<span class="fc" id="L94">            message = &quot;Missing required parameter: &quot; + missingParam.getParameterName();</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        } else if (ex instanceof MethodArgumentTypeMismatchException typeMismatch) {</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">            message = &quot;Invalid parameter value: &quot; + (typeMismatch.getName() != null ? typeMismatch.getName() : &quot;unknown&quot;);</span>
+        } else {
+<span class="nc" id="L98">            message = &quot;Invalid parameter&quot;;</span>
+        }
+        
+<span class="fc" id="L101">        return ErrorResponse.builder()</span>
+<span class="fc" id="L102">                .status(HttpStatus.BAD_REQUEST)</span>
+<span class="fc" id="L103">                .message(message)</span>
+<span class="fc" id="L104">                .build();</span>
+    }
+
+    /* =======================================================================
+     * 401 / 403 - Security &amp; Authorization
+     * ======================================================================= */
+
+    /** Handles authentication failures. Returns generic message to prevent enumeration. */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleAuthentication(AuthenticationException ex) {
+<span class="nc" id="L114">        return ErrorResponse.builder()</span>
+<span class="nc" id="L115">                .status(HttpStatus.UNAUTHORIZED)</span>
+<span class="nc" id="L116">                .message(&quot;Authentication required&quot;)</span>
+<span class="nc" id="L117">                .build();</span>
+    }
+
+    /** Handles authorization failures. Returns generic message to prevent enumeration. */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleAuthorization(AccessDeniedException ex) {
+<span class="fc" id="L123">        return ErrorResponse.builder()</span>
+<span class="fc" id="L124">                .status(HttpStatus.FORBIDDEN)</span>
+<span class="fc" id="L125">                .message(&quot;Access denied&quot;)</span>
+<span class="fc" id="L126">                .build();</span>
+    }
+
+    /* =======================================================================
+     * 404 - Resource Not Found
+     * ======================================================================= */
+
+    /** Handles resource lookup failures from repositories and service layer. */
+    @ExceptionHandler({NoSuchElementException.class, IllegalArgumentException.class})
+    public ResponseEntity&lt;ErrorResponse&gt; handleNotFound(RuntimeException ex) {
+<span class="pc bpc" id="L136" title="2 of 4 branches missed.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
+<span class="fc" id="L137">            ? ex.getMessage()</span>
+<span class="pc" id="L138">            : &quot;Resource not found&quot;;</span>
+        
+<span class="fc" id="L140">        return ErrorResponse.builder()</span>
+<span class="fc" id="L141">                .status(HttpStatus.NOT_FOUND)</span>
+<span class="fc" id="L142">                .message(sanitize(message))</span>
+<span class="fc" id="L143">                .build();</span>
+    }
+
+    /** Handles missing static resources (CSS, JS, images) with no response body. */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public void handleStaticResource() {
+        // No body - standard 404 for static resources
+<span class="nc" id="L151">    }</span>
+
+    /* =======================================================================
+     * 409 - Data Conflicts
+     * ======================================================================= */
+
+    /** Handles database constraint violations. Sanitizes SQL to prevent disclosure. */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleDataIntegrity(DataIntegrityViolationException ex) {
+<span class="nc" id="L160">        return ErrorResponse.builder()</span>
+<span class="nc" id="L161">                .status(HttpStatus.CONFLICT)</span>
+<span class="nc" id="L162">                .message(&quot;Data conflict - constraint violation&quot;)</span>
+<span class="nc" id="L163">                .build();</span>
+    }
+
+    /** Handles JPA optimistic locking failures during concurrent updates. */
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
+<span class="nc" id="L169">        return ErrorResponse.builder()</span>
+<span class="nc" id="L170">                .status(HttpStatus.CONFLICT)</span>
+<span class="nc" id="L171">                .message(&quot;Concurrent update detected - please refresh and retry&quot;)</span>
+<span class="nc" id="L172">                .build();</span>
+    }
+
+    /* =======================================================================
+     * Pass-Through &amp; Fallback
+     * ======================================================================= */
+
+    /** Handles explicit {@link ResponseStatusException}. Preserves original status. */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleResponseStatus(ResponseStatusException ex,
+                                                               HttpServletRequest request) {
+<span class="fc" id="L183">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
+<span class="fc" id="L184">        String reason = ex.getReason();  // Store to avoid multiple null-check warnings</span>
+<span class="pc bpc" id="L185" title="2 of 4 branches missed.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
+<span class="fc" id="L186">            ? reason</span>
+<span class="pc bnc" id="L187" title="All 2 branches missed.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
+        
+<span class="fc" id="L189">        return ErrorResponse.builder()</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">                .status(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="fc" id="L191">                .message(sanitize(message))</span>
+<span class="fc" id="L192">                .build();</span>
+    }
+
+    /** 
+     * Enterprise safety net for unhandled exceptions. Prevents stack trace exposure.
+     * &lt;p&gt;&lt;strong&gt;Production&lt;/strong&gt;: Add ERROR-level logging with correlation ID.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleUnexpected(Exception ex) {
+<span class="nc" id="L201">        return ErrorResponse.builder()</span>
+<span class="nc" id="L202">                .status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L203">                .message(&quot;Unexpected server error&quot;)</span>
+<span class="nc" id="L204">                .build();</span>
+    }
+
+    /* =======================================================================
+     * Security - Message Sanitization
+     * ======================================================================= */
+
+    /**
+     * Sanitizes error messages to prevent sensitive information disclosure.
+     * Removes file paths, class names, SQL fragments, and credentials.
+     */
+    private String sanitize(String message) {
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (message == null) return &quot;Unknown error&quot;;</span>
+        
+<span class="fc" id="L218">        return message</span>
+<span class="fc" id="L219">            .replaceAll(&quot;\\b[A-Za-z]:\\\\[\\w\\\\.-]+&quot;, &quot;[PATH]&quot;)           // Windows paths</span>
+<span class="fc" id="L220">            .replaceAll(&quot;/[\\w/.-]+\\.(java|class)&quot;, &quot;[INTERNAL]&quot;)         // Unix paths</span>
+<span class="fc" id="L221">            .replaceAll(&quot;\\bcom\\.smartsupplypro\\.[\\w.]+&quot;, &quot;[INTERNAL]&quot;) // Package names</span>
+<span class="fc" id="L222">            .replaceAll(&quot;(?i)\\bSQL.*&quot;, &quot;Database operation failed&quot;)       // SQL fragments</span>
+<span class="fc" id="L223">            .replaceAll(&quot;(?i)\\bPassword.*&quot;, &quot;Authentication failed&quot;)      // Credentials</span>
+<span class="fc" id="L224">            .replaceAll(&quot;(?i)\\bToken.*&quot;, &quot;Authentication failed&quot;)         // Tokens</span>
+<span class="fc" id="L225">            .trim();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

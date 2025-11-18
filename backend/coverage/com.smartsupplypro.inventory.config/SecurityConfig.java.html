@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.config</a> &gt; <span class="el_source">SecurityConfig.java</span></div><h1>SecurityConfig.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.config;
+
+import java.util.List;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.smartsupplypro.inventory.security.CookieOAuth2AuthorizationRequestRepository;
+import com.smartsupplypro.inventory.security.OAuth2LoginSuccessHandler;
+
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Enterprise OAuth2 security configuration with role-based access control.
+ * 
+ * &lt;p&gt;Implements session-based Google OAuth2 authentication with stateless authorization
+ * request persistence, role-based API authorization, and cross-origin request support.&lt;/p&gt;
+ * 
+ * &lt;p&gt;&lt;strong&gt;Enterprise Features:&lt;/strong&gt; OAuth2 login with custom user provisioning,
+ * dual authentication entry points (API vs browser), CORS with secure cookies,
+ * demo mode read-only access, and comprehensive session management.&lt;/p&gt;
+ * 
+ * &lt;p&gt;&lt;strong&gt;Demo Mode Integration:&lt;/strong&gt; Uses SpEL expressions with {@code @appProperties.demoReadonly}
+ * for conditional read-only access. See {@link SecuritySpelBridgeConfig} for SpEL bridge setup.&lt;/p&gt;
+ */
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+@EnableConfigurationProperties(AppProperties.class)
+<span class="fc" id="L51">public class SecurityConfig {</span>
+
+    
+    /** OAuth2 authentication success handler for user provisioning. */
+    @Autowired
+    private OAuth2LoginSuccessHandler successHandler;
+
+    /** Security filter helper for API request detection. */
+    @Autowired
+    private SecurityFilterHelper filterHelper;
+
+    /** Security entry point helper for authentication failure handling. */
+    @Autowired
+    private SecurityEntryPointHelper entryPointHelper;
+
+    /** Security authorization helper for request authorization rules. */
+    @Autowired
+    private SecurityAuthorizationHelper authorizationHelper;
+
+    /** Custom OIDC user service for Google OAuth2. */
+    @Autowired
+    private com.smartsupplypro.inventory.service.CustomOidcUserService customOidcUserService;
+
+    /** Custom OAuth2 user service for non-OIDC providers. */
+    @Autowired
+    private com.smartsupplypro.inventory.service.CustomOAuth2UserService customOAuth2UserService;
+
+    /** Application properties for demo mode and frontend URLs. */
+    @Autowired
+    private AppProperties props;
+
+    /**
+     * Primary security filter chain with OAuth2 and role-based authorization.
+     */
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+<span class="fc" id="L87">        OncePerRequestFilter apiFlagFilter = filterHelper.createApiDetectionFilter();</span>
+<span class="pc" id="L88">        RequestMatcher apiMatcher = request -&gt; Boolean.TRUE.equals(request.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
+<span class="fc" id="L89">        AuthenticationEntryPoint apiEntry = entryPointHelper.createApiEntryPoint();</span>
+<span class="fc" id="L90">        AuthenticationEntryPoint webEntry = entryPointHelper.createWebEntryPoint(props.getFrontend().getBaseUrl());</span>
+        // Main security configuration
+<span class="fc" id="L92">        http</span>
+<span class="fc" id="L93">            .addFilterBefore(apiFlagFilter, AbstractPreAuthenticatedProcessingFilter.class)</span>
+<span class="fc" id="L94">            .cors(Customizer.withDefaults())</span>
+<span class="fc" id="L95">            .authorizeHttpRequests(auth -&gt; authorizationHelper.configureAuthorization(auth, props.isDemoReadonly()))</span>
+
+<span class="fc" id="L97">            .exceptionHandling(ex -&gt; ex</span>
+<span class="fc" id="L98">                .defaultAuthenticationEntryPointFor(apiEntry, apiMatcher)</span>
+<span class="pc" id="L99">                .defaultAuthenticationEntryPointFor(webEntry, request -&gt; true)</span>
+            )
+<span class="fc" id="L101">            .oauth2Login(oauth -&gt; oauth</span>
+<span class="fc" id="L102">                .authorizationEndpoint(ae -&gt; ae.authorizationRequestRepository(authorizationRequestRepository()))</span>
+<span class="fc" id="L103">                .userInfoEndpoint(ui -&gt; ui.oidcUserService(customOidcUserService).userService(customOAuth2UserService))</span>
+<span class="fc" id="L104">                .failureHandler(oauthFailureHandler(props))</span>
+<span class="fc" id="L105">                .successHandler(successHandler)</span>
+            )
+<span class="fc" id="L107">            .logout(logout -&gt; logout</span>
+<span class="fc" id="L108">                .logoutUrl(&quot;/logout&quot;)</span>
+<span class="fc" id="L109">                .logoutSuccessHandler((req, res, auth) -&gt; {</span>
+<span class="nc" id="L110">                    boolean isApi = Boolean.TRUE.equals(req.getAttribute(&quot;IS_API_REQUEST&quot;));</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                    if (isApi) {</span>
+<span class="nc" id="L112">                        res.setStatus(HttpServletResponse.SC_NO_CONTENT);</span>
+<span class="nc" id="L113">                        return;</span>
+                    }
+<span class="nc" id="L115">                    String base = props.getFrontend().getBaseUrl();</span>
+<span class="nc" id="L116">                    String ret  = req.getParameter(&quot;return&quot;);</span>
+<span class="nc" id="L117">                    String target = base + &quot;/logout-success&quot;;</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">                    if (ret != null &amp;&amp; ret.startsWith(base)) {</span>
+<span class="nc" id="L119">                        target = ret;</span>
+                    }
+<span class="nc" id="L121">                    res.sendRedirect(target);</span>
+<span class="nc" id="L122">                })</span>
+<span class="fc" id="L123">                .invalidateHttpSession(true)</span>
+<span class="fc" id="L124">                .deleteCookies(&quot;JSESSIONID&quot;, &quot;SESSION&quot;)</span>
+<span class="fc" id="L125">                .permitAll()</span>
+            )
+<span class="fc" id="L127">            .sessionManagement(session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))</span>
+<span class="fc" id="L128">            .csrf(csrf -&gt; csrf.ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/logout&quot;, &quot;/actuator/**&quot;));</span>
+<span class="fc" id="L129">        return http.build();</span>
+    }
+
+    /**
+     * CORS configuration for cross-origin frontend access with secure cookies.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+<span class="fc" id="L137">        CorsConfiguration config = new CorsConfiguration();</span>
+<span class="fc" id="L138">        config.setAllowedOrigins(List.of(</span>
+            &quot;http://localhost:5173&quot;,
+            &quot;http://127.0.0.1:5173&quot;,
+            &quot;https://localhost:5173&quot;,
+            &quot;https://inventory-service.koyeb.app&quot;
+        ));
+<span class="fc" id="L144">        config.setAllowedMethods(List.of(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;PATCH&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;));</span>
+<span class="fc" id="L145">        config.setAllowedHeaders(List.of(&quot;*&quot;));</span>
+<span class="fc" id="L146">        config.setExposedHeaders(List.of(&quot;Set-Cookie&quot;));</span>
+<span class="fc" id="L147">        config.setAllowCredentials(true);</span>
+<span class="fc" id="L148">        config.setMaxAge(3600L);</span>
+
+<span class="fc" id="L150">        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();</span>
+<span class="fc" id="L151">        source.registerCorsConfiguration(&quot;/**&quot;, config);</span>
+<span class="fc" id="L152">        return source;</span>
+    }
+
+    /**
+     * Session cookie configuration for cross-site authentication.
+     */
+    @Bean
+    public CookieSerializer cookieSerializer() {
+<span class="fc" id="L160">        DefaultCookieSerializer serializer = new DefaultCookieSerializer();</span>
+<span class="fc" id="L161">        serializer.setSameSite(&quot;None&quot;);</span>
+<span class="fc" id="L162">        serializer.setUseSecureCookie(true);</span>
+<span class="fc" id="L163">        serializer.setCookiePath(&quot;/&quot;);</span>
+<span class="fc" id="L164">        return serializer;</span>
+    }
+
+    /**
+     * OAuth2 authentication failure handler with frontend redirect.
+     */
+    @Bean
+    public AuthenticationFailureHandler oauthFailureHandler(AppProperties props) {
+<span class="fc" id="L172">        return (request, response, exception) -&gt; {</span>
+<span class="nc" id="L173">            LoggerFactory.getLogger(SecurityConfig.class).warn(&quot;OAuth2 failure: {}&quot;, exception.toString());</span>
+<span class="nc" id="L174">            String target = props.getFrontend().getBaseUrl() + &quot;/login?error=oauth&quot;;</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            if (!response.isCommitted()) response.sendRedirect(target);</span>
+<span class="nc" id="L176">        };</span>
+    };
+
+    /**
+     * Stateless OAuth2 authorization request repository using secure cookies.
+     */
+    @Bean
+    public AuthorizationRequestRepository&lt;OAuth2AuthorizationRequest&gt; authorizationRequestRepository() {
+<span class="fc" id="L184">        return new CookieOAuth2AuthorizationRequestRepository();</span>
+    }
+};
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

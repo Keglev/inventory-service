@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockMetricsRepositoryImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.repository.custom</a> &gt; <span class="el_source">StockMetricsRepositoryImpl.java</span></div><h1>StockMetricsRepositoryImpl.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.repository.custom;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import com.smartsupplypro.inventory.repository.custom.util.DatabaseDialectDetector;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+/**
+ * KPI metrics repository implementation with multi-database support.
+ *
+ * &lt;p&gt;Encapsulates native SQL for dashboard statistics and threshold monitoring
+ * across H2 (test) and Oracle (prod) environments.
+ *
+ * @author Smart Supply Pro Development Team
+ * @version 1.0.0
+ * @since 2.0.0
+ */
+@Repository
+public class StockMetricsRepositoryImpl implements StockMetricsRepository {
+
+    @PersistenceContext
+    private EntityManager em;
+
+    private final DatabaseDialectDetector dialectDetector;
+
+<span class="fc" id="L30">    public StockMetricsRepositoryImpl(DatabaseDialectDetector dialectDetector) {</span>
+<span class="fc" id="L31">        this.dialectDetector = dialectDetector;</span>
+<span class="fc" id="L32">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public List&lt;Object[]&gt; getTotalStockBySupplier() {
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L38">            ? buildH2SupplierTotalsSql()</span>
+<span class="pc" id="L39">            : buildOracleSupplierTotalsSql();</span>
+
+<span class="fc" id="L41">        return em.createNativeQuery(sql).getResultList();</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public List&lt;Object[]&gt; getUpdateCountByItem(String supplierId) {
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L48">            ? buildH2UpdateCountSql()</span>
+<span class="pc" id="L49">            : buildOracleUpdateCountSql();</span>
+
+<span class="fc" id="L51">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
+
+<span class="fc" id="L53">        return em.createNativeQuery(sql)</span>
+<span class="fc" id="L54">                .setParameter(&quot;supplierId&quot;, normalizedSupplier)</span>
+<span class="fc" id="L55">                .getResultList();</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public List&lt;Object[]&gt; findItemsBelowMinimumStock(String supplierId) {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L62">            ? buildH2BelowMinimumSql()</span>
+<span class="pc" id="L63">            : buildOracleBelowMinimumSql();</span>
+
+<span class="fc" id="L65">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
+
+<span class="fc" id="L67">        return em.createNativeQuery(sql)</span>
+<span class="fc" id="L68">                .setParameter(&quot;supplierId&quot;, normalizedSupplier)</span>
+<span class="fc" id="L69">                .getResultList();</span>
+    }
+
+    /* ======================================================================
+     * SQL Builder Methods - H2 Dialect
+     * ====================================================================== */
+
+    private String buildH2SupplierTotalsSql() {
+<span class="fc" id="L77">        return &quot;&quot;&quot;</span>
+            SELECT s.&quot;NAME&quot; AS supplier_name, SUM(i.&quot;QUANTITY&quot;) AS total_quantity
+            FROM &quot;SUPPLIER&quot; s
+            JOIN &quot;INVENTORY_ITEM&quot; i ON s.&quot;ID&quot; = i.&quot;SUPPLIER_ID&quot;
+            GROUP BY s.&quot;NAME&quot;
+            ORDER BY total_quantity DESC
+        &quot;&quot;&quot;;
+    }
+
+    private String buildH2UpdateCountSql() {
+<span class="fc" id="L87">        return &quot;&quot;&quot;</span>
+            SELECT i.&quot;NAME&quot; AS item_name, COUNT(sh.&quot;ID&quot;) AS update_count
+            FROM &quot;INVENTORY_ITEM&quot; i
+            JOIN &quot;STOCK_HISTORY&quot; sh ON sh.&quot;ITEM_ID&quot; = i.&quot;ID&quot;
+            WHERE (:supplierId IS NULL OR UPPER(i.&quot;SUPPLIER_ID&quot;) = UPPER(:supplierId))
+            GROUP BY i.&quot;NAME&quot;
+            ORDER BY update_count DESC
+        &quot;&quot;&quot;;
+    }
+
+    private String buildH2BelowMinimumSql() {
+<span class="fc" id="L98">        return &quot;&quot;&quot;</span>
+            SELECT i.&quot;NAME&quot;, i.&quot;QUANTITY&quot;, i.&quot;MINIMUM_QUANTITY&quot;
+            FROM &quot;INVENTORY_ITEM&quot; i
+            WHERE i.&quot;QUANTITY&quot; &lt; i.&quot;MINIMUM_QUANTITY&quot;
+              AND (:supplierId IS NULL OR UPPER(i.&quot;SUPPLIER_ID&quot;) = UPPER(:supplierId))
+            ORDER BY i.&quot;QUANTITY&quot; ASC
+        &quot;&quot;&quot;;
+    }
+
+    /* ======================================================================
+     * SQL Builder Methods - Oracle Dialect
+     * ====================================================================== */
+
+    private String buildOracleSupplierTotalsSql() {
+<span class="nc" id="L112">        return &quot;&quot;&quot;</span>
+            SELECT s.name AS supplier_name, SUM(i.quantity) AS total_quantity
+            FROM supplier s
+            JOIN inventory_item i ON s.id = i.supplier_id
+            GROUP BY s.name
+            ORDER BY total_quantity DESC
+        &quot;&quot;&quot;;
+    }
+
+    private String buildOracleUpdateCountSql() {
+<span class="nc" id="L122">        return &quot;&quot;&quot;</span>
+            SELECT i.name AS item_name, COUNT(sh.id) AS update_count
+            FROM stock_history sh
+            JOIN inventory_item i ON sh.item_id = i.id
+            WHERE (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+            GROUP BY i.name
+            ORDER BY update_count DESC
+        &quot;&quot;&quot;;
+    }
+
+    private String buildOracleBelowMinimumSql() {
+<span class="nc" id="L133">        return &quot;&quot;&quot;</span>
+            SELECT i.name, i.quantity, i.minimum_quantity
+            FROM inventory_item i
+            WHERE i.quantity &lt; i.minimum_quantity
+              AND (:supplierId IS NULL OR UPPER(i.supplier_id) = UPPER(:supplierId))
+            ORDER BY i.quantity ASC
+        &quot;&quot;&quot;;
+    }
+
+    /* ======================================================================
+     * Utility Methods
+     * ====================================================================== */
+
+    /** Normalizes optional string parameters (null/blank → null). */
+    private String normalizeOptionalParam(String param) {
+<span class="pc bpc" id="L148" title="2 of 4 branches missed.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

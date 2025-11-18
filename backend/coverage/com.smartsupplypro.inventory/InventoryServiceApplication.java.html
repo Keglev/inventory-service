@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryServiceApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory</a> &gt; <span class="el_source">InventoryServiceApplication.java</span></div><h1>InventoryServiceApplication.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+/**
+ * Main application class for the SmartSupplyPro Inventory Service.
+ * 
+ * &lt;p&gt;&lt;strong&gt;Features&lt;/strong&gt;: Inventory CRUD, supplier management, stock history audit trail, 
+ * analytics insights, OAuth2 security with Google authentication.
+ * 
+ * &lt;p&gt;&lt;strong&gt;Database&lt;/strong&gt;: Oracle Autonomous Database with wallet-based authentication.
+ * 
+ * &lt;p&gt;&lt;strong&gt;Security&lt;/strong&gt;: Oracle wallet configuration handled by deployment infrastructure 
+ * (start.sh) for security and separation of concerns.
+ * 
+ * &lt;p&gt;&lt;strong&gt;Architecture&lt;/strong&gt;: Layered (Controller → Service → Repository), DTO pattern, 
+ * validation layer, audit trail.
+ * 
+ * &lt;p&gt;&lt;strong&gt;Deployment&lt;/strong&gt;: Profiles: dev (detailed logging), test (H2 in-memory), 
+ * prod (minimal logging + Oracle Cloud).
+ * 
+ * @author SmartSupplyPro Team
+ * @version 1.0.0
+ * @see &lt;a href=&quot;https://github.com/Keglev/inventory-service&quot;&gt;GitHub Repository&lt;/a&gt;
+ * @see &lt;a href=&quot;https://keglev.github.io/inventory-service/api.html&quot;&gt;API Documentation&lt;/a&gt;
+ */
+@SpringBootApplication
+<span class="fc" id="L29">public class InventoryServiceApplication {</span>
+
+    /**
+     * Main entry point for the Inventory Service application.
+     * 
+     * &lt;p&gt;&lt;strong&gt;Oracle Wallet Setup&lt;/strong&gt;: Handled by start.sh before JVM startup 
+     * (decodes wallet, sets system properties, clears env vars).
+     * 
+     * &lt;p&gt;&lt;strong&gt;Benefits&lt;/strong&gt;: Security (no sensitive config in Java), testability 
+     * (tests use H2), follows 12-factor app principles.
+     *
+     * @param args command-line arguments (typically empty in containerized deployments)
+     */
+    public static void main(String[] args) {
+<span class="nc" id="L43">        SpringApplication.run(InventoryServiceApplication.class, args);</span>
+<span class="nc" id="L44">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

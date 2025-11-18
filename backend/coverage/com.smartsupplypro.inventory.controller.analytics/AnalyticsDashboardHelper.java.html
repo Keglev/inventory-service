@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsDashboardHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller.analytics</a> &gt; <span class="el_source">AnalyticsDashboardHelper.java</span></div><h1>AnalyticsDashboardHelper.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller.analytics;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+import com.smartsupplypro.inventory.dto.DashboardSummaryDTO;
+import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Dashboard aggregation helper for analytics controller.
+ *
+ * &lt;p&gt;Centralizes complex dashboard data aggregation logic:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Multi-source data aggregation (stock, low-stock items, movements, frequencies)&lt;/li&gt;
+ *   &lt;li&gt;Conditional data loading based on supplier filter&lt;/li&gt;
+ *   &lt;li&gt;Result limiting for top-N queries&lt;/li&gt;
+ *   &lt;li&gt;Date window defaulting&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Smart Supply Pro Development Team
+ * @version 1.0.0
+ * @since 2.0.0
+ */
+@Component
+@RequiredArgsConstructor
+public class AnalyticsDashboardHelper {
+
+    private final StockAnalyticsService stockAnalyticsService;
+
+    /**
+     * Builds comprehensive dashboard summary with multiple analytics.
+     *
+     * &lt;p&gt;Aggregates:
+     * &lt;ul&gt;
+     *   &lt;li&gt;Stock per supplier (all suppliers)&lt;/li&gt;
+     *   &lt;li&gt;Low stock items (top 3, supplier-specific)&lt;/li&gt;
+     *   &lt;li&gt;Monthly stock movement (supplier-filtered)&lt;/li&gt;
+     *   &lt;li&gt;Top updated items (top 5, supplier-specific)&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param supplierId optional supplier filter
+     * @param startDate start of date range
+     * @param endDate end of date range
+     * @return dashboard summary with aggregated data
+     */
+    public DashboardSummaryDTO buildDashboardSummary(String supplierId, LocalDateTime startDate, LocalDateTime endDate) {
+<span class="nc" id="L51">        DashboardSummaryDTO summary = new DashboardSummaryDTO();</span>
+
+        // Stock per supplier (always load all suppliers for overview)
+<span class="nc" id="L54">        summary.setStockPerSupplier(stockAnalyticsService.getTotalStockPerSupplier());</span>
+
+        // Low stock items (supplier-specific, top 3)
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        summary.setLowStockItems(isSupplierProvided(supplierId)</span>
+<span class="nc" id="L58">                ? stockAnalyticsService.getItemsBelowMinimumStock(supplierId).stream().limit(3).toList()</span>
+<span class="nc" id="L59">                : List.of());</span>
+
+        // Monthly stock movement (supplier-filtered)
+<span class="nc" id="L62">        summary.setMonthlyStockMovement(stockAnalyticsService.getMonthlyStockMovement(</span>
+<span class="nc" id="L63">                startDate.toLocalDate(), endDate.toLocalDate(), supplierId));</span>
+
+        // Top updated items (supplier-specific, top 5)
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        summary.setTopUpdatedItems(isSupplierProvided(supplierId)</span>
+<span class="nc" id="L67">                ? stockAnalyticsService.getItemUpdateFrequency(supplierId).stream().limit(5).toList()</span>
+<span class="nc" id="L68">                : List.of());</span>
+
+<span class="nc" id="L70">        return summary;</span>
+    }
+
+    /**
+     * Checks if supplier filter is provided and non-blank.
+     *
+     * @param supplierId the supplier identifier to check
+     * @return true if supplier filter is valid, false otherwise
+     */
+    private boolean isSupplierProvided(String supplierId) {
+<span class="nc bnc" id="L80" title="All 4 branches missed.">        return supplierId != null &amp;&amp; !supplierId.isBlank();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

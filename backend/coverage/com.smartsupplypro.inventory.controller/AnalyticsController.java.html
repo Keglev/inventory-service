@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.controller</a> &gt; <span class="el_source">AnalyticsController.java</span></div><h1>AnalyticsController.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.controller;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.smartsupplypro.inventory.controller.analytics.AnalyticsControllerValidationHelper;
+import com.smartsupplypro.inventory.controller.analytics.AnalyticsDashboardHelper;
+import com.smartsupplypro.inventory.dto.DashboardSummaryDTO;
+import com.smartsupplypro.inventory.dto.FinancialSummaryDTO;
+import com.smartsupplypro.inventory.dto.ItemUpdateFrequencyDTO;
+import com.smartsupplypro.inventory.dto.LowStockItemDTO;
+import com.smartsupplypro.inventory.dto.MonthlyStockMovementDTO;
+import com.smartsupplypro.inventory.dto.PriceTrendDTO;
+import com.smartsupplypro.inventory.dto.StockPerSupplierDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateFilterDTO;
+import com.smartsupplypro.inventory.dto.StockUpdateResultDTO;
+import com.smartsupplypro.inventory.dto.StockValueOverTimeDTO;
+import com.smartsupplypro.inventory.service.impl.analytics.FinancialAnalyticsService;
+import com.smartsupplypro.inventory.service.impl.analytics.StockAnalyticsService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Analytics REST controller for inventory reporting and dashboard data.
+ *
+ * &lt;p&gt;Delegates to specialized helpers for validation and dashboard aggregation
+ * while maintaining the original REST API contract.
+ *
+ * &lt;p&gt;&lt;strong&gt;Delegation Strategy&lt;/strong&gt;:
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@link AnalyticsControllerValidationHelper} - Parameter validation&lt;/li&gt;
+ *   &lt;li&gt;{@link AnalyticsDashboardHelper} - Dashboard data aggregation&lt;/li&gt;
+ *   &lt;li&gt;{@link StockAnalyticsService} - Stock metrics and trends&lt;/li&gt;
+ *   &lt;li&gt;{@link FinancialAnalyticsService} - Financial summaries&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Smart Supply Pro Development Team
+ * @version 2.0.0
+ * @since 1.0.0
+ * @see StockAnalyticsService
+ * @see FinancialAnalyticsService
+ */
+@RestController
+@RequestMapping(value = &quot;/api/analytics&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
+@Validated
+public class AnalyticsController {
+
+    private final StockAnalyticsService stockAnalyticsService;
+    private final FinancialAnalyticsService financialAnalyticsService;
+    private final AnalyticsControllerValidationHelper validationHelper;
+    private final AnalyticsDashboardHelper dashboardHelper;
+
+    /**
+     * Gets time series of total stock value between dates.
+     *
+     * @param start inclusive start date (ISO yyyy-MM-dd)
+     * @param end inclusive end date (ISO yyyy-MM-dd)
+     * @param supplierId optional supplier filter
+     * @return list of stock value points over time
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/stock-value&quot;)
+    public ResponseEntity&lt;List&lt;StockValueOverTimeDTO&gt;&gt; getStockValueOverTime(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestParam(required = false) String supplierId) {
+
+<span class="fc" id="L83">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
+<span class="fc" id="L84">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockValueOverTime(start, end, supplierId));</span>
+    }
+
+    /**
+     * Gets current total stock per supplier for charts.
+     *
+     * @return list of stock quantities per supplier
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/stock-per-supplier&quot;)
+    public ResponseEntity&lt;List&lt;StockPerSupplierDTO&gt;&gt; getStockPerSupplier() {
+<span class="fc" id="L95">        return ResponseEntity.ok(stockAnalyticsService.getTotalStockPerSupplier());</span>
+    }
+
+    /**
+     * Gets count of items below minimum stock threshold.
+     *
+     * @return number of low-stock items
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/low-stock/count&quot;)
+    public long getLowStockCount() {
+<span class="nc" id="L106">        return stockAnalyticsService.lowStockCount();</span>
+    }
+
+    /**
+     * Gets item update frequency for a supplier.
+     *
+     * @param supplierId required supplier identifier
+     * @return list of item update frequencies
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/item-update-frequency&quot;)
+    public ResponseEntity&lt;List&lt;ItemUpdateFrequencyDTO&gt;&gt; getItemUpdateFrequency(
+            @RequestParam(name = &quot;supplierId&quot;) String supplierId) {
+
+<span class="fc" id="L120">        validationHelper.requireNonBlank(supplierId, &quot;supplierId&quot;);</span>
+<span class="fc" id="L121">        return ResponseEntity.ok(stockAnalyticsService.getItemUpdateFrequency(supplierId));</span>
+    }
+
+    /**
+     * Gets items below minimum stock threshold for a supplier.
+     *
+     * @param supplierId required supplier identifier
+     * @return list of low-stock items with details
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/low-stock-items&quot;)
+    public ResponseEntity&lt;List&lt;LowStockItemDTO&gt;&gt; getLowStockItems(
+            @RequestParam(name = &quot;supplierId&quot;) String supplierId) {
+
+<span class="fc" id="L135">        validationHelper.requireNonBlank(supplierId, &quot;supplierId&quot;);</span>
+<span class="fc" id="L136">        return ResponseEntity.ok(stockAnalyticsService.getItemsBelowMinimumStock(supplierId));</span>
+    }
+
+    /**
+     * Gets monthly stock movement within date range.
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/monthly-stock-movement&quot;)
+    public ResponseEntity&lt;List&lt;MonthlyStockMovementDTO&gt;&gt; getMonthlyStockMovement(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestParam(required = false) String supplierId) {
+
+<span class="fc" id="L149">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
+<span class="fc" id="L150">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
+    }
+
+    /**
+     * Gets filtered stock updates via query parameters (defaults to last 30 days).
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/stock-updates&quot;)
+    public ResponseEntity&lt;List&lt;StockUpdateResultDTO&gt;&gt; getFilteredStockUpdatesFromParams(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) String itemName,
+            @RequestParam(required = false) String supplierId,
+            @RequestParam(required = false) String createdBy,
+            @RequestParam(required = false) Integer minChange,
+            @RequestParam(required = false) Integer maxChange) {
+
+        // Apply default date window (last 30 days)
+<span class="fc" id="L168">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
+<span class="fc" id="L169">        startDate = dateWindow[0];</span>
+<span class="fc" id="L170">        endDate = dateWindow[1];</span>
+        
+        // Validate date &amp; numeric params
+<span class="fc" id="L173">        validationHelper.validateDateTimeRange(startDate, endDate, &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L174">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
+
+<span class="fc" id="L176">        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();</span>
+<span class="fc" id="L177">        filter.setStartDate(startDate);</span>
+<span class="fc" id="L178">        filter.setEndDate(endDate);</span>
+<span class="fc" id="L179">        filter.setItemName(itemName);</span>
+<span class="fc" id="L180">        filter.setSupplierId(supplierId);</span>
+<span class="fc" id="L181">        filter.setCreatedBy(createdBy);</span>
+<span class="fc" id="L182">        filter.setMinChange(minChange);</span>
+<span class="fc" id="L183">        filter.setMaxChange(maxChange);</span>
+
+<span class="fc" id="L185">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+    }
+
+    /**
+     * Gets filtered stock updates via JSON payload.
+     *
+     * @param filter stock update filter criteria
+     * @return list of filtered stock updates
+     */
+    @PreAuthorize(&quot;isAuthenticated()&quot;)
+    @PostMapping(value = &quot;/stock-updates/query&quot;, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity&lt;List&lt;StockUpdateResultDTO&gt;&gt; getFilteredStockUpdatesPost(
+            @RequestBody @Valid StockUpdateFilterDTO filter) {
+
+<span class="fc" id="L199">        validationHelper.validateStockUpdateFilter(filter);</span>
+<span class="fc" id="L200">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+    }
+
+    /**
+     * Gets dashboard summary with multiple analytics (defaults to last 30 days).
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/summary&quot;)
+    public ResponseEntity&lt;DashboardSummaryDTO&gt; getDashboardSummary(
+            @RequestParam(required = false) String supplierId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+
+        // Apply default date window
+<span class="fc" id="L214">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
+<span class="fc" id="L215">        startDate = dateWindow[0];</span>
+<span class="fc" id="L216">        endDate = dateWindow[1];</span>
+        
+<span class="fc" id="L218">        validationHelper.validateDateTimeRange(startDate, endDate, &quot;startDate&quot;, &quot;endDate&quot;);</span>
+
+<span class="fc" id="L220">        return ResponseEntity.ok(dashboardHelper.buildDashboardSummary(supplierId, startDate, endDate));</span>
+    }
+
+    /**
+     * Gets historical price changes for an item.
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/price-trend&quot;)
+    public ResponseEntity&lt;List&lt;PriceTrendDTO&gt;&gt; getPriceTrend(
+            @RequestParam String itemId,
+            @RequestParam(required = false) String supplierId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+
+<span class="fc" id="L234">        validationHelper.requireNonBlank(itemId, &quot;itemId&quot;);</span>
+<span class="fc" id="L235">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
+<span class="fc" id="L236">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
+    }
+
+    /**
+     * Gets financial summary with WAC calculations.
+     */
+    @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
+    @GetMapping(&quot;/financial/summary&quot;)
+    public ResponseEntity&lt;FinancialSummaryDTO&gt; getFinancialSummary(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String supplierId) {
+
+<span class="fc" id="L249">        validationHelper.validateDateRange(from, to, &quot;from&quot;, &quot;to&quot;);</span>
+<span class="fc" id="L250">        return ResponseEntity.ok(financialAnalyticsService.getFinancialSummaryWAC(from, to, supplierId));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
