@@ -65,6 +65,23 @@ jobs:
           path: ${{ steps.where.outputs.dir }}/target/site/jacoco
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Check JaCoCo artifact
+        run: |
+          PROJECT_DIR="${{ steps.where.outputs.dir }}"
+          JACOCO_DIR="$PROJECT_DIR/target/site/jacoco"
+          
+          if [ -d "$JACOCO_DIR" ] && [ "$(ls -A $JACOCO_DIR)" ]; then
+            echo "✅ JaCoCo artifact found at $JACOCO_DIR"
+            echo "Files: $(ls -1 $JACOCO_DIR | head -5)"
+          else
+            echo "⚠️  JaCoCo artifact not found or empty"
+            echo "Event: ${{ github.event_name }}"
+            if [ "${{ github.event_name }}" = "push" ]; then
+              echo "Note: Direct push event (docs-only change) - JaCoCo artifact won't be available"
+              echo "JaCoCo is only available when workflow_run is triggered after CI succeeds"
+            fi
+          fi
 
       # 4) Node + ReDoc CLI (for OpenAPI → ReDoc)
       - name: Set up Node.js

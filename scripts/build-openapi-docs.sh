@@ -43,10 +43,14 @@ echo "✓ ReDoc HTML generated at $API_OUT/index.html"
 JACOCO_SRC="$PROJECT_DIR/target/site/jacoco"
 COVERAGE_OUT="$OUTPUT_DIR/backend/coverage"
 
-if [ -d "$JACOCO_SRC" ]; then
+if [ -d "$JACOCO_SRC" ] && [ "$(ls -A $JACOCO_SRC)" ]; then
   mkdir -p "$COVERAGE_OUT"
   cp -R "$JACOCO_SRC/." "$COVERAGE_OUT/"
   echo "✓ Copied JaCoCo report from $JACOCO_SRC to $COVERAGE_OUT"
+  echo "  Coverage files: $(ls -1 $COVERAGE_OUT | wc -l) files"
 else
-  echo "⚠️  No JaCoCo report directory at $JACOCO_SRC (skipping coverage copy)"
+  echo "⚠️  No JaCoCo report directory at $JACOCO_SRC or it is empty (skipping coverage copy)"
+  echo "   This is normal for docs-only pushes. JaCoCo is available only after successful CI."
+  echo "   Coverage will be available when workflow_run triggers after CI completion."
 fi
+
