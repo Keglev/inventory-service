@@ -1,0 +1,37 @@
+HealthDbResponse:
+  type: object
+  title: Database Health Response
+  description: Response from successful database health check
+  required:
+    - status
+  properties:
+    status:
+      type: string
+      enum: [UP]
+      description: Health status indicator - "UP" when database is healthy
+      example: "UP"
+    oracleSeesIp:
+      type: string
+      description: Client IP address as seen by the Oracle database using SYS_CONTEXT
+      example: "192.168.1.100"
+
+HealthDbError:
+  type: object
+  title: Database Health Error Response
+  description: Response from failed database health check
+  required:
+    - status
+  properties:
+    status:
+      type: string
+      enum: [DOWN]
+      description: Health status indicator - "DOWN" when database is unavailable
+      example: "DOWN"
+    db:
+      type: string
+      description: Database-specific error message
+      example: "query failed"
+    error:
+      type: string
+      description: Detailed error message explaining why the health check failed
+      example: "Cannot get a connection, pool error Timeout waiting for idle object"

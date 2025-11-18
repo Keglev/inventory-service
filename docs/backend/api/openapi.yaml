@@ -190,3 +190,12 @@ paths:
   /api/analytics/financial/summary:
     get:
       $ref: './paths/analytics/financial-summary.yaml#/get'
+  
+  # System endpoints
+  /health:
+    get:
+      $ref: './paths/system/health.yaml#/get'
+  
+  /health/db:
+    get:
+      $ref: './paths/system/health-db.yaml#/get'

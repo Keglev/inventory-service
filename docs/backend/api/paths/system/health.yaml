@@ -1,0 +1,21 @@
+get:
+  tags:
+    - System
+  summary: Basic Application Health Check
+  description: |
+    Performs a lightweight health check to verify the application is running.
+    
+    This endpoint provides a quick way to monitor application availability without
+    checking external dependencies like databases. Useful for load balancers,
+    orchestration platforms, and basic uptime monitoring.
+  operationId: getHealth
+  responses:
+    '200':
+      description: Application is running and healthy
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: "OK"
+    '500':
+      $ref: '../../responses/errors.yaml#/InternalServerError'
