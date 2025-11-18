@@ -46,20 +46,71 @@ tags:
 
 components:
   securitySchemes:
-    oauth2:
-      type: oauth2
-      description: Google OAuth2 authentication
-      flows:
-        authorizationCode:
-          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
-          tokenUrl: https://oauth2.googleapis.com/token
-          scopes:
-            openid: OpenID Connect
-            profile: User profile information
-            email: User email address
+    $ref: './security/security-schemes.yaml#/components/securitySchemes'
+  
+  parameters:
+    $ref: './parameters/ids.yaml#/components/parameters'
+  
+  responses:
+    $ref: './responses/errors.yaml#/components/responses'
+  
+  examples:
+    InventoryItem:
+      summary: Inventory Item Example
+      value:
+        id: 101
+        sku: "INV-2025-001"
+        name: "Industrial Bearing Set"
+        description: "High-precision ball bearings for machinery"
+        quantity: 1250
+        price: 45.99
+        supplierId: 5
+        supplierName: "Precision Parts Co."
+        reorderLevel: 100
+        unitOfMeasure: "box"
+        category: "Components"
+        createdAt: "2025-01-15T08:30:00Z"
+        updatedAt: "2025-11-18T14:22:30Z"
+    
+    Supplier:
+      summary: Supplier Example
+      value:
+        id: 5
+        name: "Precision Parts Co."
+        contactEmail: "sales@precisionparts.com"
+        contactPhone: "+1-555-0123"
+        address: "123 Industrial Drive, Springfield, IL 62701"
+        city: "Springfield"
+        state: "IL"
+        country: "USA"
+        zipCode: "62701"
+        website: "https://www.precisionparts.com"
+        paymentTerms: "Net 30"
+        isActive: true
+        createdAt: "2025-03-10T09:15:00Z"
+        updatedAt: "2025-11-15T16:45:30Z"
+    
+    ValidationError:
+      summary: Validation Error Example
+      value:
+        status: 400
+        message: "Validation failed"
+        timestamp: "2025-11-18T14:30:00Z"
+        path: "/api/inventory"
+        errors:
+          - field: "name"
+            message: "Name is required and must be between 1 and 255 characters"
+            rejectedValue: ""
+          - field: "price"
+            message: "Price must be greater than 0"
+            rejectedValue: -10.50
+          - field: "supplierId"
+            message: "Supplier not found"
+            rejectedValue: 99999
 
 security:
   - oauth2: [openid, profile, email]
+  - bearerAuth: []
 
 paths:
   # Auth endpoints
