@@ -1,0 +1,52 @@
+post:
+  tags:
+    - Suppliers
+  summary: Create new supplier
+  description: |
+    Creates a new supplier. Requires ADMIN role.
+    
+    **Validation:**
+    - ID must be absent (system-generated)
+    - Name and createdBy are required
+    - Email (if provided) must be valid format
+    
+    **Response:**
+    - 201 Created with Location header pointing to new resource
+    - Body contains the created supplier with system-generated ID and timestamp
+  operationId: createSupplier
+  security:
+    - oauth2: [openid]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/suppliers/supplier.yaml#/components/schemas/CreateSupplierRequest'
+        example:
+          name: "New Supplier Corp"
+          contactName: "Alice Johnson"
+          phone: "+1-555-0200"
+          email: "contact@newsupplier.com"
+          createdBy: "admin@example.com"
+  responses:
+    '201':
+      description: Supplier created successfully
+      headers:
+        Location:
+          description: URI of the newly created resource
+          schema:
+            type: string
+            format: uri
+          example: "/api/suppliers/550e8400-e29b-41d4-a716-446655440000"
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/suppliers/supplier.yaml#/components/schemas/SupplierDTO'
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '403':
+      $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

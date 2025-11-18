@@ -105,3 +105,26 @@ paths:
   /api/inventory/{id}/price:
     patch:
       $ref: './paths/inventory/update-price.yaml#/patch'
+  
+  # Suppliers endpoints
+  /api/suppliers:
+    get:
+      $ref: './paths/suppliers/get-all.yaml#/get'
+    post:
+      $ref: './paths/suppliers/create.yaml#/post'
+  
+  /api/suppliers/{id}:
+    get:
+      $ref: './paths/suppliers/get-by-id.yaml#/get'
+    put:
+      $ref: './paths/suppliers/update.yaml#/put'
+    delete:
+      $ref: './paths/suppliers/delete.yaml#/delete'
+  
+  /api/suppliers/count:
+    get:
+      $ref: './paths/suppliers/count.yaml#/get'
+  
+  /api/suppliers/search:
+    get:
+      $ref: './paths/suppliers/search.yaml#/get'

@@ -1,0 +1,44 @@
+delete:
+  tags:
+    - Suppliers
+  summary: Delete supplier
+  description: |
+    Deletes a supplier permanently. Requires ADMIN role.
+    
+    **Referential Integrity:**
+    - System enforces referential integrity checks
+    - May fail if supplier has active inventory items
+  operationId: deleteSupplier
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: Supplier identifier
+      schema:
+        type: string
+      example: "550e8400-e29b-41d4-a716-446655440000"
+  responses:
+    '204':
+      description: Supplier deleted successfully (no content)
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '403':
+      $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
+    '404':
+      $ref: '../../responses/errors.yaml#/components/responses/NotFound'
+    '409':
+      description: Conflict - Supplier has dependent items
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/common/common.yaml#/components/schemas/ErrorResponse'
+          example:
+            message: "Cannot delete supplier with active inventory items"
+            status: 409
+            timestamp: "2025-11-18T14:30:00Z"
+            path: "/api/suppliers/550e8400-e29b-41d4-a716-446655440000"
+            errors: []
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

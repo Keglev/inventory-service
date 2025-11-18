@@ -1,0 +1,21 @@
+get:
+  tags:
+    - Suppliers
+  summary: Get total supplier count
+  description: Returns the total number of suppliers in the system.
+  operationId: countSuppliers
+  security:
+    - oauth2: [openid]
+  responses:
+    '200':
+      description: Total count of suppliers
+      content:
+        application/json:
+          schema:
+            type: integer
+            format: int64
+            example: 45
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

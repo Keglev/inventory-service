@@ -1,0 +1,48 @@
+get:
+  tags:
+    - Suppliers
+  summary: Search suppliers by name
+  description: |
+    Searches for suppliers by partial or full name match.
+    Case-insensitive substring search.
+  operationId: searchSuppliers
+  security:
+    - oauth2: [openid]
+  parameters:
+    - name: name
+      in: query
+      required: true
+      description: Case-insensitive supplier name substring
+      schema:
+        type: string
+      example: "Acme"
+  responses:
+    '200':
+      description: List of matching suppliers
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/suppliers/supplier.yaml#/components/schemas/SupplierDTO'
+          example:
+            - id: "550e8400-e29b-41d4-a716-446655440000"
+              name: "Acme Corp"
+              contactName: "John Smith"
+              phone: "+1-555-0100"
+              email: "contact@acmecorp.com"
+              createdBy: "admin@example.com"
+              createdAt: "2025-01-15T10:00:00Z"
+            - id: "660e8400-e29b-41d4-a716-446655440001"
+              name: "Acme International"
+              contactName: "Jane Doe"
+              phone: "+1-555-0101"
+              email: "contact@acme-intl.com"
+              createdBy: "admin@example.com"
+              createdAt: "2025-02-01T14:30:00Z"
+    '400':
+      $ref: '../../responses/errors.yaml#/components/responses/ValidationError'
+    '401':
+      $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
+    '500':
+      $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

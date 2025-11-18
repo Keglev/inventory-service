@@ -1,0 +1,115 @@
+components:
+  schemas:
+    SupplierDTO:
+      type: object
+      required:
+        - id
+        - name
+        - createdBy
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique system-generated identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          minLength: 1
+          description: Supplier display name
+          example: "Acme Corp"
+        contactName:
+          type: string
+          nullable: true
+          description: Optional contact person name
+          example: "John Smith"
+        phone:
+          type: string
+          nullable: true
+          description: Optional phone number
+          example: "+1-555-0100"
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: Optional email address with format validation
+          example: "contact@acmecorp.com"
+        createdBy:
+          type: string
+          readOnly: true
+          description: User who created this supplier (audit trail)
+          example: "admin@example.com"
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Creation timestamp (system-generated)
+          example: "2025-11-01T10:00:00Z"
+      description: |
+        Full supplier data with audit trail information.
+        Used for GET responses and display purposes.
+
+    CreateSupplierRequest:
+      type: object
+      required:
+        - name
+        - createdBy
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Supplier display name
+          example: "New Supplier Corp"
+        contactName:
+          type: string
+          nullable: true
+          description: Optional contact person name
+          example: "Alice Johnson"
+        phone:
+          type: string
+          nullable: true
+          description: Optional phone number
+          example: "+1-555-0200"
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: Optional email address
+          example: "contact@newsupplier.com"
+        createdBy:
+          type: string
+          description: User creating this supplier (for audit trail)
+          example: "admin@example.com"
+      description: |
+        Request body for creating new suppliers.
+        ID and createdAt are system-generated and must be omitted.
+
+    UpdateSupplierRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Supplier display name
+          example: "Updated Supplier Corp"
+        contactName:
+          type: string
+          nullable: true
+          description: Optional contact person name
+          example: "Bob Wilson"
+        phone:
+          type: string
+          nullable: true
+          description: Optional phone number
+          example: "+1-555-0201"
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: Optional email address
+          example: "newemail@supplier.com"
+      description: |
+        Request body for updating existing suppliers.
+        Path parameter ID takes precedence; request body ID is ignored.
+        Audit fields (createdBy, createdAt) are not updated.
