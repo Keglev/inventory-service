@@ -40,6 +40,15 @@ jobs:
           find docs-site -type f | head -20 || echo "No files found"
           echo ""
           
+          # Preserve existing coverage if not included in this build
+          PRESERVE_COVERAGE=false
+          if [ ! -d "docs-site/backend/coverage" ] && [ -d "backend/coverage" ]; then
+            echo "ℹ️  JaCoCo coverage not in current build - preserving existing coverage"
+            mkdir -p /tmp/coverage-backup
+            cp -R backend/coverage /tmp/coverage-backup/
+            PRESERVE_COVERAGE=true
+          fi
+          
           # keep .git and .github, remove everything else
           find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' ! -name 'docs-site' -exec rm -rf {} +
 
@@ -51,6 +60,14 @@ jobs:
           else
             echo "❌ docs-site directory is empty or missing"
             exit 1
+          fi
+          
+          # Restore coverage if we preserved it
+          if [ "$PRESERVE_COVERAGE" = true ]; then
+            mkdir -p backend/coverage
+            cp -R /tmp/coverage-backup/coverage/* backend/coverage/
+            echo "✅ Restored existing JaCoCo coverage"
+            rm -rf /tmp/coverage-backup
           fi
 
       - name: Commit and push to gh-pages
