@@ -58,7 +58,7 @@ import org.springframework.web.bind.annotation.RestController;
         try (
 <span class="nc" id="L59">            Connection conn = dataSource.getConnection();</span>
 
-            // Enterprise Comment: Oracle Health Check Strategy
+            // Oracle Health Check Strategy
             // Use SYS_CONTEXT query instead of simple SELECT 1 FROM DUAL
             // to verify actual Oracle functionality and return diagnostic info
 <span class="nc" id="L64">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL&quot;);</span>
