@@ -18,6 +18,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 - **[Deployment & Infrastructure](./deployment.html)** - Containerization, CI/CD, and cloud deployment strategies
 - **[Configuration Management](./config.html)** - Application properties, profiles, and environment setup
 - **[Data Models & Entities](./model.html)** - Domain entities, relationships, and database schema
+- **[Enums Reference](./enums/index.html)** - Type-safe enumerations (Role, StockChangeReason, AuditSeverity) with business logic and validation
 - **[DTOs & Data Transfer Objects](./dto/index.html)** - Comprehensive DTO documentation with conventions, patterns, validation, authentication, pagination, and response shapes
 - **[Exceptions & Error Handling](./exceptions.html)** - Exception hierarchy and error response patterns
 - **[Validation Framework](./validation.html)** - Input validation strategies and custom validators
@@ -30,7 +31,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 **Developers implementing features:**
 1. Start with [High-level Overview](./overview.html)
 2. Review [Layers Architecture](./layers/overview.html)
-3. Explore relevant layer documentation (e.g., [Data Models](./model.html), [DTOs](./dto/index.html))
+3. Explore relevant layer documentation (e.g., [Data Models](./model.html), [Enums](./enums/index.html), [DTOs](./dto/index.html))
 4. Check [Validation Framework](./validation.html) for input handling
 5. Review [Testing Strategy](./testing.html) for test patterns
 

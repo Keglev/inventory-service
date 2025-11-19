@@ -324,9 +324,10 @@ graph TB
 3. **Check [Configuration Management](./config/index.html)** - Application properties, profiles, environment setup
 4. **Review [Security Architecture](./security.html)** - Detailed security implementation
 5. **Check [Data Models](./model.html)** - Entity relationships and schema
-6. **Study [DTOs & Data Transfer Objects](./dto/index.html)** - Comprehensive documentation of all DTOs with conventions, validation, mappers, pagination, and response patterns
-7. **Study [Testing Strategy](./testing.html)** - Testing patterns and best practices
-8. **Examine the source code** - Navigate `/src/main/java/com/smartsupplypro/inventory/`
+6. **Study [Enums Reference](./enums/index.html)** - Type-safe enumerations and their business logic (Role, StockChangeReason, AuditSeverity)
+7. **Study [DTOs & Data Transfer Objects](./dto/index.html)** - Comprehensive documentation of all DTOs with conventions, validation, mappers, pagination, and response patterns
+8. **Study [Testing Strategy](./testing.html)** - Testing patterns and best practices
+9. **Examine the source code** - Navigate `/src/main/java/com/smartsupplypro/inventory/`
 
 ---
 
