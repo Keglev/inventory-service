@@ -322,8 +322,9 @@ graph TB
 1. **Erkunden Sie [Schichten-Architektur](./layers/overview.html)** - Detaillierte Aufschlüsselung jeder Schicht (Controller, Service, Repository, Modell, Infrastruktur)
 2. **Überprüfen Sie [Sicherheits-Architektur](./security.html)** - Detaillierte Sicherheitsimplementierung
 3. **Überprüfen Sie [Datenmodelle](./model.html)** - Entity-Beziehungen und Schema
-4. **Studieren Sie [Test-Strategie](./testing.html)** - Test-Muster und Best Practices
-5. **Untersuchen Sie den Quellcode** - Navigieren Sie zu `/src/main/java/com/smartsupplypro/inventory/`
+4. **Studieren Sie [DTOs und Data Transfer Objects](./dto/index.html)** - Umfassende Dokumentation aller DTOs mit Konventionen, Validierung, Mapper, Pagination und Response-Mustern
+5. **Studieren Sie [Test-Strategie](./testing.html)** - Test-Muster und Best Practices
+6. **Untersuchen Sie den Quellcode** - Navigieren Sie zu `/src/main/java/com/smartsupplypro/inventory/`
 
 ---
 

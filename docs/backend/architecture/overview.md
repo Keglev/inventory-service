@@ -322,8 +322,9 @@ graph TB
 1. **Explore [Layers Architecture](./layers/overview.html)** - Detailed breakdown of each layer (Controller, Service, Repository, Model, Infrastructure)
 2. **Review [Security Architecture](./security.html)** - Detailed security implementation
 3. **Check [Data Models](./model.html)** - Entity relationships and schema
-4. **Study [Testing Strategy](./testing.html)** - Testing patterns and best practices
-5. **Examine the source code** - Navigate `/src/main/java/com/smartsupplypro/inventory/`
+4. **Study [DTOs & Data Transfer Objects](./dto/index.html)** - Comprehensive documentation of all DTOs with conventions, validation, mappers, pagination, and response patterns
+5. **Study [Testing Strategy](./testing.html)** - Testing patterns and best practices
+6. **Examine the source code** - Navigate `/src/main/java/com/smartsupplypro/inventory/`
 
 ---
 
