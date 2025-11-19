@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · layers/overview · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#layers-architecture-overview"
+        id="toc-layers-architecture-overview">Layers Architecture
+        Overview</a>
+        <ul>
+        <li><a href="#introduction"
+        id="toc-introduction">Introduction</a></li>
+        <li><a href="#the-five-layers" id="toc-the-five-layers">The Five
+        Layers</a>
+        <ul>
+        <li><a href="#controller-layer-http-entry-point"
+        id="toc-controller-layer-http-entry-point">1. <strong>Controller
+        Layer</strong> (HTTP Entry Point)</a></li>
+        <li><a href="#service-layer-business-logic"
+        id="toc-service-layer-business-logic">2. <strong>Service
+        Layer</strong> (Business Logic)</a></li>
+        <li><a href="#repository-layer-data-access"
+        id="toc-repository-layer-data-access">3. <strong>Repository
+        Layer</strong> (Data Access)</a></li>
+        <li><a href="#domain-model-data-layer-entities"
+        id="toc-domain-model-data-layer-entities">4. <strong>Domain
+        Model &amp; Data Layer</strong> (Entities)</a></li>
+        <li><a
+        href="#infrastructure-cross-cutting-concerns-support-services"
+        id="toc-infrastructure-cross-cutting-concerns-support-services">5.
+        <strong>Infrastructure &amp; Cross-Cutting Concerns</strong>
+        (Support Services)</a></li>
+        </ul></li>
+        <li><a href="#layered-architecture-diagram"
+        id="toc-layered-architecture-diagram">Layered Architecture
+        Diagram</a></li>
+        <li><a href="#request-flow-through-layers"
+        id="toc-request-flow-through-layers">Request Flow Through
+        Layers</a></li>
+        <li><a href="#layer-communication-patterns"
+        id="toc-layer-communication-patterns">Layer Communication
+        Patterns</a>
+        <ul>
+        <li><a href="#downward-communication-normal-flow"
+        id="toc-downward-communication-normal-flow">Downward
+        Communication (Normal Flow)</a></li>
+        <li><a href="#upward-communication-error-flow"
+        id="toc-upward-communication-error-flow">Upward Communication
+        (Error Flow)</a></li>
+        <li><a href="#cross-layer-communication-infrastructure"
+        id="toc-cross-layer-communication-infrastructure">Cross-Layer
+        Communication (Infrastructure)</a></li>
+        </ul></li>
+        <li><a href="#benefits-of-layered-architecture"
+        id="toc-benefits-of-layered-architecture">Benefits of Layered
+        Architecture</a>
+        <ul>
+        <li><a href="#separation-of-concerns"
+        id="toc-separation-of-concerns">1. <strong>Separation of
+        Concerns</strong></a></li>
+        <li><a href="#testability" id="toc-testability">2.
+        <strong>Testability</strong></a></li>
+        <li><a href="#maintainability" id="toc-maintainability">3.
+        <strong>Maintainability</strong></a></li>
+        <li><a href="#scalability" id="toc-scalability">4.
+        <strong>Scalability</strong></a></li>
+        <li><a href="#clarity" id="toc-clarity">5.
+        <strong>Clarity</strong></a></li>
+        </ul></li>
+        <li><a href="#dependency-rules"
+        id="toc-dependency-rules">Dependency Rules</a></li>
+        <li><a href="#layer-decision-flow"
+        id="toc-layer-decision-flow">Layer Decision Flow</a></li>
+        <li><a href="#files-in-this-directory"
+        id="toc-files-in-this-directory">Files in This
+        Directory</a></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="layers-architecture-overview">Layers Architecture
+        Overview</h1>
+        <h2 id="introduction">Introduction</h2>
+        <p>Smart Supply Pro’s backend is organized into five distinct
+        <strong>logical layers</strong>, each with specific
+        responsibilities and clear separation of concerns. This layered
+        architecture enables:</p>
+        <ul>
+        <li><strong>Maintainability:</strong> Changes in one layer don’t
+        cascade to others</li>
+        <li><strong>Testability:</strong> Each layer can be tested
+        independently with mocks</li>
+        <li><strong>Scalability:</strong> Layers can be scaled
+        independently based on demand</li>
+        <li><strong>Clarity:</strong> Clear responsibility boundaries
+        reduce cognitive overhead</li>
+        </ul>
+        <h2 id="the-five-layers">The Five Layers</h2>
+        <h3 id="controller-layer-http-entry-point">1. <strong>Controller
+        Layer</strong> (HTTP Entry Point)</h3>
+        <p><strong>Location:</strong>
+        <code>src/main/java/.../controller/</code></p>
+        <p>Handles all HTTP concerns: routing, request/response mapping,
+        validation triggering, authorization checks.</p>
+        <p><strong>Key Components:</strong> -
+        <code>SupplierController</code> - Supplier CRUD endpoints -
+        <code>InventoryItemController</code> - Inventory management -
+        <code>StockHistoryController</code> - Audit trail queries -
+        <code>AnalyticsController</code> - Reporting endpoints -
+        <code>AuthController</code> - OAuth2 callbacks</p>
+        <p><strong>Responsibilities:</strong> - Route HTTP requests to
+        handlers - Validate incoming DTOs - Check user authorization -
+        Convert HTTP ↔︎ DTOs - Build HTTP responses with proper status
+        codes</p>
+        <p><strong>Learn More:</strong> <a
+        href="./controller-layer.html">📄 Controller Layer</a></p>
+        <hr />
+        <h3 id="service-layer-business-logic">2. <strong>Service
+        Layer</strong> (Business Logic)</h3>
+        <p><strong>Location:</strong>
+        <code>src/main/java/.../service/</code></p>
+        <p>The business logic heart of the application. Services
+        orchestrate complex operations, manage transactions, validate
+        business rules, and handle domain logic.</p>
+        <p><strong>Key Services:</strong> - <code>SupplierService</code>
+        - Supplier lifecycle management -
+        <code>InventoryItemService</code> - Item and stock tracking -
+        <code>StockHistoryService</code> - Audit trail management -
+        <code>AnalyticsService</code> - Business intelligence -
+        <code>CustomOAuth2UserService</code> - User authentication</p>
+        <p><strong>Responsibilities:</strong> - Execute business logic -
+        Manage transaction boundaries - Coordinate data access across
+        repositories - Validate business rules - Translate exceptions to
+        HTTP status codes - Transform between DTOs and entities</p>
+        <p><strong>Learn More:</strong> <a
+        href="./service-layer.html">📄 Service Layer</a></p>
+        <hr />
+        <h3 id="repository-layer-data-access">3. <strong>Repository
+        Layer</strong> (Data Access)</h3>
+        <p><strong>Location:</strong>
+        <code>src/main/java/.../repository/</code></p>
+        <p>Abstracts database interactions behind repository interfaces.
+        Built on Spring Data JPA, repositories provide CRUD operations
+        and custom queries.</p>
+        <p><strong>Key Repositories:</strong> -
+        <code>SupplierRepository</code> - Supplier data access -
+        <code>InventoryItemRepository</code> - Item persistence and
+        queries - <code>StockHistoryRepository</code> - Audit entry
+        access - <code>AppUserRepository</code> - User authentication
+        data</p>
+        <p><strong>Responsibilities:</strong> - Encapsulate SQL/JPQL
+        queries - Manage entity persistence - Handle pagination and
+        sorting - Provide query results to services - Manage transaction
+        boundaries with database</p>
+        <p><strong>Learn More:</strong> <a
+        href="./repository-layer.html">📄 Repository Layer</a></p>
+        <hr />
+        <h3 id="domain-model-data-layer-entities">4. <strong>Domain
+        Model &amp; Data Layer</strong> (Entities)</h3>
+        <p><strong>Location:</strong>
+        <code>src/main/java/.../model/</code> and
+        <code>src/main/java/.../enums/</code></p>
+        <p>Defines JPA entities that map to database tables. These are
+        the core domain objects representing business concepts.</p>
+        <p><strong>Key Entities:</strong> - <code>Supplier</code> -
+        Goods providers - <code>InventoryItem</code> - Products in
+        inventory - <code>StockHistory</code> - Immutable audit trail -
+        <code>AppUser</code> - OAuth2 principals - <code>Role</code> -
+        Authorization levels - <code>StockChangeReason</code> -
+        Enumeration of change types</p>
+        <p><strong>Responsibilities:</strong> - Map database schema to
+        Java objects - Define entity relationships (foreign keys) -
+        Enforce data constraints (unique, not null) - Track audit
+        information (creator, timestamp) - Support optimistic locking
+        with version fields</p>
+        <p><strong>Learn More:</strong> <a href="./model-layer.html">📄
+        Domain Model &amp; Data Layer</a></p>
+        <hr />
+        <h3
+        id="infrastructure-cross-cutting-concerns-support-services">5.
+        <strong>Infrastructure &amp; Cross-Cutting Concerns</strong>
+        (Support Services)</h3>
+        <p><strong>Location:</strong>
+        <code>src/main/java/.../config/</code>,
+        <code>src/main/java/.../security/</code>,
+        <code>src/main/java/.../validation/</code>,
+        <code>src/main/java/.../exception/</code>,
+        <code>src/main/java/.../mapper/</code></p>
+        <p>Provides foundational services and handles concerns that span
+        multiple layers.</p>
+        <p><strong>Key Components:</strong> - <strong>Security:</strong>
+        OAuth2 authentication, authorization, <code>@PreAuthorize</code>
+        - <strong>Validation:</strong> Custom validators for business
+        rules - <strong>Exception Handling:</strong> Global exception
+        handler, error responses - <strong>Data Mapping:</strong> DTO ↔︎
+        Entity converters - <strong>Configuration:</strong> Spring
+        beans, application properties</p>
+        <p><strong>Responsibilities:</strong> - Authenticate and
+        authorize users - Validate inputs across all layers - Handle
+        exceptions consistently - Transform data between representations
+        - Configure Spring beans and properties</p>
+        <p><strong>Learn More:</strong> <a
+        href="./infrastructure-layer.html">📄 Infrastructure &amp;
+        Cross-Cutting Concerns</a></p>
+        <hr />
+        <h2 id="layered-architecture-diagram">Layered Architecture
+        Diagram</h2>
+        <div class="mermaid">
+        graph TB
+            Client["Client<br/>REST Requests"]
+            
+            subgraph "Layer 1: Presentation"
+                Controllers["Controllers<br/>SupplierController<br/>InventoryItemController<br/>AnalyticsController"]
+            end
+            
+            subgraph "Layer 2: Business Logic"
+                Services["Services<br/>SupplierService<br/>InventoryItemService<br/>AnalyticsService"]
+                Validators["Validators<br/>SupplierValidator<br/>InventoryItemValidator"]
+            end
+            
+            subgraph "Layer 3: Data Access"
+                Repositories["Repositories<br/>SupplierRepository<br/>InventoryItemRepository<br/>StockHistoryRepository"]
+            end
+            
+            subgraph "Layer 4: Domain Model"
+                Entities["Entities<br/>Supplier<br/>InventoryItem<br/>StockHistory<br/>AppUser"]
+            end
+            
+            subgraph "Layer 5: Infrastructure"
+                Security["Security<br/>OAuth2, @PreAuthorize"]
+                Exception["Exception Handler<br/>GlobalExceptionHandler"]
+                Mapper["Mappers<br/>DTO ↔ Entity"]
+                Config["Configuration<br/>Spring Beans"]
+            end
+            
+            Database["Database<br/>Oracle/PostgreSQL"]
+
+            Client -->|HTTP| Controllers
+            Controllers -->|Call| Services
+            Services -->|Call| Validators
+            Services -->|Call| Repositories
+            Repositories -->|Query/Persist| Entities
+            Entities -->|Map| Database
+            
+            Controllers -->|Use| Security
+            Controllers -->|Use| Mapper
+            Services -->|Use| Exception
+            Services -->|Use| Mapper
+            Security -.->|Protect| Controllers
+            Exception -.->|Handle| Services
+            Config -.->|Configure| Controllers
+            Config -.->|Configure| Services
+
+            style Client fill:#e3f2fd
+            style Controllers fill:#bbdefb
+            style Services fill:#90caf9
+            style Validators fill:#fff9c4
+            style Repositories fill:#64b5f6
+            style Entities fill:#42a5f5
+            style Security fill:#ef9a9a
+            style Exception fill:#ef9a9a
+            style Mapper fill:#a5d6a7
+            style Config fill:#c8e6c9
+            style Database fill:#0277bd
+        </div>
+        <h2 id="request-flow-through-layers">Request Flow Through
+        Layers</h2>
+        <p>Here’s how a typical request (creating a supplier) flows
+        through all layers:</p>
+        <pre><code>1. HTTP POST /api/suppliers
+   Client → Network
+   ↓
+2. SupplierController.create(CreateSupplierDTO)
+   - Receives JSON request body
+   - @Valid validates DTO fields
+   - @PreAuthorize(&quot;hasRole(&#39;ADMIN&#39;)&quot;) checks authorization
+   ↓
+3. SupplierService.create(CreateSupplierDTO)
+   - SupplierValidator validates uniqueness
+   - Converts DTO → Entity
+   - Sets createdBy from SecurityContext
+   ↓
+4. SupplierRepository.save(Supplier)
+   - Executes INSERT to SUPPLIER table
+   - Handles primary key generation
+   - Triggers database constraints
+   ↓
+5. Database executes INSERT
+   - Validates UNIQUE constraint on NAME
+   - Stores record in SUPPLIER table
+   ↓
+6. Repository returns saved entity
+   - With generated ID
+   ↓
+7. Service converts Entity → DTO
+   ↓
+8. Controller builds HTTP response
+   - Status: 201 CREATED
+   - Body: SupplierDTO
+   - Header: Location: /api/suppliers/{id}
+   ↓
+9. HTTP Response
+   Client ← Network</code></pre>
+        <h2 id="layer-communication-patterns">Layer Communication
+        Patterns</h2>
+        <h3 id="downward-communication-normal-flow">Downward
+        Communication (Normal Flow)</h3>
+        <p>Layers call the layer directly below them:</p>
+        <pre><code>Controller → Service → Repository → Database</code></pre>
+        <ul>
+        <li>Controllers delegate to services</li>
+        <li>Services delegate to repositories</li>
+        <li>Repositories delegate to database</li>
+        </ul>
+        <h3 id="upward-communication-error-flow">Upward Communication
+        (Error Flow)</h3>
+        <p>Exceptions propagate upward to be handled:</p>
+        <pre><code>Database → Repository → Service → GlobalExceptionHandler → HTTP Response</code></pre>
+        <ul>
+        <li>Database constraint violation</li>
+        <li>Repository translates to domain exception</li>
+        <li>Service lets exception propagate</li>
+        <li>GlobalExceptionHandler catches and translates to HTTP
+        response</li>
+        </ul>
+        <h3 id="cross-layer-communication-infrastructure">Cross-Layer
+        Communication (Infrastructure)</h3>
+        <p>Infrastructure components available to all layers:</p>
+        <pre><code>All Layers ← Security, Validation, Exception Handling, Mapping, Configuration</code></pre>
+        <h2 id="benefits-of-layered-architecture">Benefits of Layered
+        Architecture</h2>
+        <h3 id="separation-of-concerns">1. <strong>Separation of
+        Concerns</strong></h3>
+        <p>Each layer has one clear responsibility. You know where to
+        look for specific code.</p>
+        <h3 id="testability">2. <strong>Testability</strong></h3>
+        <p>Each layer can be unit tested in isolation by mocking layers
+        below it.</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Test service without touching database</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@ExtendWith</span><span class="op">(</span>MockitoExtension<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SupplierServiceTest <span class="op">{</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@InjectMocks</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierService service<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Tests run without database</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="maintainability">3.
+        <strong>Maintainability</strong></h3>
+        <p>Changes in one layer don’t cascade to others. Update database
+        schema without touching services.</p>
+        <h3 id="scalability">4. <strong>Scalability</strong></h3>
+        <p>Layers can be scaled independently. Cache the service layer,
+        scale the database tier separately.</p>
+        <h3 id="clarity">5. <strong>Clarity</strong></h3>
+        <p>New developers quickly understand where to add new
+        features.</p>
+        <h2 id="dependency-rules">Dependency Rules</h2>
+        <p><strong>Key Principle:</strong> Never skip layers or call
+        downward incorrectly.</p>
+        <pre><code>✅ Correct Dependencies:
+  Controller → Service → Repository → Database
+  
+❌ Incorrect Dependencies:
+  Controller → Repository (skips service logic)
+  Repository → Controller (upward communication)
+  Service → Service (cross-service dependencies)</code></pre>
+        <h2 id="layer-decision-flow">Layer Decision Flow</h2>
+        <p>When adding a new feature, ask:</p>
+        <pre><code>1. Is it HTTP concern? → Controller
+2. Is it business logic? → Service
+3. Is it data access? → Repository
+4. Is it domain model? → Entity
+5. Is it cross-cutting? → Infrastructure</code></pre>
+        <h2 id="files-in-this-directory">Files in This Directory</h2>
+        <table>
+        <colgroup>
+        <col style="width: 24%" />
+        <col style="width: 36%" />
+        <col style="width: 40%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>File</th>
+        <th>Purpose</th>
+        <th>Audience</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><a
+        href="./controller-layer.html">controller-layer.html</a></td>
+        <td>HTTP API handling</td>
+        <td>API developers, Controllers</td>
+        </tr>
+        <tr class="even">
+        <td><a href="./service-layer.html">service-layer.html</a></td>
+        <td>Business logic</td>
+        <td>Feature developers, Services</td>
+        </tr>
+        <tr class="odd">
+        <td><a
+        href="./repository-layer.html">repository-layer.html</a></td>
+        <td>Data persistence</td>
+        <td>Database developers, Queries</td>
+        </tr>
+        <tr class="even">
+        <td><a href="./model-layer.html">model-layer.html</a></td>
+        <td>Domain entities</td>
+        <td>Data modelers, Entity authors</td>
+        </tr>
+        <tr class="odd">
+        <td><a
+        href="./infrastructure-layer.html">infrastructure-layer.html</a></td>
+        <td>Cross-cutting concerns</td>
+        <td>All developers, Security/Exceptions</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <p><strong>By Role:</strong></p>
+        <ul>
+        <li><strong>Backend Developer:</strong> Start with <a
+        href="./service-layer.html">Service Layer</a> → <a
+        href="./controller-layer.html">Controller Layer</a></li>
+        <li><strong>Database Developer:</strong> Focus on <a
+        href="./repository-layer.html">Repository Layer</a> → <a
+        href="./model-layer.html">Model Layer</a></li>
+        <li><strong>Security Engineer:</strong> Review <a
+        href="./infrastructure-layer.html">Infrastructure Layer</a></li>
+        <li><strong>DevOps/Infrastructure:</strong> Check <a
+        href="./infrastructure-layer.html">Infrastructure Layer</a>
+        configuration</li>
+        </ul>
+        <p><strong>By Activity:</strong></p>
+        <ul>
+        <li><strong>Adding a new endpoint:</strong> <a
+        href="./controller-layer.html">Controller Layer</a> → <a
+        href="./service-layer.html">Service Layer</a></li>
+        <li><strong>Implementing business logic:</strong> <a
+        href="./service-layer.html">Service Layer</a> → <a
+        href="./repository-layer.html">Repository Layer</a></li>
+        <li><strong>Working with data:</strong> <a
+        href="./model-layer.html">Model Layer</a> → <a
+        href="./repository-layer.html">Repository Layer</a></li>
+        <li><strong>Fixing exceptions:</strong> <a
+        href="./infrastructure-layer.html">Infrastructure Layer</a></li>
+        <li><strong>Adding validation:</strong> <a
+        href="./infrastructure-layer.html">Infrastructure Layer</a> or
+        <a href="./service-layer.html">Service Layer</a></li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
