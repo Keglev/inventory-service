@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+repository/stock-history-repository · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#stockhistoryrepository"
+        id="toc-stockhistoryrepository">StockHistoryRepository</a>
+        <ul>
+        <li><a href="#definition"
+        id="toc-definition">Definition</a></li>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#architecture-notes"
+        id="toc-architecture-notes">Architecture Notes</a></li>
+        <li><a href="#core-query-methods"
+        id="toc-core-query-methods">Core Query Methods</a>
+        <ul>
+        <li><a href="#findbyitemidstring-itemid"
+        id="toc-findbyitemidstring-itemid">findByItemId(String
+        itemId)</a></li>
+        <li><a href="#findlatestbyitemidstring-itemid"
+        id="toc-findlatestbyitemidstring-itemid">findLatestByItemId(String
+        itemId)</a></li>
+        <li><a href="#findbyitemidanddaterangeitemid-startdate-enddate"
+        id="toc-findbyitemidanddaterangeitemid-startdate-enddate">findByItemIdAndDateRange(itemId,
+        startDate, endDate)</a></li>
+        <li><a href="#countuniqueitemsupdatedsincedate"
+        id="toc-countuniqueitemsupdatedsincedate">countUniqueItemsUpdatedSince(date)</a></li>
+        <li><a href="#findeventssincewithpricestartdate"
+        id="toc-findeventssincewithpricestartdate">findEventsSinceWithPrice(startDate)</a></li>
+        </ul></li>
+        <li><a href="#stream-query-methods"
+        id="toc-stream-query-methods">Stream Query Methods</a>
+        <ul>
+        <li><a href="#findbyeventdateafterlocaldatetime-eventdate"
+        id="toc-findbyeventdateafterlocaldatetime-eventdate">findByEventDateAfter(LocalDateTime
+        eventDate)</a></li>
+        <li><a href="#findbyitemidorderbyeventdatedescstring-itemid"
+        id="toc-findbyitemidorderbyeventdatedescstring-itemid">findByItemIdOrderByEventDateDesc(String
+        itemId)</a></li>
+        </ul></li>
+        <li><a href="#mixin-repository-methods"
+        id="toc-mixin-repository-methods">Mixin Repository Methods</a>
+        <ul>
+        <li><a href="#from-stockmetricsrepository"
+        id="toc-from-stockmetricsrepository">From
+        StockMetricsRepository</a></li>
+        <li><a href="#from-stocktrendanalyticsrepository"
+        id="toc-from-stocktrendanalyticsrepository">From
+        StockTrendAnalyticsRepository</a></li>
+        <li><a href="#from-stockdetailqueryrepository"
+        id="toc-from-stockdetailqueryrepository">From
+        StockDetailQueryRepository</a></li>
+        </ul></li>
+        <li><a href="#event-sourcing-pattern"
+        id="toc-event-sourcing-pattern">Event Sourcing Pattern</a></li>
+        <li><a href="#service-integration-pattern"
+        id="toc-service-integration-pattern">Service Integration
+        Pattern</a></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Repository Index</a></p>
+        <h1 id="stockhistoryrepository">StockHistoryRepository</h1>
+        <h2 id="definition">Definition</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> StockHistoryRepository <span class="kw">extends</span> JpaRepository<span class="op">&lt;</span>StockHistory<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;,</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                                               StockMetricsRepository<span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                                               StockTrendAnalyticsRepository<span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                                               StockDetailQueryRepository <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByItemId</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Query</span><span class="op">(</span><span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT sh FROM StockHistory sh</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE sh.itemId = :itemId</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="st">        ORDER BY sh.eventDate DESC</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="st">        LIMIT 1</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;&quot;&quot;</span><span class="op">)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    Optional<span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findLatestByItemId</span><span class="op">(</span><span class="at">@Param</span><span class="op">(</span><span class="st">&quot;itemId&quot;</span><span class="op">)</span> <span class="bu">String</span> itemId<span class="op">);</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Query</span><span class="op">(</span><span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT sh FROM StockHistory sh</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE sh.itemId = :itemId</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="st">            AND sh.eventDate BETWEEN :startDate AND :endDate</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="st">        ORDER BY sh.eventDate DESC</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;&quot;&quot;</span><span class="op">)</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByItemIdAndDateRange</span><span class="op">(</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Param</span><span class="op">(</span><span class="st">&quot;itemId&quot;</span><span class="op">)</span> <span class="bu">String</span> itemId<span class="op">,</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Param</span><span class="op">(</span><span class="st">&quot;startDate&quot;</span><span class="op">)</span> LocalDateTime startDate<span class="op">,</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Param</span><span class="op">(</span><span class="st">&quot;endDate&quot;</span><span class="op">)</span> LocalDateTime endDate</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Query</span><span class="op">(</span>value <span class="op">=</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT COUNT(DISTINCT item_id)</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM stock_history</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE event_date &gt;= :date</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="st">        &quot;&quot;&quot;</span><span class="op">,</span> nativeQuery <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> <span class="fu">countUniqueItemsUpdatedSince</span><span class="op">(</span><span class="at">@Param</span><span class="op">(</span><span class="st">&quot;date&quot;</span><span class="op">)</span> LocalDateTime date<span class="op">);</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Query</span><span class="op">(</span>value <span class="op">=</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT sh.*, i.price</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM stock_history sh</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="st">        JOIN inventory_item i ON sh.item_id = i.id</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE sh.event_date &gt;= :startDate</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="st">            AND sh.quantity_after &gt; 0</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="st">        ORDER BY sh.event_date DESC</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="st">        &quot;&quot;&quot;</span><span class="op">,</span> nativeQuery <span class="op">=</span> <span class="kw">true</span><span class="op">,</span> name <span class="op">=</span> <span class="st">&quot;findEventsSinceWithPrice&quot;</span><span class="op">)</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span><span class="bu">Object</span><span class="op">[]&gt;</span> <span class="fu">findEventsSinceWithPrice</span><span class="op">(</span><span class="at">@Param</span><span class="op">(</span><span class="st">&quot;startDate&quot;</span><span class="op">)</span> LocalDateTime startDate<span class="op">);</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    Stream<span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByEventDateAfter</span><span class="op">(</span>LocalDateTime eventDate<span class="op">);</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    Stream<span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByItemIdOrderByEventDateDesc</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">);</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="purpose">Purpose</h2>
+        <p>Provides data access for <strong>StockHistory</strong>
+        entities with capabilities for: - CRUD operations via
+        JpaRepository - Append-only event sourcing pattern - Complex
+        time-series analysis queries - Audit trail retrieval - Advanced
+        analytics via mixin repositories</p>
+        <hr />
+        <h2 id="architecture-notes">Architecture Notes</h2>
+        <p><strong>Mixin Pattern:</strong> StockHistoryRepository
+        implements three custom repository interfaces:</p>
+        <pre><code>StockHistoryRepository
+├── extends JpaRepository&lt;StockHistory, String&gt;
+├── implements StockMetricsRepository (KPI dashboards)
+├── implements StockTrendAnalyticsRepository (time-series trends)
+└── implements StockDetailQueryRepository (advanced searching)</code></pre>
+        <p>This pattern allows StockHistory to provide: - Basic CRUD
+        operations (JpaRepository) - Performance metrics
+        (StockMetricsRepository) - Trend analysis
+        (StockTrendAnalyticsRepository) - Detailed querying
+        (StockDetailQueryRepository)</p>
+        <hr />
+        <h2 id="core-query-methods">Core Query Methods</h2>
+        <h3 id="findbyitemidstring-itemid">findByItemId(String
+        itemId)</h3>
+        <p><strong>Purpose:</strong> Get all historical updates for an
+        item</p>
+        <p><strong>Type:</strong> Method-derived JPQL</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Get complete audit trail for item</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> history <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByItemId</span><span class="op">(</span>itemId<span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>StockHistory event <span class="op">:</span> history<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">printf</span><span class="op">(</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;</span><span class="sc">%s</span><span class="st">: </span><span class="sc">%d</span><span class="st"> -&gt; </span><span class="sc">%d</span><span class="st"> (reason: </span><span class="sc">%s</span><span class="st">)</span><span class="sc">%n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        event<span class="op">.</span><span class="fu">getEventDate</span><span class="op">(),</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        event<span class="op">.</span><span class="fu">getQuantityBefore</span><span class="op">(),</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        event<span class="op">.</span><span class="fu">getQuantityAfter</span><span class="op">(),</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        event<span class="op">.</span><span class="fu">getReason</span><span class="op">()</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Append-only Design:</strong> - Events are never
+        deleted - Provides immutable audit trail - Enables compliance
+        reporting</p>
+        <hr />
+        <h3
+        id="findlatestbyitemidstring-itemid">findLatestByItemId(String
+        itemId)</h3>
+        <p><strong>Purpose:</strong> Get most recent stock update for an
+        item</p>
+        <p><strong>Type:</strong> Custom <span class="citation"
+        data-cites="Query">@Query</span> (JPQL with LIMIT)</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> latest <span class="op">=</span> repository<span class="op">.</span><span class="fu">findLatestByItemId</span><span class="op">(</span>itemId<span class="op">);</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>latest<span class="op">.</span><span class="fu">isPresent</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    StockHistory event <span class="op">=</span> latest<span class="op">.</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">printf</span><span class="op">(</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Last update: </span><span class="sc">%s</span><span class="st"> (now: </span><span class="sc">%d</span><span class="st"> units)</span><span class="sc">%n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        event<span class="op">.</span><span class="fu">getEventDate</span><span class="op">(),</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        event<span class="op">.</span><span class="fu">getQuantityAfter</span><span class="op">()</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Performance:</strong> - Returns single record (fast)
+        - Often used with projection to get only quantity</p>
+        <hr />
+        <h3
+        id="findbyitemidanddaterangeitemid-startdate-enddate">findByItemIdAndDateRange(itemId,
+        startDate, endDate)</h3>
+        <p><strong>Purpose:</strong> Query stock history for date range
+        (analytics)</p>
+        <p><strong>Type:</strong> Custom <span class="citation"
+        data-cites="Query">@Query</span> (JPQL)</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>LocalDateTime monthStart <span class="op">=</span> LocalDateTime<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">2024</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>LocalDateTime monthEnd <span class="op">=</span> LocalDateTime<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">2024</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">31</span><span class="op">,</span> <span class="dv">23</span><span class="op">,</span> <span class="dv">59</span><span class="op">);</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> monthlyHistory <span class="op">=</span> repository</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">findByItemIdAndDateRange</span><span class="op">(</span>itemId<span class="op">,</span> monthStart<span class="op">,</span> monthEnd<span class="op">);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Analyze inventory patterns</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> avgQuantity <span class="op">=</span> monthlyHistory<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">mapToInt</span><span class="op">(</span>StockHistory<span class="op">::</span>getQuantityAfter<span class="op">)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">average</span><span class="op">()</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">orElse</span><span class="op">(</span><span class="fl">0.0</span><span class="op">);</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Average stock: &quot;</span> <span class="op">+</span> avgQuantity<span class="op">);</span></span></code></pre></div>
+        <p><strong>Use Cases:</strong> - Monthly inventory analysis -
+        Year-over-year comparisons - Trend identification</p>
+        <hr />
+        <h3
+        id="countuniqueitemsupdatedsincedate">countUniqueItemsUpdatedSince(date)</h3>
+        <p><strong>Purpose:</strong> Get count of items updated since
+        date (KPI)</p>
+        <p><strong>Type:</strong> Native SQL</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>LocalDateTime yesterday <span class="op">=</span> LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">().</span><span class="fu">minusDays</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> itemsUpdated <span class="op">=</span> repository<span class="op">.</span><span class="fu">countUniqueItemsUpdatedSince</span><span class="op">(</span>yesterday<span class="op">);</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Items updated today: &quot;</span> <span class="op">+</span> itemsUpdated<span class="op">);</span></span></code></pre></div>
+        <p><strong>Use Cases:</strong> - Daily operations dashboard -
+        Activity monitoring - Performance metrics</p>
+        <hr />
+        <h3
+        id="findeventssincewithpricestartdate">findEventsSinceWithPrice(startDate)</h3>
+        <p><strong>Purpose:</strong> Get stock events with current item
+        prices</p>
+        <p><strong>Type:</strong> Native SQL with JOIN</p>
+        <p><strong>Returns:</strong> Object[] with [all stock_history
+        columns, price]</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>LocalDateTime lastHour <span class="op">=</span> LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">().</span><span class="fu">minusHours</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span><span class="bu">Object</span><span class="op">[]&gt;</span> recentEvents <span class="op">=</span> repository</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">findEventsSinceWithPrice</span><span class="op">(</span>lastHour<span class="op">);</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Calculate value of recent movements</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="bu">Object</span><span class="op">[]</span> event <span class="op">:</span> recentEvents<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    StockHistory history <span class="op">=</span> <span class="fu">mapToEntity</span><span class="op">(</span>event<span class="op">);</span> <span class="co">// First columns</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">BigDecimal</span> price <span class="op">=</span> <span class="op">(</span><span class="bu">BigDecimal</span><span class="op">)</span> event<span class="op">[</span>event<span class="op">.</span><span class="fu">length</span> <span class="op">-</span> <span class="dv">1</span><span class="op">];</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> quantityChange <span class="op">=</span> history<span class="op">.</span><span class="fu">getQuantityAfter</span><span class="op">()</span> <span class="op">-</span> history<span class="op">.</span><span class="fu">getQuantityBefore</span><span class="op">();</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">BigDecimal</span> valueChange <span class="op">=</span> price<span class="op">.</span><span class="fu">multiply</span><span class="op">(</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">valueOf</span><span class="op">(</span>quantityChange<span class="op">)</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">printf</span><span class="op">(</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;</span><span class="sc">%s</span><span class="st">: </span><span class="sc">%s</span><span class="st"> (value impact: $</span><span class="sc">%.2f</span><span class="st">)</span><span class="sc">%n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        history<span class="op">.</span><span class="fu">getItemId</span><span class="op">(),</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        history<span class="op">.</span><span class="fu">getReason</span><span class="op">(),</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        valueChange</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Use Cases:</strong> - Financial impact analysis -
+        Value-based inventory management - Supply chain costing</p>
+        <hr />
+        <h2 id="stream-query-methods">Stream Query Methods</h2>
+        <h3
+        id="findbyeventdateafterlocaldatetime-eventdate">findByEventDateAfter(LocalDateTime
+        eventDate)</h3>
+        <p><strong>Purpose:</strong> Stream recent events without
+        loading all into memory</p>
+        <p><strong>Type:</strong> Method-derived JPQL returning
+        Stream</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>LocalDateTime threshold <span class="op">=</span> LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">().</span><span class="fu">minusHours</span><span class="op">(</span><span class="dv">24</span><span class="op">);</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Process large datasets without memory overflow</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>repository<span class="op">.</span><span class="fu">findByEventDateAfter</span><span class="op">(</span>threshold<span class="op">)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">filter</span><span class="op">(</span>event <span class="op">-&gt;</span> event<span class="op">.</span><span class="fu">getQuantityAfter</span><span class="op">()</span> <span class="op">&gt;</span> <span class="dv">100</span><span class="op">)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">forEach</span><span class="op">(</span>event <span class="op">-&gt;</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;High stock: &quot;</span> <span class="op">+</span> event<span class="op">.</span><span class="fu">getItemId</span><span class="op">())</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span></code></pre></div>
+        <p><strong>Performance Benefits:</strong> - Lazy loads results -
+        Memory efficient for large datasets - Suitable for batch
+        processing</p>
+        <hr />
+        <h3
+        id="findbyitemidorderbyeventdatedescstring-itemid">findByItemIdOrderByEventDateDesc(String
+        itemId)</h3>
+        <p><strong>Purpose:</strong> Stream item history in reverse
+        chronological order</p>
+        <p><strong>Type:</strong> Method-derived JPQL returning
+        Stream</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Find when stock last went below minimum</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>Stream<span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> history <span class="op">=</span> repository</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">findByItemIdOrderByEventDateDesc</span><span class="op">(</span>itemId<span class="op">);</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> lastLowStock <span class="op">=</span> history</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">filter</span><span class="op">(</span>event <span class="op">-&gt;</span> event<span class="op">.</span><span class="fu">getQuantityAfter</span><span class="op">()</span> <span class="op">&lt;</span> <span class="dv">10</span><span class="op">)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">findFirst</span><span class="op">();</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>lastLowStock<span class="op">.</span><span class="fu">isPresent</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Last low stock: &quot;</span> <span class="op">+</span> lastLowStock<span class="op">.</span><span class="fu">get</span><span class="op">().</span><span class="fu">getEventDate</span><span class="op">()</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>IMPORTANT:</strong> Stream must be closed (use
+        try-with-resources):</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">(</span>Stream<span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> history <span class="op">=</span> repository</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">findByItemIdOrderByEventDateDesc</span><span class="op">(</span>itemId<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Process stream</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="mixin-repository-methods">Mixin Repository Methods</h2>
+        <h3 id="from-stockmetricsrepository">From
+        StockMetricsRepository</h3>
+        <p>See <a
+        href="./stock-metrics-repository.html">stock-metrics-repository.html</a>
+        for: - <code>getTotalStockBySupplier(supplierId)</code> - Total
+        units from supplier - <code>getUpdateCountByItem(itemId)</code>
+        - Historical update count -
+        <code>findItemsBelowMinimumStock()</code> - Low-stock items</p>
+        <h3 id="from-stocktrendanalyticsrepository">From
+        StockTrendAnalyticsRepository</h3>
+        <p>See <a
+        href="./stock-trend-analytics-repository.html">stock-trend-analytics-repository.html</a>
+        for: - <code>getMonthlyStockMovement(itemId, month)</code> -
+        Monthly analysis - <code>getDailyStockValuation(date)</code> -
+        Daily inventory value -
+        <code>getItemPriceTrend(itemId, startDate, endDate)</code> -
+        Price trends</p>
+        <h3 id="from-stockdetailqueryrepository">From
+        StockDetailQueryRepository</h3>
+        <p>See <a
+        href="./stock-detail-query-repository.html">stock-detail-query-repository.html</a>
+        for: - <code>searchStockUpdates(criteria)</code> - Advanced
+        search - <code>streamEventsForWAC(date, supplierId)</code> - WAC
+        calculations</p>
+        <hr />
+        <h2 id="event-sourcing-pattern">Event Sourcing Pattern</h2>
+        <p>StockHistory implements <strong>append-only event
+        sourcing</strong>:</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Getter</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistory <span class="op">{</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> itemId<span class="op">;</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> quantityBefore<span class="op">;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> quantityAfter<span class="op">;</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> reason<span class="op">;</span> <span class="co">// RESTOCK, SALE, ADJUSTMENT, etc.</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">@CreationTimestamp</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime eventDate<span class="op">;</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@CreationTimestamp</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">// NEVER modified after creation</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Complete audit trail - No data
+        loss (immutable) - Temporal queries possible - Compliance
+        friendly</p>
+        <hr />
+        <h2 id="service-integration-pattern">Service Integration
+        Pattern</h2>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockManagementService <span class="op">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> StockHistoryRepository historyRepository<span class="op">;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItemRepository itemRepository<span class="op">;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">recordStockAdjustment</span><span class="op">(</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> itemId<span class="op">,</span> </span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> newQuantity<span class="op">,</span> </span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> reason<span class="op">,</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> userId</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        InventoryItem item <span class="op">=</span> itemRepository</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">findById</span><span class="op">(</span>itemId<span class="op">)</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">();</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> quantityBefore <span class="op">=</span> item<span class="op">.</span><span class="fu">getQuantity</span><span class="op">();</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Update item</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        item<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(</span>newQuantity<span class="op">);</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>        itemRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>item<span class="op">);</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Record history (immutable)</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>        StockHistory event <span class="op">=</span> StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="bu">UUID</span><span class="op">.</span><span class="fu">randomUUID</span><span class="op">().</span><span class="fu">toString</span><span class="op">())</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">itemId</span><span class="op">(</span>itemId<span class="op">)</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantityBefore</span><span class="op">(</span>quantityBefore<span class="op">)</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantityAfter</span><span class="op">(</span>newQuantity<span class="op">)</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>reason<span class="op">)</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span>userId<span class="op">)</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>        historyRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>event<span class="op">);</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span><span class="op">(</span>readOnly <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>StockHistoryDTO<span class="op">&gt;</span> <span class="fu">getItemAuditTrail</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> historyRepository<span class="op">.</span><span class="fu">findByItemId</span><span class="op">(</span>itemId<span class="op">)</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">map</span><span class="op">(</span><span class="kw">this</span><span class="op">::</span>mapToDTO<span class="op">)</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">collect</span><span class="op">(</span>Collectors<span class="op">.</span><span class="fu">toList</span><span class="op">());</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span><span class="op">(</span>readOnly <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> StockAnalyticsDTO <span class="fu">analyzeItemTrends</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">,</span> LocalDate month<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>        LocalDateTime startDate <span class="op">=</span> month<span class="op">.</span><span class="fu">atStartOfDay</span><span class="op">();</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>        LocalDateTime endDate <span class="op">=</span> month<span class="op">.</span><span class="fu">plusMonths</span><span class="op">(</span><span class="dv">1</span><span class="op">).</span><span class="fu">atStartOfDay</span><span class="op">().</span><span class="fu">minusNanos</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> events <span class="op">=</span> historyRepository</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">findByItemIdAndDateRange</span><span class="op">(</span>itemId<span class="op">,</span> startDate<span class="op">,</span> endDate<span class="op">);</span></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> avgStock <span class="op">=</span> events<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">mapToInt</span><span class="op">(</span>StockHistory<span class="op">::</span>getQuantityAfter<span class="op">)</span></span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">average</span><span class="op">()</span></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElse</span><span class="op">(</span><span class="fl">0.0</span><span class="op">);</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> totalMovements <span class="op">=</span> events<span class="op">.</span><span class="fu">size</span><span class="op">();</span></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">StockAnalyticsDTO</span><span class="op">(</span></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>            itemId<span class="op">,</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>            avgStock<span class="op">,</span></span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>            totalMovements<span class="op">,</span></span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>            month</span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing">Testing</h2>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DataJpaTest</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> StockHistoryRepositoryTest <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> StockHistoryRepository repository<span class="op">;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testAppendOnlyPattern</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> itemId <span class="op">=</span> <span class="st">&quot;ITEM-001&quot;</span><span class="op">;</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Record initial stock</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">createEvent</span><span class="op">(</span>itemId<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">100</span><span class="op">,</span> <span class="st">&quot;INITIAL&quot;</span><span class="op">));</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">createEvent</span><span class="op">(</span>itemId<span class="op">,</span> <span class="dv">100</span><span class="op">,</span> <span class="dv">80</span><span class="op">,</span> <span class="st">&quot;SALE&quot;</span><span class="op">));</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">createEvent</span><span class="op">(</span>itemId<span class="op">,</span> <span class="dv">80</span><span class="op">,</span> <span class="dv">120</span><span class="op">,</span> <span class="st">&quot;RESTOCK&quot;</span><span class="op">));</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> history <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByItemId</span><span class="op">(</span>itemId<span class="op">);</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">3</span><span class="op">,</span> history<span class="op">.</span><span class="fu">size</span><span class="op">());</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">120</span><span class="op">,</span> history<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="dv">0</span><span class="op">).</span><span class="fu">getQuantityAfter</span><span class="op">());</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testDateRangeQuery</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        LocalDateTime start <span class="op">=</span> LocalDateTime<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">2024</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        LocalDateTime end <span class="op">=</span> LocalDateTime<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">2024</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">31</span><span class="op">,</span> <span class="dv">23</span><span class="op">,</span> <span class="dv">59</span><span class="op">);</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">createEventAt</span><span class="op">(</span><span class="st">&quot;ITEM-001&quot;</span><span class="op">,</span> <span class="dv">100</span><span class="op">,</span> <span class="dv">80</span><span class="op">,</span> start<span class="op">.</span><span class="fu">plusHours</span><span class="op">(</span><span class="dv">1</span><span class="op">)));</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">createEventAt</span><span class="op">(</span><span class="st">&quot;ITEM-001&quot;</span><span class="op">,</span> <span class="dv">80</span><span class="op">,</span> <span class="dv">120</span><span class="op">,</span> start<span class="op">.</span><span class="fu">plusHours</span><span class="op">(</span><span class="dv">2</span><span class="op">)));</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> events <span class="op">=</span> repository</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">findByItemIdAndDateRange</span><span class="op">(</span><span class="st">&quot;ITEM-001&quot;</span><span class="op">,</span> start<span class="op">,</span> end<span class="op">);</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">2</span><span class="op">,</span> events<span class="op">.</span><span class="fu">size</span><span class="op">());</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testStreamLargeDataset</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">1000</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>            repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">createEvent</span><span class="op">(</span><span class="st">&quot;ITEM-&quot;</span> <span class="op">+</span> i<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">100</span><span class="op">,</span> <span class="st">&quot;INITIAL&quot;</span><span class="op">));</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>        <span class="dt">long</span> count <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByEventDateAfter</span><span class="op">(</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>            LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">().</span><span class="fu">minusDays</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>        <span class="op">).</span><span class="fu">count</span><span class="op">();</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">1000</span><span class="op">,</span> count<span class="op">);</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> StockHistory <span class="fu">createEvent</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">,</span> <span class="dt">int</span> before<span class="op">,</span> <span class="dt">int</span> after<span class="op">,</span> <span class="bu">String</span> reason<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">createEventAt</span><span class="op">(</span>itemId<span class="op">,</span> before<span class="op">,</span> after<span class="op">,</span> LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">());</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> StockHistory <span class="fu">createEventAt</span><span class="op">(</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> itemId<span class="op">,</span> </span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> before<span class="op">,</span> </span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> after<span class="op">,</span> </span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>        LocalDateTime date</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="bu">UUID</span><span class="op">.</span><span class="fu">randomUUID</span><span class="op">().</span><span class="fu">toString</span><span class="op">())</span></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">itemId</span><span class="op">(</span>itemId<span class="op">)</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantityBefore</span><span class="op">(</span>before<span class="op">)</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantityAfter</span><span class="op">(</span>after<span class="op">)</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>reason<span class="op">)</span></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">eventDate</span><span class="op">(</span>date<span class="op">)</span></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;test&quot;</span><span class="op">)</span></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="performance-considerations">Performance
+        Considerations</h2>
+        <ul>
+        <li><strong>Append-only Design:</strong> No UPDATE operations,
+        only INSERT - faster, simpler indices</li>
+        <li><strong>Date Range Queries:</strong> Index on
+        <code>itemId</code> + <code>eventDate</code> for range
+        scans</li>
+        <li><strong>Stream Processing:</strong> Use streams for large
+        historical queries</li>
+        <li><strong>Pagination:</strong> Not typically needed (sorted by
+        date DESC naturally)</li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="../model/stock-history.html">Data Models -
+        StockHistory Entity</a></li>
+        <li><a href="./stock-metrics-repository.html">Stock Metrics
+        Repository</a></li>
+        <li><a href="./stock-trend-analytics-repository.html">Stock
+        Trend Analytics Repository</a></li>
+        <li><a href="./stock-detail-query-repository.html">Stock Detail
+        Query Repository</a></li>
+        <li><a href="./index.html">Repository Layer Index</a></li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Repository Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

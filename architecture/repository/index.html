@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · repository/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#repository-layer"
+        id="toc-repository-layer">Repository Layer</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#architecture"
+        id="toc-architecture">Architecture</a></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a>
+        <ul>
+        <li><a href="#core-repositories" id="toc-core-repositories">Core
+        Repositories</a></li>
+        <li><a href="#custom-analytics-repositories"
+        id="toc-custom-analytics-repositories">Custom Analytics
+        Repositories</a></li>
+        </ul></li>
+        <li><a href="#design-patterns" id="toc-design-patterns">Design
+        Patterns</a>
+        <ul>
+        <li><a href="#repository-pattern" id="toc-repository-pattern">1.
+        Repository Pattern</a></li>
+        <li><a href="#spring-data-jpa" id="toc-spring-data-jpa">2.
+        Spring Data JPA</a></li>
+        <li><a href="#custom-queries-with-query"
+        id="toc-custom-queries-with-query">3. Custom Queries with <span
+        class="citation" data-cites="Query">@Query</span></a></li>
+        <li><a href="#custom-repository-extensions"
+        id="toc-custom-repository-extensions">4. Custom Repository
+        Extensions</a></li>
+        </ul></li>
+        <li><a href="#repository-hierarchy"
+        id="toc-repository-hierarchy">Repository Hierarchy</a></li>
+        <li><a href="#repositories-by-concern"
+        id="toc-repositories-by-concern">Repositories by Concern</a>
+        <ul>
+        <li><a href="#entity-crud-repositories"
+        id="toc-entity-crud-repositories">Entity CRUD
+        Repositories</a></li>
+        <li><a href="#custom-analytics-repositories-1"
+        id="toc-custom-analytics-repositories-1">Custom Analytics
+        Repositories</a></li>
+        </ul></li>
+        <li><a href="#key-design-decisions"
+        id="toc-key-design-decisions">Key Design Decisions</a>
+        <ul>
+        <li><a href="#immutable-append-only-stockhistory"
+        id="toc-immutable-append-only-stockhistory">1. Immutable
+        Append-Only StockHistory</a></li>
+        <li><a href="#lazy-loading-with-fetchtype.lazy"
+        id="toc-lazy-loading-with-fetchtype.lazy">2. Lazy Loading with
+        FetchType.LAZY</a></li>
+        <li><a href="#pagination-for-large-result-sets"
+        id="toc-pagination-for-large-result-sets">3. Pagination for
+        Large Result Sets</a></li>
+        <li><a href="#case-insensitive-searches"
+        id="toc-case-insensitive-searches">4. Case-Insensitive
+        Searches</a></li>
+        <li><a href="#native-sql-for-performance-critical-queries"
+        id="toc-native-sql-for-performance-critical-queries">5. Native
+        SQL for Performance-Critical Queries</a></li>
+        </ul></li>
+        <li><a href="#common-query-patterns"
+        id="toc-common-query-patterns">Common Query Patterns</a>
+        <ul>
+        <li><a href="#find-by-exact-value-case-insensitive"
+        id="toc-find-by-exact-value-case-insensitive">1. Find by Exact
+        Value (Case-Insensitive)</a></li>
+        <li><a href="#search-by-partial-match"
+        id="toc-search-by-partial-match">2. Search by Partial
+        Match</a></li>
+        <li><a href="#check-existence-with-conditions"
+        id="toc-check-existence-with-conditions">3. Check Existence with
+        Conditions</a></li>
+        <li><a href="#paginated-queries-with-filters"
+        id="toc-paginated-queries-with-filters">4. Paginated Queries
+        with Filters</a></li>
+        <li><a href="#ordered-results" id="toc-ordered-results">5.
+        Ordered Results</a></li>
+        <li><a href="#time-range-queries" id="toc-time-range-queries">6.
+        Time-Range Queries</a></li>
+        </ul></li>
+        <li><a href="#performance-optimization-strategies"
+        id="toc-performance-optimization-strategies">Performance
+        Optimization Strategies</a>
+        <ul>
+        <li><a href="#indexes" id="toc-indexes">1. Indexes</a></li>
+        <li><a href="#query-projection" id="toc-query-projection">2.
+        Query Projection</a></li>
+        <li><a href="#join-optimization" id="toc-join-optimization">3.
+        Join Optimization</a></li>
+        <li><a href="#pagination" id="toc-pagination">4.
+        Pagination</a></li>
+        </ul></li>
+        <li><a href="#testing-repositories"
+        id="toc-testing-repositories">Testing Repositories</a>
+        <ul>
+        <li><a href="#unit-tests-with-datajpatest"
+        id="toc-unit-tests-with-datajpatest">Unit Tests with <span
+        class="citation"
+        data-cites="DataJpaTest">@DataJpaTest</span></a></li>
+        <li><a href="#integration-tests-with-full-context"
+        id="toc-integration-tests-with-full-context">Integration Tests
+        with Full Context</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a></li>
+        <li><a href="#entity-repository-mapping"
+        id="toc-entity-repository-mapping">Entity-Repository
+        Mapping</a></li>
+        <li><a href="#next-steps" id="toc-next-steps">Next
+        Steps</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="repository-layer">Repository Layer</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The Repository Layer is the <strong>data access
+        abstraction</strong> that handles all database operations. It
+        implements the Repository Pattern, providing a collection-like
+        interface for accessing persisted entities while isolating the
+        database specifics from business logic.</p>
+        <p><strong>Core Principle:</strong> Repositories enable
+        domain-driven design by providing an abstraction that makes the
+        domain model independent of data access concerns.</p>
+        <hr />
+        <h2 id="architecture">Architecture</h2>
+        <div class="mermaid">
+        graph TB
+            Service["Service Layer<br/>(Business Logic)"]
+            Repository["Repository Interface<br/>(Abstraction)"]
+            JPA["Spring Data JPA<br/>(Implementation)"]
+            Custom["Custom Queries<br/>(Analytics)"]
+            Database["Database<br/>(Oracle/PostgreSQL)"]
+            
+            Service -->|Depends on| Repository
+            Repository -->|Implemented by| JPA
+            Repository -->|Extends| Custom
+            JPA -->|JDBC| Database
+            Custom -->|Native SQL| Database
+            
+            style Service fill:#4fc3f7
+            style Repository fill:#29b6f6
+            style JPA fill:#03a9f4
+            style Custom fill:#0288d1
+            style Database fill:#0277bd
+        </div>
+        <hr />
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <h3 id="core-repositories">Core Repositories</h3>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 18%" />
+        <col style="width: 25%" />
+        <col style="width: 31%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Repository</th>
+        <th>Purpose</th>
+        <th>Key Methods</th>
+        <th>Documentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>SupplierRepository</strong></td>
+        <td>Supplier CRUD &amp; search</td>
+        <td>findByNameIgnoreCase, existsByNameIgnoreCase</td>
+        <td><a href="./supplier-repository.html">Read →</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>InventoryItemRepository</strong></td>
+        <td>Item CRUD with analytics</td>
+        <td>findByNameSortedByPrice,
+        findItemsBelowMinimumStockFiltered</td>
+        <td><a href="./inventory-item-repository.html">Read →</a></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>StockHistoryRepository</strong></td>
+        <td>Stock audit trail &amp; trends</td>
+        <td>findByItemIdOrderByTimestampDesc, findFiltered,
+        getPriceTrend</td>
+        <td><a href="./stock-history-repository.html">Read →</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>AppUserRepository</strong></td>
+        <td>OAuth2 user management</td>
+        <td>findByEmail, count</td>
+        <td><a href="./app-user-repository.html">Read →</a></td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="custom-analytics-repositories">Custom Analytics
+        Repositories</h3>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 18%" />
+        <col style="width: 25%" />
+        <col style="width: 31%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Repository</th>
+        <th>Purpose</th>
+        <th>Key Methods</th>
+        <th>Documentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>StockMetricsRepository</strong></td>
+        <td>KPI dashboard metrics</td>
+        <td>getTotalStockBySupplier, getUpdateCountByItem</td>
+        <td><a href="./stock-metrics-repository.html">Read →</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>StockTrendAnalyticsRepository</strong></td>
+        <td>Time-series analytics</td>
+        <td>getMonthlyStockMovement, getDailyStockValuation,
+        getItemPriceTrend</td>
+        <td><a href="./stock-trend-analytics-repository.html">Read
+        →</a></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>StockDetailQueryRepository</strong></td>
+        <td>Advanced filtering &amp; WAC</td>
+        <td>searchStockUpdates, streamEventsForWAC</td>
+        <td><a href="./stock-detail-query-repository.html">Read
+        →</a></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="design-patterns">Design Patterns</h2>
+        <h3 id="repository-pattern">1. Repository Pattern</h3>
+        <p><strong>What it is:</strong> A repository mediates between
+        the domain and data mapping layers, acting like an in-memory
+        collection of domain objects.</p>
+        <p><strong>Benefits:</strong> - ✅ Centralizes database access
+        logic - ✅ Makes business logic independent of data access - ✅
+        Simplifies unit testing (easy to mock) - ✅ Supports multiple
+        data sources with same interface</p>
+        <p><strong>Implementation:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> SupplierRepository <span class="kw">extends</span> JpaRepository<span class="op">&lt;</span>Supplier<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">boolean</span> <span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="spring-data-jpa">2. Spring Data JPA</h3>
+        <p>All repositories extend
+        <code>JpaRepository&lt;Entity, ID&gt;</code> which provides:</p>
+        <p><strong>Inherited Methods:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Create/Update</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span><span class="op">(</span>entity<span class="op">)</span>           <span class="co">// Persist or update</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveAll</span><span class="op">(</span>entities<span class="op">)</span>      <span class="co">// Batch persist</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Read</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span>           <span class="co">// Optional&lt;Entity&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">findAll</span><span class="op">()</span>              <span class="co">// List&lt;Entity&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">exists</span><span class="op">(</span>id<span class="op">)</span>             <span class="co">// boolean</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Delete (discouraged in this system)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">deleteById</span><span class="op">(</span>id<span class="op">)</span>         <span class="co">// void</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">delete</span><span class="op">(</span>entity<span class="op">)</span>         <span class="co">// void</span></span></code></pre></div>
+        <p><strong>Query Methods:</strong> Spring Data derives queries
+        from method names:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Method name → Generated SQL</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>→ SELECT <span class="op">*</span> FROM supplier WHERE <span class="fu">LOWER</span><span class="op">(</span>name<span class="op">)</span> <span class="op">=</span> <span class="fu">LOWER</span><span class="op">(?)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">existsBySupplierIdAndQuantityGreaterThan</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="dt">int</span> qty<span class="op">)</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>→ SELECT <span class="fu">COUNT</span><span class="op">(*)</span> <span class="op">&gt;</span> <span class="dv">0</span> FROM inventory_item </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  WHERE supplier_id <span class="op">=</span> <span class="op">?</span> AND quantity <span class="op">&gt;</span> <span class="op">?</span></span></code></pre></div>
+        <h3 id="custom-queries-with-query">3. Custom Queries with <span
+        class="citation" data-cites="Query">@Query</span></h3>
+        <p>For complex queries, use explicit <code>@Query</code>:</p>
+        <p><strong>JPQL (Java Persistence Query Language):</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Query</span><span class="op">(</span><span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT COUNT(i)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM InventoryItem i</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE COALESCE(i.quantity, 0) &lt; :threshold</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span><span class="op">)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="fu">countWithQuantityBelow</span><span class="op">(</span><span class="at">@Param</span><span class="op">(</span><span class="st">&quot;threshold&quot;</span><span class="op">)</span> <span class="dt">int</span> threshold<span class="op">);</span></span></code></pre></div>
+        <p><strong>Native SQL (for performance):</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Query</span><span class="op">(</span>value <span class="op">=</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT name, quantity, minimum_quantity</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM inventory_item</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE quantity &lt; minimum_quantity</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY quantity ASC</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span><span class="op">,</span> nativeQuery <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span><span class="bu">Object</span><span class="op">[]&gt;</span> <span class="fu">findItemsBelowMinimumStock</span><span class="op">();</span></span></code></pre></div>
+        <h3 id="custom-repository-extensions">4. Custom Repository
+        Extensions</h3>
+        <p>For specialized analytics, create intermediate
+        interfaces:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Marker interface for custom implementation</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> StockMetricsRepository <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span><span class="bu">Object</span><span class="op">[]&gt;</span> <span class="fu">getTotalStockBySupplier</span><span class="op">();</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Main repository extends custom interface</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> StockHistoryRepository <span class="kw">extends</span> JpaRepository<span class="op">&lt;</span>StockHistory<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                                                 StockMetricsRepository <span class="op">{</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Custom implementation (separate class)</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="at">@Repository</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistoryRepositoryCustom <span class="kw">implements</span> StockMetricsRepository <span class="op">{</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> <span class="kw">private</span> EntityManager em<span class="op">;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span><span class="bu">Object</span><span class="op">[]&gt;</span> <span class="fu">getTotalStockBySupplier</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Complex query implementation</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="repository-hierarchy">Repository Hierarchy</h2>
+        <pre><code>JpaRepository&lt;Entity, ID&gt;
+├── Standard CRUD methods
+├── Pagination support
+└── Custom @Query support
+    │
+    ├── SupplierRepository
+    │   └── Simple searches (name-based)
+    │
+    ├── InventoryItemRepository
+    │   └── Stock analysis queries
+    │
+    ├── StockHistoryRepository
+    │   ├── Extends StockMetricsRepository
+    │   ├── Extends StockTrendAnalyticsRepository
+    │   └── Extends StockDetailQueryRepository
+    │
+    └── AppUserRepository
+        └── OAuth2 user lookups</code></pre>
+        <hr />
+        <h2 id="repositories-by-concern">Repositories by Concern</h2>
+        <h3 id="entity-crud-repositories">Entity CRUD Repositories</h3>
+        <p><strong>Standard create, read, update, delete
+        operations:</strong></p>
+        <ul>
+        <li><code>SupplierRepository</code> - Supplier management</li>
+        <li><code>InventoryItemRepository</code> - Inventory item
+        management</li>
+        <li><code>StockHistoryRepository</code> - Stock history
+        logging</li>
+        <li><code>AppUserRepository</code> - User account
+        management</li>
+        </ul>
+        <h3 id="custom-analytics-repositories-1">Custom Analytics
+        Repositories</h3>
+        <p><strong>Extended repositories for complex business
+        logic:</strong></p>
+        <ul>
+        <li><code>StockMetricsRepository</code> - KPI metrics and
+        dashboard data</li>
+        <li><code>StockTrendAnalyticsRepository</code> - Time-series
+        analysis and reporting</li>
+        <li><code>StockDetailQueryRepository</code> - Advanced filtering
+        and cost-flow algorithms</li>
+        </ul>
+        <hr />
+        <h2 id="key-design-decisions">Key Design Decisions</h2>
+        <h3 id="immutable-append-only-stockhistory">1. Immutable
+        Append-Only StockHistory</h3>
+        <p><strong>Design:</strong> StockHistory records are never
+        updated or deleted, only created.</p>
+        <p><strong>Benefits:</strong> - Audit compliance (tamper-proof)
+        - No concurrent update conflicts - Optimized for append-only
+        performance - Historical accuracy preserved</p>
+        <p><strong>Implementation:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Repository only saves, never updates/deletes</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>StockHistory created <span class="op">=</span> stockHistoryRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>history<span class="op">);</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">// No update or delete methods exposed</span></span></code></pre></div>
+        <h3 id="lazy-loading-with-fetchtype.lazy">2. Lazy Loading with
+        FetchType.LAZY</h3>
+        <p><strong>Design:</strong> Foreign key relationships use
+        <code>FetchType.LAZY</code> by default.</p>
+        <p><strong>Rationale:</strong> - Prevents N+1 query problems -
+        Allows flexibility in query optimization - Supports explicit
+        eager loading when needed</p>
+        <p><strong>Access Pattern:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Must be within @Transactional to access lazy fields</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span><span class="op">(</span>readOnly <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">String</span> <span class="fu">getSupplierName</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    InventoryItem item <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>itemId<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> item<span class="op">.</span><span class="fu">getSupplier</span><span class="op">().</span><span class="fu">getName</span><span class="op">();</span>  <span class="co">// Lazy loaded</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="pagination-for-large-result-sets">3. Pagination for
+        Large Result Sets</h3>
+        <p><strong>Design:</strong> All search/list endpoints use
+        pagination.</p>
+        <p><strong>Benefit:</strong> Prevents memory overload with large
+        datasets.</p>
+        <p><strong>Implementation:</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Page<span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> results <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;widget&quot;</span><span class="op">,</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    PageRequest<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">20</span><span class="op">)</span>  <span class="co">// Page 0, 20 items per page</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Convenient properties</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>results<span class="op">.</span><span class="fu">getContent</span><span class="op">()</span>         <span class="co">// List&lt;InventoryItem&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>results<span class="op">.</span><span class="fu">getTotalElements</span><span class="op">()</span>   <span class="co">// long</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>results<span class="op">.</span><span class="fu">getTotalPages</span><span class="op">()</span>      <span class="co">// int</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>results<span class="op">.</span><span class="fu">hasNext</span><span class="op">()</span>            <span class="co">// boolean</span></span></code></pre></div>
+        <h3 id="case-insensitive-searches">4. Case-Insensitive
+        Searches</h3>
+        <p><strong>Design:</strong> All text searches use
+        <code>IgnoreCase</code> variants.</p>
+        <p><strong>Rationale:</strong> - User-friendly (don’t require
+        exact casing) - Prevents duplicate entries (e.g., “ACME”,
+        “acme”, “Acme”) - Industry standard for inventory systems</p>
+        <p><strong>Implementation:</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Method-derived query</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> suppliers <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span><span class="st">&quot;acme&quot;</span><span class="op">);</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Works for: &quot;ACME&quot;, &quot;acme&quot;, &quot;AcMe&quot;, &quot;Acme Corporation&quot;</span></span></code></pre></div>
+        <h3 id="native-sql-for-performance-critical-queries">5. Native
+        SQL for Performance-Critical Queries</h3>
+        <p><strong>Design:</strong> Complex analytics use native SQL for
+        optimization.</p>
+        <p><strong>Rationale:</strong> - JPQL can generate suboptimal
+        queries - Native SQL allows database-specific optimizations -
+        Critical for dashboard performance</p>
+        <p><strong>Example:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Query</span><span class="op">(</span>value <span class="op">=</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT s.name, SUM(sh.change) as total</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM stock_history sh</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN inventory_item i ON sh.item_id = i.id</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN supplier s ON i.supplier_id = s.id</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE sh.reason = &#39;PURCHASE&#39;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY s.id, s.name</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY total DESC</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span><span class="op">,</span> nativeQuery <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span><span class="bu">Object</span><span class="op">[]&gt;</span> <span class="fu">getSupplierDeliveryStats</span><span class="op">();</span></span></code></pre></div>
+        <hr />
+        <h2 id="common-query-patterns">Common Query Patterns</h2>
+        <h3 id="find-by-exact-value-case-insensitive">1. Find by Exact
+        Value (Case-Insensitive)</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Supplier by name</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;ACME Corp&quot;</span><span class="op">);</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Item by name</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Widget A&quot;</span><span class="op">);</span></span></code></pre></div>
+        <h3 id="search-by-partial-match">2. Search by Partial Match</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Paginated search</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>Page<span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> results <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;wid&quot;</span><span class="op">,</span>  <span class="co">// matches &quot;Widget&quot;, &quot;Widgets&quot;, etc.</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    PageRequest<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">20</span><span class="op">)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">// All matches (no pagination)</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> suppliers <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span><span class="st">&quot;corp&quot;</span><span class="op">);</span></span></code></pre></div>
+        <h3 id="check-existence-with-conditions">3. Check Existence with
+        Conditions</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Does supplier have items?</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> hasItems <span class="op">=</span> repository<span class="op">.</span><span class="fu">existsBySupplier_Id</span><span class="op">(</span>supplierId<span class="op">);</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Does supplier have items with stock above threshold?</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> hasStock <span class="op">=</span> repository<span class="op">.</span><span class="fu">existsBySupplier_IdAndQuantityGreaterThan</span><span class="op">(</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    supplierId<span class="op">,</span> </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    minimumQuantity</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Check for duplicates</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> exists <span class="op">=</span> repository<span class="op">.</span><span class="fu">existsByNameAndPrice</span><span class="op">(</span>name<span class="op">,</span> price<span class="op">);</span></span></code></pre></div>
+        <h3 id="paginated-queries-with-filters">4. Paginated Queries
+        with Filters</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Multiple filter criteria</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>Page<span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> history <span class="op">=</span> repository<span class="op">.</span><span class="fu">findFiltered</span><span class="op">(</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    startDate<span class="op">,</span>      <span class="co">// Optional: LocalDateTime</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    endDate<span class="op">,</span>        <span class="co">// Optional: LocalDateTime</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    itemName<span class="op">,</span>       <span class="co">// Optional: String (partial match)</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    supplierId<span class="op">,</span>     <span class="co">// Optional: String</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    PageRequest<span class="op">.</span><span class="fu">of</span><span class="op">(</span>pageNumber<span class="op">,</span> pageSize<span class="op">)</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span></code></pre></div>
+        <h3 id="ordered-results">5. Ordered Results</h3>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Newest first (for audit trails)</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> recent <span class="op">=</span> repository</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">findByItemIdOrderByTimestampDesc</span><span class="op">(</span>itemId<span class="op">);</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Sorting by business logic</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>Page<span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> sorted <span class="op">=</span> repository</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">findByNameSortedByPrice</span><span class="op">(</span><span class="st">&quot;widget&quot;</span><span class="op">,</span> pageable<span class="op">);</span></span></code></pre></div>
+        <h3 id="time-range-queries">6. Time-Range Queries</h3>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Price trend over date range</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>PriceTrendDTO<span class="op">&gt;</span> trend <span class="op">=</span> repository<span class="op">.</span><span class="fu">getPriceTrend</span><span class="op">(</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    itemId<span class="op">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    LocalDateTime<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">2024</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">),</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    LocalDateTime<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">2024</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">31</span><span class="op">,</span> <span class="dv">23</span><span class="op">,</span> <span class="dv">59</span><span class="op">)</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Monthly aggregations</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span><span class="bu">Object</span><span class="op">[]&gt;</span> monthly <span class="op">=</span> repository<span class="op">.</span><span class="fu">getMonthlyStockMovement</span><span class="op">(</span>start<span class="op">,</span> end<span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h2 id="performance-optimization-strategies">Performance
+        Optimization Strategies</h2>
+        <h3 id="indexes">1. Indexes</h3>
+        <p>Database indexes on frequently queried columns:</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- From entity @Index annotations</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> IX_SUPPLIER_NAME <span class="kw">ON</span> SUPPLIER(NAME);</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> IX_ITEM_NAME <span class="kw">ON</span> INVENTORY_ITEM(NAME);</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> IX_ITEM_SUPPLIER_ID <span class="kw">ON</span> INVENTORY_ITEM(SUPPLIER_ID);</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> IX_SH_ITEM_TS <span class="kw">ON</span> STOCK_HISTORY(ITEM_ID, CREATED_AT);</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> IX_SH_TS <span class="kw">ON</span> STOCK_HISTORY(CREATED_AT);</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> IX_SH_SUPPLIER_TS <span class="kw">ON</span> STOCK_HISTORY(SUPPLIER_ID, CREATED_AT);</span></code></pre></div>
+        <h3 id="query-projection">2. Query Projection</h3>
+        <p>Return only needed fields, not entire entities:</p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Inefficient: Load entire entities</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> suppliers <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">();</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Efficient: Project specific fields</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="at">@Query</span><span class="op">(</span><span class="st">&quot;SELECT new SupplierDTO(s.id, s.name) FROM Supplier s&quot;</span><span class="op">)</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">findAllForListing</span><span class="op">();</span></span></code></pre></div>
+        <h3 id="join-optimization">3. Join Optimization</h3>
+        <p>Use FETCH joins to prevent N+1 queries:</p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ N+1 problem: 1 query for items + N queries for suppliers</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">();</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>InventoryItem item <span class="op">:</span> items<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getSupplier</span><span class="op">().</span><span class="fu">getName</span><span class="op">());</span>  <span class="co">// N queries!</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Single query with join</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="at">@Query</span><span class="op">(</span><span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT DISTINCT i FROM InventoryItem i</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN FETCH i.supplier</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span><span class="op">)</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> <span class="fu">findAllWithSuppliers</span><span class="op">();</span></span></code></pre></div>
+        <h3 id="pagination">4. Pagination</h3>
+        <p>Limit result set size:</p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Get page 0 with 20 items</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Pageable</span> pageable <span class="op">=</span> PageRequest<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">20</span><span class="op">);</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>Page<span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> page <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">(</span>pageable<span class="op">);</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Check for more pages</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>page<span class="op">.</span><span class="fu">hasNext</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    Page<span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> nextPage <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">(</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        page<span class="op">.</span><span class="fu">nextPageable</span><span class="op">()</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-repositories">Testing Repositories</h2>
+        <h3 id="unit-tests-with-datajpatest">Unit Tests with <span
+        class="citation"
+        data-cites="DataJpaTest">@DataJpaTest</span></h3>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DataJpaTest</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SupplierRepositoryTest <span class="op">{</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testFindByNameIgnoreCase</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Test Supplier&quot;</span><span class="op">)</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;test@example.com&quot;</span><span class="op">)</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;test&quot;</span><span class="op">)</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>        Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> found <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;test supplier&quot;</span><span class="op">);</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>found<span class="op">.</span><span class="fu">isPresent</span><span class="op">());</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;Test Supplier&quot;</span><span class="op">,</span> found<span class="op">.</span><span class="fu">get</span><span class="op">().</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="integration-tests-with-full-context">Integration Tests
+        with Full Context</h3>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InventoryItemRepositoryIT <span class="op">{</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItemRepository repository<span class="op">;</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testFindBelowMinimumStock</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Create test data</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        InventoryItem item <span class="op">=</span> <span class="fu">createTestItem</span><span class="op">();</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>        item<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(</span><span class="dv">5</span><span class="op">);</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>        item<span class="op">.</span><span class="fu">setMinimumQuantity</span><span class="op">(</span><span class="dv">10</span><span class="op">);</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>item<span class="op">);</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Test query</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span><span class="bu">Object</span><span class="op">[]&gt;</span> results <span class="op">=</span> repository</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">findItemsBelowMinimumStockFiltered</span><span class="op">(</span><span class="kw">null</span><span class="op">);</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">1</span><span class="op">,</span> results<span class="op">.</span><span class="fu">size</span><span class="op">());</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <p>✅ <strong>DO:</strong> - Use method-derived queries for
+        simple operations - Use <span class="citation"
+        data-cites="Query">@Query</span> for complex operations - Use
+        pagination for list endpoints - Use case-insensitive searches -
+        Document custom query logic with JavaDoc - Test repository
+        methods in isolation - Use lazy loading for relationships - Use
+        native SQL when JPQL is inefficient</p>
+        <p>❌ <strong>DON’T:</strong> - Load all entities without
+        pagination - Create circular relationship fetches - Use eager
+        loading by default (causes N+1) - Ignore database indexes -
+        Write business logic in repositories - Use repositories in
+        controllers directly (use services) - Ignore null values in
+        optional parameters - Create super repositories (split by
+        concern)</p>
+        <hr />
+        <h2 id="entity-repository-mapping">Entity-Repository
+        Mapping</h2>
+        <table>
+        <colgroup>
+        <col style="width: 27%" />
+        <col style="width: 41%" />
+        <col style="width: 31%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Entity</th>
+        <th>Repository</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>Supplier</code></td>
+        <td><code>SupplierRepository</code></td>
+        <td>Supplier CRUD &amp; search</td>
+        </tr>
+        <tr class="even">
+        <td><code>InventoryItem</code></td>
+        <td><code>InventoryItemRepository</code></td>
+        <td>Item CRUD with analytics</td>
+        </tr>
+        <tr class="odd">
+        <td><code>StockHistory</code></td>
+        <td><code>StockHistoryRepository</code></td>
+        <td>Stock audit with metrics &amp; trends</td>
+        </tr>
+        <tr class="even">
+        <td><code>AppUser</code></td>
+        <td><code>AppUserRepository</code></td>
+        <td>OAuth2 user management</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="next-steps">Next Steps</h2>
+        <ol type="1">
+        <li><strong>Explore Core Repositories:</strong>
+        <ul>
+        <li><a href="./supplier-repository.html">SupplierRepository</a>
+        - Supplier data access</li>
+        <li><a
+        href="./inventory-item-repository.html">InventoryItemRepository</a>
+        - Inventory queries</li>
+        <li><a
+        href="./stock-history-repository.html">StockHistoryRepository</a>
+        - Audit trail access</li>
+        <li><a href="./app-user-repository.html">AppUserRepository</a> -
+        User management</li>
+        </ul></li>
+        <li><strong>Explore Custom Analytics:</strong>
+        <ul>
+        <li><a
+        href="./stock-metrics-repository.html">StockMetricsRepository</a>
+        - KPI metrics</li>
+        <li><a
+        href="./stock-trend-analytics-repository.html">StockTrendAnalyticsRepository</a>
+        - Time-series data</li>
+        <li><a
+        href="./stock-detail-query-repository.html">StockDetailQueryRepository</a>
+        - Advanced filtering</li>
+        </ul></li>
+        <li><strong>Related Documentation:</strong>
+        <ul>
+        <li><a href="../model/index.html">Data Models &amp; Entities</a>
+        - Entity definitions</li>
+        <li><a href="../layers/service-layer.html">Service Layer</a> -
+        Business logic</li>
+        <li><a href="../deployment.html">Database Schema</a> - Database
+        design</li>
+        </ul></li>
+        </ol>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
