@@ -239,19 +239,24 @@
         <code>src/main/java/.../mapper/</code></p>
         <p>Provides foundational services and handles concerns that span
         multiple layers.</p>
-        <p><strong>Key Components:</strong> - <strong>Security:</strong>
+        <p><strong>Key Components:</strong> - <strong><a
+        href="./infrastructure/security.html">Security</a>:</strong>
         OAuth2 authentication, authorization, <code>@PreAuthorize</code>
-        - <strong>Validation:</strong> Custom validators for business
-        rules - <strong>Exception Handling:</strong> Global exception
-        handler, error responses - <strong>Data Mapping:</strong> DTO ↔︎
-        Entity converters - <strong>Configuration:</strong> Spring
-        beans, application properties</p>
+        - <strong><a
+        href="./infrastructure/validation.html">Validation</a>:</strong>
+        Custom validators for business rules - <strong><a
+        href="./infrastructure/exception-handling.html">Exception
+        Handling</a>:</strong> Global exception handler, error responses
+        - <strong><a href="./infrastructure/mapping.html">Data
+        Mapping</a>:</strong> DTO ↔︎ Entity converters - <strong><a
+        href="./infrastructure/configuration.html">Configuration</a>:</strong>
+        Spring beans, application properties</p>
         <p><strong>Responsibilities:</strong> - Authenticate and
         authorize users - Validate inputs across all layers - Handle
         exceptions consistently - Transform data between representations
         - Configure Spring beans and properties</p>
         <p><strong>Learn More:</strong> <a
-        href="./infrastructure-layer.html">📄 Infrastructure &amp;
+        href="./infrastructure/index.html">📄 Infrastructure &amp;
         Cross-Cutting Concerns</a></p>
         <hr />
         <h2 id="layered-architecture-diagram">Layered Architecture
@@ -465,7 +470,7 @@
         </tr>
         <tr class="odd">
         <td><a
-        href="./infrastructure-layer.html">infrastructure-layer.html</a></td>
+        href="./infrastructure/index.html">infrastructure/index.html</a></td>
         <td>Cross-cutting concerns</td>
         <td>All developers, Security/Exceptions</td>
         </tr>
@@ -481,9 +486,9 @@
         href="./repository-layer.html">Repository Layer</a> → <a
         href="./model-layer.html">Model Layer</a></li>
         <li><strong>Security Engineer:</strong> Review <a
-        href="./infrastructure-layer.html">Infrastructure Layer</a></li>
+        href="./infrastructure/index.html">Infrastructure Layer</a></li>
         <li><strong>DevOps/Infrastructure:</strong> Check <a
-        href="./infrastructure-layer.html">Infrastructure Layer</a>
+        href="./infrastructure/index.html">Infrastructure Layer</a>
         configuration</li>
         </ul>
         <p><strong>By Activity:</strong></p>
@@ -498,10 +503,11 @@
         href="./model-layer.html">Model Layer</a> → <a
         href="./repository-layer.html">Repository Layer</a></li>
         <li><strong>Fixing exceptions:</strong> <a
-        href="./infrastructure-layer.html">Infrastructure Layer</a></li>
+        href="./infrastructure/exception-handling.html">Exception
+        Handling</a></li>
         <li><strong>Adding validation:</strong> <a
-        href="./infrastructure-layer.html">Infrastructure Layer</a> or
-        <a href="./service-layer.html">Service Layer</a></li>
+        href="./infrastructure/validation.html">Validation</a> or <a
+        href="./service-layer.html">Service Layer</a></li>
         </ul>
         <hr />
         <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
