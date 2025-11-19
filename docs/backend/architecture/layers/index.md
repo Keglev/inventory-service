@@ -9,7 +9,7 @@ This directory contains comprehensive documentation of the five-layer architectu
 ### Core Layers Documentation
 
 1. **[Controller Layer](./controller/index.html)** - HTTP API entry point, request routing, authorization
-2. **[Service Layer](./service-layer.html)** - Business logic orchestration, transaction management
+2. **[Service Layer](./service/index.html)** - Business logic orchestration, transaction management
 3. **[Repository Layer](./repository-layer.html)** - Data access abstraction, queries, persistence
 4. **[Model Layer](./model/index.html)** - JPA entities, relationships, domain objects
 5. **[Infrastructure & Cross-Cutting Concerns](./infrastructure/index.html)** - Configuration, security, validation, exception handling, mapping
@@ -30,6 +30,28 @@ The Controller Layer has been broken down into focused guides:
 - **[Request/Response Lifecycle](./controller/lifecycle.md)** - Complete flow through the layer
 - **[Integration](./controller/integration.md)** - How controller connects to service layer
 - **[Testing](./controller/testing.md)** - Unit and integration testing strategies
+
+### Service Components (Detailed)
+
+The Service Layer has been broken down into focused guides:
+
+- **[Core Services Overview](./service/index.html)** - SupplierService, InventoryItemService, StockHistoryService, AnalyticsService
+- **[Supplier Service](./service/supplier-service.md)** - Supplier management operations
+- **[Inventory Item Service](./service/inventory-item-service.md)** - Item lifecycle and stock tracking
+- **[Stock History Service](./service/stock-history-service.md)** - Immutable audit trail management
+- **[Analytics Service](./service/analytics-service.md)** - Business intelligence and reporting
+- **[Service Patterns](./service/service-patterns.md)** - Dependency injection, transactions, validation
+- **[Dependency Injection](./service/dependency-injection.md)** - Constructor-based DI pattern
+- **[Transaction Management](./service/transaction-management.md)** - @Transactional boundaries
+- **[Exception Translation](./service/exception-translation.md)** - Domain exceptions → HTTP responses
+- **[Data Transformation](./service/dto-transformation.md)** - DTO ↔ Entity mapping
+- **[Validation Strategy](./service/validation-strategy.md)** - Business rule validation
+- **[Audit Logging](./service/audit-logging.md)** - Tracking changes with createdBy/updatedBy
+- **[Interaction Diagram](./service/interaction-diagram.md)** - Service operation flow
+- **[Cross-Cutting Concerns](./service/cross-cutting-concerns.md)** - Exception handling and logging
+- **[Testing](./service/testing.md)** - Unit testing with Mockito
+- **[Integration](./service/integration.md)** - How service layer connects to others
+- **[Best Practices](./service/best-practices.md)** - Service design guidelines
 
 ### Model Components (Detailed)
 
@@ -53,7 +75,8 @@ The Model Layer has been broken down into focused guides:
 - Start with [Overview](./overview.html) for the big picture
 - Review [Controller Layer](./controller/index.html) to understand endpoint structure
 - Check [Routing](./controller/routing.md) for endpoint mapping
-- Check [Service](./service-layer.html) for business logic patterns
+- Check [Service Layer](./service/index.html) for business logic patterns
+- Check [Service Patterns](./service/service-patterns.md) for design patterns
 - Reference [Best Practices](./controller/best-practices.md) for standards
 
 ### Database Administrators
@@ -61,6 +84,7 @@ The Model Layer has been broken down into focused guides:
 - Check [Model Layer](./model/index.html) to understand entities and relationships
 - Review [Entity Relationships](./model/relationships.md) for schema design
 - Reference [Data Integrity](./model/data-integrity.md) for constraints
+- Check [Service Layer](./service/index.html) for transaction patterns
 
 ### Security/DevOps
 - Review [Security](./infrastructure/security.md) for authentication details

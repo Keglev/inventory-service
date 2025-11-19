@@ -42,21 +42,20 @@ Handles all HTTP concerns: routing, request/response mapping, validation trigger
 The business logic heart of the application. Services orchestrate complex operations, manage transactions, validate business rules, and handle domain logic.
 
 **Key Services:**
-- `SupplierService` - Supplier lifecycle management
-- `InventoryItemService` - Item and stock tracking
-- `StockHistoryService` - Audit trail management
-- `AnalyticsService` - Business intelligence
-- `CustomOAuth2UserService` - User authentication
+- **[SupplierService](./service/supplier-service.md)** - Supplier lifecycle management
+- **[InventoryItemService](./service/inventory-item-service.md)** - Item and stock tracking
+- **[StockHistoryService](./service/stock-history-service.md)** - Audit trail management
+- **[AnalyticsService](./service/analytics-service.md)** - Business intelligence
 
 **Responsibilities:**
-- Execute business logic
-- Manage transaction boundaries
-- Coordinate data access across repositories
-- Validate business rules
-- Translate exceptions to HTTP status codes
-- Transform between DTOs and entities
+- [Execute business logic](./service/index.md#core-services)
+- [Manage transaction boundaries](./service/transaction-management.md)
+- [Validate business rules](./service/validation-strategy.md)
+- [Translate exceptions to HTTP status codes](./service/exception-translation.md)
+- [Transform between DTOs and entities](./service/dto-transformation.md)
+- [Set audit logging](./service/audit-logging.md)
 
-**Learn More:** [📄 Service Layer](./service-layer.html)
+**Learn More:** [📄 Service Layer](./service/index.html)
 
 ---
 
