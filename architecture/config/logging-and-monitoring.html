@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+config/logging-and-monitoring · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#logging-and-monitoring-configuration"
+        id="toc-logging-and-monitoring-configuration">Logging and
+        Monitoring Configuration</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#logging-configuration"
+        id="toc-logging-configuration">Logging Configuration</a>
+        <ul>
+        <li><a href="#base-configuration-application.yml"
+        id="toc-base-configuration-application.yml">Base Configuration
+        (application.yml)</a></li>
+        <li><a href="#production-configuration-application-prod.yml"
+        id="toc-production-configuration-application-prod.yml">Production
+        Configuration (application-prod.yml)</a></li>
+        <li><a href="#test-configuration-application-test.yml"
+        id="toc-test-configuration-application-test.yml">Test
+        Configuration (application-test.yml)</a></li>
+        </ul></li>
+        <li><a href="#log-levels-severity-order"
+        id="toc-log-levels-severity-order">Log Levels (Severity
+        Order)</a>
+        <ul>
+        <li><a href="#example" id="toc-example">Example</a></li>
+        </ul></li>
+        <li><a href="#log-output" id="toc-log-output">Log Output</a>
+        <ul>
+        <li><a href="#console-output" id="toc-console-output">Console
+        Output</a></li>
+        <li><a href="#log-directory" id="toc-log-directory">Log
+        Directory</a></li>
+        </ul></li>
+        <li><a href="#package-specific-logging"
+        id="toc-package-specific-logging">Package-Specific
+        Logging</a></li>
+        <li><a href="#structured-logging"
+        id="toc-structured-logging">Structured Logging</a></li>
+        <li><a href="#management-endpoints-monitoring"
+        id="toc-management-endpoints-monitoring">Management Endpoints
+        (Monitoring)</a>
+        <ul>
+        <li><a href="#base-configuration-application.yml-1"
+        id="toc-base-configuration-application.yml-1">Base Configuration
+        (application.yml)</a></li>
+        <li><a href="#production-configuration-application-prod.yml-1"
+        id="toc-production-configuration-application-prod.yml-1">Production
+        Configuration (application-prod.yml)</a></li>
+        <li><a href="#available-endpoints"
+        id="toc-available-endpoints">Available Endpoints</a></li>
+        <li><a href="#health-endpoint-details"
+        id="toc-health-endpoint-details">Health Endpoint
+        Details</a></li>
+        </ul></li>
+        <li><a href="#correlation-ids-request-tracing"
+        id="toc-correlation-ids-request-tracing">Correlation IDs
+        (Request Tracing)</a>
+        <ul>
+        <li><a href="#what-they-do" id="toc-what-they-do">What They
+        Do</a></li>
+        <li><a href="#implementation"
+        id="toc-implementation">Implementation</a></li>
+        </ul></li>
+        <li><a href="#logging-for-security-events"
+        id="toc-logging-for-security-events">Logging for Security
+        Events</a></li>
+        <li><a href="#log-configuration-examples"
+        id="toc-log-configuration-examples">Log Configuration
+        Examples</a>
+        <ul>
+        <li><a href="#debug-a-specific-service"
+        id="toc-debug-a-specific-service">Debug a Specific
+        Service</a></li>
+        <li><a href="#debug-oauth2" id="toc-debug-oauth2">Debug
+        OAuth2</a></li>
+        <li><a href="#debug-database-issues"
+        id="toc-debug-database-issues">Debug Database Issues</a></li>
+        <li><a href="#monitor-application-startup"
+        id="toc-monitor-application-startup">Monitor Application
+        Startup</a></li>
+        </ul></li>
+        <li><a href="#file-based-logging-future-enhancement"
+        id="toc-file-based-logging-future-enhancement">File-Based
+        Logging (Future Enhancement)</a></li>
+        <li><a href="#logback-configuration-behind-the-scenes"
+        id="toc-logback-configuration-behind-the-scenes">Logback
+        Configuration (Behind the Scenes)</a></li>
+        <li><a href="#summary-table" id="toc-summary-table">Summary
+        Table</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Config Overview</a></p>
+        <h1 id="logging-and-monitoring-configuration">Logging and
+        Monitoring Configuration</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Logging configuration controls what messages are captured, at
+        what level, and where they’re stored. Monitoring configuration
+        exposes application health and metrics via HTTP endpoints.</p>
+        <hr />
+        <h2 id="logging-configuration">Logging Configuration</h2>
+        <h3 id="base-configuration-application.yml">Base Configuration
+        (application.yml)</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.jdbc.core]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">     # JDBC operations (SQL execution)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                 # Hibernate SQL generation</span></span></code></pre></div>
+        <p><strong>Effect:</strong> Logs all SQL statements with full
+        debugging information.</p>
+        <h3
+        id="production-configuration-application-prod.yml">Production
+        Configuration (application-prod.yml)</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro]&#39;</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                # Application logs: only INFO and above</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                                   # All other frameworks: INFO and above</span></span></code></pre></div>
+        <p><strong>Effect:</strong> Suppress DEBUG noise, keep only
+        important events.</p>
+        <h3 id="test-configuration-application-test.yml">Test
+        Configuration (application-test.yml)</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">show-sql</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">                              # Hibernate also logs SQL</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">properties</span><span class="kw">:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">&#39;[format_sql]&#39;</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">                    # Pretty-print SQL in logs</span></span></code></pre></div>
+        <hr />
+        <h2 id="log-levels-severity-order">Log Levels (Severity
+        Order)</h2>
+        <p>From lowest to highest severity:</p>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 38%" />
+        <col style="width: 34%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Level</th>
+        <th>Use Case</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>TRACE</strong></td>
+        <td>Extremely detailed debugging</td>
+        <td>Variable assignments, loop iterations</td>
+        </tr>
+        <tr class="even">
+        <td><strong>DEBUG</strong></td>
+        <td>Detailed information for troubleshooting</td>
+        <td>SQL statements, method entries, config loading</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>INFO</strong></td>
+        <td>High-level application flow</td>
+        <td>Application started, bean created, user logged in</td>
+        </tr>
+        <tr class="even">
+        <td><strong>WARN</strong></td>
+        <td>Potentially harmful situations</td>
+        <td>Deprecation warnings, unusual conditions</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>ERROR</strong></td>
+        <td>Error events that might still allow continuation</td>
+        <td>Database connection failed, but retry scheduled</td>
+        </tr>
+        <tr class="even">
+        <td><strong>FATAL</strong></td>
+        <td>Very severe error events that will cause shutdown</td>
+        <td>OutOfMemoryError, disk full</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="example">Example</h3>
+        <p>Setting <code>logging.level.root: INFO</code> means:</p>
+        <ul>
+        <li>✅ Show: INFO, WARN, ERROR, FATAL</li>
+        <li>❌ Suppress: TRACE, DEBUG</li>
+        </ul>
+        <hr />
+        <h2 id="log-output">Log Output</h2>
+        <h3 id="console-output">Console Output</h3>
+        <p>By default, logs go to <strong>stdout</strong> (console).
+        Example:</p>
+        <pre><code>2025-11-19T14:32:15.123Z  INFO 12345 --- [main] c.s.i.InventoryServiceApplication : Starting InventoryServiceApplication
+2025-11-19T14:32:15.456Z  INFO 12345 --- [main] o.s.s.w.SecurityFilterChain : Setting up security filter chain
+2025-11-19T14:32:16.789Z  INFO 12345 --- [main] c.s.i.InventoryServiceApplication : Started InventoryServiceApplication in 1.234 seconds</code></pre>
+        <h3 id="log-directory">Log Directory</h3>
+        <p>Logs are stored in the root <code>/logs/</code>
+        directory:</p>
+        <pre><code>/logs/
+├── application.log          # Main application log
+├── error.log               # Errors only
+└── archive/                # Rotated logs</code></pre>
+        <p>Currently <strong>not configured</strong> in the application
+        property files, but the directory exists for potential
+        file-based logging setup.</p>
+        <hr />
+        <h2 id="package-specific-logging">Package-Specific Logging</h2>
+        <p>Control logging level for specific packages:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">    # Application packages</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro.inventory]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro.inventory.security]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro.inventory.controller]&#39;</span><span class="kw">:</span><span class="at"> INFO</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro.inventory.service]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">    # Spring Framework packages</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">          # Spring Security internals</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.boot]&#39;</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">               # Spring Boot startup</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.web.servlet]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">       # Request routing</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.data]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">              # Spring Data JPA</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">    # Database packages</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                    # Hibernate SQL</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.type.descriptor.sql.BasicBinder]&#39;</span><span class="kw">:</span><span class="at"> TRACE</span><span class="co">  # Bind parameters</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.jdbc.core]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">        # JDBC core</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">    # Third-party libraries</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.h2.server]&#39;</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                        # H2 database console</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[io.r2dbc]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                            # R2DBC (reactive)</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="at">    </span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">    # All others</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> WARN</span><span class="co">                                      # Default level</span></span></code></pre></div>
+        <hr />
+        <h2 id="structured-logging">Structured Logging</h2>
+        <p>The application can log structured data (JSON) for better
+        parsing in log aggregation systems. Example:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:32:15.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;level&quot;</span><span class="fu">:</span> <span class="st">&quot;INFO&quot;</span><span class="fu">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;thread&quot;</span><span class="fu">:</span> <span class="st">&quot;main&quot;</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;logger&quot;</span><span class="fu">:</span> <span class="st">&quot;com.smartsupplypro.inventory.service.SupplierService&quot;</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Created supplier&quot;</span><span class="fu">,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;userId&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p>Not currently configured, but can be enabled with Logback
+        Jackson dependency.</p>
+        <hr />
+        <h2 id="management-endpoints-monitoring">Management Endpoints
+        (Monitoring)</h2>
+        <h3 id="base-configuration-application.yml-1">Base Configuration
+        (application.yml)</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">port</span><span class="kw">:</span><span class="at"> </span><span class="dv">8081</span></span></code></pre></div>
+        <h3
+        id="production-configuration-application-prod.yml-1">Production
+        Configuration (application-prod.yml)</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">management</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">endpoints</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">web</span><span class="kw">:</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">exposure</span><span class="kw">:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">include</span><span class="kw">:</span><span class="at"> health</span><span class="co">              # Only expose /actuator/health</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">endpoint</span><span class="kw">:</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">health</span><span class="kw">:</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">show-details</span><span class="kw">:</span><span class="at"> never</span><span class="co">            # Hide internals from API</span></span></code></pre></div>
+        <h3 id="available-endpoints">Available Endpoints</h3>
+        <table>
+        <colgroup>
+        <col style="width: 27%" />
+        <col style="width: 24%" />
+        <col style="width: 48%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Endpoint</th>
+        <th>Purpose</th>
+        <th>Enabled in Prod?</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>/actuator/health</code></td>
+        <td>Overall application health</td>
+        <td>✅ Yes</td>
+        </tr>
+        <tr class="even">
+        <td><code>/actuator/metrics</code></td>
+        <td>Performance metrics (CPU, memory, requests)</td>
+        <td>❌ No</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/actuator/env</code></td>
+        <td>Active configuration and environment variables</td>
+        <td>❌ No</td>
+        </tr>
+        <tr class="even">
+        <td><code>/actuator/beans</code></td>
+        <td>List all Spring beans</td>
+        <td>❌ No</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/actuator/configprops</code></td>
+        <td>Configuration properties</td>
+        <td>❌ No</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="health-endpoint-details">Health Endpoint Details</h3>
+        <p><strong>Request:</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">GET</span> /actuator/health</span></code></pre></div>
+        <p><strong>Response (prod):</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;UP&quot;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (dev, with details):</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;UP&quot;</span><span class="fu">,</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;components&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;db&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;UP&quot;</span><span class="fu">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;details&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;database&quot;</span><span class="fu">:</span> <span class="st">&quot;Oracle&quot;</span><span class="fu">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;result&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;diskSpace&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="st">&quot;UP&quot;</span><span class="fu">,</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;details&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;total&quot;</span><span class="fu">:</span> <span class="dv">107374182400</span><span class="fu">,</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;free&quot;</span><span class="fu">:</span> <span class="dv">54687091200</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="correlation-ids-request-tracing">Correlation IDs
+        (Request Tracing)</h2>
+        <p>Not currently implemented, but recommended for
+        production.</p>
+        <h3 id="what-they-do">What They Do</h3>
+        <p>Add a unique ID to each request so logs from the same user
+        action can be grouped:</p>
+        <pre><code>Request-ID: abc123def456
+↓
+[2025-11-19 14:32:15] [abc123def456] Request received: GET /api/suppliers
+[2025-11-19 14:32:16] [abc123def456] Query: SELECT * FROM SUPPLIER
+[2025-11-19 14:32:16] [abc123def456] Response: 200 OK, 5 suppliers found</code></pre>
+        <h3 id="implementation">Implementation</h3>
+        <p>Would involve:</p>
+        <ol type="1">
+        <li><strong>Filter</strong> to generate request ID on each
+        request</li>
+        <li><strong>MDC (Mapped Diagnostic Context)</strong> to store in
+        thread-local</li>
+        <li><strong>Logback configuration</strong> to include in log
+        pattern</li>
+        </ol>
+        <hr />
+        <h2 id="logging-for-security-events">Logging for Security
+        Events</h2>
+        <p>Currently logged at DEBUG level:</p>
+        <ul>
+        <li>OAuth2 login attempts</li>
+        <li>Authorization failures (401, 403)</li>
+        <li>Admin-only endpoint access</li>
+        <li>Demo mode toggles</li>
+        </ul>
+        <p><strong>Enhancement opportunity:</strong> Log security events
+        at WARN level always, regardless of logging configuration.</p>
+        <hr />
+        <h2 id="log-configuration-examples">Log Configuration
+        Examples</h2>
+        <h3 id="debug-a-specific-service">Debug a Specific Service</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> WARN</span><span class="co">                                    # Suppress everything else</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro.inventory.service.SupplierService]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">  # Focus on one class</span></span></code></pre></div>
+        <h3 id="debug-oauth2">Debug OAuth2</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security.oauth2]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security.authentication]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span></code></pre></div>
+        <h3 id="debug-database-issues">Debug Database Issues</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.type.descriptor.sql.BasicBinder]&#39;</span><span class="kw">:</span><span class="at"> TRACE</span><span class="co">  # Show bind parameters</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.jdbc.core]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.zaxxer.hikari]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                 # Connection pool</span></span></code></pre></div>
+        <h3 id="monitor-application-startup">Monitor Application
+        Startup</h3>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.boot.actuate]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">  # Startup events</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.context]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">       # Context initialization</span></span></code></pre></div>
+        <hr />
+        <h2 id="file-based-logging-future-enhancement">File-Based
+        Logging (Future Enhancement)</h2>
+        <p>To enable file logging, add to
+        <code>application.yml</code>:</p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">file</span><span class="kw">:</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> logs/application.log</span><span class="co">         # Log file location</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">max-size</span><span class="kw">:</span><span class="at"> 10MB</span><span class="co">                     # Rotate after 10MB</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">max-history</span><span class="kw">:</span><span class="at"> </span><span class="dv">30</span><span class="co">                    # Keep 30 days of logs</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">total-size-cap</span><span class="kw">:</span><span class="at"> 1GB</span><span class="co">                # Max total size before cleanup</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">pattern</span><span class="kw">:</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">file</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n&#39;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">console</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n&#39;</span></span></code></pre></div>
+        <hr />
+        <h2 id="logback-configuration-behind-the-scenes">Logback
+        Configuration (Behind the Scenes)</h2>
+        <p>Spring Boot uses <strong>Logback</strong> by default.
+        Configuration is auto-generated but can be customized by adding
+        <code>logback-spring.xml</code> to
+        <code>src/main/resources/</code>:</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode xml"><code class="sourceCode xml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;?xml</span><span class="ot"> version=</span><span class="st">&quot;1.0&quot;</span><span class="ot"> encoding=</span><span class="st">&quot;UTF-8&quot;</span><span class="fu">?&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">configuration</span>&gt;</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Console appender --&gt;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">appender</span><span class="ot"> name=</span><span class="st">&quot;CONSOLE&quot;</span><span class="ot"> class=</span><span class="st">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">encoder</span>&gt;</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">pattern</span>&gt;%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n&lt;/<span class="kw">pattern</span>&gt;</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">encoder</span>&gt;</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">appender</span>&gt;</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- File appender with rotation --&gt;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">appender</span><span class="ot"> name=</span><span class="st">&quot;FILE&quot;</span><span class="ot"> class=</span><span class="st">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">file</span>&gt;logs/application.log&lt;/<span class="kw">file</span>&gt;</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">rollingPolicy</span><span class="ot"> class=</span><span class="st">&quot;ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy&quot;</span>&gt;</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">fileNamePattern</span>&gt;logs/application-%d{yyyy-MM-dd}.%i.log&lt;/<span class="kw">fileNamePattern</span>&gt;</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">maxFileSize</span>&gt;10MB&lt;/<span class="kw">maxFileSize</span>&gt;</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">maxHistory</span>&gt;30&lt;/<span class="kw">maxHistory</span>&gt;</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">rollingPolicy</span>&gt;</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">encoder</span>&gt;</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">pattern</span>&gt;%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n&lt;/<span class="kw">pattern</span>&gt;</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">encoder</span>&gt;</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">appender</span>&gt;</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Root logger --&gt;</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">root</span><span class="ot"> level=</span><span class="st">&quot;INFO&quot;</span>&gt;</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">appender-ref</span><span class="ot"> ref=</span><span class="st">&quot;CONSOLE&quot;</span> /&gt;</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">appender-ref</span><span class="ot"> ref=</span><span class="st">&quot;FILE&quot;</span> /&gt;</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">root</span>&gt;</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Package-specific loggers --&gt;</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">logger</span><span class="ot"> name=</span><span class="st">&quot;com.smartsupplypro.inventory&quot;</span><span class="ot"> level=</span><span class="st">&quot;DEBUG&quot;</span> /&gt;</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">logger</span><span class="ot"> name=</span><span class="st">&quot;org.springframework.security&quot;</span><span class="ot"> level=</span><span class="st">&quot;DEBUG&quot;</span> /&gt;</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">configuration</span>&gt;</span></code></pre></div>
+        <hr />
+        <h2 id="summary-table">Summary Table</h2>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 19%" />
+        <col style="width: 19%" />
+        <col style="width: 35%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Base</th>
+        <th>Test</th>
+        <th>Production</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Root Level</strong></td>
+        <td>(none; use default)</td>
+        <td>DEBUG</td>
+        <td>INFO</td>
+        </tr>
+        <tr class="even">
+        <td><strong>SQL Logging</strong></td>
+        <td>DEBUG</td>
+        <td>DEBUG</td>
+        <td>OFF (show-sql: false)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Framework Logging</strong></td>
+        <td>DEBUG</td>
+        <td>DEBUG</td>
+        <td>WARN</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Output</strong></td>
+        <td>Console</td>
+        <td>Console</td>
+        <td>Console (stdout in containers)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>File Logging</strong></td>
+        <td>No</td>
+        <td>No</td>
+        <td>Not configured (but <code>/logs/</code> exists)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Management Endpoints</strong></td>
+        <td>All exposed (default)</td>
+        <td>All exposed</td>
+        <td>Health only</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Health Details</strong></td>
+        <td>Shows all</td>
+        <td>Shows all</td>
+        <td>Never shown</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Correlation IDs</strong></td>
+        <td>Not implemented</td>
+        <td>Not implemented</td>
+        <td>Not implemented</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Config Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

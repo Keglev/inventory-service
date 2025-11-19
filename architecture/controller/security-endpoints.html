@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+controller/security-endpoints · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#security-endpoints-matrix"
+        id="toc-security-endpoints-matrix">Security Endpoints Matrix</a>
+        <ul>
+        <li><a href="#authorization-overview"
+        id="toc-authorization-overview">Authorization Overview</a></li>
+        <li><a href="#role-definitions" id="toc-role-definitions">Role
+        Definitions</a></li>
+        <li><a href="#supplier-controller-authorization"
+        id="toc-supplier-controller-authorization">Supplier Controller
+        Authorization</a>
+        <ul>
+        <li><a href="#authorization-annotations"
+        id="toc-authorization-annotations">Authorization
+        Annotations</a></li>
+        </ul></li>
+        <li><a href="#inventory-item-controller-authorization"
+        id="toc-inventory-item-controller-authorization">Inventory Item
+        Controller Authorization</a>
+        <ul>
+        <li><a href="#authorization-pattern"
+        id="toc-authorization-pattern">Authorization Pattern</a></li>
+        </ul></li>
+        <li><a href="#stock-history-controller-authorization"
+        id="toc-stock-history-controller-authorization">Stock History
+        Controller Authorization</a>
+        <ul>
+        <li><a href="#authorization-pattern-1"
+        id="toc-authorization-pattern-1">Authorization Pattern</a></li>
+        </ul></li>
+        <li><a href="#authentication-controller-authorization"
+        id="toc-authentication-controller-authorization">Authentication
+        Controller Authorization</a>
+        <ul>
+        <li><a href="#authorization-pattern-2"
+        id="toc-authorization-pattern-2">Authorization Pattern</a></li>
+        </ul></li>
+        <li><a href="#analytics-controller-authorization"
+        id="toc-analytics-controller-authorization">Analytics Controller
+        Authorization</a>
+        <ul>
+        <li><a href="#authorization-pattern-3"
+        id="toc-authorization-pattern-3">Authorization Pattern</a></li>
+        </ul></li>
+        <li><a href="#consolidated-access-matrix"
+        id="toc-consolidated-access-matrix">Consolidated Access
+        Matrix</a></li>
+        <li><a href="#demo-mode-behavior"
+        id="toc-demo-mode-behavior">Demo Mode Behavior</a></li>
+        <li><a href="#security-validation-checklist"
+        id="toc-security-validation-checklist">Security Validation
+        Checklist</a></li>
+        <li><a href="#role-assignment-logic"
+        id="toc-role-assignment-logic">Role Assignment Logic</a>
+        <ul>
+        <li><a href="#admin-role-assignment"
+        id="toc-admin-role-assignment">ADMIN Role Assignment</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+        <h1 id="security-endpoints-matrix">Security Endpoints
+        Matrix</h1>
+        <h2 id="authorization-overview">Authorization Overview</h2>
+        <p>This document maps roles to endpoints across all controllers.
+        Use this matrix to understand who can access what.</p>
+        <p><strong>Key Principles:</strong> - <code>ADMIN</code> = Full
+        access (creation, modification, deletion, reporting) -
+        <code>USER</code> = Read &amp; limited write (own data, standard
+        operations) - <code>PUBLIC</code> = Unauthenticated demo mode
+        (read-only where <code>@appProperties.demoReadonly</code>) -
+        <code>AUTHENTICATED</code> = Any logged-in user (role-agnostic
+        operations)</p>
+        <hr />
+        <h2 id="role-definitions">Role Definitions</h2>
+        <div class="mermaid">
+        graph LR
+            AUTH["Authentication Layer"]
+            
+            AUTH --> ADMIN["ROLE_ADMIN<br/>Full Platform Access"]
+            AUTH --> USER["ROLE_USER<br/>Standard Operations"]
+            AUTH --> PUBLIC["PUBLIC<br/>Demo Mode"]
+            AUTH --> NONE["UNAUTHENTICATED<br/>No Access"]
+            
+            ADMIN --> A1["Create/Edit/Delete"]
+            ADMIN --> A2["Analytics Reports"]
+            ADMIN --> A3["Audit Trails"]
+            
+            USER --> U1["Create/Edit Own Items"]
+            USER --> U2["View Analytics"]
+            USER --> U3["Read Audit Trails"]
+            
+            PUBLIC --> P1["Read-Only (if enabled)"]
+            
+            NONE --> N1["Not Accessible"]
+            
+            style ADMIN fill:#ffcdd2
+            style USER fill:#fff9c4
+            style PUBLIC fill:#c8e6c9
+            style NONE fill:#eeeeee
+        </div>
+        <hr />
+        <h2 id="supplier-controller-authorization">Supplier Controller
+        Authorization</h2>
+        <table>
+        <colgroup>
+        <col style="width: 21%" />
+        <col style="width: 17%" />
+        <col style="width: 17%" />
+        <col style="width: 13%" />
+        <col style="width: 15%" />
+        <col style="width: 15%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Public</th>
+        <th>USER</th>
+        <th>ADMIN</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>/api/suppliers</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>List all suppliers (paginated)</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/suppliers/{id}</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Get supplier by ID</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/suppliers</code></td>
+        <td>POST</td>
+        <td>❌</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>Create supplier (ADMIN only)</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/suppliers/{id}</code></td>
+        <td>PUT</td>
+        <td>❌</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>Update supplier (ADMIN only)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/suppliers/{id}</code></td>
+        <td>DELETE</td>
+        <td>❌</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>Soft delete supplier (ADMIN only)</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/suppliers/count</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Count suppliers</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/suppliers/search</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Search suppliers by name</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="authorization-annotations">Authorization
+        Annotations</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// READ (Public allowed in demo mode)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated() or @appProperties.demoReadonly&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// CREATE/UPDATE/DELETE (ADMIN only)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span></code></pre></div>
+        <hr />
+        <h2 id="inventory-item-controller-authorization">Inventory Item
+        Controller Authorization</h2>
+        <table>
+        <colgroup>
+        <col style="width: 21%" />
+        <col style="width: 17%" />
+        <col style="width: 17%" />
+        <col style="width: 13%" />
+        <col style="width: 15%" />
+        <col style="width: 15%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Public</th>
+        <th>USER</th>
+        <th>ADMIN</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>/api/items</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>List all items (paginated)</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/items/{id}</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Get item details</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/items</code></td>
+        <td>POST</td>
+        <td>❌</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>Create item (ADMIN only)</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/items/{id}</code></td>
+        <td>PUT</td>
+        <td>❌</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>Update item (ADMIN only)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/items/{id}</code></td>
+        <td>DELETE</td>
+        <td>❌</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>Soft delete item (ADMIN only)</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/items/{id}/update-stock</code></td>
+        <td>PATCH</td>
+        <td>❌</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>Update stock quantity (ADMIN only)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/items/count</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Count items</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/items/search</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Search items by name</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="authorization-pattern">Authorization Pattern</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// READ operations</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated() or @appProperties.demoReadonly&quot;</span><span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">// WRITE operations (stock updates, creation)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span></code></pre></div>
+        <p><strong>Critical:</strong> Stock updates
+        (<code>PATCH /api/items/{id}/update-stock</code>) require ADMIN
+        role and create audit trail entries via
+        <code>StockHistory</code>.</p>
+        <hr />
+        <h2 id="stock-history-controller-authorization">Stock History
+        Controller Authorization</h2>
+        <table>
+        <colgroup>
+        <col style="width: 21%" />
+        <col style="width: 17%" />
+        <col style="width: 17%" />
+        <col style="width: 13%" />
+        <col style="width: 15%" />
+        <col style="width: 15%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Public</th>
+        <th>USER</th>
+        <th>ADMIN</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>/api/stock-history</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>List all stock changes</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/stock-history/{id}</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Get specific change entry</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/stock-history/by-item/{itemId}</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Changes for one item</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/stock-history/by-supplier/{supplierId}</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Changes for one supplier</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="authorization-pattern-1">Authorization Pattern</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ALL operations (Read-only audit trail)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated() or @appProperties.demoReadonly&quot;</span><span class="op">)</span></span></code></pre></div>
+        <p><strong>Note:</strong> Stock History is <strong>immutable
+        read-only</strong> audit trail. No write operations exposed.</p>
+        <hr />
+        <h2 id="authentication-controller-authorization">Authentication
+        Controller Authorization</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Public</th>
+        <th>USER</th>
+        <th>ADMIN</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>/api/me</code></td>
+        <td>GET</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Get current user profile</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/logout</code></td>
+        <td>POST</td>
+        <td>❌</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Invalidate session</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="authorization-pattern-2">Authorization Pattern</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// User profile &amp; logout (Authenticated only)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated()&quot;</span><span class="op">)</span></span></code></pre></div>
+        <p><strong>OAuth2 Flow:</strong> - GET <code>/api/me</code>
+        triggers auto-authentication if not logged in - POST
+        <code>/api/logout</code> clears cookies and redirects to
+        home</p>
+        <hr />
+        <h2 id="analytics-controller-authorization">Analytics Controller
+        Authorization</h2>
+        <table>
+        <colgroup>
+        <col style="width: 21%" />
+        <col style="width: 17%" />
+        <col style="width: 17%" />
+        <col style="width: 13%" />
+        <col style="width: 15%" />
+        <col style="width: 15%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Endpoint</th>
+        <th>Method</th>
+        <th>Public</th>
+        <th>USER</th>
+        <th>ADMIN</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>/api/analytics/dashboard-summary</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>KPI dashboard</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/analytics/financial-summary</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>P&amp;L and inventory metrics</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/analytics/stock-value</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Time series data</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/analytics/stock-per-supplier</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Supplier distribution</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/analytics/trends/price</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Price trends over time</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/analytics/trends/monthly-movement</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Monthly activity</td>
+        </tr>
+        <tr class="odd">
+        <td><code>/api/analytics/low-stock-items</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Items below reorder level</td>
+        </tr>
+        <tr class="even">
+        <td><code>/api/analytics/update-frequency</code></td>
+        <td>GET</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Item activity analysis</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="authorization-pattern-3">Authorization Pattern</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// All analytics endpoints (Read-only)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated() or @appProperties.demoReadonly&quot;</span><span class="op">)</span></span></code></pre></div>
+        <p><strong>Feature:</strong> Analytics are safe for public demo
+        mode (no sensitive data mutation).</p>
+        <hr />
+        <h2 id="consolidated-access-matrix">Consolidated Access
+        Matrix</h2>
+        <pre><code>╔══════════════════════════════════╦═══════╦══════╦═══════╗
+║ Controller Group                 ║ PUBLIC║ USER ║ ADMIN ║
+╠══════════════════════════════════╬═══════╬══════╬═══════╣
+║ SUPPLIER - List/Get              ║   ✅  ║  ✅  ║  ✅   ║
+║ SUPPLIER - Create/Update/Delete  ║   ❌  ║  ❌  ║  ✅   ║
+║ INVENTORY - List/Get             ║   ✅  ║  ✅  ║  ✅   ║
+║ INVENTORY - Create/Update/Delete ║   ❌  ║  ❌  ║  ✅   ║
+║ INVENTORY - Update Stock         ║   ❌  ║  ❌  ║  ✅   ║
+║ STOCK HISTORY - All              ║   ✅  ║  ✅  ║  ✅   ║
+║ ANALYTICS - All                  ║   ✅  ║  ✅  ║  ✅   ║
+║ AUTH - Get Profile/Logout        ║   ❌  ║  ✅  ║  ✅   ║
+╚══════════════════════════════════╩═══════╩══════╩═══════╝</code></pre>
+        <hr />
+        <h2 id="demo-mode-behavior">Demo Mode Behavior</h2>
+        <p>When <code>appProperties.demoReadonly = true</code>:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Public reads allowed</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated() or @appProperties.demoReadonly&quot;</span><span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Actual behavior:</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>demoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ✅ GET requests → Allowed</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ❌ POST/PUT/PATCH/DELETE → Blocked (throws DemoModeException)</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Use Cases:</strong> - Public dashboards (analytics) -
+        Preview environments - Sandboxes for training</p>
+        <hr />
+        <h2 id="security-validation-checklist">Security Validation
+        Checklist</h2>
+        <pre><code>Before deploying:
+
+☑ ADMIN roles assigned only to trusted users (via APP_ADMIN_EMAILS)
+☑ OAuth2 configured (ClientId, ClientSecret in environment)
+☑ HTTPS enabled in production (secure cookies)
+☑ Session timeout configured (15–30 minutes)
+☑ CSRF protection enabled (Spring Security default)
+☑ Demo mode disabled in production (@appProperties.demoReadonly = false)
+☑ Audit logging enabled (StockHistory captures all writes)
+☑ Rate limiting configured (if using Spring Cloud)</code></pre>
+        <hr />
+        <h2 id="role-assignment-logic">Role Assignment Logic</h2>
+        <h3 id="admin-role-assignment">ADMIN Role Assignment</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// From AuthController.java</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>APP_ADMIN_EMAILS<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>user<span class="op">.</span><span class="fu">getEmail</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grantRole</span><span class="op">(</span><span class="st">&quot;ROLE_ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Full platform access</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grantRole</span><span class="op">(</span><span class="st">&quot;ROLE_USER&quot;</span><span class="op">);</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Read + limited write access</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Configuration:</strong> Set via environment
+        variable:</p>
+        <pre><code>APP_ADMIN_EMAILS=admin@company.com,ops@company.com</code></pre>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 13%" />
+        <col style="width: 31%" />
+        <col style="width: 33%" />
+        <col style="width: 22%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Role</th>
+        <th>Access Level</th>
+        <th>Typical Users</th>
+        <th>Use Case</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>PUBLIC</strong></td>
+        <td>Read-only</td>
+        <td>Unauthenticated demo visitors</td>
+        <td>Dashboards, demo environments</td>
+        </tr>
+        <tr class="even">
+        <td><strong>USER</strong></td>
+        <td>Read + Limited Write</td>
+        <td>Employees, staff</td>
+        <td>Daily operations, item viewing</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>ADMIN</strong></td>
+        <td>Full CRUD</td>
+        <td>Managers, ops team</td>
+        <td>System configuration, creation, deletion</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Default:</strong> Users logged in via OAuth2 get
+        <code>ROLE_USER</code>. Admins require email in
+        <code>APP_ADMIN_EMAILS</code>.</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

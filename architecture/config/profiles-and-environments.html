@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+config/profiles-and-environments · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#profiles-and-environments"
+        id="toc-profiles-and-environments">Profiles and Environments</a>
+        <ul>
+        <li><a href="#what-is-a-profile" id="toc-what-is-a-profile">What
+        is a Profile?</a></li>
+        <li><a href="#active-profiles-in-this-project"
+        id="toc-active-profiles-in-this-project">Active Profiles in This
+        Project</a>
+        <ul>
+        <li><a href="#default-local-development"
+        id="toc-default-local-development">(Default) — Local
+        Development</a></li>
+        <li><a href="#test" id="toc-test">test</a></li>
+        <li><a href="#prod" id="toc-prod">prod</a></li>
+        </ul></li>
+        <li><a href="#how-spring-selects-the-active-profile"
+        id="toc-how-spring-selects-the-active-profile">How Spring
+        Selects the Active Profile</a></li>
+        <li><a href="#profile-comparison"
+        id="toc-profile-comparison">Profile Comparison</a></li>
+        <li><a href="#configuration-precedence"
+        id="toc-configuration-precedence">Configuration Precedence</a>
+        <ul>
+        <li><a href="#example-database-url"
+        id="toc-example-database-url">Example: Database URL</a></li>
+        </ul></li>
+        <li><a href="#profile-specific-sections-in-application.yml"
+        id="toc-profile-specific-sections-in-application.yml">Profile-Specific
+        Sections in application.yml</a></li>
+        <li><a href="#selecting-profiles-for-different-scenarios"
+        id="toc-selecting-profiles-for-different-scenarios">Selecting
+        Profiles for Different Scenarios</a>
+        <ul>
+        <li><a href="#local-development"
+        id="toc-local-development">Local Development</a></li>
+        <li><a href="#continuous-integration-github-actions"
+        id="toc-continuous-integration-github-actions">Continuous
+        Integration (GitHub Actions)</a></li>
+        <li><a href="#docker-deployment"
+        id="toc-docker-deployment">Docker Deployment</a></li>
+        <li><a href="#fly.io-deployment"
+        id="toc-fly.io-deployment">Fly.io Deployment</a></li>
+        </ul></li>
+        <li><a href="#troubleshooting-profile-issues"
+        id="toc-troubleshooting-profile-issues">Troubleshooting Profile
+        Issues</a>
+        <ul>
+        <li><a href="#q-how-do-i-know-which-profile-is-active"
+        id="toc-q-how-do-i-know-which-profile-is-active">Q: How do I
+        know which profile is active?</a></li>
+        <li><a href="#q-my-config-isnt-being-loaded.-whats-wrong"
+        id="toc-q-my-config-isnt-being-loaded.-whats-wrong">Q: My config
+        isn’t being loaded. What’s wrong?</a></li>
+        <li><a
+        href="#q-i-cant-connect-to-the-database.-what-profile-should-i-use"
+        id="toc-q-i-cant-connect-to-the-database.-what-profile-should-i-use">Q:
+        I can’t connect to the database. What profile should I
+        use?</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Config Overview</a></p>
+        <h1 id="profiles-and-environments">Profiles and
+        Environments</h1>
+        <h2 id="what-is-a-profile">What is a Profile?</h2>
+        <p>A <strong>Spring profile</strong> is a named configuration
+        set. Profiles allow you to maintain different property files and
+        bean definitions for different environments without changing
+        code.</p>
+        <p>When a profile is <strong>active</strong>, Spring Boot loads
+        the corresponding <code>application-{profile}.yml</code> file,
+        overriding the base <code>application.yml</code>.</p>
+        <h2 id="active-profiles-in-this-project">Active Profiles in This
+        Project</h2>
+        <h3 id="default-local-development">(Default) — Local
+        Development</h3>
+        <p><strong>When:</strong> No profile is explicitly set; used
+        locally when developing</p>
+        <p><strong>Configuration file:</strong>
+        <code>application.yml</code> only</p>
+        <p><strong>Database:</strong> Requires environment setup -
+        Expects <code>DB_URL</code>, <code>DB_USER</code>,
+        <code>DB_PASS</code> environment variables - Can be PostgreSQL
+        or Oracle, depending on your setup</p>
+        <p><strong>Demo Mode:</strong> Enabled by default
+        (<code>APP_DEMO_READONLY=true</code>)</p>
+        <p><strong>Activation:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># No SPRING_PROFILES_ACTIVE set</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Or explicitly empty</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span><span class="st">&quot;&quot;</span></span></code></pre></div>
+        <hr />
+        <h3 id="test">test</h3>
+        <p><strong>When:</strong> Running tests in CI/CD pipeline or
+        locally</p>
+        <p><strong>Configuration file:</strong>
+        <code>application-test.yml</code> + base
+        <code>application.yml</code></p>
+        <p><strong>Database:</strong> H2 in-memory (Oracle-compatible
+        mode) - Fast, isolated, requires no setup - Recreated for each
+        test run (<code>create-drop</code> mode)</p>
+        <p><strong>Logging:</strong> SQL statements logged
+        (<code>show-sql: true</code>)</p>
+        <p><strong>Demo Mode:</strong> Can be overridden per test</p>
+        <p><strong>Activation:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Maven</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> clean test</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Environment variable</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span><span class="st">&quot;test&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Java system property</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-Dspring.profiles.active</span><span class="op">=</span>test <span class="at">-jar</span> app.jar</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Docker</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-e</span> SPRING_PROFILES_ACTIVE=test myapp:latest</span></code></pre></div>
+        <hr />
+        <h3 id="prod">prod</h3>
+        <p><strong>When:</strong> Production deployment (Fly.io, cloud,
+        or production server)</p>
+        <p><strong>Configuration file:</strong>
+        <code>application-prod.yml</code> + base
+        <code>application.yml</code></p>
+        <p><strong>Database:</strong> Oracle with production-grade
+        connection pooling - Requires <code>DB_URL</code>,
+        <code>DB_USER</code>, <code>DB_PASS</code> from secure
+        environment - Connection pool tuned for low-memory
+        environments</p>
+        <p><strong>Logging:</strong> Only INFO level and above
+        (<code>logging.level.root: INFO</code>)</p>
+        <p><strong>Security:</strong> - SQL logging disabled
+        (<code>show-sql: false</code>) - No internal endpoint details
+        exposed
+        (<code>management.endpoint.health.show-details: never</code>) -
+        Secure cookies enforced (<code>secure: true</code>)</p>
+        <p><strong>Demo Mode:</strong> Usually disabled in production
+        (<code>APP_DEMO_READONLY=false</code>)</p>
+        <p><strong>Activation:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fly.io (fly.toml)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">[env]</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">SPRING_PROFILES_ACTIVE</span> = <span class="st">&quot;prod&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Docker</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-e</span> SPRING_PROFILES_ACTIVE=prod myapp:latest</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Kubernetes</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">apiVersion:</span> v1</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="ex">kind:</span> Pod</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">spec:</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="ex">containers:</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> name: app</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="ex">env:</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> name: SPRING_PROFILES_ACTIVE</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>      <span class="ex">value:</span> <span class="st">&quot;prod&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="how-spring-selects-the-active-profile">How Spring
+        Selects the Active Profile</h2>
+        <ol type="1">
+        <li><p><strong>Environment variable</strong>
+        <code>SPRING_PROFILES_ACTIVE</code> (highest priority)</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span><span class="st">&quot;prod&quot;</span></span></code></pre></div></li>
+        <li><p><strong>Java system property</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-Dspring.profiles.active</span><span class="op">=</span>prod <span class="at">-jar</span> app.jar</span></code></pre></div></li>
+        <li><p><strong>application.yml</strong>
+        <code>spring.profiles.active</code></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">profiles</span><span class="kw">:</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">active</span><span class="kw">:</span><span class="at"> test</span></span></code></pre></div></li>
+        <li><p><strong>Default</strong> (if none set): Use base
+        <code>application.yml</code> only</p></li>
+        </ol>
+        <p><strong>⚠️ Important:</strong> Never hardcode
+        <code>spring.profiles.active</code> in
+        <code>application.yml</code>. Let environment variables control
+        which profile is used.</p>
+        <hr />
+        <h2 id="profile-comparison">Profile Comparison</h2>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 35%" />
+        <col style="width: 19%" />
+        <col style="width: 19%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>(Default)</th>
+        <th>test</th>
+        <th>prod</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Database</strong></td>
+        <td>PostgreSQL/Oracle (manual setup)</td>
+        <td>H2 in-memory</td>
+        <td>Oracle (Autonomous DB)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Configuration</strong></td>
+        <td><code>application.yml</code></td>
+        <td><code>application-test.yml</code></td>
+        <td><code>application-prod.yml</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>SQL Logging</strong></td>
+        <td>Enabled (DEBUG)</td>
+        <td>Enabled (DEBUG)</td>
+        <td>Disabled</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Show SQL</strong></td>
+        <td>true</td>
+        <td>true</td>
+        <td>false</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>DDL Auto</strong></td>
+        <td>none</td>
+        <td>create-drop</td>
+        <td>update</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Demo Mode</strong></td>
+        <td>true (default)</td>
+        <td>true (default)</td>
+        <td>true (usually)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Log Level</strong></td>
+        <td>DEBUG for frameworks</td>
+        <td>DEBUG for frameworks</td>
+        <td>INFO only</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Health Endpoint</strong></td>
+        <td>Shows all details</td>
+        <td>Shows all details</td>
+        <td>Never</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Connection Pool</strong></td>
+        <td>Default</td>
+        <td>N/A (H2)</td>
+        <td>Tuned for Oracle</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="configuration-precedence">Configuration Precedence</h2>
+        <p>When Spring Boot starts, properties are loaded in this order
+        (first match wins):</p>
+        <pre><code>1. Environment Variables
+2. application-{profile}.yml
+3. application.yml
+4. Java defaults (@ConfigurationProperties)</code></pre>
+        <h3 id="example-database-url">Example: Database URL</h3>
+        <pre><code>Query: What is spring.datasource.url?
+
+1. Is DB_URL env var set? → Use it (highest priority)
+   Example: export DB_URL=&quot;jdbc:oracle:thin:@prod.db.com:1521/xe&quot;
+
+2. Is the active profile &quot;prod&quot;? Check application-prod.yml
+   (application-prod.yml also references ${DB_URL}, so env var wins anyway)
+
+3. Check application.yml
+   spring.datasource.url: ${DB_URL}  ← Still references env var
+
+4. Java default: oracle.jdbc.OracleDriver (just the driver class)
+   ← No default for URL; the property is required</code></pre>
+        <hr />
+        <h2
+        id="profile-specific-sections-in-application.yml">Profile-Specific
+        Sections in application.yml</h2>
+        <p>You can also add profile-specific properties
+        <strong>within</strong> <code>application.yml</code> using
+        <code>---</code> separator:</p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base config (all profiles)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">show-sql</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Only when prod profile is active</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">config</span><span class="kw">:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">activate</span><span class="kw">:</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">on-profile</span><span class="kw">:</span><span class="at"> prod</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">show-sql</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span></code></pre></div>
+        <p>However, <strong>dedicated files are cleaner</strong> and are
+        used in this project: - <code>application-prod.yml</code> -
+        <code>application-test.yml</code></p>
+        <hr />
+        <h2 id="selecting-profiles-for-different-scenarios">Selecting
+        Profiles for Different Scenarios</h2>
+        <h3 id="local-development">Local Development</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. No profile (uses default application.yml)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. With test profile (for testing locally with H2)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span><span class="st">&quot;test&quot;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. With prod profile (for testing prod config locally)</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#    Note: You&#39;ll need actual DB credentials</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span><span class="st">&quot;prod&quot;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_URL</span><span class="op">=</span><span class="st">&quot;jdbc:oracle:thin:@localhost:1521/xe&quot;</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_USER</span><span class="op">=</span><span class="st">&quot;...&quot;</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_PASS</span><span class="op">=</span><span class="st">&quot;...&quot;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span></code></pre></div>
+        <h3 id="continuous-integration-github-actions">Continuous
+        Integration (GitHub Actions)</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .github/workflows/test.yml</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Tests</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">push</span><span class="kw">]</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">test</span><span class="kw">:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v3</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Run Tests</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">env</span><span class="kw">:</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">SPRING_PROFILES_ACTIVE</span><span class="kw">:</span><span class="at"> test</span><span class="co">  # H2 DB, fast, isolated</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">run</span><span class="kw">:</span><span class="at"> mvn clean test</span></span></code></pre></div>
+        <h3 id="docker-deployment">Docker Deployment</h3>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dockerfile</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> maven:3.9-eclipse-temurin-17 <span class="kw">AS</span> build</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> . .</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">mvn</span> clean package <span class="at">-DskipTests</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> eclipse-temurin:17-jre</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=build</span> /app/target/inventory-service-*.jar app.jar</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="kw">ENTRYPOINT</span> [<span class="st">&quot;java&quot;</span>, <span class="st">&quot;-jar&quot;</span>, <span class="st">&quot;/app.jar&quot;</span>]</span></code></pre></div>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and run with prod profile</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> inventory-service .</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="dt">\</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> SPRING_PROFILES_ACTIVE=prod <span class="dt">\</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> DB_URL=<span class="st">&quot;jdbc:oracle:thin:@oracle.db.example.com:1521/xe&quot;</span> <span class="dt">\</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> DB_USER=<span class="st">&quot;admin&quot;</span> <span class="dt">\</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> DB_PASS=<span class="st">&quot;***&quot;</span> <span class="dt">\</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  inventory-service:latest</span></code></pre></div>
+        <h3 id="fly.io-deployment">Fly.io Deployment</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fly.toml</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">app</span> <span class="op">=</span> <span class="st">&quot;inventoryservice&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_region</span> <span class="op">=</span> <span class="st">&quot;fra&quot;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">APP_DEMO_READONLY</span> <span class="op">=</span> <span class="st">&quot;true&quot;</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">APP_FRONTEND_BASE_URL</span> <span class="op">=</span> <span class="st">&quot;https://inventoryservice.fly.dev&quot;</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[services]]</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">internal_port</span> <span class="op">=</span> <span class="dv">8081</span></span></code></pre></div>
+        <p>Secrets are set separately:</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fly</span> secrets set DB_URL=<span class="st">&quot;jdbc:oracle:thin:@...&quot;</span> <span class="dt">\</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>              DB_USER=<span class="st">&quot;admin&quot;</span> <span class="dt">\</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>              DB_PASS=<span class="st">&quot;***&quot;</span> <span class="dt">\</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>              SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=<span class="st">&quot;...&quot;</span> <span class="dt">\</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>              SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=<span class="st">&quot;...&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="troubleshooting-profile-issues">Troubleshooting Profile
+        Issues</h2>
+        <h3 id="q-how-do-i-know-which-profile-is-active">Q: How do I
+        know which profile is active?</h3>
+        <p><strong>A:</strong> Check the logs on startup:</p>
+        <pre><code>The following profiles are active: prod</code></pre>
+        <p>Or print it programmatically:</p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ProfileLogger <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Environment</span> env<span class="op">;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostConstruct</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">logProfiles</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span><span class="op">[]</span> profiles <span class="op">=</span> env<span class="op">.</span><span class="fu">getActiveProfiles</span><span class="op">();</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Active profiles: &quot;</span> <span class="op">+</span> <span class="bu">Arrays</span><span class="op">.</span><span class="fu">toString</span><span class="op">(</span>profiles<span class="op">));</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="q-my-config-isnt-being-loaded.-whats-wrong">Q: My config
+        isn’t being loaded. What’s wrong?</h3>
+        <p><strong>A:</strong> Check priority order:</p>
+        <ol type="1">
+        <li>Is the <strong>environment variable</strong> set? (Check
+        <code>echo $DB_URL</code>)</li>
+        <li>Is the <strong>profile-specific file</strong> correct?
+        (Check <code>application-{profile}.yml</code>)</li>
+        <li>Is the <strong>profile active</strong>? (Check
+        <code>SPRING_PROFILES_ACTIVE</code>)</li>
+        <li>Is the <strong>property name</strong> spelled correctly?
+        (Hyphens vs underscores matter)</li>
+        </ol>
+        <h3
+        id="q-i-cant-connect-to-the-database.-what-profile-should-i-use">Q:
+        I can’t connect to the database. What profile should I use?</h3>
+        <ul>
+        <li><strong>Test mode</strong> (<code>test</code> profile) → Use
+        H2, no setup needed</li>
+        <li><strong>Local dev</strong> (default) → Set
+        <code>DB_URL</code>, <code>DB_USER</code>, <code>DB_PASS</code>
+        env vars</li>
+        <li><strong>Production</strong> (<code>prod</code> profile) →
+        Use Oracle with proper credentials</li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="./application-config-files.html">Application
+        Configuration Files</a></li>
+        <li><a href="./database-and-oracle-wallet.html">Database and
+        Oracle Wallet</a></li>
+        <li><a href="../deployment/">Deployment Docs</a> — For
+        environment-specific setup</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Config Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

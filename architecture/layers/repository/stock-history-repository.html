@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/repository/stock-history-repository · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#stock-history-repository"
+        id="toc-stock-history-repository">Stock History Repository</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#interface-methods"
+        id="toc-interface-methods">Interface Methods</a></li>
+        <li><a href="#database-table" id="toc-database-table">Database
+        Table</a></li>
+        <li><a href="#key-features" id="toc-key-features">Key
+        Features</a>
+        <ul>
+        <li><a href="#immutable-entries"
+        id="toc-immutable-entries">Immutable Entries</a></li>
+        <li><a href="#complete-audit-trail"
+        id="toc-complete-audit-trail">Complete Audit Trail</a></li>
+        <li><a href="#time-based-filtering"
+        id="toc-time-based-filtering">Time-Based Filtering</a></li>
+        <li><a href="#supplier-denormalization"
+        id="toc-supplier-denormalization">Supplier
+        Denormalization</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="stock-history-repository">Stock History Repository</h1>
+        <h2 id="purpose">Purpose</h2>
+        <p>Data access for StockHistory entities. Manages the immutable
+        audit trail of all stock movements with reason tracking.</p>
+        <h2 id="interface-methods">Interface Methods</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Basic CRUD</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>StockHistory <span class="fu">save</span><span class="op">(</span>StockHistory entity<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Query by item</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByItemIdOrderByCreatedAtDesc</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">,</span> <span class="bu">Pageable</span> pageable<span class="op">);</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Time-based queries</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByCreatedAtBetween</span><span class="op">(</span>LocalDateTime start<span class="op">,</span> LocalDateTime end<span class="op">,</span> <span class="bu">Pageable</span> pageable<span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Filtering</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByReasonOrderByCreatedAtDesc</span><span class="op">(</span>StockChangeReason reason<span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Custom aggregation</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="at">@Query</span><span class="op">(</span><span class="st">&quot;SELECT sh FROM StockHistory sh WHERE sh.itemId = :itemId ORDER BY sh.createdAt DESC&quot;</span><span class="op">)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findItemHistory</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">,</span> <span class="bu">Pageable</span> pageable<span class="op">);</span></span></code></pre></div>
+        <h2 id="database-table">Database Table</h2>
+        <p><strong>Table Name:</strong> <code>STOCK_HISTORY</code></p>
+        <table>
+        <colgroup>
+        <col style="width: 22%" />
+        <col style="width: 16%" />
+        <col style="width: 36%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Column</th>
+        <th>Type</th>
+        <th>Constraints</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>ID</td>
+        <td>UUID</td>
+        <td>PK</td>
+        <td>Entry identifier</td>
+        </tr>
+        <tr class="even">
+        <td>ITEM_ID</td>
+        <td>UUID</td>
+        <td>FK → INVENTORY_ITEM</td>
+        <td>Links to item</td>
+        </tr>
+        <tr class="odd">
+        <td>SUPPLIER_ID</td>
+        <td>UUID</td>
+        <td>FK → SUPPLIER</td>
+        <td>Links to supplier (denormalized)</td>
+        </tr>
+        <tr class="even">
+        <td>OLD_QUANTITY</td>
+        <td>INT</td>
+        <td></td>
+        <td>Previous quantity</td>
+        </tr>
+        <tr class="odd">
+        <td>NEW_QUANTITY</td>
+        <td>INT</td>
+        <td></td>
+        <td>Updated quantity</td>
+        </tr>
+        <tr class="even">
+        <td>REASON</td>
+        <td>VARCHAR(50)</td>
+        <td>NOT NULL</td>
+        <td>Why changed (PURCHASE, SALE, etc)</td>
+        </tr>
+        <tr class="odd">
+        <td>NOTES</td>
+        <td>TEXT</td>
+        <td></td>
+        <td>Additional details</td>
+        </tr>
+        <tr class="even">
+        <td>CREATED_BY</td>
+        <td>VARCHAR(255)</td>
+        <td>NOT NULL</td>
+        <td>Who made change</td>
+        </tr>
+        <tr class="odd">
+        <td>CREATED_AT</td>
+        <td>TIMESTAMP</td>
+        <td>NOT NULL</td>
+        <td>When changed</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="key-features">Key Features</h2>
+        <h3 id="immutable-entries">Immutable Entries</h3>
+        <ul>
+        <li>Create-only, no update or delete operations</li>
+        <li>Prevents tampering with audit trail</li>
+        <li>Preserves complete history for compliance</li>
+        </ul>
+        <h3 id="complete-audit-trail">Complete Audit Trail</h3>
+        <p>Each entry records: - Old and new quantities (before/after
+        values) - Reason for change (PURCHASE, SALE, ADJUSTMENT, AUDIT,
+        RETURN, SHRINKAGE) - Who made the change (createdBy) - When the
+        change occurred (createdAt) - Additional notes for context</p>
+        <h3 id="time-based-filtering">Time-Based Filtering</h3>
+        <p>Query changes by date range:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByCreatedAtBetween</span><span class="op">(</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    LocalDateTime start<span class="op">,</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    LocalDateTime end<span class="op">,</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Pageable</span> pageable<span class="op">);</span></span></code></pre></div>
+        <p>Used for reports and analytics.</p>
+        <h3 id="supplier-denormalization">Supplier Denormalization</h3>
+        <p>Supplier ID stored directly in stock history for: - Faster
+        analytics queries (no JOIN needed) - Reporting by supplier
+        without joining tables - Historical supplier tracking (even if
+        supplier deleted)</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

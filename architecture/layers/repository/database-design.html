@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/repository/database-design · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#database-design" id="toc-database-design">Database
+        Design</a>
+        <ul>
+        <li><a href="#entity-relationship-diagram"
+        id="toc-entity-relationship-diagram">Entity-Relationship
+        Diagram</a></li>
+        <li><a href="#table-schemas" id="toc-table-schemas">Table
+        Schemas</a>
+        <ul>
+        <li><a href="#supplier-table" id="toc-supplier-table">SUPPLIER
+        Table</a></li>
+        <li><a href="#inventory_item-table"
+        id="toc-inventory_item-table">INVENTORY_ITEM Table</a></li>
+        <li><a href="#stock_history-table"
+        id="toc-stock_history-table">STOCK_HISTORY Table</a></li>
+        <li><a href="#app_user-table" id="toc-app_user-table">APP_USER
+        Table</a></li>
+        </ul></li>
+        <li><a href="#key-relationships" id="toc-key-relationships">Key
+        Relationships</a>
+        <ul>
+        <li><a href="#supplier-inventoryitem-1m"
+        id="toc-supplier-inventoryitem-1m">Supplier → InventoryItem
+        (1:M)</a></li>
+        <li><a href="#inventoryitem-stockhistory-1m"
+        id="toc-inventoryitem-stockhistory-1m">InventoryItem →
+        StockHistory (1:M)</a></li>
+        <li><a href="#supplier-stockhistory-1m-via-denormalization"
+        id="toc-supplier-stockhistory-1m-via-denormalization">Supplier →
+        StockHistory (1:M via denormalization)</a></li>
+        <li><a href="#appuser-inventoryitemstockhistory-1m"
+        id="toc-appuser-inventoryitemstockhistory-1m">AppUser →
+        InventoryItem/StockHistory (1:M)</a></li>
+        </ul></li>
+        <li><a href="#constraints" id="toc-constraints">Constraints</a>
+        <ul>
+        <li><a href="#primary-keys" id="toc-primary-keys">Primary
+        Keys</a></li>
+        <li><a href="#unique-constraints"
+        id="toc-unique-constraints">Unique Constraints</a></li>
+        <li><a href="#foreign-keys" id="toc-foreign-keys">Foreign
+        Keys</a></li>
+        <li><a href="#not-null-constraints"
+        id="toc-not-null-constraints">Not Null Constraints</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="database-design">Database Design</h1>
+        <h2 id="entity-relationship-diagram">Entity-Relationship
+        Diagram</h2>
+        <div class="mermaid">
+        erDiagram
+            SUPPLIER ||--o{ INVENTORY_ITEM : "provides"
+            SUPPLIER ||--o{ STOCK_HISTORY : "source"
+            INVENTORY_ITEM ||--o{ STOCK_HISTORY : "tracks"
+            APP_USER ||--o{ INVENTORY_ITEM : "creates"
+            APP_USER ||--o{ STOCK_HISTORY : "logs"
+
+            SUPPLIER {
+                string ID PK
+                string NAME UK "UNIQUE"
+                string CONTACT_NAME
+                string PHONE
+                string EMAIL
+                string CREATED_BY
+                timestamp CREATED_AT
+            }
+
+            INVENTORY_ITEM {
+                string ID PK
+                string NAME UK "UNIQUE"
+                string SKU
+                string SUPPLIER_ID FK
+                int QUANTITY
+                decimal UNIT_PRICE
+                string CREATED_BY
+                timestamp CREATED_AT
+                long VERSION "Optimistic Locking"
+            }
+
+            STOCK_HISTORY {
+                string ID PK
+                string ITEM_ID FK
+                string SUPPLIER_ID FK
+                int OLD_QUANTITY
+                int NEW_QUANTITY
+                string REASON "PURCHASE/SALE/ADJUSTMENT/AUDIT"
+                string NOTES
+                string CREATED_BY
+                timestamp CREATED_AT
+            }
+
+            APP_USER {
+                string ID PK
+                string EMAIL UK
+                string OAUTH2_ID
+                string NAME
+                string ROLE "ADMIN/USER"
+                timestamp CREATED_AT
+                timestamp LAST_LOGIN
+            }
+        </div>
+        <h2 id="table-schemas">Table Schemas</h2>
+        <h3 id="supplier-table">SUPPLIER Table</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> SUPPLIER (</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ID</span> <span class="dt">VARCHAR</span>(<span class="dv">36</span>) <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    NAME <span class="dt">VARCHAR</span>(<span class="dv">255</span>) <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    CONTACT_NAME <span class="dt">VARCHAR</span>(<span class="dv">255</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    PHONE <span class="dt">VARCHAR</span>(<span class="dv">20</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    EMAIL <span class="dt">VARCHAR</span>(<span class="dv">255</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    CREATED_BY <span class="dt">VARCHAR</span>(<span class="dv">255</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    CREATED_AT <span class="dt">TIMESTAMP</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_supplier_name (NAME)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+        <h3 id="inventory_item-table">INVENTORY_ITEM Table</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> INVENTORY_ITEM (</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ID</span> <span class="dt">VARCHAR</span>(<span class="dv">36</span>) <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    NAME <span class="dt">VARCHAR</span>(<span class="dv">255</span>) <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    SKU <span class="dt">VARCHAR</span>(<span class="dv">100</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    SUPPLIER_ID <span class="dt">VARCHAR</span>(<span class="dv">36</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    QUANTITY <span class="dt">INT</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    UNIT_PRICE <span class="dt">DECIMAL</span>(<span class="dv">10</span>, <span class="dv">2</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    CREATED_BY <span class="dt">VARCHAR</span>(<span class="dv">255</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    CREATED_AT <span class="dt">TIMESTAMP</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    VERSION BIGINT <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">CONSTRAINT</span> fk_item_supplier <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (SUPPLIER_ID) <span class="kw">REFERENCES</span> SUPPLIER(<span class="kw">ID</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_item_supplier (SUPPLIER_ID),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_item_quantity (QUANTITY)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+        <h3 id="stock_history-table">STOCK_HISTORY Table</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> STOCK_HISTORY (</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ID</span> <span class="dt">VARCHAR</span>(<span class="dv">36</span>) <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    ITEM_ID <span class="dt">VARCHAR</span>(<span class="dv">36</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    SUPPLIER_ID <span class="dt">VARCHAR</span>(<span class="dv">36</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    OLD_QUANTITY <span class="dt">INT</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    NEW_QUANTITY <span class="dt">INT</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    REASON <span class="dt">VARCHAR</span>(<span class="dv">50</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    NOTES TEXT,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    CREATED_BY <span class="dt">VARCHAR</span>(<span class="dv">255</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    CREATED_AT <span class="dt">TIMESTAMP</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">CONSTRAINT</span> fk_history_item <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (ITEM_ID) <span class="kw">REFERENCES</span> INVENTORY_ITEM(<span class="kw">ID</span>),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">CONSTRAINT</span> fk_history_supplier <span class="kw">FOREIGN</span> <span class="kw">KEY</span> (SUPPLIER_ID) <span class="kw">REFERENCES</span> SUPPLIER(<span class="kw">ID</span>),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_history_item (ITEM_ID),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_history_supplier (SUPPLIER_ID),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_history_date (CREATED_AT),</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_history_reason (REASON)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+        <h3 id="app_user-table">APP_USER Table</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> APP_USER (</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ID</span> <span class="dt">VARCHAR</span>(<span class="dv">36</span>) <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    EMAIL <span class="dt">VARCHAR</span>(<span class="dv">255</span>) <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    OAUTH2_ID <span class="dt">VARCHAR</span>(<span class="dv">255</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    NAME <span class="dt">VARCHAR</span>(<span class="dv">255</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ROLE</span> <span class="dt">VARCHAR</span>(<span class="dv">20</span>) <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="st">&#39;USER&#39;</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    CREATED_AT <span class="dt">TIMESTAMP</span> <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    LAST_LOGIN <span class="dt">TIMESTAMP</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_user_email (EMAIL),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">KEY</span> idx_user_oauth2 (OAUTH2_ID)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+        <h2 id="key-relationships">Key Relationships</h2>
+        <h3 id="supplier-inventoryitem-1m">Supplier → InventoryItem
+        (1:M)</h3>
+        <ul>
+        <li>One supplier can have many items</li>
+        <li>Deletion: Constraint prevents deletion if items exist</li>
+        <li>Querying: Find all items from supplier</li>
+        </ul>
+        <h3 id="inventoryitem-stockhistory-1m">InventoryItem →
+        StockHistory (1:M)</h3>
+        <ul>
+        <li>One item can have many history entries</li>
+        <li>Deletion: Constraint prevents deletion if history
+        exists</li>
+        <li>Querying: Get complete movement history</li>
+        </ul>
+        <h3 id="supplier-stockhistory-1m-via-denormalization">Supplier →
+        StockHistory (1:M via denormalization)</h3>
+        <ul>
+        <li>Supplier ID stored in stock history for reporting</li>
+        <li>Allows analytics without complex joins</li>
+        <li>Maintains referential integrity with foreign key</li>
+        </ul>
+        <h3 id="appuser-inventoryitemstockhistory-1m">AppUser →
+        InventoryItem/StockHistory (1:M)</h3>
+        <ul>
+        <li>Audit trail: tracks who made changes</li>
+        <li>Querying: Find all changes by user</li>
+        <li>Reporting: Activity by user</li>
+        </ul>
+        <h2 id="constraints">Constraints</h2>
+        <h3 id="primary-keys">Primary Keys</h3>
+        <ul>
+        <li>All tables use UUID primary keys</li>
+        <li>Ensures unique identification across systems</li>
+        <li>Supports distributed databases</li>
+        </ul>
+        <h3 id="unique-constraints">Unique Constraints</h3>
+        <ul>
+        <li>SUPPLIER.NAME - No duplicate suppliers</li>
+        <li>INVENTORY_ITEM.NAME - No duplicate items</li>
+        <li>APP_USER.EMAIL - Each user has unique email</li>
+        </ul>
+        <h3 id="foreign-keys">Foreign Keys</h3>
+        <ul>
+        <li>INVENTORY_ITEM.SUPPLIER_ID → SUPPLIER.ID</li>
+        <li>STOCK_HISTORY.ITEM_ID → INVENTORY_ITEM.ID</li>
+        <li>STOCK_HISTORY.SUPPLIER_ID → SUPPLIER.ID</li>
+        <li>Ensures data consistency</li>
+        <li>Prevents orphaned records</li>
+        </ul>
+        <h3 id="not-null-constraints">Not Null Constraints</h3>
+        <p>Required fields enforced at database level: - SUPPLIER.NAME,
+        CREATED_BY, CREATED_AT - INVENTORY_ITEM.NAME, QUANTITY,
+        UNIT_PRICE, CREATED_BY, CREATED_AT - STOCK_HISTORY.ITEM_ID,
+        NEW_QUANTITY, REASON, CREATED_BY, CREATED_AT</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+controller/analytics-controller · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#analytics-controller"
+        id="toc-analytics-controller">Analytics Controller</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#endpoint-reference"
+        id="toc-endpoint-reference">Endpoint Reference</a></li>
+        <li><a href="#dashboard-endpoints"
+        id="toc-dashboard-endpoints">Dashboard Endpoints</a>
+        <ul>
+        <li><a href="#get-apianalyticsdashboard-summary"
+        id="toc-get-apianalyticsdashboard-summary">GET
+        /api/analytics/dashboard-summary</a></li>
+        <li><a href="#get-apianalyticsfinancial-summary"
+        id="toc-get-apianalyticsfinancial-summary">GET
+        /api/analytics/financial-summary</a></li>
+        </ul></li>
+        <li><a href="#trend-endpoints" id="toc-trend-endpoints">Trend
+        Endpoints</a>
+        <ul>
+        <li><a href="#get-apianalyticsstock-value"
+        id="toc-get-apianalyticsstock-value">GET
+        /api/analytics/stock-value</a></li>
+        <li><a href="#get-apianalyticsstock-per-supplier"
+        id="toc-get-apianalyticsstock-per-supplier">GET
+        /api/analytics/stock-per-supplier</a></li>
+        <li><a href="#get-apianalyticstrendsprice"
+        id="toc-get-apianalyticstrendsprice">GET
+        /api/analytics/trends/price</a></li>
+        <li><a href="#get-apianalyticstrendsmonthly-movement"
+        id="toc-get-apianalyticstrendsmonthly-movement">GET
+        /api/analytics/trends/monthly-movement</a></li>
+        </ul></li>
+        <li><a href="#stock-endpoints" id="toc-stock-endpoints">Stock
+        Endpoints</a>
+        <ul>
+        <li><a href="#get-apianalyticslow-stock-items"
+        id="toc-get-apianalyticslow-stock-items">GET
+        /api/analytics/low-stock-items</a></li>
+        <li><a href="#get-apianalyticsupdate-frequency"
+        id="toc-get-apianalyticsupdate-frequency">GET
+        /api/analytics/update-frequency</a></li>
+        </ul></li>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a>
+        <ul>
+        <li><a href="#heavy-aggregations"
+        id="toc-heavy-aggregations">Heavy Aggregations</a></li>
+        <li><a href="#suggested-caching"
+        id="toc-suggested-caching">Suggested Caching</a></li>
+        </ul></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+        <h1 id="analytics-controller">Analytics Controller</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The <code>AnalyticsController</code> provides reporting and
+        KPI endpoints for business intelligence. Includes dashboard
+        summaries, financial analysis, trends, and stock metrics with
+        date range filtering and pagination.</p>
+        <p><strong>Package:</strong>
+        <code>com.smartsupplypro.inventory.controller</code><br />
+        <strong>Base Path:</strong> <code>/api/analytics</code><br />
+        <strong>Services:</strong> <code>StockAnalyticsService</code>,
+        <code>FinancialAnalyticsService</code><br />
+        <strong>Helpers:</strong> <code>AnalyticsDashboardHelper</code>,
+        <code>AnalyticsControllerValidationHelper</code></p>
+        <p><strong>Important:</strong> Analytics endpoints perform heavy
+        aggregations. Use date range filters for performance.</p>
+        <hr />
+        <h2 id="endpoint-reference">Endpoint Reference</h2>
+        <div class="mermaid">
+        graph LR
+            A["AnalyticsController"]
+            
+            A --> B["Dashboard Endpoints"]
+            A --> C["Financial Endpoints"]
+            A --> D["Trend Endpoints"]
+            A --> E["Stock Endpoints"]
+            
+            B --> B1["GET /dashboard-summary"]
+            
+            C --> C1["GET /financial-summary"]
+            
+            D --> D1["GET /stock-value"]
+            D --> D2["GET /stock-per-supplier"]
+            D --> D3["GET /trends/price"]
+            D --> D4["GET /trends/monthly-movement"]
+            
+            E --> E1["GET /low-stock-items"]
+            E --> E2["GET /update-frequency"]
+            
+            style A fill:#e8f5e9
+            style B fill:#c8e6c9
+            style C fill:#c8e6c9
+            style D fill:#c8e6c9
+            style E fill:#c8e6c9
+        </div>
+        <hr />
+        <h2 id="dashboard-endpoints">Dashboard Endpoints</h2>
+        <h3 id="get-apianalyticsdashboard-summary">GET
+        /api/analytics/dashboard-summary</h3>
+        <p><strong>Get overall dashboard KPIs</strong></p>
+        <h4 id="request">Request</h4>
+        <pre><code>GET /api/analytics/dashboard-summary
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h4 id="authorization">Authorization</h4>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h4 id="response-200-ok">Response (200 OK)</h4>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalItemsCount&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalSuppliers&quot;</span><span class="fu">:</span> <span class="dv">42</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalStockValue&quot;</span><span class="fu">:</span> <span class="fl">125750.50</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;lowStockItemsCount&quot;</span><span class="fu">:</span> <span class="dv">23</span><span class="fu">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalStockQuantity&quot;</span><span class="fu">:</span> <span class="dv">5420</span><span class="fu">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;averageItemPrice&quot;</span><span class="fu">:</span> <span class="fl">23.19</span><span class="fu">,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;criticalStockItems&quot;</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;recentTransactionCount&quot;</span><span class="fu">:</span> <span class="dv">157</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h4 id="kpi-definitions">KPI Definitions</h4>
+        <table>
+        <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 46%" />
+        <col style="width: 35%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>KPI</th>
+        <th>Calculation</th>
+        <th>Use Case</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>totalItemsCount</code></td>
+        <td>COUNT(InventoryItem)</td>
+        <td>Inventory breadth</td>
+        </tr>
+        <tr class="even">
+        <td><code>totalSuppliers</code></td>
+        <td>COUNT(Supplier)</td>
+        <td>Supplier base size</td>
+        </tr>
+        <tr class="odd">
+        <td><code>totalStockValue</code></td>
+        <td>SUM(quantity * price)</td>
+        <td>Inventory asset value</td>
+        </tr>
+        <tr class="even">
+        <td><code>lowStockItemsCount</code></td>
+        <td>COUNT(quantity &lt;= reorderLevel)</td>
+        <td>Replenishment urgency</td>
+        </tr>
+        <tr class="odd">
+        <td><code>totalStockQuantity</code></td>
+        <td>SUM(quantity)</td>
+        <td>Total units held</td>
+        </tr>
+        <tr class="even">
+        <td><code>averageItemPrice</code></td>
+        <td>AVG(price)</td>
+        <td>Pricing analysis</td>
+        </tr>
+        <tr class="odd">
+        <td><code>criticalStockItems</code></td>
+        <td>COUNT(quantity &lt;= reorderLevel * 0.5)</td>
+        <td>Urgent items</td>
+        </tr>
+        <tr class="even">
+        <td><code>recentTransactionCount</code></td>
+        <td>COUNT(StockHistory in last 30 days)</td>
+        <td>Activity level</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h3 id="get-apianalyticsfinancial-summary">GET
+        /api/analytics/financial-summary</h3>
+        <p><strong>Get detailed financial metrics</strong></p>
+        <h4 id="request-1">Request</h4>
+        <pre><code>GET /api/analytics/financial-summary?startDate=2025-11-01&amp;endDate=2025-11-30
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h4 id="authorization-1">Authorization</h4>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h4 id="query-parameters">Query Parameters</h4>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>startDate</code></td>
+        <td>Date</td>
+        <td>Yes</td>
+        <td>Start date (ISO: <code>yyyy-MM-dd</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>endDate</code></td>
+        <td>Date</td>
+        <td>Yes</td>
+        <td>End date (ISO: <code>yyyy-MM-dd</code>)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h4 id="response-200-ok-1">Response (200 OK)</h4>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;periodStartDate&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-01&quot;</span><span class="fu">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;periodEndDate&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-30&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;beginningInventoryValue&quot;</span><span class="fu">:</span> <span class="fl">125750.50</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;purchasedValue&quot;</span><span class="fu">:</span> <span class="fl">35600.00</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;soldValue&quot;</span><span class="fu">:</span> <span class="fl">18500.25</span><span class="fu">,</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;adjustmentValue&quot;</span><span class="fu">:</span> <span class="fl">-250.00</span><span class="fu">,</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;endingInventoryValue&quot;</span><span class="fu">:</span> <span class="fl">142600.25</span><span class="fu">,</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalCostOfGoodsSold&quot;</span><span class="fu">:</span> <span class="fl">18500.25</span><span class="fu">,</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;inventoryTurnover&quot;</span><span class="fu">:</span> <span class="fl">3.45</span><span class="fu">,</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;inventoryHoldingCost&quot;</span><span class="fu">:</span> <span class="fl">2850.00</span><span class="fu">,</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;averageInventoryValue&quot;</span><span class="fu">:</span> <span class="fl">134175.38</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h4 id="financial-metrics">Financial Metrics</h4>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 36%" />
+        <col style="width: 36%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Metric</th>
+        <th>Definition</th>
+        <th>Importance</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>beginningInventoryValue</code></td>
+        <td>Stock value at start of period</td>
+        <td>Balance sheet</td>
+        </tr>
+        <tr class="even">
+        <td><code>purchasedValue</code></td>
+        <td>Cost of goods purchased</td>
+        <td>Expense tracking</td>
+        </tr>
+        <tr class="odd">
+        <td><code>soldValue</code></td>
+        <td>Revenue from sold items</td>
+        <td>Sales analysis</td>
+        </tr>
+        <tr class="even">
+        <td><code>adjustmentValue</code></td>
+        <td>Damage/loss/adjustments</td>
+        <td>Waste tracking</td>
+        </tr>
+        <tr class="odd">
+        <td><code>endingInventoryValue</code></td>
+        <td>Stock value at end of period</td>
+        <td>Balance sheet</td>
+        </tr>
+        <tr class="even">
+        <td><code>totalCostOfGoodsSold</code></td>
+        <td>Cost of sold items</td>
+        <td>P&amp;L statement</td>
+        </tr>
+        <tr class="odd">
+        <td><code>inventoryTurnover</code></td>
+        <td>Sold value / Avg inventory value</td>
+        <td>Efficiency KPI</td>
+        </tr>
+        <tr class="even">
+        <td><code>inventoryHoldingCost</code></td>
+        <td>Cost to hold stock (estimated)</td>
+        <td>Working capital</td>
+        </tr>
+        <tr class="odd">
+        <td><code>averageInventoryValue</code></td>
+        <td>Mean of beginning &amp; ending</td>
+        <td>Financial planning</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="trend-endpoints">Trend Endpoints</h2>
+        <h3 id="get-apianalyticsstock-value">GET
+        /api/analytics/stock-value</h3>
+        <p><strong>Time series of total stock value</strong></p>
+        <h4 id="request-2">Request</h4>
+        <pre><code>GET /api/analytics/stock-value?start=2025-11-01&amp;end=2025-11-30&amp;supplierId=SUP-001
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h4 id="authorization-2">Authorization</h4>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h4 id="query-parameters-1">Query Parameters</h4>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>start</code></td>
+        <td>Date</td>
+        <td>Yes</td>
+        <td>Start date (ISO: <code>yyyy-MM-dd</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>end</code></td>
+        <td>Date</td>
+        <td>Yes</td>
+        <td>End date (ISO: <code>yyyy-MM-dd</code>)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>supplierId</code></td>
+        <td>String</td>
+        <td>No</td>
+        <td>Filter by supplier (optional)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h4 id="response-200-ok-2">Response (200 OK)</h4>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-01&quot;</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalStockValue&quot;</span><span class="fu">:</span> <span class="fl">125750.50</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemCount&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalQuantity&quot;</span><span class="fu">:</span> <span class="dv">5420</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-02&quot;</span><span class="fu">,</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalStockValue&quot;</span><span class="fu">:</span> <span class="fl">127200.75</span><span class="fu">,</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemCount&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalQuantity&quot;</span><span class="fu">:</span> <span class="dv">5480</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-03&quot;</span><span class="fu">,</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalStockValue&quot;</span><span class="fu">:</span> <span class="fl">126850.25</span><span class="fu">,</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemCount&quot;</span><span class="fu">:</span> <span class="dv">1248</span><span class="fu">,</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalQuantity&quot;</span><span class="fu">:</span> <span class="dv">5420</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h4 id="dto-stockvalueovertimedto">DTO:
+        StockValueOverTimeDTO</h4>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">StockValueOverTimeDTO</span><span class="op">(</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    LocalDate date<span class="op">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">BigDecimal</span> totalStockValue<span class="op">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> itemCount<span class="op">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> totalQuantity</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span></code></pre></div>
+        <hr />
+        <h3 id="get-apianalyticsstock-per-supplier">GET
+        /api/analytics/stock-per-supplier</h3>
+        <p><strong>Stock distribution by supplier</strong></p>
+        <h4 id="request-3">Request</h4>
+        <pre><code>GET /api/analytics/stock-per-supplier
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h4 id="authorization-3">Authorization</h4>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h4 id="response-200-ok-3">Response (200 OK)</h4>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalStockQuantity&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalStockValue&quot;</span><span class="fu">:</span> <span class="fl">45600.75</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemCount&quot;</span><span class="fu">:</span> <span class="dv">180</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-002&quot;</span><span class="fu">,</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;Global Supplies&quot;</span><span class="fu">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalStockQuantity&quot;</span><span class="fu">:</span> <span class="dv">2100</span><span class="fu">,</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalStockValue&quot;</span><span class="fu">:</span> <span class="fl">62400.50</span><span class="fu">,</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemCount&quot;</span><span class="fu">:</span> <span class="dv">245</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h4 id="use-cases">Use Cases</h4>
+        <ul>
+        <li>Distribution analysis by supplier</li>
+        <li>Supply chain risk (concentration)</li>
+        <li>Supplier performance comparison</li>
+        </ul>
+        <hr />
+        <h3 id="get-apianalyticstrendsprice">GET
+        /api/analytics/trends/price</h3>
+        <p><strong>Price trend analysis</strong></p>
+        <h4 id="request-4">Request</h4>
+        <pre><code>GET /api/analytics/trends/price?startDate=2025-09-01&amp;endDate=2025-11-30&amp;supplierId=SUP-001
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h4 id="authorization-4">Authorization</h4>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h4 id="query-parameters-2">Query Parameters</h4>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>startDate</code></td>
+        <td>Date</td>
+        <td>Yes</td>
+        <td>Period start</td>
+        </tr>
+        <tr class="even">
+        <td><code>endDate</code></td>
+        <td>Date</td>
+        <td>Yes</td>
+        <td>Period end</td>
+        </tr>
+        <tr class="odd">
+        <td><code>supplierId</code></td>
+        <td>String</td>
+        <td>No</td>
+        <td>Filter by supplier</td>
+        </tr>
+        </tbody>
+        </table>
+        <h4 id="response-200-ok-4">Response (200 OK)</h4>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-09-01&quot;</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;averagePrice&quot;</span><span class="fu">:</span> <span class="fl">19.50</span><span class="fu">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;minPrice&quot;</span><span class="fu">:</span> <span class="fl">10.00</span><span class="fu">,</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;maxPrice&quot;</span><span class="fu">:</span> <span class="fl">99.99</span><span class="fu">,</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;priceChangePercent&quot;</span><span class="fu">:</span> <span class="fl">0.0</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-10-01&quot;</span><span class="fu">,</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;averagePrice&quot;</span><span class="fu">:</span> <span class="fl">19.85</span><span class="fu">,</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;minPrice&quot;</span><span class="fu">:</span> <span class="fl">10.00</span><span class="fu">,</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;maxPrice&quot;</span><span class="fu">:</span> <span class="fl">99.99</span><span class="fu">,</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;priceChangePercent&quot;</span><span class="fu">:</span> <span class="fl">1.79</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-01&quot;</span><span class="fu">,</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;averagePrice&quot;</span><span class="fu">:</span> <span class="fl">20.50</span><span class="fu">,</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;minPrice&quot;</span><span class="fu">:</span> <span class="fl">10.00</span><span class="fu">,</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;maxPrice&quot;</span><span class="fu">:</span> <span class="fl">99.99</span><span class="fu">,</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;priceChangePercent&quot;</span><span class="fu">:</span> <span class="fl">3.27</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <hr />
+        <h3 id="get-apianalyticstrendsmonthly-movement">GET
+        /api/analytics/trends/monthly-movement</h3>
+        <p><strong>Monthly stock movement trends</strong></p>
+        <h4 id="request-5">Request</h4>
+        <pre><code>GET /api/analytics/trends/monthly-movement?startDate=2025-09-01&amp;endDate=2025-11-30
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h4 id="response-200-ok-5">Response (200 OK)</h4>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;month&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-09&quot;</span><span class="fu">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemsReceived&quot;</span><span class="fu">:</span> <span class="dv">450</span><span class="fu">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemsSold&quot;</span><span class="fu">:</span> <span class="dv">380</span><span class="fu">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;adjustments&quot;</span><span class="fu">:</span> <span class="dv">15</span><span class="fu">,</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;netChange&quot;</span><span class="fu">:</span> <span class="dv">55</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;month&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-10&quot;</span><span class="fu">,</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemsReceived&quot;</span><span class="fu">:</span> <span class="dv">520</span><span class="fu">,</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemsSold&quot;</span><span class="fu">:</span> <span class="dv">420</span><span class="fu">,</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;adjustments&quot;</span><span class="fu">:</span> <span class="dv">25</span><span class="fu">,</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;netChange&quot;</span><span class="fu">:</span> <span class="dv">75</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;month&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11&quot;</span><span class="fu">,</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemsReceived&quot;</span><span class="fu">:</span> <span class="dv">485</span><span class="fu">,</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemsSold&quot;</span><span class="fu">:</span> <span class="dv">410</span><span class="fu">,</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;adjustments&quot;</span><span class="fu">:</span> <span class="dv">10</span><span class="fu">,</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;netChange&quot;</span><span class="fu">:</span> <span class="dv">65</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h4 id="dto-monthlystockmovementdto">DTO:
+        MonthlyStockMovementDTO</h4>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">MonthlyStockMovementDTO</span><span class="op">(</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> month<span class="op">,</span>          <span class="co">// &quot;yyyy-MM&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> itemsReceived<span class="op">,</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> itemsSold<span class="op">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> adjustments<span class="op">,</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> netChange     <span class="co">// received - sold - adjustments</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span></code></pre></div>
+        <hr />
+        <h2 id="stock-endpoints">Stock Endpoints</h2>
+        <h3 id="get-apianalyticslow-stock-items">GET
+        /api/analytics/low-stock-items</h3>
+        <p><strong>Items below reorder level</strong></p>
+        <h4 id="request-6">Request</h4>
+        <pre><code>GET /api/analytics/low-stock-items?page=0&amp;size=20&amp;supplierId=SUP-001
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h4 id="authorization-5">Authorization</h4>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h4 id="query-parameters-3">Query Parameters</h4>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>supplierId</code></td>
+        <td>String</td>
+        <td>No</td>
+        <td>Filter by supplier</td>
+        </tr>
+        <tr class="even">
+        <td><code>page</code></td>
+        <td>Integer</td>
+        <td>No</td>
+        <td>Page number (default: 0)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>size</code></td>
+        <td>Integer</td>
+        <td>No</td>
+        <td>Items per page (default: 20)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h4 id="response-200-ok-6">Response (200 OK)</h4>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;currentQuantity&quot;</span><span class="fu">:</span> <span class="dv">45</span><span class="fu">,</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;reorderLevel&quot;</span><span class="fu">:</span> <span class="dv">50</span><span class="fu">,</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;quantityBelow&quot;</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">19.99</span><span class="fu">,</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;estimatedReplenishmentCost&quot;</span><span class="fu">:</span> <span class="fl">99.95</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">23</span><span class="fu">,</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">2</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h4 id="use-cases-1">Use Cases</h4>
+        <ul>
+        <li>Procurement planning</li>
+        <li>Automatic replenishment alerts</li>
+        <li>Critical inventory management</li>
+        </ul>
+        <hr />
+        <h3 id="get-apianalyticsupdate-frequency">GET
+        /api/analytics/update-frequency</h3>
+        <p><strong>How often items are updated</strong></p>
+        <h4 id="request-7">Request</h4>
+        <pre><code>GET /api/analytics/update-frequency?page=0&amp;size=50
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h4 id="response-200-ok-7">Response (200 OK)</h4>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;updateCount&quot;</span><span class="fu">:</span> <span class="dv">45</span><span class="fu">,</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;lastUpdate&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;updateFrequencyDays&quot;</span><span class="fu">:</span> <span class="fl">7.5</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">25</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h4 id="use-cases-2">Use Cases</h4>
+        <ul>
+        <li>Identify stale inventory</li>
+        <li>Analyze fast-moving vs. slow-moving items</li>
+        <li>Optimize replenishment frequency</li>
+        </ul>
+        <hr />
+        <h2 id="performance-considerations">Performance
+        Considerations</h2>
+        <h3 id="heavy-aggregations">Heavy Aggregations</h3>
+        <p>Financial and trend endpoints perform complex aggregations.
+        Recommendations:</p>
+        <pre><code>✅ DO:   Use date range filters (limit data processed)
+✅ DO:   Cache results (analytics don&#39;t need real-time)
+✅ DO:   Paginate large result sets (200 items/page)
+❌ DON&#39;T: Run without date filters (full table scans)
+❌ DON&#39;T: Request very large date ranges (e.g., 10+ years)</code></pre>
+        <h3 id="suggested-caching">Suggested Caching</h3>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Cacheable</span><span class="op">(</span>value <span class="op">=</span> <span class="st">&quot;analytics&quot;</span><span class="op">,</span> key <span class="op">=</span> <span class="st">&quot;#startDate + &#39;-&#39; + #endDate&quot;</span><span class="op">)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> FinancialSummaryDTO <span class="fu">getFinancialSummary</span><span class="op">(</span>LocalDate startDate<span class="op">,</span> LocalDate endDate<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Heavy calculation</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing">Testing</h2>
+        <p><strong>Location:</strong>
+        <code>src/test/java/.../controller/analytics/</code></p>
+        <p><strong>Test Classes:</strong> -
+        <code>AnalyticsControllerFinancialTest</code> -
+        <code>AnalyticsControllerTrendsSecurityTest</code> -
+        <code>AbstractAnalyticsControllerSecurityTest</code></p>
+        <p><strong>Coverage:</strong> - ✅ Dashboard summary
+        calculations - ✅ Financial metrics accuracy - ✅ Trend data
+        filtering - ✅ Date range validation - ✅ Authorization checks -
+        ✅ Pagination</p>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Base path</strong></td>
+        <td><code>/api/analytics</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Operations</strong></td>
+        <td>Read-only reporting endpoints</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authorization</strong></td>
+        <td>USER + ADMIN (authenticated), demo mode allowed</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Pagination</strong></td>
+        <td>Default 20/page, max 200</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Caching</strong></td>
+        <td>Recommended (analytics are not real-time)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Performance</strong></td>
+        <td>Heavy aggregations; use date filters</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>DTOs</strong></td>
+        <td>10+ DTO types for different reports</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Services</strong></td>
+        <td><code>StockAnalyticsService</code>,
+        <code>FinancialAnalyticsService</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Helpers</strong></td>
+        <td><code>AnalyticsDashboardHelper</code>,
+        <code>AnalyticsControllerValidationHelper</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

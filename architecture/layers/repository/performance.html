@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/repository/performance · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a>
+        <ul>
+        <li><a href="#n1-query-problem" id="toc-n1-query-problem">N+1
+        Query Problem</a>
+        <ul>
+        <li><a href="#the-problem" id="toc-the-problem">The
+        Problem</a></li>
+        <li><a href="#solution-1-eager-fetch-in-entity"
+        id="toc-solution-1-eager-fetch-in-entity">Solution 1: Eager
+        Fetch in Entity</a></li>
+        <li><a href="#solution-2-join-fetch-query"
+        id="toc-solution-2-join-fetch-query">Solution 2: JOIN FETCH
+        Query</a></li>
+        <li><a href="#solution-3-batch-fetching"
+        id="toc-solution-3-batch-fetching">Solution 3: Batch
+        Fetching</a></li>
+        </ul></li>
+        <li><a href="#pagination" id="toc-pagination">Pagination</a>
+        <ul>
+        <li><a href="#problem-loading-all-records"
+        id="toc-problem-loading-all-records">Problem: Loading All
+        Records</a></li>
+        <li><a href="#solution-use-pageable"
+        id="toc-solution-use-pageable">Solution: Use Pageable</a></li>
+        <li><a href="#benefits-of-pagination"
+        id="toc-benefits-of-pagination">Benefits of Pagination</a></li>
+        </ul></li>
+        <li><a href="#index-strategy" id="toc-index-strategy">Index
+        Strategy</a>
+        <ul>
+        <li><a href="#indexes-on-frequently-queried-columns"
+        id="toc-indexes-on-frequently-queried-columns">Indexes on
+        Frequently Queried Columns</a></li>
+        <li><a href="#indexes-on-foreign-keys"
+        id="toc-indexes-on-foreign-keys">Indexes on Foreign
+        Keys</a></li>
+        <li><a href="#composite-indexes"
+        id="toc-composite-indexes">Composite Indexes</a></li>
+        <li><a href="#index-cardinality"
+        id="toc-index-cardinality">Index Cardinality</a></li>
+        </ul></li>
+        <li><a href="#query-optimization-checklist"
+        id="toc-query-optimization-checklist">Query Optimization
+        Checklist</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="performance-considerations">Performance
+        Considerations</h1>
+        <h2 id="n1-query-problem">N+1 Query Problem</h2>
+        <h3 id="the-problem">The Problem</h3>
+        <p>Loading 100 items individually results in 101 total queries
+        (1 main + 100 for relationships):</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Results in N+1 queries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">();</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>InventoryItem item <span class="op">:</span> items<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Each access to supplier triggers new query!</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getSupplier</span><span class="op">().</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Execution:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Query 1: SELECT * FROM INVENTORY_ITEM (100 items)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Query 2-101: SELECT * FROM SUPPLIER WHERE ID = ? (for each item)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Total: 101 queries!</span></span></code></pre></div>
+        <h3 id="solution-1-eager-fetch-in-entity">Solution 1: Eager
+        Fetch in Entity</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItem <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">EAGER</span><span class="op">)</span>  <span class="co">// Always load supplier</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> Supplier supplier<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Usage - Single query with join</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">();</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>InventoryItem item <span class="op">:</span> items<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getSupplier</span><span class="op">().</span><span class="fu">getName</span><span class="op">());</span>  <span class="co">// No additional queries</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="solution-2-join-fetch-query">Solution 2: JOIN FETCH
+        Query</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Repository</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> InventoryItemRepository <span class="kw">extends</span> JpaRepository<span class="op">&lt;</span>InventoryItem<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Query</span><span class="op">(</span><span class="st">&quot;SELECT DISTINCT i FROM InventoryItem i JOIN FETCH i.supplier&quot;</span><span class="op">)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> <span class="fu">findAllWithSupplier</span><span class="op">();</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Usage</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAllWithSupplier</span><span class="op">();</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>InventoryItem item <span class="op">:</span> items<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getSupplier</span><span class="op">().</span><span class="fu">getName</span><span class="op">());</span>  <span class="co">// Loaded</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="solution-3-batch-fetching">Solution 3: Batch
+        Fetching</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@BatchSize</span><span class="op">(</span>size <span class="op">=</span> <span class="dv">10</span><span class="op">)</span>  <span class="co">// Load 10 related entities at once</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItem <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">LAZY</span><span class="op">)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> Supplier supplier<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Usage - Reduces N+1 to N/batch_size + 1 queries</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">();</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>InventoryItem item <span class="op">:</span> items<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getSupplier</span><span class="op">().</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// With batch size 10: 1 main + 10 batch queries (not 101)</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="pagination">Pagination</h2>
+        <h3 id="problem-loading-all-records">Problem: Loading All
+        Records</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Loads ALL records into memory</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">();</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">// With 1 million items, memory exhaustion likely</span></span></code></pre></div>
+        <h3 id="solution-use-pageable">Solution: Use Pageable</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Only loads one page</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Pageable</span> pageable <span class="op">=</span> PageRequest<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">20</span><span class="op">);</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>Page<span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> page <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">(</span>pageable<span class="op">);</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Only 20 records loaded, database handles LIMIT/OFFSET</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> page<span class="op">.</span><span class="fu">getContent</span><span class="op">();</span></span></code></pre></div>
+        <h3 id="benefits-of-pagination">Benefits of Pagination</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Without Pagination</th>
+        <th>With Pagination</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Memory</td>
+        <td>Loads all records</td>
+        <td>Loads one page</td>
+        </tr>
+        <tr class="even">
+        <td>Response Time</td>
+        <td>Slow (process millions)</td>
+        <td>Fast (20-50 records)</td>
+        </tr>
+        <tr class="odd">
+        <td>Network</td>
+        <td>Large payload</td>
+        <td>Small payload</td>
+        </tr>
+        <tr class="even">
+        <td>Database</td>
+        <td>Full table scan</td>
+        <td>LIMIT/OFFSET efficient</td>
+        </tr>
+        <tr class="odd">
+        <td>Scalability</td>
+        <td>Fails at scale</td>
+        <td>Scales to any size</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="index-strategy">Index Strategy</h2>
+        <h3 id="indexes-on-frequently-queried-columns">Indexes on
+        Frequently Queried Columns</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER&quot;</span><span class="op">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    indexes <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Index</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;idx_supplier_name&quot;</span><span class="op">,</span> columnList <span class="op">=</span> <span class="st">&quot;NAME&quot;</span><span class="op">),</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Index</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;idx_supplier_created&quot;</span><span class="op">,</span> columnList <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">})</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Impact:</strong></p>
+        <pre><code>Query: SELECT * FROM SUPPLIER WHERE NAME = &#39;ACME&#39;
+Without index: Full table scan (slow for large tables)
+With index: Index lookup (milliseconds)</code></pre>
+        <h3 id="indexes-on-foreign-keys">Indexes on Foreign Keys</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;INVENTORY_ITEM&quot;</span><span class="op">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    indexes <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Index</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;idx_item_supplier&quot;</span><span class="op">,</span> columnList <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">),</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Index</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;idx_item_name&quot;</span><span class="op">,</span> columnList <span class="op">=</span> <span class="st">&quot;NAME&quot;</span><span class="op">)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">})</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItem <span class="op">{</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ManyToOne</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">)</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> Supplier supplier<span class="op">;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Impact:</strong></p>
+        <pre><code>Query: SELECT * FROM INVENTORY_ITEM WHERE SUPPLIER_ID = ?
+Without index: Full table scan
+With index: Efficient lookup + JOIN</code></pre>
+        <h3 id="composite-indexes">Composite Indexes</h3>
+        <p>For queries filtering on multiple columns:</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Single query filters on supplier AND quantity</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> INVENTORY_ITEM </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> SUPPLIER_ID <span class="op">=</span> <span class="st">&#39;supplier-1&#39;</span> <span class="kw">AND</span> QUANTITY <span class="op">&lt;</span> <span class="dv">10</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- Create composite index</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_item_supplier_quantity <span class="kw">ON</span> INVENTORY_ITEM(SUPPLIER_ID, QUANTITY)</span></code></pre></div>
+        <h3 id="index-cardinality">Index Cardinality</h3>
+        <p>Choose columns with high cardinality (many unique
+        values):</p>
+        <pre><code>Good index candidates:
+- NAME (high cardinality)
+- EMAIL (high cardinality)
+- SUPPLIER_ID (medium cardinality)
+
+Poor index candidates:
+- ROLE (low cardinality - only ADMIN, USER)
+- STATUS (low cardinality - only active/inactive)</code></pre>
+        <h2 id="query-optimization-checklist">Query Optimization
+        Checklist</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Optimization</th>
+        <th>Impact</th>
+        <th>Effort</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Add indexes on WHERE columns</td>
+        <td>High</td>
+        <td>Low</td>
+        </tr>
+        <tr class="even">
+        <td>Use pagination</td>
+        <td>High</td>
+        <td>Low</td>
+        </tr>
+        <tr class="odd">
+        <td>Use JOIN FETCH instead of lazy</td>
+        <td>High</td>
+        <td>Medium</td>
+        </tr>
+        <tr class="even">
+        <td>Add composite indexes</td>
+        <td>Medium</td>
+        <td>Medium</td>
+        </tr>
+        <tr class="odd">
+        <td>Use database-specific features</td>
+        <td>Medium</td>
+        <td>High</td>
+        </tr>
+        <tr class="even">
+        <td>Denormalize frequently aggregated columns</td>
+        <td>Medium</td>
+        <td>High</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

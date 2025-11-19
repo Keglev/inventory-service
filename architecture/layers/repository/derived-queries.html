@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/repository/derived-queries · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#derived-query-methods"
+        id="toc-derived-query-methods">Derived Query Methods</a>
+        <ul>
+        <li><a href="#pattern-overview"
+        id="toc-pattern-overview">Pattern Overview</a></li>
+        <li><a href="#query-syntax" id="toc-query-syntax">Query
+        Syntax</a></li>
+        <li><a href="#examples" id="toc-examples">Examples</a>
+        <ul>
+        <li><a href="#simple-exact-match"
+        id="toc-simple-exact-match">Simple Exact Match</a></li>
+        <li><a href="#partial-text-match"
+        id="toc-partial-text-match">Partial Text Match</a></li>
+        <li><a href="#boolean-checks" id="toc-boolean-checks">Boolean
+        Checks</a></li>
+        <li><a href="#filtering-with-sorting"
+        id="toc-filtering-with-sorting">Filtering with Sorting</a></li>
+        <li><a href="#multiple-conditions"
+        id="toc-multiple-conditions">Multiple Conditions</a></li>
+        </ul></li>
+        <li><a href="#complete-repository-example"
+        id="toc-complete-repository-example">Complete Repository
+        Example</a></li>
+        <li><a href="#advantages"
+        id="toc-advantages">Advantages</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="derived-query-methods">Derived Query Methods</h1>
+        <h2 id="pattern-overview">Pattern Overview</h2>
+        <p>Spring Data JPA generates queries automatically from method
+        names. No manual SQL or JPQL needed for standard queries.</p>
+        <h2 id="query-syntax">Query Syntax</h2>
+        <p>Spring Data interprets method names using keywords:</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Keyword</th>
+        <th>Meaning</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>findBy</code></td>
+        <td>SELECT WHERE</td>
+        <td><code>findByName(String name)</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>Containing</code></td>
+        <td>LIKE search</td>
+        <td><code>findByNameContaining(String text)</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>IgnoreCase</code></td>
+        <td>LOWER()</td>
+        <td><code>findByNameIgnoreCase(String name)</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>OrderBy</code></td>
+        <td>ORDER BY</td>
+        <td><code>OrderByNameAsc()</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>Asc</code></td>
+        <td>Ascending sort</td>
+        <td><code>findByNameOrderByNameAsc()</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>Desc</code></td>
+        <td>Descending sort</td>
+        <td><code>findByCreatedAtDesc()</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>existsBy</code></td>
+        <td>EXISTS check</td>
+        <td><code>existsByNameIgnoreCase(String name)</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>And</code></td>
+        <td>AND condition</td>
+        <td><code>findByNameAndSupplier(String name, String supplier)</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="examples">Examples</h2>
+        <h3 id="simple-exact-match">Simple Exact Match</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM SUPPLIER WHERE NAME = ?</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM APP_USER WHERE EMAIL = ?</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>AppUser<span class="op">&gt;</span> <span class="fu">findByEmail</span><span class="op">(</span><span class="bu">String</span> email<span class="op">);</span></span></code></pre></div>
+        <h3 id="partial-text-match">Partial Text Match</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM SUPPLIER WHERE NAME LIKE ? (case-insensitive)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM INVENTORY_ITEM WHERE NAME LIKE ?</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> <span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">,</span> <span class="bu">Pageable</span> pageable<span class="op">);</span></span></code></pre></div>
+        <h3 id="boolean-checks">Boolean Checks</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT COUNT(*) FROM SUPPLIER WHERE NAME = ?</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> <span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT COUNT(*) FROM INVENTORY_ITEM WHERE NAME = ?</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> <span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span></code></pre></div>
+        <h3 id="filtering-with-sorting">Filtering with Sorting</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM INVENTORY_ITEM </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">// WHERE SUPPLIER_ID = ? </span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">// ORDER BY NAME ASC</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> <span class="fu">findBySupplierIdOrderByNameAsc</span><span class="op">(</span><span class="bu">String</span> supplierId<span class="op">,</span> <span class="bu">Pageable</span> pageable<span class="op">);</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM STOCK_HISTORY </span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">// WHERE REASON = ? </span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">// ORDER BY CREATED_AT DESC</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> <span class="fu">findByReasonOrderByCreatedAtDesc</span><span class="op">(</span>StockChangeReason reason<span class="op">);</span></span></code></pre></div>
+        <h3 id="multiple-conditions">Multiple Conditions</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM INVENTORY_ITEM </span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// WHERE NAME LIKE ? AND SUPPLIER_ID = ?</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> <span class="fu">findByNameContainingIgnoreCaseAndSupplierId</span><span class="op">(</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> name<span class="op">,</span> </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> supplierId<span class="op">);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM INVENTORY_ITEM </span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">// WHERE SUPPLIER_ID = ? AND QUANTITY &lt; ?</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> <span class="fu">findBySupplierIdAndQuantityLessThan</span><span class="op">(</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> supplierId<span class="op">,</span> </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> threshold<span class="op">);</span></span></code></pre></div>
+        <h2 id="complete-repository-example">Complete Repository
+        Example</h2>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Repository</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> SupplierRepository <span class="kw">extends</span> JpaRepository<span class="op">&lt;</span>Supplier<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Find one</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Search multiple</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Check existence</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">boolean</span> <span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Count</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> <span class="fu">countByCreatedBy</span><span class="op">(</span><span class="bu">String</span> createdBy<span class="op">);</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// With pagination</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    Page<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameContainingIgnoreCaseOrderByNameAsc</span><span class="op">(</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> name<span class="op">,</span> </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Pageable</span> pageable<span class="op">);</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="advantages">Advantages</h2>
+        <p>✅ <strong>Clear Intent</strong> - Method name describes the
+        query<br />
+        ✅ <strong>Type-Safe</strong> - Compile-time checking<br />
+        ✅ <strong>No SQL</strong> - Database-agnostic<br />
+        ✅ <strong>Automatic</strong> - Spring generates
+        implementation<br />
+        ✅ <strong>Refactoring Safe</strong> - IDE can rename methods
+        easily</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

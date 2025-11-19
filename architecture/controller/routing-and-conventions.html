@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+controller/routing-and-conventions · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#routing-and-conventions"
+        id="toc-routing-and-conventions">Routing and Conventions</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#base-path-convention"
+        id="toc-base-path-convention">Base Path Convention</a></li>
+        <li><a href="#resource-naming" id="toc-resource-naming">Resource
+        Naming</a></li>
+        <li><a href="#http-methods" id="toc-http-methods">HTTP
+        Methods</a>
+        <ul>
+        <li><a href="#create-response-pattern"
+        id="toc-create-response-pattern">Create Response
+        Pattern</a></li>
+        <li><a href="#delete-response-pattern"
+        id="toc-delete-response-pattern">Delete Response
+        Pattern</a></li>
+        </ul></li>
+        <li><a href="#query-parameters" id="toc-query-parameters">Query
+        Parameters</a>
+        <ul>
+        <li><a href="#pagination"
+        id="toc-pagination">Pagination</a></li>
+        <li><a href="#filtering" id="toc-filtering">Filtering</a></li>
+        <li><a href="#query-parameter-validation"
+        id="toc-query-parameter-validation">Query Parameter
+        Validation</a></li>
+        </ul></li>
+        <li><a href="#response-shapes" id="toc-response-shapes">Response
+        Shapes</a>
+        <ul>
+        <li><a href="#single-resource" id="toc-single-resource">Single
+        Resource</a></li>
+        <li><a href="#list-non-paginated"
+        id="toc-list-non-paginated">List (Non-Paginated)</a></li>
+        <li><a href="#paginated-list" id="toc-paginated-list">Paginated
+        List</a></li>
+        <li><a href="#aggregate-response-count"
+        id="toc-aggregate-response-count">Aggregate Response
+        (Count)</a></li>
+        <li><a href="#error-response" id="toc-error-response">Error
+        Response</a></li>
+        </ul></li>
+        <li><a href="#authorization-conventions"
+        id="toc-authorization-conventions">Authorization Conventions</a>
+        <ul>
+        <li><a href="#public-endpoints-demo-mode"
+        id="toc-public-endpoints-demo-mode">Public Endpoints (Demo
+        Mode)</a></li>
+        <li><a href="#authenticated-endpoints"
+        id="toc-authenticated-endpoints">Authenticated
+        Endpoints</a></li>
+        <li><a href="#read-only-endpoints"
+        id="toc-read-only-endpoints">Read-Only Endpoints</a></li>
+        </ul></li>
+        <li><a href="#status-code-conventions"
+        id="toc-status-code-conventions">Status Code
+        Conventions</a></li>
+        <li><a href="#content-type" id="toc-content-type">Content
+        Type</a></li>
+        <li><a href="#datetime-formats"
+        id="toc-datetime-formats">Date/Time Formats</a></li>
+        <li><a href="#endpoint-limits" id="toc-endpoint-limits">Endpoint
+        Limits</a>
+        <ul>
+        <li><a href="#rate-limiting" id="toc-rate-limiting">Rate
+        Limiting</a></li>
+        <li><a href="#pagination-limits"
+        id="toc-pagination-limits">Pagination Limits</a></li>
+        </ul></li>
+        <li><a href="#request-validation"
+        id="toc-request-validation">Request Validation</a></li>
+        <li><a href="#security-headers"
+        id="toc-security-headers">Security Headers</a></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+        <h1 id="routing-and-conventions">Routing and Conventions</h1>
+        <h2 id="overview">Overview</h2>
+        <p>This document establishes consistent conventions for URL
+        routing, parameter naming, pagination, filtering, and response
+        shapes across all API endpoints.</p>
+        <hr />
+        <h2 id="base-path-convention">Base Path Convention</h2>
+        <p>All API endpoints are prefixed with <code>/api</code>:</p>
+        <pre><code>/api/{resource}              → List all, create new
+/api/{resource}/{id}         → Get by ID, update, delete
+/api/{resource}/search       → Search with filters
+/api/{resource}/count        → Get count (aggregate)</code></pre>
+        <h2 id="resource-naming">Resource Naming</h2>
+        <p>Resources are plural, lowercase, and kebab-case:</p>
+        <pre><code>/api/suppliers                           ✅
+/api/inventory-items                     ✅ (not inventory_items)
+/api/stock-history                       ✅
+/api/analytics/trends                    ✅
+
+/api/Suppliers                           ❌ (not capitalized)
+/api/supplier                            ❌ (not singular)
+/api/inventoryItem                       ❌ (not camelCase)</code></pre>
+        <h2 id="http-methods">HTTP Methods</h2>
+        <table>
+        <colgroup>
+        <col style="width: 20%" />
+        <col style="width: 25%" />
+        <col style="width: 28%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Semantics</th>
+        <th>Response</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>GET</strong></td>
+        <td><code>/api/suppliers</code></td>
+        <td>List all resources</td>
+        <td>200 OK</td>
+        </tr>
+        <tr class="even">
+        <td><strong>GET</strong></td>
+        <td><code>/api/suppliers/{id}</code></td>
+        <td>Get single resource</td>
+        <td>200 OK or 404</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>POST</strong></td>
+        <td><code>/api/suppliers</code></td>
+        <td>Create new resource</td>
+        <td>201 Created + Location header</td>
+        </tr>
+        <tr class="even">
+        <td><strong>PUT</strong></td>
+        <td><code>/api/suppliers/{id}</code></td>
+        <td>Update entire resource</td>
+        <td>200 OK</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>PATCH</strong></td>
+        <td><code>/api/suppliers/{id}</code></td>
+        <td>Partial update (stock changes)</td>
+        <td>200 OK</td>
+        </tr>
+        <tr class="even">
+        <td><strong>DELETE</strong></td>
+        <td><code>/api/suppliers/{id}</code></td>
+        <td>Delete resource</td>
+        <td>204 No Content</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="create-response-pattern">Create Response Pattern</h3>
+        <pre><code>POST /api/suppliers
+Content-Type: application/json
+{ &quot;name&quot;: &quot;ACME Corp&quot; }
+
+→ 201 Created
+Location: http://api.example.com/api/suppliers/SUP-1234
+Content-Type: application/json
+{ &quot;id&quot;: &quot;SUP-1234&quot;, &quot;name&quot;: &quot;ACME Corp&quot;, ... }</code></pre>
+        <p>The <code>Location</code> header points to the newly created
+        resource for REST clients.</p>
+        <h3 id="delete-response-pattern">Delete Response Pattern</h3>
+        <pre><code>DELETE /api/suppliers/SUP-1234
+
+→ 204 No Content
+(empty body)</code></pre>
+        <hr />
+        <h2 id="query-parameters">Query Parameters</h2>
+        <h3 id="pagination">Pagination</h3>
+        <pre><code>GET /api/inventory/items/search?name=widget&amp;page=0&amp;size=20&amp;sort=price,desc</code></pre>
+        <table>
+        <colgroup>
+        <col style="width: 31%" />
+        <col style="width: 17%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>page</code></td>
+        <td>Integer</td>
+        <td><code>0</code></td>
+        <td><code>/search?page=2</code> → 3rd page</td>
+        </tr>
+        <tr class="even">
+        <td><code>size</code></td>
+        <td>Integer</td>
+        <td><code>20</code></td>
+        <td><code>/search?size=50</code> → 50 items per page</td>
+        </tr>
+        <tr class="odd">
+        <td><code>sort</code></td>
+        <td>String</td>
+        <td>Field-dependent</td>
+        <td><code>sort=price,desc</code> or
+        <code>sort=name,asc</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Pagination rules:</strong> - Zero-indexed (page 0 =
+        first page) - Max size: typically 200–500 items per page (set
+        per endpoint) - Default sort: usually by date created
+        (descending) or relevance</p>
+        <h3 id="filtering">Filtering</h3>
+        <pre><code>GET /api/stock-history/search?itemId=ITEM-001&amp;reason=SOLD&amp;startDate=2025-01-01</code></pre>
+        <p><strong>Common filter parameters:</strong></p>
+        <table>
+        <colgroup>
+        <col style="width: 45%" />
+        <col style="width: 25%" />
+        <col style="width: 29%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Usage</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>name</code></td>
+        <td>String</td>
+        <td>Substring match (case-insensitive)</td>
+        </tr>
+        <tr class="even">
+        <td><code>itemId</code></td>
+        <td>String</td>
+        <td>Exact match on item ID</td>
+        </tr>
+        <tr class="odd">
+        <td><code>supplierId</code></td>
+        <td>String</td>
+        <td>Exact match on supplier</td>
+        </tr>
+        <tr class="even">
+        <td><code>reason</code></td>
+        <td>Enum</td>
+        <td>Stock change reason (RECEIVED, SOLD, ADJUSTED, etc.)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>fromDate</code>, <code>toDate</code></td>
+        <td>Date</td>
+        <td>Date range filters (ISO 8601: <code>yyyy-MM-dd</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>startDate</code>, <code>endDate</code></td>
+        <td>DateTime</td>
+        <td>DateTime range filters (ISO 8601:
+        <code>yyyy-MM-ddTHH:mm:ss</code>)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="query-parameter-validation">Query Parameter
+        Validation</h3>
+        <ul>
+        <li><strong>Required</strong>: Explicitly marked in endpoint
+        docs</li>
+        <li><strong>Optional</strong>: Can be omitted (use sensible
+        defaults)</li>
+        <li><strong>Format</strong>: ISO 8601 for dates/times (e.g.,
+        <code>2025-11-19</code> or
+        <code>2025-11-19T14:30:00</code>)</li>
+        <li><strong>Encoding</strong>: URL-encoded (spaces as
+        <code>%20</code> or <code>+</code>)</li>
+        </ul>
+        <hr />
+        <h2 id="response-shapes">Response Shapes</h2>
+        <h3 id="single-resource">Single Resource</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">19.99</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reorderLevel&quot;</span><span class="fu">:</span> <span class="dv">50</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Status:</strong> 200 OK</p>
+        <h3 id="list-non-paginated">List (Non-Paginated)</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-002&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Global Supplies&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <p><strong>Status:</strong> 200 OK</p>
+        <p><strong>When to use:</strong> Small datasets (&lt;100 items)
+        or admin endpoints</p>
+        <h3 id="paginated-list">Paginated List</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-002&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget B&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;sort&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;property&quot;</span><span class="fu">:</span> <span class="st">&quot;price&quot;</span><span class="fu">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;direction&quot;</span><span class="fu">:</span> <span class="st">&quot;ASC&quot;</span><span class="fu">,</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;ignoreCase&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">1543</span><span class="fu">,</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">78</span><span class="fu">,</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;number&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;size&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;first&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;empty&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Status:</strong> 200 OK</p>
+        <p><strong>When to use:</strong> Large result sets (&gt;100
+        items), user-facing lists</p>
+        <h3 id="aggregate-response-count">Aggregate Response
+        (Count)</h3>
+        <pre><code>GET /api/suppliers/count
+
+→ 200 OK
+42</code></pre>
+        <p><strong>Status:</strong> 200 OK, plain number</p>
+        <h3 id="error-response">Error Response</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Not Found&quot;</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier not found: SUP-999&quot;</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">404</span><span class="fu">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00Z&quot;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Status:</strong> 400–500 depending on error type</p>
+        <hr />
+        <h2 id="authorization-conventions">Authorization
+        Conventions</h2>
+        <h3 id="public-endpoints-demo-mode">Public Endpoints (Demo
+        Mode)</h3>
+        <pre><code>GET /api/suppliers              ✅ Accessible without login (if demo-readonly=true)
+GET /api/inventory/items        ✅ Accessible without login (if demo-readonly=true)
+GET /api/analytics/trends       ✅ Accessible without login (if demo-readonly=true)</code></pre>
+        <p>Annotation:
+        <code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h3 id="authenticated-endpoints">Authenticated Endpoints</h3>
+        <pre><code>GET /api/suppliers/{id}         → Requires login
+POST /api/suppliers             → Requires login + ADMIN role
+PUT /api/suppliers/{id}         → Requires login + ADMIN role
+DELETE /api/suppliers/{id}      → Requires login + ADMIN role</code></pre>
+        <p>Annotation: <code>@PreAuthorize("hasRole('ADMIN')")</code>
+        for writes</p>
+        <h3 id="read-only-endpoints">Read-Only Endpoints</h3>
+        <pre><code>GET /api/stock-history          → Read-only (no POST/PUT/DELETE)
+GET /api/analytics/*            → Read-only (aggregation endpoints)</code></pre>
+        <hr />
+        <h2 id="status-code-conventions">Status Code Conventions</h2>
+        <div class="mermaid">
+        graph TD
+            A["HTTP Request"]
+            
+            A -->|Successful| B["2xx Success"]
+            B --> B1["200 OK - GET/PUT/PATCH"]
+            B --> B2["201 Created - POST"]
+            B --> B3["204 No Content - DELETE"]
+            
+            A -->|Client Error| C["4xx Client Error"]
+            C --> C1["400 Bad Request - validation failed"]
+            C --> C2["401 Unauthorized - not authenticated"]
+            C --> C3["403 Forbidden - no permission"]
+            C --> C4["404 Not Found - resource missing"]
+            C --> C5["409 Conflict - duplicate/business rule"]
+            
+            A -->|Server Error| D["5xx Server Error"]
+            D --> D1["500 Internal Server Error - exception"]
+            
+            style B fill:#c8e6c9
+            style C fill:#ffccbc
+            style D fill:#ffcdd2
+        </div>
+        <table>
+        <colgroup>
+        <col style="width: 34%" />
+        <col style="width: 26%" />
+        <col style="width: 39%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Status</th>
+        <th>When</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>200</strong></td>
+        <td>Successful read/update</td>
+        <td><code>GET /api/suppliers/S1</code> returns supplier</td>
+        </tr>
+        <tr class="even">
+        <td><strong>201</strong></td>
+        <td>Resource created</td>
+        <td><code>POST /api/suppliers</code> returns created
+        supplier</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>204</strong></td>
+        <td>Resource deleted (no content)</td>
+        <td><code>DELETE /api/suppliers/S1</code> (empty body)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>400</strong></td>
+        <td>Validation failed</td>
+        <td>Missing required field, bad date format</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>401</strong></td>
+        <td>Not authenticated</td>
+        <td>No OAuth2 token, session expired</td>
+        </tr>
+        <tr class="even">
+        <td><strong>403</strong></td>
+        <td>Not authorized</td>
+        <td>Authenticated but no ADMIN role</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>404</strong></td>
+        <td>Not found</td>
+        <td><code>GET /api/suppliers/NONEXISTENT</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>409</strong></td>
+        <td>Conflict</td>
+        <td>Duplicate name, business rule violation</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>500</strong></td>
+        <td>Unexpected error</td>
+        <td>Unhandled exception in service</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="content-type">Content Type</h2>
+        <p>All endpoints use JSON:</p>
+        <pre><code>Content-Type: application/json
+Accept: application/json</code></pre>
+        <hr />
+        <h2 id="datetime-formats">Date/Time Formats</h2>
+        <p>All dates and times use <strong>ISO 8601</strong> format:</p>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 34%" />
+        <col style="width: 39%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Type</th>
+        <th>Format</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Date</strong></td>
+        <td><code>yyyy-MM-dd</code></td>
+        <td><code>2025-11-19</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>DateTime</strong></td>
+        <td><code>yyyy-MM-ddTHH:mm:ss</code></td>
+        <td><code>2025-11-19T14:30:00</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>DateTime with TZ</strong></td>
+        <td><code>yyyy-MM-ddTHH:mm:ssZ</code></td>
+        <td><code>2025-11-19T14:30:00Z</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="endpoint-limits">Endpoint Limits</h2>
+        <h3 id="rate-limiting">Rate Limiting</h3>
+        <p>Not currently implemented but recommended for production:</p>
+        <pre><code>X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1605900000</code></pre>
+        <h3 id="pagination-limits">Pagination Limits</h3>
+        <pre><code>Maximum page size: 200
+Default page size: 20</code></pre>
+        <hr />
+        <h2 id="request-validation">Request Validation</h2>
+        <p>Controllers validate using:</p>
+        <ul>
+        <li><strong><code>@Valid</code></strong>: Triggers bean
+        validation on DTO</li>
+        <li><strong><code>@Validated</code></strong>: Enables
+        method-level validation groups</li>
+        <li><strong>Custom validators</strong>: Complex business
+        rules</li>
+        </ul>
+        <p>Example error response:</p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Bad Request&quot;</span><span class="fu">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed&quot;</span><span class="fu">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">400</span><span class="fu">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;errors&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;field&quot;</span><span class="fu">:</span> <span class="st">&quot;name&quot;</span><span class="fu">,</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Name must not be blank&quot;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;field&quot;</span><span class="fu">:</span> <span class="st">&quot;price&quot;</span><span class="fu">,</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Price must be greater than 0&quot;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="security-headers">Security Headers</h2>
+        <p>Standard HTTP security headers (set by Spring Security):</p>
+        <pre><code>Strict-Transport-Security: max-age=31536000
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block</code></pre>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <colgroup>
+        <col style="width: 42%" />
+        <col style="width: 57%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Convention</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Base path</strong></td>
+        <td><code>/api/{resource}</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Method</strong></td>
+        <td>GET, POST, PUT, PATCH, DELETE</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Status codes</strong></td>
+        <td>200, 201, 204, 400, 401, 403, 404, 409, 500</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Pagination</strong></td>
+        <td><code>page</code>, <code>size</code>, <code>sort</code>
+        query params</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Filtering</strong></td>
+        <td>Resource-specific query params</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Response format</strong></td>
+        <td>JSON with <code>content</code>, <code>pageable</code>,
+        <code>totalElements</code> for lists</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Date format</strong></td>
+        <td>ISO 8601 (yyyy-MM-dd, yyyy-MM-ddTHH:mm:ss)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Authorization</strong></td>
+        <td><code>@PreAuthorize</code> annotations per endpoint</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

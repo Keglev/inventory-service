@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/repository/app-user-repository · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#app-user-repository"
+        id="toc-app-user-repository">App User Repository</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#interface-methods"
+        id="toc-interface-methods">Interface Methods</a></li>
+        <li><a href="#database-table" id="toc-database-table">Database
+        Table</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="app-user-repository">App User Repository</h1>
+        <h2 id="purpose">Purpose</h2>
+        <p>Data access for AppUser entities. Manages OAuth2 users and
+        authentication principals for role-based access control.</p>
+        <h2 id="interface-methods">Interface Methods</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>AppUser<span class="op">&gt;</span> <span class="fu">findByEmail</span><span class="op">(</span><span class="bu">String</span> email<span class="op">);</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>AppUser<span class="op">&gt;</span> <span class="fu">findByOAuth2Id</span><span class="op">(</span><span class="bu">String</span> oauth2Id<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>AppUser <span class="fu">save</span><span class="op">(</span>AppUser entity<span class="op">);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> <span class="fu">existsByEmail</span><span class="op">(</span><span class="bu">String</span> email<span class="op">);</span></span></code></pre></div>
+        <h2 id="database-table">Database Table</h2>
+        <p><strong>Table Name:</strong> <code>APP_USER</code></p>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Column</th>
+        <th>Type</th>
+        <th>Constraints</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>ID</td>
+        <td>UUID</td>
+        <td>PK</td>
+        <td>User identifier</td>
+        </tr>
+        <tr class="even">
+        <td>EMAIL</td>
+        <td>VARCHAR(255)</td>
+        <td>UNIQUE, NOT NULL</td>
+        <td>Email address</td>
+        </tr>
+        <tr class="odd">
+        <td>OAUTH2_ID</td>
+        <td>VARCHAR(255)</td>
+        <td></td>
+        <td>OAuth2 provider ID</td>
+        </tr>
+        <tr class="even">
+        <td>NAME</td>
+        <td>VARCHAR(255)</td>
+        <td></td>
+        <td>Display name</td>
+        </tr>
+        <tr class="odd">
+        <td>ROLE</td>
+        <td>VARCHAR(20)</td>
+        <td>NOT NULL</td>
+        <td>User role (ADMIN, USER)</td>
+        </tr>
+        <tr class="even">
+        <td>CREATED_AT</td>
+        <td>TIMESTAMP</td>
+        <td>NOT NULL</td>
+        <td>Account creation</td>
+        </tr>
+        <tr class="odd">
+        <td>LAST_LOGIN</td>
+        <td>TIMESTAMP</td>
+        <td></td>
+        <td>Last login time</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

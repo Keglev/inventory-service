@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+config/spring-config-classes · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#spring-configuration-classes"
+        id="toc-spring-configuration-classes">Spring Configuration
+        Classes</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#configuration-classes"
+        id="toc-configuration-classes">Configuration Classes</a>
+        <ul>
+        <li><a href="#appproperties"
+        id="toc-appproperties">AppProperties</a></li>
+        <li><a href="#securityconfig"
+        id="toc-securityconfig">SecurityConfig</a></li>
+        <li><a href="#securityspelbridgeconfig"
+        id="toc-securityspelbridgeconfig">SecuritySpelBridgeConfig</a></li>
+        <li><a href="#helper-classes" id="toc-helper-classes">Helper
+        Classes</a></li>
+        </ul></li>
+        <li><a href="#bean-dependency-graph"
+        id="toc-bean-dependency-graph">Bean Dependency Graph</a></li>
+        <li><a href="#how-configuration-classes-are-loaded"
+        id="toc-how-configuration-classes-are-loaded">How Configuration
+        Classes Are Loaded</a></li>
+        <li><a href="#testing-configuration-classes"
+        id="toc-testing-configuration-classes">Testing Configuration
+        Classes</a></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Config Overview</a></p>
+        <h1 id="spring-configuration-classes">Spring Configuration
+        Classes</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Spring <code>@Configuration</code> classes define
+        <strong>beans</strong> — managed objects that implement
+        application behavior. In the Inventory Service, configuration
+        classes primarily handle:</p>
+        <ul>
+        <li><strong>Security</strong>: OAuth2 login, authorization
+        rules, CORS</li>
+        <li><strong>Properties</strong>: Loading custom app settings
+        (demo mode, frontend URLs)</li>
+        <li><strong>Filters</strong>: Request detection (API vs
+        browser)</li>
+        <li><strong>SpEL integration</strong>: Allowing security
+        expressions to access configuration</li>
+        </ul>
+        <h2 id="configuration-classes">Configuration Classes</h2>
+        <h3 id="appproperties">AppProperties</h3>
+        <p><strong>File:</strong>
+        <code>src/main/java/.../config/AppProperties.java</code></p>
+        <p><strong>Purpose:</strong> Custom application properties, not
+        part of Spring Framework defaults.</p>
+        <p><strong>Beans created:</strong> None directly; instead, binds
+        properties to a managed object.</p>
+        <p><strong>Key Properties:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ConfigurationProperties</span><span class="op">(</span>prefix <span class="op">=</span> <span class="st">&quot;app&quot;</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppProperties <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">boolean</span> isDemoReadonly <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>      <span class="co">// Demo read-only mode</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> Frontend frontend <span class="op">=</span> <span class="kw">new</span> <span class="fu">Frontend</span><span class="op">();</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="kw">class</span> Frontend <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">private</span> <span class="bu">String</span> baseUrl <span class="op">=</span> <span class="st">&quot;http://localhost:8081&quot;</span><span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">private</span> <span class="bu">String</span> landingPath <span class="op">=</span> <span class="st">&quot;/auth&quot;</span><span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage in the codebase:</strong></p>
+        <ul>
+        <li><strong><code>SecurityConfig</code></strong>: Checks
+        <code>props.isDemoReadonly()</code> to decide whether to permit
+        unauthenticated GET requests</li>
+        <li><strong><code>OAuth2LoginSuccessHandler</code></strong>:
+        Uses <code>props.getFrontend().getBaseUrl()</code> to redirect
+        after login</li>
+        </ul>
+        <p><strong>Configuration sources:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> ${APP_DEMO_READONLY:true}</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">frontend</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base-url</span><span class="kw">:</span><span class="at"> ${APP_FRONTEND_BASE_URL:https://localhost:5173}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">landing-path</span><span class="kw">:</span><span class="at"> /auth</span></span></code></pre></div>
+        <hr />
+        <h3 id="securityconfig">SecurityConfig</h3>
+        <p><strong>File:</strong>
+        <code>src/main/java/.../config/SecurityConfig.java</code></p>
+        <p><strong>Purpose:</strong> Core OAuth2 and method-level
+        security configuration.</p>
+        <p><strong>Key Beans:</strong></p>
+        <h4 id="securityfilterchain">1.
+        <code>securityFilterChain()</code></h4>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Bean</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SecurityFilterChain <span class="fu">securityFilterChain</span><span class="op">(</span>HttpSecurity http<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    http</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">cors</span><span class="op">(</span><span class="bu">Customizer</span><span class="op">.</span><span class="fu">withDefaults</span><span class="op">())</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">authorizeHttpRequests</span><span class="op">(</span>auth <span class="op">-&gt;</span> <span class="op">{</span><span class="kw">...</span><span class="op">})</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">oauth2Login</span><span class="op">(</span>oauth2 <span class="op">-&gt;</span> <span class="op">{</span><span class="kw">...</span><span class="op">})</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">logout</span><span class="op">(</span>logout <span class="op">-&gt;</span> <span class="op">{</span><span class="kw">...</span><span class="op">})</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">sessionManagement</span><span class="op">(</span>session <span class="op">-&gt;</span> <span class="op">{</span><span class="kw">...</span><span class="op">});</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> http<span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>What it does:</strong></p>
+        <ul>
+        <li>Enables CORS (cross-origin requests)</li>
+        <li>Configures which endpoints require authentication</li>
+        <li>Enables Google OAuth2 login</li>
+        <li>Manages sessions with secure cookies</li>
+        <li>Supports demo mode read-only access</li>
+        </ul>
+        <p><strong>Related helpers:</strong> Uses
+        <code>SecurityAuthorizationHelper</code>,
+        <code>SecurityEntryPointHelper</code>,
+        <code>SecurityFilterHelper</code></p>
+        <h4 id="corsconfigurationsource">2.
+        <code>corsConfigurationSource()</code></h4>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Bean</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> CorsConfigurationSource <span class="fu">corsConfigurationSource</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    CorsConfiguration config <span class="op">=</span> <span class="kw">new</span> <span class="fu">CorsConfiguration</span><span class="op">();</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    config<span class="op">.</span><span class="fu">setAllowedOrigins</span><span class="op">(</span><span class="bu">List</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="st">&quot;http://localhost:5173&quot;</span><span class="op">,</span> <span class="kw">...</span><span class="op">));</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    config<span class="op">.</span><span class="fu">setAllowedMethods</span><span class="op">(</span><span class="bu">List</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="st">&quot;GET&quot;</span><span class="op">,</span> <span class="st">&quot;POST&quot;</span><span class="op">,</span> <span class="st">&quot;PUT&quot;</span><span class="op">,</span> <span class="st">&quot;DELETE&quot;</span><span class="op">));</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    config<span class="op">.</span><span class="fu">setAllowCredentials</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span>  <span class="co">// Cookies allowed</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    UrlBasedCorsConfigurationSource source <span class="op">=</span> <span class="kw">new</span> <span class="fu">UrlBasedCorsConfigurationSource</span><span class="op">();</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    source<span class="op">.</span><span class="fu">registerCorsConfiguration</span><span class="op">(</span><span class="st">&quot;/**&quot;</span><span class="op">,</span> config<span class="op">);</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> source<span class="op">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>What it does:</strong></p>
+        <ul>
+        <li>Allows frontend to make cross-origin API calls</li>
+        <li>Permits credentials (OAuth2 session cookies)</li>
+        <li>Restricts to approved methods and origins</li>
+        </ul>
+        <h4 id="cookieserializer">3.
+        <code>cookieSerializer()</code></h4>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Bean</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> CookieSerializer <span class="fu">cookieSerializer</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    DefaultCookieSerializer serializer <span class="op">=</span> <span class="kw">new</span> <span class="fu">DefaultCookieSerializer</span><span class="op">();</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    serializer<span class="op">.</span><span class="fu">setCookieName</span><span class="op">(</span><span class="st">&quot;JSESSIONID&quot;</span><span class="op">);</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    serializer<span class="op">.</span><span class="fu">setCookiePath</span><span class="op">(</span><span class="st">&quot;/&quot;</span><span class="op">);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    serializer<span class="op">.</span><span class="fu">setUseHttpOnlyCookie</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    serializer<span class="op">.</span><span class="fu">setUseBase64Encoding</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> serializer<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>What it does:</strong></p>
+        <ul>
+        <li>Configures session cookie security (HttpOnly, Base64
+        encoding)</li>
+        <li>Prevents JavaScript access to session tokens</li>
+        </ul>
+        <hr />
+        <h3 id="securityspelbridgeconfig">SecuritySpelBridgeConfig</h3>
+        <p><strong>File:</strong>
+        <code>src/main/java/.../config/SecuritySpelBridgeConfig.java</code></p>
+        <p><strong>Purpose:</strong> Exposes <code>AppProperties</code>
+        to SpEL (Spring Expression Language) for method-level
+        security.</p>
+        <p><strong>Bean:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Bean</span><span class="op">(</span><span class="st">&quot;appProperties&quot;</span><span class="op">)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Primary</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> AppProperties <span class="fu">appPropertiesPrimary</span><span class="op">(</span>AppProperties props<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> props<span class="op">;</span>  <span class="co">// Alias for SpEL access</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage in annotations:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) || @appProperties.demoReadonly()&quot;</span><span class="op">)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Allows deletion if user is ADMIN OR demo mode is enabled</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why it’s needed:</strong></p>
+        <ul>
+        <li>SpEL expressions don’t have direct access to autowired
+        properties</li>
+        <li>This bean makes <code>AppProperties</code> available by name
+        (<code>@appProperties</code>)</li>
+        <li>Enables declarative security rules that reference
+        configuration</li>
+        </ul>
+        <hr />
+        <h3 id="helper-classes">Helper Classes</h3>
+        <p>These are <code>@Component</code> classes (automatically
+        created beans) that break down security configuration into
+        manageable pieces.</p>
+        <h4
+        id="securityauthorizationhelper">SecurityAuthorizationHelper</h4>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityAuthorizationHelper <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">configureAuthorization</span><span class="op">(</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        AuthorizeHttpRequestsConfigurer<span class="op">&lt;</span>HttpSecurity<span class="op">&gt;.</span><span class="fu">AuthorizationManagerRequestMatcherRegistry</span> auth<span class="op">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">boolean</span> isDemoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Public endpoints</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span><span class="st">&quot;/&quot;</span><span class="op">,</span> <span class="st">&quot;/login/**&quot;</span><span class="op">,</span> <span class="st">&quot;/oauth2/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Demo mode: allow GET without login</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>isDemoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Protected: require authentication for reads</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Admin-only: writes require ADMIN role</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">POST</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4 id="securityentrypointhelper">SecurityEntryPointHelper</h4>
+        <p>Handles authentication failures:</p>
+        <ul>
+        <li><strong>API requests</strong> → return JSON error
+        (<code>401 Unauthorized</code>)</li>
+        <li><strong>Browser requests</strong> → redirect to login
+        page</li>
+        </ul>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityEntryPointHelper <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> AuthenticationEntryPoint <span class="fu">createApiEntryPoint</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">(</span>request<span class="op">,</span> response<span class="op">,</span> exception<span class="op">)</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            response<span class="op">.</span><span class="fu">sendError</span><span class="op">(</span>HttpServletResponse<span class="op">.</span><span class="fu">SC_UNAUTHORIZED</span><span class="op">,</span> <span class="st">&quot;Unauthorized&quot;</span><span class="op">);</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> AuthenticationEntryPoint <span class="fu">createWebEntryPoint</span><span class="op">(</span><span class="bu">String</span> frontendUrl<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">(</span>request<span class="op">,</span> response<span class="op">,</span> exception<span class="op">)</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            response<span class="op">.</span><span class="fu">sendRedirect</span><span class="op">(</span>frontendUrl <span class="op">+</span> <span class="st">&quot;/login&quot;</span><span class="op">);</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4 id="securityfilterhelper">SecurityFilterHelper</h4>
+        <p>Creates a filter that marks API requests:</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityFilterHelper <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> OncePerRequestFilter <span class="fu">createApiDetectionFilter</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">OncePerRequestFilter</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>            <span class="kw">protected</span> <span class="dt">void</span> <span class="fu">doFilterInternal</span><span class="op">(</span>HttpServletRequest request<span class="op">,</span> <span class="kw">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                <span class="dt">boolean</span> isApi <span class="op">=</span> request<span class="op">.</span><span class="fu">getRequestURI</span><span class="op">().</span><span class="fu">startsWith</span><span class="op">(</span><span class="st">&quot;/api/&quot;</span><span class="op">);</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                request<span class="op">.</span><span class="fu">setAttribute</span><span class="op">(</span><span class="st">&quot;IS_API_REQUEST&quot;</span><span class="op">,</span> isApi<span class="op">);</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                filterChain<span class="op">.</span><span class="fu">doFilter</span><span class="op">(</span>request<span class="op">,</span> response<span class="op">);</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why this matters:</strong></p>
+        <ul>
+        <li>The <code>SecurityEntryPointHelper</code> uses the
+        <code>IS_API_REQUEST</code> attribute to decide how to handle
+        auth failures</li>
+        <li>API errors are JSON; web errors redirect to login</li>
+        </ul>
+        <hr />
+        <h2 id="bean-dependency-graph">Bean Dependency Graph</h2>
+        <pre><code>AppProperties
+    ↓
+    ├─ Used by: SecurityConfig
+    │            SecurityAuthorizationHelper
+    │
+    ├─ Aliased by: SecuritySpelBridgeConfig
+    │               (exposes as @appProperties for SpEL)
+
+SecurityConfig
+    ↓
+    ├─ Uses: AppProperties
+    ├─ Uses: SecurityAuthorizationHelper
+    ├─ Uses: SecurityEntryPointHelper
+    ├─ Uses: SecurityFilterHelper
+    ├─ Uses: CustomOAuth2UserService
+    ├─ Uses: CustomOidcUserService
+    │
+    └─ Creates: SecurityFilterChain (main bean)
+               CorsConfigurationSource
+               CookieSerializer</code></pre>
+        <hr />
+        <h2 id="how-configuration-classes-are-loaded">How Configuration
+        Classes Are Loaded</h2>
+        <ol type="1">
+        <li><strong>Classpath scanning</strong>: Spring detects
+        <code>@Configuration</code> classes at startup</li>
+        <li><strong>Bean creation</strong>: Methods marked
+        <code>@Bean</code> are invoked to create beans</li>
+        <li><strong>Dependency injection</strong>: Dependencies (like
+        <code>AppProperties</code>) are autowired</li>
+        <li><strong>Bean lifecycle</strong>: Beans are stored in the
+        application context and injected where needed</li>
+        <li><strong>Property binding</strong>:
+        <code>@ConfigurationProperties</code> classes bind YAML/env
+        values to fields</li>
+        </ol>
+        <p><strong>Key configuration points that activate
+        this:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In application.yml</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">main</span><span class="kw">:</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">allow-bean-definition-overriding</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">  # Allow multiple configs</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-configuration-classes">Testing Configuration
+        Classes</h2>
+        <p>Test configuration can override beans:</p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span><span class="op">(</span>properties <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;app.demo-readonly=false&quot;</span><span class="op">,</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;app.frontend.base-url=http://localhost:3000&quot;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">})</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityConfigTest <span class="op">{</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> AppProperties props<span class="op">;</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testDemoModeDisabledInTest</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>props<span class="op">.</span><span class="fu">isDemoReadonly</span><span class="op">()).</span><span class="fu">isFalse</span><span class="op">();</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 33%" />
+        <col style="width: 40%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Class</th>
+        <th>Purpose</th>
+        <th>Main Beans</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>AppProperties</strong></td>
+        <td>Custom app settings</td>
+        <td>(none; used by SpEL)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>SecurityConfig</strong></td>
+        <td>OAuth2 &amp; authorization</td>
+        <td><code>SecurityFilterChain</code>,
+        <code>CorsConfigurationSource</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>SecuritySpelBridgeConfig</strong></td>
+        <td>SpEL integration</td>
+        <td><code>appProperties</code> alias</td>
+        </tr>
+        <tr class="even">
+        <td><strong>SecurityAuthorizationHelper</strong></td>
+        <td>Authorization rules</td>
+        <td>(helper; no public beans)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>SecurityEntryPointHelper</strong></td>
+        <td>Auth failure handling</td>
+        <td>(helper; no public beans)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>SecurityFilterHelper</strong></td>
+        <td>Request detection</td>
+        <td>(helper; no public beans)</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Config Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

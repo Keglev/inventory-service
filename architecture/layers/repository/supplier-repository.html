@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/repository/supplier-repository · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#supplier-repository"
+        id="toc-supplier-repository">Supplier Repository</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#interface-methods"
+        id="toc-interface-methods">Interface Methods</a></li>
+        <li><a href="#database-table" id="toc-database-table">Database
+        Table</a></li>
+        <li><a href="#key-queries" id="toc-key-queries">Key Queries</a>
+        <ul>
+        <li><a href="#find-all-suppliers"
+        id="toc-find-all-suppliers">Find All Suppliers</a></li>
+        <li><a href="#search-by-name" id="toc-search-by-name">Search by
+        Name</a></li>
+        <li><a href="#check-uniqueness" id="toc-check-uniqueness">Check
+        Uniqueness</a></li>
+        <li><a href="#count-suppliers" id="toc-count-suppliers">Count
+        Suppliers</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="supplier-repository">Supplier Repository</h1>
+        <h2 id="purpose">Purpose</h2>
+        <p>Data access for Supplier entities. Provides CRUD operations
+        and queries to manage suppliers (goods providers).</p>
+        <h2 id="interface-methods">Interface Methods</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Basic CRUD - provided by CrudRepository</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findById</span><span class="op">(</span><span class="bu">String</span> id<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Supplier <span class="fu">save</span><span class="op">(</span>Supplier entity<span class="op">);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">deleteById</span><span class="op">(</span><span class="bu">String</span> id<span class="op">);</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Spring Data derived queries</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> <span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span></code></pre></div>
+        <h2 id="database-table">Database Table</h2>
+        <p><strong>Table Name:</strong> <code>SUPPLIER</code></p>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Column</th>
+        <th>Type</th>
+        <th>Constraints</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>ID</td>
+        <td>UUID</td>
+        <td>PK</td>
+        <td>Unique identifier</td>
+        </tr>
+        <tr class="even">
+        <td>NAME</td>
+        <td>VARCHAR(255)</td>
+        <td>UNIQUE, NOT NULL</td>
+        <td>Supplier name</td>
+        </tr>
+        <tr class="odd">
+        <td>CONTACT_NAME</td>
+        <td>VARCHAR(255)</td>
+        <td></td>
+        <td>Contact person</td>
+        </tr>
+        <tr class="even">
+        <td>PHONE</td>
+        <td>VARCHAR(20)</td>
+        <td></td>
+        <td>Phone number</td>
+        </tr>
+        <tr class="odd">
+        <td>EMAIL</td>
+        <td>VARCHAR(255)</td>
+        <td></td>
+        <td>Email address</td>
+        </tr>
+        <tr class="even">
+        <td>CREATED_BY</td>
+        <td>VARCHAR(255)</td>
+        <td>NOT NULL</td>
+        <td>Who created</td>
+        </tr>
+        <tr class="odd">
+        <td>CREATED_AT</td>
+        <td>TIMESTAMP</td>
+        <td>NOT NULL</td>
+        <td>When created</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="key-queries">Key Queries</h2>
+        <h3 id="find-all-suppliers">Find All Suppliers</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findAll</span><span class="op">();</span></span></code></pre></div>
+        <p><strong>Purpose:</strong> Used for supplier listings and
+        dropdowns</p>
+        <h3 id="search-by-name">Search by Name</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span></code></pre></div>
+        <p><strong>Purpose:</strong> Search endpoints and uniqueness
+        validation</p>
+        <h3 id="check-uniqueness">Check Uniqueness</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> <span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="bu">String</span> name<span class="op">);</span></span></code></pre></div>
+        <p><strong>Purpose:</strong> Validate supplier name before
+        create/update</p>
+        <h3 id="count-suppliers">Count Suppliers</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="fu">count</span><span class="op">();</span></span></code></pre></div>
+        <p><strong>Purpose:</strong> Used for KPIs in analytics
+        dashboard</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

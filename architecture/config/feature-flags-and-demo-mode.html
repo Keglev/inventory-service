@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+config/feature-flags-and-demo-mode · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#feature-flags-and-demo-mode"
+        id="toc-feature-flags-and-demo-mode">Feature Flags and Demo
+        Mode</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#demo-mode" id="toc-demo-mode">Demo Mode</a>
+        <ul>
+        <li><a href="#what-is-demo-mode" id="toc-what-is-demo-mode">What
+        is Demo Mode?</a></li>
+        <li><a href="#configuration"
+        id="toc-configuration">Configuration</a></li>
+        <li><a href="#demo-mode-in-action"
+        id="toc-demo-mode-in-action">Demo Mode in Action</a></li>
+        </ul></li>
+        <li><a href="#how-demo-mode-is-implemented"
+        id="toc-how-demo-mode-is-implemented">How Demo Mode is
+        Implemented</a>
+        <ul>
+        <li><a href="#property-binding" id="toc-property-binding">1.
+        Property Binding</a></li>
+        <li><a href="#spel-bridge-configuration"
+        id="toc-spel-bridge-configuration">2. SpEL Bridge
+        Configuration</a></li>
+        <li><a href="#authorization-configuration"
+        id="toc-authorization-configuration">3. Authorization
+        Configuration</a></li>
+        <li><a href="#method-level-security"
+        id="toc-method-level-security">4. Method-Level Security</a></li>
+        </ul></li>
+        <li><a href="#profile-specific-demo-mode"
+        id="toc-profile-specific-demo-mode">Profile-Specific Demo
+        Mode</a>
+        <ul>
+        <li><a href="#default-local-development"
+        id="toc-default-local-development">Default (Local
+        Development)</a></li>
+        <li><a href="#production-fly.io"
+        id="toc-production-fly.io">Production (Fly.io)</a></li>
+        <li><a href="#test-profile" id="toc-test-profile">Test
+        Profile</a></li>
+        </ul></li>
+        <li><a href="#other-application-properties"
+        id="toc-other-application-properties">Other Application
+        Properties</a>
+        <ul>
+        <li><a href="#frontend-url-configuration"
+        id="toc-frontend-url-configuration">Frontend URL
+        Configuration</a></li>
+        </ul></li>
+        <li><a href="#future-feature-flags-pattern"
+        id="toc-future-feature-flags-pattern">Future Feature Flags
+        Pattern</a>
+        <ul>
+        <li><a href="#add-property" id="toc-add-property">1. Add
+        Property</a></li>
+        <li><a href="#add-yaml-configuration"
+        id="toc-add-yaml-configuration">2. Add YAML
+        Configuration</a></li>
+        <li><a href="#use-in-code" id="toc-use-in-code">3. Use in
+        Code</a></li>
+        </ul></li>
+        <li><a href="#testing-feature-flags"
+        id="toc-testing-feature-flags">Testing Feature Flags</a>
+        <ul>
+        <li><a href="#unit-test-with-feature-off"
+        id="toc-unit-test-with-feature-off">Unit Test with Feature
+        Off</a></li>
+        <li><a href="#mock-feature-flag" id="toc-mock-feature-flag">Mock
+        Feature Flag</a></li>
+        </ul></li>
+        <li><a href="#admin-email-allow-list"
+        id="toc-admin-email-allow-list">Admin Email Allow-List</a></li>
+        <li><a href="#summary-demo-mode-feature-flags"
+        id="toc-summary-demo-mode-feature-flags">Summary: Demo Mode
+        &amp; Feature Flags</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Config Overview</a></p>
+        <h1 id="feature-flags-and-demo-mode">Feature Flags and Demo
+        Mode</h1>
+        <h2 id="overview">Overview</h2>
+        <p><strong>Feature flags</strong> allow toggling application
+        behavior without code changes or redeployment. The Inventory
+        Service implements <strong>demo mode</strong> as a feature flag
+        — a read-only environment for testing and demonstration.</p>
+        <hr />
+        <h2 id="demo-mode">Demo Mode</h2>
+        <h3 id="what-is-demo-mode">What is Demo Mode?</h3>
+        <p>Demo mode allows <strong>unauthenticated users to read
+        inventory data</strong> without logging in. All write operations
+        (create, update, delete) still require authentication and ADMIN
+        role.</p>
+        <h3 id="configuration">Configuration</h3>
+        <h4 id="property-definition">Property Definition</h4>
+        <p><strong>File:</strong>
+        <code>src/main/resources/application.yml</code></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> ${APP_DEMO_READONLY:true}</span></span></code></pre></div>
+        <ul>
+        <li><strong>Environment variable:</strong>
+        <code>APP_DEMO_READONLY</code> (required)</li>
+        <li><strong>Default value:</strong> <code>true</code> (demo mode
+        ON by default)</li>
+        </ul>
+        <h4 id="how-to-toggle-demo-mode">How to Toggle Demo Mode</h4>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Enable demo mode</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">APP_DEMO_READONLY</span><span class="op">=</span><span class="st">&quot;true&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Disable demo mode (production default)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">APP_DEMO_READONLY</span><span class="op">=</span><span class="st">&quot;false&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Without setting env var, uses default (true)</span></span></code></pre></div>
+        <h3 id="demo-mode-in-action">Demo Mode in Action</h3>
+        <h4 id="when-demo-mode-is-on">When Demo Mode is ON</h4>
+        <pre><code>GET /api/inventory/items              ✅ Allowed (no login)
+GET /api/suppliers                    ✅ Allowed (no login)
+GET /api/analytics/trends             ✅ Allowed (no login)
+
+POST /api/inventory/items             ❌ Requires ADMIN role
+PUT /api/inventory/items/123          ❌ Requires ADMIN role
+DELETE /api/inventory/items/123       ❌ Requires ADMIN role</code></pre>
+        <p><strong>Use case:</strong> Showcase the application without
+        requiring users to create accounts or log in.</p>
+        <h4 id="when-demo-mode-is-off">When Demo Mode is OFF</h4>
+        <pre><code>GET /api/inventory/items              ❌ Requires login
+GET /api/suppliers                    ❌ Requires login
+GET /api/analytics/trends             ❌ Requires login
+
+POST /api/inventory/items             ❌ Requires ADMIN role
+PUT /api/inventory/items/123          ❌ Requires ADMIN role
+DELETE /api/inventory/items/123       ❌ Requires ADMIN role</code></pre>
+        <p><strong>Use case:</strong> Production environment; all access
+        controlled.</p>
+        <hr />
+        <h2 id="how-demo-mode-is-implemented">How Demo Mode is
+        Implemented</h2>
+        <h3 id="property-binding">1. Property Binding</h3>
+        <p><code>AppProperties</code> class binds the configuration:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ConfigurationProperties</span><span class="op">(</span>prefix <span class="op">=</span> <span class="st">&quot;app&quot;</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppProperties <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">boolean</span> isDemoReadonly <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isDemoReadonly</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> isDemoReadonly<span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="dt">void</span> <span class="fu">setDemoReadonly</span><span class="op">(</span><span class="dt">boolean</span> demoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">isDemoReadonly</span> <span class="op">=</span> demoReadonly<span class="op">;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Spring loads the value</strong> from
+        <code>APP_DEMO_READONLY</code> environment variable and stores
+        it in the <code>isDemoReadonly</code> field.</p>
+        <h3 id="spel-bridge-configuration">2. SpEL Bridge
+        Configuration</h3>
+        <p>To use <code>AppProperties</code> in security annotations,
+        it’s exposed to SpEL:</p>
+        <p><strong>File:</strong>
+        <code>src/main/java/.../config/SecuritySpelBridgeConfig.java</code></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecuritySpelBridgeConfig <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Bean</span><span class="op">(</span><span class="st">&quot;appProperties&quot;</span><span class="op">)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Primary</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> AppProperties <span class="fu">appPropertiesPrimary</span><span class="op">(</span>AppProperties props<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> props<span class="op">;</span>  <span class="co">// Alias for SpEL access</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p>This allows security expressions to reference
+        <code>@appProperties</code>.</p>
+        <h3 id="authorization-configuration">3. Authorization
+        Configuration</h3>
+        <p><code>SecurityConfig</code> uses demo mode flag when building
+        filter chain:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@EnableWebSecurity</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">@EnableMethodSecurity</span><span class="op">(</span>prePostEnabled <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityConfig <span class="op">{</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Bean</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> SecurityFilterChain <span class="fu">securityFilterChain</span><span class="op">(</span>HttpSecurity http<span class="op">,</span> AppProperties props<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">authorizeHttpRequests</span><span class="op">(</span>config <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Demo mode: allow read without login</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>props<span class="op">.</span><span class="fu">isDemoReadonly</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/analytics/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">});</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="method-level-security">4. Method-Level Security</h3>
+        <p>Alternatively, can use SpEL in method annotations:</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemService <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Transactional</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) || @appProperties.isDemoReadonly()&quot;</span><span class="op">)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteItem</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Allow ADMIN or if demo mode is ON</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="profile-specific-demo-mode">Profile-Specific Demo
+        Mode</h2>
+        <h3 id="default-local-development">Default (Local
+        Development)</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> ${APP_DEMO_READONLY:true}</span><span class="co">  # ON by default</span></span></code></pre></div>
+        <p><strong>Useful for:</strong> Local testing, easy first-time
+        experience.</p>
+        <h3 id="production-fly.io">Production (Fly.io)</h3>
+        <p><strong>File:</strong> <code>fly.toml</code></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">APP_DEMO_READONLY</span> <span class="op">=</span> <span class="st">&quot;true&quot;</span>              <span class="co"># Still ON in Fly demo</span></span></code></pre></div>
+        <p>Can toggle for production environment:</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fly</span> secrets set APP_DEMO_READONLY=<span class="st">&quot;false&quot;</span>  <span class="co"># Turn off demo mode</span></span></code></pre></div>
+        <h3 id="test-profile">Test Profile</h3>
+        <p>No special handling; tests can override:</p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span><span class="op">(</span>properties <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;app.demo-readonly=true&quot;</span><span class="op">,</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;app.frontend.base-url=http://localhost:3000&quot;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="op">})</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> DemoModeSecurityTest <span class="op">{</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Test</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> <span class="fu">testDemoModeReadOnlyAccess</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test anonymous GET access</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="other-application-properties">Other Application
+        Properties</h2>
+        <p>Beyond demo mode, <code>AppProperties</code> also
+        manages:</p>
+        <h3 id="frontend-url-configuration">Frontend URL
+        Configuration</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="kw">class</span> Frontend <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="bu">String</span> baseUrl <span class="op">=</span> <span class="st">&quot;http://localhost:8081&quot;</span><span class="op">;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="bu">String</span> landingPath <span class="op">=</span> <span class="st">&quot;/auth&quot;</span><span class="op">;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Used for:</strong> - OAuth2 redirect URIs - CORS
+        configuration - Post-login navigation</p>
+        <p><strong>Configuration:</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">frontend</span><span class="kw">:</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base-url</span><span class="kw">:</span><span class="at"> ${APP_FRONTEND_BASE_URL:https://localhost:5173}</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">landing-path</span><span class="kw">:</span><span class="at"> /auth</span></span></code></pre></div>
+        <p><strong>Examples:</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Local development</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">APP_FRONTEND_BASE_URL</span><span class="op">=</span><span class="st">&quot;http://localhost:5173&quot;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Production (Fly.io)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">APP_FRONTEND_BASE_URL</span><span class="op">=</span><span class="st">&quot;https://inventoryservice-ui.fly.dev&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="future-feature-flags-pattern">Future Feature Flags
+        Pattern</h2>
+        <p>To add more feature flags following the same pattern:</p>
+        <h3 id="add-property">1. Add Property</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ConfigurationProperties</span><span class="op">(</span>prefix <span class="op">=</span> <span class="st">&quot;app&quot;</span><span class="op">)</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppProperties <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">boolean</span> isDemoReadonly <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">boolean</span> featureAdvancedAnalytics <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>  <span class="co">// New flag</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">boolean</span> featureBulkUpload <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>         <span class="co">// New flag</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isFeatureAdvancedAnalytics</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> featureAdvancedAnalytics<span class="op">;</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="add-yaml-configuration">2. Add YAML Configuration</h3>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> ${APP_DEMO_READONLY:true}</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">feature-advanced-analytics</span><span class="kw">:</span><span class="at"> ${FEATURE_ADVANCED_ANALYTICS:true}</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">feature-bulk-upload</span><span class="kw">:</span><span class="at"> ${FEATURE_BULK_UPLOAD:false}</span></span></code></pre></div>
+        <h3 id="use-in-code">3. Use in Code</h3>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/analytics&quot;</span><span class="op">)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AnalyticsController <span class="op">{</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Autowired</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> AppProperties appProperties<span class="op">;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/advanced&quot;</span><span class="op">)</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">getAdvancedAnalytics</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>appProperties<span class="op">.</span><span class="fu">isFeatureAdvancedAnalytics</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>      <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">FeatureNotEnabledException</span><span class="op">(</span><span class="st">&quot;Advanced analytics not available&quot;</span><span class="op">);</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... return analytics</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p>Or with SpEL:</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;@appProperties.isFeatureAdvancedAnalytics()&quot;</span><span class="op">)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/advanced&quot;</span><span class="op">)</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">getAdvancedAnalytics</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ...</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-feature-flags">Testing Feature Flags</h2>
+        <h3 id="unit-test-with-feature-off">Unit Test with Feature
+        Off</h3>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span><span class="op">(</span>properties <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;app.demo-readonly=false&quot;</span><span class="op">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;app.feature-advanced-analytics=false&quot;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="op">})</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> FeatureFlagsTest <span class="op">{</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Autowired</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> AnalyticsController controller<span class="op">;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Test</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> <span class="fu">testAdvancedAnalyticsDisabled</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThrows</span><span class="op">(</span>FeatureNotEnabledException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>      controller<span class="op">.</span><span class="fu">getAdvancedAnalytics</span><span class="op">();</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">});</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="mock-feature-flag">Mock Feature Flag</h3>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> FeatureFlagsTest <span class="op">{</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">@MockBean</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> AppProperties appProperties<span class="op">;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Test</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> <span class="fu">testFeatureToggleOn</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">when</span><span class="op">(</span>appProperties<span class="op">.</span><span class="fu">isFeatureAdvancedAnalytics</span><span class="op">()).</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test with feature enabled</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Test</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> <span class="fu">testFeatureToggleOff</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">when</span><span class="op">(</span>appProperties<span class="op">.</span><span class="fu">isFeatureAdvancedAnalytics</span><span class="op">()).</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">false</span><span class="op">);</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test with feature disabled</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="admin-email-allow-list">Admin Email Allow-List</h2>
+        <p>Another feature-like configuration stored in environment
+        variables:</p>
+        <p><strong>Environment variable:</strong>
+        <code>APP_ADMIN_EMAILS</code> (comma-separated)</p>
+        <p><strong>Example:</strong></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">APP_ADMIN_EMAILS</span><span class="op">=</span><span class="st">&quot;admin@company.com,manager@company.com&quot;</span></span></code></pre></div>
+        <p>Used in OAuth2 success handler to assign ADMIN role:</p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OAuth2LoginSuccessHandler <span class="op">{</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Value</span><span class="op">(</span><span class="st">&quot;${app.admin-emails:}&quot;</span><span class="op">)</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="bu">String</span> adminEmails<span class="op">;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="dt">void</span> <span class="fu">onAuthenticationSuccess</span><span class="op">(</span>OAuth2User user<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email <span class="op">=</span> <span class="op">(</span><span class="bu">String</span><span class="op">)</span> user<span class="op">.</span><span class="fu">getAttributes</span><span class="op">().</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>adminEmails<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>email<span class="op">.</span><span class="fu">toLowerCase</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Grant ADMIN role</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="summary-demo-mode-feature-flags">Summary: Demo Mode
+        &amp; Feature Flags</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Primary Feature Flag</strong></td>
+        <td>Demo mode (<code>app.demo-readonly</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Default</strong></td>
+        <td>ON (<code>true</code>) in all profiles</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Environment Variable</strong></td>
+        <td><code>APP_DEMO_READONLY</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Controlled By</strong></td>
+        <td><code>AppProperties</code> class</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Used In</strong></td>
+        <td><code>SecurityConfig</code> and <code>@PreAuthorize</code>
+        annotations</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Access Pattern</strong></td>
+        <td><code>@appProperties.isDemoReadonly()</code> (SpEL)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Impact</strong></td>
+        <td>Allows GET requests without login when ON</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Production Default</strong></td>
+        <td>ON (can be disabled with env var)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Testing</strong></td>
+        <td>Overridable via <code>@SpringBootTest</code> properties</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Config Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

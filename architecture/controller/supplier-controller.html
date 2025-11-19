@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+controller/supplier-controller · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#supplier-controller"
+        id="toc-supplier-controller">Supplier Controller</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#endpoint-reference"
+        id="toc-endpoint-reference">Endpoint Reference</a></li>
+        <li><a href="#get-apisuppliers" id="toc-get-apisuppliers">GET
+        /api/suppliers</a>
+        <ul>
+        <li><a href="#request" id="toc-request">Request</a></li>
+        <li><a href="#authorization"
+        id="toc-authorization">Authorization</a></li>
+        <li><a href="#response-200-ok" id="toc-response-200-ok">Response
+        (200 OK)</a></li>
+        <li><a href="#notes" id="toc-notes">Notes</a></li>
+        </ul></li>
+        <li><a href="#get-apisuppliersid"
+        id="toc-get-apisuppliersid">GET /api/suppliers/{id}</a>
+        <ul>
+        <li><a href="#request-1" id="toc-request-1">Request</a></li>
+        <li><a href="#authorization-1"
+        id="toc-authorization-1">Authorization</a></li>
+        <li><a href="#path-parameters" id="toc-path-parameters">Path
+        Parameters</a></li>
+        <li><a href="#response-200-ok-1"
+        id="toc-response-200-ok-1">Response (200 OK)</a></li>
+        <li><a href="#error-response-404-not-found"
+        id="toc-error-response-404-not-found">Error Response (404 Not
+        Found)</a></li>
+        </ul></li>
+        <li><a href="#get-apisupplierscount"
+        id="toc-get-apisupplierscount">GET /api/suppliers/count</a>
+        <ul>
+        <li><a href="#request-2" id="toc-request-2">Request</a></li>
+        <li><a href="#authorization-2"
+        id="toc-authorization-2">Authorization</a></li>
+        <li><a href="#response-200-ok-2"
+        id="toc-response-200-ok-2">Response (200 OK)</a></li>
+        </ul></li>
+        <li><a href="#get-apisupplierssearch"
+        id="toc-get-apisupplierssearch">GET /api/suppliers/search</a>
+        <ul>
+        <li><a href="#request-3" id="toc-request-3">Request</a></li>
+        <li><a href="#authorization-3"
+        id="toc-authorization-3">Authorization</a></li>
+        <li><a href="#query-parameters" id="toc-query-parameters">Query
+        Parameters</a></li>
+        <li><a href="#response-200-ok-3"
+        id="toc-response-200-ok-3">Response (200 OK)</a></li>
+        <li><a href="#notes-1" id="toc-notes-1">Notes</a></li>
+        </ul></li>
+        <li><a href="#post-apisuppliers" id="toc-post-apisuppliers">POST
+        /api/suppliers</a>
+        <ul>
+        <li><a href="#request-4" id="toc-request-4">Request</a></li>
+        <li><a href="#authorization-4"
+        id="toc-authorization-4">Authorization</a></li>
+        <li><a href="#request-body" id="toc-request-body">Request
+        Body</a></li>
+        <li><a href="#validation-rules"
+        id="toc-validation-rules">Validation Rules</a></li>
+        <li><a href="#response-201-created"
+        id="toc-response-201-created">Response (201 Created)</a></li>
+        <li><a href="#error-response-400-bad-request"
+        id="toc-error-response-400-bad-request">Error Response (400 Bad
+        Request)</a></li>
+        </ul></li>
+        <li><a href="#put-apisuppliersid"
+        id="toc-put-apisuppliersid">PUT /api/suppliers/{id}</a>
+        <ul>
+        <li><a href="#request-5" id="toc-request-5">Request</a></li>
+        <li><a href="#authorization-5"
+        id="toc-authorization-5">Authorization</a></li>
+        <li><a href="#path-parameters-1" id="toc-path-parameters-1">Path
+        Parameters</a></li>
+        <li><a href="#request-body-1" id="toc-request-body-1">Request
+        Body</a></li>
+        <li><a href="#response-200-ok-4"
+        id="toc-response-200-ok-4">Response (200 OK)</a></li>
+        </ul></li>
+        <li><a href="#delete-apisuppliersid"
+        id="toc-delete-apisuppliersid">DELETE /api/suppliers/{id}</a>
+        <ul>
+        <li><a href="#request-6" id="toc-request-6">Request</a></li>
+        <li><a href="#authorization-6"
+        id="toc-authorization-6">Authorization</a></li>
+        <li><a href="#path-parameters-2" id="toc-path-parameters-2">Path
+        Parameters</a></li>
+        <li><a href="#response-204-no-content"
+        id="toc-response-204-no-content">Response (204 No
+        Content)</a></li>
+        <li><a href="#notes-2" id="toc-notes-2">Notes</a></li>
+        </ul></li>
+        <li><a href="#dtos" id="toc-dtos">DTOs</a>
+        <ul>
+        <li><a href="#supplierdto"
+        id="toc-supplierdto">SupplierDTO</a></li>
+        </ul></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#service-integration"
+        id="toc-service-integration">Service Integration</a></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+        <h1 id="supplier-controller">Supplier Controller</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The <code>SupplierController</code> handles CRUD operations
+        for supplier management. Suppliers are vendors from which
+        inventory is purchased.</p>
+        <p><strong>Package:</strong>
+        <code>com.smartsupplypro.inventory.controller</code><br />
+        <strong>Base Path:</strong> <code>/api/suppliers</code><br />
+        <strong>Service:</strong> <code>SupplierService</code><br />
+        <strong>Entity:</strong> <code>Supplier</code> → DTO:
+        <code>SupplierDTO</code></p>
+        <hr />
+        <h2 id="endpoint-reference">Endpoint Reference</h2>
+        <div class="mermaid">
+        graph LR
+            A["SupplierController"]
+            
+            A --> B["GET /suppliers"]
+            A --> C["GET /suppliers/{id}"]
+            A --> D["GET /suppliers/count"]
+            A --> E["GET /suppliers/search"]
+            A --> F["POST /suppliers"]
+            A --> G["PUT /suppliers/{id}"]
+            A --> H["DELETE /suppliers/{id}"]
+            
+            B --> B1["List all suppliers"]
+            C --> C1["Get by ID"]
+            D --> D1["Total count"]
+            E --> E1["Search by name"]
+            F --> F1["Create new"]
+            G --> G1["Update"]
+            H --> H1["Delete"]
+            
+            style A fill:#e8f5e9
+            style B fill:#c8e6c9
+            style C fill:#c8e6c9
+            style F fill:#fff9c4
+            style G fill:#fff9c4
+            style H fill:#ffccbc
+        </div>
+        <hr />
+        <h2 id="get-apisuppliers">GET /api/suppliers</h2>
+        <p><strong>List all suppliers</strong></p>
+        <h3 id="request">Request</h3>
+        <pre><code>GET /api/suppliers
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h3 id="authorization">Authorization</h3>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <ul>
+        <li>✅ Public in demo mode</li>
+        <li>✅ Any authenticated user</li>
+        <li>❌ Anonymous (unless demo mode)</li>
+        </ul>
+        <h3 id="response-200-ok">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Smith&quot;</span><span class="fu">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;phone&quot;</span><span class="fu">:</span> <span class="st">&quot;555-1234&quot;</span><span class="fu">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;contact@acme.com&quot;</span><span class="fu">,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;address&quot;</span><span class="fu">:</span> <span class="st">&quot;123 Main St, New York, NY&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-002&quot;</span><span class="fu">,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Global Supplies&quot;</span><span class="fu">,</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="st">&quot;Jane Doe&quot;</span><span class="fu">,</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;phone&quot;</span><span class="fu">:</span> <span class="st">&quot;555-5678&quot;</span><span class="fu">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;orders@globalsupplies.com&quot;</span><span class="fu">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;address&quot;</span><span class="fu">:</span> <span class="st">&quot;456 Oak Ave, Los Angeles, CA&quot;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h3 id="notes">Notes</h3>
+        <ul>
+        <li>Returns <strong>non-paginated list</strong> (all
+        suppliers)</li>
+        <li>Use <code>/search</code> endpoint for pagination</li>
+        <li>See <code>SupplierService.findAll()</code></li>
+        </ul>
+        <hr />
+        <h2 id="get-apisuppliersid">GET /api/suppliers/{id}</h2>
+        <p><strong>Get single supplier by ID</strong></p>
+        <h3 id="request-1">Request</h3>
+        <pre><code>GET /api/suppliers/SUP-001
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <h3 id="authorization-1">Authorization</h3>
+        <p><code>@PreAuthorize("isAuthenticated()")</code></p>
+        <ul>
+        <li>✅ Authenticated users</li>
+        <li>❌ Demo mode (read-only, not allowed)</li>
+        </ul>
+        <h3 id="path-parameters">Path Parameters</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>id</code></td>
+        <td>String</td>
+        <td>Supplier unique identifier</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="response-200-ok-1">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Smith&quot;</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phone&quot;</span><span class="fu">:</span> <span class="st">&quot;555-1234&quot;</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;contact@acme.com&quot;</span><span class="fu">,</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;address&quot;</span><span class="fu">:</span> <span class="st">&quot;123 Main St, New York, NY&quot;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="error-response-404-not-found">Error Response (404 Not
+        Found)</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Not Found&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier not found: SUP-999&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">404</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="get-apisupplierscount">GET /api/suppliers/count</h2>
+        <p><strong>Get total supplier count</strong></p>
+        <h3 id="request-2">Request</h3>
+        <pre><code>GET /api/suppliers/count
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h3 id="authorization-2">Authorization</h3>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h3 id="response-200-ok-2">Response (200 OK)</h3>
+        <pre><code>42</code></pre>
+        <p>Plain number response, no JSON wrapper.</p>
+        <hr />
+        <h2 id="get-apisupplierssearch">GET /api/suppliers/search</h2>
+        <p><strong>Search suppliers by name</strong></p>
+        <h3 id="request-3">Request</h3>
+        <pre><code>GET /api/suppliers/search?name=acme
+Authorization: Bearer &lt;token&gt; (optional in demo mode)</code></pre>
+        <h3 id="authorization-3">Authorization</h3>
+        <p><code>@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")</code></p>
+        <h3 id="query-parameters">Query Parameters</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>name</code></td>
+        <td>String</td>
+        <td>Yes</td>
+        <td>Partial name to search (case-insensitive)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="response-200-ok-3">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Smith&quot;</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="er">...</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h3 id="notes-1">Notes</h3>
+        <ul>
+        <li>Substring match (e.g., “acme” matches “ACME Corp”)</li>
+        <li>Case-insensitive</li>
+        <li>Returns <strong>non-paginated list</strong></li>
+        </ul>
+        <hr />
+        <h2 id="post-apisuppliers">POST /api/suppliers</h2>
+        <p><strong>Create new supplier</strong></p>
+        <h3 id="request-4">Request</h3>
+        <pre><code>POST /api/suppliers
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;New Supplier Inc&quot;,
+  &quot;contactName&quot;: &quot;Manager Name&quot;,
+  &quot;phone&quot;: &quot;555-9999&quot;,
+  &quot;email&quot;: &quot;manager@newsupplier.com&quot;,
+  &quot;address&quot;: &quot;789 Pine St, Chicago, IL&quot;
+}</code></pre>
+        <h3 id="authorization-4">Authorization</h3>
+        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <ul>
+        <li>✅ ADMIN users only</li>
+        <li>❌ Regular users</li>
+        <li>❌ Demo mode</li>
+        </ul>
+        <h3 id="request-body">Request Body</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name must not be null&quot;</span><span class="op">)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name must not be blank&quot;</span><span class="op">)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Contact name must not be null&quot;</span><span class="op">)</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> phone<span class="op">;</span>      <span class="co">// Optional</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> email<span class="op">;</span>      <span class="co">// Optional</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> address<span class="op">;</span>    <span class="co">// Optional</span></span></code></pre></div>
+        <h3 id="validation-rules">Validation Rules</h3>
+        <ul>
+        <li><code>name</code>: Required, non-blank</li>
+        <li><code>contactName</code>: Required, non-null</li>
+        <li><code>id</code>: Must be <strong>null</strong> (server
+        generates ID)</li>
+        </ul>
+        <h3 id="response-201-created">Response (201 Created)</h3>
+        <pre><code>Location: /api/suppliers/SUP-1234
+Content-Type: application/json
+
+{
+  &quot;id&quot;: &quot;SUP-1234&quot;,
+  &quot;name&quot;: &quot;New Supplier Inc&quot;,
+  &quot;contactName&quot;: &quot;Manager Name&quot;,
+  &quot;phone&quot;: &quot;555-9999&quot;,
+  &quot;email&quot;: &quot;manager@newsupplier.com&quot;,
+  &quot;address&quot;: &quot;789 Pine St, Chicago, IL&quot;
+}</code></pre>
+        <h3 id="error-response-400-bad-request">Error Response (400 Bad
+        Request)</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Bad Request&quot;</span><span class="fu">,</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;ID must be null on create&quot;</span><span class="fu">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">400</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="put-apisuppliersid">PUT /api/suppliers/{id}</h2>
+        <p><strong>Update supplier</strong></p>
+        <h3 id="request-5">Request</h3>
+        <pre><code>PUT /api/suppliers/SUP-001
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  &quot;id&quot;: &quot;SUP-001&quot;,
+  &quot;name&quot;: &quot;ACME Corp (Updated)&quot;,
+  &quot;contactName&quot;: &quot;John Smith&quot;,
+  &quot;phone&quot;: &quot;555-1111&quot;,
+  &quot;email&quot;: &quot;newemail@acme.com&quot;,
+  &quot;address&quot;: &quot;789 Main St, New York, NY&quot;
+}</code></pre>
+        <h3 id="authorization-5">Authorization</h3>
+        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <h3 id="path-parameters-1">Path Parameters</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>id</code></td>
+        <td>String</td>
+        <td>Supplier ID to update</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="request-body-1">Request Body</h3>
+        <p>All fields required (full replacement):</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;ID must not be null&quot;</span><span class="op">)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name must not be null&quot;</span><span class="op">)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name must not be blank&quot;</span><span class="op">)</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> phone<span class="op">;</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> email<span class="op">;</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> address<span class="op">;</span></span></code></pre></div>
+        <h3 id="response-200-ok-4">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp (Updated)&quot;</span><span class="fu">,</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Smith&quot;</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phone&quot;</span><span class="fu">:</span> <span class="st">&quot;555-1111&quot;</span><span class="fu">,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;newemail@acme.com&quot;</span><span class="fu">,</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;address&quot;</span><span class="fu">:</span> <span class="st">&quot;789 Main St, New York, NY&quot;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="delete-apisuppliersid">DELETE /api/suppliers/{id}</h2>
+        <p><strong>Delete supplier</strong></p>
+        <h3 id="request-6">Request</h3>
+        <pre><code>DELETE /api/suppliers/SUP-001
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <h3 id="authorization-6">Authorization</h3>
+        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <h3 id="path-parameters-2">Path Parameters</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>id</code></td>
+        <td>String</td>
+        <td>Supplier ID to delete</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="response-204-no-content">Response (204 No Content)</h3>
+        <pre><code>(empty body)</code></pre>
+        <h3 id="notes-2">Notes</h3>
+        <ul>
+        <li>No response body</li>
+        <li>Cascading behavior: Depends on database constraints</li>
+        <li>Associated inventory items may be affected</li>
+        </ul>
+        <hr />
+        <h2 id="dtos">DTOs</h2>
+        <h3 id="supplierdto">SupplierDTO</h3>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">SupplierDTO</span><span class="op">(</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> id<span class="op">,</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> name<span class="op">,</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> contactName<span class="op">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> phone<span class="op">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email<span class="op">,</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> address</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span></code></pre></div>
+        <p><strong>Mapping:</strong> - Request: JSON →
+        <code>SupplierDTO</code> - Response: <code>Supplier</code>
+        entity → <code>SupplierDTO</code></p>
+        <hr />
+        <h2 id="testing">Testing</h2>
+        <p><strong>Location:</strong>
+        <code>src/test/java/.../controller/supplier/</code></p>
+        <p><strong>Test Classes:</strong> -
+        <code>SupplierControllerTest</code> — CRUD operations -
+        Integration tests with MockMvc</p>
+        <p><strong>Coverage:</strong> - ✅ Happy path (201, 200) - ✅
+        Not found (404) - ✅ Unauthorized (401) - ✅ Forbidden (403) -
+        ✅ Validation errors (400)</p>
+        <hr />
+        <h2 id="service-integration">Service Integration</h2>
+        <div class="mermaid">
+        graph LR
+            A["SupplierController"]
+            B["SupplierService"]
+            C["SupplierRepository"]
+            D["Supplier Entity"]
+            
+            A -->|findAll| B
+            A -->|findById| B
+            A -->|create| B
+            A -->|update| B
+            A -->|delete| B
+            
+            B -->|repository.findAll| C
+            B -->|repository.findById| C
+            B -->|repository.save| C
+            B -->|mapper.toEntity| D
+            
+            C -->|JPA| D
+            
+            style A fill:#e8f5e9
+            style B fill:#e3f2fd
+            style C fill:#f3e5f5
+            style D fill:#fff3e0
+        </div>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Base path</strong></td>
+        <td><code>/api/suppliers</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Operations</strong></td>
+        <td>List, Get, Create, Update, Delete, Search, Count</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authorization</strong></td>
+        <td>USER (read), ADMIN (write)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Demo mode</strong></td>
+        <td>Read-only access allowed</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>DTO</strong></td>
+        <td><code>SupplierDTO</code> (immutable record)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Entity</strong></td>
+        <td><code>Supplier</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Service</strong></td>
+        <td><code>SupplierService</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Tests</strong></td>
+        <td><code>src/test/java/.../controller/supplier/</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

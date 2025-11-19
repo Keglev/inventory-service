@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/repository/query-execution · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#query-execution-flow"
+        id="toc-query-execution-flow">Query Execution Flow</a>
+        <ul>
+        <li><a href="#complete-execution-pipeline"
+        id="toc-complete-execution-pipeline">Complete Execution
+        Pipeline</a></li>
+        <li><a href="#step-by-step-breakdown"
+        id="toc-step-by-step-breakdown">Step-by-Step Breakdown</a>
+        <ul>
+        <li><a href="#service-calls-repository"
+        id="toc-service-calls-repository">1. Service Calls
+        Repository</a></li>
+        <li><a href="#repository-interface"
+        id="toc-repository-interface">2. Repository Interface</a></li>
+        <li><a href="#spring-data-jpa-proxy"
+        id="toc-spring-data-jpa-proxy">3. Spring Data JPA Proxy</a></li>
+        <li><a href="#hibernate-translation"
+        id="toc-hibernate-translation">4. Hibernate Translation</a></li>
+        <li><a href="#database-execution" id="toc-database-execution">5.
+        Database Execution</a></li>
+        <li><a href="#result-mapping" id="toc-result-mapping">6. Result
+        Mapping</a></li>
+        <li><a href="#return-to-service" id="toc-return-to-service">7.
+        Return to Service</a></li>
+        </ul></li>
+        <li><a href="#query-caching" id="toc-query-caching">Query
+        Caching</a>
+        <ul>
+        <li><a href="#l1-cache-sessionentitymanager"
+        id="toc-l1-cache-sessionentitymanager">L1 Cache
+        (Session/EntityManager)</a></li>
+        <li><a href="#l2-cache-configurable"
+        id="toc-l2-cache-configurable">L2 Cache (Configurable)</a></li>
+        <li><a href="#query-result-cache"
+        id="toc-query-result-cache">Query Result Cache</a></li>
+        </ul></li>
+        <li><a href="#transaction-boundaries"
+        id="toc-transaction-boundaries">Transaction Boundaries</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="query-execution-flow">Query Execution Flow</h1>
+        <h2 id="complete-execution-pipeline">Complete Execution
+        Pipeline</h2>
+        <div class="mermaid">
+        graph TB
+            Service["Service Layer<br/>Calls repository.findById(id)"]
+            Repository["Repository Interface<br/>No implementation"]
+            Proxy["Spring Data JPA<br/>Generates Proxy"]
+            Hibernate["Hibernate<br/>Translates to SQL"]
+            SQL["SELECT * FROM INVENTORY_ITEM WHERE ID = ?"]
+            Database["PostgreSQL/Oracle<br/>Database"]
+            ResultSet["Result Set<br/>from Database"]
+            Mapping["Hibernate<br/>Maps to Entity Object"]
+            Cache["Check Cache<br/>First"]
+            Return["Return Entity<br/>or Optional.empty()"]
+
+            Service --> Repository
+            Repository --> Proxy
+            Proxy --> Cache
+            Cache -->|Not Found| Hibernate
+            Hibernate --> SQL
+            SQL --> Database
+            Database --> ResultSet
+            ResultSet --> Mapping
+            Mapping --> Return
+            Cache -->|Found| Return
+
+            style Service fill:#42a5f5
+            style Repository fill:#1976d2
+            style Proxy fill:#0d47a1
+            style Hibernate fill:#1565c0
+            style SQL fill:#0277bd
+            style Database fill:#0277bd
+            style Cache fill:#a5d6a7
+        </div>
+        <h2 id="step-by-step-breakdown">Step-by-Step Breakdown</h2>
+        <h3 id="service-calls-repository">1. Service Calls
+        Repository</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemServiceImpl <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItemRepository repository<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> InventoryItemDTO <span class="fu">findById</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        Optional<span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> item <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> item<span class="op">.</span><span class="fu">map</span><span class="op">(</span>mapper<span class="op">::</span>toDTO<span class="op">).</span><span class="fu">orElseThrow</span><span class="op">(</span><span class="kw">...</span><span class="op">);</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="repository-interface">2. Repository Interface</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Repository</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> InventoryItemRepository <span class="kw">extends</span> JpaRepository<span class="op">&lt;</span>InventoryItem<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No implementation - Spring Data provides it</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="spring-data-jpa-proxy">3. Spring Data JPA Proxy</h3>
+        <p>Spring Data JPA creates a proxy at runtime that: - Intercepts
+        method calls - Parses method names - Generates appropriate SQL -
+        Manages transactions</p>
+        <h3 id="hibernate-translation">4. Hibernate Translation</h3>
+        <p>Hibernate converts to database-specific SQL:</p>
+        <pre><code>Method: findById(&quot;item-123&quot;)
+↓
+Derived Query: SELECT * FROM INVENTORY_ITEM WHERE ID = ?
+↓
+Prepared Statement: SELECT * FROM INVENTORY_ITEM WHERE ID = ?</code></pre>
+        <h3 id="database-execution">5. Database Execution</h3>
+        <p>PostgreSQL/Oracle executes SQL and returns result set:</p>
+        <pre><code>SELECT * FROM INVENTORY_ITEM WHERE ID = &#39;item-123&#39;
+→ Returns 1 row with columns: ID, NAME, QUANTITY, SUPPLIER_ID, etc.</code></pre>
+        <h3 id="result-mapping">6. Result Mapping</h3>
+        <p>Hibernate maps ResultSet columns to entity fields:</p>
+        <pre><code>ResultSet {
+  ID: &quot;item-123&quot;
+  NAME: &quot;Component A&quot;
+  QUANTITY: 100
+  SUPPLIER_ID: &quot;supplier-1&quot;
+  ...
+}
+↓
+InventoryItem {
+  id: &quot;item-123&quot;
+  name: &quot;Component A&quot;
+  quantity: 100
+  supplier: Supplier(id=&quot;supplier-1&quot;)
+  ...
+}</code></pre>
+        <h3 id="return-to-service">7. Return to Service</h3>
+        <p>Entity returned as Optional, service unwraps:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> item <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>InventoryItem entity <span class="op">=</span> item<span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(</span><span class="kw">...</span><span class="op">);</span></span></code></pre></div>
+        <h2 id="query-caching">Query Caching</h2>
+        <p>Queries may be cached at multiple levels:</p>
+        <h3 id="l1-cache-sessionentitymanager">L1 Cache
+        (Session/EntityManager)</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span>  <span class="co">// Single persistence context</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemServiceImpl <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> InventoryItemDTO <span class="fu">getSameItemTwice</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        InventoryItem first <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Same query returns from L1 cache, no database hit</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        InventoryItem second <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>first<span class="op">);</span>  <span class="co">// Objects are same instance</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="l2-cache-configurable">L2 Cache (Configurable)</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Cacheable</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">@org</span><span class="op">.</span><span class="fu">hibernate</span><span class="op">.</span><span class="fu">annotations</span><span class="op">.</span><span class="fu">Cache</span><span class="op">(</span>usage <span class="op">=</span> CacheConcurrencyStrategy<span class="op">.</span><span class="fu">READ_ONLY</span><span class="op">)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Cached across sessions</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="query-result-cache">Query Result Cache</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@NamedQuery</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;Supplier.findByName&quot;</span><span class="op">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    query <span class="op">=</span> <span class="st">&quot;SELECT s FROM Supplier s WHERE s.name = :name&quot;</span><span class="op">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    hints <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">@QueryHint</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;org.hibernate.cacheable&quot;</span><span class="op">,</span> value <span class="op">=</span> <span class="st">&quot;true&quot;</span><span class="op">)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">})</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div>
+        <h2 id="transaction-boundaries">Transaction Boundaries</h2>
+        <p>Queries execute within transaction context:</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemServiceImpl <span class="op">{</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> InventoryItemRepository repository<span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span><span class="op">(</span>readOnly <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">findAll</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Transaction starts</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">();</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Lazy relationships can still load here</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Transaction commits</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> items<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">map</span><span class="op">(</span>mapper<span class="op">::</span>toDTO<span class="op">)</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">collect</span><span class="op">(</span><span class="fu">toList</span><span class="op">());</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span>  <span class="co">// Write transaction</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> InventoryItemDTO <span class="fu">create</span><span class="op">(</span>CreateInventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Transaction starts</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        InventoryItem item <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        InventoryItem saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>item<span class="op">);</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Transaction commits, changes persisted</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

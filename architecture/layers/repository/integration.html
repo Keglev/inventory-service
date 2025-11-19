@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/repository/integration · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#integration-with-other-layers"
+        id="toc-integration-with-other-layers">Integration with Other
+        Layers</a>
+        <ul>
+        <li><a href="#layer-architecture"
+        id="toc-layer-architecture">Layer Architecture</a></li>
+        <li><a href="#key-integration-points"
+        id="toc-key-integration-points">Key Integration Points</a>
+        <ul>
+        <li><a href="#service-calls-repository"
+        id="toc-service-calls-repository">1. Service Calls
+        Repository</a></li>
+        <li><a href="#repository-abstraction"
+        id="toc-repository-abstraction">2. Repository
+        Abstraction</a></li>
+        <li><a href="#entity-management" id="toc-entity-management">3.
+        Entity Management</a></li>
+        <li><a href="#transaction-boundaries"
+        id="toc-transaction-boundaries">4. Transaction
+        Boundaries</a></li>
+        <li><a href="#exception-handling" id="toc-exception-handling">5.
+        Exception Handling</a></li>
+        </ul></li>
+        <li><a href="#complete-flow-example"
+        id="toc-complete-flow-example">Complete Flow Example</a>
+        <ul>
+        <li><a href="#create-supplier-request"
+        id="toc-create-supplier-request">Create Supplier
+        Request</a></li>
+        <li><a href="#search-suppliers-request"
+        id="toc-search-suppliers-request">Search Suppliers
+        Request</a></li>
+        </ul></li>
+        <li><a href="#data-flow-diagram" id="toc-data-flow-diagram">Data
+        Flow Diagram</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="integration-with-other-layers">Integration with Other
+        Layers</h1>
+        <h2 id="layer-architecture">Layer Architecture</h2>
+        <pre><code>┌──────────────────────────────────────┐
+│      SERVICE LAYER                   │
+│   (Business Logic, Orchestration)    │
+│  Calls repository methods            │
+│  Handles transactions                │
+│  Maps between DTOs and entities      │
+└────────────────┬─────────────────────┘
+                 │ Uses
+┌────────────────▼─────────────────────┐
+│    REPOSITORY LAYER (You are here)   │
+│   (Data Access Abstraction)          │
+│  Spring Data JPA Repositories        │
+│  Query methods (derived/custom)      │
+│  Entity management via Hibernate     │
+└────────────────┬─────────────────────┘
+                 │ Queries/Persists
+┌────────────────▼─────────────────────┐
+│      HIBERNATE ORM                   │
+│   (Object-Relational Mapping)        │
+│  Maps objects to SQL                 │
+│  Manages entity lifecycle            │
+│  Handles transactions                │
+└────────────────┬─────────────────────┘
+                 │ SQL
+┌────────────────▼─────────────────────┐
+│      DATABASE                        │
+│  PostgreSQL / Oracle                 │
+│  Stores persistent data              │
+│  Enforces constraints                │
+│  Returns result sets                 │
+└──────────────────────────────────────┘</code></pre>
+        <h2 id="key-integration-points">Key Integration Points</h2>
+        <h3 id="service-calls-repository">1. Service Calls
+        Repository</h3>
+        <p>Services inject repository interfaces and call methods:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository repository<span class="op">;</span>  <span class="co">// Injected</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Service calls repository method</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        Supplier saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="repository-abstraction">2. Repository Abstraction</h3>
+        <p>Repositories abstract database details from services:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Repository</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> SupplierRepository <span class="kw">extends</span> JpaRepository<span class="op">&lt;</span>Supplier<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Spring Data implements at runtime</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Service doesn&#39;t know about SQL or JDBC</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="entity-management">3. Entity Management</h3>
+        <p>Repositories return domain entities, not data transfer
+        objects:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">findById</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Repository returns entity</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        Supplier entity <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Not found&quot;</span><span class="op">));</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Service transforms to DTO for response</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="transaction-boundaries">4. Transaction Boundaries</h3>
+        <p>Services manage transactions, repositories execute within
+        them:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span>  <span class="co">// Transaction boundary</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemServiceImpl <span class="op">{</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> InventoryItemRepository itemRepository<span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> StockHistoryRepository historyRepository<span class="op">;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">updateStock</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">,</span> <span class="dt">int</span> newQuantity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Both operations in same transaction</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        InventoryItem item <span class="op">=</span> itemRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>itemId<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        StockHistory history <span class="op">=</span> <span class="kw">new</span> <span class="fu">StockHistory</span><span class="op">();</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        history<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(</span>newQuantity<span class="op">);</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        historyRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>history<span class="op">);</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Commits together or rolls back together</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="exception-handling">5. Exception Handling</h3>
+        <p>Repository exceptions flow through service to controller:</p>
+        <pre><code>Repository throws DataAccessException
+  ↓
+Service catches or rethrows
+  ↓
+GlobalExceptionHandler translates to HTTP response
+  ↓
+Controller returns error to client</code></pre>
+        <h2 id="complete-flow-example">Complete Flow Example</h2>
+        <h3 id="create-supplier-request">Create Supplier Request</h3>
+        <pre><code>1. HTTP POST /api/suppliers
+   {&quot;name&quot;: &quot;ACME Corp&quot;, &quot;contactName&quot;: &quot;John Doe&quot;}
+   
+2. SupplierController.create(CreateSupplierDTO)
+   
+3. SupplierService.create(CreateSupplierDTO)
+   ├─ Validate input
+   ├─ Call repository.save(entity)
+   │  └─ Spring Data JPA Proxy
+   │     └─ Hibernate
+   │        └─ SQL: INSERT INTO SUPPLIER (...)
+   │           └─ Database: SUPPLIER table
+   ├─ Receive saved entity from repository
+   └─ Return DTO to controller
+   
+4. SupplierController returns 201 Created with DTO</code></pre>
+        <h3 id="search-suppliers-request">Search Suppliers Request</h3>
+        <pre><code>1. HTTP GET /api/suppliers/search?query=acme&amp;page=0&amp;size=20
+   
+2. SupplierController.search(query, page, size)
+   
+3. SupplierService.search(query, pageable)
+   ├─ Build Pageable with sort
+   ├─ Call repository.findByNameContainingIgnoreCase(query, pageable)
+   │  └─ Spring Data JPA Proxy
+   │     └─ Derived Query Interpretation
+   │        └─ SQL: SELECT * FROM SUPPLIER 
+   │              WHERE NAME LIKE ? 
+   │              LIMIT 20 OFFSET 0
+   │           └─ Database: Execute query
+   ├─ Receive Page&lt;Supplier&gt; with results
+   ├─ Map entities to DTOs
+   └─ Return Page&lt;SupplierDTO&gt; to controller
+   
+4. SupplierController returns 200 OK with Page of DTOs</code></pre>
+        <h2 id="data-flow-diagram">Data Flow Diagram</h2>
+        <pre><code>DTO IN         Entity         DTO OUT
+  │              │              │
+  ├─────────────┐│┌────────────┤
+  │           Controller        │
+  │             │ │             │
+  └─────────────┤│┌────────────┘
+                 │
+            Service Layer
+            ├─ Validate
+            ├─ Map DTO→Entity
+            ├─ Call Repository
+            ├─ Map Entity→DTO
+            └─ Return DTO
+                 │
+        REPOSITORY LAYER
+        ├─ Find derived query
+        ├─ Spring Data JPA
+        │  generates proxy
+        ├─ Hibernate ORM
+        │  translates to SQL
+        └─ Executes query
+                 │
+            DATABASE
+            ├─ Execute SQL
+            ├─ Enforce constraints
+            └─ Return result set
+                 │
+            Hibernate Mapping
+            ├─ ResultSet→Entity
+            └─ Return Entity
+                 │
+            Service Layer
+            └─ Maps Entity→DTO
+                 │
+            Controller Response
+            └─ JSON to Client</code></pre>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

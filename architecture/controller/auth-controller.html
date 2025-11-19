@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+controller/auth-controller · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#auth-controller" id="toc-auth-controller">Auth
+        Controller</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#endpoint-reference"
+        id="toc-endpoint-reference">Endpoint Reference</a></li>
+        <li><a href="#get-apime" id="toc-get-apime">GET /api/me</a>
+        <ul>
+        <li><a href="#request" id="toc-request">Request</a></li>
+        <li><a href="#authorization"
+        id="toc-authorization">Authorization</a></li>
+        <li><a href="#response-200-ok" id="toc-response-200-ok">Response
+        (200 OK)</a></li>
+        <li><a href="#response-fields" id="toc-response-fields">Response
+        Fields</a></li>
+        <li><a href="#error-response-401-unauthorized"
+        id="toc-error-response-401-unauthorized">Error Response (401
+        Unauthorized)</a></li>
+        <li><a href="#flow-diagram" id="toc-flow-diagram">Flow
+        Diagram</a></li>
+        <li><a href="#user-role-assignment"
+        id="toc-user-role-assignment">User Role Assignment</a></li>
+        </ul></li>
+        <li><a href="#post-apilogout" id="toc-post-apilogout">POST
+        /api/logout</a>
+        <ul>
+        <li><a href="#request-1" id="toc-request-1">Request</a></li>
+        <li><a href="#authorization-1"
+        id="toc-authorization-1">Authorization</a></li>
+        <li><a href="#request-body" id="toc-request-body">Request
+        Body</a></li>
+        <li><a href="#response-200-ok-1"
+        id="toc-response-200-ok-1">Response (200 OK)</a></li>
+        <li><a href="#behind-the-scenes"
+        id="toc-behind-the-scenes">Behind the Scenes</a></li>
+        <li><a href="#client-side-handling"
+        id="toc-client-side-handling">Client-Side Handling</a></li>
+        <li><a href="#security-headers"
+        id="toc-security-headers">Security Headers</a></li>
+        </ul></li>
+        <li><a href="#dtos" id="toc-dtos">DTOs</a>
+        <ul>
+        <li><a href="#appuserprofiledto-response"
+        id="toc-appuserprofiledto-response">AppUserProfileDTO
+        (Response)</a></li>
+        </ul></li>
+        <li><a href="#oauth2-integration"
+        id="toc-oauth2-integration">OAuth2 Integration</a>
+        <ul>
+        <li><a href="#authentication-flow"
+        id="toc-authentication-flow">Authentication Flow</a></li>
+        <li><a href="#first-time-login"
+        id="toc-first-time-login">First-Time Login</a></li>
+        <li><a href="#session-management"
+        id="toc-session-management">Session Management</a></li>
+        </ul></li>
+        <li><a href="#related-endpoints"
+        id="toc-related-endpoints">Related Endpoints</a>
+        <ul>
+        <li><a href="#login-flow-automatic"
+        id="toc-login-flow-automatic">Login Flow (Automatic)</a></li>
+        <li><a href="#health-check" id="toc-health-check">Health
+        Check</a></li>
+        </ul></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#security-considerations"
+        id="toc-security-considerations">Security Considerations</a>
+        <ul>
+        <li><a href="#csrf-protection" id="toc-csrf-protection">CSRF
+        Protection</a></li>
+        <li><a href="#session-security"
+        id="toc-session-security">Session Security</a></li>
+        <li><a href="#token-expiration" id="toc-token-expiration">Token
+        Expiration</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+        <h1 id="auth-controller">Auth Controller</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The <code>AuthController</code> handles
+        authentication-related operations: retrieving the current user’s
+        profile and logout. Integration with OAuth2 (Google) is handled
+        by Spring Security; this controller provides the HTTP API for
+        OAuth2 user management.</p>
+        <p><strong>Package:</strong>
+        <code>com.smartsupplypro.inventory.controller</code><br />
+        <strong>Base Path:</strong> <code>/api</code><br />
+        <strong>Service:</strong> <code>AppUserRepository</code>, Spring
+        Security<br />
+        <strong>Entity:</strong> <code>AppUser</code></p>
+        <hr />
+        <h2 id="endpoint-reference">Endpoint Reference</h2>
+        <div class="mermaid">
+        graph LR
+            A["AuthController"]
+            
+            A --> B["GET /me"]
+            A --> C["POST /logout"]
+            
+            B --> B1["Current user profile"]
+            C --> C1["Logout & clear session"]
+            
+            style A fill:#e8f5e9
+            style B fill:#c8e6c9
+            style C fill:#fff9c4
+        </div>
+        <hr />
+        <h2 id="get-apime">GET /api/me</h2>
+        <p><strong>Get authenticated user’s profile</strong></p>
+        <h3 id="request">Request</h3>
+        <pre><code>GET /api/me
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <h3 id="authorization">Authorization</h3>
+        <p><strong>None required</strong> (endpoint is accessible to any
+        authenticated user)</p>
+        <ul>
+        <li>✅ Any authenticated user (via OAuth2)</li>
+        <li>❌ Anonymous users (returns 401)</li>
+        </ul>
+        <h3 id="response-200-ok">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;fullName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Smith&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;role&quot;</span><span class="fu">:</span> <span class="st">&quot;USER&quot;</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pictureUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;https://lh3.googleusercontent.com/a/...&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="response-fields">Response Fields</h3>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 23%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>email</code></td>
+        <td>String</td>
+        <td>User’s email address (from OAuth2 provider)</td>
+        </tr>
+        <tr class="even">
+        <td><code>fullName</code></td>
+        <td>String</td>
+        <td>Display name</td>
+        </tr>
+        <tr class="odd">
+        <td><code>role</code></td>
+        <td>String</td>
+        <td>User role (<code>USER</code> or <code>ADMIN</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>pictureUrl</code></td>
+        <td>String</td>
+        <td>Profile picture URL (optional, from OAuth2 provider)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="error-response-401-unauthorized">Error Response (401
+        Unauthorized)</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;No authentication provided&quot;</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">401</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Cause:</strong> User not authenticated or session
+        expired.</p>
+        <h3 id="flow-diagram">Flow Diagram</h3>
+        <div class="mermaid">
+        sequenceDiagram
+            Client->>+AuthController: GET /api/me
+            AuthController->>+Spring Security: Get OAuth2User principal
+            Spring Security-->>-AuthController: OAuth2User (from session/token)
+            AuthController->>+AppUserRepository: findByEmail(email)
+            AppUserRepository-->>-AuthController: AppUser entity
+            AuthController-->>-Client: AppUserProfileDTO (200)
+        </div>
+        <h3 id="user-role-assignment">User Role Assignment</h3>
+        <p>Roles are assigned based on email matching:</p>
+        <ol type="1">
+        <li>Extract email from OAuth2 provider (Google)</li>
+        <li>Look up <code>AppUser</code> by email</li>
+        <li>Check if email is in <code>APP_ADMIN_EMAILS</code>
+        environment variable</li>
+        <li>Return user’s role (ADMIN or USER)</li>
+        </ol>
+        <p><strong>Configuration:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">APP_ADMIN_EMAILS</span><span class="op">=</span><span class="st">&quot;admin@company.com,manager@company.com&quot;</span></span></code></pre></div>
+        <p>See <a
+        href="../config/feature-flags-and-demo-mode.html">Feature Flags
+        &amp; Demo Mode</a> for details.</p>
+        <hr />
+        <h2 id="post-apilogout">POST /api/logout</h2>
+        <p><strong>Logout and clear session</strong></p>
+        <h3 id="request-1">Request</h3>
+        <pre><code>POST /api/logout
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <h3 id="authorization-1">Authorization</h3>
+        <p><strong>None required</strong> (any authenticated user can
+        logout)</p>
+        <h3 id="request-body">Request Body</h3>
+        <p>None (empty body)</p>
+        <h3 id="response-200-ok-1">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Logged out successfully&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="behind-the-scenes">Behind the Scenes</h3>
+        <ol type="1">
+        <li>Spring Security clears the security context</li>
+        <li>Session cookie is invalidated</li>
+        <li>CSRF tokens are cleared</li>
+        <li>User is logged out on backend</li>
+        </ol>
+        <h3 id="client-side-handling">Client-Side Handling</h3>
+        <p>After logout, the client should:</p>
+        <ol type="1">
+        <li>Clear any cached JWT or session tokens</li>
+        <li>Redirect to login page or public page</li>
+        <li>Disable authenticated endpoints</li>
+        </ol>
+        <h3 id="security-headers">Security Headers</h3>
+        <p>Response includes cache-control headers to prevent cached
+        credentials:</p>
+        <pre><code>Cache-Control: no-cache, no-store, must-revalidate
+Pragma: no-cache
+Expires: 0</code></pre>
+        <hr />
+        <h2 id="dtos">DTOs</h2>
+        <h3 id="appuserprofiledto-response">AppUserProfileDTO
+        (Response)</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">AppUserProfileDTO</span><span class="op">(</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email<span class="op">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> fullName<span class="op">,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> role<span class="op">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> pictureUrl</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span></code></pre></div>
+        <p><strong>Immutable record</strong> — created from
+        <code>AppUser</code> entity and OAuth2 attributes.</p>
+        <hr />
+        <h2 id="oauth2-integration">OAuth2 Integration</h2>
+        <h3 id="authentication-flow">Authentication Flow</h3>
+        <div class="mermaid">
+        graph LR
+            A["Client<br/>(Browser)"]
+            B["Backend<br/>(AuthController)"]
+            C["Google<br/>(OAuth2)"]
+            D["Database<br/>(AppUserRepository)"]
+            
+            A -->|1. Redirect to /login/oauth2/code/google| B
+            B -->|2. Exchange code for token| C
+            C -->|3. Return access token| B
+            B -->|4. Fetch user info| C
+            C -->|5. Email, name, picture| B
+            B -->|6. findByEmail| D
+            D -->|7. AppUser | B
+            B -->|8. Create session/cookie| A
+            A -->|9. GET /api/me| B
+            B -->|10. AppUserProfileDTO | A
+            
+            style A fill:#fff9c4
+            style B fill:#c8e6c9
+            style C fill:#e0e0e0
+            style D fill:#f3e5f5
+        </div>
+        <h3 id="first-time-login">First-Time Login</h3>
+        <ol type="1">
+        <li>User clicks “Sign in with Google”</li>
+        <li>Redirected to Google login</li>
+        <li>User authenticates</li>
+        <li>Google redirects back with authorization code</li>
+        <li>Backend exchanges code for tokens</li>
+        <li>Backend fetches user profile (email, name, picture)</li>
+        <li><code>OAuth2LoginSuccessHandler</code> creates or updates
+        <code>AppUser</code> entity</li>
+        <li>Session is established</li>
+        <li>User is redirected to frontend</li>
+        </ol>
+        <h3 id="session-management">Session Management</h3>
+        <ul>
+        <li><strong>Cookie-based sessions</strong> (HttpOnly, Secure,
+        SameSite=None)</li>
+        <li><strong>Session store</strong>: In-memory or database
+        (configurable)</li>
+        <li><strong>TTL</strong>: Configured by Spring Security
+        (default: browser session)</li>
+        </ul>
+        <p>See <a href="../config/">Configuration</a> for OAuth2
+        settings.</p>
+        <hr />
+        <h2 id="related-endpoints">Related Endpoints</h2>
+        <h3 id="login-flow-automatic">Login Flow (Automatic)</h3>
+        <pre><code>GET /login                   → Login page
+GET /oauth2/authorization/google    → Initiate Google login
+GET /login/oauth2/code/google       → OAuth2 callback (handled by Spring)</code></pre>
+        <p><strong>These are handled by Spring Security, not by this
+        controller.</strong></p>
+        <h3 id="health-check">Health Check</h3>
+        <pre><code>GET /actuator/health        → Application health (public)</code></pre>
+        <hr />
+        <h2 id="testing">Testing</h2>
+        <p><strong>Location:</strong>
+        <code>src/test/java/.../controller/auth/</code></p>
+        <p><strong>Test Coverage:</strong> - ✅ Get profile
+        (authenticated) - ✅ Get profile without auth (401) - ✅ Logout
+        (clears session) - ✅ OAuth2User principal extraction - ✅
+        AppUser role assignment - ✅ Admin email matching</p>
+        <hr />
+        <h2 id="security-considerations">Security Considerations</h2>
+        <h3 id="csrf-protection">CSRF Protection</h3>
+        <ul>
+        <li>All POST/PUT/DELETE requests require CSRF token</li>
+        <li>Tokens are included in session cookies</li>
+        <li><code>/logout</code> validates CSRF token</li>
+        </ul>
+        <h3 id="session-security">Session Security</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Setting</th>
+        <th>Value</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>HttpOnly</td>
+        <td>true</td>
+        <td>Prevent JS access to session cookie</td>
+        </tr>
+        <tr class="even">
+        <td>Secure</td>
+        <td>true</td>
+        <td>HTTPS only (prod); HTTP allowed (local dev)</td>
+        </tr>
+        <tr class="odd">
+        <td>SameSite</td>
+        <td>None</td>
+        <td>Allow cross-site cookies for OAuth2</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="token-expiration">Token Expiration</h3>
+        <ul>
+        <li><strong>Session timeout:</strong> Configured per
+        environment</li>
+        <li><strong>Inactivity timeout:</strong> Automatically expires
+        idle sessions</li>
+        <li><strong>Absolute timeout:</strong> Long sessions expire
+        after max duration</li>
+        </ul>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Base path</strong></td>
+        <td><code>/api</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Endpoints</strong></td>
+        <td><code>/me</code>, <code>/logout</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authentication</strong></td>
+        <td>OAuth2 (Google), session-based</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Authorization</strong></td>
+        <td>Authenticated users only</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>DTOs</strong></td>
+        <td><code>AppUserProfileDTO</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Entity</strong></td>
+        <td><code>AppUser</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Service</strong></td>
+        <td>Spring Security, <code>AppUserRepository</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Session type</strong></td>
+        <td>Cookie-based (HttpOnly, Secure)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>CSRF protection</strong></td>
+        <td>Enabled by default</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Tests</strong></td>
+        <td><code>src/test/java/.../controller/auth/</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

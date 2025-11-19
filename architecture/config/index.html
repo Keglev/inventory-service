@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · config/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#configuration-overview"
+        id="toc-configuration-overview">Configuration Overview</a>
+        <ul>
+        <li><a href="#what-is-configuration"
+        id="toc-what-is-configuration">What is Configuration?</a></li>
+        <li><a href="#configuration-layers"
+        id="toc-configuration-layers">Configuration Layers</a></li>
+        <li><a href="#directory-structure"
+        id="toc-directory-structure">Directory Structure</a>
+        <ul>
+        <li><a href="#property-files-srcmainresources"
+        id="toc-property-files-srcmainresources">Property Files
+        (<code>src/main/resources/</code>)</a></li>
+        <li><a href="#java-configuration-srcmainjava...config"
+        id="toc-java-configuration-srcmainjava...config">Java
+        Configuration (<code>src/main/java/.../config/</code>)</a></li>
+        </ul></li>
+        <li><a href="#quick-links" id="toc-quick-links">Quick Links</a>
+        <ul>
+        <li><a href="#configuration-by-topic"
+        id="toc-configuration-by-topic">Configuration by Topic</a></li>
+        </ul></li>
+        <li><a href="#common-configuration-tasks"
+        id="toc-common-configuration-tasks">Common Configuration
+        Tasks</a>
+        <ul>
+        <li><a href="#running-with-different-profiles"
+        id="toc-running-with-different-profiles">Running with Different
+        Profiles</a></li>
+        <li><a href="#setting-environment-variables"
+        id="toc-setting-environment-variables">Setting Environment
+        Variables</a></li>
+        <li><a href="#key-environment-variables"
+        id="toc-key-environment-variables">Key Environment
+        Variables</a></li>
+        </ul></li>
+        <li><a href="#how-configuration-flows-through-the-app"
+        id="toc-how-configuration-flows-through-the-app">How
+        Configuration Flows Through the App</a>
+        <ul>
+        <li><a href="#example-demo-mode"
+        id="toc-example-demo-mode">Example: Demo Mode</a></li>
+        </ul></li>
+        <li><a href="#configuration-profiles-used"
+        id="toc-configuration-profiles-used">Configuration Profiles
+        Used</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture</a></p>
+        <h1 id="configuration-overview">Configuration Overview</h1>
+        <p>This section documents how the Inventory Service is
+        configured through Spring Boot, property files, environment
+        variables, and Java configuration classes. Configuration drives
+        behavior across environments (local, test, production) without
+        code changes.</p>
+        <h2 id="what-is-configuration">What is Configuration?</h2>
+        <p>In Spring Boot, <strong>configuration</strong> means:</p>
+        <ul>
+        <li><strong>Property files</strong>
+        (<code>application.yml</code>,
+        <code>application-prod.yml</code>, etc.) define
+        environment-specific values</li>
+        <li><strong>Java classes</strong> with
+        <code>@Configuration</code> and
+        <code>@ConfigurationProperties</code> create beans and bind
+        properties</li>
+        <li><strong>Environment variables</strong> override properties
+        at runtime (highest priority)</li>
+        <li><strong>Profiles</strong> select which property files and
+        beans are active</li>
+        </ul>
+        <h2 id="configuration-layers">Configuration Layers</h2>
+        <pre><code>Environment Variables (highest priority)
+    ↓
+application-{profile}.yml
+    ↓
+application.yml (base defaults)
+    ↓
+Java Configuration Classes (@Configuration)
+    ↓
+Default Values (lowest priority)</code></pre>
+        <h2 id="directory-structure">Directory Structure</h2>
+        <p>Configuration sources are organized across two main
+        areas:</p>
+        <h3 id="property-files-srcmainresources">Property Files
+        (<code>src/main/resources/</code>)</h3>
+        <pre><code>src/main/resources/
+├── application.yml              # Base config, shared across all environments
+├── application-prod.yml         # Production overrides
+├── application-test.yml         # Test/CI overrides
+└── application.properties       # App name (used by Spring Boot)</code></pre>
+        <h3 id="java-configuration-srcmainjava...config">Java
+        Configuration (<code>src/main/java/.../config/</code>)</h3>
+        <pre><code>src/main/java/com/smartsupplypro/inventory/config/
+├── AppProperties.java           # Custom app properties (demo mode, frontend URLs)
+├── SecurityConfig.java          # OAuth2 and method-level security setup
+├── SecurityAuthorizationHelper.java  # Authorization rules for endpoints
+├── SecurityEntryPointHelper.java     # Authentication failure handling
+├── SecurityFilterHelper.java         # API vs browser request detection
+└── SecuritySpelBridgeConfig.java    # SpEL bridge for security expressions</code></pre>
+        <h2 id="quick-links">Quick Links</h2>
+        <h3 id="configuration-by-topic">Configuration by Topic</h3>
+        <table>
+        <colgroup>
+        <col style="width: 31%" />
+        <col style="width: 27%" />
+        <col style="width: 40%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Topic</th>
+        <th>File</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Spring Config Classes</strong></td>
+        <td><a
+        href="./spring-config-classes.html">spring-config-classes.md</a></td>
+        <td>Beans, mappers, security setup</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Property Files</strong></td>
+        <td><a
+        href="./application-config-files.html">application-config-files.md</a></td>
+        <td>YAML/properties structure</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Profiles &amp; Environments</strong></td>
+        <td><a
+        href="./profiles-and-environments.html">profiles-and-environments.md</a></td>
+        <td>How profiles control behavior</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Database &amp; Oracle</strong></td>
+        <td><a
+        href="./database-and-oracle-wallet.html">database-and-oracle-wallet.md</a></td>
+        <td>Connection, wallet, credentials</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Logging &amp; Monitoring</strong></td>
+        <td><a
+        href="./logging-and-monitoring.html">logging-and-monitoring.md</a></td>
+        <td>Log levels, output paths</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Feature Flags</strong></td>
+        <td><a
+        href="./feature-flags-and-demo-mode.html">feature-flags-and-demo-mode.md</a></td>
+        <td>Demo mode, custom flags</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>External Services</strong></td>
+        <td><a
+        href="./external-services-and-secrets.html">external-services-and-secrets.md</a></td>
+        <td>OAuth2, secret injection</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="common-configuration-tasks">Common Configuration
+        Tasks</h2>
+        <h3 id="running-with-different-profiles">Running with Different
+        Profiles</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Local development (default, no profile)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># With test profile (H2 in-memory DB)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run <span class="at">-Dspring-boot.run.arguments</span><span class="op">=</span><span class="st">&quot;--spring.profiles.active=test&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># With prod profile (Oracle DB)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run <span class="at">-Dspring-boot.run.arguments</span><span class="op">=</span><span class="st">&quot;--spring.profiles.active=prod&quot;</span></span></code></pre></div>
+        <h3 id="setting-environment-variables">Setting Environment
+        Variables</h3>
+        <p>Configuration priorities (highest to lowest):</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Environment variables override everything</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_URL</span><span class="op">=</span><span class="st">&quot;jdbc:oracle:thin:@...&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">APP_DEMO_READONLY</span><span class="op">=</span><span class="st">&quot;true&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Profile-specific files (application-prod.yml)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    Use these for profile defaults</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Base config file (application.yml)</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#    Use for shared defaults</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Java defaults in code</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#    Use as fallback</span></span></code></pre></div>
+        <h3 id="key-environment-variables">Key Environment
+        Variables</h3>
+        <p>These are the primary knobs for runtime configuration:</p>
+        <table>
+        <colgroup>
+        <col style="width: 35%" />
+        <col style="width: 32%" />
+        <col style="width: 32%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Variable</th>
+        <th>Default</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>SPRING_PROFILES_ACTIVE</code></td>
+        <td>(none)</td>
+        <td>Which profile(s) to activate</td>
+        </tr>
+        <tr class="even">
+        <td><code>DB_URL</code></td>
+        <td>(required in prod)</td>
+        <td>Oracle database URL</td>
+        </tr>
+        <tr class="odd">
+        <td><code>DB_USER</code></td>
+        <td>(required in prod)</td>
+        <td>Database username</td>
+        </tr>
+        <tr class="even">
+        <td><code>DB_PASS</code></td>
+        <td>(required in prod)</td>
+        <td>Database password</td>
+        </tr>
+        <tr class="odd">
+        <td><code>APP_DEMO_READONLY</code></td>
+        <td><code>true</code></td>
+        <td>Enable read-only demo mode</td>
+        </tr>
+        <tr class="even">
+        <td><code>APP_FRONTEND_BASE_URL</code></td>
+        <td><code>https://localhost:5173</code></td>
+        <td>Frontend redirect URL for OAuth2</td>
+        </tr>
+        <tr class="odd">
+        <td><code>APP_ADMIN_EMAILS</code></td>
+        <td>(empty)</td>
+        <td>Comma-separated admin email list</td>
+        </tr>
+        <tr class="even">
+        <td><code>SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID</code></td>
+        <td>(required)</td>
+        <td>Google OAuth2 client ID</td>
+        </tr>
+        <tr class="odd">
+        <td><code>SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET</code></td>
+        <td>(required)</td>
+        <td>Google OAuth2 secret</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="how-configuration-flows-through-the-app">How
+        Configuration Flows Through the App</h2>
+        <pre><code>Environment Variables
+        ↓
+    Spring Boot loads properties
+        ↓
+    @ConfigurationProperties classes bind values
+        ↓
+    @Configuration classes create beans
+        ↓
+    Controllers &amp; Services @Autowired inject beans
+        ↓
+    Application behavior adapts to config</code></pre>
+        <h3 id="example-demo-mode">Example: Demo Mode</h3>
+        <ol type="1">
+        <li><strong>Config value</strong>:
+        <code>APP_DEMO_READONLY=true</code> (environment variable)</li>
+        <li><strong>Binding</strong>:
+        <code>AppProperties.isDemoReadonly</code> field receives
+        value</li>
+        <li><strong>Bean creation</strong>: <code>SecurityConfig</code>
+        uses <code>props.isDemoReadonly()</code> when building filter
+        chain</li>
+        <li><strong>Authorization</strong>:
+        <code>SecurityAuthorizationHelper.configureAuthorization()</code>
+        permits GET requests without login</li>
+        <li><strong>Result</strong>: Public can read inventory without
+        login; writes still require admin role</li>
+        </ol>
+        <h2 id="configuration-profiles-used">Configuration Profiles
+        Used</h2>
+        <table>
+        <colgroup>
+        <col style="width: 21%" />
+        <col style="width: 23%" />
+        <col style="width: 23%" />
+        <col style="width: 30%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Profile</th>
+        <th>Database</th>
+        <th>Use Case</th>
+        <th>When Active</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>(default)</td>
+        <td>PostgreSQL/Oracle</td>
+        <td>Local dev (requires .env setup)</td>
+        <td>When <code>SPRING_PROFILES_ACTIVE</code> is not set</td>
+        </tr>
+        <tr class="even">
+        <td><code>test</code></td>
+        <td>H2 in-memory</td>
+        <td>CI/CD, unit tests</td>
+        <td>In test environments</td>
+        </tr>
+        <tr class="odd">
+        <td><code>prod</code></td>
+        <td>Oracle</td>
+        <td>Production (Fly.io, cloud)</td>
+        <td><code>SPRING_PROFILES_ACTIVE=prod</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="../index.html">Architecture Overview</a></li>
+        <li><a href="../layers/index.html">Layers Overview</a></li>
+        <li><a href="../security/index.html">Security Overview</a></li>
+        <li><a href="../deployment/">Deployment Docs</a> — For
+        production environment setup</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+controller/stock-history-controller · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#stock-history-controller"
+        id="toc-stock-history-controller">Stock History Controller</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#endpoint-reference"
+        id="toc-endpoint-reference">Endpoint Reference</a></li>
+        <li><a href="#get-apistock-history"
+        id="toc-get-apistock-history">GET /api/stock-history</a>
+        <ul>
+        <li><a href="#request" id="toc-request">Request</a></li>
+        <li><a href="#authorization"
+        id="toc-authorization">Authorization</a></li>
+        <li><a href="#response-200-ok" id="toc-response-200-ok">Response
+        (200 OK)</a></li>
+        <li><a href="#notes" id="toc-notes">Notes</a></li>
+        </ul></li>
+        <li><a href="#get-apistock-historyitemitemid"
+        id="toc-get-apistock-historyitemitemid">GET
+        /api/stock-history/item/{itemId}</a>
+        <ul>
+        <li><a href="#request-1" id="toc-request-1">Request</a></li>
+        <li><a href="#authorization-1"
+        id="toc-authorization-1">Authorization</a></li>
+        <li><a href="#path-parameters" id="toc-path-parameters">Path
+        Parameters</a></li>
+        <li><a href="#response-200-ok-1"
+        id="toc-response-200-ok-1">Response (200 OK)</a></li>
+        <li><a href="#use-cases" id="toc-use-cases">Use Cases</a></li>
+        </ul></li>
+        <li><a href="#get-apistock-historyreasonreason"
+        id="toc-get-apistock-historyreasonreason">GET
+        /api/stock-history/reason/{reason}</a>
+        <ul>
+        <li><a href="#request-2" id="toc-request-2">Request</a></li>
+        <li><a href="#authorization-2"
+        id="toc-authorization-2">Authorization</a></li>
+        <li><a href="#path-parameters-1" id="toc-path-parameters-1">Path
+        Parameters</a></li>
+        <li><a href="#valid-reasons" id="toc-valid-reasons">Valid
+        Reasons</a></li>
+        <li><a href="#response-200-ok-2"
+        id="toc-response-200-ok-2">Response (200 OK)</a></li>
+        <li><a href="#use-cases-1" id="toc-use-cases-1">Use
+        Cases</a></li>
+        </ul></li>
+        <li><a href="#get-apistock-historysearch"
+        id="toc-get-apistock-historysearch">GET
+        /api/stock-history/search</a>
+        <ul>
+        <li><a href="#request-3" id="toc-request-3">Request</a></li>
+        <li><a href="#authorization-3"
+        id="toc-authorization-3">Authorization</a></li>
+        <li><a href="#query-parameters" id="toc-query-parameters">Query
+        Parameters</a></li>
+        <li><a href="#response-200-ok-3"
+        id="toc-response-200-ok-3">Response (200 OK)</a></li>
+        <li><a href="#default-sorting" id="toc-default-sorting">Default
+        Sorting</a></li>
+        <li><a href="#common-queries" id="toc-common-queries">Common
+        Queries</a></li>
+        </ul></li>
+        <li><a href="#stockhistorydto"
+        id="toc-stockhistorydto">StockHistoryDTO</a></li>
+        <li><a href="#audit-trail-properties"
+        id="toc-audit-trail-properties">Audit Trail Properties</a></li>
+        <li><a href="#stock-change-reasons"
+        id="toc-stock-change-reasons">Stock Change Reasons</a></li>
+        <li><a href="#compliance-audit"
+        id="toc-compliance-audit">Compliance &amp; Audit</a></li>
+        <li><a href="#pagination-limits"
+        id="toc-pagination-limits">Pagination Limits</a></li>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+        <h1 id="stock-history-controller">Stock History Controller</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The <code>StockHistoryController</code> provides
+        <strong>read-only</strong> access to the stock change audit
+        trail. Stock history tracks every inventory adjustment with
+        timestamps, reasons, and notes for compliance and analysis.</p>
+        <p><strong>Package:</strong>
+        <code>com.smartsupplypro.inventory.controller</code><br />
+        <strong>Base Path:</strong>
+        <code>/api/stock-history</code><br />
+        <strong>Service:</strong> <code>StockHistoryService</code><br />
+        <strong>Entity:</strong> <code>StockHistory</code> → DTO:
+        <code>StockHistoryDTO</code></p>
+        <p><strong>Important:</strong> This is a
+        <strong>read-only</strong> endpoint. Stock changes are created
+        by the Inventory Item Controller’s stock update endpoint, not
+        directly via this controller.</p>
+        <hr />
+        <h2 id="endpoint-reference">Endpoint Reference</h2>
+        <div class="mermaid">
+        graph LR
+            A["StockHistoryController"]
+            
+            A --> B["GET /stock-history"]
+            A --> C["GET /stock-history/item/{id}"]
+            A --> D["GET /stock-history/reason/{reason}"]
+            A --> E["GET /stock-history/search"]
+            
+            B --> B1["All entries"]
+            C --> C1["By item ID"]
+            D --> D1["By reason"]
+            E --> E1["Advanced search"]
+            
+            style A fill:#e8f5e9
+            style B fill:#c8e6c9
+            style C fill:#c8e6c9
+            style D fill:#c8e6c9
+            style E fill:#c8e6c9
+        </div>
+        <hr />
+        <h2 id="get-apistock-history">GET /api/stock-history</h2>
+        <p><strong>Retrieve all stock history entries</strong></p>
+        <h3 id="request">Request</h3>
+        <pre><code>GET /api/stock-history
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <h3 id="authorization">Authorization</h3>
+        <p><code>@PreAuthorize("hasAnyRole('ADMIN','USER')")</code></p>
+        <ul>
+        <li>✅ Authenticated users only</li>
+        <li>❌ Demo mode</li>
+        <li>❌ Anonymous</li>
+        </ul>
+        <h3 id="response-200-ok">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SH-001&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;previousQuantity&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;newQuantity&quot;</span><span class="fu">:</span> <span class="dv">140</span><span class="fu">,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;changeQuantity&quot;</span><span class="fu">:</span> <span class="dv">-10</span><span class="fu">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SOLD&quot;</span><span class="fu">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;notes&quot;</span><span class="fu">:</span> <span class="st">&quot;Sale order #12345&quot;</span><span class="fu">,</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;userId&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SH-002&quot;</span><span class="fu">,</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;previousQuantity&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;newQuantity&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;changeQuantity&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;ADJUSTMENT&quot;</span><span class="fu">,</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;notes&quot;</span><span class="fu">:</span> <span class="st">&quot;Inventory count correction&quot;</span><span class="fu">,</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:15:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;userId&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@example.com&quot;</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h3 id="notes">Notes</h3>
+        <ul>
+        <li>Returns <strong>non-paginated list</strong> (all
+        history)</li>
+        <li>Use <code>/search</code> for paginated, filtered
+        results</li>
+        <li>Sorted by timestamp (descending) — newest first</li>
+        </ul>
+        <hr />
+        <h2 id="get-apistock-historyitemitemid">GET
+        /api/stock-history/item/{itemId}</h2>
+        <p><strong>Get stock history for specific item</strong></p>
+        <h3 id="request-1">Request</h3>
+        <pre><code>GET /api/stock-history/item/ITEM-001
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <h3 id="authorization-1">Authorization</h3>
+        <p><code>@PreAuthorize("hasAnyRole('ADMIN','USER')")</code></p>
+        <h3 id="path-parameters">Path Parameters</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>itemId</code></td>
+        <td>String</td>
+        <td>Inventory item ID</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="response-200-ok-1">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SH-001&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;previousQuantity&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;newQuantity&quot;</span><span class="fu">:</span> <span class="dv">140</span><span class="fu">,</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;changeQuantity&quot;</span><span class="fu">:</span> <span class="dv">-10</span><span class="fu">,</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SOLD&quot;</span><span class="fu">,</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;notes&quot;</span><span class="fu">:</span> <span class="st">&quot;Sale order #12345&quot;</span><span class="fu">,</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;userId&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h3 id="use-cases">Use Cases</h3>
+        <ul>
+        <li>View audit trail for specific product</li>
+        <li>Track stock changes for a SKU</li>
+        <li>Investigate inventory discrepancies</li>
+        </ul>
+        <hr />
+        <h2 id="get-apistock-historyreasonreason">GET
+        /api/stock-history/reason/{reason}</h2>
+        <p><strong>Filter stock history by change reason</strong></p>
+        <h3 id="request-2">Request</h3>
+        <pre><code>GET /api/stock-history/reason/SOLD
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <h3 id="authorization-2">Authorization</h3>
+        <p><code>@PreAuthorize("hasAnyRole('ADMIN','USER')")</code></p>
+        <h3 id="path-parameters-1">Path Parameters</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>reason</code></td>
+        <td>Enum</td>
+        <td>Stock change reason</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="valid-reasons">Valid Reasons</h3>
+        <pre><code>RECEIVED       → Inbound stock received from supplier
+SOLD           → Stock sold to customer
+ADJUSTED       → Manual inventory adjustment
+DAMAGED        → Stock damaged or defective
+LOSS           → Stock loss (theft, waste, expiration)</code></pre>
+        <h3 id="response-200-ok-2">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SH-001&quot;</span><span class="fu">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;previousQuantity&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;newQuantity&quot;</span><span class="fu">:</span> <span class="dv">140</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;changeQuantity&quot;</span><span class="fu">:</span> <span class="dv">-10</span><span class="fu">,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SOLD&quot;</span><span class="fu">,</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;notes&quot;</span><span class="fu">:</span> <span class="st">&quot;Sale order #12345&quot;</span><span class="fu">,</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;userId&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h3 id="use-cases-1">Use Cases</h3>
+        <ul>
+        <li>Find all received shipments</li>
+        <li>Track sold items</li>
+        <li>Audit damage/loss incidents</li>
+        <li>Verify adjustments</li>
+        </ul>
+        <hr />
+        <h2 id="get-apistock-historysearch">GET
+        /api/stock-history/search</h2>
+        <p><strong>Advanced paginated search with multiple
+        filters</strong></p>
+        <h3 id="request-3">Request</h3>
+        <pre><code>GET /api/stock-history/search?startDate=2025-11-01T00:00:00&amp;endDate=2025-11-30T23:59:59&amp;itemName=widget&amp;supplierId=SUP-001&amp;page=0&amp;size=50
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <h3 id="authorization-3">Authorization</h3>
+        <p><code>@PreAuthorize("hasAnyRole('ADMIN','USER')")</code></p>
+        <h3 id="query-parameters">Query Parameters</h3>
+        <table>
+        <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 17%" />
+        <col style="width: 28%" />
+        <col style="width: 37%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>startDate</code></td>
+        <td>DateTime</td>
+        <td>No</td>
+        <td>Inclusive start (ISO-8601:
+        <code>yyyy-MM-ddTHH:mm:ss</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>endDate</code></td>
+        <td>DateTime</td>
+        <td>No</td>
+        <td>Inclusive end (ISO-8601:
+        <code>yyyy-MM-ddTHH:mm:ss</code>)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>itemName</code></td>
+        <td>String</td>
+        <td>No</td>
+        <td>Partial item name filter</td>
+        </tr>
+        <tr class="even">
+        <td><code>supplierId</code></td>
+        <td>String</td>
+        <td>No</td>
+        <td>Supplier ID filter</td>
+        </tr>
+        <tr class="odd">
+        <td><code>reason</code></td>
+        <td>Enum</td>
+        <td>No</td>
+        <td>Stock change reason filter</td>
+        </tr>
+        <tr class="even">
+        <td><code>page</code></td>
+        <td>Integer</td>
+        <td>No</td>
+        <td>Page number (default: 0)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>size</code></td>
+        <td>Integer</td>
+        <td>No</td>
+        <td>Items per page (default: 20, max: 200)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="response-200-ok-3">Response (200 OK)</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SH-001&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;previousQuantity&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;newQuantity&quot;</span><span class="fu">:</span> <span class="dv">140</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;changeQuantity&quot;</span><span class="fu">:</span> <span class="dv">-10</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SOLD&quot;</span><span class="fu">,</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;notes&quot;</span><span class="fu">:</span> <span class="st">&quot;Sale order #12345&quot;</span><span class="fu">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;userId&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">50</span><span class="fu">,</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;sort&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;property&quot;</span><span class="fu">:</span> <span class="st">&quot;timestamp&quot;</span><span class="fu">,</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;direction&quot;</span><span class="fu">:</span> <span class="st">&quot;DESC&quot;</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">1254</span><span class="fu">,</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">26</span><span class="fu">,</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;first&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;empty&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="default-sorting">Default Sorting</h3>
+        <ul>
+        <li><strong>Primary:</strong> Timestamp (descending) — newest
+        first</li>
+        <li><strong>Secondary:</strong> Item ID</li>
+        </ul>
+        <h3 id="common-queries">Common Queries</h3>
+        <p><strong>All sales in November:</strong></p>
+        <pre><code>/search?reason=SOLD&amp;startDate=2025-11-01T00:00:00&amp;endDate=2025-11-30T23:59:59</code></pre>
+        <p><strong>Items received from supplier:</strong></p>
+        <pre><code>/search?supplierId=SUP-001&amp;reason=RECEIVED</code></pre>
+        <p><strong>Recent adjustments:</strong></p>
+        <pre><code>/search?reason=ADJUSTED&amp;startDate=2025-11-15T00:00:00</code></pre>
+        <p><strong>Damage/loss audit:</strong></p>
+        <pre><code>/search?reason=DAMAGED&amp;reason=LOSS</code></pre>
+        <hr />
+        <h2 id="stockhistorydto">StockHistoryDTO</h2>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">StockHistoryDTO</span><span class="op">(</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> id<span class="op">,</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> itemId<span class="op">,</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> itemName<span class="op">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> previousQuantity<span class="op">,</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> newQuantity<span class="op">,</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Integer</span> changeQuantity<span class="op">,</span>      <span class="co">// new - previous</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    StockChangeReason reason<span class="op">,</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> notes<span class="op">,</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> supplierId<span class="op">,</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> supplierName<span class="op">,</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    LocalDateTime timestamp<span class="op">,</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> userId                <span class="co">// Email of user who made change</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span></code></pre></div>
+        <hr />
+        <h2 id="audit-trail-properties">Audit Trail Properties</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Property</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>id</code></td>
+        <td>Unique history entry ID</td>
+        </tr>
+        <tr class="even">
+        <td><code>itemId</code></td>
+        <td>Which inventory item changed</td>
+        </tr>
+        <tr class="odd">
+        <td><code>itemName</code></td>
+        <td>Item name (denormalized for query performance)</td>
+        </tr>
+        <tr class="even">
+        <td><code>previousQuantity</code></td>
+        <td>Stock level before change</td>
+        </tr>
+        <tr class="odd">
+        <td><code>newQuantity</code></td>
+        <td>Stock level after change</td>
+        </tr>
+        <tr class="even">
+        <td><code>changeQuantity</code></td>
+        <td>Net change (new - previous)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>reason</code></td>
+        <td>Category of change (SOLD, RECEIVED, etc.)</td>
+        </tr>
+        <tr class="even">
+        <td><code>notes</code></td>
+        <td>Optional details (order #, damage description)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>supplierId</code></td>
+        <td>Supplier reference (denormalized)</td>
+        </tr>
+        <tr class="even">
+        <td><code>supplierName</code></td>
+        <td>Supplier name (denormalized)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>timestamp</code></td>
+        <td>When change occurred (UTC)</td>
+        </tr>
+        <tr class="even">
+        <td><code>userId</code></td>
+        <td>Who made the change (email)</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="stock-change-reasons">Stock Change Reasons</h2>
+        <div class="mermaid">
+        graph TD
+            A["Stock Changes"]
+            
+            A --> B["Inbound"]
+            A --> C["Outbound"]
+            A --> D["Adjustments"]
+            
+            B --> B1["RECEIVED - Shipment from supplier"]
+            
+            C --> C1["SOLD - Customer order"]
+            
+            D --> D1["ADJUSTED - Manual correction"]
+            D --> D2["DAMAGED - Defective items"]
+            D --> D3["LOSS - Theft/waste/expiration"]
+            
+            style A fill:#f5f5f5
+            style B fill:#c8e6c9
+            style C fill:#ffccbc
+            style D fill:#fff9c4
+        </div>
+        <hr />
+        <h2 id="compliance-audit">Compliance &amp; Audit</h2>
+        <p><strong>Use cases:</strong></p>
+        <ul>
+        <li><strong>Inventory audits</strong>: Verify stock movements
+        match physical counts</li>
+        <li><strong>Variance investigation</strong>: Find unexplained
+        quantity changes</li>
+        <li><strong>Compliance reporting</strong>: Document all stock
+        movements for auditors</li>
+        <li><strong>Damage tracking</strong>: Identify patterns in
+        damage/loss incidents</li>
+        <li><strong>Supplier analysis</strong>: Track received
+        quantities vs. orders</li>
+        <li><strong>Sales reporting</strong>: Analyze sold items by
+        date/supplier</li>
+        </ul>
+        <hr />
+        <h2 id="pagination-limits">Pagination Limits</h2>
+        <pre><code>Default page size: 20
+Maximum page size: 200</code></pre>
+        <p>For large date ranges, pagination is recommended to avoid
+        performance issues.</p>
+        <hr />
+        <h2 id="performance-considerations">Performance
+        Considerations</h2>
+        <p><strong>Indexed columns</strong> (for fast queries): -
+        <code>itemId</code> - <code>timestamp</code> -
+        <code>reason</code> - <code>supplierId</code></p>
+        <p><strong>Recommendation</strong>: Use date range filters to
+        avoid scanning entire table.</p>
+        <hr />
+        <h2 id="testing">Testing</h2>
+        <p><strong>Location:</strong>
+        <code>src/test/java/.../controller/stockhistory/</code></p>
+        <p><strong>Test Coverage:</strong> - ✅ List all (non-paginated)
+        - ✅ Get by item ID - ✅ Filter by reason - ✅ Advanced search
+        with multiple filters - ✅ Pagination and sorting - ✅
+        Authorization checks - ✅ Date range validation</p>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Base path</strong></td>
+        <td><code>/api/stock-history</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Operations</strong></td>
+        <td>Read-only (List, Get, Filter, Search)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authorization</strong></td>
+        <td>USER + ADMIN only (authenticated)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Demo mode</strong></td>
+        <td>Not accessible</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Pagination</strong></td>
+        <td>Default 20/page, max 200</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Sorting</strong></td>
+        <td>By timestamp (descending)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Audit trail</strong></td>
+        <td>Complete change history with user tracking</td>
+        </tr>
+        <tr class="even">
+        <td><strong>DTO</strong></td>
+        <td><code>StockHistoryDTO</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Entity</strong></td>
+        <td><code>StockHistory</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Service</strong></td>
+        <td><code>StockHistoryService</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Data source</strong></td>
+        <td>Created by inventory item stock updates</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

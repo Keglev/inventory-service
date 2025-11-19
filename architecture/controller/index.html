@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · controller/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#controller-documentation"
+        id="toc-controller-documentation">Controller Documentation</a>
+        <ul>
+        <li><a href="#what-is-controller-documentation"
+        id="toc-what-is-controller-documentation">What is Controller
+        Documentation?</a></li>
+        <li><a href="#controller-packages-files"
+        id="toc-controller-packages-files">Controller Packages &amp;
+        Files</a></li>
+        <li><a href="#quick-links" id="toc-quick-links">Quick
+        Links</a></li>
+        <li><a href="#common-patterns" id="toc-common-patterns">Common
+        Patterns</a>
+        <ul>
+        <li><a href="#base-path-convention"
+        id="toc-base-path-convention">Base Path Convention</a></li>
+        <li><a href="#authorization-levels"
+        id="toc-authorization-levels">Authorization Levels</a></li>
+        <li><a href="#response-shapes" id="toc-response-shapes">Response
+        Shapes</a></li>
+        </ul></li>
+        <li><a href="#documentation-by-topic"
+        id="toc-documentation-by-topic">Documentation by Topic</a></li>
+        <li><a href="#requestresponse-flow"
+        id="toc-requestresponse-flow">Request/Response Flow</a></li>
+        <li><a href="#error-handling" id="toc-error-handling">Error
+        Handling</a></li>
+        <li><a href="#api-documentation" id="toc-api-documentation">API
+        Documentation</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture</a></p>
+        <h1 id="controller-documentation">Controller Documentation</h1>
+        <p>This section documents the REST API controllers that handle
+        HTTP requests and responses. Controllers bridge the HTTP
+        protocol with business logic by mapping endpoints, validating
+        inputs, enforcing authorization, and orchestrating services.</p>
+        <h2 id="what-is-controller-documentation">What is Controller
+        Documentation?</h2>
+        <p>Unlike the <a
+        href="../layers/controller/index.html">Controller Layer
+        Overview</a> which explains architectural patterns, <strong>this
+        documentation</strong> focuses on:</p>
+        <ul>
+        <li><strong>Concrete endpoints</strong>:
+        <code>/api/suppliers</code>, <code>/api/inventory/items</code>,
+        etc.</li>
+        <li><strong>Request/response shapes</strong>: What DTOs, query
+        parameters, path variables</li>
+        <li><strong>Authorization requirements</strong>: Which roles can
+        access each endpoint</li>
+        <li><strong>Service interaction</strong>: Which services handle
+        the business logic</li>
+        <li><strong>Test structure</strong>: Where tests are located and
+        what they cover</li>
+        </ul>
+        <h2 id="controller-packages-files">Controller Packages &amp;
+        Files</h2>
+        <pre><code>src/main/java/.../controller/
+├── SupplierController.java                  → supplier-controller.md
+├── InventoryItemController.java             → inventory-item-controller.md
+├── StockHistoryController.java              → stock-history-controller.md
+├── AuthController.java                      → auth-controller.md
+├── AnalyticsController.java                 → analytics-controller.md
+├── analytics/
+│   ├── AnalyticsControllerValidationHelper.java
+│   ├── AnalyticsDashboardHelper.java
+│   └── ...
+└── (other helpers)
+
+src/test/java/.../controller/
+├── supplier/
+├── inventoryitem/
+├── stockhistory/
+├── auth/
+├── analytics/
+└── security/</code></pre>
+        <h2 id="quick-links">Quick Links</h2>
+        <table>
+        <colgroup>
+        <col style="width: 31%" />
+        <col style="width: 28%" />
+        <col style="width: 39%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Controller</th>
+        <th>Endpoints</th>
+        <th>Documentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Supplier</strong></td>
+        <td><code>/api/suppliers</code> CRUD + search</td>
+        <td><a
+        href="./supplier-controller.html">supplier-controller.md</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Inventory Item</strong></td>
+        <td><code>/api/inventory/items</code> CRUD + stock
+        operations</td>
+        <td><a
+        href="./inventory-item-controller.html">inventory-item-controller.md</a></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Stock History</strong></td>
+        <td><code>/api/stock-history</code> audit trail (read-only)</td>
+        <td><a
+        href="./stock-history-controller.html">stock-history-controller.md</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Analytics</strong></td>
+        <td><code>/api/analytics/*</code> reporting &amp; KPIs</td>
+        <td><a
+        href="./analytics-controller.html">analytics-controller.md</a></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authentication</strong></td>
+        <td><code>/api/auth/user</code>, <code>/api/logout</code></td>
+        <td><a href="./auth-controller.html">auth-controller.md</a></td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="common-patterns">Common Patterns</h2>
+        <h3 id="base-path-convention">Base Path Convention</h3>
+        <p>All API endpoints follow this pattern:</p>
+        <pre><code>/api/{resource}          → List/Create
+/api/{resource}/{id}     → Get/Update/Delete
+/api/{resource}/search   → Search with filters
+/api/{resource}/count    → Aggregate count</code></pre>
+        <h3 id="authorization-levels">Authorization Levels</h3>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 37%" />
+        <col style="width: 37%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Level</th>
+        <th>Required</th>
+        <th>Use Case</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Public</strong></td>
+        <td>None (demo mode)</td>
+        <td>Read-only access in demo; public health checks</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Authenticated</strong></td>
+        <td><code>isAuthenticated()</code></td>
+        <td>Standard user actions (read/write)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Admin</strong></td>
+        <td><code>hasRole('ADMIN')</code></td>
+        <td>System administration, sensitive operations</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="response-shapes">Response Shapes</h3>
+        <h4 id="single-resource">Single Resource</h4>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Product Name&quot;</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">99.99</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h4 id="list-response">List Response</h4>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Product 1&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-002&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Product 2&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <h4 id="paginated-response">Paginated Response</h4>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="fu">{</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span> <span class="er">...</span> <span class="fu">}</span> <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span> <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span> <span class="fu">},</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">8</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="documentation-by-topic">Documentation by Topic</h2>
+        <table>
+        <colgroup>
+        <col style="width: 31%" />
+        <col style="width: 27%" />
+        <col style="width: 40%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Topic</th>
+        <th>File</th>
+        <th>Content</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Routing &amp; Conventions</strong></td>
+        <td><a
+        href="./routing-and-conventions.html">routing-and-conventions.md</a></td>
+        <td>Base paths, naming, pagination, filtering</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Supplier Controller</strong></td>
+        <td><a
+        href="./supplier-controller.html">supplier-controller.md</a></td>
+        <td>CRUD, search, 5 endpoints</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Inventory Item Controller</strong></td>
+        <td><a
+        href="./inventory-item-controller.html">inventory-item-controller.md</a></td>
+        <td>CRUD, stock management, 6+ endpoints</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Stock History Controller</strong></td>
+        <td><a
+        href="./stock-history-controller.html">stock-history-controller.md</a></td>
+        <td>Read-only audit trail, filtering, 4 endpoints</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Analytics Controller</strong></td>
+        <td><a
+        href="./analytics-controller.html">analytics-controller.md</a></td>
+        <td>Reports, KPIs, trends, financial summaries</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Auth Controller</strong></td>
+        <td><a href="./auth-controller.html">auth-controller.md</a></td>
+        <td>User profile, logout, OAuth2 integration</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Security Endpoints</strong></td>
+        <td><a
+        href="./security-endpoints.html">security-endpoints.md</a></td>
+        <td>Authorization matrix by endpoint</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Controller Testing</strong></td>
+        <td><a
+        href="./controller-testing.html">controller-testing.md</a></td>
+        <td>Test structure, strategies, patterns</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="requestresponse-flow">Request/Response Flow</h2>
+        <div class="mermaid">
+        graph TD
+            A["HTTP Request<br/>(GET /api/suppliers/S1)"]
+            B["Request Routing<br/>(@RequestMapping)"]
+            C["Handler Method<br/>(getById)"]
+            D["@PathVariable<br/>Extraction"]
+            E["Validation<br/>(@Valid)"]
+            F["Authorization<br/>(@PreAuthorize)"]
+            G["Service Call<br/>(SupplierService)"]
+            H["DTO Mapping<br/>(Entity → DTO)"]
+            I["Response<br/>(200 OK)"]
+            J["HTTP Response"]
+            
+            A --> B
+            B --> C
+            C --> D
+            D --> E
+            E --> F
+            F --> G
+            G --> H
+            H --> I
+            I --> J
+            
+            style A fill:#e1f5ff
+            style J fill:#e1f5ff
+            style F fill:#ffebee
+            style G fill:#f3e5f5
+        </div>
+        <hr />
+        <h2 id="error-handling">Error Handling</h2>
+        <p>Controllers translate business exceptions to HTTP
+        responses:</p>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 36%" />
+        <col style="width: 38%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>HTTP Status</th>
+        <th>Spring Exception</th>
+        <th>Controller Handling</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>400</strong></td>
+        <td><code>BadRequestException</code></td>
+        <td>Invalid input, validation failure</td>
+        </tr>
+        <tr class="even">
+        <td><strong>401</strong></td>
+        <td><code>AuthenticationException</code></td>
+        <td>Not authenticated</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>403</strong></td>
+        <td><code>AccessDeniedException</code></td>
+        <td>Authenticated but not authorized</td>
+        </tr>
+        <tr class="even">
+        <td><strong>404</strong></td>
+        <td><code>NoSuchElementException</code></td>
+        <td>Resource not found</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>409</strong></td>
+        <td><code>ConflictException</code></td>
+        <td>Duplicate entry, business rule violation</td>
+        </tr>
+        <tr class="even">
+        <td><strong>500</strong></td>
+        <td>Unexpected exceptions</td>
+        <td>Server error</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>See <code>GlobalExceptionHandler</code> in security/exception
+        handling docs.</p>
+        <hr />
+        <h2 id="api-documentation">API Documentation</h2>
+        <p>Complete API contract (endpoint details, request/response
+        schemas):</p>
+        <ul>
+        <li><strong>OpenAPI/Swagger</strong>: Available at
+        <code>/api/docs</code> (when Springdoc configured)</li>
+        <li><strong>ReDoc</strong>: HTML documentation at
+        <code>/api/docs-ui.html</code></li>
+        <li><strong>OpenAPI JSON</strong>:
+        <code>/api/docs.json</code></li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <p><strong>Architecture layers:</strong> - <a
+        href="../layers/controller/index.html">Controller Layer
+        Overview</a> — Architectural patterns - <a
+        href="../layers/controller/authorization.html">Authorization
+        Patterns</a> — Security model - <a href="../dto/">DTO &amp;
+        Validation</a> — Request/response shapes - <a
+        href="../layers/service/index.html">Service Layer</a> — Business
+        logic orchestration</p>
+        <p><strong>Deployment &amp; testing:</strong> - <a
+        href="../deployment/">Deployment Guide</a> — Production API
+        endpoints - <a href="../testing/">Integration Testing</a> — Test
+        strategies - <a href="../security/">Security Overview</a> —
+        Authentication &amp; OAuth2</p>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
