@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/controller/dto-conversion-inbound · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#dto-conversion-inbound"
+        id="toc-dto-conversion-inbound">DTO Conversion (Inbound)</a>
+        <ul>
+        <li><a href="#inbound-conversion"
+        id="toc-inbound-conversion">Inbound Conversion</a></li>
+        <li><a href="#jackson-deserialization"
+        id="toc-jackson-deserialization">Jackson
+        Deserialization</a></li>
+        <li><a href="#inbound-conversion-example"
+        id="toc-inbound-conversion-example">Inbound Conversion
+        Example</a></li>
+        <li><a href="#dto-annotations-for-deserialization"
+        id="toc-dto-annotations-for-deserialization">DTO Annotations for
+        Deserialization</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
+        <h1 id="dto-conversion-inbound">DTO Conversion (Inbound)</h1>
+        <p>The <strong>Inbound DTO Conversion</strong> responsibility
+        converts incoming JSON to Data Transfer Objects (DTOs)
+        automatically via Jackson.</p>
+        <h2 id="inbound-conversion">Inbound Conversion</h2>
+        <p>HTTP request bodies are automatically deserialized from JSON
+        to DTOs:</p>
+        <ul>
+        <li>HTTP request body is JSON string</li>
+        <li>Spring calls Jackson deserializer</li>
+        <li>JSON → DTO object mapping</li>
+        <li>Field validation applied (if <code>@Valid</code> annotation
+        present)</li>
+        <li>DTO passed to controller method</li>
+        </ul>
+        <h2 id="jackson-deserialization">Jackson Deserialization</h2>
+        <p><strong>Benefits:</strong> - Decouples API contract from
+        internal domain models - Enables API versioning and forward
+        compatibility - Only API-relevant fields are mapped - Type
+        safety at compile time</p>
+        <h2 id="inbound-conversion-example">Inbound Conversion
+        Example</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto  <span class="co">// Jackson deserializes JSON → DTO</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// dto is now a typed Java object with validated fields</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    SupplierDTO created <span class="op">=</span> supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>created<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Request:</strong></p>
+        <pre class="http"><code>POST /api/suppliers
+Content-Type: application/json
+
+{
+    &quot;name&quot;: &quot;ACME Corp&quot;,
+    &quot;contactName&quot;: &quot;John Doe&quot;,
+    &quot;contactEmail&quot;: &quot;john@acme.com&quot;,
+    &quot;phoneNumber&quot;: &quot;5551234567&quot;,
+    &quot;minOrderQuantity&quot;: 10
+}</code></pre>
+        <p><strong>Jackson Processing:</strong></p>
+        <pre><code>JSON String
+    ↓
+Jackson ObjectMapper
+    ↓
+@NotBlank validation on fields
+    ↓
+CreateSupplierDTO object (strongly typed)
+    ↓
+Controller method executes</code></pre>
+        <h2 id="dto-annotations-for-deserialization">DTO Annotations for
+        Deserialization</h2>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> CreateSupplierDTO <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JsonProperty</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">)</span>  <span class="co">// Optional: explicit JSON field name</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JsonIgnore</span>  <span class="co">// Optional: exclude field from deserialization</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> internalField<span class="op">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JsonFormat</span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">&quot;yyyy-MM-dd&quot;</span><span class="op">)</span>  <span class="co">// Optional: date format</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDate createdDate<span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

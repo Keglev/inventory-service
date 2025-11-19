@@ -49,9 +49,111 @@ layers/controller/index · Smart Supply Pro Docs</title>
     </aside>
 
     <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#controller-layer"
+        id="toc-controller-layer">Controller Layer</a>
+        <ul>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a>
+        <ul>
+        <li><a href="#by-topic" id="toc-by-topic">By Topic</a></li>
+        <li><a href="#by-role" id="toc-by-role">By Role</a></li>
+        </ul></li>
+        <li><a href="#architecture-overview"
+        id="toc-architecture-overview">Architecture Overview</a></li>
+        </ul></li>
+        </ul>
+      </nav>
       
       <article class="doc-body">
-        
+        <p><a href="../overview.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="controller-layer">Controller Layer</h1>
+        <p>The <strong>Controller Layer</strong> serves as the HTTP API
+        entry point for all client requests. It handles request routing,
+        validation, authentication/authorization checks, and response
+        formatting.</p>
+        <p><strong>Location:</strong>
+        <code>src/main/java/com/smartsupplypro/inventory/controller/</code></p>
+        <p><strong>Responsibility:</strong> HTTP protocol handling,
+        request validation, response building, error mapping</p>
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <h3 id="by-topic">By Topic</h3>
+        <ul>
+        <li><strong><a href="./routing.html">Routing</a></strong> - URL
+        mapping and HTTP methods</li>
+        <li><strong><a href="./validation.html">Validation</a></strong>
+        - Input validation and constraints</li>
+        <li><strong><a
+        href="./authorization.html">Authorization</a></strong> -
+        Authentication and role checks</li>
+        <li><strong><a href="./dto-conversion-inbound.html">DTO
+        Conversion (Inbound)</a></strong> - JSON → Object mapping</li>
+        <li><strong><a href="./dto-conversion-outbound.html">DTO
+        Conversion (Outbound)</a></strong> - Object → JSON mapping</li>
+        <li><strong><a href="./response-building.html">Response
+        Building</a></strong> - HTTP status codes and responses</li>
+        <li><strong><a href="./core-controllers.html">Core
+        Controllers</a></strong> - SupplierController,
+        InventoryItemController, etc.</li>
+        <li><strong><a href="./error-handling-flow.html">Error Handling
+        Flow</a></strong> - Exception mapping to HTTP responses</li>
+        <li><strong><a href="./best-practices.html">Best
+        Practices</a></strong> - Standards and guidelines</li>
+        <li><strong><a href="./lifecycle.html">Request/Response
+        Lifecycle</a></strong> - Complete flow through the layer</li>
+        <li><strong><a
+        href="./integration.html">Integration</a></strong> - How
+        controller connects to service layer</li>
+        <li><strong><a href="./testing.html">Testing</a></strong> - Unit
+        and integration testing strategies</li>
+        </ul>
+        <h3 id="by-role">By Role</h3>
+        <ul>
+        <li><strong>API Developers</strong> → Start with <a
+        href="./routing.html">Routing</a> → <a
+        href="./core-controllers.html">Core Controllers</a></li>
+        <li><strong>Security Engineers</strong> → Review <a
+        href="./authorization.html">Authorization</a></li>
+        <li><strong>QA/Testing</strong> → Check <a
+        href="./testing.html">Testing</a> and <a
+        href="./validation.html">Validation</a></li>
+        <li><strong>New Team Members</strong> → Begin with <a
+        href="./best-practices.html">Best Practices</a></li>
+        </ul>
+        <h2 id="architecture-overview">Architecture Overview</h2>
+        <div class="mermaid">
+        graph TB
+            Client["Client<br/>REST Requests"]
+            Routes["Request Routing<br/>@GetMapping, @PostMapping, etc."]
+            Auth["Authorization<br/>@PreAuthorize"]
+            Validation["Request Validation<br/>@Valid, @NotNull"]
+            Mapping["DTO Conversion<br/>Request → Internal"]
+            Service["Service Layer<br/>Business Logic"]
+            DTOResp["DTO Conversion<br/>Domain → Response"]
+            Response["HTTP Response<br/>JSON Serialization"]
+
+            Client -->|HTTP| Routes
+            Routes --> Auth
+            Auth -->|Check Roles| Validation
+            Validation -->|Validate DTO| Mapping
+            Mapping -->|Convert| Service
+            Service -->|Execute Business Logic| DTOResp
+            DTOResp -->|Convert| Response
+            Response -->|JSON| Client
+
+            style Client fill:#e3f2fd
+            style Routes fill:#bbdefb
+            style Auth fill:#90caf9
+            style Validation fill:#64b5f6
+            style Mapping fill:#42a5f5
+            style Service fill:#2196f3
+            style DTOResp fill:#1976d2
+            style Response fill:#1565c0
+        </div>
+        <hr />
+        <p><a href="../overview.html">⬅️ Back to Layers Overview</a></p>
       </article>
     </section>
   </main>

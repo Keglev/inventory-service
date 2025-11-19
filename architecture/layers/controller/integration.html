@@ -49,9 +49,155 @@ layers/controller/integration · Smart Supply Pro Docs</title>
     </aside>
 
     <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#integration-with-other-layers"
+        id="toc-integration-with-other-layers">Integration with Other
+        Layers</a>
+        <ul>
+        <li><a href="#layered-architecture-integration"
+        id="toc-layered-architecture-integration">Layered Architecture
+        Integration</a></li>
+        <li><a href="#interaction-pattern"
+        id="toc-interaction-pattern">Interaction Pattern</a>
+        <ul>
+        <li><a href="#controller-receives-request"
+        id="toc-controller-receives-request">1. Controller Receives
+        Request</a></li>
+        <li><a href="#controller-delegates-to-service"
+        id="toc-controller-delegates-to-service">2. Controller Delegates
+        to Service</a></li>
+        <li><a href="#service-performs-validation"
+        id="toc-service-performs-validation">3. Service Performs
+        Validation</a></li>
+        <li><a href="#service-calls-repository"
+        id="toc-service-calls-repository">4. Service Calls
+        Repository</a></li>
+        <li><a href="#controller-builds-http-response"
+        id="toc-controller-builds-http-response">5. Controller Builds
+        HTTP Response</a></li>
+        </ul></li>
+        <li><a href="#data-flow-diagram" id="toc-data-flow-diagram">Data
+        Flow Diagram</a></li>
+        <li><a href="#responsibility-boundaries"
+        id="toc-responsibility-boundaries">Responsibility
+        Boundaries</a></li>
+        </ul></li>
+        </ul>
+      </nav>
       
       <article class="doc-body">
-        
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
+        <h1 id="integration-with-other-layers">Integration with Other
+        Layers</h1>
+        <p>The <strong>Integration</strong> responsibility describes how
+        the Controller Layer connects to downstream layers in the
+        application.</p>
+        <h2 id="layered-architecture-integration">Layered Architecture
+        Integration</h2>
+        <pre><code>Controller Layer (You are here)
+       ↓
+Service Layer (Business Logic)
+       ↓
+Repository Layer (Data Access)
+       ↓
+Database</code></pre>
+        <h2 id="interaction-pattern">Interaction Pattern</h2>
+        <h3 id="controller-receives-request">1. Controller Receives
+        Request</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Request received, DTO validated</span></span></code></pre></div>
+        <h3 id="controller-delegates-to-service">2. Controller Delegates
+        to Service</h3>
+        <p>The controller calls service methods but never implements
+        business logic:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="co">// NO business logic here</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    SupplierDTO created <span class="op">=</span> supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">);</span>  <span class="co">// Delegate</span></span></code></pre></div>
+        <h3 id="service-performs-validation">3. Service Performs
+        Validation</h3>
+        <p>The service layer validates business rules:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In SupplierService</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Business validation</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    supplierValidator<span class="op">.</span><span class="fu">validateRequiredFields</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    supplierValidator<span class="op">.</span><span class="fu">validateUniquenessOnCreate</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Convert DTO → Entity</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    Supplier entity <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span></code></pre></div>
+        <h3 id="service-calls-repository">4. Service Calls
+        Repository</h3>
+        <p>The service persists data via repository methods:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Persist to database</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    Supplier saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Return DTO to controller</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="controller-builds-http-response">5. Controller Builds
+        HTTP Response</h3>
+        <p>The controller receives the result and wraps it in a
+        response:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Build HTTP response</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">URI</span> location <span class="op">=</span> ServletUriComponentsBuilder<span class="op">.</span><span class="fu">fromCurrentRequest</span><span class="op">()</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">path</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">buildAndExpand</span><span class="op">(</span>created<span class="op">.</span><span class="fu">getId</span><span class="op">())</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">toUri</span><span class="op">();</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">created</span><span class="op">(</span>location<span class="op">).</span><span class="fu">body</span><span class="op">(</span>created<span class="op">);</span>  <span class="co">// 201 CREATED</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="data-flow-diagram">Data Flow Diagram</h2>
+        <pre><code>Client (JSON)
+    ↓
+Controller
+    ├─ Receives HTTP request
+    ├─ Validates with @Valid
+    ├─ Checks authorization with @PreAuthorize
+    └─ Delegates to service
+    ↓
+Service Layer
+    ├─ Validates business rules
+    ├─ Transforms DTO → Entity
+    ├─ Calls repository
+    └─ Transforms Entity → DTO
+    ↓
+Repository Layer
+    ├─ Executes SQL/JPQL queries
+    └─ Returns entities
+    ↓
+Database
+    └─ Persists/retrieves data
+    ↑
+Entity is returned through layers
+    ↓
+Controller (DTO)
+    └─ Returns HTTP response (JSON)</code></pre>
+        <h2 id="responsibility-boundaries">Responsibility
+        Boundaries</h2>
+        <p><strong>Controller DOES:</strong> - ✅ Handle HTTP concerns
+        (routing, status codes) - ✅ Validate input with
+        <code>@Valid</code> - ✅ Check authorization with
+        <code>@PreAuthorize</code> - ✅ Convert DTO ↔︎ JSON - ✅ Call
+        service methods</p>
+        <p><strong>Controller DOES NOT:</strong> - ❌ Implement business
+        logic - ❌ Access repositories directly - ❌ Connect to
+        databases - ❌ Validate business rules - ❌ Manage
+        transactions</p>
+        <p><strong>Service DOES:</strong> - ✅ Implement business logic
+        - ✅ Validate business rules - ✅ Manage transactions - ✅ Call
+        repositories - ✅ Handle exceptions</p>
+        <p><strong>Repository DOES:</strong> - ✅ Execute database
+        queries - ✅ Manage entities - ✅ Handle pagination/sorting - ✅
+        Translate to domain exceptions</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
       </article>
     </section>
   </main>

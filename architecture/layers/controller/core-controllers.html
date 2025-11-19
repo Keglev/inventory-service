@@ -49,9 +49,116 @@ layers/controller/core-controllers · Smart Supply Pro Docs</title>
     </aside>
 
     <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#core-controllers" id="toc-core-controllers">Core
+        Controllers</a>
+        <ul>
+        <li><a href="#suppliercontroller"
+        id="toc-suppliercontroller">SupplierController</a></li>
+        <li><a href="#inventoryitemcontroller"
+        id="toc-inventoryitemcontroller">InventoryItemController</a></li>
+        <li><a href="#stockhistorycontroller"
+        id="toc-stockhistorycontroller">StockHistoryController</a></li>
+        <li><a href="#analyticscontroller"
+        id="toc-analyticscontroller">AnalyticsController</a></li>
+        <li><a href="#authcontroller"
+        id="toc-authcontroller">AuthController</a></li>
+        </ul></li>
+        </ul>
+      </nav>
       
       <article class="doc-body">
-        
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
+        <h1 id="core-controllers">Core Controllers</h1>
+        <p>This section describes the main controllers in the Smart
+        Supply Pro API and their responsibilities.</p>
+        <h2 id="suppliercontroller">SupplierController</h2>
+        <p><strong>Purpose:</strong> Manage suppliers (CRUD
+        operations)</p>
+        <p><strong>Endpoints:</strong> - <code>GET /api/suppliers</code>
+        - List all suppliers - <code>POST /api/suppliers</code> - Create
+        supplier - <code>GET /api/suppliers/{id}</code> - Get supplier
+        by ID - <code>PUT /api/suppliers/{id}</code> - Update supplier -
+        <code>DELETE /api/suppliers/{id}</code> - Delete supplier -
+        <code>GET /api/suppliers/search?name=...</code> - Search
+        suppliers</p>
+        <p><strong>Authorization:</strong> USER can read, ADMIN can
+        modify</p>
+        <p><strong>Key Methods:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierController <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@GetMapping</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated()&quot;</span><span class="op">)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;&gt;</span> <span class="fu">listAll</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">Void</span><span class="op">&gt;</span> <span class="fu">delete</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="inventoryitemcontroller">InventoryItemController</h2>
+        <p><strong>Purpose:</strong> Manage inventory items with stock
+        tracking</p>
+        <p><strong>Endpoints:</strong> -
+        <code>GET /api/inventory/items</code> - List items (paginated) -
+        <code>POST /api/inventory/items</code> - Create item -
+        <code>GET /api/inventory/items/{id}</code> - Get item details -
+        <code>PUT /api/inventory/items/{id}</code> - Update item -
+        <code>DELETE /api/inventory/items/{id}</code> - Delete item -
+        <code>POST /api/inventory/items/{id}/update-stock</code> -
+        Update stock quantity</p>
+        <p><strong>Authorization:</strong> USER can read, ADMIN can
+        modify</p>
+        <p><strong>Features:</strong> - Pagination support (page, size
+        parameters) - Stock quantity updates with audit trail - Low
+        stock alerts via analytics</p>
+        <h2 id="stockhistorycontroller">StockHistoryController</h2>
+        <p><strong>Purpose:</strong> Query stock change audit trail</p>
+        <p><strong>Endpoints:</strong> -
+        <code>GET /api/stock-history</code> - List all stock movements -
+        <code>GET /api/stock-history?itemId=...</code> - Filter by item
+        - <code>GET /api/stock-history/summary</code> - Aggregate
+        statistics</p>
+        <p><strong>Authorization:</strong> USER read-only (immutable
+        audit trail)</p>
+        <p><strong>Features:</strong> - Immutable stock change records -
+        Reason tracking (PURCHASE, SALE, ADJUSTMENT, AUDIT, RETURN,
+        SHRINKAGE) - Timestamp and creator tracking</p>
+        <h2 id="analyticscontroller">AnalyticsController</h2>
+        <p><strong>Purpose:</strong> Provide analytics and reporting
+        endpoints</p>
+        <p><strong>Endpoints:</strong> -
+        <code>GET /api/analytics/dashboard</code> - Dashboard summary
+        (KPIs) - <code>GET /api/analytics/financial-summary</code> -
+        Financial metrics -
+        <code>GET /api/analytics/inventory-trends</code> - Trend
+        analysis - <code>GET /api/analytics/low-stock</code> - Low stock
+        alerts</p>
+        <p><strong>Authorization:</strong> USER can read analytics</p>
+        <p><strong>Key Metrics:</strong> - Weighted average cost (WAC) -
+        Inventory value trends - Stock utilization rates - Low stock
+        warnings</p>
+        <h2 id="authcontroller">AuthController</h2>
+        <p><strong>Purpose:</strong> OAuth2 authentication endpoints</p>
+        <p><strong>Endpoints:</strong> -
+        <code>POST /api/auth/callback</code> - OAuth2 callback handler -
+        <code>GET /api/auth/user</code> - Current user info -
+        <code>POST /api/auth/logout</code> - User logout</p>
+        <p><strong>Authorization:</strong> - PUBLIC for login/callback
+        endpoints - AUTHENTICATED for logout and user info</p>
+        <p><strong>Features:</strong> - Google OAuth2 integration -
+        GitHub OAuth2 integration - Automatic user provisioning on first
+        login - Session management</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
       </article>
     </section>
   </main>

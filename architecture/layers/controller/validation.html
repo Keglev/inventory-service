@@ -49,9 +49,96 @@ layers/controller/validation · Smart Supply Pro Docs</title>
     </aside>
 
     <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#request-validation"
+        id="toc-request-validation">Request Validation</a>
+        <ul>
+        <li><a href="#validation-annotations"
+        id="toc-validation-annotations">Validation Annotations</a></li>
+        <li><a href="#validation-example"
+        id="toc-validation-example">Validation Example</a></li>
+        <li><a href="#dto-with-validation-constraints"
+        id="toc-dto-with-validation-constraints">DTO with Validation
+        Constraints</a></li>
+        <li><a href="#validation-flow"
+        id="toc-validation-flow">Validation Flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
       
       <article class="doc-body">
-        
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
+        <h1 id="request-validation">Request Validation</h1>
+        <p>The <strong>Request Validation</strong> responsibility
+        ensures data integrity at the API boundary using Spring’s
+        validation framework.</p>
+        <h2 id="validation-annotations">Validation Annotations</h2>
+        <ul>
+        <li><code>@Valid</code> - Triggers validation of nested DTO
+        fields</li>
+        <li><code>@NotNull</code> - Field must not be null</li>
+        <li><code>@NotBlank</code> - String must not be empty or
+        whitespace</li>
+        <li><code>@Email</code> - Field must be valid email format</li>
+        <li><code>@Min</code>, <code>@Max</code> - Numeric range
+        validation</li>
+        <li><code>@Pattern</code> - Regex pattern matching</li>
+        <li><code>@Size</code> - Collection or string length
+        validation</li>
+        </ul>
+        <h2 id="validation-example">Validation Example</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// @Valid ensures all DTO fields meet constraints before method execution</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="dto-with-validation-constraints">DTO with Validation
+        Constraints</h2>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> CreateSupplierDTO <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Supplier name is required&quot;</span><span class="op">)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Size</span><span class="op">(</span>min <span class="op">=</span> <span class="dv">3</span><span class="op">,</span> max <span class="op">=</span> <span class="dv">100</span><span class="op">,</span> message <span class="op">=</span> <span class="st">&quot;Name must be 3-100 characters&quot;</span><span class="op">)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Contact name is required&quot;</span><span class="op">)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Email</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Contact email must be valid&quot;</span><span class="op">)</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactEmail<span class="op">;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Pattern</span><span class="op">(</span>regexp <span class="op">=</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">d{10}&quot;</span><span class="op">,</span> message <span class="op">=</span> <span class="st">&quot;Phone must be 10 digits&quot;</span><span class="op">)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> phoneNumber<span class="op">;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Min</span><span class="op">(</span>value <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> message <span class="op">=</span> <span class="st">&quot;Min order quantity must be 0 or greater&quot;</span><span class="op">)</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Integer</span> minOrderQuantity<span class="op">;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="validation-flow">Validation Flow</h2>
+        <pre><code>HTTP Request with DTO
+       ↓
+Controller receives @Valid annotation
+       ↓
+Spring runs constraint validators
+       ↓
+Are all constraints satisfied?
+       ├─ No → Throw MethodArgumentNotValidException
+       │        ↓
+       │    GlobalExceptionHandler catches
+       │        ↓
+       │    Returns 400 Bad Request with error details
+       │
+       └─ Yes → Controller method executes
+                 ↓
+            Service receives validated DTO</code></pre>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
       </article>
     </section>
   </main>

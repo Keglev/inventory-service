@@ -49,9 +49,123 @@ layers/controller/response-building · Smart Supply Pro Docs</title>
     </aside>
 
     <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#response-building"
+        id="toc-response-building">Response Building</a>
+        <ul>
+        <li><a href="#http-status-codes" id="toc-http-status-codes">HTTP
+        Status Codes</a></li>
+        <li><a href="#response-status-code-examples"
+        id="toc-response-status-code-examples">Response Status Code
+        Examples</a>
+        <ul>
+        <li><a href="#get---successful-retrieval"
+        id="toc-get---successful-retrieval">GET - Successful
+        Retrieval</a></li>
+        <li><a href="#post---resource-creation-with-location-header"
+        id="toc-post---resource-creation-with-location-header">POST -
+        Resource Creation with Location Header</a></li>
+        <li><a href="#put---update-success"
+        id="toc-put---update-success">PUT - Update Success</a></li>
+        <li><a href="#delete---no-content"
+        id="toc-delete---no-content">DELETE - No Content</a></li>
+        </ul></li>
+        <li><a href="#list-with-pagination"
+        id="toc-list-with-pagination">List with Pagination</a></li>
+        </ul></li>
+        </ul>
+      </nav>
       
       <article class="doc-body">
-        
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
+        <h1 id="response-building">Response Building</h1>
+        <p>The <strong>Response Building</strong> responsibility
+        constructs proper HTTP responses with appropriate status
+        codes.</p>
+        <h2 id="http-status-codes">HTTP Status Codes</h2>
+        <ul>
+        <li><code>200 OK</code> - Successful retrieval</li>
+        <li><code>201 CREATED</code> - Successful resource creation</li>
+        <li><code>204 NO CONTENT</code> - Successful deletion or update
+        without response body</li>
+        <li><code>400 BAD REQUEST</code> - Invalid input (validation
+        failed)</li>
+        <li><code>401 UNAUTHORIZED</code> - User not authenticated</li>
+        <li><code>403 FORBIDDEN</code> - User not authorized</li>
+        <li><code>404 NOT FOUND</code> - Resource not found</li>
+        <li><code>409 CONFLICT</code> - Business rule violation</li>
+        </ul>
+        <h2 id="response-status-code-examples">Response Status Code
+        Examples</h2>
+        <h3 id="get---successful-retrieval">GET - Successful
+        Retrieval</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">getById</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierService<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">map</span><span class="op">(</span>ResponseEntity<span class="op">::</span>ok<span class="op">)</span>  <span class="co">// 200 OK</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Supplier not found&quot;</span><span class="op">));</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="post---resource-creation-with-location-header">POST -
+        Resource Creation with Location Header</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    SupplierDTO created <span class="op">=</span> supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Build Location header pointing to created resource</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">URI</span> location <span class="op">=</span> ServletUriComponentsBuilder<span class="op">.</span><span class="fu">fromCurrentRequest</span><span class="op">()</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">path</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">buildAndExpand</span><span class="op">(</span>created<span class="op">.</span><span class="fu">getId</span><span class="op">())</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">toUri</span><span class="op">();</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">created</span><span class="op">(</span>location<span class="op">).</span><span class="fu">body</span><span class="op">(</span>created<span class="op">);</span>  <span class="co">// 201 CREATED + Location</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response:</strong></p>
+        <pre class="http"><code>HTTP/1.1 201 Created
+Location: /api/suppliers/abc123
+Content-Type: application/json
+
+{
+    &quot;id&quot;: &quot;abc123&quot;,
+    &quot;name&quot;: &quot;ACME Corp&quot;,
+    &quot;contactName&quot;: &quot;John Doe&quot;,
+    ...
+}</code></pre>
+        <h3 id="put---update-success">PUT - Update Success</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PutMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">update</span><span class="op">(</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Valid</span> <span class="at">@RequestBody</span> UpdateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    SupplierDTO updated <span class="op">=</span> supplierService<span class="op">.</span><span class="fu">update</span><span class="op">(</span>id<span class="op">,</span> dto<span class="op">);</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>updated<span class="op">);</span>  <span class="co">// 200 OK</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="delete---no-content">DELETE - No Content</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">Void</span><span class="op">&gt;</span> <span class="fu">delete</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    supplierService<span class="op">.</span><span class="fu">delete</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">noContent</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span>  <span class="co">// 204 NO CONTENT</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="list-with-pagination">List with Pagination</h2>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>Page<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;&gt;</span> <span class="fu">listAll</span><span class="op">(</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">@RequestParam</span><span class="op">(</span>defaultValue <span class="op">=</span> <span class="st">&quot;0&quot;</span><span class="op">)</span> <span class="dt">int</span> page<span class="op">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">@RequestParam</span><span class="op">(</span>defaultValue <span class="op">=</span> <span class="st">&quot;20&quot;</span><span class="op">)</span> <span class="dt">int</span> size<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    Page<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> suppliers <span class="op">=</span> supplierService<span class="op">.</span><span class="fu">findAll</span><span class="op">(</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        PageRequest<span class="op">.</span><span class="fu">of</span><span class="op">(</span>page<span class="op">,</span> size<span class="op">)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>suppliers<span class="op">);</span>  <span class="co">// 200 OK with paginated results</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
       </article>
     </section>
   </main>

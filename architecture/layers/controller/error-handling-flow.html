@@ -49,9 +49,156 @@ layers/controller/error-handling-flow · Smart Supply Pro Docs</title>
     </aside>
 
     <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#error-handling-flow"
+        id="toc-error-handling-flow">Error Handling Flow</a>
+        <ul>
+        <li><a href="#error-handling-architecture"
+        id="toc-error-handling-architecture">Error Handling
+        Architecture</a></li>
+        <li><a href="#exception-mapping"
+        id="toc-exception-mapping">Exception Mapping</a>
+        <ul>
+        <li><a href="#bad-request" id="toc-bad-request">400 Bad
+        Request</a></li>
+        <li><a href="#not-found" id="toc-not-found">404 Not
+        Found</a></li>
+        <li><a href="#conflict" id="toc-conflict">409 Conflict</a></li>
+        <li><a href="#forbidden" id="toc-forbidden">403
+        Forbidden</a></li>
+        <li><a href="#internal-server-error"
+        id="toc-internal-server-error">500 Internal Server
+        Error</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
       
       <article class="doc-body">
-        
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
+        <h1 id="error-handling-flow">Error Handling Flow</h1>
+        <p>The <strong>Error Handling Flow</strong> maps exceptions to
+        appropriate HTTP responses ensuring consistent error
+        communication.</p>
+        <h2 id="error-handling-architecture">Error Handling
+        Architecture</h2>
+        <div class="mermaid">
+        graph LR
+            Request["HTTP Request"]
+            Valid{Valid DTO?}
+            Auth{Authorized?}
+            Service["Execute Service"]
+            Error["Handle Exception"]
+            Response["HTTP Response"]
+
+            Request --> Valid
+            Valid -->|No| Error
+            Valid -->|Yes| Auth
+            Auth -->|No| Error
+            Auth -->|Yes| Service
+            Service -->|Exception| Error
+            Error --> Response
+            Response -->|4xx/5xx| Client["Client"]
+
+            style Valid fill:#fff59d
+            style Auth fill:#fff59d
+            style Error fill:#ef9a9a
+            style Response fill:#a5d6a7
+        </div>
+        <h2 id="exception-mapping">Exception Mapping</h2>
+        <p>The <code>GlobalExceptionHandler</code> maps domain
+        exceptions to HTTP responses:</p>
+        <h3 id="bad-request">400 Bad Request</h3>
+        <pre><code>IllegalArgumentException
+    ↓
+GlobalExceptionHandler catches
+    ↓
+Returns ErrorResponse with status 400</code></pre>
+        <p><strong>Use Case:</strong> Invalid input, constraint
+        violation by user</p>
+        <pre><code>POST /api/suppliers
+Body: { &quot;name&quot;: &quot;&quot; }
+    ↓
+Response: 400 Bad Request
+{
+    &quot;code&quot;: &quot;BAD_REQUEST&quot;,
+    &quot;message&quot;: &quot;Supplier name is required&quot;,
+    &quot;path&quot;: &quot;/api/suppliers&quot;,
+    &quot;timestamp&quot;: &quot;2024-11-19T10:30:45&quot;
+}</code></pre>
+        <h3 id="not-found">404 Not Found</h3>
+        <pre><code>NoSuchElementException
+    ↓
+GlobalExceptionHandler catches
+    ↓
+Returns ErrorResponse with status 404</code></pre>
+        <p><strong>Use Case:</strong> Resource does not exist</p>
+        <pre><code>GET /api/suppliers/nonexistent
+    ↓
+Response: 404 Not Found
+{
+    &quot;code&quot;: &quot;NOT_FOUND&quot;,
+    &quot;message&quot;: &quot;Resource not found&quot;,
+    &quot;path&quot;: &quot;/api/suppliers/nonexistent&quot;,
+    &quot;timestamp&quot;: &quot;2024-11-19T10:30:45&quot;
+}</code></pre>
+        <h3 id="conflict">409 Conflict</h3>
+        <pre><code>IllegalStateException
+    ↓
+GlobalExceptionHandler catches
+    ↓
+Returns ErrorResponse with status 409</code></pre>
+        <p><strong>Use Case:</strong> Business rule violation (e.g.,
+        duplicate supplier name)</p>
+        <pre><code>POST /api/suppliers
+Body: { &quot;name&quot;: &quot;ACME Corp&quot; }  ← Duplicate
+    ↓
+Response: 409 Conflict
+{
+    &quot;code&quot;: &quot;CONFLICT&quot;,
+    &quot;message&quot;: &quot;Supplier &#39;ACME Corp&#39; already exists&quot;,
+    &quot;path&quot;: &quot;/api/suppliers&quot;,
+    &quot;timestamp&quot;: &quot;2024-11-19T10:30:45&quot;
+}</code></pre>
+        <h3 id="forbidden">403 Forbidden</h3>
+        <pre><code>AccessDeniedException
+    ↓
+GlobalExceptionHandler catches
+    ↓
+Returns ErrorResponse with status 403</code></pre>
+        <p><strong>Use Case:</strong> User lacks required
+        role/permission</p>
+        <pre><code>DELETE /api/suppliers/123
+(User has USER role, needs ADMIN)
+    ↓
+Response: 403 Forbidden
+{
+    &quot;code&quot;: &quot;FORBIDDEN&quot;,
+    &quot;message&quot;: &quot;You do not have permission&quot;,
+    &quot;path&quot;: &quot;/api/suppliers/123&quot;,
+    &quot;timestamp&quot;: &quot;2024-11-19T10:30:45&quot;
+}</code></pre>
+        <h3 id="internal-server-error">500 Internal Server Error</h3>
+        <pre><code>Generic Exception
+    ↓
+GlobalExceptionHandler catches
+    ↓
+Returns ErrorResponse with status 500</code></pre>
+        <p><strong>Use Case:</strong> Unexpected error in service
+        layer</p>
+        <pre><code>Service logic throws RuntimeException
+    ↓
+Response: 500 Internal Server Error
+{
+    &quot;code&quot;: &quot;INTERNAL_SERVER_ERROR&quot;,
+    &quot;message&quot;: &quot;An unexpected error occurred&quot;,
+    &quot;path&quot;: &quot;/api/suppliers&quot;,
+    &quot;timestamp&quot;: &quot;2024-11-19T10:30:45&quot;
+}</code></pre>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Controller Index</a></p>
       </article>
     </section>
   </main>

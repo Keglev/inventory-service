@@ -60,9 +60,9 @@
         <li><a href="#core-layers-documentation"
         id="toc-core-layers-documentation">Core Layers
         Documentation</a></li>
-        <li><a href="#infrastructure-components-detailed"
-        id="toc-infrastructure-components-detailed">Infrastructure
-        Components (Detailed)</a></li>
+        <li><a href="#controller-components-detailed"
+        id="toc-controller-components-detailed">Controller Components
+        (Detailed)</a></li>
         </ul></li>
         <li><a href="#quick-navigation-by-role"
         id="toc-quick-navigation-by-role">Quick Navigation by Role</a>
@@ -92,7 +92,7 @@
         <h3 id="core-layers-documentation">Core Layers
         Documentation</h3>
         <ol type="1">
-        <li><strong><a href="./controller-layer.html">Controller
+        <li><strong><a href="./controller/index.html">Controller
         Layer</a></strong> - HTTP API entry point, request routing,
         authorization</li>
         <li><strong><a href="./service-layer.html">Service
@@ -108,39 +108,59 @@
         &amp; Cross-Cutting Concerns</a></strong> - Configuration,
         security, validation, exception handling, mapping</li>
         </ol>
-        <h3 id="infrastructure-components-detailed">Infrastructure
-        Components (Detailed)</h3>
-        <p>The Infrastructure Layer has been broken down into focused
+        <h3 id="controller-components-detailed">Controller Components
+        (Detailed)</h3>
+        <p>The Controller Layer has been broken down into focused
         guides:</p>
         <ul>
         <li><strong><a
-        href="./infrastructure/configuration.html">Configuration</a></strong>
-        - Spring beans and property setup</li>
+        href="./controller/routing.html">Routing</a></strong> - URL
+        mapping and HTTP methods</li>
         <li><strong><a
-        href="./infrastructure/security.html">Security</a></strong> -
-        OAuth2 and authorization</li>
+        href="./controller/validation.html">Validation</a></strong> -
+        Input validation and constraints</li>
         <li><strong><a
-        href="./infrastructure/exception-handling.html">Exception
-        Handling</a></strong> - Error mapping and responses</li>
+        href="./controller/authorization.html">Authorization</a></strong>
+        - Authentication and role checks</li>
         <li><strong><a
-        href="./infrastructure/validation.html">Validation</a></strong>
-        - Input validation and business rules</li>
-        <li><strong><a href="./infrastructure/mapping.html">Data
-        Mapping</a></strong> - DTO ↔︎ Entity transformation</li>
-        <li><strong><a href="./infrastructure/best-practices.html">Best
+        href="./controller/dto-conversion-inbound.html">DTO Conversion
+        (Inbound)</a></strong> - JSON → Object mapping</li>
+        <li><strong><a
+        href="./controller/dto-conversion-outbound.html">DTO Conversion
+        (Outbound)</a></strong> - Object → JSON mapping</li>
+        <li><strong><a
+        href="./controller/response-building.html">Response
+        Building</a></strong> - HTTP status codes and responses</li>
+        <li><strong><a href="./controller/core-controllers.html">Core
+        Controllers</a></strong> - SupplierController,
+        InventoryItemController, etc.</li>
+        <li><strong><a
+        href="./controller/error-handling-flow.html">Error Handling
+        Flow</a></strong> - Exception mapping to HTTP responses</li>
+        <li><strong><a href="./controller/best-practices.html">Best
         Practices</a></strong> - Standards and guidelines</li>
+        <li><strong><a
+        href="./controller/lifecycle.html">Request/Response
+        Lifecycle</a></strong> - Complete flow through the layer</li>
+        <li><strong><a
+        href="./controller/integration.html">Integration</a></strong> -
+        How controller connects to service layer</li>
+        <li><strong><a
+        href="./controller/testing.html">Testing</a></strong> - Unit and
+        integration testing strategies</li>
         </ul>
         <h2 id="quick-navigation-by-role">Quick Navigation by Role</h2>
         <h3 id="developers">Developers</h3>
         <ul>
         <li>Start with <a href="./overview.html">Overview</a> for the
         big picture</li>
-        <li>Review <a href="./controller-layer.html">Controller</a> to
-        understand endpoint structure</li>
+        <li>Review <a href="./controller/index.html">Controller
+        Layer</a> to understand endpoint structure</li>
+        <li>Check <a href="./controller/routing.html">Routing</a> for
+        endpoint mapping</li>
         <li>Check <a href="./service-layer.html">Service</a> for
         business logic patterns</li>
-        <li>Reference <a
-        href="./infrastructure/best-practices.html">Infrastructure Best
+        <li>Reference <a href="./controller/best-practices.html">Best
         Practices</a> for standards</li>
         </ul>
         <h3 id="database-administrators">Database Administrators</h3>
