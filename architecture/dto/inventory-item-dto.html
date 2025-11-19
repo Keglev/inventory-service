@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+dto/inventory-item-dto · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#inventory-item-dtos"
+        id="toc-inventory-item-dtos">Inventory Item DTOs</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#dto-diagram" id="toc-dto-diagram">DTO
+        Diagram</a></li>
+        <li><a href="#inventoryitemdto-full-record"
+        id="toc-inventoryitemdto-full-record">InventoryItemDTO (Full
+        Record)</a>
+        <ul>
+        <li><a href="#definition"
+        id="toc-definition">Definition</a></li>
+        <li><a href="#field-reference" id="toc-field-reference">Field
+        Reference</a></li>
+        </ul></li>
+        <li><a href="#stockupdateresultdto-enriched-result"
+        id="toc-stockupdateresultdto-enriched-result">StockUpdateResultDTO
+        (Enriched Result)</a>
+        <ul>
+        <li><a href="#definition-1"
+        id="toc-definition-1">Definition</a></li>
+        <li><a href="#field-reference-1"
+        id="toc-field-reference-1">Field Reference</a></li>
+        </ul></li>
+        <li><a href="#lowstockitemdto-alert"
+        id="toc-lowstockitemdto-alert">LowStockItemDTO (Alert)</a>
+        <ul>
+        <li><a href="#definition-2"
+        id="toc-definition-2">Definition</a></li>
+        <li><a href="#field-reference-2"
+        id="toc-field-reference-2">Field Reference</a></li>
+        </ul></li>
+        <li><a href="#validation-rules"
+        id="toc-validation-rules">Validation Rules</a>
+        <ul>
+        <li><a href="#post-create-inventory-item"
+        id="toc-post-create-inventory-item">POST (Create Inventory
+        Item)</a></li>
+        <li><a href="#put-update-inventory-item"
+        id="toc-put-update-inventory-item">PUT (Update Inventory
+        Item)</a></li>
+        <li><a href="#patch-update-stock"
+        id="toc-patch-update-stock">PATCH (Update Stock)</a></li>
+        </ul></li>
+        <li><a href="#requestresponse-examples"
+        id="toc-requestresponse-examples">Request/Response Examples</a>
+        <ul>
+        <li><a href="#post-create-item" id="toc-post-create-item">POST
+        Create Item</a></li>
+        <li><a href="#patch-update-stock-increase"
+        id="toc-patch-update-stock-increase">PATCH Update Stock
+        (Increase)</a></li>
+        <li><a href="#patch-update-stock-decrease"
+        id="toc-patch-update-stock-decrease">PATCH Update Stock
+        (Decrease)</a></li>
+        <li><a href="#get-list-items-paginated"
+        id="toc-get-list-items-paginated">GET List Items
+        (Paginated)</a></li>
+        </ul></li>
+        <li><a href="#validation-groups-in-action"
+        id="toc-validation-groups-in-action">Validation Groups in
+        Action</a>
+        <ul>
+        <li><a href="#using-validation-groups-in-controller"
+        id="toc-using-validation-groups-in-controller">Using Validation
+        Groups in Controller</a></li>
+        </ul></li>
+        <li><a href="#mapping-strategy"
+        id="toc-mapping-strategy">Mapping Strategy</a>
+        <ul>
+        <li><a href="#inventoryitemmapper"
+        id="toc-inventoryitemmapper">InventoryItemMapper</a></li>
+        </ul></li>
+        <li><a href="#stock-change-reasons"
+        id="toc-stock-change-reasons">Stock Change Reasons</a></li>
+        <li><a href="#error-scenarios" id="toc-error-scenarios">Error
+        Scenarios</a>
+        <ul>
+        <li><a href="#invalid-stock-update-below-zero"
+        id="toc-invalid-stock-update-below-zero">Invalid Stock Update
+        (Below Zero)</a></li>
+        <li><a href="#missing-required-field"
+        id="toc-missing-required-field">Missing Required Field</a></li>
+        </ul></li>
+        <li><a href="#testing-strategy"
+        id="toc-testing-strategy">Testing Strategy</a>
+        <ul>
+        <li><a href="#unit-test-for-validation-groups"
+        id="toc-unit-test-for-validation-groups">Unit Test for
+        Validation Groups</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+        <h1 id="inventory-item-dtos">Inventory Item DTOs</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Inventory Item DTOs handle the boundary between the REST API
+        and the <code>InventoryItem</code> entity. Supports CRUD
+        operations with validation groups (Create/Update) and
+        specialized DTOs for stock updates and alerts.</p>
+        <p><strong>Entity:</strong> <code>InventoryItem</code><br />
+        <strong>Mapper:</strong> <code>InventoryItemMapper</code><br />
+        <strong>Controller:</strong>
+        <code>InventoryItemController</code><br />
+        <strong>Service:</strong> <code>InventoryItemService</code></p>
+        <hr />
+        <h2 id="dto-diagram">DTO Diagram</h2>
+        <div class="mermaid">
+        graph LR
+            A["API Client"]
+            B["InventoryItemController"]
+            
+            B -->|POST/PUT| C["InventoryItemDTO"]
+            B -->|PATCH| D["StockUpdateResultDTO"]
+            B -->|GET| E["InventoryItemDTO"]
+            B -->|Analytics| F["LowStockItemDTO"]
+            
+            C --> G["InventoryItemService"]
+            D --> G
+            E --> G
+            F --> G
+            
+            G --> H["InventoryItemMapper"]
+            H --> I["InventoryItem Entity"]
+            
+            style C fill:#fff9c4
+            style D fill:#fff9c4
+            style E fill:#fff9c4
+            style F fill:#fff9c4
+            style I fill:#ffccbc
+        </div>
+        <hr />
+        <h2 id="inventoryitemdto-full-record">InventoryItemDTO (Full
+        Record)</h2>
+        <h3 id="definition">Definition</h3>
+        <p>Complete inventory item record with validation groups
+        supporting both CREATE and UPDATE operations.</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Getter</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Setter</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">@AllArgsConstructor</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemDTO <span class="op">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Validation group markers</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">interface</span> Create <span class="op">{}</span>   <span class="co">// Constraints for POST requests</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">interface</span> Update <span class="op">{}</span>   <span class="co">// Constraints for PUT requests</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Unique identifier<span class="co">,</span> system<span class="co">-</span>generated on creation<span class="co">. */</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Null</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;ID must be absent when creating&quot;</span><span class="op">,</span> groups <span class="op">=</span> Create<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;ID must be present&quot;</span><span class="op">,</span> groups <span class="op">=</span> Update<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Display name of the inventory item<span class="co">. */</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Item name is mandatory&quot;</span><span class="op">)</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Current stock quantity <span class="co">(</span>non<span class="co">-</span>negative<span class="co">). */</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Quantity is mandatory&quot;</span><span class="op">)</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PositiveOrZero</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Quantity must be zero or positive&quot;</span><span class="op">)</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> quantity<span class="op">;</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Price per unit <span class="co">(</span>positive value required<span class="co">). */</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price is mandatory&quot;</span><span class="op">)</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Positive</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price must be greater than zero&quot;</span><span class="op">)</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> price<span class="op">;</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Calculated total value <span class="co">(</span>quantity <span class="co">×</span> price<span class="co">),</span> backend<span class="co">-</span>populated<span class="co">. */</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> totalValue<span class="op">;</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Associated supplier identifier<span class="co">. */</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Supplier ID is mandatory&quot;</span><span class="op">)</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> supplierId<span class="op">;</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Minimum stock threshold for reorder alerts<span class="co">. */</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PositiveOrZero</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> reorderLevel<span class="op">;</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> User or process that created this item <span class="co">(</span>audit trail<span class="co">). */</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;CreatedBy must be provided&quot;</span><span class="op">)</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Creation timestamp <span class="co">(</span>system<span class="co">-</span>generated<span class="co">). */</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="field-reference">Field Reference</h3>
+        <table>
+        <colgroup>
+        <col style="width: 23%" />
+        <col style="width: 20%" />
+        <col style="width: 33%" />
+        <col style="width: 23%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>id</code></td>
+        <td>String</td>
+        <td>Create: No, Update: Yes</td>
+        <td>System-generated unique identifier</td>
+        </tr>
+        <tr class="even">
+        <td><code>name</code></td>
+        <td>String</td>
+        <td>Yes</td>
+        <td>Item name, 1-255 chars</td>
+        </tr>
+        <tr class="odd">
+        <td><code>quantity</code></td>
+        <td>int</td>
+        <td>Yes</td>
+        <td>Current stock, non-negative</td>
+        </tr>
+        <tr class="even">
+        <td><code>price</code></td>
+        <td>BigDecimal</td>
+        <td>Yes</td>
+        <td>Unit price, must be &gt; 0</td>
+        </tr>
+        <tr class="odd">
+        <td><code>totalValue</code></td>
+        <td>BigDecimal</td>
+        <td>No</td>
+        <td>Calculated by backend (qty × price)</td>
+        </tr>
+        <tr class="even">
+        <td><code>supplierId</code></td>
+        <td>String</td>
+        <td>Yes</td>
+        <td>Foreign key to supplier</td>
+        </tr>
+        <tr class="odd">
+        <td><code>reorderLevel</code></td>
+        <td>int</td>
+        <td>Yes</td>
+        <td>Minimum threshold for alerts</td>
+        </tr>
+        <tr class="even">
+        <td><code>createdBy</code></td>
+        <td>String</td>
+        <td>Auto-filled</td>
+        <td>User who created the item</td>
+        </tr>
+        <tr class="odd">
+        <td><code>createdAt</code></td>
+        <td>LocalDateTime</td>
+        <td>Auto-filled</td>
+        <td>Creation timestamp</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2
+        id="stockupdateresultdto-enriched-result">StockUpdateResultDTO
+        (Enriched Result)</h2>
+        <h3 id="definition-1">Definition</h3>
+        <p>Enhanced stock update result with human-readable names for
+        audit and reporting.</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@AllArgsConstructor</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockUpdateResultDTO <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Item display name <span class="co">(</span>enriched from ID<span class="co">). */</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> itemName<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Supplier display name <span class="co">(</span>enriched from ID<span class="co">). */</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> supplierName<span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Quantity delta <span class="co">(</span>positive inbound<span class="co">,</span> negative outbound<span class="co">). */</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> change<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Stock change reason classification<span class="co">. */</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> reason<span class="op">;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> User or process that triggered this change<span class="co">. */</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> When this change was recorded<span class="co">. */</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime timestamp<span class="op">;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Item price at time of change <span class="co">(</span>for value tracking<span class="co">). */</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> priceAtChange<span class="op">;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="field-reference-1">Field Reference</h3>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 35%" />
+        <col style="width: 30%" />
+        <col style="width: 35%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>itemName</code></td>
+        <td>String</td>
+        <td>Human-readable item name (from InventoryItem)</td>
+        </tr>
+        <tr class="even">
+        <td><code>supplierName</code></td>
+        <td>String</td>
+        <td>Human-readable supplier name (from Supplier)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>change</code></td>
+        <td>int</td>
+        <td>Quantity change: positive (inbound), negative
+        (outbound)</td>
+        </tr>
+        <tr class="even">
+        <td><code>reason</code></td>
+        <td>String</td>
+        <td>Reason code (e.g., “received”, “sold_to_customer”)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>createdBy</code></td>
+        <td>String</td>
+        <td>User or process making the change</td>
+        </tr>
+        <tr class="even">
+        <td><code>timestamp</code></td>
+        <td>LocalDateTime</td>
+        <td>When the change occurred (ISO-8601)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>priceAtChange</code></td>
+        <td>BigDecimal</td>
+        <td>Item price at time of change for historical value</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="lowstockitemdto-alert">LowStockItemDTO (Alert)</h2>
+        <h3 id="definition-2">Definition</h3>
+        <p>Simplified DTO for low-stock alerts, used in analytics
+        dashboards.</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@AllArgsConstructor</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> LowStockItemDTO <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Item name requiring attention<span class="co">. */</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> itemName<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Current available stock quantity<span class="co">. */</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> quantity<span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span> Minimum threshold <span class="co">(</span>alert triggers when quantity <span class="er">&lt;</span> minimumQuantity<span class="co">). */</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> minimumQuantity<span class="op">;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="field-reference-2">Field Reference</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>itemName</code></td>
+        <td>String</td>
+        <td>Human-readable item name</td>
+        </tr>
+        <tr class="even">
+        <td><code>quantity</code></td>
+        <td>int</td>
+        <td>Current stock level</td>
+        </tr>
+        <tr class="odd">
+        <td><code>minimumQuantity</code></td>
+        <td>int</td>
+        <td>Reorder threshold</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="validation-rules">Validation Rules</h2>
+        <h3 id="post-create-inventory-item">POST (Create Inventory
+        Item)</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Constraint</th>
+        <th>Rule</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>id</code></td>
+        <td><code>@Null</code> (Create)</td>
+        <td>Must be <strong>absent</strong> from request</td>
+        </tr>
+        <tr class="even">
+        <td><code>name</code></td>
+        <td><code>@NotBlank</code></td>
+        <td>Required, non-empty</td>
+        </tr>
+        <tr class="odd">
+        <td><code>quantity</code></td>
+        <td><code>@NotNull</code>, <code>@PositiveOrZero</code></td>
+        <td>Required, &gt;= 0</td>
+        </tr>
+        <tr class="even">
+        <td><code>price</code></td>
+        <td><code>@NotNull</code>, <code>@Positive</code></td>
+        <td>Required, &gt; 0</td>
+        </tr>
+        <tr class="odd">
+        <td><code>totalValue</code></td>
+        <td>—</td>
+        <td>Calculated by service (ignored in request)</td>
+        </tr>
+        <tr class="even">
+        <td><code>supplierId</code></td>
+        <td><code>@NotBlank</code></td>
+        <td>Required foreign key</td>
+        </tr>
+        <tr class="odd">
+        <td><code>reorderLevel</code></td>
+        <td><code>@NotNull</code>, <code>@PositiveOrZero</code></td>
+        <td>Required, &gt;= 0</td>
+        </tr>
+        <tr class="even">
+        <td><code>createdBy</code></td>
+        <td>—</td>
+        <td>Auto-filled from auth context</td>
+        </tr>
+        <tr class="odd">
+        <td><code>createdAt</code></td>
+        <td>—</td>
+        <td>Auto-filled (current timestamp)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="put-update-inventory-item">PUT (Update Inventory
+        Item)</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Constraint</th>
+        <th>Change from POST</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>id</code></td>
+        <td><code>@NotNull</code> (Update)</td>
+        <td>Required (in URL path)</td>
+        </tr>
+        <tr class="even">
+        <td><code>name</code></td>
+        <td><code>@NotBlank</code></td>
+        <td>Same validation</td>
+        </tr>
+        <tr class="odd">
+        <td><code>quantity</code></td>
+        <td><code>@NotNull</code>, <code>@PositiveOrZero</code></td>
+        <td>Same validation</td>
+        </tr>
+        <tr class="even">
+        <td><code>price</code></td>
+        <td><code>@NotNull</code>, <code>@Positive</code></td>
+        <td>Same validation</td>
+        </tr>
+        <tr class="odd">
+        <td><code>supplierId</code></td>
+        <td><code>@NotBlank</code></td>
+        <td>Same validation</td>
+        </tr>
+        <tr class="even">
+        <td><code>reorderLevel</code></td>
+        <td><code>@NotNull</code>, <code>@PositiveOrZero</code></td>
+        <td>Same validation</td>
+        </tr>
+        <tr class="odd">
+        <td><code>createdBy</code></td>
+        <td>—</td>
+        <td>Preserved (not updated)</td>
+        </tr>
+        <tr class="even">
+        <td><code>createdAt</code></td>
+        <td>—</td>
+        <td>Preserved (not updated)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="patch-update-stock">PATCH (Update Stock)</h3>
+        <p>Special operation using custom DTO with
+        <code>@RequestBody</code>:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;newQuantity&quot;</span><span class="op">:</span> <span class="dv">150</span><span class="op">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;reason&quot;</span><span class="op">:</span> <span class="st">&quot;received_from_supplier&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="requestresponse-examples">Request/Response Examples</h2>
+        <h3 id="post-create-item">POST Create Item</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>POST /api/items
+Content-Type: application/json
+Authorization: Bearer &lt;token&gt;
+
+{
+  &quot;name&quot;: &quot;Widget A&quot;,
+  &quot;quantity&quot;: 100,
+  &quot;price&quot;: 19.99,
+  &quot;supplierId&quot;: &quot;SUP-001&quot;,
+  &quot;reorderLevel&quot;: 20
+}</code></pre>
+        <p><strong>Response (201 Created):</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">19.99</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalValue&quot;</span><span class="fu">:</span> <span class="fl">1999.00</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reorderLevel&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdAt&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:30:00.000Z&quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="patch-update-stock-increase">PATCH Update Stock
+        (Increase)</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>PATCH /api/items/ITEM-001/update-stock
+Content-Type: application/json
+Authorization: Bearer &lt;token&gt;
+
+{
+  &quot;newQuantity&quot;: 150,
+  &quot;reason&quot;: &quot;received_from_supplier&quot;
+}</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;change&quot;</span><span class="fu">:</span> <span class="dv">50</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;received_from_supplier&quot;</span><span class="fu">,</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;warehouse@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;priceAtChange&quot;</span><span class="fu">:</span> <span class="fl">19.99</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="patch-update-stock-decrease">PATCH Update Stock
+        (Decrease)</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>PATCH /api/items/ITEM-001/update-stock
+Content-Type: application/json
+Authorization: Bearer &lt;token&gt;
+
+{
+  &quot;newQuantity&quot;: 130,
+  &quot;reason&quot;: &quot;sold_to_customer&quot;
+}</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierName&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;change&quot;</span><span class="fu">:</span> <span class="dv">-20</span><span class="fu">,</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;sold_to_customer&quot;</span><span class="fu">,</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;sales@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T15:45:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;priceAtChange&quot;</span><span class="fu">:</span> <span class="fl">19.99</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="get-list-items-paginated">GET List Items
+        (Paginated)</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/items?page=0&amp;size=20&amp;sort=name,asc
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">130</span><span class="fu">,</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">19.99</span><span class="fu">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;totalValue&quot;</span><span class="fu">:</span> <span class="fl">2598.70</span><span class="fu">,</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;reorderLevel&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;createdAt&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:30:00.000Z&quot;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-002&quot;</span><span class="fu">,</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget B&quot;</span><span class="fu">,</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">29.99</span><span class="fu">,</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;totalValue&quot;</span><span class="fu">:</span> <span class="fl">149.95</span><span class="fu">,</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;reorderLevel&quot;</span><span class="fu">:</span> <span class="dv">25</span><span class="fu">,</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;createdAt&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-18T09:15:00.000Z&quot;</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">63</span><span class="fu">,</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="validation-groups-in-action">Validation Groups in
+        Action</h2>
+        <h3 id="using-validation-groups-in-controller">Using Validation
+        Groups in Controller</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/items&quot;</span><span class="op">)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemController <span class="op">{</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">@Validated</span><span class="op">(</span>InventoryItemDTO<span class="op">.</span><span class="fu">Create</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">@RequestBody</span> InventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ID must be null, enforced via @Null(groups = Create.class)</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">)</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">body</span><span class="op">(</span>itemService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PutMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">update</span><span class="op">(</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">,</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">@Validated</span><span class="op">(</span>InventoryItemDTO<span class="op">.</span><span class="fu">Update</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">@RequestBody</span> InventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ID must not be null, enforced via @NotNull(groups = Update.class)</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>itemService<span class="op">.</span><span class="fu">update</span><span class="op">(</span>id<span class="op">,</span> dto<span class="op">));</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="mapping-strategy">Mapping Strategy</h2>
+        <h3 id="inventoryitemmapper">InventoryItemMapper</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemMapper <span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> InventoryItemDTO <span class="fu">toDTO</span><span class="op">(</span>InventoryItem entity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>entity <span class="op">==</span> <span class="kw">null</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getId</span><span class="op">())</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getName</span><span class="op">())</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getQuantity</span><span class="op">())</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getPrice</span><span class="op">())</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">totalValue</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">*</span> entity<span class="op">.</span><span class="fu">getPrice</span><span class="op">())</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getSupplierId</span><span class="op">())</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reorderLevel</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getReorderLevel</span><span class="op">())</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getCreatedBy</span><span class="op">())</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getCreatedAt</span><span class="op">())</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> InventoryItem <span class="fu">toEntity</span><span class="op">(</span>InventoryItemDTO dto<span class="op">,</span> <span class="bu">String</span> createdBy<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>dto <span class="op">==</span> <span class="kw">null</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> InventoryItem<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getId</span><span class="op">())</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">())</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getQuantity</span><span class="op">())</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getPrice</span><span class="op">())</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getSupplierId</span><span class="op">())</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reorderLevel</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getReorderLevel</span><span class="op">())</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span>createdBy<span class="op">)</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="stock-change-reasons">Stock Change Reasons</h2>
+        <p>Stock updates (PATCH) use reason codes from
+        <code>StockChangeReason</code> enum:</p>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Code</th>
+        <th>Description</th>
+        <th>Direction</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>received</code></td>
+        <td>Stock received from supplier</td>
+        <td>Inbound (+)</td>
+        </tr>
+        <tr class="even">
+        <td><code>sold_to_customer</code></td>
+        <td>Sold to customer</td>
+        <td>Outbound (-)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>return_from_customer</code></td>
+        <td>Return from customer</td>
+        <td>Inbound (+)</td>
+        </tr>
+        <tr class="even">
+        <td><code>damaged</code></td>
+        <td>Damaged and removed</td>
+        <td>Outbound (-)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>inventory_adjustment</code></td>
+        <td>Manual inventory count adjustment</td>
+        <td>Both</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="error-scenarios">Error Scenarios</h2>
+        <h3 id="invalid-stock-update-below-zero">Invalid Stock Update
+        (Below Zero)</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>PATCH /api/items/ITEM-002/update-stock
+Content-Type: application/json
+
+{
+  &quot;newQuantity&quot;: -5,
+  &quot;reason&quot;: &quot;sold_to_customer&quot;
+}</code></pre>
+        <p><strong>Response (400 Bad Request):</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Stock quantity cannot be negative&quot;</span><span class="fu">,</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:35:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-4523&quot;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="missing-required-field">Missing Required Field</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>POST /api/items
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;Widget C&quot;,
+  &quot;price&quot;: 29.99
+}</code></pre>
+        <p><strong>Response (400 Bad Request):</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: Quantity is mandatory; Supplier ID is mandatory&quot;</span><span class="fu">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:36:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-5624&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-strategy">Testing Strategy</h2>
+        <h3 id="unit-test-for-validation-groups">Unit Test for
+        Validation Groups</h3>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@WebMvcTest</span><span class="op">(</span>InventoryItemController<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InventoryItemControllerTest <span class="op">{</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testCreate_WithIdPresent_Returns400</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// POST with ID should fail (@Null on Create group)</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO dto <span class="op">=</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;ITEM-999&quot;</span><span class="op">)</span>  <span class="co">// Should not be present on CREATE</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Widget&quot;</span><span class="op">)</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">100</span><span class="op">)</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">valueOf</span><span class="op">(</span><span class="fl">19.99</span><span class="op">))</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;SUP-001&quot;</span><span class="op">)</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reorderLevel</span><span class="op">(</span><span class="dv">20</span><span class="op">)</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>            <span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/items&quot;</span><span class="op">)</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">)</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isBadRequest</span><span class="op">());</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testUpdate_WithoutId_Returns400</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>        <span class="co">// PUT without ID should fail (@NotNull on Update group)</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO dto <span class="op">=</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>            <span class="co">// No ID</span></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Widget Updated&quot;</span><span class="op">)</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">150</span><span class="op">)</span></span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">valueOf</span><span class="op">(</span><span class="fl">19.99</span><span class="op">))</span></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;SUP-001&quot;</span><span class="op">)</span></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reorderLevel</span><span class="op">(</span><span class="dv">20</span><span class="op">)</span></span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span></span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>            <span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/items/ITEM-001&quot;</span><span class="op">)</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>        <span class="op">)</span></span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isBadRequest</span><span class="op">());</span></span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Main DTO</strong></td>
+        <td><code>InventoryItemDTO</code> (with Create/Update
+        groups)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Stock Update DTO</strong></td>
+        <td><code>StockUpdateResultDTO</code> (enriched audit
+        record)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Alert DTO</strong></td>
+        <td><code>LowStockItemDTO</code> (for dashboards)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Entity</strong></td>
+        <td><code>InventoryItem</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Mapper</strong></td>
+        <td><code>InventoryItemMapper</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Controller</strong></td>
+        <td><code>InventoryItemController</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Operations</strong></td>
+        <td>CREATE (POST), READ (GET), UPDATE (PUT), PATCH (stock)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Validation Groups</strong></td>
+        <td>Create (no ID), Update (requires ID)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authorization</strong></td>
+        <td>CREATE/UPDATE/DELETE require ADMIN; READ requires
+        authenticated or demo mode</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Audit Fields</strong></td>
+        <td><code>createdBy</code>, <code>createdAt</code>
+        (auto-filled)</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

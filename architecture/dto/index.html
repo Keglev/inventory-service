@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · dto/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#data-transfer-objects-dtos"
+        id="toc-data-transfer-objects-dtos">Data Transfer Objects
+        (DTOs)</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#architecture-context"
+        id="toc-architecture-context">Architecture Context</a></li>
+        <li><a href="#dto-categories" id="toc-dto-categories">DTO
+        Categories</a>
+        <ul>
+        <li><a href="#domain-dtos" id="toc-domain-dtos">Domain
+        DTOs</a></li>
+        <li><a href="#common-dtos" id="toc-common-dtos">Common
+        DTOs</a></li>
+        </ul></li>
+        <li><a href="#dto-listing-by-domain"
+        id="toc-dto-listing-by-domain">DTO Listing by Domain</a>
+        <ul>
+        <li><a href="#supplier-domain-supplier-dto.md"
+        id="toc-supplier-domain-supplier-dto.md">1. Supplier Domain
+        (<code>supplier-dto.md</code>)</a></li>
+        <li><a href="#inventory-item-domain-inventory-item-dto.md"
+        id="toc-inventory-item-domain-inventory-item-dto.md">2.
+        Inventory Item Domain
+        (<code>inventory-item-dto.md</code>)</a></li>
+        <li><a href="#stock-history-domain-stock-history-dto.md"
+        id="toc-stock-history-domain-stock-history-dto.md">3. Stock
+        History Domain (<code>stock-history-dto.md</code>)</a></li>
+        <li><a href="#analytics-domain-analytics-dto.md"
+        id="toc-analytics-domain-analytics-dto.md">4. Analytics Domain
+        (<code>analytics-dto.md</code>)</a></li>
+        <li><a href="#authuser-domain-auth-user-dto.md"
+        id="toc-authuser-domain-auth-user-dto.md">5. Auth/User Domain
+        (<code>auth-user-dto.md</code>)</a></li>
+        </ul></li>
+        <li><a href="#pagination-sorting-pagination-and-sorting-dto.md"
+        id="toc-pagination-sorting-pagination-and-sorting-dto.md">Pagination
+        &amp; Sorting
+        (<code>pagination-and-sorting-dto.md</code>)</a></li>
+        <li><a
+        href="#error-problem-details-error-and-problem-details-dto.md"
+        id="toc-error-problem-details-error-and-problem-details-dto.md">Error
+        &amp; Problem Details
+        (<code>error-and-problem-details-dto.md</code>)</a></li>
+        <li><a href="#common-response-shapes-common-response-shapes.md"
+        id="toc-common-response-shapes-common-response-shapes.md">Common
+        Response Shapes
+        (<code>common-response-shapes.md</code>)</a></li>
+        <li><a href="#naming-conventions-conventions-and-style.md"
+        id="toc-naming-conventions-conventions-and-style.md">Naming
+        Conventions (<code>conventions-and-style.md</code>)</a>
+        <ul>
+        <li><a href="#dto-class-naming" id="toc-dto-class-naming">DTO
+        Class Naming</a></li>
+        <li><a href="#field-naming" id="toc-field-naming">Field
+        Naming</a></li>
+        <li><a href="#validation-annotations"
+        id="toc-validation-annotations">Validation Annotations</a></li>
+        </ul></li>
+        <li><a href="#mapping-strategy"
+        id="toc-mapping-strategy">Mapping Strategy</a>
+        <ul>
+        <li><a href="#entity-to-dto-mapping"
+        id="toc-entity-to-dto-mapping">Entity to DTO Mapping</a></li>
+        <li><a href="#dto-to-entity-mapping"
+        id="toc-dto-to-entity-mapping">DTO to Entity Mapping</a></li>
+        </ul></li>
+        <li><a href="#validation-groups-pattern"
+        id="toc-validation-groups-pattern">Validation Groups
+        Pattern</a></li>
+        <li><a href="#serialization-rules"
+        id="toc-serialization-rules">Serialization Rules</a>
+        <ul>
+        <li><a href="#jackson-configuration"
+        id="toc-jackson-configuration">Jackson Configuration</a></li>
+        <li><a href="#example-serialized-dto"
+        id="toc-example-serialized-dto">Example Serialized DTO</a></li>
+        </ul></li>
+        <li><a href="#file-structure" id="toc-file-structure">File
+        Structure</a></li>
+        <li><a href="#quick-reference" id="toc-quick-reference">Quick
+        Reference</a>
+        <ul>
+        <li><a href="#dto-count-by-domain"
+        id="toc-dto-count-by-domain">DTO Count by Domain</a></li>
+        <li><a href="#validation-patterns"
+        id="toc-validation-patterns">Validation Patterns</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        <li><a href="#cross-references"
+        id="toc-cross-references">Cross-References</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture</a></p>
+        <h1 id="data-transfer-objects-dtos">Data Transfer Objects
+        (DTOs)</h1>
+        <h2 id="overview">Overview</h2>
+        <p>DTOs (Data Transfer Objects) are boundary models that
+        decouple internal domain entities from external API contracts.
+        This layer handles serialization, validation, and transformation
+        between database models and REST API responses.</p>
+        <p><strong>Key Principle:</strong> DTOs are never used in
+        repositories. Entities are never exposed directly by
+        controllers.</p>
+        <hr />
+        <h2 id="architecture-context">Architecture Context</h2>
+        <div class="mermaid">
+        graph TB
+            A["REST Client"]
+            B["Controller"]
+            C["DTO Layer<br/>(Serialization & Validation)"]
+            D["Service"]
+            E["Mapper"]
+            F["Repository"]
+            G["Entity<br/>(Database Model)"]
+            
+            A -->|HTTP Request| B
+            B -->|DTO| C
+            C -->|Validation| B
+            B -->|Business Logic| D
+            D -->|DTO -> Entity| E
+            E -->|Query| F
+            F -->|ResultSet| G
+            G -->|Entity -> DTO| E
+            E -->|DTO| D
+            D -->|DTO| B
+            B -->|HTTP Response| A
+            
+            style A fill:#bbdefb
+            style B fill:#c8e6c9
+            style C fill:#fff9c4
+            style D fill:#ffe0b2
+            style E fill:#f8bbd0
+            style F fill:#e1bee7
+            style G fill:#ffccbc
+        </div>
+        <hr />
+        <h2 id="dto-categories">DTO Categories</h2>
+        <h3 id="domain-dtos">Domain DTOs</h3>
+        <p>Data Transfer Objects specific to business domains. One DTO
+        per domain entity.</p>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 16%" />
+        <col style="width: 30%" />
+        <col style="width: 26%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Domain</th>
+        <th>DTO</th>
+        <th>Purpose</th>
+        <th>Entity</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Supplier</strong></td>
+        <td><code>SupplierDTO</code></td>
+        <td>Supplier CRUD and display</td>
+        <td><code>Supplier</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Inventory Item</strong></td>
+        <td><code>InventoryItemDTO</code></td>
+        <td>Item CRUD and stock management</td>
+        <td><code>InventoryItem</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Stock History</strong></td>
+        <td><code>StockHistoryDTO</code></td>
+        <td>Audit trail for stock changes</td>
+        <td><code>StockHistory</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Analytics</strong></td>
+        <td><code>DashboardSummaryDTO</code>,
+        <code>FinancialSummaryDTO</code>, etc.</td>
+        <td>Read-only reporting aggregations</td>
+        <td>Projections/Aggregates</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Auth/User</strong></td>
+        <td><code>AppUserProfileDTO</code></td>
+        <td>Current user profile (from OAuth2)</td>
+        <td><code>AppUser</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="common-dtos">Common DTOs</h3>
+        <p>Reusable structures used across multiple endpoints.</p>
+        <table>
+        <colgroup>
+        <col style="width: 21%" />
+        <col style="width: 39%" />
+        <col style="width: 39%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>DTO</th>
+        <th>Purpose</th>
+        <th>Used In</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Pagination Response</td>
+        <td>Wraps lists with page metadata</td>
+        <td>All list endpoints</td>
+        </tr>
+        <tr class="even">
+        <td>Error Response</td>
+        <td>Standardized error payload</td>
+        <td>All endpoints (on error)</td>
+        </tr>
+        <tr class="odd">
+        <td>Sort/Filter DTOs</td>
+        <td>Query parameters for filtering</td>
+        <td>Analytics, Stock History</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="dto-listing-by-domain">DTO Listing by Domain</h2>
+        <h3 id="supplier-domain-supplier-dto.md">1. Supplier Domain
+        (<code>supplier-dto.md</code>)</h3>
+        <p><strong>DTOs:</strong> - <code>SupplierDTO</code> – Full
+        supplier record with audit fields - <code>SupplierListDTO</code>
+        (implicit) – Supplier in paginated list responses -
+        <code>CreateSupplierDTO</code> (implicit via validation
+        groups)</p>
+        <p><strong>Usage:</strong> - Controller:
+        <code>SupplierController</code> - Service:
+        <code>SupplierService</code> - Entity: <code>Supplier</code></p>
+        <p><strong>Operations:</strong> CREATE, READ, UPDATE, DELETE
+        (paginated lists)</p>
+        <hr />
+        <h3 id="inventory-item-domain-inventory-item-dto.md">2.
+        Inventory Item Domain (<code>inventory-item-dto.md</code>)</h3>
+        <p><strong>DTOs:</strong> - <code>InventoryItemDTO</code> – Full
+        item record with validation groups (Create/Update) -
+        <code>StockUpdateResultDTO</code> – Enriched result after stock
+        update with item/supplier names - <code>LowStockItemDTO</code> –
+        Alert for items below minimum threshold</p>
+        <p><strong>Usage:</strong> - Controller:
+        <code>InventoryItemController</code> - Service:
+        <code>InventoryItemService</code> - Entity:
+        <code>InventoryItem</code></p>
+        <p><strong>Operations:</strong> CRUD items, update stock,
+        search</p>
+        <hr />
+        <h3 id="stock-history-domain-stock-history-dto.md">3. Stock
+        History Domain (<code>stock-history-dto.md</code>)</h3>
+        <p><strong>DTOs:</strong> - <code>StockHistoryDTO</code> – Core
+        audit trail entry - <code>StockUpdateResultDTO</code> – Enhanced
+        display format for audit list</p>
+        <p><strong>Usage:</strong> - Controller:
+        <code>StockHistoryController</code> - Service:
+        <code>StockHistoryService</code> - Entity:
+        <code>StockHistory</code></p>
+        <p><strong>Operations:</strong> READ-ONLY audit trail</p>
+        <hr />
+        <h3 id="analytics-domain-analytics-dto.md">4. Analytics Domain
+        (<code>analytics-dto.md</code>)</h3>
+        <p><strong>DTOs:</strong> - <code>DashboardSummaryDTO</code> –
+        KPI aggregation (5 sub-DTOs) - <code>FinancialSummaryDTO</code>
+        – WAC (Weighted Average Cost) P&amp;L summary -
+        <code>StockPerSupplierDTO</code> – Distribution by supplier -
+        <code>LowStockItemDTO</code> – Low stock alerts -
+        <code>PriceTrendDTO</code> – Price history over time -
+        <code>StockValueOverTimeDTO</code> – Time series aggregation -
+        <code>MonthlyStockMovementDTO</code> – Monthly trends -
+        <code>ItemUpdateFrequencyDTO</code> – Activity metrics</p>
+        <p><strong>Usage:</strong> - Controller:
+        <code>AnalyticsController</code> - Services:
+        <code>StockAnalyticsService</code>,
+        <code>FinancialAnalyticsService</code> - Entities: Projections
+        (no single entity)</p>
+        <p><strong>Operations:</strong> READ-ONLY reporting and KPI
+        endpoints</p>
+        <hr />
+        <h3 id="authuser-domain-auth-user-dto.md">5. Auth/User Domain
+        (<code>auth-user-dto.md</code>)</h3>
+        <p><strong>DTOs:</strong> - <code>AppUserProfileDTO</code>
+        (record) – Current user profile from OAuth2 context</p>
+        <p><strong>Usage:</strong> - Controller:
+        <code>AuthController</code> - Entity: <code>AppUser</code>
+        (implicit, from Spring Security principal)</p>
+        <p><strong>Operations:</strong> GET profile, LOGOUT</p>
+        <hr />
+        <h2
+        id="pagination-sorting-pagination-and-sorting-dto.md">Pagination
+        &amp; Sorting (<code>pagination-and-sorting-dto.md</code>)</h2>
+        <p>All <strong>list endpoints</strong> return
+        <code>Page&lt;T&gt;</code> with pagination metadata:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="er">/*</span> <span class="er">List</span> <span class="er">of</span> <span class="er">DTOs</span> <span class="er">*/</span> <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span> <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">63</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Not a separate DTO class</strong>, but a
+        <strong>standard response shape</strong> from Spring Data’s
+        <code>Page&lt;&gt;</code>.</p>
+        <hr />
+        <h2
+        id="error-problem-details-error-and-problem-details-dto.md">Error
+        &amp; Problem Details
+        (<code>error-and-problem-details-dto.md</code>)</h2>
+        <p>Single error response structure across all endpoints:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: email is required&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T12:34:56.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-4523&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>DTO:</strong> <code>ErrorResponse</code> (builder
+        pattern with status derivation)</p>
+        <p><strong>Used By:</strong>
+        <code>GlobalExceptionHandler</code></p>
+        <hr />
+        <h2 id="common-response-shapes-common-response-shapes.md">Common
+        Response Shapes (<code>common-response-shapes.md</code>)</h2>
+        <p><strong>Principle:</strong> Return <strong>bare DTOs</strong>
+        wrapped in HTTP status codes; no generic success wrapper.</p>
+        <pre><code>✅ 200 OK:    { &quot;id&quot;: &quot;SUP-001&quot;, &quot;name&quot;: &quot;ACME&quot; }
+✅ 201 Created: { &quot;id&quot;: &quot;SUP-999&quot;, &quot;name&quot;: &quot;New Corp&quot; }
+❌ 4xx/5xx:   { &quot;error&quot;: &quot;not_found&quot;, &quot;message&quot;: &quot;...&quot;, &quot;correlationId&quot;: &quot;...&quot; }</code></pre>
+        <p><strong>NO generic wrapper:</strong> Intentional design—HTTP
+        status is the envelope.</p>
+        <hr />
+        <h2 id="naming-conventions-conventions-and-style.md">Naming
+        Conventions (<code>conventions-and-style.md</code>)</h2>
+        <h3 id="dto-class-naming">DTO Class Naming</h3>
+        <pre><code>&lt;Entity&gt;DTO              SupplierDTO, InventoryItemDTO
+Create&lt;Entity&gt;DTO       (implicit via validation groups)
+Update&lt;Entity&gt;DTO       (implicit via validation groups)
+&lt;Entity&gt;SummaryDTO      DashboardSummaryDTO, FinancialSummaryDTO
+&lt;Entity&gt;ListDTO         (implicit, used in Page&lt;&gt;)
+&lt;Qualifier&gt;&lt;Entity&gt;DTO  LowStockItemDTO, StockPerSupplierDTO</code></pre>
+        <h3 id="field-naming">Field Naming</h3>
+        <ul>
+        <li><strong>camelCase:</strong> All fields (Java
+        convention)</li>
+        <li><strong>Dates:</strong> ISO 8601 format
+        (<code>yyyy-MM-dd</code> or ISO-8601 timestamp)</li>
+        <li><strong>Times:</strong> <code>LocalDateTime</code>
+        serialized as ISO-8601 timestamp</li>
+        <li><strong>BigDecimal:</strong> Numeric precision for prices,
+        totals, financial values</li>
+        <li><strong>Enums:</strong> Uppercase or normalized string (no
+        Java constant names)</li>
+        </ul>
+        <h3 id="validation-annotations">Validation Annotations</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name is required&quot;</span><span class="op">)</span>          <span class="co">// Non-empty strings</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price is mandatory&quot;</span><span class="op">)</span>          <span class="co">// Non-null values</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Email</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Invalid email format&quot;</span><span class="op">)</span>          <span class="co">// Email validation</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Positive</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price must be &gt; 0&quot;</span><span class="op">)</span>          <span class="co">// Positive numbers</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">@PositiveOrZero</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Qty must be &gt;= 0&quot;</span><span class="op">)</span>    <span class="co">// Non-negative</span></span></code></pre></div>
+        <hr />
+        <h2 id="mapping-strategy">Mapping Strategy</h2>
+        <h3 id="entity-to-dto-mapping">Entity to DTO Mapping</h3>
+        <p><strong>Mappers:</strong> Located in
+        <code>src/main/java/.../mapper/</code></p>
+        <ul>
+        <li><code>SupplierMapper</code> – Entity ↔︎ DTO</li>
+        <li><code>InventoryItemMapper</code> – Entity ↔︎ DTO</li>
+        <li><code>StockHistoryMapper</code> – Entity ↔︎ DTO</li>
+        </ul>
+        <p><strong>Pattern:</strong> Manual mapping (no MapStruct) for
+        clarity and control.</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">toDTO</span><span class="op">(</span>Supplier entity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> SupplierDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">id</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getId</span><span class="op">())</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">name</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getName</span><span class="op">())</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">email</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getCreatedBy</span><span class="op">())</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getCreatedAt</span><span class="op">())</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="dto-to-entity-mapping">DTO to Entity Mapping</h3>
+        <p>For CREATE/UPDATE operations:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> Supplier <span class="fu">toEntity</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">name</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">())</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">email</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="fu">getCurrentUser</span><span class="op">())</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="validation-groups-pattern">Validation Groups
+        Pattern</h2>
+        <p><strong>InventoryItemDTO</strong> uses validation groups to
+        support different rules for CREATE vs UPDATE:</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> Create <span class="op">{}</span>   <span class="co">// Constraints for POST</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> Update <span class="op">{}</span>   <span class="co">// Constraints for PUT</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Null</span><span class="op">(</span>groups <span class="op">=</span> Create<span class="op">.</span><span class="fu">class</span><span class="op">)</span>        <span class="co">// Must be absent on CREATE</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">@NotNull</span><span class="op">(</span>groups <span class="op">=</span> Update<span class="op">.</span><span class="fu">class</span><span class="op">)</span>     <span class="co">// Must be present on UPDATE</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span></code></pre></div>
+        <p><strong>Benefit:</strong> Single DTO supports multiple
+        operations with tailored validation.</p>
+        <hr />
+        <h2 id="serialization-rules">Serialization Rules</h2>
+        <h3 id="jackson-configuration">Jackson Configuration</h3>
+        <ul>
+        <li><strong>Date Serialization:</strong> ISO-8601
+        (<code>yyyy-MM-ddThh:mm:ss.sssZ</code>)</li>
+        <li><strong>Null Handling:</strong> Include nulls (clients
+        expect consistent JSON shape)</li>
+        <li><strong>BigDecimal Precision:</strong> Preserve for
+        financial calculations</li>
+        <li><strong>Enum Format:</strong> String (not ordinal) for
+        readability</li>
+        </ul>
+        <h3 id="example-serialized-dto">Example Serialized DTO</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">19.99</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalValue&quot;</span><span class="fu">:</span> <span class="fl">1999.00</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reorderLevel&quot;</span><span class="fu">:</span> <span class="dv">50</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdAt&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-01T08:30:00.000Z&quot;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="file-structure">File Structure</h2>
+        <pre><code>docs/backend/architecture/dto/
+├── index.md                              # This file (hub)
+├── conventions-and-style.md              # Naming, validation, serialization
+├── supplier-dto.md                       # SupplierDTO &amp; variants
+├── inventory-item-dto.md                 # InventoryItemDTO &amp; variants
+├── stock-history-dto.md                  # StockHistoryDTO &amp; variants
+├── analytics-dto.md                      # All analytics DTOs (8+ types)
+├── auth-user-dto.md                      # AppUserProfileDTO
+├── pagination-and-sorting-dto.md         # Page&lt;T&gt; &amp; pagination metadata
+├── error-and-problem-details-dto.md      # ErrorResponse structure
+└── common-response-shapes.md             # HTTP 200/201/4xx/5xx shapes</code></pre>
+        <hr />
+        <h2 id="quick-reference">Quick Reference</h2>
+        <h3 id="dto-count-by-domain">DTO Count by Domain</h3>
+        <pre><code>Supplier        1 DTO   (SupplierDTO)
+Inventory Item  3 DTOs  (InventoryItemDTO, StockUpdateResultDTO, LowStockItemDTO)
+Stock History   2 DTOs  (StockHistoryDTO, StockUpdateResultDTO)
+Analytics       8 DTOs  (Dashboard, Financial, Price, Value, Supplier, LowStock, Movement, Frequency)
+Auth/User       1 DTO   (AppUserProfileDTO)
+Common          2 DTOs  (ErrorResponse, implicit Page&lt;T&gt;)
+────────────────────────
+Total          17 DTOs  (15 explicit classes + implicit Page&lt;T&gt; wrapper)</code></pre>
+        <h3 id="validation-patterns">Validation Patterns</h3>
+        <table>
+        <colgroup>
+        <col style="width: 31%" />
+        <col style="width: 37%" />
+        <col style="width: 31%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Pattern</th>
+        <th>Annotation</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Required Field</td>
+        <td><code>@NotBlank</code>, <code>@NotNull</code></td>
+        <td>Name, Email</td>
+        </tr>
+        <tr class="even">
+        <td>Format Check</td>
+        <td><code>@Email</code>, <code>@Pattern</code></td>
+        <td>Email validation</td>
+        </tr>
+        <tr class="odd">
+        <td>Range Check</td>
+        <td><code>@Positive</code>, <code>@PositiveOrZero</code>,
+        <code>@Min</code>, <code>@Max</code></td>
+        <td>Quantities, prices</td>
+        </tr>
+        <tr class="even">
+        <td>Optional Field</td>
+        <td>No annotation</td>
+        <td>Contact name, phone</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./conventions-and-style.html">Conventions
+        &amp; Style</a></strong> – Naming, validation,
+        serialization</li>
+        <li><strong><a href="./supplier-dto.html">Supplier
+        DTO</a></strong> – Supplier domain DTOs</li>
+        <li><strong><a href="./inventory-item-dto.html">Inventory Item
+        DTO</a></strong> – Item management DTOs</li>
+        <li><strong><a href="./stock-history-dto.html">Stock History
+        DTO</a></strong> – Audit trail DTOs</li>
+        <li><strong><a href="./analytics-dto.html">Analytics
+        DTO</a></strong> – Reporting &amp; KPI DTOs</li>
+        <li><strong><a href="./auth-user-dto.html">Auth User
+        DTO</a></strong> – Authentication DTOs</li>
+        <li><strong><a
+        href="./pagination-and-sorting-dto.html">Pagination &amp;
+        Sorting</a></strong> – List response structure</li>
+        <li><strong><a href="./error-and-problem-details-dto.html">Error
+        &amp; Problem Details</a></strong> – Error contract</li>
+        <li><strong><a href="./common-response-shapes.html">Common
+        Response Shapes</a></strong> – HTTP response patterns</li>
+        </ul>
+        <hr />
+        <h2 id="cross-references">Cross-References</h2>
+        <ul>
+        <li><strong>Model Layer:</strong> <a
+        href="../layers/model/index.html">Entity Documentation</a></li>
+        <li><strong>Controller Layer:</strong> <a
+        href="../controller/index.html">REST API Documentation</a></li>
+        <li><strong>Service Layer:</strong> <a
+        href="../layers/service/index.html">Business Logic
+        Documentation</a></li>
+        <li><strong>Mappers:</strong> Located in
+        <code>src/main/java/.../mapper/</code></li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · dto/auth-user-dto · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#auth-user-dtos" id="toc-auth-user-dtos">Auth &amp;
+        User DTOs</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#appuserprofiledto-user-profile-record"
+        id="toc-appuserprofiledto-user-profile-record">AppUserProfileDTO
+        (User Profile Record)</a>
+        <ul>
+        <li><a href="#definition"
+        id="toc-definition">Definition</a></li>
+        <li><a href="#field-reference" id="toc-field-reference">Field
+        Reference</a></li>
+        </ul></li>
+        <li><a href="#role-assignment-logic"
+        id="toc-role-assignment-logic">Role Assignment Logic</a>
+        <ul>
+        <li><a href="#admin-email-configuration"
+        id="toc-admin-email-configuration">Admin Email
+        Configuration</a></li>
+        </ul></li>
+        <li><a href="#requestresponse-examples"
+        id="toc-requestresponse-examples">Request/Response Examples</a>
+        <ul>
+        <li><a href="#get-current-user-profile"
+        id="toc-get-current-user-profile">GET Current User
+        Profile</a></li>
+        <li><a href="#get-admin-user-profile"
+        id="toc-get-admin-user-profile">GET Admin User Profile</a></li>
+        <li><a href="#get-without-authentication"
+        id="toc-get-without-authentication">GET Without
+        Authentication</a></li>
+        </ul></li>
+        <li><a href="#oauth2-authentication-flow"
+        id="toc-oauth2-authentication-flow">OAuth2 Authentication
+        Flow</a>
+        <ul>
+        <li><a href="#login-sequence" id="toc-login-sequence">Login
+        Sequence</a></li>
+        <li><a href="#session-cookie-configuration"
+        id="toc-session-cookie-configuration">Session Cookie
+        Configuration</a></li>
+        </ul></li>
+        <li><a href="#logout-operation" id="toc-logout-operation">Logout
+        Operation</a>
+        <ul>
+        <li><a href="#post-logout" id="toc-post-logout">POST
+        Logout</a></li>
+        </ul></li>
+        <li><a href="#controller-integration"
+        id="toc-controller-integration">Controller Integration</a></li>
+        <li><a href="#testing-strategy"
+        id="toc-testing-strategy">Testing Strategy</a>
+        <ul>
+        <li><a href="#unit-test-for-user-profile"
+        id="toc-unit-test-for-user-profile">Unit Test for User
+        Profile</a></li>
+        </ul></li>
+        <li><a href="#security-considerations"
+        id="toc-security-considerations">Security Considerations</a>
+        <ul>
+        <li><a href="#email-based-role-assignment"
+        id="toc-email-based-role-assignment">1. Email-Based Role
+        Assignment</a></li>
+        <li><a href="#picture-url-from-untrusted-source"
+        id="toc-picture-url-from-untrusted-source">2. Picture URL from
+        Untrusted Source</a></li>
+        <li><a href="#session-timeout" id="toc-session-timeout">3.
+        Session Timeout</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+        <h1 id="auth-user-dtos">Auth &amp; User DTOs</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Authentication DTOs represent the current authenticated
+        user’s profile, derived from OAuth2 security context and the
+        <code>AppUser</code> entity. Used exclusively for profile
+        queries and logout operations.</p>
+        <p><strong>Entity:</strong> <code>AppUser</code><br />
+        <strong>Controller:</strong> <code>AuthController</code><br />
+        <strong>Security:</strong> Spring Security OAuth2</p>
+        <hr />
+        <h2 id="appuserprofiledto-user-profile-record">AppUserProfileDTO
+        (User Profile Record)</h2>
+        <h3 id="definition">Definition</h3>
+        <p>Immutable record containing current user profile information.
+        Derived from OAuth2 authentication principal and database
+        lookup.</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">AppUserProfileDTO</span><span class="op">(</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email<span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> fullName<span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> role<span class="op">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> pictureUrl</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span></code></pre></div>
+        <h3 id="field-reference">Field Reference</h3>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 21%" />
+        <col style="width: 28%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Source</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>email</code></td>
+        <td>String</td>
+        <td>OAuth2 principal</td>
+        <td>User’s email address (unique identifier)</td>
+        </tr>
+        <tr class="even">
+        <td><code>fullName</code></td>
+        <td>String</td>
+        <td>AppUser entity or OAuth2</td>
+        <td>Display name from profile or OAuth provider</td>
+        </tr>
+        <tr class="odd">
+        <td><code>role</code></td>
+        <td>String</td>
+        <td>AppUser entity</td>
+        <td>Assigned role (ROLE_USER or ROLE_ADMIN)</td>
+        </tr>
+        <tr class="even">
+        <td><code>pictureUrl</code></td>
+        <td>String</td>
+        <td>OAuth2 principal</td>
+        <td>Profile picture URL from OAuth provider (nullable)</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="role-assignment-logic">Role Assignment Logic</h2>
+        <p>Roles are assigned on first login based on email
+        configuration:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> AppUserProfileDTO <span class="fu">getMe</span><span class="op">(</span>OAuth2User principal<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email <span class="op">=</span> principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Check if email is in admin list</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>APP_ADMIN_EMAILS<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>email<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">AppUserProfileDTO</span><span class="op">(</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            email<span class="op">,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">),</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;ROLE_ADMIN&quot;</span><span class="op">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;picture&quot;</span><span class="op">)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">AppUserProfileDTO</span><span class="op">(</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>            email<span class="op">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">),</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;ROLE_USER&quot;</span><span class="op">,</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;picture&quot;</span><span class="op">)</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="admin-email-configuration">Admin Email
+        Configuration</h3>
+        <p>Set via environment variable:</p>
+        <pre><code>APP_ADMIN_EMAILS=admin@company.com,ops@company.com,finance@company.com</code></pre>
+        <hr />
+        <h2 id="requestresponse-examples">Request/Response Examples</h2>
+        <h3 id="get-current-user-profile">GET Current User Profile</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/me
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;user@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;fullName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Smith&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;role&quot;</span><span class="fu">:</span> <span class="st">&quot;ROLE_USER&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pictureUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;https://lh3.googleusercontent.com/a/...&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="get-admin-user-profile">GET Admin User Profile</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/me
+Authorization: Bearer &lt;admin-token&gt;</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;fullName&quot;</span><span class="fu">:</span> <span class="st">&quot;Jane Admin&quot;</span><span class="fu">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;role&quot;</span><span class="fu">:</span> <span class="st">&quot;ROLE_ADMIN&quot;</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pictureUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;https://lh3.googleusercontent.com/b/...&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="get-without-authentication">GET Without
+        Authentication</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/me
+(no Authorization header)</code></pre>
+        <p><strong>Response (401 Unauthorized):</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;User not authenticated&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:35:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-4523&quot;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="oauth2-authentication-flow">OAuth2 Authentication
+        Flow</h2>
+        <h3 id="login-sequence">Login Sequence</h3>
+        <div class="mermaid">
+        sequenceDiagram
+            Client->>Backend: POST /oauth2/authorization/google
+            Backend->>Google: Request authorization
+            Google->>Client: Redirect to consent screen
+            Client->>Google: Approve and authorize
+            Google->>Backend: Provide authorization code
+            Backend->>Google: Exchange code for ID token
+            Google->>Backend: Return ID token + user info
+            Backend->>AppUserRepository: Check/create AppUser
+            AppUserRepository->>Database: Save user on first login
+            Backend->>Client: Redirect to home page (session cookie set)
+            Client->>Backend: GET /api/me (with session cookie)
+            Backend->>Client: Return AppUserProfileDTO
+        </div>
+        <h3 id="session-cookie-configuration">Session Cookie
+        Configuration</h3>
+        <p>OAuth2 login sets an HttpOnly, Secure cookie:</p>
+        <pre><code>Set-Cookie: JSESSIONID=&lt;token&gt;; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=1800</code></pre>
+        <p><strong>Properties:</strong> - <code>HttpOnly</code> –
+        Prevents JavaScript access (XSS protection) -
+        <code>Secure</code> – Only sent over HTTPS -
+        <code>SameSite=None</code> – Allows cross-site requests (for
+        stateless API) - <code>Max-Age=1800</code> – Session expires in
+        30 minutes</p>
+        <hr />
+        <h2 id="logout-operation">Logout Operation</h2>
+        <h3 id="post-logout">POST Logout</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>POST /api/logout
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response (302 Found):</strong></p>
+        <pre><code>Location: /
+Set-Cookie: JSESSIONID=deleted; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0</code></pre>
+        <p><strong>Effect:</strong> - Session cookie invalidated
+        (Max-Age=0) - Redirect to home page - Subsequent requests to
+        <code>/api/me</code> return 401 Unauthorized</p>
+        <hr />
+        <h2 id="controller-integration">Controller Integration</h2>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api&quot;</span><span class="op">)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AuthController <span class="op">{</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> AppUserRepository appUserRepository<span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> APP_ADMIN_EMAILS <span class="op">=</span> </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span><span class="bu">System</span><span class="op">.</span><span class="fu">getenv</span><span class="op">(</span><span class="st">&quot;APP_ADMIN_EMAILS&quot;</span><span class="op">).</span><span class="fu">split</span><span class="op">(</span><span class="st">&quot;,&quot;</span><span class="op">));</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Gets authenticated user<span class="co">&#39;</span>s profile information<span class="co">.</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>param principal OAuth2 authentication principal</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>return user profile with email<span class="co">,</span> name<span class="co">,</span> role<span class="co">,</span> and picture</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>throws ResponseStatusException <span class="co">401</span> if not authenticated</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/me&quot;</span><span class="op">)</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>AppUserProfileDTO<span class="op">&gt;</span> <span class="fu">getMe</span><span class="op">(</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">@AuthenticationPrincipal</span> OAuth2User principal<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>principal <span class="op">==</span> <span class="kw">null</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">ResponseStatusException</span><span class="op">(</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>                HttpStatus<span class="op">.</span><span class="fu">UNAUTHORIZED</span><span class="op">,</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;User not authenticated&quot;</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> email <span class="op">=</span> principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> role <span class="op">=</span> APP_ADMIN_EMAILS<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>email<span class="op">)</span> </span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">?</span> <span class="st">&quot;ROLE_ADMIN&quot;</span> </span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> <span class="st">&quot;ROLE_USER&quot;</span><span class="op">;</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Optionally create/update AppUser in database</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>        appUserRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">)</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseGet</span><span class="op">(()</span> <span class="op">-&gt;</span> appUserRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>                <span class="kw">new</span> <span class="fu">AppUser</span><span class="op">(</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>                    email<span class="op">,</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>                    principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">),</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>                    role<span class="op">,</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>                    principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;picture&quot;</span><span class="op">)</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>                <span class="op">)</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>            <span class="op">));</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span><span class="kw">new</span> <span class="fu">AppUserProfileDTO</span><span class="op">(</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>            email<span class="op">,</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>            principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">),</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>            role<span class="op">,</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>            principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;picture&quot;</span><span class="op">)</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>        <span class="op">));</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Logs out the current user by invalidating session<span class="co">.</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>param request HTTP request to clear session</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>param response HTTP response to clear cookies</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>return redirect to home page</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/logout&quot;</span><span class="op">)</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">Void</span><span class="op">&gt;</span> <span class="fu">logout</span><span class="op">(</span></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>            HttpServletRequest request<span class="op">,</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>            HttpServletResponse response<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> <span class="fu">SecurityContextLogoutHandler</span><span class="op">().</span><span class="fu">logout</span><span class="op">(</span>request<span class="op">,</span> response<span class="op">,</span> </span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>            SecurityContextHolder<span class="op">.</span><span class="fu">getContext</span><span class="op">().</span><span class="fu">getAuthentication</span><span class="op">());</span></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity</span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">FOUND</span><span class="op">)</span></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">header</span><span class="op">(</span><span class="st">&quot;Location&quot;</span><span class="op">,</span> <span class="st">&quot;/&quot;</span><span class="op">)</span></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-strategy">Testing Strategy</h2>
+        <h3 id="unit-test-for-user-profile">Unit Test for User
+        Profile</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="at">@WebMvcTest</span><span class="op">(</span>AuthController<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AuthControllerTest <span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>username <span class="op">=</span> <span class="st">&quot;user@company.com&quot;</span><span class="op">)</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testGetMe_WithAuthenticatedUser_Returns200</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        OAuth2User mockPrincipal <span class="op">=</span> <span class="fu">mock</span><span class="op">(</span>OAuth2User<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>mockPrincipal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">))</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;user@company.com&quot;</span><span class="op">);</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>mockPrincipal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">))</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;John Smith&quot;</span><span class="op">);</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>mockPrincipal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;picture&quot;</span><span class="op">))</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;https://example.com/pic.jpg&quot;</span><span class="op">);</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>            <span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/me&quot;</span><span class="op">)</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">principal</span><span class="op">(</span>mockPrincipal<span class="op">)</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">)</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">())</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.email&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;user@company.com&quot;</span><span class="op">))</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.fullName&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;John Smith&quot;</span><span class="op">))</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.role&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;ROLE_USER&quot;</span><span class="op">));</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testGetMe_WithoutAuthentication_Returns401</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/me&quot;</span><span class="op">))</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isUnauthorized</span><span class="op">());</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>username <span class="op">=</span> <span class="st">&quot;admin@company.com&quot;</span><span class="op">)</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testLogout_InvalidatesSession_Returns302</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/logout&quot;</span><span class="op">))</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isFound</span><span class="op">())</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">exists</span><span class="op">(</span><span class="st">&quot;Location&quot;</span><span class="op">))</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">string</span><span class="op">(</span><span class="st">&quot;Location&quot;</span><span class="op">,</span> <span class="st">&quot;/&quot;</span><span class="op">));</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="security-considerations">Security Considerations</h2>
+        <h3 id="email-based-role-assignment">1. Email-Based Role
+        Assignment</h3>
+        <p><strong>Risk:</strong> If <code>APP_ADMIN_EMAILS</code> list
+        is not properly maintained, users may get incorrect roles.</p>
+        <p><strong>Mitigation:</strong> - Hardcode environment variable
+        validation at startup - Log all role assignments for audit -
+        Regularly audit user roles in production</p>
+        <h3 id="picture-url-from-untrusted-source">2. Picture URL from
+        Untrusted Source</h3>
+        <p><strong>Risk:</strong> OAuth2 provider’s picture URL could be
+        XSS vector if not handled carefully.</p>
+        <p><strong>Mitigation:</strong> - Validate URL format (HTTPS
+        only) - Use Content Security Policy (CSP) to restrict image
+        sources - Consider proxying images through your server</p>
+        <h3 id="session-timeout">3. Session Timeout</h3>
+        <p><strong>Risk:</strong> Default 30-minute timeout may be too
+        long/short for your use case.</p>
+        <p><strong>Mitigation:</strong> - Adjust <code>Max-Age</code>
+        based on security requirements - Implement refresh token
+        rotation for long-lived sessions - Log session activity for
+        audit</p>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>DTO Class</strong></td>
+        <td><code>AppUserProfileDTO</code> (immutable record)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Data Source</strong></td>
+        <td>OAuth2 principal + AppUser entity</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authorization</strong></td>
+        <td><code>isAuthenticated()</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Operations</strong></td>
+        <td>GET profile, POST logout</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Session</strong></td>
+        <td>HttpOnly, Secure, SameSite=None</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Role Assignment</strong></td>
+        <td>Email-based (from APP_ADMIN_EMAILS)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Immutability</strong></td>
+        <td>Read-only; derived from authentication</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

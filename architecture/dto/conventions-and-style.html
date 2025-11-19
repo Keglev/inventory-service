@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+dto/conventions-and-style · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#dto-conventions-style-guide"
+        id="toc-dto-conventions-style-guide">DTO Conventions &amp; Style
+        Guide</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#naming-conventions"
+        id="toc-naming-conventions">Naming Conventions</a>
+        <ul>
+        <li><a href="#class-naming-pattern"
+        id="toc-class-naming-pattern">Class Naming Pattern</a></li>
+        <li><a href="#pattern-breakdown"
+        id="toc-pattern-breakdown">Pattern Breakdown</a></li>
+        <li><a href="#avoid" id="toc-avoid">Avoid</a></li>
+        </ul></li>
+        <li><a href="#field-naming" id="toc-field-naming">Field
+        Naming</a>
+        <ul>
+        <li><a href="#java-convention" id="toc-java-convention">Java
+        Convention</a></li>
+        <li><a href="#json-serialization"
+        id="toc-json-serialization">JSON Serialization</a></li>
+        <li><a href="#optional-fields-naming"
+        id="toc-optional-fields-naming">Optional Fields Naming</a></li>
+        </ul></li>
+        <li><a href="#date-time-handling"
+        id="toc-date-time-handling">Date &amp; Time Handling</a>
+        <ul>
+        <li><a href="#serialization-format"
+        id="toc-serialization-format">Serialization Format</a></li>
+        <li><a href="#timezone-handling"
+        id="toc-timezone-handling">Timezone Handling</a></li>
+        <li><a href="#field-naming-convention"
+        id="toc-field-naming-convention">Field Naming
+        Convention</a></li>
+        </ul></li>
+        <li><a href="#numeric-precision"
+        id="toc-numeric-precision">Numeric Precision</a>
+        <ul>
+        <li><a href="#bigdecimal-for-financial-values"
+        id="toc-bigdecimal-for-financial-values">BigDecimal for
+        Financial Values</a></li>
+        <li><a href="#integer-for-discrete-counts"
+        id="toc-integer-for-discrete-counts">Integer for Discrete
+        Counts</a></li>
+        <li><a href="#why-bigdecimal" id="toc-why-bigdecimal">Why
+        BigDecimal?</a></li>
+        </ul></li>
+        <li><a href="#validation-annotations"
+        id="toc-validation-annotations">Validation Annotations</a>
+        <ul>
+        <li><a href="#required-field-pattern"
+        id="toc-required-field-pattern">Required Field Pattern</a></li>
+        <li><a href="#format-validation"
+        id="toc-format-validation">Format Validation</a></li>
+        <li><a href="#range-validation" id="toc-range-validation">Range
+        Validation</a></li>
+        <li><a href="#custom-validation"
+        id="toc-custom-validation">Custom Validation</a></li>
+        <li><a href="#validation-messages"
+        id="toc-validation-messages">Validation Messages</a></li>
+        </ul></li>
+        <li><a href="#optional-fields-policy"
+        id="toc-optional-fields-policy">Optional Fields Policy</a>
+        <ul>
+        <li><a href="#nullable-fields" id="toc-nullable-fields">Nullable
+        Fields</a></li>
+        <li><a href="#json-serialization-of-nulls"
+        id="toc-json-serialization-of-nulls">JSON Serialization of
+        Nulls</a></li>
+        </ul></li>
+        <li><a href="#enums-in-dtos" id="toc-enums-in-dtos">Enums in
+        DTOs</a>
+        <ul>
+        <li><a href="#string-serialization"
+        id="toc-string-serialization">String Serialization</a></li>
+        <li><a href="#using-jsonproperty"
+        id="toc-using-jsonproperty">Using <span class="citation"
+        data-cites="JsonProperty">@JsonProperty</span></a></li>
+        </ul></li>
+        <li><a href="#record-dtos" id="toc-record-dtos">Record DTOs</a>
+        <ul>
+        <li><a href="#when-to-use-records"
+        id="toc-when-to-use-records">When to Use Records</a></li>
+        </ul></li>
+        <li><a href="#builder-pattern-for-complex-dtos"
+        id="toc-builder-pattern-for-complex-dtos">Builder Pattern for
+        Complex DTOs</a></li>
+        <li><a href="#versioning-strategy"
+        id="toc-versioning-strategy">Versioning Strategy</a>
+        <ul>
+        <li><a href="#current-approach-no-versioning"
+        id="toc-current-approach-no-versioning">Current Approach: No
+        Versioning</a></li>
+        </ul></li>
+        <li><a href="#lombok-annotations"
+        id="toc-lombok-annotations">Lombok Annotations</a>
+        <ul>
+        <li><a href="#standard-annotations"
+        id="toc-standard-annotations">Standard Annotations</a></li>
+        <li><a href="#example-supplier-dto"
+        id="toc-example-supplier-dto">Example: Supplier DTO</a></li>
+        </ul></li>
+        <li><a href="#serialization-configuration"
+        id="toc-serialization-configuration">Serialization
+        Configuration</a>
+        <ul>
+        <li><a href="#jackson-default-behavior"
+        id="toc-jackson-default-behavior">Jackson Default
+        Behavior</a></li>
+        <li><a href="#custom-configuration-if-needed"
+        id="toc-custom-configuration-if-needed">Custom Configuration (if
+        needed)</a></li>
+        </ul></li>
+        <li><a href="#best-practices-checklist"
+        id="toc-best-practices-checklist">Best Practices
+        Checklist</a></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+        <h1 id="dto-conventions-style-guide">DTO Conventions &amp; Style
+        Guide</h1>
+        <h2 id="overview">Overview</h2>
+        <p>This document establishes naming, validation, serialization,
+        and design patterns for all DTOs in the project. Consistency
+        enables predictable API contracts and easier client
+        integration.</p>
+        <hr />
+        <h2 id="naming-conventions">Naming Conventions</h2>
+        <h3 id="class-naming-pattern">Class Naming Pattern</h3>
+        <pre><code>&lt;DomainName&gt;&lt;Purpose&gt;DTO
+
+Examples:
+  SupplierDTO                 Full supplier record
+  InventoryItemDTO            Full inventory item
+  StockHistoryDTO             Stock change audit entry
+  DashboardSummaryDTO         KPI aggregation
+  FinancialSummaryDTO         P&amp;L period summary
+  StockPerSupplierDTO         Supplier distribution
+  LowStockItemDTO             Low stock alert
+  PriceTrendDTO               Price history point
+  StockValueOverTimeDTO       Time series entry
+  MonthlyStockMovementDTO     Monthly aggregate
+  ItemUpdateFrequencyDTO      Activity metrics
+  AppUserProfileDTO           Current user profile (record)
+  StockUpdateResultDTO        Enriched stock change result
+  ErrorResponse               Error payload</code></pre>
+        <h3 id="pattern-breakdown">Pattern Breakdown</h3>
+        <table>
+        <colgroup>
+        <col style="width: 39%" />
+        <col style="width: 21%" />
+        <col style="width: 39%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Pattern</th>
+        <th>Use</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>&lt;Entity&gt;DTO</code></td>
+        <td>CRUD record for entity</td>
+        <td><code>SupplierDTO</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>&lt;Entity&gt;SummaryDTO</code></td>
+        <td>Aggregated view</td>
+        <td><code>DashboardSummaryDTO</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>&lt;Qualifier&gt;&lt;Entity&gt;DTO</code></td>
+        <td>Specialized variant</td>
+        <td><code>LowStockItemDTO</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>&lt;Qualifier&gt;&lt;Noun&gt;DTO</code></td>
+        <td>Projection/aggregate</td>
+        <td><code>StockPerSupplierDTO</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>Create&lt;Entity&gt;DTO</code></td>
+        <td>Implicit via validation groups</td>
+        <td>Used in request validation</td>
+        </tr>
+        <tr class="even">
+        <td><code>Update&lt;Entity&gt;DTO</code></td>
+        <td>Implicit via validation groups</td>
+        <td>Used in request validation</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="avoid">Avoid</h3>
+        <pre><code>❌ SupplierVO               (Use DTO, not Value Object naming)
+❌ SupplierRequest         (Inconsistent; use DTO suffix)
+❌ SupplierResponse        (DTOs work for both request &amp; response)
+❌ Supplier_DTO            (Use camelCase, not snake_case)
+❌ SupplierDtoV2           (Versioning goes in package, not class name)</code></pre>
+        <hr />
+        <h2 id="field-naming">Field Naming</h2>
+        <h3 id="java-convention">Java Convention</h3>
+        <p>All fields use <strong>camelCase</strong> (standard Java
+        convention):</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierDTO <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span>              <span class="co">// ✅ camelCase</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span>            <span class="co">// ✅ camelCase</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span>     <span class="co">// ✅ camelCase for multi-word</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span>           <span class="co">// ✅ camelCase</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span> <span class="co">// ✅ camelCase for timestamps</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="json-serialization">JSON Serialization</h3>
+        <p>Jackson serializes Java camelCase → JSON camelCase (standard
+        REST convention):</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span>           <span class="er">//</span> <span class="er">←</span> <span class="er">Java</span><span class="fu">:</span> <span class="er">id</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;name&quot;</span><span class="er">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span>       <span class="er">//</span> <span class="er">←</span> <span class="er">Java</span><span class="fu">:</span> <span class="er">name</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;contactName&quot;</span><span class="er">:</span> <span class="st">&quot;John Doe&quot;</span><span class="fu">,</span> <span class="er">//</span> <span class="er">←</span> <span class="er">Java</span><span class="fu">:</span> <span class="er">contactName</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;email&quot;</span><span class="er">:</span> <span class="st">&quot;acme@example.com&quot;</span><span class="fu">,</span> <span class="er">//</span> <span class="er">←</span> <span class="er">Java</span><span class="fu">:</span> <span class="er">email</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;createdAt&quot;</span><span class="er">:</span> <span class="st">&quot;2025-11-01T08:30:00.000Z&quot;</span>  <span class="er">//</span> <span class="er">←</span> <span class="er">Java:</span> <span class="er">createdAt</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="optional-fields-naming">Optional Fields Naming</h3>
+        <p>No special prefix. Null handling is explicit via
+        <code>@NotNull</code>, <code>@NotBlank</code>, etc.:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> phone<span class="op">;</span>        <span class="co">// Optional—can be null</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span>  <span class="co">// Optional—can be null</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Email is required&quot;</span><span class="op">)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span>        <span class="co">// Required—never null</span></span></code></pre></div>
+        <hr />
+        <h2 id="date-time-handling">Date &amp; Time Handling</h2>
+        <h3 id="serialization-format">Serialization Format</h3>
+        <table>
+        <colgroup>
+        <col style="width: 15%" />
+        <col style="width: 28%" />
+        <col style="width: 33%" />
+        <col style="width: 23%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Type</th>
+        <th>Java Class</th>
+        <th>JSON Format</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Date</strong></td>
+        <td><code>LocalDate</code></td>
+        <td>ISO 8601 <code>yyyy-MM-dd</code></td>
+        <td><code>"2025-11-19"</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>DateTime</strong></td>
+        <td><code>LocalDateTime</code></td>
+        <td>ISO 8601 with time</td>
+        <td><code>"2025-11-19T14:30:00.000Z"</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Timestamp</strong></td>
+        <td><code>Instant</code></td>
+        <td>ISO 8601 UTC</td>
+        <td><code>"2025-11-19T14:30:00Z"</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="timezone-handling">Timezone Handling</h3>
+        <p><strong>Rule:</strong> Always use UTC internally. Clients
+        convert to local timezone.</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Backend always uses UTC</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierDTO <span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span>  <span class="co">// Stored as LocalDateTime, serialized as ISO-8601</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Serialized to JSON (Jackson default):</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">// &quot;createdAt&quot;: &quot;2025-11-01T08:30:00.000Z&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Client receives and converts to local time (browser/app handles this)</span></span></code></pre></div>
+        <h3 id="field-naming-convention">Field Naming Convention</h3>
+        <p>Time-related fields use specific suffixes for clarity:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDate date<span class="op">;</span>              <span class="co">// ✅ Just date, no time</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span>     <span class="co">// ✅ &quot;At&quot; for timestamp</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime lastUpdate<span class="op">;</span>    <span class="co">// ✅ Specific event</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> timestamp<span class="op">;</span>            <span class="co">// ✅ Pre-formatted string</span></span></code></pre></div>
+        <hr />
+        <h2 id="numeric-precision">Numeric Precision</h2>
+        <h3 id="bigdecimal-for-financial-values">BigDecimal for
+        Financial Values</h3>
+        <p>Use <code>BigDecimal</code> for any monetary amounts, prices,
+        or percentages:</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemDTO <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Positive</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price must be &gt; 0&quot;</span><span class="op">)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> price<span class="op">;</span>           <span class="co">// Price per unit</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> totalValue<span class="op">;</span>      <span class="co">// Calculated: quantity × price</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> FinancialSummaryDTO <span class="op">{</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> openingValue<span class="op">;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> purchasesCost<span class="op">;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> costOfGoodsSold<span class="op">;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="integer-for-discrete-counts">Integer for Discrete
+        Counts</h3>
+        <p>Use <code>int</code> or <code>Integer</code> for quantities,
+        counts:</p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemDTO <span class="op">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PositiveOrZero</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> quantity<span class="op">;</span>              <span class="co">// Stock quantity (whole units)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> LowStockItemDTO <span class="op">{</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> quantity<span class="op">;</span>              <span class="co">// Current stock</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> minimumQuantity<span class="op">;</span>       <span class="co">// Alert threshold</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="why-bigdecimal">Why BigDecimal?</h3>
+        <pre><code>❌ Double:      0.1 + 0.2 = 0.30000000000000004 (floating-point rounding errors)
+✅ BigDecimal:  0.1 + 0.2 = 0.3 (exact decimal arithmetic for money)</code></pre>
+        <hr />
+        <h2 id="validation-annotations">Validation Annotations</h2>
+        <h3 id="required-field-pattern">Required Field Pattern</h3>
+        <p><strong>Strings:</strong> Use <code>@NotBlank</code> (rejects
+        empty strings and whitespace)</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name is required&quot;</span><span class="op">)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span></code></pre></div>
+        <p><strong>Objects:</strong> Use <code>@NotNull</code> (rejects
+        null references)</p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price is mandatory&quot;</span><span class="op">)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">BigDecimal</span> price<span class="op">;</span></span></code></pre></div>
+        <h3 id="format-validation">Format Validation</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Email</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Invalid email format&quot;</span><span class="op">)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Pattern</span><span class="op">(</span>regexp <span class="op">=</span> <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d{10}$&quot;</span><span class="op">,</span> message <span class="op">=</span> <span class="st">&quot;Phone must be 10 digits&quot;</span><span class="op">)</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> phone<span class="op">;</span></span></code></pre></div>
+        <h3 id="range-validation">Range Validation</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Positive</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price must be greater than zero&quot;</span><span class="op">)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">BigDecimal</span> price<span class="op">;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="at">@PositiveOrZero</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Quantity must be zero or positive&quot;</span><span class="op">)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="dt">int</span> quantity<span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Min</span><span class="op">(</span>value <span class="op">=</span> <span class="dv">1</span><span class="op">,</span> message <span class="op">=</span> <span class="st">&quot;ID must be at least 1&quot;</span><span class="op">)</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Long</span> supplierId<span class="op">;</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="at">@Max</span><span class="op">(</span>value <span class="op">=</span> <span class="dv">9999</span><span class="op">,</span> message <span class="op">=</span> <span class="st">&quot;Quantity cannot exceed 9999&quot;</span><span class="op">)</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="dt">int</span> quantity<span class="op">;</span></span></code></pre></div>
+        <h3 id="custom-validation">Custom Validation</h3>
+        <p>For domain-specific rules, define custom validators:</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@StockUpdateValid</span>  <span class="co">// Custom annotation</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockUpdateDTO <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> newQuantity<span class="op">;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> reason<span class="op">;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">// In validator class:</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockUpdateValidator <span class="kw">implements</span> ConstraintValidator<span class="op">&lt;</span>StockUpdateValid<span class="op">,</span> StockUpdateDTO<span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isValid</span><span class="op">(</span>StockUpdateDTO dto<span class="op">,</span> ConstraintValidatorContext context<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Business logic: e.g., &quot;sold_to_customer&quot; requires adjustment reason</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dto<span class="op">.</span><span class="fu">getReason</span><span class="op">()</span> <span class="op">!=</span> <span class="kw">null</span> <span class="op">||</span> <span class="op">!</span><span class="st">&quot;sold&quot;</span><span class="op">.</span><span class="fu">equals</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getReason</span><span class="op">());</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="validation-messages">Validation Messages</h3>
+        <p>Use <strong>past-tense or imperative:</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name is required&quot;</span><span class="op">)</span>          <span class="co">// ✅ Clear and direct</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name must not be blank&quot;</span><span class="op">)</span>    <span class="co">// ✅ Alternative (imperative)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name cannot be empty&quot;</span><span class="op">)</span>      <span class="co">// ✅ Clear</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>❌ <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name failed&quot;</span><span class="op">)</span>            <span class="co">// ❌ Vague</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>❌ <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Invalid name&quot;</span><span class="op">)</span>           <span class="co">// ❌ No actionable guidance</span></span></code></pre></div>
+        <hr />
+        <h2 id="optional-fields-policy">Optional Fields Policy</h2>
+        <h3 id="nullable-fields">Nullable Fields</h3>
+        <p>Fields without <code>@NotNull</code> or
+        <code>@NotBlank</code> are <strong>implicitly
+        optional</strong>:</p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierDTO <span class="op">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span>  <span class="co">// Required</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Optional—can be null if not provided</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Optional—can be null if not provided</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> phone<span class="op">;</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Email</span>  <span class="co">// Required to match email format if provided</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="json-serialization-of-nulls">JSON Serialization of
+        Nulls</h3>
+        <p>Include null fields in JSON responses (clients expect
+        consistent shape):</p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span>        <span class="er">//</span> <span class="er">←</span> <span class="er">Null</span> <span class="er">fields</span> <span class="er">included</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phone&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;acme@example.com&quot;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Why?</strong> Clients can distinguish “field not
+        provided” (null) from “field not in response” (absent).</p>
+        <hr />
+        <h2 id="enums-in-dtos">Enums in DTOs</h2>
+        <h3 id="string-serialization">String Serialization</h3>
+        <p>Enums serialize to <strong>String values</strong>, not
+        ordinals:</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> StockChangeReason <span class="op">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">RECEIVED</span><span class="op">(</span><span class="st">&quot;received&quot;</span><span class="op">,</span> <span class="st">&quot;Stock received from supplier&quot;</span><span class="op">),</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">SOLD_TO_CUSTOMER</span><span class="op">(</span><span class="st">&quot;sold_to_customer&quot;</span><span class="op">,</span> <span class="st">&quot;Sold to customer&quot;</span><span class="op">),</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">DAMAGED</span><span class="op">(</span><span class="st">&quot;damaged&quot;</span><span class="op">,</span> <span class="st">&quot;Damaged and removed from stock&quot;</span><span class="op">),</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ADJUSTMENT</span><span class="op">(</span><span class="st">&quot;adjustment&quot;</span><span class="op">,</span> <span class="st">&quot;Inventory adjustment&quot;</span><span class="op">);</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> value<span class="op">;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> description<span class="op">;</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">// JSON serialization:</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">// &quot;reason&quot;: &quot;sold_to_customer&quot;  (NOT &quot;1&quot; or &quot;SOLD_TO_CUSTOMER&quot;)</span></span></code></pre></div>
+        <h3 id="using-jsonproperty">Using <span class="citation"
+        data-cites="JsonProperty">@JsonProperty</span></h3>
+        <p>If enum name differs from desired JSON value:</p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> HttpStatus <span class="op">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JsonProperty</span><span class="op">(</span><span class="st">&quot;bad_request&quot;</span><span class="op">)</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    BAD_REQUEST<span class="op">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JsonProperty</span><span class="op">(</span><span class="st">&quot;unauthorized&quot;</span><span class="op">)</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    UNAUTHORIZED<span class="op">,</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JsonProperty</span><span class="op">(</span><span class="st">&quot;forbidden&quot;</span><span class="op">)</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    FORBIDDEN</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co">// JSON: &quot;error&quot;: &quot;bad_request&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="record-dtos">Record DTOs</h2>
+        <p>For <strong>immutable, read-only DTOs</strong>, use Java
+        records:</p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">AppUserProfileDTO</span><span class="op">(</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email<span class="op">,</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> fullName<span class="op">,</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> role<span class="op">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> pictureUrl</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Automatically provides:</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">// - All-args constructor</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">// - toString()</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">// - equals() &amp; hashCode()</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co">// - Getter methods (no &quot;get&quot; prefix)</span></span></code></pre></div>
+        <h3 id="when-to-use-records">When to Use Records</h3>
+        <ul>
+        <li>✅ <strong>Read-only data</strong> (no setters)</li>
+        <li>✅ <strong>Immutable responses</strong> (analytics,
+        auth)</li>
+        <li>❌ <strong>Request bodies</strong> (validation groups need
+        <span class="citation" data-cites="Data">@Data</span> or <span
+        class="citation" data-cites="Builder">@Builder</span>)</li>
+        </ul>
+        <hr />
+        <h2 id="builder-pattern-for-complex-dtos">Builder Pattern for
+        Complex DTOs</h2>
+        <p>Use <code>@Builder</code> for DTOs with many fields:</p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="at">@AllArgsConstructor</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> DashboardSummaryDTO <span class="op">{</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">List</span><span class="op">&lt;</span>StockPerSupplierDTO<span class="op">&gt;</span> stockPerSupplier<span class="op">;</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">List</span><span class="op">&lt;</span>LowStockItemDTO<span class="op">&gt;</span> lowStockItems<span class="op">;</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">List</span><span class="op">&lt;</span>MonthlyStockMovementDTO<span class="op">&gt;</span> monthlyStockMovement<span class="op">;</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">List</span><span class="op">&lt;</span>ItemUpdateFrequencyDTO<span class="op">&gt;</span> topUpdatedItems<span class="op">;</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Usage:</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>DashboardSummaryDTO dashboard <span class="op">=</span> DashboardSummaryDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">stockPerSupplier</span><span class="op">(</span>suppliers<span class="op">)</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">lowStockItems</span><span class="op">(</span>alerts<span class="op">)</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">monthlyStockMovement</span><span class="op">(</span>trends<span class="op">)</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">topUpdatedItems</span><span class="op">(</span>activity<span class="op">)</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <hr />
+        <h2 id="versioning-strategy">Versioning Strategy</h2>
+        <h3 id="current-approach-no-versioning">Current Approach: No
+        Versioning</h3>
+        <p>All DTOs are <strong>unversioned</strong> (implicit v1). If
+        breaking changes are needed:</p>
+        <p><strong>Option A:</strong> Create new DTO class with version
+        in name</p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemDTOV2 <span class="op">{</span>  <span class="co">// For major breaking changes</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// New fields or structure</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Map v1 to v2 in controller:</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;v2/items&quot;</span><span class="op">)</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>InventoryItemDTOV2<span class="op">&gt;&gt;</span> <span class="fu">listV2</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div>
+        <p><strong>Option B:</strong> Add new fields and deprecate old
+        ones</p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemDTO <span class="op">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Deprecated</span><span class="op">(</span>forRemoval <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> oldField<span class="op">;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> newField<span class="op">;</span>  <span class="co">// Replacement</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="lombok-annotations">Lombok Annotations</h2>
+        <h3 id="standard-annotations">Standard Annotations</h3>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span>              <span class="co">// Generates @Getter, @Setter, @ToString, @EqualsAndHashCode</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span>           <span class="co">// Generates builder() method</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span> <span class="co">// Generates zero-argument constructor</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="at">@AllArgsConstructor</span> <span class="co">// Generates all-args constructor</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="at">@Getter</span>            <span class="co">// Individual getters only (read-only)</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Setter</span>            <span class="co">// Individual setters only</span></span></code></pre></div>
+        <h3 id="example-supplier-dto">Example: Supplier DTO</h3>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span>                  <span class="co">// Generates getters, setters, toString, equals, hashCode</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span>               <span class="co">// Enables SupplierDTO.builder()</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span>     <span class="co">// SupplierDTO()</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="at">@AllArgsConstructor</span>    <span class="co">// SupplierDTO(id, name, email, ...)</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierDTO <span class="op">{</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="serialization-configuration">Serialization
+        Configuration</h2>
+        <h3 id="jackson-default-behavior">Jackson Default Behavior</h3>
+        <p>Jackson (Spring’s default JSON serializer) handles:</p>
+        <ul>
+        <li>✅ camelCase → camelCase (IDENTITY strategy)</li>
+        <li>✅ null fields → included</li>
+        <li>✅ LocalDateTime → ISO-8601 timestamp</li>
+        <li>✅ BigDecimal → numeric value with precision</li>
+        </ul>
+        <h3 id="custom-configuration-if-needed">Custom Configuration (if
+        needed)</h3>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> JacksonConfig <span class="op">{</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ObjectMapper <span class="fu">objectMapper</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>        ObjectMapper mapper <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObjectMapper</span><span class="op">();</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Include nulls</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        mapper<span class="op">.</span><span class="fu">setSerializationInclusion</span><span class="op">(</span>Include<span class="op">.</span><span class="fu">ALWAYS</span><span class="op">);</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Use ISO-8601 for dates</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        mapper<span class="op">.</span><span class="fu">registerModule</span><span class="op">(</span><span class="kw">new</span> <span class="fu">JavaTimeModule</span><span class="op">());</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>        mapper<span class="op">.</span><span class="fu">disable</span><span class="op">(</span>SerializationFeature<span class="op">.</span><span class="fu">WRITE_DATES_AS_TIMESTAMPS</span><span class="op">);</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">;</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices-checklist">Best Practices Checklist</h2>
+        <pre><code>DTO Design:
+  ☑ Class name ends with DTO
+  ☑ All fields are camelCase
+  ☑ Required fields marked with @NotNull/@NotBlank
+  ☑ Monetary values use BigDecimal
+  ☑ Dates use LocalDate or LocalDateTime
+  ☑ Enums serialize as String values
+  ☑ Optional fields have null defaults
+
+Validation:
+  ☑ Error messages are actionable (tell user what went wrong)
+  ☑ Validation groups used for Create vs Update
+  ☑ Custom validators for complex business rules
+  ☑ @Email, @Pattern used for format checks
+
+Serialization:
+  ☑ Null fields included in JSON responses
+  ☑ BigDecimal maintains precision
+  ☑ Dates use ISO-8601 format
+  ☑ Timezone is always UTC
+
+Documentation:
+  ☑ Class-level JavaDoc explains purpose
+  ☑ Field-level JavaDoc explains meaning
+  ☑ Validation messages are clear
+  ☑ @see tags link to entity, controller, service</code></pre>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Rule</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Naming</strong></td>
+        <td><code>&lt;Domain&gt;&lt;Purpose&gt;DTO</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Fields</strong></td>
+        <td>camelCase (Java convention)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Dates</strong></td>
+        <td><code>LocalDate</code> or <code>LocalDateTime</code>,
+        ISO-8601 serialization</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Money</strong></td>
+        <td><code>BigDecimal</code> (not Double)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Required</strong></td>
+        <td><code>@NotBlank</code>, <code>@NotNull</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Optional</strong></td>
+        <td>No annotation (null is OK)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Enums</strong></td>
+        <td>Serialize as String values</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Records</strong></td>
+        <td>For immutable read-only DTOs</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Nulls</strong></td>
+        <td>Include in JSON (consistent shape)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Validation</strong></td>
+        <td>Groups for Create/Update variants</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

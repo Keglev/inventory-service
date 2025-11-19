@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+dto/pagination-and-sorting-dto · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#pagination-sorting-dtos"
+        id="toc-pagination-sorting-dtos">Pagination &amp; Sorting
+        DTOs</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#page-response-structure"
+        id="toc-page-response-structure">Page<T> Response Structure</a>
+        <ul>
+        <li><a href="#field-reference" id="toc-field-reference">Field
+        Reference</a></li>
+        </ul></li>
+        <li><a href="#query-parameters" id="toc-query-parameters">Query
+        Parameters</a>
+        <ul>
+        <li><a href="#pagination-parameters"
+        id="toc-pagination-parameters">Pagination Parameters</a></li>
+        <li><a href="#sorting-parameters"
+        id="toc-sorting-parameters">Sorting Parameters</a></li>
+        </ul></li>
+        <li><a href="#sorting-by-field"
+        id="toc-sorting-by-field">Sorting by Field</a>
+        <ul>
+        <li><a href="#supplier-endpoints"
+        id="toc-supplier-endpoints">Supplier Endpoints</a></li>
+        <li><a href="#inventory-item-endpoints"
+        id="toc-inventory-item-endpoints">Inventory Item
+        Endpoints</a></li>
+        <li><a href="#stock-history-endpoints"
+        id="toc-stock-history-endpoints">Stock History
+        Endpoints</a></li>
+        </ul></li>
+        <li><a href="#requestresponse-examples"
+        id="toc-requestresponse-examples">Request/Response Examples</a>
+        <ul>
+        <li><a href="#default-pagination-page-0-size-20"
+        id="toc-default-pagination-page-0-size-20">Default Pagination
+        (Page 0, Size 20)</a></li>
+        <li><a href="#custom-page-size-size-50"
+        id="toc-custom-page-size-size-50">Custom Page Size (Size
+        50)</a></li>
+        <li><a href="#pagination-navigation-page-1"
+        id="toc-pagination-navigation-page-1">Pagination Navigation
+        (Page 1)</a></li>
+        <li><a href="#sorted-by-price-descending"
+        id="toc-sorted-by-price-descending">Sorted by Price
+        (Descending)</a></li>
+        <li><a href="#multiple-sort-criteria"
+        id="toc-multiple-sort-criteria">Multiple Sort Criteria</a></li>
+        </ul></li>
+        <li><a href="#client-implementation"
+        id="toc-client-implementation">Client Implementation</a>
+        <ul>
+        <li><a href="#using-pagination-in-javascript"
+        id="toc-using-pagination-in-javascript">Using Pagination in
+        JavaScript</a></li>
+        <li><a href="#using-pagination-in-java-resttemplate"
+        id="toc-using-pagination-in-java-resttemplate">Using Pagination
+        in Java (RestTemplate)</a></li>
+        </ul></li>
+        <li><a href="#pagination-limits"
+        id="toc-pagination-limits">Pagination Limits</a>
+        <ul>
+        <li><a href="#page-size-constraints"
+        id="toc-page-size-constraints">Page Size Constraints</a></li>
+        <li><a href="#invalid-page-number"
+        id="toc-invalid-page-number">Invalid Page Number</a></li>
+        </ul></li>
+        <li><a href="#performance-optimization"
+        id="toc-performance-optimization">Performance Optimization</a>
+        <ul>
+        <li><a href="#tip-1-use-reasonable-page-sizes"
+        id="toc-tip-1-use-reasonable-page-sizes">Tip 1: Use Reasonable
+        Page Sizes</a></li>
+        <li><a href="#tip-2-sort-only-on-indexed-fields"
+        id="toc-tip-2-sort-only-on-indexed-fields">Tip 2: Sort Only on
+        Indexed Fields</a></li>
+        <li><a href="#tip-3-pagination-is-better-than-offset"
+        id="toc-tip-3-pagination-is-better-than-offset">Tip 3:
+        Pagination is Better Than Offset</a></li>
+        </ul></li>
+        <li><a href="#testing-pagination"
+        id="toc-testing-pagination">Testing Pagination</a>
+        <ul>
+        <li><a href="#unit-test-template"
+        id="toc-unit-test-template">Unit Test Template</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+        <h1 id="pagination-sorting-dtos">Pagination &amp; Sorting
+        DTOs</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Pagination is <strong>not a separate DTO class</strong> but a
+        standard response structure from Spring Data’s
+        <code>Page&lt;T&gt;</code> interface. All list endpoints return
+        this format with metadata and content.</p>
+        <hr />
+        <h2 id="page-response-structure">Page<T> Response Structure</h2>
+        <p>Spring Data automatically wraps list responses in pagination
+        metadata:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="er">/*</span> <span class="er">Array</span> <span class="er">of</span> <span class="er">DTOs</span> <span class="er">*/</span> <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;sort&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="fu">{</span> <span class="dt">&quot;property&quot;</span><span class="fu">:</span> <span class="st">&quot;name&quot;</span><span class="fu">,</span> <span class="dt">&quot;direction&quot;</span><span class="fu">:</span> <span class="st">&quot;ASC&quot;</span> <span class="fu">}</span> <span class="ot">]</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">63</span><span class="fu">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;first&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;number&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;size&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numberOfElements&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;empty&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="field-reference">Field Reference</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>content</code></td>
+        <td>Array</td>
+        <td>List of DTOs for current page</td>
+        </tr>
+        <tr class="even">
+        <td><code>pageable.pageNumber</code></td>
+        <td>Integer</td>
+        <td>Current page (0-indexed)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>pageable.pageSize</code></td>
+        <td>Integer</td>
+        <td>Items per page</td>
+        </tr>
+        <tr class="even">
+        <td><code>pageable.sort</code></td>
+        <td>Array</td>
+        <td>Active sort criteria</td>
+        </tr>
+        <tr class="odd">
+        <td><code>totalElements</code></td>
+        <td>Long</td>
+        <td>Total count across all pages</td>
+        </tr>
+        <tr class="even">
+        <td><code>totalPages</code></td>
+        <td>Integer</td>
+        <td>Number of pages</td>
+        </tr>
+        <tr class="odd">
+        <td><code>last</code></td>
+        <td>Boolean</td>
+        <td>True if this is the last page</td>
+        </tr>
+        <tr class="even">
+        <td><code>first</code></td>
+        <td>Boolean</td>
+        <td>True if this is the first page</td>
+        </tr>
+        <tr class="odd">
+        <td><code>number</code></td>
+        <td>Integer</td>
+        <td>Current page number (0-indexed)</td>
+        </tr>
+        <tr class="even">
+        <td><code>size</code></td>
+        <td>Integer</td>
+        <td>Items per page</td>
+        </tr>
+        <tr class="odd">
+        <td><code>numberOfElements</code></td>
+        <td>Integer</td>
+        <td>Items in current page</td>
+        </tr>
+        <tr class="even">
+        <td><code>empty</code></td>
+        <td>Boolean</td>
+        <td>True if content is empty</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="query-parameters">Query Parameters</h2>
+        <h3 id="pagination-parameters">Pagination Parameters</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Max</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>page</code></td>
+        <td>Integer</td>
+        <td>0</td>
+        <td>—</td>
+        <td><code>?page=2</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>size</code></td>
+        <td>Integer</td>
+        <td>20</td>
+        <td>200</td>
+        <td><code>?size=50</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Rules:</strong> - Page is <strong>0-indexed</strong>
+        (first page = 0) - Size must be <strong>&gt; 0</strong> and
+        <strong>&lt;= 200</strong> - Default page size is
+        <strong>20</strong></p>
+        <h3 id="sorting-parameters">Sorting Parameters</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Parameter</th>
+        <th>Format</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>sort</code></td>
+        <td><code>property,direction</code></td>
+        <td><code>?sort=name,asc</code></td>
+        </tr>
+        <tr class="even">
+        <td>Multiple</td>
+        <td>Comma-separated</td>
+        <td><code>?sort=name,asc&amp;sort=createdAt,desc</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Directions:</strong> - <code>asc</code> – Ascending
+        order (A→Z, 0→9) - <code>desc</code> – Descending order (Z→A,
+        9→0)</p>
+        <hr />
+        <h2 id="sorting-by-field">Sorting by Field</h2>
+        <h3 id="supplier-endpoints">Supplier Endpoints</h3>
+        <p><strong>Sortable fields:</strong> - <code>name</code> –
+        Supplier name (default) - <code>createdAt</code> – Creation
+        timestamp - <code>email</code> – Email address</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>GET /api/suppliers?page=0&amp;size=20&amp;sort=name,asc&amp;sort=createdAt,desc</code></pre>
+        <p><strong>Response:</strong> 1. First sort by <code>name</code>
+        (ascending: A→Z) 2. Then by <code>createdAt</code> (descending:
+        newest first)</p>
+        <h3 id="inventory-item-endpoints">Inventory Item Endpoints</h3>
+        <p><strong>Sortable fields:</strong> - <code>name</code> – Item
+        name - <code>price</code> – Unit price - <code>quantity</code> –
+        Stock quantity - <code>totalValue</code> – quantity × price -
+        <code>createdAt</code> – Creation timestamp</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>GET /api/items?size=50&amp;sort=price,desc</code></pre>
+        <p>Returns highest-priced items first.</p>
+        <h3 id="stock-history-endpoints">Stock History Endpoints</h3>
+        <p><strong>Sortable fields:</strong> - <code>timestamp</code> –
+        Change timestamp (default, descending) - <code>change</code> –
+        Quantity delta - <code>createdBy</code> – User who made
+        change</p>
+        <p><strong>Example (default sort):</strong></p>
+        <pre class="http"><code>GET /api/stock-history</code></pre>
+        <p>Automatically sorts by <code>timestamp DESC</code> (most
+        recent first).</p>
+        <hr />
+        <h2 id="requestresponse-examples">Request/Response Examples</h2>
+        <h3 id="default-pagination-page-0-size-20">Default Pagination
+        (Page 0, Size 20)</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-002&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Global Supplies&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="er">/*</span> <span class="er">...</span> <span class="dv">18</span> <span class="er">more</span> <span class="er">items</span> <span class="er">...</span> <span class="er">*/</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;sort&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="fu">{</span> <span class="dt">&quot;property&quot;</span><span class="fu">:</span> <span class="st">&quot;name&quot;</span><span class="fu">,</span> <span class="dt">&quot;direction&quot;</span><span class="fu">:</span> <span class="st">&quot;ASC&quot;</span> <span class="fu">}</span> <span class="ot">]</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">42</span><span class="fu">,</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;first&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;number&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;size&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numberOfElements&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;empty&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="custom-page-size-size-50">Custom Page Size (Size
+        50)</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers?size=50
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response:</strong> - <code>totalElements</code>: 42
+        (unchanged) - <code>totalPages</code>: 1 (all fit on one page) -
+        <code>numberOfElements</code>: 42 (all on current page) -
+        <code>last</code>: true (this is the last page)</p>
+        <h3 id="pagination-navigation-page-1">Pagination Navigation
+        (Page 1)</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers?page=1&amp;size=20
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="er">/*</span> <span class="er">Items</span> <span class="dv">20-39</span> <span class="er">(</span><span class="dv">2</span><span class="er">nd</span> <span class="er">page)</span> <span class="er">*/</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span> <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">42</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;first&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;number&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numberOfElements&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;empty&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="sorted-by-price-descending">Sorted by Price
+        (Descending)</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/items?sort=price,desc&amp;size=25
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response:</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-999&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Premium Item&quot;</span><span class="fu">,</span> <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">299.99</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-888&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;High-End Item&quot;</span><span class="fu">,</span> <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">199.99</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="er">/*</span> <span class="er">...</span> <span class="er">sorted</span> <span class="er">by</span> <span class="er">price</span><span class="ot">,</span> <span class="er">highest</span> <span class="er">first</span> <span class="er">...</span> <span class="er">*/</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">25</span><span class="fu">,</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;sort&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="fu">{</span> <span class="dt">&quot;property&quot;</span><span class="fu">:</span> <span class="st">&quot;price&quot;</span><span class="fu">,</span> <span class="dt">&quot;direction&quot;</span><span class="fu">:</span> <span class="st">&quot;DESC&quot;</span> <span class="fu">}</span> <span class="ot">]</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">1250</span><span class="fu">,</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">50</span><span class="fu">,</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numberOfElements&quot;</span><span class="fu">:</span> <span class="dv">25</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="multiple-sort-criteria">Multiple Sort Criteria</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/items?sort=supplierId,asc&amp;sort=name,asc
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response:</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;sort&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span> <span class="dt">&quot;property&quot;</span><span class="fu">:</span> <span class="st">&quot;supplierId&quot;</span><span class="fu">,</span> <span class="dt">&quot;direction&quot;</span><span class="fu">:</span> <span class="st">&quot;ASC&quot;</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span> <span class="dt">&quot;property&quot;</span><span class="fu">:</span> <span class="st">&quot;name&quot;</span><span class="fu">,</span> <span class="dt">&quot;direction&quot;</span><span class="fu">:</span> <span class="st">&quot;ASC&quot;</span> <span class="fu">}</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="er">/*</span> <span class="er">...</span> <span class="er">*/</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p>Groups by supplier, then sorts by name within each
+        supplier.</p>
+        <hr />
+        <h2 id="client-implementation">Client Implementation</h2>
+        <h3 id="using-pagination-in-javascript">Using Pagination in
+        JavaScript</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">fetchSuppliers</span>(page <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> size <span class="op">=</span> <span class="dv">20</span><span class="op">,</span> sortBy <span class="op">=</span> <span class="st">&#39;name&#39;</span>) {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> params <span class="op">=</span> <span class="kw">new</span> <span class="fu">URLSearchParams</span>({</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    page<span class="op">,</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    size<span class="op">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">sort</span><span class="op">:</span> <span class="vs">`</span><span class="sc">${</span>sortBy<span class="sc">}</span><span class="vs">,asc`</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="vs">`/api/suppliers?</span><span class="sc">${</span>params<span class="sc">}</span><span class="vs">`</span><span class="op">,</span> {</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">headers</span><span class="op">:</span> { <span class="st">&#39;Authorization&#39;</span><span class="op">:</span> <span class="vs">`Bearer </span><span class="sc">${</span>token<span class="sc">}</span><span class="vs">`</span> }</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> data <span class="op">=</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Page </span><span class="sc">${</span>data<span class="op">.</span><span class="at">number</span> <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="vs"> of </span><span class="sc">${</span>data<span class="op">.</span><span class="at">totalPages</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Total items: </span><span class="sc">${</span>data<span class="op">.</span><span class="at">totalElements</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Items on this page: </span><span class="sc">${</span>data<span class="op">.</span><span class="at">numberOfElements</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> data<span class="op">.</span><span class="at">content</span><span class="op">;</span>  <span class="co">// Array of DTO objects</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="co">// Fetch page 1 (second page), 50 items per page</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> suppliers <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetchSuppliers</span>(<span class="dv">1</span><span class="op">,</span> <span class="dv">50</span>)<span class="op">;</span></span></code></pre></div>
+        <h3 id="using-pagination-in-java-resttemplate">Using Pagination
+        in Java (RestTemplate)</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>RestTemplate restTemplate <span class="op">=</span> <span class="kw">new</span> <span class="fu">RestTemplate</span><span class="op">();</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Build URL with pagination</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> url <span class="op">=</span> <span class="st">&quot;http://localhost:8080/api/suppliers?&quot;</span> <span class="op">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;page=0&amp;size=20&amp;sort=name,asc&quot;</span><span class="op">;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>ResponseEntity<span class="op">&lt;</span>PagedModel<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;&gt;</span> response <span class="op">=</span> restTemplate<span class="op">.</span><span class="fu">exchange</span><span class="op">(</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    url<span class="op">,</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">new</span> HttpEntity<span class="op">&lt;&gt;(</span>headers<span class="op">),</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">new</span> ParameterizedTypeReference<span class="op">&lt;</span>PagedModel<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;&gt;()</span> <span class="op">{}</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>Page<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> page <span class="op">=</span> response<span class="op">.</span><span class="fu">getBody</span><span class="op">();</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Total: &quot;</span> <span class="op">+</span> page<span class="op">.</span><span class="fu">getTotalElements</span><span class="op">());</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Pages: &quot;</span> <span class="op">+</span> page<span class="op">.</span><span class="fu">getTotalPages</span><span class="op">());</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Items on this page: &quot;</span> <span class="op">+</span> page<span class="op">.</span><span class="fu">getContent</span><span class="op">().</span><span class="fu">size</span><span class="op">());</span></span></code></pre></div>
+        <hr />
+        <h2 id="pagination-limits">Pagination Limits</h2>
+        <h3 id="page-size-constraints">Page Size Constraints</h3>
+        <pre><code>Minimum size:  1
+Default size:  20
+Maximum size:  200</code></pre>
+        <p><strong>Request with size &gt; 200:</strong></p>
+        <pre class="http"><code>GET /api/suppliers?size=500</code></pre>
+        <p><strong>Response (400 Bad Request):</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Page size must be between 1 and 200&quot;</span><span class="fu">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:35:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-4523&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="invalid-page-number">Invalid Page Number</h3>
+        <pre class="http"><code>GET /api/suppliers?page=999</code></pre>
+        <p><strong>Response (200 OK, empty content):</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">999</span><span class="fu">,</span> <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">42</span><span class="fu">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;first&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numberOfElements&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;empty&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="performance-optimization">Performance Optimization</h2>
+        <h3 id="tip-1-use-reasonable-page-sizes">Tip 1: Use Reasonable
+        Page Sizes</h3>
+        <pre><code>❌ size=1      (Too small, many requests needed)
+✅ size=20     (Default, balanced)
+✅ size=100    (For bulk operations)
+❌ size=10000  (Too large, slow queries)</code></pre>
+        <h3 id="tip-2-sort-only-on-indexed-fields">Tip 2: Sort Only on
+        Indexed Fields</h3>
+        <p><strong>Good performance:</strong></p>
+        <pre class="http"><code>?sort=name,asc           (indexed column)
+?sort=createdAt,desc     (indexed column)</code></pre>
+        <p><strong>Poor performance:</strong></p>
+        <pre class="http"><code>?sort=description,asc    (large text, no index)
+?sort=computedField,asc  (calculated, not stored)</code></pre>
+        <h3 id="tip-3-pagination-is-better-than-offset">Tip 3:
+        Pagination is Better Than Offset</h3>
+        <p>Spring Data’s pagination uses LIMIT/OFFSET which can be slow
+        on large tables. For very large datasets, consider:</p>
+        <pre><code>LIMIT 20 OFFSET 0      ✅ Fast (small offset)
+LIMIT 20 OFFSET 100000 ❌ Slow (large offset scans)</code></pre>
+        <p>For cursor-based pagination, see analytics endpoints which
+        may support <code>startKey</code> parameters.</p>
+        <hr />
+        <h2 id="testing-pagination">Testing Pagination</h2>
+        <h3 id="unit-test-template">Unit Test Template</h3>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="at">@WebMvcTest</span><span class="op">(</span>SupplierController<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SupplierControllerPaginationTest <span class="op">{</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@MockBean</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierService supplierService<span class="op">;</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testList_WithPaginationParams_ReturnPagedResponse</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> suppliers <span class="op">=</span> <span class="bu">List</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>            <span class="kw">new</span> <span class="fu">SupplierDTO</span><span class="op">(</span><span class="st">&quot;SUP-001&quot;</span><span class="op">,</span> <span class="st">&quot;ACME&quot;</span><span class="op">,</span> <span class="kw">...</span><span class="op">),</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>            <span class="kw">new</span> <span class="fu">SupplierDTO</span><span class="op">(</span><span class="st">&quot;SUP-002&quot;</span><span class="op">,</span> <span class="st">&quot;Global&quot;</span><span class="op">,</span> <span class="kw">...</span><span class="op">)</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        Page<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> page <span class="op">=</span> <span class="kw">new</span> PageImpl<span class="op">&lt;&gt;(</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>            suppliers<span class="op">,</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>            PageRequest<span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">20</span><span class="op">),</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>            <span class="dv">42</span>  <span class="co">// totalElements</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">findAll</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span><span class="bu">Pageable</span><span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>page<span class="op">);</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers?page=0&amp;size=20&quot;</span><span class="op">))</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">())</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.content&quot;</span><span class="op">,</span> <span class="fu">hasSize</span><span class="op">(</span><span class="dv">2</span><span class="op">)))</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.totalElements&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="dv">42</span><span class="op">))</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.totalPages&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="dv">3</span><span class="op">))</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.number&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="dv">0</span><span class="op">));</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testList_WithCustomSort_ReturnsSorted</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>        <span class="co">/* Mock and test with sort=price,desc */</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Structure</strong></td>
+        <td>Spring’s <code>Page&lt;T&gt;</code> with metadata</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Default Size</strong></td>
+        <td>20 items</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Max Size</strong></td>
+        <td>200 items</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Default Sort</strong></td>
+        <td>By endpoint (often by name or timestamp)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Pagination Param</strong></td>
+        <td><code>page</code> (0-indexed)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Size Param</strong></td>
+        <td><code>size</code> (1-200)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Sort Param</strong></td>
+        <td><code>sort=property,direction</code> (supports
+        multiple)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Response Fields</strong></td>
+        <td>content, pageable, totalElements, totalPages, last, first,
+        etc.</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

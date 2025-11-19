@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+dto/common-response-shapes · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#common-response-shapes"
+        id="toc-common-response-shapes">Common Response Shapes</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#response-shape-philosophy"
+        id="toc-response-shape-philosophy">Response Shape Philosophy</a>
+        <ul>
+        <li><a href="#why-no-generic-wrapper"
+        id="toc-why-no-generic-wrapper">Why NO Generic Wrapper?</a></li>
+        </ul></li>
+        <li><a href="#http-status-code-envelope"
+        id="toc-http-status-code-envelope">HTTP Status Code
+        Envelope</a></li>
+        <li><a href="#xx-success-responses"
+        id="toc-xx-success-responses">2xx Success Responses</a>
+        <ul>
+        <li><a href="#ok-single-resource"
+        id="toc-ok-single-resource">200 OK (Single Resource)</a></li>
+        <li><a href="#ok-list-with-pagination"
+        id="toc-ok-list-with-pagination">200 OK (List with
+        Pagination)</a></li>
+        <li><a href="#created-new-resource"
+        id="toc-created-new-resource">201 Created (New
+        Resource)</a></li>
+        <li><a href="#no-content-deleteupdate"
+        id="toc-no-content-deleteupdate">204 No Content
+        (Delete/Update)</a></li>
+        <li><a href="#accepted-async-operations"
+        id="toc-accepted-async-operations">202 Accepted (Async
+        Operations)</a></li>
+        </ul></li>
+        <li><a href="#xx-client-error-responses"
+        id="toc-xx-client-error-responses">4xx Client Error
+        Responses</a>
+        <ul>
+        <li><a href="#bad-request" id="toc-bad-request">400 Bad
+        Request</a></li>
+        <li><a href="#unauthorized" id="toc-unauthorized">401
+        Unauthorized</a></li>
+        <li><a href="#forbidden" id="toc-forbidden">403
+        Forbidden</a></li>
+        <li><a href="#not-found" id="toc-not-found">404 Not
+        Found</a></li>
+        <li><a href="#conflict" id="toc-conflict">409 Conflict</a></li>
+        </ul></li>
+        <li><a href="#xx-server-error-responses"
+        id="toc-xx-server-error-responses">5xx Server Error
+        Responses</a>
+        <ul>
+        <li><a href="#internal-server-error"
+        id="toc-internal-server-error">500 Internal Server
+        Error</a></li>
+        <li><a href="#service-unavailable"
+        id="toc-service-unavailable">503 Service Unavailable</a></li>
+        </ul></li>
+        <li><a href="#response-content-types"
+        id="toc-response-content-types">Response Content Types</a>
+        <ul>
+        <li><a href="#json-responses-default"
+        id="toc-json-responses-default">JSON Responses
+        (Default)</a></li>
+        <li><a href="#file-downloads-csv-export"
+        id="toc-file-downloads-csv-export">File Downloads (CSV
+        Export)</a></li>
+        </ul></li>
+        <li><a href="#response-headers"
+        id="toc-response-headers">Response Headers</a>
+        <ul>
+        <li><a href="#standard-headers"
+        id="toc-standard-headers">Standard Headers</a></li>
+        <li><a href="#creation-headers-201"
+        id="toc-creation-headers-201">Creation Headers (201)</a></li>
+        <li><a href="#caching-headers-optional"
+        id="toc-caching-headers-optional">Caching Headers
+        (Optional)</a></li>
+        </ul></li>
+        <li><a href="#response-charset"
+        id="toc-response-charset">Response Charset</a></li>
+        <li><a href="#client-implementation"
+        id="toc-client-implementation">Client Implementation</a>
+        <ul>
+        <li><a href="#javascript-fetch-api"
+        id="toc-javascript-fetch-api">JavaScript Fetch API</a></li>
+        <li><a href="#java-resttemplate" id="toc-java-resttemplate">Java
+        RestTemplate</a></li>
+        </ul></li>
+        <li><a href="#design-decision-summary"
+        id="toc-design-decision-summary">Design Decision Summary</a>
+        <ul>
+        <li><a href="#when-to-return-bare-dto"
+        id="toc-when-to-return-bare-dto">When to Return Bare
+        DTO</a></li>
+        <li><a href="#when-to-return-error-response"
+        id="toc-when-to-return-error-response">When to Return Error
+        Response</a></li>
+        <li><a href="#no-generic-wrapper" id="toc-no-generic-wrapper">NO
+        Generic Wrapper</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+        <h1 id="common-response-shapes">Common Response Shapes</h1>
+        <h2 id="overview">Overview</h2>
+        <p>This document describes the <strong>intentional design
+        decision</strong> to return <strong>bare DTOs</strong> without
+        generic wrapper envelopes. HTTP status codes serve as the
+        primary envelope, providing clear contract boundaries between
+        client and server.</p>
+        <hr />
+        <h2 id="response-shape-philosophy">Response Shape
+        Philosophy</h2>
+        <pre><code>HTTP Status Code = Primary Envelope
+├── 2xx Success → HTTP status conveys success
+│   └── Body: Bare DTO (or Page&lt;DTO&gt; for lists)
+│
+└── 4xx/5xx Error → HTTP status conveys error
+    └── Body: StandardizedErrorResponse</code></pre>
+        <h3 id="why-no-generic-wrapper">Why NO Generic Wrapper?</h3>
+        <p><strong>Anti-pattern (discouraged):</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;success&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;data&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="kw">null</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Problems:</strong> - Redundant metadata (success flag
+        + HTTP status) - Extra nesting complicates client parsing -
+        Inconsistent between success and error (error has different
+        structure) - Larger payloads</p>
+        <p><strong>Our pattern (recommended):</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Cleaner payloads - HTTP status
+        is the envelope - Consistent structure (flat DTO) - Easy to
+        parse and cache</p>
+        <hr />
+        <h2 id="http-status-code-envelope">HTTP Status Code
+        Envelope</h2>
+        <p>The HTTP response status codes <strong>explicitly
+        communicate</strong> the outcome:</p>
+        <div class="mermaid">
+        graph TB
+            A["HTTP Request"]
+            
+            A --> B{Processing}
+            
+            B -->|Success| C["200 OK<br/>Bare DTO"]
+            B -->|Created| D["201 Created<br/>Bare DTO"]
+            B -->|No Content| E["204 No Content<br/>No body"]
+            B -->|Bad Input| F["400 Bad Request<br/>ErrorResponse"]
+            B -->|Not Auth| G["401 Unauthorized<br/>ErrorResponse"]
+            B -->|Not Authed| H["403 Forbidden<br/>ErrorResponse"]
+            B -->|Not Found| I["404 Not Found<br/>ErrorResponse"]
+            B -->|Error| J["500 Internal Error<br/>ErrorResponse"]
+            
+            style C fill:#c8e6c9
+            style D fill:#c8e6c9
+            style E fill:#c8e6c9
+            style F fill:#ffcdd2
+            style G fill:#ffcdd2
+            style H fill:#ffcdd2
+            style I fill:#ffcdd2
+            style J fill:#ffcdd2
+        </div>
+        <hr />
+        <h2 id="xx-success-responses">2xx Success Responses</h2>
+        <h3 id="ok-single-resource">200 OK (Single Resource)</h3>
+        <p><strong>Scenario:</strong> GET single resource, or successful
+        operation returning data</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers/SUP-001
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Smith&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phone&quot;</span><span class="fu">:</span> <span class="st">&quot;+1-555-123-4567&quot;</span><span class="fu">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;acme@example.com&quot;</span><span class="fu">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdAt&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:30:00.000Z&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Content-Type:</strong>
+        <code>application/json</code></p>
+        <hr />
+        <h3 id="ok-list-with-pagination">200 OK (List with
+        Pagination)</h3>
+        <p><strong>Scenario:</strong> GET list of resources</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers?page=0&amp;size=20
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="er">...</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-002&quot;</span><span class="fu">,</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Global Supplies&quot;</span><span class="fu">,</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      <span class="er">...</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageable&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;sort&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="fu">{</span> <span class="dt">&quot;property&quot;</span><span class="fu">:</span> <span class="st">&quot;name&quot;</span><span class="fu">,</span> <span class="dt">&quot;direction&quot;</span><span class="fu">:</span> <span class="st">&quot;ASC&quot;</span> <span class="fu">}</span> <span class="ot">]</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">42</span><span class="fu">,</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;last&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;first&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numberOfElements&quot;</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;empty&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Note:</strong> Paginated responses use Spring Data’s
+        <code>Page&lt;T&gt;</code> structure with metadata.</p>
+        <hr />
+        <h3 id="created-new-resource">201 Created (New Resource)</h3>
+        <p><strong>Scenario:</strong> POST creates new resource</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>POST /api/suppliers
+Content-Type: application/json
+Authorization: Bearer &lt;token&gt;
+
+{
+  &quot;name&quot;: &quot;New Corp&quot;,
+  &quot;email&quot;: &quot;new@example.com&quot;
+}</code></pre>
+        <p><strong>Response (201 Created):</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-999&quot;</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;New Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phone&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;new@example.com&quot;</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdAt&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00.000Z&quot;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Headers:</strong></p>
+        <pre><code>Content-Type: application/json
+Location: /api/suppliers/SUP-999</code></pre>
+        <p><strong>Note:</strong> The <code>Location</code> header
+        points to the newly created resource URI.</p>
+        <hr />
+        <h3 id="no-content-deleteupdate">204 No Content
+        (Delete/Update)</h3>
+        <p><strong>Scenario:</strong> Successful operation with no
+        response body</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>DELETE /api/suppliers/SUP-001
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response (204 No Content):</strong></p>
+        <pre><code>(No body)</code></pre>
+        <p><strong>Use in:</strong> DELETE operations, or PUT operations
+        that don’t return updated resource</p>
+        <hr />
+        <h3 id="accepted-async-operations">202 Accepted (Async
+        Operations)</h3>
+        <p><strong>Scenario:</strong> Operation accepted but not yet
+        complete (async processing)</p>
+        <p><strong>Note:</strong> Not currently used in this API.
+        Included for reference.</p>
+        <p><strong>Example (if implemented):</strong></p>
+        <pre class="http"><code>POST /api/analytics/generate-report
+Content-Type: application/json
+
+{ &quot;startDate&quot;: &quot;2025-11-01&quot;, &quot;endDate&quot;: &quot;2025-11-30&quot; }</code></pre>
+        <p><strong>Response (202 Accepted):</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;jobId&quot;</span><span class="fu">:</span> <span class="st">&quot;JOB-123456&quot;</span><span class="fu">,</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;statusUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;/api/jobs/JOB-123456&quot;</span><span class="fu">,</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Report generation started&quot;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="xx-client-error-responses">4xx Client Error
+        Responses</h2>
+        <h3 id="bad-request">400 Bad Request</h3>
+        <p><strong>Scenario:</strong> Validation error, malformed
+        request, invalid parameters</p>
+        <p><strong>Response (400 Bad Request):</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: Name is required&quot;</span><span class="fu">,</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:35:00.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-4523&quot;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="unauthorized">401 Unauthorized</h3>
+        <p><strong>Scenario:</strong> No authentication or
+        invalid/expired token</p>
+        <p><strong>Response (401 Unauthorized):</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;User not authenticated&quot;</span><span class="fu">,</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:37:00.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-6725&quot;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="forbidden">403 Forbidden</h3>
+        <p><strong>Scenario:</strong> Authenticated but lacks required
+        role/permission</p>
+        <p><strong>Response (403 Forbidden):</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;forbidden&quot;</span><span class="fu">,</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;User does not have required role: ADMIN&quot;</span><span class="fu">,</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:39:00.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-8927&quot;</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="not-found">404 Not Found</h3>
+        <p><strong>Scenario:</strong> Requested resource doesn’t
+        exist</p>
+        <p><strong>Response (404 Not Found):</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;not_found&quot;</span><span class="fu">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier with ID &#39;SUP-INVALID&#39; not found&quot;</span><span class="fu">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:40:00.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-9028&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="conflict">409 Conflict</h3>
+        <p><strong>Scenario:</strong> Operation violates data integrity
+        (unique constraint, etc.)</p>
+        <p><strong>Response (409 Conflict):</strong></p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Email &#39;acme@example.com&#39; already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:41:00.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-0129&quot;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="xx-server-error-responses">5xx Server Error
+        Responses</h2>
+        <h3 id="internal-server-error">500 Internal Server Error</h3>
+        <p><strong>Scenario:</strong> Unhandled exception in server
+        code</p>
+        <p><strong>Response (500 Internal Server Error):</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;internal_server_error&quot;</span><span class="fu">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Database connection timeout&quot;</span><span class="fu">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:42:00.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-1230&quot;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="service-unavailable">503 Service Unavailable</h3>
+        <p><strong>Scenario:</strong> External service (database, cache)
+        is down</p>
+        <p><strong>Response (503 Service Unavailable):</strong></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;service_unavailable&quot;</span><span class="fu">,</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Database is temporarily unavailable&quot;</span><span class="fu">,</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:43:00.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700123456789-2331&quot;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="response-content-types">Response Content Types</h2>
+        <h3 id="json-responses-default">JSON Responses (Default)</h3>
+        <p>All endpoints return <code>application/json</code> unless
+        otherwise specified:</p>
+        <pre><code>Content-Type: application/json; charset=UTF-8</code></pre>
+        <hr />
+        <h3 id="file-downloads-csv-export">File Downloads (CSV
+        Export)</h3>
+        <p><strong>Scenario:</strong> Export large dataset to CSV
+        (hypothetical)</p>
+        <pre class="http"><code>GET /api/suppliers/export?format=csv</code></pre>
+        <p><strong>Response:</strong></p>
+        <pre><code>Content-Type: text/csv; charset=UTF-8
+Content-Disposition: attachment; filename=&quot;suppliers.csv&quot;
+
+id,name,email,phone
+SUP-001,ACME Corp,acme@example.com,+1-555-123-4567
+SUP-002,Global Supplies,global@example.com,+1-555-234-5678</code></pre>
+        <hr />
+        <h2 id="response-headers">Response Headers</h2>
+        <h3 id="standard-headers">Standard Headers</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Header</th>
+        <th>Value</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>Content-Type</code></td>
+        <td><code>application/json</code></td>
+        <td>Response format</td>
+        </tr>
+        <tr class="even">
+        <td><code>Content-Length</code></td>
+        <td>Integer</td>
+        <td>Body size in bytes</td>
+        </tr>
+        <tr class="odd">
+        <td><code>Date</code></td>
+        <td>RFC 1123 timestamp</td>
+        <td>Response time</td>
+        </tr>
+        <tr class="even">
+        <td><code>Server</code></td>
+        <td><code>Spring/...</code></td>
+        <td>Server identification</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="creation-headers-201">Creation Headers (201)</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Header</th>
+        <th>Value</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>Location</code></td>
+        <td><code>/api/resources/{id}</code></td>
+        <td>URI of created resource</td>
+        </tr>
+        <tr class="even">
+        <td><code>Content-Location</code></td>
+        <td><code>/api/resources/{id}</code></td>
+        <td>Alternative to Location</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="caching-headers-optional">Caching Headers
+        (Optional)</h3>
+        <pre><code>Cache-Control: public, max-age=3600
+Expires: &lt;future-timestamp&gt;
+ETag: &quot;33a64df551&quot;</code></pre>
+        <hr />
+        <h2 id="response-charset">Response Charset</h2>
+        <p>All responses use <strong>UTF-8 encoding:</strong></p>
+        <pre><code>Content-Type: application/json; charset=UTF-8</code></pre>
+        <p>This ensures international characters (Chinese, Arabic, etc.)
+        are handled correctly.</p>
+        <hr />
+        <h2 id="client-implementation">Client Implementation</h2>
+        <h3 id="javascript-fetch-api">JavaScript Fetch API</h3>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">fetchSupplier</span>(id) {</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="vs">`/api/suppliers/</span><span class="sc">${</span>id<span class="sc">}</span><span class="vs">`</span><span class="op">,</span> {</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">headers</span><span class="op">:</span> { <span class="st">&#39;Authorization&#39;</span><span class="op">:</span> <span class="vs">`Bearer </span><span class="sc">${</span>token<span class="sc">}</span><span class="vs">`</span> }</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Check HTTP status</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>response<span class="op">.</span><span class="at">ok</span>) {</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 4xx/5xx: Parse error response</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> error <span class="op">=</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`[</span><span class="sc">${</span>error<span class="op">.</span><span class="at">error</span><span class="sc">}</span><span class="vs">] </span><span class="sc">${</span>error<span class="op">.</span><span class="at">message</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(error<span class="op">.</span><span class="at">message</span>)<span class="op">;</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 2xx: Parse DTO</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> supplier <span class="op">=</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;Supplier:&#39;</span><span class="op">,</span> supplier)<span class="op">;</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> supplier<span class="op">;</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <h3 id="java-resttemplate">Java RestTemplate</h3>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>RestTemplate restTemplate <span class="op">=</span> <span class="kw">new</span> <span class="fu">RestTemplate</span><span class="op">();</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> response <span class="op">=</span> restTemplate<span class="op">.</span><span class="fu">getForEntity</span><span class="op">(</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;http://localhost:8080/api/suppliers/SUP-001&quot;</span><span class="op">,</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>      SupplierDTO<span class="op">.</span><span class="fu">class</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">);</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Check status code</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>response<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">().</span><span class="fu">is2xxSuccessful</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    SupplierDTO supplier <span class="op">=</span> response<span class="op">.</span><span class="fu">getBody</span><span class="op">();</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Supplier: &quot;</span> <span class="op">+</span> supplier<span class="op">);</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>HttpClientErrorException<span class="op">.</span><span class="fu">NotFound</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Supplier not found: &quot;</span> <span class="op">+</span> ex<span class="op">.</span><span class="fu">getResponseBodyAsString</span><span class="op">());</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>HttpClientErrorException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Parse error response</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  <span class="bu">String</span> error <span class="op">=</span> ex<span class="op">.</span><span class="fu">getResponseBodyAsString</span><span class="op">();</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>  <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Error: &quot;</span> <span class="op">+</span> error<span class="op">);</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="design-decision-summary">Design Decision Summary</h2>
+        <h3 id="when-to-return-bare-dto">When to Return Bare DTO</h3>
+        <p>✅ <strong>All success responses (2xx)</strong> - Single
+        resource: <code>{ id, name, ... }</code> - List:
+        <code>Page&lt;T&gt;</code> (with pagination metadata) - No extra
+        wrapper layer</p>
+        <h3 id="when-to-return-error-response">When to Return Error
+        Response</h3>
+        <p>✅ <strong>All error responses (4xx/5xx)</strong> -
+        Standardized <code>ErrorResponse</code> with error code,
+        message, timestamp, correlationId - HTTP status is the
+        envelope</p>
+        <h3 id="no-generic-wrapper">NO Generic Wrapper</h3>
+        <p>❌ <strong>Not used:</strong></p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;success&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;data&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="kw">null</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Rationale:</strong> - Redundant (HTTP status already
+        indicates success/failure) - Inconsistent structure between
+        success/error branches - Extra layer complicates client code -
+        Larger payloads with null fields</p>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Response Type</th>
+        <th>Status</th>
+        <th>Body</th>
+        <th>Content-Type</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Success (single)</strong></td>
+        <td>200</td>
+        <td>Bare DTO</td>
+        <td>application/json</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Success (list)</strong></td>
+        <td>200</td>
+        <td>Page<T></td>
+        <td>application/json</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Created</strong></td>
+        <td>201</td>
+        <td>Bare DTO</td>
+        <td>application/json</td>
+        </tr>
+        <tr class="even">
+        <td><strong>No content</strong></td>
+        <td>204</td>
+        <td>(empty)</td>
+        <td>(none)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Bad request</strong></td>
+        <td>400</td>
+        <td>ErrorResponse</td>
+        <td>application/json</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Unauthorized</strong></td>
+        <td>401</td>
+        <td>ErrorResponse</td>
+        <td>application/json</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Forbidden</strong></td>
+        <td>403</td>
+        <td>ErrorResponse</td>
+        <td>application/json</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Not found</strong></td>
+        <td>404</td>
+        <td>ErrorResponse</td>
+        <td>application/json</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Conflict</strong></td>
+        <td>409</td>
+        <td>ErrorResponse</td>
+        <td>application/json</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Server error</strong></td>
+        <td>500</td>
+        <td>ErrorResponse</td>
+        <td>application/json</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to DTO Hub</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
