@@ -88,21 +88,20 @@ Abstracts database interactions behind repository interfaces. Built on Spring Da
 Defines JPA entities that map to database tables. These are the core domain objects representing business concepts.
 
 **Key Entities:**
-- `Supplier` - Goods providers
-- `InventoryItem` - Products in inventory
-- `StockHistory` - Immutable audit trail
-- `AppUser` - OAuth2 principals
-- `Role` - Authorization levels
-- `StockChangeReason` - Enumeration of change types
+- **[Supplier](./model/supplier-entity.md)** - Goods providers
+- **[InventoryItem](./model/inventory-item-entity.md)** - Products in inventory
+- **[StockHistory](./model/stock-history-entity.md)** - Immutable audit trail
+- **[AppUser](./model/app-user-entity.md)** - OAuth2 principals
+- **[Enumerations](./model/enums.md)** - Role and StockChangeReason types
 
 **Responsibilities:**
-- Map database schema to Java objects
-- Define entity relationships (foreign keys)
-- Enforce data constraints (unique, not null)
+- [Map database schema to Java objects](./model/jpa-annotations.md)
+- [Define entity relationships (foreign keys)](./model/relationships.md)
+- [Enforce data constraints (unique, not null)](./model/data-integrity.md)
 - Track audit information (creator, timestamp)
 - Support optimistic locking with version fields
 
-**Learn More:** [📄 Domain Model & Data Layer](./model-layer.html)
+**Learn More:** [📄 Domain Model & Data Layer](./model/index.html)
 
 ---
 

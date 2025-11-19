@@ -11,7 +11,7 @@ This directory contains comprehensive documentation of the five-layer architectu
 1. **[Controller Layer](./controller/index.html)** - HTTP API entry point, request routing, authorization
 2. **[Service Layer](./service-layer.html)** - Business logic orchestration, transaction management
 3. **[Repository Layer](./repository-layer.html)** - Data access abstraction, queries, persistence
-4. **[Model Layer](./model-layer.html)** - JPA entities, relationships, domain objects
+4. **[Model Layer](./model/index.html)** - JPA entities, relationships, domain objects
 5. **[Infrastructure & Cross-Cutting Concerns](./infrastructure/index.html)** - Configuration, security, validation, exception handling, mapping
 
 ### Controller Components (Detailed)
@@ -31,6 +31,22 @@ The Controller Layer has been broken down into focused guides:
 - **[Integration](./controller/integration.md)** - How controller connects to service layer
 - **[Testing](./controller/testing.md)** - Unit and integration testing strategies
 
+### Model Components (Detailed)
+
+The Model Layer has been broken down into focused guides:
+
+- **[Supplier Entity](./model/supplier-entity.md)** - Inventory goods providers
+- **[Inventory Item Entity](./model/inventory-item-entity.md)** - Products/items in inventory
+- **[Stock History Entity](./model/stock-history-entity.md)** - Immutable audit trail
+- **[App User Entity](./model/app-user-entity.md)** - OAuth2 users and authentication
+- **[Enumerations](./model/enums.md)** - Role and StockChangeReason types
+- **[Entity Relationships](./model/relationships.md)** - Supplier → Item → StockHistory, User relationships
+- **[JPA Annotations](./model/jpa-annotations.md)** - @Entity, @Column, @ManyToOne, @Version, etc.
+- **[Design Patterns](./model/design-patterns.md)** - Audit fields, optimistic locking, denormalization
+- **[Data Integrity](./model/data-integrity.md)** - Primary keys, unique constraints, foreign keys
+- **[Model Lifecycle](./model/lifecycle.md)** - Transient → Managed → Persistent states
+- **[Best Practices](./model/best-practices.md)** - Lombok, fetch strategies, immutability
+
 ## Quick Navigation by Role
 
 ### Developers
@@ -42,8 +58,9 @@ The Controller Layer has been broken down into focused guides:
 
 ### Database Administrators
 - Review [Repository Layer](./repository-layer.html) for queries and indexing
-- Check [Model Layer](./model-layer.html) for schema and relationships
-- Reference [Exception Handling](./infrastructure/exception-handling.md) for error scenarios
+- Check [Model Layer](./model/index.html) to understand entities and relationships
+- Review [Entity Relationships](./model/relationships.md) for schema design
+- Reference [Data Integrity](./model/data-integrity.md) for constraints
 
 ### Security/DevOps
 - Review [Security](./infrastructure/security.md) for authentication details
