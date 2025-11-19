@@ -323,7 +323,7 @@ graph TB
 2. **Überprüfen Sie [Controller-Dokumentation](./controller/index.html)** - REST-API-Endpunkte, Request/Response-Shapes und Controller-Muster
 3. **Überprüfen Sie [Konfigurations-Management](./config/index.html)** - Anwendungseigenschaften, Profile, Umgebungssetup
 4. **Überprüfen Sie [Sicherheits-Architektur](./security.html)** - Detaillierte Sicherheitsimplementierung
-5. **Überprüfen Sie [Datenmodelle](./model.html)** - Entity-Beziehungen und Schema
+5. **Überprüfen Sie [Datenmodelle](./model/index.html)** - Umfassende Entity-Dokumentation (Supplier, InventoryItem, StockHistory, AppUser) mit Beziehungen, Lebenszyklen, Verwendungsbeispielen und Testing
 6. **Studieren Sie [Enums-Referenz](./enums/index.html)** - Typsichere Enumerationen und ihre Geschäftslogik (Role, StockChangeReason, AuditSeverity)
 7. **Studieren Sie [DTOs und Data Transfer Objects](./dto/index.html)** - Umfassende Dokumentation aller DTOs mit Konventionen, Validierung, Mapper, Pagination und Response-Mustern
 8. **Studieren Sie [Test-Strategie](./testing.html)** - Test-Muster und Best Practices
