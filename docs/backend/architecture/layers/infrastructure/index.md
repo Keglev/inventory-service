@@ -1,4 +1,5 @@
 [⬅️ Back to Layers Overview](../overview.html)
+[⬅️ Back to Layers Index](../index.html)
 
 # Infrastructure & Cross-Cutting Concerns Layer
 
@@ -61,3 +62,4 @@ The Infrastructure Layer supports all other layers by providing cross-cutting co
 ---
 
 [⬅️ Back to Layers Overview](../overview.html)
+[⬅️ Back to Layers Index](../index.html)

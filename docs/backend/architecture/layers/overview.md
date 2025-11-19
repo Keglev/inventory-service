@@ -112,11 +112,11 @@ Defines JPA entities that map to database tables. These are the core domain obje
 Provides foundational services and handles concerns that span multiple layers.
 
 **Key Components:**
-- **Security:** OAuth2 authentication, authorization, `@PreAuthorize`
-- **Validation:** Custom validators for business rules
-- **Exception Handling:** Global exception handler, error responses
-- **Data Mapping:** DTO ↔ Entity converters
-- **Configuration:** Spring beans, application properties
+- **[Security](./infrastructure/security.md):** OAuth2 authentication, authorization, `@PreAuthorize`
+- **[Validation](./infrastructure/validation.md):** Custom validators for business rules
+- **[Exception Handling](./infrastructure/exception-handling.md):** Global exception handler, error responses
+- **[Data Mapping](./infrastructure/mapping.md):** DTO ↔ Entity converters
+- **[Configuration](./infrastructure/configuration.md):** Spring beans, application properties
 
 **Responsibilities:**
 - Authenticate and authorize users
@@ -125,7 +125,7 @@ Provides foundational services and handles concerns that span multiple layers.
 - Transform data between representations
 - Configure Spring beans and properties
 
-**Learn More:** [📄 Infrastructure & Cross-Cutting Concerns](./infrastructure-layer.html)
+**Learn More:** [📄 Infrastructure & Cross-Cutting Concerns](./infrastructure/index.html)
 
 ---
 
@@ -331,7 +331,7 @@ When adding a new feature, ask:
 | [service-layer.html](./service-layer.html) | Business logic | Feature developers, Services |
 | [repository-layer.html](./repository-layer.html) | Data persistence | Database developers, Queries |
 | [model-layer.html](./model-layer.html) | Domain entities | Data modelers, Entity authors |
-| [infrastructure-layer.html](./infrastructure-layer.html) | Cross-cutting concerns | All developers, Security/Exceptions |
+| [infrastructure/index.html](./infrastructure/index.html) | Cross-cutting concerns | All developers, Security/Exceptions |
 
 ## Quick Navigation
 
@@ -339,16 +339,16 @@ When adding a new feature, ask:
 
 - **Backend Developer:** Start with [Service Layer](./service-layer.html) → [Controller Layer](./controller-layer.html)
 - **Database Developer:** Focus on [Repository Layer](./repository-layer.html) → [Model Layer](./model-layer.html)
-- **Security Engineer:** Review [Infrastructure Layer](./infrastructure-layer.html)
-- **DevOps/Infrastructure:** Check [Infrastructure Layer](./infrastructure-layer.html) configuration
+- **Security Engineer:** Review [Infrastructure Layer](./infrastructure/index.html)
+- **DevOps/Infrastructure:** Check [Infrastructure Layer](./infrastructure/index.html) configuration
 
 **By Activity:**
 
 - **Adding a new endpoint:** [Controller Layer](./controller-layer.html) → [Service Layer](./service-layer.html)
 - **Implementing business logic:** [Service Layer](./service-layer.html) → [Repository Layer](./repository-layer.html)
 - **Working with data:** [Model Layer](./model-layer.html) → [Repository Layer](./repository-layer.html)
-- **Fixing exceptions:** [Infrastructure Layer](./infrastructure-layer.html)
-- **Adding validation:** [Infrastructure Layer](./infrastructure-layer.html) or [Service Layer](./service-layer.html)
+- **Fixing exceptions:** [Exception Handling](./infrastructure/exception-handling.html)
+- **Adding validation:** [Validation](./infrastructure/validation.html) or [Service Layer](./service-layer.html)
 
 ---
 
