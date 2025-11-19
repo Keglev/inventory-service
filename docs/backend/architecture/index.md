@@ -13,7 +13,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 - **[Überblick (German)](./overview-de.html)** - Deutschsprachige Zusammenfassung der Backend-Architektur
 
 ### Detailed Sections
-- **[Layers Architecture](./layers.html)** - Detailed breakdown of controller, service, repository, and data layers
+- **[Layers Architecture](./layers/overview.html)** - Detailed breakdown of controller, service, repository, and data layers
 - **[Security Architecture](./security.html)** - Authentication, authorization, and OAuth2 integration
 - **[Deployment & Infrastructure](./deployment.html)** - Containerization, CI/CD, and cloud deployment strategies
 - **[Configuration Management](./config.html)** - Application properties, profiles, and environment setup
@@ -29,7 +29,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 
 **Developers implementing features:**
 1. Start with [High-level Overview](./overview.html)
-2. Review [Layers Architecture](./layers.html)
+2. Review [Layers Architecture](./layers/overview.html)
 3. Explore relevant layer documentation (e.g., [Data Models](./model.html), [DTOs](./dto.html))
 4. Check [Validation Framework](./validation.html) for input handling
 5. Review [Testing Strategy](./testing.html) for test patterns
@@ -46,7 +46,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 
 **New team members:**
 1. Read [High-level Overview](./overview.html) first
-2. Explore [Layers Architecture](./layers.html) to understand separation of concerns
+2. Explore [Layers Architecture](./layers/overview.html) to understand separation of concerns
 3. Review [Testing Strategy](./testing.html) to learn team conventions
 
 ## Key Architectural Principles
@@ -76,7 +76,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 
 1. **Clone the repository** and navigate to the root directory
 2. **Review the [High-level Overview](./overview.html)** to understand the big picture
-3. **Examine the [Layers Architecture](./layers.html)** to learn component interactions
+3. **Examine the [Layers Architecture](./layers/overview.html)** to learn component interactions
 4. **Explore the code** in `/src/main/java/com/smartsupplypro/inventory/`
 5. **Check tests** in `/src/test/java/` to understand testing patterns
 6. **Deploy locally** using the [Deployment Guide](./deployment.html)
