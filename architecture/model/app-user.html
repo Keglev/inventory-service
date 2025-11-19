@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · model/app-user · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#appuser-entity" id="toc-appuser-entity">AppUser
+        Entity</a>
+        <ul>
+        <li><a href="#entity-definition"
+        id="toc-entity-definition">Entity Definition</a></li>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#database-schema" id="toc-database-schema">Database
+        Schema</a>
+        <ul>
+        <li><a href="#table-users_app" id="toc-table-users_app">Table:
+        USERS_APP</a></li>
+        <li><a href="#field-reference" id="toc-field-reference">Field
+        Reference</a></li>
+        </ul></li>
+        <li><a href="#field-details" id="toc-field-details">Field
+        Details</a>
+        <ul>
+        <li><a href="#id" id="toc-id">id</a></li>
+        <li><a href="#email" id="toc-email">email</a></li>
+        <li><a href="#name" id="toc-name">name</a></li>
+        <li><a href="#role" id="toc-role">role</a></li>
+        <li><a href="#createdat" id="toc-createdat">createdAt</a></li>
+        </ul></li>
+        <li><a href="#relationships"
+        id="toc-relationships">Relationships</a>
+        <ul>
+        <li><a href="#implicit-appuser-other-entities"
+        id="toc-implicit-appuser-other-entities">Implicit: AppUser ←
+        Other Entities</a></li>
+        </ul></li>
+        <li><a href="#lifecycle" id="toc-lifecycle">Lifecycle</a>
+        <ul>
+        <li><a href="#oauth2-login-flow"
+        id="toc-oauth2-login-flow">OAuth2 Login Flow</a></li>
+        <li><a href="#example-oauth2-login-handler"
+        id="toc-example-oauth2-login-handler">Example: OAuth2 Login
+        Handler</a></li>
+        <li><a href="#oauth2-configuration-spring-security"
+        id="toc-oauth2-configuration-spring-security">OAuth2
+        Configuration (Spring Security)</a></li>
+        </ul></li>
+        <li><a href="#usage-examples" id="toc-usage-examples">Usage
+        Examples</a>
+        <ul>
+        <li><a href="#get-current-user" id="toc-get-current-user">1. Get
+        Current User</a></li>
+        <li><a href="#check-user-permissions"
+        id="toc-check-user-permissions">2. Check User
+        Permissions</a></li>
+        <li><a href="#find-users-by-role" id="toc-find-users-by-role">3.
+        Find Users by Role</a></li>
+        <li><a href="#audit-trail-with-user-info"
+        id="toc-audit-trail-with-user-info">4. Audit Trail with User
+        Info</a></li>
+        <li><a href="#user-activity-report"
+        id="toc-user-activity-report">5. User Activity Report</a></li>
+        </ul></li>
+        <li><a href="#testing" id="toc-testing">Testing</a>
+        <ul>
+        <li><a href="#unit-test-creation"
+        id="toc-unit-test-creation">Unit Test: Creation</a></li>
+        <li><a href="#integration-test-oauth2-flow"
+        id="toc-integration-test-oauth2-flow">Integration Test: OAuth2
+        Flow</a></li>
+        </ul></li>
+        <li><a href="#security-considerations"
+        id="toc-security-considerations">Security Considerations</a>
+        <ul>
+        <li><a href="#oauth2-token-verification"
+        id="toc-oauth2-token-verification">1. OAuth2 Token
+        Verification</a></li>
+        <li><a href="#admin-role-assignment"
+        id="toc-admin-role-assignment">2. Admin Role Assignment</a></li>
+        <li><a href="#authorization-checks"
+        id="toc-authorization-checks">3. Authorization Checks</a></li>
+        </ul></li>
+        <li><a href="#api-contract" id="toc-api-contract">API
+        Contract</a>
+        <ul>
+        <li><a href="#dto-appuserresponse"
+        id="toc-dto-appuserresponse">DTO: AppUserResponse</a></li>
+        <li><a href="#never-expose" id="toc-never-expose">Never
+        Expose:</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Models Index</a></p>
+        <h1 id="appuser-entity">AppUser Entity</h1>
+        <h2 id="entity-definition">Entity Definition</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;USERS_APP&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">@AllArgsConstructor</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppUser <span class="op">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;EMAIL&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> unique <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;NAME&quot;</span><span class="op">)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ROLE&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> length <span class="op">=</span> <span class="dv">50</span><span class="op">)</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_AT&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">@CreationTimestamp</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="purpose">Purpose</h2>
+        <p>AppUser represents <strong>OAuth2-authenticated
+        users</strong> in the system with: - OAuth2 identity (email from
+        Google/Azure/GitHub) - Role-based access control (ADMIN or USER)
+        - Account creation timestamp - No password management (delegated
+        to OAuth provider)</p>
+        <p><strong>Domain Context:</strong> Users access the inventory
+        system via OAuth2 authentication (no passwords stored). Each
+        user has: - Read-only access to inventory (default USER role) -
+        Optional admin capabilities (ADMIN role for configuration) -
+        Audit trail through CREATED_BY fields in other entities</p>
+        <hr />
+        <h2 id="database-schema">Database Schema</h2>
+        <h3 id="table-users_app">Table: USERS_APP</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> USERS_APP (</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ID</span> <span class="dt">VARCHAR2</span>(<span class="dv">36</span>) <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    EMAIL <span class="dt">VARCHAR2</span>(<span class="dv">255</span>) <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">UNIQUE</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    NAME <span class="dt">VARCHAR2</span>(<span class="dv">255</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ROLE</span> <span class="dt">VARCHAR2</span>(<span class="dv">50</span>) <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    CREATED_AT <span class="dt">TIMESTAMP</span> <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> IX_USER_EMAIL <span class="kw">ON</span> USERS_APP(EMAIL);</span></code></pre></div>
+        <h3 id="field-reference">Field Reference</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Constraints</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>id</code></td>
+        <td>VARCHAR2(36)</td>
+        <td>PRIMARY KEY</td>
+        <td>UUID identifier</td>
+        </tr>
+        <tr class="even">
+        <td><code>email</code></td>
+        <td>VARCHAR2(255)</td>
+        <td>NOT NULL, UNIQUE</td>
+        <td>OAuth2 email (login)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>name</code></td>
+        <td>VARCHAR2(255)</td>
+        <td>NULL</td>
+        <td>Full name from OAuth</td>
+        </tr>
+        <tr class="even">
+        <td><code>role</code></td>
+        <td>VARCHAR2(50)</td>
+        <td>NOT NULL</td>
+        <td>Role enum (ADMIN/USER)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>createdAt</code></td>
+        <td>TIMESTAMP</td>
+        <td>NOT NULL</td>
+        <td>Registration timestamp</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="field-details">Field Details</h2>
+        <h3 id="id">id</h3>
+        <p><strong>Type:</strong> String (UUID)</p>
+        <p><strong>Database:</strong> Primary Key</p>
+        <p><strong>Characteristics:</strong> - Universally unique
+        identifier - 36 characters (UUID format) - Generated at user
+        creation</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>550e8400-e29b-41d4-a716-446655440000</code></pre>
+        <p><strong>Auto-Generation:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PrePersist</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">prePersist</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span><span class="kw">this</span><span class="op">.</span><span class="fu">id</span> <span class="op">==</span> <span class="kw">null</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">id</span> <span class="op">=</span> <span class="bu">UUID</span><span class="op">.</span><span class="fu">randomUUID</span><span class="op">().</span><span class="fu">toString</span><span class="op">();</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Internal identifier (rarely used in APIs)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>AppUser<span class="op">&gt;</span> user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>userId<span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h3 id="email">email</h3>
+        <p><strong>Type:</strong> String</p>
+        <p><strong>Database Constraints:</strong> - NOT NULL - UNIQUE -
+        Max 255 characters</p>
+        <p><strong>Purpose:</strong> OAuth2 identity - the user’s email
+        from their OAuth provider (Google, Azure, GitHub, etc.)</p>
+        <p><strong>Examples:</strong></p>
+        <pre><code>&quot;john.doe@company.com&quot;
+&quot;jane.smith@example.org&quot;
+&quot;admin@myorg.io&quot;</code></pre>
+        <p><strong>Why Used as Identity:</strong></p>
+        <pre><code>OAuth2 Flow:
+  1. User clicks &quot;Sign in with Google&quot;
+  2. Google returns: email, name, picture, profile_url
+  3. System creates/updates user with email as unique key
+  4. Email becomes login ID and internal reference
+  
+Benefits:
+  - No password storage needed
+  - Email is always unique (guaranteed by OAuth provider)
+  - Email is user&#39;s known identifier
+  - Can be used for notifications and communication</code></pre>
+        <p><strong>Uniqueness Enforcement:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Before allowing login, find existing user</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> AppUser <span class="fu">findOrCreateUser</span><span class="op">(</span><span class="bu">String</span> email<span class="op">,</span> <span class="bu">String</span> name<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    Optional<span class="op">&lt;</span>AppUser<span class="op">&gt;</span> existing <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">);</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>existing<span class="op">.</span><span class="fu">isPresent</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Update name if provided</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        AppUser user <span class="op">=</span> existing<span class="op">.</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>name <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>name<span class="op">.</span><span class="fu">equals</span><span class="op">(</span>user<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>            user<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>name<span class="op">);</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user<span class="op">);</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> user<span class="op">;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Create new user</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    AppUser newUser <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="bu">UUID</span><span class="op">.</span><span class="fu">randomUUID</span><span class="op">().</span><span class="fu">toString</span><span class="op">())</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">email</span><span class="op">(</span>email<span class="op">)</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">name</span><span class="op">(</span>name<span class="op">)</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span>  <span class="co">// Default role</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>newUser<span class="op">);</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Query by Email:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Find user by email (fastest)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>AppUser user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span><span class="st">&quot;john@company.com&quot;</span><span class="op">);</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Check if email exists</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> exists <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">existsByEmail</span><span class="op">(</span><span class="st">&quot;john@company.com&quot;</span><span class="op">);</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Find all admin emails (for permission checks)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>AppUser<span class="op">&gt;</span> admins <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByRole</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h3 id="name">name</h3>
+        <p><strong>Type:</strong> String</p>
+        <p><strong>Database Constraints:</strong> - NULL allowed - Max
+        255 characters</p>
+        <p><strong>Purpose:</strong> User’s full name from OAuth2
+        provider</p>
+        <p><strong>Examples:</strong></p>
+        <pre><code>&quot;John Doe&quot;
+&quot;Jane Smith&quot;
+&quot;Admin User&quot;</code></pre>
+        <p><strong>Source:</strong> Comes from OAuth2 provider (Google,
+        Azure, GitHub):</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// When creating user from OAuth2 response</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>GoogleAuthProvider oauth <span class="op">=</span> <span class="kw">new</span> <span class="fu">GoogleAuthProvider</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getIdToken</span><span class="op">());</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>AppUser user <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">email</span><span class="op">(</span>oauth<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span>      <span class="co">// user@company.com</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">name</span><span class="op">(</span>oauth<span class="op">.</span><span class="fu">getName</span><span class="op">())</span>        <span class="co">// &quot;John Doe&quot; (from Google profile)</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <p><strong>Update from OAuth:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Update name if OAuth provider has newer info</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">updateFromOAuth</span><span class="op">(</span><span class="bu">String</span> email<span class="op">,</span> <span class="bu">String</span> newName<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    AppUser user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">);</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>user <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>newName<span class="op">.</span><span class="fu">equals</span><span class="op">(</span>user<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        user<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>newName<span class="op">);</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user<span class="op">);</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Display Usage:</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Show user&#39;s name in UI</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> greeting <span class="op">=</span> <span class="st">&quot;Welcome, &quot;</span> <span class="op">+</span> user<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">+</span> <span class="st">&quot;!&quot;</span><span class="op">;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Audit trail display</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Created by: &quot;</span> <span class="op">+</span> user<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">+</span> </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot; (&quot;</span> <span class="op">+</span> user<span class="op">.</span><span class="fu">getEmail</span><span class="op">()</span> <span class="op">+</span> <span class="st">&quot;)&quot;</span><span class="op">);</span></span></code></pre></div>
+        <p><strong>NULL Handling:</strong> Some OAuth providers may not
+        return full name:</p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> displayName <span class="op">=</span> user<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">!=</span> <span class="kw">null</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span> user<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">:</span> user<span class="op">.</span><span class="fu">getEmail</span><span class="op">().</span><span class="fu">split</span><span class="op">(</span><span class="st">&quot;@&quot;</span><span class="op">)[</span><span class="dv">0</span><span class="op">];</span>  <span class="co">// Fallback to email prefix</span></span></code></pre></div>
+        <hr />
+        <h3 id="role">role</h3>
+        <p><strong>Type:</strong> Enum (Role)</p>
+        <p><strong>Database Constraints:</strong> - NOT NULL -
+        VARCHAR2(50) - Stored as enum name</p>
+        <p><strong>Purpose:</strong> Role-based access control
+        (RBAC)</p>
+        <p><strong>Enum Values:</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> <span class="bu">Role</span> <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    ADMIN<span class="op">,</span>  <span class="co">// Full access to all operations</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    USER    <span class="co">// Read access to inventory (default)</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Database Storage:</strong></p>
+        <pre><code>Role Value   → Database String
+ADMIN        → &quot;ADMIN&quot;
+USER         → &quot;USER&quot;</code></pre>
+        <p><strong>JPA Mapping:</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span>  <span class="co">// Store enum name</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ROLE&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> length <span class="op">=</span> <span class="dv">50</span><span class="op">)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span></code></pre></div>
+        <p><strong>Default Assignment:</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// New users default to USER role</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>AppUser newUser <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">email</span><span class="op">(</span>email<span class="op">)</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">name</span><span class="op">(</span>name<span class="op">)</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span>  <span class="co">// ← Always default to USER</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <p><strong>Admin Assignment:</strong></p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Only admins can be assigned via configuration</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">Set</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> ADMIN_EMAILS <span class="op">=</span> <span class="bu">Set</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;admin@company.com&quot;</span><span class="op">,</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;owner@company.com&quot;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> AppUser <span class="fu">findOrCreateUser</span><span class="op">(</span><span class="bu">String</span> email<span class="op">,</span> <span class="bu">String</span> name<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    AppUser user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">)</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">orElse</span><span class="op">(</span><span class="fu">createNewUser</span><span class="op">(</span>email<span class="op">,</span> name<span class="op">));</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Check if should be admin</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>ADMIN_EMAILS<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>email<span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>user<span class="op">.</span><span class="fu">getRole</span><span class="op">().</span><span class="fu">equals</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        user<span class="op">.</span><span class="fu">setRole</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">);</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user<span class="op">);</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> user<span class="op">;</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Permission Checks:</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Protect admin operations</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/system/reset&quot;</span><span class="op">)</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">resetSystem</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Only accessible to ADMIN users</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    systemService<span class="op">.</span><span class="fu">reset</span><span class="op">();</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Check role in service</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>currentUser<span class="op">.</span><span class="fu">getRole</span><span class="op">()</span> <span class="op">!=</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">UnauthorizedException</span><span class="op">(</span><span class="st">&quot;Admin privileges required&quot;</span><span class="op">);</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="co">// Conditional logic based on role</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>user<span class="op">.</span><span class="fu">getRole</span><span class="op">()</span> <span class="op">==</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Show admin options</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="createdat">createdAt</h3>
+        <p><strong>Type:</strong> LocalDateTime</p>
+        <p><strong>Database Constraints:</strong> - NOT NULL - Set
+        automatically</p>
+        <p><strong>Purpose:</strong> Records when user registered/first
+        logged in</p>
+        <p><strong>Auto-Population:</strong></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="at">@CreationTimestamp</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span>  <span class="co">// Hibernate sets automatically</span></span></code></pre></div>
+        <p><strong>Example:</strong></p>
+        <pre><code>2024-01-15 14:30:45.123456</code></pre>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// User registration date</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Registered: &quot;</span> <span class="op">+</span> user<span class="op">.</span><span class="fu">getCreatedAt</span><span class="op">());</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Find recently joined users</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>LocalDateTime weekAgo <span class="op">=</span> LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">().</span><span class="fu">minusWeeks</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>AppUser<span class="op">&gt;</span> newUsers <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByCreatedAtAfter</span><span class="op">(</span>weekAgo<span class="op">);</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Determine user tenure</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="bu">Duration</span> tenure <span class="op">=</span> <span class="bu">Duration</span><span class="op">.</span><span class="fu">between</span><span class="op">(</span>user<span class="op">.</span><span class="fu">getCreatedAt</span><span class="op">(),</span> LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">());</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> daysAsMember <span class="op">=</span> tenure<span class="op">.</span><span class="fu">toDays</span><span class="op">();</span></span></code></pre></div>
+        <p><strong>Immutability:</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Cannot modify registration date (set once at creation)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>user<span class="op">.</span><span class="fu">setCreatedAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">().</span><span class="fu">minusDays</span><span class="op">(</span><span class="dv">365</span><span class="op">));</span>  <span class="co">// Ignored</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user<span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h2 id="relationships">Relationships</h2>
+        <h3 id="implicit-appuser-other-entities">Implicit: AppUser ←
+        Other Entities</h3>
+        <p><strong>Type:</strong> One-to-Many (implied, not
+        database-enforced)</p>
+        <p><strong>References:</strong> Every entity has audit fields
+        referencing AppUser:</p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In Supplier</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>  <span class="co">// References AppUser.email</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co">// In InventoryItem</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>  <span class="co">// References AppUser.email</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">// In StockHistory</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>  <span class="co">// References AppUser.email</span></span></code></pre></div>
+        <p><strong>Why Not Foreign Keys:</strong> - Allow
+        system-generated records (createdBy = “system”) - Flexible for
+        service accounts and batch processes - User deletion doesn’t
+        cascade to delete their records - Preserves audit trail even if
+        user is removed</p>
+        <p><strong>Semantic Relationship:</strong></p>
+        <pre><code>AppUser
+  │
+  ├─ (implicitly creates) → Supplier (via CREATED_BY)
+  ├─ (implicitly creates) → InventoryItem (via CREATED_BY)
+  └─ (implicitly creates) → StockHistory (via CREATED_BY)</code></pre>
+        <p><strong>Query via Audit Trail:</strong></p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Find all items created by a user</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> userItems <span class="op">=</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    itemRepository<span class="op">.</span><span class="fu">findByCreatedByOrderByCreatedAtDesc</span><span class="op">(</span><span class="st">&quot;john@company.com&quot;</span><span class="op">);</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Find all changes by a user</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> userChanges <span class="op">=</span> </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    historyRepository<span class="op">.</span><span class="fu">findByCreatedByOrderByTimestampDesc</span><span class="op">(</span><span class="st">&quot;john@company.com&quot;</span><span class="op">);</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Attribution</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> creator <span class="op">=</span> item<span class="op">.</span><span class="fu">getCreatedBy</span><span class="op">();</span>  <span class="co">// Returns email</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>AppUser user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>creator<span class="op">);</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Created by: &quot;</span> <span class="op">+</span> user<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span></code></pre></div>
+        <hr />
+        <h2 id="lifecycle">Lifecycle</h2>
+        <h3 id="oauth2-login-flow">OAuth2 Login Flow</h3>
+        <pre><code>1. User accesses application
+   → Not authenticated yet
+   
+2. User clicks &quot;Sign in with Google/Azure/GitHub&quot;
+   → Redirected to OAuth provider
+   
+3. User authenticates with provider
+   → Provider returns ID token with email, name, profile
+   
+4. Application receives OAuth response
+   → Extracts email from ID token
+   
+5. System calls findOrCreateUser(email, name)
+   → If user exists: update and return
+   → If new: create with default USER role
+   
+6. Create Spring Security session
+   → User is now authenticated
+   
+7. User can access application</code></pre>
+        <h3 id="example-oauth2-login-handler">Example: OAuth2 Login
+        Handler</h3>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OAuth2UserService <span class="op">{</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> AppUserRepository userRepository<span class="op">;</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> RoleConfigService roleConfig<span class="op">;</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> AppUser <span class="fu">findOrCreateUser</span><span class="op">(</span>OAuth2User oAuth2User<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> email <span class="op">=</span> oAuth2User<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> name <span class="op">=</span> oAuth2User<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">);</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Find existing user</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>        Optional<span class="op">&lt;</span>AppUser<span class="op">&gt;</span> existing <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">);</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>existing<span class="op">.</span><span class="fu">isPresent</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Update name if changed</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>            AppUser user <span class="op">=</span> existing<span class="op">.</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>name <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>name<span class="op">.</span><span class="fu">equals</span><span class="op">(</span>user<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>                user<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>name<span class="op">);</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>                userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user<span class="op">);</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> user<span class="op">;</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Create new user</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>        AppUser newUser <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="bu">UUID</span><span class="op">.</span><span class="fu">randomUUID</span><span class="op">().</span><span class="fu">toString</span><span class="op">())</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span>email<span class="op">)</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span>name<span class="op">)</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="fu">determineRole</span><span class="op">(</span>email<span class="op">))</span>  <span class="co">// Check if admin</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>newUser<span class="op">);</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Role</span> <span class="fu">determineRole</span><span class="op">(</span><span class="bu">String</span> email<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>roleConfig<span class="op">.</span><span class="fu">isAdminEmail</span><span class="op">(</span>email<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">;</span></span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">;</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="oauth2-configuration-spring-security">OAuth2
+        Configuration (Spring Security)</h3>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="at">@EnableWebSecurity</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OAuth2SecurityConfig <span class="op">{</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SecurityFilterChain <span class="fu">filterChain</span><span class="op">(</span>HttpSecurity http<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>        http</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">oauth2Login</span><span class="op">()</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">userInfoEndpoint</span><span class="op">()</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">userService</span><span class="op">(</span><span class="fu">oauth2UserService</span><span class="op">())</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">and</span><span class="op">()</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">defaultSuccessUrl</span><span class="op">(</span><span class="st">&quot;/dashboard&quot;</span><span class="op">)</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">and</span><span class="op">()</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">authorizeRequests</span><span class="op">()</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">antMatchers</span><span class="op">(</span><span class="st">&quot;/admin/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">antMatchers</span><span class="op">(</span><span class="st">&quot;/api/**&quot;</span><span class="op">).</span><span class="fu">hasAnyRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">,</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">anyRequest</span><span class="op">().</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> http<span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> OAuth2UserService<span class="op">&lt;</span>OAuthUserRequest<span class="op">,</span> OAuth2User<span class="op">&gt;</span> <span class="fu">oauth2UserService</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Custom service that calls findOrCreateUser</span></span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> request <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>            OAuth2User oAuth2User <span class="op">=</span> defaultUserService<span class="op">.</span><span class="fu">loadUser</span><span class="op">(</span>request<span class="op">);</span></span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> userService<span class="op">.</span><span class="fu">findOrCreateUser</span><span class="op">(</span>oAuth2User<span class="op">);</span></span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="usage-examples">Usage Examples</h2>
+        <h3 id="get-current-user">1. Get Current User</h3>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In controller</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/me&quot;</span><span class="op">)</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>AppUserResponse<span class="op">&gt;</span> <span class="fu">getCurrentUser</span><span class="op">(</span><span class="at">@AuthenticationPrincipal</span> OAuth2User principal<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email <span class="op">=</span> principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    AppUser user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span><span class="fu">mapToResponse</span><span class="op">(</span>user<span class="op">));</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co">// In service (get from Spring Security)</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="at">@Autowired</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> SecurityContextHolder securityContext<span class="op">;</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">String</span> <span class="fu">getCurrentUserEmail</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    Authentication auth <span class="op">=</span> SecurityContextHolder<span class="op">.</span><span class="fu">getContext</span><span class="op">().</span><span class="fu">getAuthentication</span><span class="op">();</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> auth<span class="op">.</span><span class="fu">getName</span><span class="op">();</span>  <span class="co">// Returns email</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="check-user-permissions">2. Check User Permissions</h3>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Using @PreAuthorize in controller</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/system/settings&quot;</span><span class="op">)</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">updateSystemSettings</span><span class="op">(</span><span class="at">@RequestBody</span> SystemSettings settings<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    settingsService<span class="op">.</span><span class="fu">update</span><span class="op">(</span>settings<span class="op">);</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co">// In service layer</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="bu">String</span> supplierId<span class="op">,</span> AppUser currentUser<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>currentUser<span class="op">.</span><span class="fu">getRole</span><span class="op">()</span> <span class="op">!=</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">UnauthorizedException</span><span class="op">(</span><span class="st">&quot;Only admins can delete suppliers&quot;</span><span class="op">);</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>    supplierRepository<span class="op">.</span><span class="fu">deleteById</span><span class="op">(</span>supplierId<span class="op">);</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Query check</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>AppUser user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">);</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>user<span class="op">.</span><span class="fu">getRole</span><span class="op">()</span> <span class="op">==</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Grant admin features</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="find-users-by-role">3. Find Users by Role</h3>
+        <div class="sourceCode" id="cb33"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Find all admins</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>AppUser<span class="op">&gt;</span> admins <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByRole</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">);</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Find all regular users</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>AppUser<span class="op">&gt;</span> regularUsers <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByRole</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">);</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Count users</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> totalUsers <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">count</span><span class="op">();</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> adminCount <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">countByRole</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">);</span></span></code></pre></div>
+        <h3 id="audit-trail-with-user-info">4. Audit Trail with User
+        Info</h3>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span><span class="op">(</span>readOnly <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> AuditLog <span class="fu">getAuditTrail</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    InventoryItem item <span class="op">=</span> itemRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>itemId<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> creator <span class="op">=</span> item<span class="op">.</span><span class="fu">getCreatedBy</span><span class="op">();</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    AppUser creatingUser <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>creator<span class="op">);</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> history <span class="op">=</span> historyRepository</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">findByItemIdOrderByTimestampDesc</span><span class="op">(</span>itemId<span class="op">);</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> AuditLog<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">itemName</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getName</span><span class="op">())</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span>creatingUser <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> creatingUser<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">:</span> creator<span class="op">)</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getCreatedAt</span><span class="op">())</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">recentChanges</span><span class="op">(</span>history<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">map</span><span class="op">(</span>sh <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>                AppUser changer <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>sh<span class="op">.</span><span class="fu">getCreatedBy</span><span class="op">());</span></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> ChangeRecord<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>sh<span class="op">.</span><span class="fu">getReason</span><span class="op">())</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">quantityChange</span><span class="op">(</span>sh<span class="op">.</span><span class="fu">getChange</span><span class="op">())</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">timestamp</span><span class="op">(</span>sh<span class="op">.</span><span class="fu">getTimestamp</span><span class="op">())</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">changedBy</span><span class="op">(</span>changer <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> changer<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">:</span> sh<span class="op">.</span><span class="fu">getCreatedBy</span><span class="op">())</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">})</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">collect</span><span class="op">(</span><span class="fu">toList</span><span class="op">()))</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="user-activity-report">5. User Activity Report</h3>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span><span class="op">(</span>readOnly <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> UserActivityReport <span class="fu">getUserActivity</span><span class="op">(</span><span class="bu">String</span> email<span class="op">,</span> LocalDateTime since<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    AppUser user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> createdItems <span class="op">=</span> itemRepository</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">findByCreatedByAndCreatedAtAfter</span><span class="op">(</span>email<span class="op">,</span> since<span class="op">);</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> changes <span class="op">=</span> historyRepository</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">findByCreatedByAndTimestampAfter</span><span class="op">(</span>email<span class="op">,</span> since<span class="op">);</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">BigDecimal</span> totalValueChanged <span class="op">=</span> changes<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">filter</span><span class="op">(</span>sh <span class="op">-&gt;</span> sh<span class="op">.</span><span class="fu">getPriceAtChange</span><span class="op">()</span> <span class="op">!=</span> <span class="kw">null</span><span class="op">)</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">map</span><span class="op">(</span>sh <span class="op">-&gt;</span> sh<span class="op">.</span><span class="fu">getPriceAtChange</span><span class="op">()</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">multiply</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span>sh<span class="op">.</span><span class="fu">getChange</span><span class="op">())))</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">reduce</span><span class="op">(</span><span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">ZERO</span><span class="op">,</span> <span class="bu">BigDecimal</span><span class="op">::</span>add<span class="op">);</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> UserActivityReport<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">userName</span><span class="op">(</span>user<span class="op">.</span><span class="fu">getName</span><span class="op">())</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">userEmail</span><span class="op">(</span>user<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">userRole</span><span class="op">(</span>user<span class="op">.</span><span class="fu">getRole</span><span class="op">())</span></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">itemsCreated</span><span class="op">(</span>createdItems<span class="op">.</span><span class="fu">size</span><span class="op">())</span></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">stockChanges</span><span class="op">(</span>changes<span class="op">.</span><span class="fu">size</span><span class="op">())</span></span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">totalValueAffected</span><span class="op">(</span>totalValueChanged<span class="op">)</span></span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">period</span><span class="op">(</span>since<span class="op">)</span></span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing">Testing</h2>
+        <h3 id="unit-test-creation">Unit Test: Creation</h3>
+        <div class="sourceCode" id="cb36"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DataJpaTest</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AppUserRepositoryTest <span class="op">{</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> AppUserRepository repository<span class="op">;</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testUserCreation</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>        AppUser user <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;test@company.com&quot;</span><span class="op">)</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Test User&quot;</span><span class="op">)</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>        AppUser saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user<span class="op">);</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertNotNull</span><span class="op">(</span>saved<span class="op">.</span><span class="fu">getId</span><span class="op">());</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;test@company.com&quot;</span><span class="op">,</span> saved<span class="op">.</span><span class="fu">getEmail</span><span class="op">());</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">,</span> saved<span class="op">.</span><span class="fu">getRole</span><span class="op">());</span></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testEmailUniqueness</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>        AppUser user1 <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;duplicate@test.com&quot;</span><span class="op">)</span></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span></span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user1<span class="op">);</span></span>
+<span id="cb36-32"><a href="#cb36-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb36-33"><a href="#cb36-33" aria-hidden="true" tabindex="-1"></a>        AppUser user2 <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb36-34"><a href="#cb36-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;duplicate@test.com&quot;</span><span class="op">)</span>  <span class="co">// Duplicate</span></span>
+<span id="cb36-35"><a href="#cb36-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span></span>
+<span id="cb36-36"><a href="#cb36-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb36-37"><a href="#cb36-37" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb36-38"><a href="#cb36-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb36-39"><a href="#cb36-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span>DataIntegrityViolationException<span class="op">.</span><span class="fu">class</span><span class="op">,</span></span>
+<span id="cb36-40"><a href="#cb36-40" aria-hidden="true" tabindex="-1"></a>            <span class="op">()</span> <span class="op">-&gt;</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user2<span class="op">));</span></span>
+<span id="cb36-41"><a href="#cb36-41" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb36-42"><a href="#cb36-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-43"><a href="#cb36-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb36-44"><a href="#cb36-44" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testFindByEmail</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb36-45"><a href="#cb36-45" aria-hidden="true" tabindex="-1"></a>        AppUser user <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb36-46"><a href="#cb36-46" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;findme@test.com&quot;</span><span class="op">)</span></span>
+<span id="cb36-47"><a href="#cb36-47" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Find Me&quot;</span><span class="op">)</span></span>
+<span id="cb36-48"><a href="#cb36-48" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span></span>
+<span id="cb36-49"><a href="#cb36-49" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb36-50"><a href="#cb36-50" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb36-51"><a href="#cb36-51" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb36-52"><a href="#cb36-52" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user<span class="op">);</span></span>
+<span id="cb36-53"><a href="#cb36-53" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb36-54"><a href="#cb36-54" aria-hidden="true" tabindex="-1"></a>        Optional<span class="op">&lt;</span>AppUser<span class="op">&gt;</span> found <span class="op">=</span> repository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span><span class="st">&quot;findme@test.com&quot;</span><span class="op">);</span></span>
+<span id="cb36-55"><a href="#cb36-55" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb36-56"><a href="#cb36-56" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>found<span class="op">.</span><span class="fu">isPresent</span><span class="op">());</span></span>
+<span id="cb36-57"><a href="#cb36-57" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;Find Me&quot;</span><span class="op">,</span> found<span class="op">.</span><span class="fu">get</span><span class="op">().</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb36-58"><a href="#cb36-58" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb36-59"><a href="#cb36-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="integration-test-oauth2-flow">Integration Test: OAuth2
+        Flow</h3>
+        <div class="sourceCode" id="cb37"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> OAuth2UserServiceIT <span class="op">{</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> OAuth2UserService oAuth2Service<span class="op">;</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> AppUserRepository userRepository<span class="op">;</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testCreateNewUserFromOAuth</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>        OAuth2User oAuth2User <span class="op">=</span> <span class="fu">mock</span><span class="op">(</span>OAuth2User<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>oAuth2User<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">)).</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;new@company.com&quot;</span><span class="op">);</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>oAuth2User<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">)).</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;New User&quot;</span><span class="op">);</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>        AppUser created <span class="op">=</span> oAuth2Service<span class="op">.</span><span class="fu">findOrCreateUser</span><span class="op">(</span>oAuth2User<span class="op">);</span></span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertNotNull</span><span class="op">(</span>created<span class="op">.</span><span class="fu">getId</span><span class="op">());</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;new@company.com&quot;</span><span class="op">,</span> created<span class="op">.</span><span class="fu">getEmail</span><span class="op">());</span></span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">,</span> created<span class="op">.</span><span class="fu">getRole</span><span class="op">());</span></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Verify persisted</span></span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>        AppUser persisted <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span><span class="st">&quot;new@company.com&quot;</span><span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;New User&quot;</span><span class="op">,</span> persisted<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testFindExistingUser</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Setup existing user</span></span>
+<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a>        AppUser existing <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;existing@company.com&quot;</span><span class="op">)</span></span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Existing User&quot;</span><span class="op">)</span></span>
+<span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span></span>
+<span id="cb37-35"><a href="#cb37-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a>        userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>existing<span class="op">);</span></span>
+<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a>        <span class="co">// OAuth2 login with same email</span></span>
+<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a>        OAuth2User oAuth2User <span class="op">=</span> <span class="fu">mock</span><span class="op">(</span>OAuth2User<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>oAuth2User<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">)).</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;existing@company.com&quot;</span><span class="op">);</span></span>
+<span id="cb37-42"><a href="#cb37-42" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>oAuth2User<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">)).</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;Updated Name&quot;</span><span class="op">);</span></span>
+<span id="cb37-43"><a href="#cb37-43" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb37-44"><a href="#cb37-44" aria-hidden="true" tabindex="-1"></a>        AppUser found <span class="op">=</span> oAuth2Service<span class="op">.</span><span class="fu">findOrCreateUser</span><span class="op">(</span>oAuth2User<span class="op">);</span></span>
+<span id="cb37-45"><a href="#cb37-45" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb37-46"><a href="#cb37-46" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Should find existing and optionally update</span></span>
+<span id="cb37-47"><a href="#cb37-47" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;existing@company.com&quot;</span><span class="op">,</span> found<span class="op">.</span><span class="fu">getEmail</span><span class="op">());</span></span>
+<span id="cb37-48"><a href="#cb37-48" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Name updated if provided</span></span>
+<span id="cb37-49"><a href="#cb37-49" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;Updated Name&quot;</span><span class="op">,</span> found<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb37-50"><a href="#cb37-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb37-51"><a href="#cb37-51" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="security-considerations">Security Considerations</h2>
+        <h3 id="oauth2-token-verification">1. OAuth2 Token
+        Verification</h3>
+        <p>Never trust email without OAuth2 verification:</p>
+        <div class="sourceCode" id="cb38"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ DON&#39;T: Trust user input</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> AppUser <span class="fu">getUser</span><span class="op">(</span><span class="bu">String</span> email<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">).</span><span class="fu">get</span><span class="op">();</span>  <span class="co">// Unsafe</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ DO: Get email from verified OAuth2 token</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/me&quot;</span><span class="op">)</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> AppUserResponse <span class="fu">getCurrentUser</span><span class="op">(</span><span class="at">@AuthenticationPrincipal</span> OAuth2User principal<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email <span class="op">=</span> principal<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span>  <span class="co">// From verified token</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    AppUser user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">mapToResponse</span><span class="op">(</span>user<span class="op">);</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="admin-role-assignment">2. Admin Role Assignment</h3>
+        <p>Strictly control admin role assignment:</p>
+        <div class="sourceCode" id="cb39"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In configuration</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">Set</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> ADMIN_EMAILS <span class="op">=</span> <span class="bu">Set</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;admin@company.com&quot;</span><span class="op">,</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;owner@company.com&quot;</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Hard-coded list of trusted admins</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ DON&#39;T: Allow role parameter from request</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/users&quot;</span><span class="op">)</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">createUser</span><span class="op">(</span><span class="at">@RequestBody</span> UserRequest request<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>    AppUser user <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">email</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">role</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getRole</span><span class="op">())</span>  <span class="co">// ❌ User can set their own role!</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ DO: Determine role server-side</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/users&quot;</span><span class="op">)</span></span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">createUser</span><span class="op">(</span><span class="at">@RequestBody</span> UserRequest request<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Role</span> role <span class="op">=</span> ADMIN_EMAILS<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span> </span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">?</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span> </span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">:</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">;</span></span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>    AppUser user <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">email</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span></span>
+<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">role</span><span class="op">(</span>role<span class="op">)</span>  <span class="co">// ✅ Controlled server-side</span></span>
+<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="authorization-checks">3. Authorization Checks</h3>
+        <p>Always verify permissions before sensitive operations:</p>
+        <div class="sourceCode" id="cb40"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ DON&#39;T: Skip checks</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/suppliers/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    supplierRepository<span class="op">.</span><span class="fu">deleteById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// No permission check!</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ DO: Check authorization</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/suppliers/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    supplierRepository<span class="op">.</span><span class="fu">deleteById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ DO: Runtime checks in service</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>currentUser<span class="op">.</span><span class="fu">getRole</span><span class="op">()</span> <span class="op">!=</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">UnauthorizedException</span><span class="op">(</span><span class="st">&quot;Admin privileges required&quot;</span><span class="op">);</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="api-contract">API Contract</h2>
+        <h3 id="dto-appuserresponse">DTO: AppUserResponse</h3>
+        <div class="sourceCode" id="cb41"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppUserResponse <span class="op">{</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="never-expose">Never Expose:</h3>
+        <ul>
+        <li>Internal user IDs (use email as identifier)</li>
+        <li>Role in list endpoints (for privacy)</li>
+        <li>Creation timestamp (unless needed)</li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <p><strong>Other Entities:</strong> - <a
+        href="./supplier.html">Supplier Entity</a> - createdBy audit
+        trail - <a href="./inventory-item.html">InventoryItem Entity</a>
+        - createdBy audit trail - <a
+        href="./stock-history.html">StockHistory Entity</a> - createdBy
+        audit trail</p>
+        <p><strong>Code References:</strong> - <a
+        href="../../../src/main/java/com/example/model/AppUser.java">AppUser.java</a>
+        - <a
+        href="../../../src/main/java/com/example/repository/AppUserRepository.java">AppUserRepository.java</a>
+        - <a
+        href="../../../src/main/java/com/example/security/OAuth2UserService.java">OAuth2UserService.java</a></p>
+        <p><strong>Architecture:</strong> - <a
+        href="./index.html">Models Index</a> - Overview of all entities
+        - <a href="../enums/index.html">Enums Reference</a> - Role enum
+        - <a href="../security/overview.html">Security Architecture</a>
+        - OAuth2 &amp; RBAC</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Models Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

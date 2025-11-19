@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · model/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#data-models-entities"
+        id="toc-data-models-entities">Data Models &amp; Entities</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#entity-architecture"
+        id="toc-entity-architecture">Entity Architecture</a></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a></li>
+        <li><a href="#core-concepts" id="toc-core-concepts">Core
+        Concepts</a>
+        <ul>
+        <li><a href="#entity-vs-dto-pattern"
+        id="toc-entity-vs-dto-pattern">1. Entity vs DTO Pattern</a></li>
+        <li><a href="#audit-trail-pattern"
+        id="toc-audit-trail-pattern">2. Audit Trail Pattern</a></li>
+        <li><a href="#lombok-annotations" id="toc-lombok-annotations">3.
+        Lombok Annotations</a></li>
+        <li><a href="#jpa-best-practices" id="toc-jpa-best-practices">4.
+        JPA Best Practices</a></li>
+        </ul></li>
+        <li><a href="#database-schema-overview"
+        id="toc-database-schema-overview">Database Schema Overview</a>
+        <ul>
+        <li><a href="#tables" id="toc-tables">Tables</a></li>
+        </ul></li>
+        <li><a href="#entity-relationships"
+        id="toc-entity-relationships">Entity Relationships</a>
+        <ul>
+        <li><a href="#supplier-inventoryitem"
+        id="toc-supplier-inventoryitem">Supplier →
+        InventoryItem</a></li>
+        <li><a href="#inventoryitem-stockhistory"
+        id="toc-inventoryitem-stockhistory">InventoryItem →
+        StockHistory</a></li>
+        <li><a href="#supplier-stockhistory"
+        id="toc-supplier-stockhistory">Supplier → StockHistory</a></li>
+        <li><a href="#appuser-relationships"
+        id="toc-appuser-relationships">AppUser Relationships</a></li>
+        </ul></li>
+        <li><a href="#entity-descriptions"
+        id="toc-entity-descriptions">Entity Descriptions</a>
+        <ul>
+        <li><a href="#supplier" id="toc-supplier">Supplier</a></li>
+        <li><a href="#inventoryitem"
+        id="toc-inventoryitem">InventoryItem</a></li>
+        <li><a href="#stockhistory"
+        id="toc-stockhistory">StockHistory</a></li>
+        <li><a href="#appuser" id="toc-appuser">AppUser</a></li>
+        </ul></li>
+        <li><a href="#data-types-and-constraints"
+        id="toc-data-types-and-constraints">Data Types and
+        Constraints</a>
+        <ul>
+        <li><a href="#key-data-types" id="toc-key-data-types">Key Data
+        Types</a></li>
+        <li><a href="#constraints"
+        id="toc-constraints">Constraints</a></li>
+        </ul></li>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a>
+        <ul>
+        <li><a href="#lazy-loading" id="toc-lazy-loading">1. Lazy
+        Loading</a></li>
+        <li><a href="#indexes" id="toc-indexes">2. Indexes</a></li>
+        <li><a href="#denormalization-in-stockhistory"
+        id="toc-denormalization-in-stockhistory">3. Denormalization in
+        StockHistory</a></li>
+        </ul></li>
+        <li><a href="#testing-entities"
+        id="toc-testing-entities">Testing Entities</a>
+        <ul>
+        <li><a href="#builder-pattern-for-test-data"
+        id="toc-builder-pattern-for-test-data">Builder Pattern for Test
+        Data</a></li>
+        <li><a href="#persistence-tests"
+        id="toc-persistence-tests">Persistence Tests</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="data-models-entities">Data Models &amp; Entities</h1>
+        <h2 id="overview">Overview</h2>
+        <p>This section documents all domain entities (JPA entities)
+        that form the core of the Smart Supply Pro data model. These
+        entities represent the business domain: suppliers, inventory
+        items, stock movements, and users. All entities follow
+        consistent patterns for auditing, persistence, and
+        relationships.</p>
+        <p><strong>Fundamental Principle:</strong> Entities are internal
+        domain models, never exposed directly in APIs. DTOs serve as the
+        boundary between entities and REST API contracts.</p>
+        <hr />
+        <h2 id="entity-architecture">Entity Architecture</h2>
+        <div class="mermaid">
+        graph TB
+            AppUser["AppUser<br/>(Users & Roles)"]
+            Supplier["Supplier<br/>(Vendor Info)"]
+            InventoryItem["InventoryItem<br/>(Products)"]
+            StockHistory["StockHistory<br/>(Audit Trail)"]
+            
+            AppUser -->|creates/updates| Supplier
+            AppUser -->|creates/updates| InventoryItem
+            AppUser -->|creates| StockHistory
+            
+            Supplier -->|supplies| InventoryItem
+            InventoryItem -->|tracked by| StockHistory
+            Supplier -->|referenced in| StockHistory
+            
+            style AppUser fill:#e1f5ff
+            style Supplier fill:#b3e5fc
+            style InventoryItem fill:#81d4fa
+            style StockHistory fill:#4fc3f7
+        </div>
+        <hr />
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <table>
+        <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 19%" />
+        <col style="width: 30%" />
+        <col style="width: 32%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Entity</th>
+        <th>Purpose</th>
+        <th>Related Enum</th>
+        <th>Documentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong><a href="./supplier.html">Supplier</a></strong></td>
+        <td>Vendor/supplier information</td>
+        <td>-</td>
+        <td>Supplier entity with contact details</td>
+        </tr>
+        <tr class="even">
+        <td><strong><a
+        href="./inventory-item.html">InventoryItem</a></strong></td>
+        <td>Product inventory with stock tracking</td>
+        <td>-</td>
+        <td>Item management with quantity and pricing</td>
+        </tr>
+        <tr class="odd">
+        <td><strong><a
+        href="./stock-history.html">StockHistory</a></strong></td>
+        <td>Audit trail of stock movements</td>
+        <td>StockChangeReason</td>
+        <td>Immutable history records</td>
+        </tr>
+        <tr class="even">
+        <td><strong><a href="./app-user.html">AppUser</a></strong></td>
+        <td>User accounts and OAuth2 authentication</td>
+        <td>Role</td>
+        <td>User management and authorization</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="core-concepts">Core Concepts</h2>
+        <h3 id="entity-vs-dto-pattern">1. Entity vs DTO Pattern</h3>
+        <p><strong>Entity (Domain Model):</strong> - Internal
+        representation of business domain - Used only in repository and
+        service layers - Contains all fields including computed/derived
+        - Persisted in database as-is</p>
+        <p><strong>DTO (Data Transfer Object):</strong> - API contract
+        boundary - What clients send in requests - What clients receive
+        in responses - Selected fields only (no sensitive data)</p>
+        <p><strong>Flow:</strong></p>
+        <pre><code>API Request (JSON)
+    ↓
+DTO validation (@Valid)
+    ↓
+Mapper: DTO → Entity
+    ↓
+Service layer (business logic)
+    ↓
+Entity persistence (JPA)
+    ↓
+Repository: Entity → DTO
+    ↓
+Mapper: Entity → DTO
+    ↓
+API Response (JSON)</code></pre>
+        <h3 id="audit-trail-pattern">2. Audit Trail Pattern</h3>
+        <p>All entities include audit metadata:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name<span class="op">=</span><span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> nullable<span class="op">=</span><span class="kw">false</span><span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>           <span class="co">// Who created</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name<span class="op">=</span><span class="st">&quot;CREATED_AT&quot;</span><span class="op">,</span> nullable<span class="op">=</span><span class="kw">false</span><span class="op">)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">@CreationTimestamp</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span>    <span class="co">// When created</span></span></code></pre></div>
+        <p><strong>Why:</strong> - Compliance and regulatory
+        requirements - Accountability and change tracking - Debugging
+        and issue investigation - Historical analysis</p>
+        <h3 id="lombok-annotations">3. Lombok Annotations</h3>
+        <p>All entities use Lombok for boilerplate reduction:</p>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Annotation</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>@Data</code></td>
+        <td>Generates getters, setters, toString, equals, hashCode</td>
+        </tr>
+        <tr class="even">
+        <td><code>@Builder</code></td>
+        <td>Fluent builder pattern for object creation</td>
+        </tr>
+        <tr class="odd">
+        <td><code>@NoArgsConstructor</code></td>
+        <td>Default constructor (required by JPA)</td>
+        </tr>
+        <tr class="even">
+        <td><code>@AllArgsConstructor</code></td>
+        <td>Constructor with all fields</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="jpa-best-practices">4. JPA Best Practices</h3>
+        <p><strong><span class="citation"
+        data-cites="ManyToOne">@ManyToOne</span>
+        Relationships:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">LAZY</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">,</span> insertable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> Supplier supplier<span class="op">;</span></span></code></pre></div>
+        <ul>
+        <li><code>FetchType.LAZY</code> - Don’t load related entity
+        unless explicitly accessed</li>
+        <li><code>insertable=false, updatable=false</code> - Foreign key
+        managed separately</li>
+        <li>Prevents N+1 query problems</li>
+        </ul>
+        <p><strong>Indexes for Performance:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> <span class="st">&quot;STOCK_HISTORY&quot;</span><span class="op">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    indexes <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Index</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;IX_SH_ITEM_TS&quot;</span><span class="op">,</span> columnList <span class="op">=</span> <span class="st">&quot;ITEM_ID, CREATED_AT&quot;</span><span class="op">),</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">@Index</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;IX_SH_TS&quot;</span><span class="op">,</span> columnList <span class="op">=</span> <span class="st">&quot;CREATED_AT&quot;</span><span class="op">)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="op">)</span></span></code></pre></div>
+        <hr />
+        <h2 id="database-schema-overview">Database Schema Overview</h2>
+        <h3 id="tables">Tables</h3>
+        <pre><code>┌─────────────┐
+│   SUPPLIER  │
+├─────────────┤
+│ ID (PK)     │
+│ NAME        │
+│ CONTACT_NAME│
+│ PHONE       │
+│ EMAIL       │
+│ CREATED_BY  │
+│ CREATED_AT  │
+└─────────────┘
+       ▲
+       │ 1:N
+       │
+┌──────────────────┐       ┌──────────────────┐
+│ INVENTORY_ITEM   │       │  STOCK_HISTORY   │
+├──────────────────┤       ├──────────────────┤
+│ ID (PK)          │◄──────┤ ITEM_ID (FK)     │
+│ NAME             │   M:1 │ SUPPLIER_ID (FK) │
+│ QUANTITY         │       │ QUANTITY_CHANGE  │
+│ PRICE            │       │ REASON           │
+│ SUPPLIER_ID (FK) │       │ CREATED_BY       │
+│ CREATED_BY       │       │ CREATED_AT       │
+│ MINIMUM_QUANTITY │       │ PRICE_AT_CHANGE  │
+│ CREATED_AT       │       └──────────────────┘
+└──────────────────┘
+
+┌──────────────┐
+│  USERS_APP   │
+├──────────────┤
+│ ID (PK)      │
+│ EMAIL (UK)   │
+│ NAME         │
+│ ROLE         │
+│ CREATED_AT   │
+└──────────────┘</code></pre>
+        <hr />
+        <h2 id="entity-relationships">Entity Relationships</h2>
+        <h3 id="supplier-inventoryitem">Supplier → InventoryItem</h3>
+        <p><strong>Type:</strong> One-to-Many (1:N)</p>
+        <p><strong>Definition:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In InventoryItem</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">,</span> nullable<span class="op">=</span><span class="kw">false</span><span class="op">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> supplierId<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">LAZY</span><span class="op">)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">,</span> insertable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> Supplier supplier<span class="op">;</span></span></code></pre></div>
+        <p><strong>Cardinality:</strong> - One supplier can provide many
+        items - Each item references exactly one supplier - Supplier
+        deletion protected by foreign key constraint</p>
+        <hr />
+        <h3 id="inventoryitem-stockhistory">InventoryItem →
+        StockHistory</h3>
+        <p><strong>Type:</strong> One-to-Many (1:N)</p>
+        <p><strong>Definition:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In StockHistory</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ITEM_ID&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> itemId<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">LAZY</span><span class="op">)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ITEM_ID&quot;</span><span class="op">,</span> insertable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> InventoryItem inventoryItem<span class="op">;</span></span></code></pre></div>
+        <p><strong>Cardinality:</strong> - One item can have many stock
+        history records - Each record references exactly one item -
+        StockHistory is append-only (immutable)</p>
+        <hr />
+        <h3 id="supplier-stockhistory">Supplier → StockHistory</h3>
+        <p><strong>Type:</strong> One-to-Many (1:N) via
+        denormalization</p>
+        <p><strong>Definition:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In StockHistory</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> supplierId<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">LAZY</span><span class="op">)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">,</span> insertable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> Supplier supplier<span class="op">;</span></span></code></pre></div>
+        <p><strong>Why Denormalized:</strong> - Faster analytics queries
+        (avoid joins through InventoryItem) - Supplier context captured
+        at time of transaction - Enables “stock by supplier”
+        analytics</p>
+        <hr />
+        <h3 id="appuser-relationships">AppUser Relationships</h3>
+        <p><strong>Type:</strong> Implicit (audit trail)</p>
+        <p><strong>Usage:</strong> - <code>CREATED_BY</code> fields
+        reference AppUser.email - Not enforced via foreign key (allows
+        system user) - Used for accountability and audit trails</p>
+        <hr />
+        <h2 id="entity-descriptions">Entity Descriptions</h2>
+        <h3 id="supplier"><a href="./supplier.html">Supplier</a></h3>
+        <p>Represents a vendor/supplier of inventory items.</p>
+        <p><strong>Key Fields:</strong> - <code>id</code> - Unique
+        supplier identifier - <code>name</code> - Company name (unique)
+        - <code>contactName</code> - Contact person -
+        <code>phone</code>, <code>email</code> - Contact information -
+        <code>createdBy</code>, <code>createdAt</code> - Audit trail</p>
+        <p><strong>Relationships:</strong> - Supplies many
+        InventoryItems</p>
+        <p><strong>Storage:</strong> SUPPLIER table</p>
+        <p><strong>See:</strong> <a href="./supplier.html">Supplier
+        Entity Documentation</a></p>
+        <hr />
+        <h3 id="inventoryitem"><a
+        href="./inventory-item.html">InventoryItem</a></h3>
+        <p>Represents a physical or digital product in inventory with
+        stock tracking.</p>
+        <p><strong>Key Fields:</strong> - <code>id</code> - UUID
+        identifier - <code>name</code> - Item name (unique) -
+        <code>quantity</code> - Current stock - <code>price</code> -
+        Unit price (BigDecimal) - <code>supplierId</code> - Reference to
+        supplier - <code>minimumQuantity</code> - Low-stock threshold -
+        <code>createdBy</code>, <code>createdAt</code> - Audit trail</p>
+        <p><strong>Relationships:</strong> - Belongs to one Supplier
+        (M:1) - Has many StockHistory records (1:N)</p>
+        <p><strong>Storage:</strong> INVENTORY_ITEM table</p>
+        <p><strong>Pre-persist Logic:</strong> - Auto-generates UUID if
+        not provided - Sets creation timestamp - Defaults creator to
+        “system” - Minimum quantity defaults to 10</p>
+        <p><strong>See:</strong> <a
+        href="./inventory-item.html">InventoryItem Entity
+        Documentation</a></p>
+        <hr />
+        <h3 id="stockhistory"><a
+        href="./stock-history.html">StockHistory</a></h3>
+        <p>Immutable audit trail of all stock movements (receives,
+        sells, adjustments, etc.)</p>
+        <p><strong>Key Fields:</strong> - <code>id</code> - UUID
+        identifier - <code>itemId</code> - Reference to item -
+        <code>supplierId</code> - Denormalized supplier reference -
+        <code>change</code> - Quantity delta (positive/negative) -
+        <code>reason</code> - StockChangeReason enum -
+        <code>createdBy</code> - Who initiated change -
+        <code>timestamp</code> - When it occurred -
+        <code>priceAtChange</code> - Unit price at time of
+        transaction</p>
+        <p><strong>Relationships:</strong> - References one
+        InventoryItem (M:1) - References one Supplier (M:1) -
+        denormalized</p>
+        <p><strong>Storage:</strong> STOCK_HISTORY table with three
+        performance indexes</p>
+        <p><strong>Immutability:</strong> Never updated or deleted, only
+        created</p>
+        <p><strong>Indexes:</strong> - <code>IX_SH_ITEM_TS</code> - Item
+        + timestamp (item history queries) - <code>IX_SH_TS</code> -
+        Timestamp (recent activity) - <code>IX_SH_SUPPLIER_TS</code> -
+        Supplier + timestamp (supplier analytics)</p>
+        <p><strong>See:</strong> <a
+        href="./stock-history.html">StockHistory Entity
+        Documentation</a></p>
+        <hr />
+        <h3 id="appuser"><a href="./app-user.html">AppUser</a></h3>
+        <p>OAuth2 user account with role-based access control.</p>
+        <p><strong>Key Fields:</strong> - <code>id</code> - UUID
+        identifier - <code>email</code> - Google email (unique, login
+        ID) - <code>name</code> - Full name from OAuth2 -
+        <code>role</code> - Role enum (ADMIN or USER) -
+        <code>createdAt</code> - Registration timestamp</p>
+        <p><strong>Relationships:</strong> - Audit trail reference (via
+        CREATED_BY fields)</p>
+        <p><strong>Storage:</strong> USERS_APP table</p>
+        <p><strong>Role Assignment:</strong> - Default: USER - ADMIN:
+        Email must be in <code>APP_ADMIN_EMAILS</code> config</p>
+        <p><strong>See:</strong> <a href="./app-user.html">AppUser
+        Entity Documentation</a></p>
+        <hr />
+        <h2 id="data-types-and-constraints">Data Types and
+        Constraints</h2>
+        <h3 id="key-data-types">Key Data Types</h3>
+        <table>
+        <colgroup>
+        <col style="width: 27%" />
+        <col style="width: 31%" />
+        <col style="width: 40%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Type</th>
+        <th>Usage</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>String</code> (UUID)</td>
+        <td>Primary keys</td>
+        <td><code>550e8400-e29b-41d4-a716-446655440000</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>String</code> (Name)</td>
+        <td>Text fields with UNIQUE</td>
+        <td>Supplier.name, InventoryItem.name</td>
+        </tr>
+        <tr class="odd">
+        <td><code>int</code></td>
+        <td>Quantity, counts</td>
+        <td>quantity, minimumQuantity, change</td>
+        </tr>
+        <tr class="even">
+        <td><code>BigDecimal</code></td>
+        <td>Money, precise decimals</td>
+        <td>price, priceAtChange</td>
+        </tr>
+        <tr class="odd">
+        <td><code>LocalDateTime</code></td>
+        <td>Timestamps</td>
+        <td>createdAt, timestamp</td>
+        </tr>
+        <tr class="even">
+        <td><code>Enum</code></td>
+        <td>Enumerated values</td>
+        <td>Role, StockChangeReason</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="constraints">Constraints</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Constraint</th>
+        <th>Enforced Where</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>NOT NULL</code></td>
+        <td>Database &amp; Entity</td>
+        <td>Ensures required data</td>
+        </tr>
+        <tr class="even">
+        <td><code>UNIQUE</code></td>
+        <td>Database</td>
+        <td>Prevents duplicates (email, name)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>FOREIGN KEY</code></td>
+        <td>Database</td>
+        <td>Enforces referential integrity</td>
+        </tr>
+        <tr class="even">
+        <td><code>CHECK</code></td>
+        <td>Application</td>
+        <td>BigDecimal precision, quantity &gt;= 0</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="performance-considerations">Performance
+        Considerations</h2>
+        <h3 id="lazy-loading">1. Lazy Loading</h3>
+        <p>All <code>@ManyToOne</code> relationships use
+        <code>FetchType.LAZY</code> to prevent N+1 queries:</p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">LAZY</span><span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> Supplier supplier<span class="op">;</span></span></code></pre></div>
+        <p><strong>Implication:</strong> Don’t access supplier.name
+        outside of transaction.</p>
+        <h3 id="indexes">2. Indexes</h3>
+        <p>Key indexes for query performance:</p>
+        <pre><code>SUPPLIER:
+  - PRIMARY KEY (id)
+  - UNIQUE (name)
+
+INVENTORY_ITEM:
+  - PRIMARY KEY (id)
+  - UNIQUE (name)
+  - FOREIGN KEY (supplier_id)
+
+STOCK_HISTORY:
+  - PRIMARY KEY (id)
+  - IX_SH_ITEM_TS (item_id, created_at)
+  - IX_SH_TS (created_at)
+  - IX_SH_SUPPLIER_TS (supplier_id, created_at)</code></pre>
+        <h3 id="denormalization-in-stockhistory">3. Denormalization in
+        StockHistory</h3>
+        <p><code>supplierId</code> is denormalized (not computed from
+        itemId → supplierId) for: - Faster analytics queries -
+        Resilience to supplier changes - Reduced join complexity</p>
+        <hr />
+        <h2 id="testing-entities">Testing Entities</h2>
+        <h3 id="builder-pattern-for-test-data">Builder Pattern for Test
+        Data</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Supplier supplier <span class="op">=</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;SUP-001&quot;</span><span class="op">)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;ACME Corp&quot;</span><span class="op">)</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;contact@acme.com&quot;</span><span class="op">)</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;test-user&quot;</span><span class="op">)</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>InventoryItem item <span class="op">=</span> InventoryItem<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;ITEM-001&quot;</span><span class="op">)</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Widget A&quot;</span><span class="op">)</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">100</span><span class="op">)</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;99.99&quot;</span><span class="op">))</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;SUP-001&quot;</span><span class="op">)</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">minimumQuantity</span><span class="op">(</span><span class="dv">10</span><span class="op">)</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;test-user&quot;</span><span class="op">)</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <h3 id="persistence-tests">Persistence Tests</h3>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InventoryItemRepositoryIT <span class="op">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItemRepository repository<span class="op">;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testPersistAndRetrieve</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        InventoryItem item <span class="op">=</span> InventoryItem<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Test Item&quot;</span><span class="op">)</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">50</span><span class="op">)</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;25.00&quot;</span><span class="op">))</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;SUP-001&quot;</span><span class="op">)</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">minimumQuantity</span><span class="op">(</span><span class="dv">5</span><span class="op">)</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;test&quot;</span><span class="op">)</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>item<span class="op">);</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        InventoryItem retrieved <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getId</span><span class="op">()).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;Test Item&quot;</span><span class="op">,</span> retrieved<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">50</span><span class="op">,</span> retrieved<span class="op">.</span><span class="fu">getQuantity</span><span class="op">());</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <p>✅ <strong>DO:</strong> - Use Lombok annotations to reduce
+        boilerplate - Use BigDecimal for monetary values (never Double)
+        - Use LocalDateTime for all timestamps - Add audit fields
+        (createdBy, createdAt) to all entities - Use <span
+        class="citation" data-cites="ManyToOne">@ManyToOne</span> with
+        FetchType.LAZY - Use indexes for frequently queried columns -
+        Use UUIDs or meaningful codes for IDs - Document entity purpose
+        with JavaDoc - Never expose entities directly in API
+        responses</p>
+        <p>❌ <strong>DON’T:</strong> - Use Float/Double for money
+        (precision loss) - Use Date/Timestamp (use LocalDateTime) - Load
+        all relationships eagerly (N+1 queries) - Mix business logic
+        into entities - Expose sensitive fields in APIs - Use ordinals
+        for enum persistence - Create circular relationships - Add
+        computed fields to entities - Store derived data (calculate
+        instead)</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <p><strong>Architecture:</strong> - <a
+        href="../enums/index.html">Enums Reference</a> - Role,
+        StockChangeReason enums - <a href="../dto/index.html">DTOs &amp;
+        Data Transfer Objects</a> - Entity-to-DTO mapping patterns - <a
+        href="../layers/overview.html">Layers Architecture</a> - Entity
+        usage in layers - <a
+        href="../layers/repository-layer.html">Repository Layer</a> -
+        Database access patterns</p>
+        <p><strong>Code Examples:</strong> - <a
+        href="../../model/Supplier.java">Supplier Entity</a> - <a
+        href="../../model/InventoryItem.java">InventoryItem Entity</a> -
+        <a href="../../model/StockHistory.java">StockHistory Entity</a>
+        - <a href="../../model/AppUser.java">AppUser Entity</a></p>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
