@@ -320,11 +320,13 @@ graph TB
 ## Nächste Schritte
 
 1. **Erkunden Sie [Schichten-Architektur](./layers/overview.html)** - Detaillierte Aufschlüsselung jeder Schicht (Controller, Service, Repository, Modell, Infrastruktur)
-2. **Überprüfen Sie [Sicherheits-Architektur](./security.html)** - Detaillierte Sicherheitsimplementierung
-3. **Überprüfen Sie [Datenmodelle](./model.html)** - Entity-Beziehungen und Schema
-4. **Studieren Sie [DTOs und Data Transfer Objects](./dto/index.html)** - Umfassende Dokumentation aller DTOs mit Konventionen, Validierung, Mapper, Pagination und Response-Mustern
-5. **Studieren Sie [Test-Strategie](./testing.html)** - Test-Muster und Best Practices
-6. **Untersuchen Sie den Quellcode** - Navigieren Sie zu `/src/main/java/com/smartsupplypro/inventory/`
+2. **Überprüfen Sie [Controller-Dokumentation](./controller/index.html)** - REST-API-Endpunkte, Request/Response-Shapes und Controller-Muster
+3. **Überprüfen Sie [Konfigurations-Management](./config/index.html)** - Anwendungseigenschaften, Profile, Umgebungssetup
+4. **Überprüfen Sie [Sicherheits-Architektur](./security.html)** - Detaillierte Sicherheitsimplementierung
+5. **Überprüfen Sie [Datenmodelle](./model.html)** - Entity-Beziehungen und Schema
+6. **Studieren Sie [DTOs und Data Transfer Objects](./dto/index.html)** - Umfassende Dokumentation aller DTOs mit Konventionen, Validierung, Mapper, Pagination und Response-Mustern
+7. **Studieren Sie [Test-Strategie](./testing.html)** - Test-Muster und Best Practices
+8. **Untersuchen Sie den Quellcode** - Navigieren Sie zu `/src/main/java/com/smartsupplypro/inventory/`
 
 ---
 
