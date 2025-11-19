@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/infrastructure/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#infrastructure-cross-cutting-concerns-layer"
+        id="toc-infrastructure-cross-cutting-concerns-layer">Infrastructure
+        &amp; Cross-Cutting Concerns Layer</a>
+        <ul>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a>
+        <ul>
+        <li><a href="#by-topic" id="toc-by-topic">By Topic</a></li>
+        <li><a href="#by-role" id="toc-by-role">By Role</a></li>
+        </ul></li>
+        <li><a href="#architecture-overview"
+        id="toc-architecture-overview">Architecture Overview</a></li>
+        <li><a href="#key-responsibilities"
+        id="toc-key-responsibilities">Key Responsibilities</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../overview.html">⬅️ Back to Layers Overview</a></p>
+        <h1
+        id="infrastructure-cross-cutting-concerns-layer">Infrastructure
+        &amp; Cross-Cutting Concerns Layer</h1>
+        <p>The <strong>Infrastructure Layer</strong> provides
+        foundational services and handles cross-cutting concerns that
+        span multiple layers. These include configuration, security,
+        validation, exception handling, and data mapping.</p>
+        <p><strong>Location:</strong>
+        <code>src/main/java/com/smartsupplypro/inventory/</code> -
+        <code>config/</code> - Configuration classes -
+        <code>security/</code> - OAuth2 and authentication handlers -
+        <code>validation/</code> - Custom validators -
+        <code>exception/</code> - Exception handling and custom
+        exceptions - <code>mapper/</code> - Data mapping utilities</p>
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <h3 id="by-topic">By Topic</h3>
+        <ul>
+        <li><strong><a
+        href="./configuration.html">Configuration</a></strong> - Spring
+        beans, properties, application settings</li>
+        <li><strong><a href="./security.html">Security</a></strong> -
+        OAuth2, authentication, authorization</li>
+        <li><strong><a href="./exception-handling.html">Exception
+        Handling</a></strong> - Global error mapping, error
+        responses</li>
+        <li><strong><a href="./validation.html">Validation</a></strong>
+        - Custom validators, validation flow</li>
+        <li><strong><a href="./mapping.html">Data Mapping</a></strong> -
+        Entity ↔︎ DTO transformation, MapStruct</li>
+        <li><strong><a href="./best-practices.html">Best
+        Practices</a></strong> - Industry standards, common
+        patterns</li>
+        </ul>
+        <h3 id="by-role">By Role</h3>
+        <ul>
+        <li><strong>Developers</strong> → Start with <a
+        href="./configuration.html">Configuration</a> to understand
+        Spring setup</li>
+        <li><strong>Security Team</strong> → Review <a
+        href="./security.html">Security</a> for
+        authentication/authorization details</li>
+        <li><strong>QA/Testing</strong> → Check <a
+        href="./validation.html">Validation</a> and <a
+        href="./exception-handling.html">Exception Handling</a></li>
+        <li><strong>DevOps</strong> → Refer to <a
+        href="./configuration.html">Configuration</a> for environment
+        setup</li>
+        <li><strong>New Team Members</strong> → Begin with <a
+        href="./best-practices.html">Best Practices</a> for
+        standards</li>
+        </ul>
+        <h2 id="architecture-overview">Architecture Overview</h2>
+        <p>The Infrastructure Layer supports all other layers by
+        providing cross-cutting concerns:</p>
+        <pre><code>┌─────────────────────────────────────────────────────────┐
+│              Controller Layer (HTTP)                     │
+├─────────────────────────────────────────────────────────┤
+│              Service Layer (Business Logic)              │
+├─────────────────────────────────────────────────────────┤
+│            Repository Layer (Data Access)                │
+├─────────────────────────────────────────────────────────┤
+│          Domain Model Layer (Entities &amp; DTOs)            │
+├─────────────────────────────────────────────────────────┤
+│  INFRASTRUCTURE LAYER (Cross-Cutting Concerns)          │
+│  ┌──────────┬──────────┬──────────┬──────────┬────────┐ │
+│  │Security  │Validation│Exception │Mapping   │Config  │ │
+│  └──────────┴──────────┴──────────┴──────────┴────────┘ │
+└─────────────────────────────────────────────────────────┘</code></pre>
+        <h2 id="key-responsibilities">Key Responsibilities</h2>
+        <ol type="1">
+        <li><strong>Configuration</strong> - Spring beans,
+        environment-specific settings</li>
+        <li><strong>Security</strong> - OAuth2, authentication filters,
+        authorization checks</li>
+        <li><strong>Exception Handling</strong> - Centralized error
+        mapping to HTTP responses</li>
+        <li><strong>Validation</strong> - Custom business rule
+        validators</li>
+        <li><strong>Data Mapping</strong> - DTO ↔︎ Entity
+        transformation</li>
+        <li><strong>Best Practices</strong> - Standards for
+        infrastructure concerns</li>
+        </ol>
+        <hr />
+        <p><a href="../overview.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

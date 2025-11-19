@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · layers/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#layers-architecture-index"
+        id="toc-layers-architecture-index">Layers Architecture Index</a>
+        <ul>
+        <li><a href="#available-sections"
+        id="toc-available-sections">Available Sections</a>
+        <ul>
+        <li><a href="#core-layers-documentation"
+        id="toc-core-layers-documentation">Core Layers
+        Documentation</a></li>
+        <li><a href="#infrastructure-components-detailed"
+        id="toc-infrastructure-components-detailed">Infrastructure
+        Components (Detailed)</a></li>
+        </ul></li>
+        <li><a href="#quick-navigation-by-role"
+        id="toc-quick-navigation-by-role">Quick Navigation by Role</a>
+        <ul>
+        <li><a href="#developers"
+        id="toc-developers">Developers</a></li>
+        <li><a href="#database-administrators"
+        id="toc-database-administrators">Database
+        Administrators</a></li>
+        <li><a href="#securitydevops"
+        id="toc-securitydevops">Security/DevOps</a></li>
+        <li><a href="#new-team-members" id="toc-new-team-members">New
+        Team Members</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="layers-architecture-index">Layers Architecture
+        Index</h1>
+        <p>This directory contains comprehensive documentation of the
+        five-layer architecture used in Smart Supply Pro’s backend
+        system.</p>
+        <h2 id="available-sections">Available Sections</h2>
+        <h3 id="core-layers-documentation">Core Layers
+        Documentation</h3>
+        <ol type="1">
+        <li><strong><a href="./controller-layer.html">Controller
+        Layer</a></strong> - HTTP API entry point, request routing,
+        authorization</li>
+        <li><strong><a href="./service-layer.html">Service
+        Layer</a></strong> - Business logic orchestration, transaction
+        management</li>
+        <li><strong><a href="./repository-layer.html">Repository
+        Layer</a></strong> - Data access abstraction, queries,
+        persistence</li>
+        <li><strong><a href="./model-layer.html">Model
+        Layer</a></strong> - JPA entities, relationships, domain
+        objects</li>
+        <li><strong><a href="./infrastructure/index.html">Infrastructure
+        &amp; Cross-Cutting Concerns</a></strong> - Configuration,
+        security, validation, exception handling, mapping</li>
+        </ol>
+        <h3 id="infrastructure-components-detailed">Infrastructure
+        Components (Detailed)</h3>
+        <p>The Infrastructure Layer has been broken down into focused
+        guides:</p>
+        <ul>
+        <li><strong><a
+        href="./infrastructure/configuration.html">Configuration</a></strong>
+        - Spring beans and property setup</li>
+        <li><strong><a
+        href="./infrastructure/security.html">Security</a></strong> -
+        OAuth2 and authorization</li>
+        <li><strong><a
+        href="./infrastructure/exception-handling.html">Exception
+        Handling</a></strong> - Error mapping and responses</li>
+        <li><strong><a
+        href="./infrastructure/validation.html">Validation</a></strong>
+        - Input validation and business rules</li>
+        <li><strong><a href="./infrastructure/mapping.html">Data
+        Mapping</a></strong> - DTO ↔︎ Entity transformation</li>
+        <li><strong><a href="./infrastructure/best-practices.html">Best
+        Practices</a></strong> - Standards and guidelines</li>
+        </ul>
+        <h2 id="quick-navigation-by-role">Quick Navigation by Role</h2>
+        <h3 id="developers">Developers</h3>
+        <ul>
+        <li>Start with <a href="./overview.html">Overview</a> for the
+        big picture</li>
+        <li>Review <a href="./controller-layer.html">Controller</a> to
+        understand endpoint structure</li>
+        <li>Check <a href="./service-layer.html">Service</a> for
+        business logic patterns</li>
+        <li>Reference <a
+        href="./infrastructure/best-practices.html">Infrastructure Best
+        Practices</a> for standards</li>
+        </ul>
+        <h3 id="database-administrators">Database Administrators</h3>
+        <ul>
+        <li>Review <a href="./repository-layer.html">Repository
+        Layer</a> for queries and indexing</li>
+        <li>Check <a href="./model-layer.html">Model Layer</a> for
+        schema and relationships</li>
+        <li>Reference <a
+        href="./infrastructure/exception-handling.html">Exception
+        Handling</a> for error scenarios</li>
+        </ul>
+        <h3 id="securitydevops">Security/DevOps</h3>
+        <ul>
+        <li>Review <a href="./infrastructure/security.html">Security</a>
+        for authentication details</li>
+        <li>Check <a
+        href="./infrastructure/configuration.html">Configuration</a> for
+        environment setup</li>
+        <li>Reference <a
+        href="./infrastructure/best-practices.html">Best Practices</a>
+        for standards</li>
+        </ul>
+        <h3 id="new-team-members">New Team Members</h3>
+        <ul>
+        <li>Start with <a href="./overview.html">Overview</a></li>
+        <li>Read <a href="./infrastructure/best-practices.html">Best
+        Practices</a></li>
+        <li>Review specific layers as needed</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
