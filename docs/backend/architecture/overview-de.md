@@ -6,6 +6,8 @@
 
 Das Backend von Smart Supply Pro ist ein modernes, Spring-Boot-basiertes Lagerverwaltungssystem, das für die Verwaltung komplexer Lieferantenbeziehungen, Bestandsverfolgung und Echtzeit-Bestandsanalysen konzipiert ist. Die Architektur betont **Skalierbarkeit**, **Wartbarkeit** und **Sicherheit** durch wohldefinierteverstandteile Ebenen und klare Separation of Concerns.
 
+> **👉 Für eine detaillierte Aufschlüsselung jeder Architektur-Schicht, siehe [Schichten-Architektur](./layers/overview.html)** - Umfassende Dokumentation von Controller-, Service-, Repository-, Modell- und Infrastruktur-Schichten mit Codebeispielen und Interaktionsmustern.
+
 ## System-Architektur-Diagramm
 
 ```mermaid
@@ -317,7 +319,7 @@ graph TB
 
 ## Nächste Schritte
 
-1. **Erkunden Sie [Schichten-Architektur](./layers.html)** - Detaillierte Aufschlüsselung jeder Schicht
+1. **Erkunden Sie [Schichten-Architektur](./layers/overview.html)** - Detaillierte Aufschlüsselung jeder Schicht (Controller, Service, Repository, Modell, Infrastruktur)
 2. **Überprüfen Sie [Sicherheits-Architektur](./security.html)** - Detaillierte Sicherheitsimplementierung
 3. **Überprüfen Sie [Datenmodelle](./model.html)** - Entity-Beziehungen und Schema
 4. **Studieren Sie [Test-Strategie](./testing.html)** - Test-Muster und Best Practices
