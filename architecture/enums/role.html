@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · enums/role · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#role-enum" id="toc-role-enum">Role Enum</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#enum-definition" id="toc-enum-definition">Enum
+        Definition</a></li>
+        <li><a href="#role-values" id="toc-role-values">Role Values</a>
+        <ul>
+        <li><a href="#admin" id="toc-admin">ADMIN</a></li>
+        <li><a href="#user" id="toc-user">USER</a></li>
+        </ul></li>
+        <li><a href="#database-schema" id="toc-database-schema">Database
+        Schema</a>
+        <ul>
+        <li><a href="#storage" id="toc-storage">Storage</a></li>
+        <li><a href="#sample-data" id="toc-sample-data">Sample
+        Data</a></li>
+        </ul></li>
+        <li><a href="#entity-usage" id="toc-entity-usage">Entity
+        Usage</a>
+        <ul>
+        <li><a href="#appuser-model" id="toc-appuser-model">AppUser
+        Model</a></li>
+        </ul></li>
+        <li><a href="#spring-security-integration"
+        id="toc-spring-security-integration">Spring Security
+        Integration</a>
+        <ul>
+        <li><a href="#authorization-annotations"
+        id="toc-authorization-annotations">Authorization
+        Annotations</a></li>
+        <li><a href="#securitycontext-integration"
+        id="toc-securitycontext-integration">SecurityContext
+        Integration</a></li>
+        </ul></li>
+        <li><a href="#dto-serialization" id="toc-dto-serialization">DTO
+        Serialization</a>
+        <ul>
+        <li><a href="#role-in-appuserprofiledto"
+        id="toc-role-in-appuserprofiledto">Role in
+        AppUserProfileDTO</a></li>
+        <li><a href="#api-response-example"
+        id="toc-api-response-example">API Response Example</a></li>
+        </ul></li>
+        <li><a href="#role-assignment-logic"
+        id="toc-role-assignment-logic">Role Assignment Logic</a>
+        <ul>
+        <li><a href="#oauth2-configuration"
+        id="toc-oauth2-configuration">OAuth2 Configuration</a></li>
+        <li><a href="#environment-based-assignment"
+        id="toc-environment-based-assignment">Environment-Based
+        Assignment</a></li>
+        </ul></li>
+        <li><a href="#parsing-conversion"
+        id="toc-parsing-conversion">Parsing &amp; Conversion</a>
+        <ul>
+        <li><a href="#fromstring-method"
+        id="toc-fromstring-method">fromString() Method</a></li>
+        </ul></li>
+        <li><a href="#testing" id="toc-testing">Testing</a>
+        <ul>
+        <li><a href="#unit-tests" id="toc-unit-tests">Unit
+        Tests</a></li>
+        <li><a href="#integration-tests-with-security"
+        id="toc-integration-tests-with-security">Integration Tests with
+        Security</a></li>
+        </ul></li>
+        <li><a href="#authorization-matrix"
+        id="toc-authorization-matrix">Authorization Matrix</a>
+        <ul>
+        <li><a href="#endpoint-access-by-role"
+        id="toc-endpoint-access-by-role">Endpoint Access by
+        Role</a></li>
+        </ul></li>
+        <li><a href="#migration-path" id="toc-migration-path">Migration
+        Path</a>
+        <ul>
+        <li><a href="#adding-a-new-role"
+        id="toc-adding-a-new-role">Adding a New Role</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Enums Hub</a></p>
+        <h1 id="role-enum">Role Enum</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The <code>Role</code> enum defines user authorization roles
+        for access control throughout the application. It works in
+        conjunction with Spring Security’s <code>@PreAuthorize</code>
+        annotation to enforce role-based access control (RBAC) at the
+        method level.</p>
+        <p><strong>Location:</strong>
+        <code>src/main/java/com/smartsupplypro/inventory/model/Role.java</code></p>
+        <p><strong>Package:</strong>
+        <code>com.smartsupplypro.inventory.model</code></p>
+        <p><strong>Purpose:</strong> Type-safe user role classification
+        for authorization decisions</p>
+        <hr />
+        <h2 id="enum-definition">Enum Definition</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> <span class="bu">Role</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    ADMIN<span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    USER<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="bu">Role</span> <span class="fu">fromString</span><span class="op">(</span><span class="bu">String</span> value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">valueOf</span><span class="op">(</span>value<span class="op">.</span><span class="fu">trim</span><span class="op">().</span><span class="fu">replace</span><span class="op">(</span><span class="st">&quot;,&quot;</span><span class="op">,</span> <span class="st">&quot;&quot;</span><span class="op">));</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="role-values">Role Values</h2>
+        <h3 id="admin">ADMIN</h3>
+        <p><strong>Description:</strong> Full system access with
+        administrative privileges</p>
+        <p><strong>Capabilities:</strong> - Create, read, update, delete
+        suppliers - Create, read, update, delete inventory items -
+        Manage stock adjustments - View analytics and reports - Access
+        configuration settings - Create and manage other users</p>
+        <p><strong>Controllers Using ADMIN:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">createSupplier</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    supplierService<span class="op">.</span><span class="fu">delete</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">noContent</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">createInventoryItem</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateInventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>inventoryService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Typical User:</strong> System administrators,
+        inventory managers</p>
+        <hr />
+        <h3 id="user">USER</h3>
+        <p><strong>Description:</strong> Limited access, typically for
+        regular users</p>
+        <p><strong>Capabilities (Default):</strong> - Read suppliers,
+        inventory items, stock history - View analytics (in some
+        systems) - Cannot create or modify data (in demo mode) - Cannot
+        delete data - Cannot access administration features</p>
+        <p><strong>Capabilities (Full Access):</strong> - Create, read,
+        update inventory items - Create, read stock movements - View
+        stock history - View analytics</p>
+        <p><strong>Controllers Using USER:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;USER&#39;) or hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>Page<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;&gt;</span> <span class="fu">searchSuppliers</span><span class="op">(</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@RequestParam</span><span class="op">(</span>required <span class="op">=</span> <span class="kw">false</span><span class="op">)</span> <span class="bu">String</span> name<span class="op">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Pageable</span> pageable<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">search</span><span class="op">(</span>name<span class="op">,</span> pageable<span class="op">));</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;USER&#39;) or hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>StockHistoryDTO<span class="op">&gt;</span> <span class="fu">getStockHistory</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> itemId<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>stockHistoryService<span class="op">.</span><span class="fu">getHistory</span><span class="op">(</span>itemId<span class="op">));</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Typical User:</strong> Regular employees, warehouse
+        staff, sales team</p>
+        <hr />
+        <h2 id="database-schema">Database Schema</h2>
+        <h3 id="storage">Storage</h3>
+        <p>The <code>Role</code> enum is persisted as a STRING in the
+        <code>app_user</code> table:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> app_user <span class="kw">ADD</span> <span class="kw">COLUMN</span> <span class="kw">role</span> <span class="dt">VARCHAR</span>(<span class="dv">10</span>);</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- Values: &#39;ADMIN&#39;, &#39;USER&#39;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- Recommended index for query performance</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_app_user_role <span class="kw">ON</span> app_user(<span class="kw">role</span>);</span></code></pre></div>
+        <h3 id="sample-data">Sample Data</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Admin user</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> app_user (<span class="kw">id</span>, email, <span class="kw">role</span>, full_name)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="st">&#39;1&#39;</span>, <span class="st">&#39;admin@company.com&#39;</span>, <span class="st">&#39;ADMIN&#39;</span>, <span class="st">&#39;System Admin&#39;</span>);</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- Regular user</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> app_user (<span class="kw">id</span>, email, <span class="kw">role</span>, full_name)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="st">&#39;2&#39;</span>, <span class="st">&#39;user@company.com&#39;</span>, <span class="st">&#39;USER&#39;</span>, <span class="st">&#39;Warehouse Staff&#39;</span>);</span></code></pre></div>
+        <hr />
+        <h2 id="entity-usage">Entity Usage</h2>
+        <h3 id="appuser-model">AppUser Model</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;app_user&quot;</span><span class="op">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppUser <span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Email</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> fullName<span class="op">;</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Temporal</span><span class="op">(</span>TemporalType<span class="op">.</span><span class="fu">TIMESTAMP</span><span class="op">)</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Returns user<span class="co">&#39;</span>s role enum<span class="co">.</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">Role</span> <span class="fu">getRoleEnum</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> role<span class="op">;</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Returns true if user is administrator<span class="co">.</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isAdmin</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> role <span class="op">==</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">;</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="spring-security-integration">Spring Security
+        Integration</h2>
+        <h3 id="authorization-annotations">Authorization
+        Annotations</h3>
+        <h4 id="preauthorize-with-role-check"><span class="citation"
+        data-cites="PreAuthorize">@PreAuthorize</span> with Role
+        Check</h4>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Admin only</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteItem</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Admin or User</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) or hasRole(&#39;USER&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>ItemDTO<span class="op">&gt;</span> <span class="fu">listItems</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Authenticated (any role)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated()&quot;</span><span class="op">)</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ItemDTO <span class="fu">getItem</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div>
+        <h4 id="role-hierarchy">Role Hierarchy</h4>
+        <p>Spring Security doesn’t have explicit role hierarchy in this
+        application, but conceptually:</p>
+        <pre><code>ADMIN &gt; USER</code></pre>
+        <p>ADMIN users have all capabilities of USER users plus
+        additional privileges.</p>
+        <h3 id="securitycontext-integration">SecurityContext
+        Integration</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemService <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> InventoryItemDTO <span class="fu">create</span><span class="op">(</span>CreateInventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Get current user&#39;s role from SecurityContext</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        Authentication auth <span class="op">=</span> SecurityContextHolder<span class="op">.</span><span class="fu">getContext</span><span class="op">().</span><span class="fu">getAuthentication</span><span class="op">();</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        UserDetails userDetails <span class="op">=</span> <span class="op">(</span>UserDetails<span class="op">)</span> auth<span class="op">.</span><span class="fu">getPrincipal</span><span class="op">();</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Can also get from OAuth2User for OAuth2 authentication</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Role would be derived from email checking against ADMIN_EMAILS</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Business logic...</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> itemRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="dto-serialization">DTO Serialization</h2>
+        <h3 id="role-in-appuserprofiledto">Role in
+        AppUserProfileDTO</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">AppUserProfileDTO</span><span class="op">(</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email<span class="op">,</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> fullName<span class="op">,</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> role<span class="op">,</span>              <span class="co">// Serialized as string</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> pictureUrl</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span></code></pre></div>
+        <h3 id="api-response-example">API Response Example</h3>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/me
+Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><strong>Response (ADMIN):</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;admin@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;fullName&quot;</span><span class="fu">:</span> <span class="st">&quot;System Admin&quot;</span><span class="fu">,</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;role&quot;</span><span class="fu">:</span> <span class="st">&quot;ADMIN&quot;</span><span class="fu">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pictureUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;https://example.com/admin.jpg&quot;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (USER):</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;user@company.com&quot;</span><span class="fu">,</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;fullName&quot;</span><span class="fu">:</span> <span class="st">&quot;Warehouse Staff&quot;</span><span class="fu">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;role&quot;</span><span class="fu">:</span> <span class="st">&quot;USER&quot;</span><span class="fu">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pictureUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;https://example.com/user.jpg&quot;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="role-assignment-logic">Role Assignment Logic</h2>
+        <h3 id="oauth2-configuration">OAuth2 Configuration</h3>
+        <p>Roles are assigned based on email during OAuth2
+        authentication:</p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">@EnableOAuth2Client</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityConfig <span class="op">{</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> UserDetailsService <span class="fu">userDetailsService</span><span class="op">(</span>AppProperties props<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> email <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Check if email is in admin list</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">boolean</span> isAdmin <span class="op">=</span> props<span class="op">.</span><span class="fu">getAdminEmails</span><span class="op">().</span><span class="fu">contains</span><span class="op">(</span>email<span class="op">);</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">new</span> org<span class="op">.</span><span class="fu">springframework</span><span class="op">.</span><span class="fu">security</span><span class="op">.</span><span class="fu">core</span><span class="op">.</span><span class="fu">userdetails</span><span class="op">.</span><span class="fu">User</span><span class="op">(</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>                email<span class="op">,</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;&quot;</span><span class="op">,</span>  <span class="co">// No password for OAuth2</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>                <span class="bu">List</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="kw">new</span> <span class="fu">SimpleGrantedAuthority</span><span class="op">(</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>                    isAdmin <span class="op">?</span> <span class="st">&quot;ROLE_ADMIN&quot;</span> <span class="op">:</span> <span class="st">&quot;ROLE_USER&quot;</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>                <span class="op">))</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="environment-based-assignment">Environment-Based
+        Assignment</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application.yml</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">admin-emails</span><span class="kw">:</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> admin@company.com</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> manager@company.com</span></span></code></pre></div>
+        <hr />
+        <h2 id="parsing-conversion">Parsing &amp; Conversion</h2>
+        <h3 id="fromstring-method">fromString() Method</h3>
+        <p>Safely converts a string to Role enum:</p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Role</span> <span class="fu">fromString</span><span class="op">(</span><span class="bu">String</span> value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">valueOf</span><span class="op">(</span>value<span class="op">.</span><span class="fu">trim</span><span class="op">().</span><span class="fu">replace</span><span class="op">(</span><span class="st">&quot;,&quot;</span><span class="op">,</span> <span class="st">&quot;&quot;</span><span class="op">));</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Features:</strong> - Trims whitespace - Removes
+        commas (handles legacy data) - Throws
+        <code>IllegalArgumentException</code> if invalid</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Role</span> role <span class="op">=</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span>        <span class="co">// ✅ Works</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Role</span> role <span class="op">=</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot; USER &quot;</span><span class="op">);</span>       <span class="co">// ✅ Works (trimmed)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">Role</span> role <span class="op">=</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot;ADMIN,&quot;</span><span class="op">);</span>       <span class="co">// ✅ Works (comma removed)</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="bu">Role</span> role <span class="op">=</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot;INVALID&quot;</span><span class="op">);</span>      <span class="co">// ❌ Throws exception</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing">Testing</h2>
+        <h3 id="unit-tests">Unit Tests</h3>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testRoleFromString</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Valid conversions</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">,</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">));</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">,</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot;USER&quot;</span><span class="op">));</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// With whitespace</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">,</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot;  ADMIN  &quot;</span><span class="op">));</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// With comma</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">,</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot;ADMIN,&quot;</span><span class="op">));</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Invalid</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">()</span> <span class="op">-&gt;</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">fromString</span><span class="op">(</span><span class="st">&quot;INVALID&quot;</span><span class="op">));</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testRoleValues</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Verify all role values exist</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Role</span><span class="op">[]</span> roles <span class="op">=</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">values</span><span class="op">();</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">2</span><span class="op">,</span> roles<span class="op">.</span><span class="fu">length</span><span class="op">);</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span><span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span>roles<span class="op">).</span><span class="fu">contains</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">));</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span><span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span>roles<span class="op">).</span><span class="fu">contains</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">));</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="integration-tests-with-security">Integration Tests with
+        Security</h3>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RoleAuthorizationIT <span class="op">{</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> MockMvc mockMvc<span class="op">;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testAdminCanDelete</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/SUP-001&quot;</span><span class="op">))</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isNoContent</span><span class="op">());</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testUserCannotDelete</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/SUP-001&quot;</span><span class="op">))</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testUnauthenticatedCannotAccess</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">))</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isUnauthorized</span><span class="op">());</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="authorization-matrix">Authorization Matrix</h2>
+        <h3 id="endpoint-access-by-role">Endpoint Access by Role</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Endpoint</th>
+        <th>ADMIN</th>
+        <th>USER</th>
+        <th>Authenticated</th>
+        <th>Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>GET /api/suppliers</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Public in demo mode</td>
+        </tr>
+        <tr class="even">
+        <td>POST /api/suppliers</td>
+        <td>✅</td>
+        <td>❌</td>
+        <td>-</td>
+        <td>ADMIN only</td>
+        </tr>
+        <tr class="odd">
+        <td>PUT /api/suppliers/{id}</td>
+        <td>✅</td>
+        <td>❌</td>
+        <td>-</td>
+        <td>ADMIN only</td>
+        </tr>
+        <tr class="even">
+        <td>DELETE /api/suppliers/{id}</td>
+        <td>✅</td>
+        <td>❌</td>
+        <td>-</td>
+        <td>ADMIN only</td>
+        </tr>
+        <tr class="odd">
+        <td>GET /api/inventory/items</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Public in demo mode</td>
+        </tr>
+        <tr class="even">
+        <td>POST /api/inventory/items</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>-</td>
+        <td>Authenticated users</td>
+        </tr>
+        <tr class="odd">
+        <td>DELETE /api/inventory/items/{id}</td>
+        <td>✅</td>
+        <td>❌</td>
+        <td>-</td>
+        <td>ADMIN only</td>
+        </tr>
+        <tr class="even">
+        <td>GET /api/stock-history</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>Audit trail read-only</td>
+        </tr>
+        <tr class="odd">
+        <td>POST /api/analytics</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>-</td>
+        <td>Authenticated users</td>
+        </tr>
+        <tr class="even">
+        <td>GET /api/me</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>-</td>
+        <td>Current user profile</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="migration-path">Migration Path</h2>
+        <h3 id="adding-a-new-role">Adding a New Role</h3>
+        <p>To add a new role (e.g., <code>MANAGER</code>):</p>
+        <p><strong>Step 1: Update Enum</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> <span class="bu">Role</span> <span class="op">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    ADMIN<span class="op">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    USER<span class="op">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    MANAGER<span class="op">;</span>  <span class="co">// New role</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Step 2: Update Database Migration</strong></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- No schema changes needed (VARCHAR accommodates new value)</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- Existing values remain unchanged</span></span></code></pre></div>
+        <p><strong>Step 3: Update Authorization Rules</strong></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;MANAGER&#39;) or hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>AnalyticsDTO<span class="op">&gt;</span> <span class="fu">getAnalytics</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div>
+        <p><strong>Step 4: Update Role Assignment Logic</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">admin-emails</span><span class="kw">:</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> admin@company.com</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">manager-emails</span><span class="kw">:</span><span class="co">  # New configuration</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> manager@company.com</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <p>✅ <strong>DO:</strong> - Use enum values in
+        <code>@PreAuthorize</code> annotations - Check roles in service
+        layer for business logic - Store roles as STRING in database for
+        clarity - Document which roles can access each endpoint - Use
+        meaningful role names (ADMIN, MANAGER, USER) - Implement role
+        assignment logic in one place</p>
+        <p>❌ <strong>DON’T:</strong> - Use string literals instead of
+        enum values - Check roles multiple times in same method - Store
+        roles as integers (ordinals) - Mix role logic across multiple
+        services - Forget to secure sensitive endpoints - Use too many
+        granular roles (RBAC vs ABAC tradeoff)</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <p><strong>Architecture:</strong> - <a href="./index.html">Enums
+        Hub</a> - Overview of all enums - <a
+        href="../security.html">Security Architecture</a> -
+        Authentication and authorization details - <a
+        href="../model.html">Data Models &amp; Entities</a> - Entity
+        definitions</p>
+        <p><strong>Code Examples:</strong> - <a
+        href="../../model/AppUser.java">AppUser Entity</a> - <a
+        href="../../controller/AuthController.java">AuthController</a> -
+        <a
+        href="../../config/SecurityConfig.java">SecurityConfig</a></p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Enums Hub</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

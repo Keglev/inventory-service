@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · enums/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#enums-reference" id="toc-enums-reference">Enums
+        Reference</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#what-are-enums" id="toc-what-are-enums">What are
+        Enums?</a></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a></li>
+        <li><a href="#architecture-diagram"
+        id="toc-architecture-diagram">Architecture Diagram</a></li>
+        <li><a href="#enum-list" id="toc-enum-list">Enum List</a>
+        <ul>
+        <li><a href="#role-role.md" id="toc-role-role.md">1. Role
+        (<code>role.md</code>)</a></li>
+        <li><a href="#stockchangereason-stock-change-reason.html"
+        id="toc-stockchangereason-stock-change-reason.html">2.
+        StockChangeReason
+        (<code>stock-change-reason.html</code>)</a></li>
+        </ul></li>
+        <li><a href="#design-patterns" id="toc-design-patterns">Design
+        Patterns</a>
+        <ul>
+        <li><a href="#type-safe-enum-pattern"
+        id="toc-type-safe-enum-pattern">1. Type-Safe Enum
+        Pattern</a></li>
+        <li><a href="#string-parsing-with-validation"
+        id="toc-string-parsing-with-validation">2. String Parsing with
+        Validation</a></li>
+        <li><a href="#business-logic-on-enums"
+        id="toc-business-logic-on-enums">3. Business Logic on
+        Enums</a></li>
+        <li><a href="#enum-classification-sets"
+        id="toc-enum-classification-sets">4. Enum Classification
+        Sets</a></li>
+        </ul></li>
+        <li><a href="#database-representation"
+        id="toc-database-representation">Database Representation</a>
+        <ul>
+        <li><a href="#storage-strategy"
+        id="toc-storage-strategy">Storage Strategy</a></li>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a></li>
+        </ul></li>
+        <li><a href="#validation-integration"
+        id="toc-validation-integration">Validation Integration</a>
+        <ul>
+        <li><a href="#custom-validators-using-enums"
+        id="toc-custom-validators-using-enums">Custom Validators Using
+        Enums</a></li>
+        <li><a href="#controller-usage"
+        id="toc-controller-usage">Controller Usage</a></li>
+        </ul></li>
+        <li><a href="#serialization-in-apis"
+        id="toc-serialization-in-apis">Serialization in APIs</a>
+        <ul>
+        <li><a href="#json-representation"
+        id="toc-json-representation">JSON Representation</a></li>
+        <li><a href="#mapper-integration"
+        id="toc-mapper-integration">Mapper Integration</a></li>
+        </ul></li>
+        <li><a href="#testing-enums" id="toc-testing-enums">Testing
+        Enums</a>
+        <ul>
+        <li><a href="#unit-test-template"
+        id="toc-unit-test-template">Unit Test Template</a></li>
+        <li><a href="#integration-test-template"
+        id="toc-integration-test-template">Integration Test
+        Template</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="enums-reference">Enums Reference</h1>
+        <h2 id="overview">Overview</h2>
+        <p>This section documents all enumerations used throughout the
+        Smart Supply Pro backend. Enums provide type-safe constants for
+        roles, stock change reasons, audit severity levels, and other
+        domain-specific classifications. They ensure consistency across
+        the application and prevent invalid state transitions.</p>
+        <h2 id="what-are-enums">What are Enums?</h2>
+        <p>Enums in this application serve as: - <strong>Type-Safe
+        Constants</strong> - Compile-time checked values instead of
+        strings - <strong>Domain Models</strong> - Business concepts
+        like roles, stock change reasons, audit severity -
+        <strong>Validation Enforcers</strong> - Restrict values to
+        predefined, valid options - <strong>Metadata Carriers</strong> -
+        Methods on enums provide business logic context</p>
+        <p><strong>Storage Pattern:</strong> All enums are persisted as
+        <code>STRING</code> via
+        <code>@Enumerated(EnumType.STRING)</code> for database
+        readability and migration flexibility.</p>
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <table>
+        <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 29%" />
+        <col style="width: 26%" />
+        <col style="width: 26%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Enum</th>
+        <th>Location</th>
+        <th>Purpose</th>
+        <th>Related</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong><a href="./role.html">Role</a></strong></td>
+        <td><code>model/</code></td>
+        <td>User authorization roles (ADMIN, USER)</td>
+        <td>AppUser, Security, Controllers</td>
+        </tr>
+        <tr class="even">
+        <td><strong><a
+        href="./stock-change-reason.html">StockChangeReason</a></strong></td>
+        <td><code>enums/</code></td>
+        <td>Stock movement classifications (SOLD, DAMAGED, etc.)</td>
+        <td>StockHistory, Analytics, InventoryItem</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="architecture-diagram">Architecture Diagram</h2>
+        <div class="mermaid">
+        graph TB
+            Domain["Domain Models<br/>(Entities)"]
+            EnumLayer["Enum Layer<br/>(Type-Safe Constants)"]
+            DTO["DTOs & Mappers<br/>(Serialization)"]
+            Validation["Validation Layer<br/>(Business Rules)"]
+            Service["Service Layer<br/>(Business Logic)"]
+            
+            Domain -->|Uses| EnumLayer
+            EnumLayer -->|Converted to/from| DTO
+            DTO -->|Provides| Validation
+            Validation -->|Enforces| Service
+            Service -->|Checks| EnumLayer
+            
+            style Domain fill:#e1f5ff
+            style EnumLayer fill:#b3e5fc
+            style DTO fill:#81d4fa
+            style Validation fill:#4fc3f7
+            style Service fill:#2196f3
+        </div>
+        <hr />
+        <h2 id="enum-list">Enum List</h2>
+        <h3 id="role-role.md">1. Role (<code>role.md</code>)</h3>
+        <p><strong>Purpose:</strong> User authorization and access
+        control</p>
+        <p><strong>Values:</strong> - <code>ADMIN</code> - Full system
+        access, can perform all operations - <code>USER</code> - Limited
+        access, typically read-only in demo mode</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppUser <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div>
+        <p><strong>Key Methods:</strong> -
+        <code>fromString(String)</code> - Parse string to enum with
+        trimming</p>
+        <p><strong>Storage:</strong> VARCHAR(10) in database</p>
+        <p><strong>See:</strong> <a href="./role.html">Role Enum
+        Documentation</a></p>
+        <hr />
+        <h3 id="stockchangereason-stock-change-reason.html">2.
+        StockChangeReason (<code>stock-change-reason.html</code>)</h3>
+        <p><strong>Purpose:</strong> Standardized stock movement
+        classification for audit compliance and financial reporting</p>
+        <p><strong>Categories:</strong> - <strong>Initial
+        Operations:</strong> INITIAL_STOCK -
+        <strong>Administrative:</strong> MANUAL_UPDATE, PRICE_CHANGE -
+        <strong>Customer:</strong> SOLD, RETURNED_BY_CUSTOMER -
+        <strong>Quality Control:</strong> DAMAGED, SCRAPPED, EXPIRED -
+        <strong>Security:</strong> LOST, DESTROYED,
+        RETURNED_TO_SUPPLIER</p>
+        <p><strong>Example Values &amp; Meanings:</strong> -
+        <code>SOLD</code> - Customer purchase transaction (affects
+        revenue) - <code>DAMAGED</code> - Temporary hold for damaged
+        items - <code>SCRAPPED</code> - Permanent removal for quality
+        issues - <code>DESTROYED</code> - Catastrophic loss (insurance
+        claim trigger)</p>
+        <p><strong>Key Methods:</strong> -
+        <code>requiresManagerApproval()</code> - Checks if approval
+        needed - <code>affectsQuantity()</code> - Tests if quantity is
+        modified - <code>isLossReason()</code> - Identifies loss-type
+        movements - <code>requiresComplianceDocumentation()</code> -
+        Audit requirement check - <code>getAuditSeverity()</code> -
+        Returns severity level (LOW, MEDIUM, HIGH, CRITICAL) -
+        <code>getLossReasons()</code> - Static set of all loss-type
+        reasons - <code>getCustomerReasons()</code> - Static set of
+        customer-related reasons - <code>getSupplierReasons()</code> -
+        Static set of supplier-related reasons -
+        <code>getSecuritySensitiveReasons()</code> - Static set
+        requiring investigation - <code>parseReason(String)</code> -
+        Safe parsing with error handling</p>
+        <p><strong>Nested Enum: AuditSeverity</strong> -
+        <code>LOW</code> - Routine operations - <code>MEDIUM</code> -
+        Administrative adjustments - <code>HIGH</code> -
+        Revenue-impacting transactions - <code>CRITICAL</code> - Loss
+        events requiring investigation</p>
+        <p><strong>Storage:</strong> VARCHAR(30) in database</p>
+        <p><strong>See:</strong> <a
+        href="./stock-change-reason.html">StockChangeReason Enum
+        Documentation</a></p>
+        <hr />
+        <h2 id="design-patterns">Design Patterns</h2>
+        <h3 id="type-safe-enum-pattern">1. Type-Safe Enum Pattern</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> StockChangeReason <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    SOLD<span class="op">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    DAMAGED<span class="op">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    DESTROYED<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isLossReason</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">this</span> <span class="op">==</span> DESTROYED <span class="op">||</span> <span class="kw">this</span> <span class="op">==</span> SCRAPPED<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Compile-time type checking - IDE
+        autocompletion - Impossible to have invalid values - Methods on
+        enum provide context</p>
+        <h3 id="string-parsing-with-validation">2. String Parsing with
+        Validation</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> StockChangeReason <span class="fu">parseReason</span><span class="op">(</span><span class="bu">String</span> reasonString<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">valueOf</span><span class="op">(</span>reasonString<span class="op">.</span><span class="fu">trim</span><span class="op">().</span><span class="fu">toUpperCase</span><span class="op">());</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">IllegalArgumentException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalArgumentException</span><span class="op">(</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span><span class="op">.</span><span class="fu">format</span><span class="op">(</span><span class="st">&quot;Invalid reason: </span><span class="sc">%s</span><span class="st">. Valid options: </span><span class="sc">%s</span><span class="st">&quot;</span><span class="op">,</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                reasonString<span class="op">,</span> <span class="bu">Arrays</span><span class="op">.</span><span class="fu">toString</span><span class="op">(</span><span class="fu">values</span><span class="op">())),</span> e<span class="op">);</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Clear error messages - Explicit
+        validation - User-friendly exceptions</p>
+        <h3 id="business-logic-on-enums">3. Business Logic on Enums</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistory <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> StockChangeReason reason<span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">requiresApproval</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> reason<span class="op">.</span><span class="fu">requiresManagerApproval</span><span class="op">();</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Logic stays close to data - Easy
+        to understand business rules - Type-safe queries</p>
+        <h3 id="enum-classification-sets">4. Enum Classification
+        Sets</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> <span class="fu">getLossReasons</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">EnumSet</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span>SCRAPPED<span class="op">,</span> DESTROYED<span class="op">,</span> EXPIRED<span class="op">,</span> LOST<span class="op">);</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Efficient classification -
+        Readable business logic - Easy to test</p>
+        <hr />
+        <h2 id="database-representation">Database Representation</h2>
+        <h3 id="storage-strategy">Storage Strategy</h3>
+        <p>All enums use <code>@Enumerated(EnumType.STRING)</code> for:
+        - <strong>Readability</strong> - Database values are
+        human-readable strings - <strong>Migration Flexibility</strong>
+        - Can add enums without reordering - <strong>External System
+        Integration</strong> - Easy API serialization</p>
+        <p><strong>Example Schema:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Role storage</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> app_user <span class="kw">ADD</span> <span class="kw">COLUMN</span> <span class="kw">role</span> <span class="dt">VARCHAR</span>(<span class="dv">10</span>);</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- Values: &#39;ADMIN&#39;, &#39;USER&#39;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- StockChangeReason storage</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> stock_history <span class="kw">ADD</span> <span class="kw">COLUMN</span> reason <span class="dt">VARCHAR</span>(<span class="dv">30</span>);</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- Values: &#39;SOLD&#39;, &#39;DAMAGED&#39;, &#39;DESTROYED&#39;, etc.</span></span></code></pre></div>
+        <h3 id="performance-considerations">Performance
+        Considerations</h3>
+        <ol type="1">
+        <li><p><strong>Index on Enum Columns</strong> - Recommended for
+        frequent filtering</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_stock_history_reason <span class="kw">ON</span> stock_history(reason);</span></code></pre></div></li>
+        <li><p><strong>Enum Ordinal (NOT USED)</strong> - Avoided
+        because:</p>
+        <ul>
+        <li>Ordering changes would corrupt data</li>
+        <li>Not human-readable in database</li>
+        <li>Migration risk</li>
+        </ul></li>
+        <li><p><strong>Large EnumSets</strong> - Efficient for enum
+        classification</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> losses <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">getLossReasons</span><span class="op">();</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">// EnumSet uses bit flags, O(1) operations</span></span></code></pre></div></li>
+        </ol>
+        <hr />
+        <h2 id="validation-integration">Validation Integration</h2>
+        <h3 id="custom-validators-using-enums">Custom Validators Using
+        Enums</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Target</span><span class="op">(</span><span class="bu">ElementType</span><span class="op">.</span><span class="fu">FIELD</span><span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Retention</span><span class="op">(</span><span class="bu">RetentionPolicy</span><span class="op">.</span><span class="fu">RUNTIME</span><span class="op">)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Constraint</span><span class="op">(</span>validatedBy <span class="op">=</span> StockChangeReasonValidator<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="at">@interface</span> ValidStockChangeReason <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> <span class="fu">message</span><span class="op">()</span> <span class="kw">default</span> <span class="st">&quot;Invalid stock change reason&quot;</span><span class="op">;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockChangeReasonValidator <span class="kw">implements</span> ConstraintValidator<span class="op">&lt;</span>ValidStockChangeReason<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isValid</span><span class="op">(</span><span class="bu">String</span> value<span class="op">,</span> ConstraintValidatorContext context<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>            StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">IllegalArgumentException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="controller-usage">Controller Usage</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/stock-history&quot;</span><span class="op">)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">logStockChange</span><span class="op">(</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Valid</span> <span class="at">@RequestBody</span> StockHistoryDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// @Valid triggers StockChangeReasonValidator on reason field</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Ensures only valid enum values accepted</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="serialization-in-apis">Serialization in APIs</h2>
+        <h3 id="json-representation">JSON Representation</h3>
+        <p>All enums serialize as <strong>string values</strong> (not
+        ordinals):</p>
+        <p><strong>Request:</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SOLD&quot;</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">-50</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SH-001&quot;</span><span class="fu">,</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SOLD&quot;</span><span class="fu">,</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T10:30:00Z&quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="mapper-integration">Mapper Integration</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistoryMapper <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> StockHistoryDTO <span class="fu">toDTO</span><span class="op">(</span>StockHistory entity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> StockHistoryDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getReason</span><span class="op">().</span><span class="fu">name</span><span class="op">())</span>  <span class="co">// enum → string</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> StockHistory <span class="fu">toEntity</span><span class="op">(</span>StockHistoryDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getReason</span><span class="op">()))</span>  <span class="co">// string → enum</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-enums">Testing Enums</h2>
+        <h3 id="unit-test-template">Unit Test Template</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testStockChangeReasonClassification</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test loss reason classification</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> losses <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">getLossReasons</span><span class="op">();</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span>losses<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">DESTROYED</span><span class="op">));</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertFalse</span><span class="op">(</span>losses<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">));</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testEnumParsing</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Valid parse</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    StockChangeReason reason <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;SOLD&quot;</span><span class="op">);</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">,</span> reason<span class="op">);</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Invalid parse throws exception</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">()</span> <span class="op">-&gt;</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;INVALID&quot;</span><span class="op">));</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testAuditSeverity</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>AuditSeverity<span class="op">.</span><span class="fu">CRITICAL</span><span class="op">,</span> </span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        StockChangeReason<span class="op">.</span><span class="fu">DESTROYED</span><span class="op">.</span><span class="fu">getAuditSeverity</span><span class="op">());</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="integration-test-template">Integration Test
+        Template</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testEnumPersistence</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Create entity with enum</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    StockHistory history <span class="op">=</span> StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">)</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>history<span class="op">);</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Retrieve and verify enum</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    StockHistory retrieved <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>history<span class="op">.</span><span class="fu">getId</span><span class="op">()).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">,</span> retrieved<span class="op">.</span><span class="fu">getReason</span><span class="op">());</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <p>✅ <strong>DO:</strong> - Use enums for fixed sets of values
+        - Add business logic methods to enums - Store as STRING in
+        database - Validate enum values in DTOs - Provide clear error
+        messages for invalid values - Document enum meanings with
+        JavaDoc</p>
+        <p>❌ <strong>DON’T:</strong> - Use ordinals for storage (enum
+        order can change) - Create enums for user-generated values -
+        Hardcode enum string values in code - Forget to update
+        documentation when adding enum values - Store enums as numbers
+        in database</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <p><strong>Architecture:</strong> - <a href="../model.html">Data
+        Models &amp; Entities</a> - Entities using enums - <a
+        href="../dto/index.html">DTOs &amp; Data Transfer Objects</a> -
+        Serialization patterns - <a href="../validation.html">Validation
+        Framework</a> - Enum validation rules</p>
+        <p><strong>Code Examples:</strong> - <a
+        href="../../model/AppUser.java">Role Usage in AppUser</a> - <a
+        href="../../model/StockHistory.java">StockChangeReason Usage in
+        StockHistory</a> - <a
+        href="../../mapper/StockHistoryMapper.java">Enum Parsing in
+        Mappers</a></p>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

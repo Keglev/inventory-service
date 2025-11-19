@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+enums/stock-change-reason · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#stockchangereason-enum"
+        id="toc-stockchangereason-enum">StockChangeReason Enum</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#enum-values" id="toc-enum-values">Enum Values</a>
+        <ul>
+        <li><a href="#all-reasons-12-total"
+        id="toc-all-reasons-12-total">All Reasons (12 total)</a></li>
+        </ul></li>
+        <li><a href="#detailed-reason-descriptions"
+        id="toc-detailed-reason-descriptions">Detailed Reason
+        Descriptions</a>
+        <ul>
+        <li><a href="#initial_stock"
+        id="toc-initial_stock">INITIAL_STOCK</a></li>
+        <li><a href="#manual_update"
+        id="toc-manual_update">MANUAL_UPDATE</a></li>
+        <li><a href="#price_change"
+        id="toc-price_change">PRICE_CHANGE</a></li>
+        <li><a href="#sold" id="toc-sold">SOLD</a></li>
+        <li><a href="#scrapped" id="toc-scrapped">SCRAPPED</a></li>
+        <li><a href="#destroyed" id="toc-destroyed">DESTROYED</a></li>
+        <li><a href="#damaged" id="toc-damaged">DAMAGED</a></li>
+        <li><a href="#expired" id="toc-expired">EXPIRED</a></li>
+        <li><a href="#lost" id="toc-lost">LOST</a></li>
+        <li><a href="#returned_to_supplier"
+        id="toc-returned_to_supplier">RETURNED_TO_SUPPLIER</a></li>
+        <li><a href="#returned_by_customer"
+        id="toc-returned_by_customer">RETURNED_BY_CUSTOMER</a></li>
+        </ul></li>
+        <li><a href="#reason-categories"
+        id="toc-reason-categories">Reason Categories</a>
+        <ul>
+        <li><a href="#by-business-domain" id="toc-by-business-domain">By
+        Business Domain</a></li>
+        <li><a href="#by-quantity-impact" id="toc-by-quantity-impact">By
+        Quantity Impact</a></li>
+        </ul></li>
+        <li><a href="#enum-methods" id="toc-enum-methods">Enum
+        Methods</a>
+        <ul>
+        <li><a href="#instance-methods"
+        id="toc-instance-methods">Instance Methods</a></li>
+        <li><a href="#static-classification-methods"
+        id="toc-static-classification-methods">Static Classification
+        Methods</a></li>
+        </ul></li>
+        <li><a href="#nested-enum-auditseverity"
+        id="toc-nested-enum-auditseverity">Nested Enum:
+        AuditSeverity</a>
+        <ul>
+        <li><a href="#severity-levels" id="toc-severity-levels">Severity
+        Levels</a></li>
+        </ul></li>
+        <li><a href="#database-schema" id="toc-database-schema">Database
+        Schema</a>
+        <ul>
+        <li><a href="#storage" id="toc-storage">Storage</a></li>
+        <li><a href="#sample-data" id="toc-sample-data">Sample
+        Data</a></li>
+        </ul></li>
+        <li><a href="#dto-serialization" id="toc-dto-serialization">DTO
+        Serialization</a>
+        <ul>
+        <li><a href="#stockhistorydto"
+        id="toc-stockhistorydto">StockHistoryDTO</a></li>
+        <li><a href="#api-examples" id="toc-api-examples">API
+        Examples</a></li>
+        <li><a href="#mapper-integration"
+        id="toc-mapper-integration">Mapper Integration</a></li>
+        </ul></li>
+        <li><a href="#validation" id="toc-validation">Validation</a>
+        <ul>
+        <li><a href="#spring-validation"
+        id="toc-spring-validation">Spring Validation</a></li>
+        <li><a href="#dto-validation" id="toc-dto-validation">DTO
+        Validation</a></li>
+        </ul></li>
+        <li><a href="#testing" id="toc-testing">Testing</a>
+        <ul>
+        <li><a href="#unit-tests" id="toc-unit-tests">Unit
+        Tests</a></li>
+        <li><a href="#integration-tests"
+        id="toc-integration-tests">Integration Tests</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a></li>
+        <li><a href="#migration-path" id="toc-migration-path">Migration
+        Path</a>
+        <ul>
+        <li><a href="#adding-a-new-reason"
+        id="toc-adding-a-new-reason">Adding a New Reason</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Enums Hub</a></p>
+        <h1 id="stockchangereason-enum">StockChangeReason Enum</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The <code>StockChangeReason</code> enum provides
+        enterprise-level categorization for all inventory movement
+        tracking. It ensures consistent audit compliance, enables
+        financial reconciliation, and supports operational analytics
+        across the system. Every stock change must be classified with
+        one of these standardized reasons.</p>
+        <p><strong>Location:</strong>
+        <code>src/main/java/com/smartsupplypro/inventory/enums/StockChangeReason.java</code></p>
+        <p><strong>Package:</strong>
+        <code>com.smartsupplypro.inventory.enums</code></p>
+        <p><strong>Purpose:</strong> Type-safe stock movement
+        classification for audit trails, financial reporting, and
+        compliance</p>
+        <hr />
+        <h2 id="enum-values">Enum Values</h2>
+        <h3 id="all-reasons-12-total">All Reasons (12 total)</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> StockChangeReason <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    INITIAL_STOCK<span class="op">,</span>          <span class="co">// Initial inventory entry</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    MANUAL_UPDATE<span class="op">,</span>          <span class="co">// Administrative adjustment</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    PRICE_CHANGE<span class="op">,</span>           <span class="co">// Price modification only</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    SOLD<span class="op">,</span>                   <span class="co">// Customer purchase</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    SCRAPPED<span class="op">,</span>               <span class="co">// Quality control removal</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    DESTROYED<span class="op">,</span>              <span class="co">// Catastrophic loss</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    DAMAGED<span class="op">,</span>                <span class="co">// Temporary quality hold</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    EXPIRED<span class="op">,</span>                <span class="co">// Expiration date breach</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    LOST<span class="op">,</span>                   <span class="co">// Unaccounted shrinkage</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    RETURNED_TO_SUPPLIER<span class="op">,</span>   <span class="co">// Vendor return</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    RETURNED_BY_CUSTOMER<span class="op">;</span>   <span class="co">// Customer return</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="detailed-reason-descriptions">Detailed Reason
+        Descriptions</h2>
+        <h3 id="initial_stock">INITIAL_STOCK</h3>
+        <p><strong>Category:</strong> Initial Operations</p>
+        <p><strong>Description:</strong> Initial inventory entry during
+        item creation. Establishes the baseline for audit trail.</p>
+        <p><strong>Business Impact:</strong> - Critical for audit trail
+        establishment - First transaction in stock history - Baseline
+        for variance analysis</p>
+        <p><strong>Approval Required:</strong> No (auto-generated on
+        item creation)</p>
+        <p><strong>Affects Quantity:</strong> Yes</p>
+        <p><strong>Compliance Documentation:</strong> No</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Item created: Widget A, Quantity: 100
+Reason: INITIAL_STOCK
+Effect: Inventory increases to 100 units</code></pre>
+        <p><strong>Audit Severity:</strong> HIGH</p>
+        <hr />
+        <h3 id="manual_update">MANUAL_UPDATE</h3>
+        <p><strong>Category:</strong> Administrative</p>
+        <p><strong>Description:</strong> Manual administrative
+        adjustment for inventory discrepancies discovered during
+        physical counts or system corrections.</p>
+        <p><strong>Business Impact:</strong> - Requires manager approval
+        - Used for physical count reconciliation - Records
+        discrepancies</p>
+        <p><strong>Approval Required:</strong> Yes (Manager)</p>
+        <p><strong>Affects Quantity:</strong> Yes</p>
+        <p><strong>Compliance Documentation:</strong> No</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Physical count found: 95 units (system: 100)
+Adjustment: -5 units
+Reason: MANUAL_UPDATE
+Effect: Inventory corrected to 95 units</code></pre>
+        <p><strong>Audit Severity:</strong> MEDIUM</p>
+        <hr />
+        <h3 id="price_change">PRICE_CHANGE</h3>
+        <p><strong>Category:</strong> Administrative</p>
+        <p><strong>Description:</strong> Price adjustment without
+        quantity impact. Used for cost updates, supplier price changes,
+        or financial corrections.</p>
+        <p><strong>Business Impact:</strong> - Financial reporting
+        classification - Affects cost basis and COGS - No quantity
+        change</p>
+        <p><strong>Approval Required:</strong> No (Financial team
+        reviews)</p>
+        <p><strong>Affects Quantity:</strong> No (only affects financial
+        valuation)</p>
+        <p><strong>Compliance Documentation:</strong> No</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Supplier price update: $10 → $12 per unit
+Quantity: 100 units (unchanged)
+Reason: PRICE_CHANGE
+Effect: Total value increases from $1,000 to $1,200</code></pre>
+        <p><strong>Audit Severity:</strong> LOW</p>
+        <hr />
+        <h3 id="sold">SOLD</h3>
+        <p><strong>Category:</strong> Customer Transaction</p>
+        <p><strong>Description:</strong> Customer purchase transaction.
+        Revenue recognition and COGS calculation trigger.</p>
+        <p><strong>Business Impact:</strong> - Revenue recognition event
+        - COGS calculation trigger - Customer satisfaction metric -
+        Sales tracking</p>
+        <p><strong>Approval Required:</strong> No (auto-confirmed on
+        order)</p>
+        <p><strong>Affects Quantity:</strong> Yes (decreases)</p>
+        <p><strong>Compliance Documentation:</strong> No</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Order #ORD-001: Customer purchased 50 units
+Price per unit: $12
+Reason: SOLD
+Effect: Inventory decreases to 50 units, Revenue = $600</code></pre>
+        <p><strong>Audit Severity:</strong> HIGH</p>
+        <hr />
+        <h3 id="scrapped">SCRAPPED</h3>
+        <p><strong>Category:</strong> Quality Control</p>
+        <p><strong>Description:</strong> Quality control removal for
+        damaged, defective, or non-conforming items permanently removed
+        from inventory.</p>
+        <p><strong>Business Impact:</strong> - Loss prevention tracking
+        - Quality metrics - Waste accounting - Potential supplier
+        quality reviews</p>
+        <p><strong>Approval Required:</strong> No (QC decision)</p>
+        <p><strong>Affects Quantity:</strong> Yes (decreases)</p>
+        <p><strong>Compliance Documentation:</strong> No</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Quality inspection identified: 5 defective units
+Action: Permanent removal
+Reason: SCRAPPED
+Effect: Inventory decreases by 5 units</code></pre>
+        <p><strong>Audit Severity:</strong> MEDIUM</p>
+        <hr />
+        <h3 id="destroyed">DESTROYED</h3>
+        <p><strong>Category:</strong> Catastrophic Loss</p>
+        <p><strong>Description:</strong> Catastrophic loss requiring
+        insurance claim documentation. Represents major unrecoverable
+        loss events.</p>
+        <p><strong>Business Impact:</strong> - Insurance claim trigger -
+        Asset write-off trigger - Loss investigation requirement -
+        Potential legal/regulatory implications</p>
+        <p><strong>Approval Required:</strong> Yes (Manager approval
+        mandatory)</p>
+        <p><strong>Affects Quantity:</strong> Yes (decreases
+        significantly)</p>
+        <p><strong>Compliance Documentation:</strong> Yes (Insurance
+        claim required)</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Warehouse fire destroyed inventory
+Estimated loss: $50,000
+Reason: DESTROYED
+Effect: Total inventory write-off, Insurance claim filed</code></pre>
+        <p><strong>Audit Severity:</strong> CRITICAL</p>
+        <hr />
+        <h3 id="damaged">DAMAGED</h3>
+        <p><strong>Category:</strong> Quality Control</p>
+        <p><strong>Description:</strong> Temporary quality hold for
+        items pending repair, assessment, or disposition decision. Not a
+        permanent removal.</p>
+        <p><strong>Business Impact:</strong> - Operational impact
+        tracking - Temporary inventory exclusion - Potential recovery
+        option - Quality hold period monitoring</p>
+        <p><strong>Approval Required:</strong> No (Quality team
+        decision)</p>
+        <p><strong>Affects Quantity:</strong> Yes (temporarily excluded
+        from available inventory)</p>
+        <p><strong>Compliance Documentation:</strong> No</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Inspection found: 10 units with shipping damage
+Action: Hold for assessment
+Reason: DAMAGED
+Effect: Inventory held, pending repair evaluation</code></pre>
+        <p><strong>Audit Severity:</strong> LOW</p>
+        <hr />
+        <h3 id="expired">EXPIRED</h3>
+        <p><strong>Category:</strong> Regulatory Compliance</p>
+        <p><strong>Description:</strong> Expiration date breach removal.
+        Regulatory compliance requirement for perishable or
+        time-sensitive goods.</p>
+        <p><strong>Business Impact:</strong> - Regulatory compliance -
+        Waste management - Quality assurance - Potential liability
+        reduction</p>
+        <p><strong>Approval Required:</strong> No (Auto-detected on date
+        check)</p>
+        <p><strong>Affects Quantity:</strong> Yes (decreases)</p>
+        <p><strong>Compliance Documentation:</strong> Yes (Disposal
+        records required)</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Expiration date breach detected: 20 units expired 11/15/2025
+Current date: 11/19/2025
+Reason: EXPIRED
+Effect: Inventory removed permanently, Disposal documented</code></pre>
+        <p><strong>Audit Severity:</strong> CRITICAL</p>
+        <hr />
+        <h3 id="lost">LOST</h3>
+        <p><strong>Category:</strong> Security Incident</p>
+        <p><strong>Description:</strong> Inventory shrinkage for
+        unaccounted losses. Represents items that cannot be located in
+        warehouse or system.</p>
+        <p><strong>Business Impact:</strong> - Security review trigger -
+        Shrinkage analysis - Warehouse process review - Potential theft
+        investigation</p>
+        <p><strong>Approval Required:</strong> Yes (Manager approval
+        required)</p>
+        <p><strong>Affects Quantity:</strong> Yes (decreases)</p>
+        <p><strong>Compliance Documentation:</strong> Yes (Shrinkage
+        report required)</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Cycle count variance: 15 units missing
+Cannot locate in warehouse
+Reason: LOST
+Effect: Inventory decreased, Shrinkage investigation initiated</code></pre>
+        <p><strong>Audit Severity:</strong> CRITICAL</p>
+        <hr />
+        <h3 id="returned_to_supplier">RETURNED_TO_SUPPLIER</h3>
+        <p><strong>Category:</strong> Supplier Transaction</p>
+        <p><strong>Description:</strong> Vendor return for defective,
+        incorrect, or surplus merchandise. Supplier performance tracking
+        trigger.</p>
+        <p><strong>Business Impact:</strong> - Supplier performance
+        tracking - Return process management - Inventory recovery - Cost
+        recovery attempt</p>
+        <p><strong>Approval Required:</strong> No (Supplier
+        coordination)</p>
+        <p><strong>Affects Quantity:</strong> Yes (decreases)</p>
+        <p><strong>Compliance Documentation:</strong> No (RMA process
+        applies)</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Return merchandise authorization (RMA): RMA-5432
+Reason: Defective merchandise from batch
+Items returned: 8 units
+Reason: RETURNED_TO_SUPPLIER
+Effect: Inventory decreases, Cost recovery pending</code></pre>
+        <p><strong>Audit Severity:</strong> MEDIUM</p>
+        <hr />
+        <h3 id="returned_by_customer">RETURNED_BY_CUSTOMER</h3>
+        <p><strong>Category:</strong> Customer Transaction</p>
+        <p><strong>Description:</strong> Customer return processing.
+        Customer satisfaction and refund management trigger.</p>
+        <p><strong>Business Impact:</strong> - Customer satisfaction -
+        Refund management - Return process tracking - Potential
+        restocking - Customer feedback</p>
+        <p><strong>Approval Required:</strong> No (Customer service)</p>
+        <p><strong>Affects Quantity:</strong> Yes (increases, if
+        restockable)</p>
+        <p><strong>Compliance Documentation:</strong> No</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Return request: Customer found items defective
+Order: ORD-001, Quantity: 5 units
+Reason: RETURNED_BY_CUSTOMER
+Effect: Inventory increased by 5 units, Refund processed</code></pre>
+        <p><strong>Audit Severity:</strong> LOW</p>
+        <hr />
+        <h2 id="reason-categories">Reason Categories</h2>
+        <h3 id="by-business-domain">By Business Domain</h3>
+        <p><strong>Initial Operations:</strong> - INITIAL_STOCK</p>
+        <p><strong>Administrative:</strong> - MANUAL_UPDATE -
+        PRICE_CHANGE</p>
+        <p><strong>Customer Transactions:</strong> - SOLD -
+        RETURNED_BY_CUSTOMER</p>
+        <p><strong>Quality Control:</strong> - DAMAGED - SCRAPPED</p>
+        <p><strong>Security/Compliance:</strong> - DESTROYED - EXPIRED -
+        LOST</p>
+        <p><strong>Supplier Relations:</strong> -
+        RETURNED_TO_SUPPLIER</p>
+        <h3 id="by-quantity-impact">By Quantity Impact</h3>
+        <p><strong>Affects Quantity (11):</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>INITIAL_STOCK<span class="op">,</span> MANUAL_UPDATE<span class="op">,</span> SOLD<span class="op">,</span> SCRAPPED<span class="op">,</span> DESTROYED<span class="op">,</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>DAMAGED<span class="op">,</span> EXPIRED<span class="op">,</span> LOST<span class="op">,</span> RETURNED_TO_SUPPLIER<span class="op">,</span> RETURNED_BY_CUSTOMER</span></code></pre></div>
+        <p><strong>Does NOT Affect Quantity (1):</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>PRICE_CHANGE</span></code></pre></div>
+        <hr />
+        <h2 id="enum-methods">Enum Methods</h2>
+        <h3 id="instance-methods">Instance Methods</h3>
+        <h4 id="requiresmanagerapproval">requiresManagerApproval()</h4>
+        <p>Returns <code>true</code> if the reason requires
+        manager-level approval before recording.</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">requiresManagerApproval</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong> true for:
+        <code>MANUAL_UPDATE</code>, <code>DESTROYED</code>,
+        <code>LOST</code></p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>StockChangeReason reason <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">DESTROYED</span><span class="op">;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>reason<span class="op">.</span><span class="fu">requiresManagerApproval</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Require manager signature before processing</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">requireManagerApproval</span><span class="op">(</span>reason<span class="op">);</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4 id="affectsquantity">affectsQuantity()</h4>
+        <p>Checks if this reason represents a quantity change.</p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">affectsQuantity</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong> false only for
+        <code>PRICE_CHANGE</code>, true for all others</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>reason<span class="op">.</span><span class="fu">affectsQuantity</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    inventory<span class="op">.</span><span class="fu">adjustQuantity</span><span class="op">(</span>change<span class="op">);</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4 id="islossreason">isLossReason()</h4>
+        <p>Determines if this reason represents a financial loss.</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isLossReason</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong> true for: <code>SCRAPPED</code>,
+        <code>DESTROYED</code>, <code>EXPIRED</code>,
+        <code>LOST</code></p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>reason<span class="op">.</span><span class="fu">isLossReason</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    financialReport<span class="op">.</span><span class="fu">recordLoss</span><span class="op">(</span>amount<span class="op">);</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4
+        id="requirescompliancedocumentation">requiresComplianceDocumentation()</h4>
+        <p>Checks if compliance documentation is required.</p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">requiresComplianceDocumentation</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong> true for: <code>EXPIRED</code>,
+        <code>DESTROYED</code>, <code>LOST</code></p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>reason<span class="op">.</span><span class="fu">requiresComplianceDocumentation</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    complianceSystem<span class="op">.</span><span class="fu">createDocument</span><span class="op">(</span>reason<span class="op">);</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4 id="getauditseverity">getAuditSeverity()</h4>
+        <p>Returns the audit severity level for this reason.</p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> AuditSeverity <span class="fu">getAuditSeverity</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong> <code>AuditSeverity</code> enum
+        value</p>
+        <p><strong>Mapping:</strong> - <code>CRITICAL</code>: DESTROYED,
+        LOST - <code>HIGH</code>: INITIAL_STOCK, SOLD -
+        <code>MEDIUM</code>: MANUAL_UPDATE, SCRAPPED, EXPIRED -
+        <code>LOW</code>: PRICE_CHANGE, DAMAGED, RETURNED_BY_CUSTOMER,
+        RETURNED_TO_SUPPLIER</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>AuditSeverity severity <span class="op">=</span> reason<span class="op">.</span><span class="fu">getAuditSeverity</span><span class="op">();</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">log</span><span class="op">(</span>severity<span class="op">.</span><span class="fu">getLogLevel</span><span class="op">(),</span> <span class="st">&quot;Stock change: &quot;</span> <span class="op">+</span> reason<span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h3 id="static-classification-methods">Static Classification
+        Methods</h3>
+        <h4 id="getlossreasons">getLossReasons()</h4>
+        <p>Returns all reasons representing inventory losses.</p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> <span class="fu">getLossReasons</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong></p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>SCRAPPED<span class="op">,</span> DESTROYED<span class="op">,</span> EXPIRED<span class="op">,</span> LOST<span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> losses <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">getLossReasons</span><span class="op">();</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">BigDecimal</span> totalLoss <span class="op">=</span> stockHistory<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">filter</span><span class="op">(</span>h <span class="op">-&gt;</span> losses<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>h<span class="op">.</span><span class="fu">getReason</span><span class="op">()))</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">map</span><span class="op">(</span>StockHistory<span class="op">::</span>getAmount<span class="op">)</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">reduce</span><span class="op">(</span><span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">ZERO</span><span class="op">,</span> <span class="bu">BigDecimal</span><span class="op">::</span>add<span class="op">);</span></span></code></pre></div>
+        <h4 id="getcustomerreasons">getCustomerReasons()</h4>
+        <p>Returns all reasons representing customer transactions.</p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> <span class="fu">getCustomerReasons</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong></p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>SOLD<span class="op">,</span> RETURNED_BY_CUSTOMER<span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> customerTransactions <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">getCustomerReasons</span><span class="op">();</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>customerTransactions<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>reason<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    customerAnalytics<span class="op">.</span><span class="fu">recordTransaction</span><span class="op">(</span>reason<span class="op">);</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4 id="getsupplierreasons">getSupplierReasons()</h4>
+        <p>Returns all reasons representing supplier transactions.</p>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> <span class="fu">getSupplierReasons</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong></p>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>RETURNED_TO_SUPPLIER<span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb33"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">getSupplierReasons</span><span class="op">().</span><span class="fu">contains</span><span class="op">(</span>reason<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    supplierPerformance<span class="op">.</span><span class="fu">recordReturn</span><span class="op">(</span>reason<span class="op">);</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4
+        id="getsecuritysensitivereasons">getSecuritySensitiveReasons()</h4>
+        <p>Returns all reasons requiring security investigation.</p>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> <span class="fu">getSecuritySensitiveReasons</span><span class="op">()</span></span></code></pre></div>
+        <p><strong>Returns:</strong></p>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>LOST<span class="op">,</span> DESTROYED<span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb36"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">getSecuritySensitiveReasons</span><span class="op">().</span><span class="fu">contains</span><span class="op">(</span>reason<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    securityAlert<span class="op">.</span><span class="fu">notifyWarehouse</span><span class="op">(</span>reason<span class="op">);</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4 id="parsereasonstring">parseReason(String)</h4>
+        <p>Safely parses a string to <code>StockChangeReason</code> with
+        detailed error handling.</p>
+        <div class="sourceCode" id="cb37"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> StockChangeReason <span class="fu">parseReason</span><span class="op">(</span><span class="bu">String</span> reasonString<span class="op">)</span></span></code></pre></div>
+        <p><strong>Features:</strong> - Null/empty check with
+        descriptive error - Case-insensitive parsing - Clear error
+        messages listing valid options</p>
+        <p><strong>Parameters:</strong> - <code>reasonString</code> -
+        String to parse (may be null)</p>
+        <p><strong>Returns:</strong> Corresponding enum value</p>
+        <p><strong>Throws:</strong>
+        <code>IllegalArgumentException</code> with helpful error
+        message</p>
+        <p><strong>Examples:</strong></p>
+        <div class="sourceCode" id="cb38"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Valid parses</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>StockChangeReason r1 <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;SOLD&quot;</span><span class="op">);</span>           <span class="co">// ✅</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>StockChangeReason r2 <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;sold&quot;</span><span class="op">);</span>           <span class="co">// ✅ (case-insensitive)</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>StockChangeReason r3 <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;  DAMAGED  &quot;</span><span class="op">);</span>    <span class="co">// ✅ (trimmed)</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Invalid parses</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>StockChangeReason r4 <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;INVALID&quot;</span><span class="op">);</span>        <span class="co">// ❌ Throws exception</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>StockChangeReason r5 <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="kw">null</span><span class="op">);</span>             <span class="co">// ❌ Throws exception</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>StockChangeReason r6 <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;&quot;</span><span class="op">);</span>               <span class="co">// ❌ Throws exception</span></span></code></pre></div>
+        <p><strong>Error Message Example:</strong></p>
+        <pre><code>Invalid stock change reason &#39;INVALID&#39;. Valid options: 
+[INITIAL_STOCK, MANUAL_UPDATE, PRICE_CHANGE, SOLD, SCRAPPED, 
+ DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER, RETURNED_BY_CUSTOMER]</code></pre>
+        <hr />
+        <h2 id="nested-enum-auditseverity">Nested Enum:
+        AuditSeverity</h2>
+        <p>Classifies the severity level of stock change for audit and
+        compliance purposes.</p>
+        <div class="sourceCode" id="cb40"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> AuditSeverity <span class="op">{</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    LOW<span class="op">,</span>        <span class="co">// Routine operations</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    MEDIUM<span class="op">,</span>     <span class="co">// Administrative adjustments</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    HIGH<span class="op">,</span>       <span class="co">// Revenue-impacting transactions</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    CRITICAL    <span class="co">// Loss events requiring investigation</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="severity-levels">Severity Levels</h3>
+        <table>
+        <colgroup>
+        <col style="width: 20%" />
+        <col style="width: 29%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Level</th>
+        <th>Examples</th>
+        <th>Action Required</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>LOW</code></td>
+        <td>PRICE_CHANGE, DAMAGED, customer returns</td>
+        <td>Monitor, routine logging</td>
+        </tr>
+        <tr class="even">
+        <td><code>MEDIUM</code></td>
+        <td>MANUAL_UPDATE, SCRAPPED, EXPIRED</td>
+        <td>Review, document reason</td>
+        </tr>
+        <tr class="odd">
+        <td><code>HIGH</code></td>
+        <td>INITIAL_STOCK, SOLD</td>
+        <td>Track closely, audit trail</td>
+        </tr>
+        <tr class="even">
+        <td><code>CRITICAL</code></td>
+        <td>DESTROYED, LOST</td>
+        <td>Immediate escalation, investigation</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="database-schema">Database Schema</h2>
+        <h3 id="storage">Storage</h3>
+        <p>The enum is persisted as a STRING in the
+        <code>stock_history</code> table:</p>
+        <div class="sourceCode" id="cb41"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> stock_history <span class="kw">ADD</span> <span class="kw">COLUMN</span> reason <span class="dt">VARCHAR</span>(<span class="dv">30</span>);</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- Recommended index for frequent filtering</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_stock_history_reason <span class="kw">ON</span> stock_history(reason);</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- Values: &#39;INITIAL_STOCK&#39;, &#39;SOLD&#39;, &#39;DAMAGED&#39;, etc.</span></span></code></pre></div>
+        <h3 id="sample-data">Sample Data</h3>
+        <div class="sourceCode" id="cb42"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Initial stock entry</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> stock_history (<span class="kw">id</span>, item_id, <span class="kw">change</span>, reason, created_by, created_at)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="st">&#39;SH-001&#39;</span>, <span class="st">&#39;ITEM-001&#39;</span>, <span class="dv">100</span>, <span class="st">&#39;INITIAL_STOCK&#39;</span>, <span class="st">&#39;system&#39;</span>, NOW());</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- Customer sale</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> stock_history (<span class="kw">id</span>, item_id, <span class="kw">change</span>, reason, created_by, created_at)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="st">&#39;SH-002&#39;</span>, <span class="st">&#39;ITEM-001&#39;</span>, <span class="op">-</span><span class="dv">50</span>, <span class="st">&#39;SOLD&#39;</span>, <span class="st">&#39;order@system&#39;</span>, NOW());</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- Loss event</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="kw">INSERT</span> <span class="kw">INTO</span> stock_history (<span class="kw">id</span>, item_id, <span class="kw">change</span>, reason, created_by, created_at)</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a><span class="kw">VALUES</span> (<span class="st">&#39;SH-003&#39;</span>, <span class="st">&#39;ITEM-001&#39;</span>, <span class="op">-</span><span class="dv">5</span>, <span class="st">&#39;LOST&#39;</span>, <span class="st">&#39;warehouse-mgr&#39;</span>, NOW());</span></code></pre></div>
+        <hr />
+        <h2 id="dto-serialization">DTO Serialization</h2>
+        <h3 id="stockhistorydto">StockHistoryDTO</h3>
+        <div class="sourceCode" id="cb43"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistoryDTO <span class="op">{</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> itemId<span class="op">;</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Integer</span> change<span class="op">;</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> reason<span class="op">;</span>              <span class="co">// Serialized as string</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime timestamp<span class="op">;</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="api-examples">API Examples</h3>
+        <p><strong>Request:</strong></p>
+        <div class="sourceCode" id="cb44"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="er">POST</span> <span class="er">/api/stock-history</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;change&quot;</span><span class="fu">:</span> <span class="dv">-50</span><span class="fu">,</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SOLD&quot;</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb45"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SH-002&quot;</span><span class="fu">,</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;ITEM-001&quot;</span><span class="fu">,</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;change&quot;</span><span class="fu">:</span> <span class="dv">-50</span><span class="fu">,</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SOLD&quot;</span><span class="fu">,</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;order@system&quot;</span><span class="fu">,</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-19T14:30:00Z&quot;</span></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="mapper-integration">Mapper Integration</h3>
+        <div class="sourceCode" id="cb46"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistoryMapper <span class="op">{</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> StockHistoryDTO <span class="fu">toDTO</span><span class="op">(</span>StockHistory entity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> StockHistoryDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getId</span><span class="op">())</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">itemId</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getItemId</span><span class="op">())</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">change</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getChange</span><span class="op">())</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getReason</span><span class="op">().</span><span class="fu">name</span><span class="op">())</span>              <span class="co">// enum → string</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getCreatedBy</span><span class="op">())</span></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">timestamp</span><span class="op">(</span>entity<span class="op">.</span><span class="fu">getCreatedAt</span><span class="op">())</span></span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> StockHistory <span class="fu">toEntity</span><span class="op">(</span>StockHistoryDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">itemId</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getItemId</span><span class="op">())</span></span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">change</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getChange</span><span class="op">())</span></span>
+<span id="cb46-18"><a href="#cb46-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getReason</span><span class="op">()))</span>  <span class="co">// string → enum</span></span>
+<span id="cb46-19"><a href="#cb46-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="fu">getCurrentUser</span><span class="op">())</span></span>
+<span id="cb46-20"><a href="#cb46-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb46-21"><a href="#cb46-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb46-22"><a href="#cb46-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb46-23"><a href="#cb46-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="validation">Validation</h2>
+        <h3 id="spring-validation">Spring Validation</h3>
+        <div class="sourceCode" id="cb47"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Target</span><span class="op">(</span><span class="bu">ElementType</span><span class="op">.</span><span class="fu">FIELD</span><span class="op">)</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Retention</span><span class="op">(</span><span class="bu">RetentionPolicy</span><span class="op">.</span><span class="fu">RUNTIME</span><span class="op">)</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Constraint</span><span class="op">(</span>validatedBy <span class="op">=</span> ValidStockChangeReasonValidator<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="at">@interface</span> ValidStockChangeReason <span class="op">{</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> <span class="fu">message</span><span class="op">()</span> <span class="kw">default</span> <span class="st">&quot;Invalid stock change reason&quot;</span><span class="op">;</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Class</span><span class="op">&lt;?&gt;[]</span> <span class="fu">groups</span><span class="op">()</span> <span class="kw">default</span> <span class="op">{};</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Class</span><span class="op">&lt;?</span> <span class="kw">extends</span> Payload<span class="op">&gt;[]</span> <span class="fu">payload</span><span class="op">()</span> <span class="kw">default</span> <span class="op">{};</span></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ValidStockChangeReasonValidator </span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">implements</span> ConstraintValidator<span class="op">&lt;</span>ValidStockChangeReason<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isValid</span><span class="op">(</span><span class="bu">String</span> value<span class="op">,</span> ConstraintValidatorContext context<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>            StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">IllegalArgumentException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb47-21"><a href="#cb47-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb47-22"><a href="#cb47-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="dto-validation">DTO Validation</h3>
+        <div class="sourceCode" id="cb48"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistoryDTO <span class="op">{</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Item ID is required&quot;</span><span class="op">)</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> itemId<span class="op">;</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Change quantity is required&quot;</span><span class="op">)</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Integer</span> change<span class="op">;</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Stock change reason is required&quot;</span><span class="op">)</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ValidStockChangeReason</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Invalid stock change reason&quot;</span><span class="op">)</span></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> reason<span class="op">;</span></span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing">Testing</h2>
+        <h3 id="unit-tests">Unit Tests</h3>
+        <div class="sourceCode" id="cb49"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testStockChangeReasonMethods</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test requiresManagerApproval</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">DESTROYED</span><span class="op">.</span><span class="fu">requiresManagerApproval</span><span class="op">());</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertFalse</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">.</span><span class="fu">requiresManagerApproval</span><span class="op">());</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test affectsQuantity</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">.</span><span class="fu">affectsQuantity</span><span class="op">());</span></span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertFalse</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">PRICE_CHANGE</span><span class="op">.</span><span class="fu">affectsQuantity</span><span class="op">());</span></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test isLossReason</span></span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">DESTROYED</span><span class="op">.</span><span class="fu">isLossReason</span><span class="op">());</span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertFalse</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">.</span><span class="fu">isLossReason</span><span class="op">());</span></span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test requiresComplianceDocumentation</span></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">EXPIRED</span><span class="op">.</span><span class="fu">requiresComplianceDocumentation</span><span class="op">());</span></span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertFalse</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">DAMAGED</span><span class="op">.</span><span class="fu">requiresComplianceDocumentation</span><span class="op">());</span></span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testEnumClassification</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> losses <span class="op">=</span> StockChangeReason<span class="op">.</span><span class="fu">getLossReasons</span><span class="op">();</span></span>
+<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">4</span><span class="op">,</span> losses<span class="op">.</span><span class="fu">size</span><span class="op">());</span></span>
+<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span>losses<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">DESTROYED</span><span class="op">));</span></span>
+<span id="cb49-25"><a href="#cb49-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertTrue</span><span class="op">(</span>losses<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">LOST</span><span class="op">));</span></span>
+<span id="cb49-26"><a href="#cb49-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertFalse</span><span class="op">(</span>losses<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">));</span></span>
+<span id="cb49-27"><a href="#cb49-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb49-28"><a href="#cb49-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-29"><a href="#cb49-29" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb49-30"><a href="#cb49-30" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testReasonParsing</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb49-31"><a href="#cb49-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Valid</span></span>
+<span id="cb49-32"><a href="#cb49-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">,</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;SOLD&quot;</span><span class="op">));</span></span>
+<span id="cb49-33"><a href="#cb49-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">DAMAGED</span><span class="op">,</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;  DAMAGED  &quot;</span><span class="op">));</span></span>
+<span id="cb49-34"><a href="#cb49-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb49-35"><a href="#cb49-35" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Invalid</span></span>
+<span id="cb49-36"><a href="#cb49-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span></span>
+<span id="cb49-37"><a href="#cb49-37" aria-hidden="true" tabindex="-1"></a>        <span class="op">()</span> <span class="op">-&gt;</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="st">&quot;INVALID&quot;</span><span class="op">));</span></span>
+<span id="cb49-38"><a href="#cb49-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span></span>
+<span id="cb49-39"><a href="#cb49-39" aria-hidden="true" tabindex="-1"></a>        <span class="op">()</span> <span class="op">-&gt;</span> StockChangeReason<span class="op">.</span><span class="fu">parseReason</span><span class="op">(</span><span class="kw">null</span><span class="op">));</span></span>
+<span id="cb49-40"><a href="#cb49-40" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb49-41"><a href="#cb49-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-42"><a href="#cb49-42" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb49-43"><a href="#cb49-43" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testAuditSeverity</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb49-44"><a href="#cb49-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>AuditSeverity<span class="op">.</span><span class="fu">CRITICAL</span><span class="op">,</span> StockChangeReason<span class="op">.</span><span class="fu">DESTROYED</span><span class="op">.</span><span class="fu">getAuditSeverity</span><span class="op">());</span></span>
+<span id="cb49-45"><a href="#cb49-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>AuditSeverity<span class="op">.</span><span class="fu">HIGH</span><span class="op">,</span> StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">.</span><span class="fu">getAuditSeverity</span><span class="op">());</span></span>
+<span id="cb49-46"><a href="#cb49-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>AuditSeverity<span class="op">.</span><span class="fu">LOW</span><span class="op">,</span> StockChangeReason<span class="op">.</span><span class="fu">PRICE_CHANGE</span><span class="op">.</span><span class="fu">getAuditSeverity</span><span class="op">());</span></span>
+<span id="cb49-47"><a href="#cb49-47" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="integration-tests">Integration Tests</h3>
+        <div class="sourceCode" id="cb50"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> StockChangeReasonIT <span class="op">{</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> StockHistoryRepository repository<span class="op">;</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testPersistenceWithEnum</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>        StockHistory history <span class="op">=</span> StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">itemId</span><span class="op">(</span><span class="st">&quot;ITEM-001&quot;</span><span class="op">)</span></span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">change</span><span class="op">(-</span><span class="dv">50</span><span class="op">)</span></span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">)</span></span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;order@system&quot;</span><span class="op">)</span></span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>history<span class="op">);</span></span>
+<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a>        StockHistory retrieved <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>history<span class="op">.</span><span class="fu">getId</span><span class="op">()).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">,</span> retrieved<span class="op">.</span><span class="fu">getReason</span><span class="op">());</span></span>
+<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(-</span><span class="dv">50</span><span class="op">,</span> retrieved<span class="op">.</span><span class="fu">getChange</span><span class="op">());</span></span>
+<span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb50-24"><a href="#cb50-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb50-25"><a href="#cb50-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb50-26"><a href="#cb50-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testReasonQuery</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb50-27"><a href="#cb50-27" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb50-28"><a href="#cb50-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SOLD</span><span class="op">)</span></span>
+<span id="cb50-29"><a href="#cb50-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">itemId</span><span class="op">(</span><span class="st">&quot;ITEM-001&quot;</span><span class="op">)</span></span>
+<span id="cb50-30"><a href="#cb50-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">change</span><span class="op">(-</span><span class="dv">50</span><span class="op">)</span></span>
+<span id="cb50-31"><a href="#cb50-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb50-32"><a href="#cb50-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">());</span></span>
+<span id="cb50-33"><a href="#cb50-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb50-34"><a href="#cb50-34" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb50-35"><a href="#cb50-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">DAMAGED</span><span class="op">)</span></span>
+<span id="cb50-36"><a href="#cb50-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">itemId</span><span class="op">(</span><span class="st">&quot;ITEM-001&quot;</span><span class="op">)</span></span>
+<span id="cb50-37"><a href="#cb50-37" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">change</span><span class="op">(</span><span class="dv">0</span><span class="op">)</span></span>
+<span id="cb50-38"><a href="#cb50-38" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb50-39"><a href="#cb50-39" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">());</span></span>
+<span id="cb50-40"><a href="#cb50-40" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb50-41"><a href="#cb50-41" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span>StockHistory<span class="op">&gt;</span> losses <span class="op">=</span> repository</span>
+<span id="cb50-42"><a href="#cb50-42" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">findByReasonIn</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">getLossReasons</span><span class="op">());</span></span>
+<span id="cb50-43"><a href="#cb50-43" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> losses<span class="op">.</span><span class="fu">size</span><span class="op">());</span>  <span class="co">// SOLD and DAMAGED are not losses</span></span>
+<span id="cb50-44"><a href="#cb50-44" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb50-45"><a href="#cb50-45" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <p>✅ <strong>DO:</strong> - Always use enum values in code (not
+        string literals) - Use <code>parseReason()</code> for external
+        input validation - Call appropriate classification methods
+        before business logic - Document which reasons trigger approvals
+        or compliance steps - Use <code>EnumSet</code> for efficient
+        reason classification - Test enum method logic thoroughly</p>
+        <p>❌ <strong>DON’T:</strong> - Hardcode reason strings in code
+        - Forget to validate reason strings from API inputs - Ignore
+        <code>requiresManagerApproval()</code> checks - Skip compliance
+        documentation for sensitive reasons - Use ordinals for
+        persistence - Add reasons without updating documentation</p>
+        <hr />
+        <h2 id="migration-path">Migration Path</h2>
+        <h3 id="adding-a-new-reason">Adding a New Reason</h3>
+        <p><strong>Step 1: Update Enum</strong></p>
+        <div class="sourceCode" id="cb51"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> StockChangeReason <span class="op">{</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    INITIAL_STOCK<span class="op">,</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    MANUAL_UPDATE<span class="op">,</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    PRICE_CHANGE<span class="op">,</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    SOLD<span class="op">,</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... existing reasons ...</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    CUSTOMER_DONATION<span class="op">,</span>  <span class="co">// New reason</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Step 2: Update Methods</strong></p>
+        <div class="sourceCode" id="cb52"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">requiresManagerApproval</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cf">switch</span> <span class="op">(</span><span class="kw">this</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> MANUAL_UPDATE<span class="op">,</span> DESTROYED<span class="op">,</span> LOST<span class="op">,</span> CUSTOMER_DONATION <span class="op">-&gt;</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ...</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Add to appropriate classification methods</span></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="bu">Set</span><span class="op">&lt;</span>StockChangeReason<span class="op">&gt;</span> <span class="fu">getCustomerReasons</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">EnumSet</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span>SOLD<span class="op">,</span> RETURNED_BY_CUSTOMER<span class="op">,</span> CUSTOMER_DONATION<span class="op">);</span></span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Step 3: Update Database (No migration
+        needed)</strong> - VARCHAR(30) accommodates all reason strings -
+        No data migration required</p>
+        <p><strong>Step 4: Update Documentation</strong> - Add section
+        in this document - Update related DTOs - Update validation rules
+        if needed</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <p><strong>Architecture:</strong> - <a href="./index.html">Enums
+        Hub</a> - Overview of all enums - <a href="../model.html">Data
+        Models &amp; Entities</a> - Entity definitions - <a
+        href="../dto/index.html">DTOs &amp; Data Transfer Objects</a> -
+        Serialization patterns</p>
+        <p><strong>Code Examples:</strong> - <a
+        href="../../model/StockHistory.java">StockHistory Entity</a> -
+        <a
+        href="../../mapper/StockHistoryMapper.java">StockHistoryMapper</a>
+        - <a
+        href="../../validation/StockHistoryValidator.java">StockHistoryValidator</a></p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Enums Hub</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
