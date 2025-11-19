@@ -26,13 +26,13 @@ Handles all HTTP concerns: routing, request/response mapping, validation trigger
 - `AuthController` - OAuth2 callbacks
 
 **Responsibilities:**
-- Route HTTP requests to handlers
-- Validate incoming DTOs
-- Check user authorization
-- Convert HTTP ↔ DTOs
-- Build HTTP responses with proper status codes
+- [Route HTTP requests to handlers](./controller/routing.md)
+- [Validate incoming DTOs](./controller/validation.md)
+- [Check user authorization](./controller/authorization.md)
+- [Convert HTTP ↔ DTOs](./controller/dto-conversion-inbound.md)
+- [Build HTTP responses with proper status codes](./controller/response-building.md)
 
-**Learn More:** [📄 Controller Layer](./controller-layer.html)
+**Learn More:** [📄 Controller Layer](./controller/index.html)
 
 ---
 
