@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/service/audit-logging · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#audit-logging" id="toc-audit-logging">Audit
+        Logging</a>
+        <ul>
+        <li><a href="#pattern-overview"
+        id="toc-pattern-overview">Pattern Overview</a></li>
+        <li><a href="#core-implementation"
+        id="toc-core-implementation">Core Implementation</a></li>
+        <li><a href="#setting-audit-fields-in-service"
+        id="toc-setting-audit-fields-in-service">Setting Audit Fields in
+        Service</a></li>
+        <li><a href="#automatic-timestamp-management"
+        id="toc-automatic-timestamp-management">Automatic Timestamp
+        Management</a></li>
+        <li><a href="#query-example-filter-by-user"
+        id="toc-query-example-filter-by-user">Query Example: Filter by
+        User</a></li>
+        <li><a href="#audit-trail-example"
+        id="toc-audit-trail-example">Audit Trail Example</a></li>
+        <li><a href="#stockhistory-immutable-audit-trail"
+        id="toc-stockhistory-immutable-audit-trail">StockHistory:
+        Immutable Audit Trail</a></li>
+        <li><a href="#anti-pattern-missing-audit-fields"
+        id="toc-anti-pattern-missing-audit-fields">Anti-Pattern: Missing
+        Audit Fields</a></li>
+        <li><a href="#best-practice-complete-audit-trail"
+        id="toc-best-practice-complete-audit-trail">Best Practice:
+        Complete Audit Trail</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="audit-logging">Audit Logging</h1>
+        <h2 id="pattern-overview">Pattern Overview</h2>
+        <p>Changes are tracked through <code>createdBy</code>,
+        <code>createdAt</code>, <code>updatedBy</code>, and
+        <code>updatedAt</code> fields set via Spring Security
+        context.</p>
+        <h2 id="core-implementation">Core Implementation</h2>
+        <p>Audit fields are immutable fields populated from Spring
+        Security:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@GeneratedValue</span><span class="op">(</span>strategy <span class="op">=</span> GenerationType<span class="op">.</span><span class="fu">UUID</span><span class="op">)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;NAME&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> unique <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Audit fields</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_AT&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">@CreationTimestamp</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;UPDATED_BY&quot;</span><span class="op">)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> updatedBy<span class="op">;</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;UPDATED_AT&quot;</span><span class="op">)</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">@UpdateTimestamp</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime updatedAt<span class="op">;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="setting-audit-fields-in-service">Setting Audit Fields in
+        Service</h2>
+        <p>Services set audit fields from the current authenticated
+        user:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierMapper mapper<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Get current user from SecurityContext</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> currentUser <span class="op">=</span> <span class="fu">getCurrentUsername</span><span class="op">();</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Set audit fields</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setCreatedBy</span><span class="op">(</span>currentUser<span class="op">);</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setCreatedAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">());</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">));</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">update</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> UpdateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Not found&quot;</span><span class="op">));</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Update business fields</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setContactName</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getContactName</span><span class="op">());</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Update audit fields</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setUpdatedBy</span><span class="op">(</span><span class="fu">getCurrentUsername</span><span class="op">());</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setUpdatedAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">());</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">));</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> <span class="fu">getCurrentUsername</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        Authentication auth <span class="op">=</span> SecurityContextHolder<span class="op">.</span><span class="fu">getContext</span><span class="op">()</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getAuthentication</span><span class="op">();</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> auth <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> auth<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">:</span> <span class="st">&quot;SYSTEM&quot;</span><span class="op">;</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="automatic-timestamp-management">Automatic Timestamp
+        Management</h2>
+        <p>Using Spring’s <code>@CreationTimestamp</code> and
+        <code>@UpdateTimestamp</code> (Hibernate):</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;INVENTORY_ITEM&quot;</span><span class="op">)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItem <span class="op">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Automatically set on creation</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">@CreationTimestamp</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Automatically updated on modification</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@UpdateTimestamp</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime updatedAt<span class="op">;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Note:</strong> Timestamps are automatic, but user
+        tracking (<code>createdBy</code>, <code>updatedBy</code>) must
+        be set manually in service.</p>
+        <h2 id="query-example-filter-by-user">Query Example: Filter by
+        User</h2>
+        <p>Find all items created by a specific user:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Repository</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> InventoryItemRepository <span class="kw">extends</span> JpaRepository<span class="op">&lt;</span>InventoryItem<span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> <span class="fu">findByCreatedBy</span><span class="op">(</span><span class="bu">String</span> username<span class="op">);</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> <span class="fu">findByCreatedByAndCreatedAtAfter</span><span class="op">(</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> username<span class="op">,</span> </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        LocalDateTime date<span class="op">);</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemServiceImpl <span class="kw">implements</span> InventoryItemService <span class="op">{</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> InventoryItemRepository repository<span class="op">;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">findByCurrentUser</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> currentUser <span class="op">=</span> <span class="fu">getCurrentUsername</span><span class="op">();</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> repository<span class="op">.</span><span class="fu">findByCreatedBy</span><span class="op">(</span>currentUser<span class="op">)</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">map</span><span class="op">(</span>mapper<span class="op">::</span>toDTO<span class="op">)</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">collect</span><span class="op">(</span><span class="fu">toList</span><span class="op">());</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="audit-trail-example">Audit Trail Example</h2>
+        <p>View complete audit trail for an item:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Entity with audit fields</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>InventoryItem item <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>itemId<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Access complete audit information</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Created by: &quot;</span> <span class="op">+</span> item<span class="op">.</span><span class="fu">getCreatedBy</span><span class="op">());</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Created at: &quot;</span> <span class="op">+</span> item<span class="op">.</span><span class="fu">getCreatedAt</span><span class="op">());</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Updated by: &quot;</span> <span class="op">+</span> item<span class="op">.</span><span class="fu">getUpdatedBy</span><span class="op">());</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Updated at: &quot;</span> <span class="op">+</span> item<span class="op">.</span><span class="fu">getUpdatedAt</span><span class="op">());</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Output example:</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Created by: john.doe</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Created at: 2025-01-15 10:30:00</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Updated by: jane.smith</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Updated at: 2025-01-16 14:22:15</span></span></code></pre></div>
+        <h2 id="stockhistory-immutable-audit-trail">StockHistory:
+        Immutable Audit Trail</h2>
+        <p>For truly immutable audit trails, use create-only
+        entities:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;STOCK_HISTORY&quot;</span><span class="op">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistory <span class="op">{</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ManyToOne</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ITEM_ID&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItem item<span class="op">;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;OLD_QUANTITY&quot;</span><span class="op">)</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Integer</span> oldQuantity<span class="op">;</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;NEW_QUANTITY&quot;</span><span class="op">)</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Integer</span> newQuantity<span class="op">;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;REASON&quot;</span><span class="op">)</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> StockChangeReason reason<span class="op">;</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Audit fields (immutable)</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_AT&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">@CreationTimestamp</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="co">// Service creates entries, never updates</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> StockHistoryServiceImpl <span class="kw">implements</span> StockHistoryService <span class="op">{</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> StockHistoryRepository repository<span class="op">;</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> StockHistoryDTO <span class="fu">create</span><span class="op">(</span>StockHistoryCreateDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        StockHistory history <span class="op">=</span> <span class="kw">new</span> <span class="fu">StockHistory</span><span class="op">();</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        history<span class="op">.</span><span class="fu">setItem</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getItem</span><span class="op">());</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>        history<span class="op">.</span><span class="fu">setOldQuantity</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getOldQuantity</span><span class="op">());</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        history<span class="op">.</span><span class="fu">setNewQuantity</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getNewQuantity</span><span class="op">());</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        history<span class="op">.</span><span class="fu">setReason</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getReason</span><span class="op">());</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>        history<span class="op">.</span><span class="fu">setCreatedBy</span><span class="op">(</span><span class="fu">getCurrentUsername</span><span class="op">());</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>history<span class="op">));</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No update method - entries are immutable</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> <span class="fu">getCurrentUsername</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> SecurityContextHolder<span class="op">.</span><span class="fu">getContext</span><span class="op">()</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getAuthentication</span><span class="op">()</span></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getName</span><span class="op">();</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="anti-pattern-missing-audit-fields">Anti-Pattern: Missing
+        Audit Fields</h2>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - No audit trail</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No createdBy, createdAt, updatedBy, updatedAt</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="op">{</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">)));</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="best-practice-complete-audit-trail">Best Practice:
+        Complete Audit Trail</h2>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Complete audit trail</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@CreationTimestamp</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> updatedBy<span class="op">;</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@UpdateTimestamp</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime updatedAt<span class="op">;</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="op">{</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setCreatedBy</span><span class="op">(</span><span class="fu">getCurrentUsername</span><span class="op">());</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setCreatedAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">());</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">));</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> <span class="fu">getCurrentUsername</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> SecurityContextHolder<span class="op">.</span><span class="fu">getContext</span><span class="op">()</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getAuthentication</span><span class="op">()</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getName</span><span class="op">();</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

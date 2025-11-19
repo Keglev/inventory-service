@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/service/dto-transformation · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#data-transformation-dto-entity"
+        id="toc-data-transformation-dto-entity">Data Transformation (DTO
+        ↔︎ Entity)</a>
+        <ul>
+        <li><a href="#pattern-overview"
+        id="toc-pattern-overview">Pattern Overview</a></li>
+        <li><a href="#inbound-transformation-dto-entity"
+        id="toc-inbound-transformation-dto-entity">Inbound
+        Transformation: DTO → Entity</a></li>
+        <li><a href="#outbound-transformation-entity-dto"
+        id="toc-outbound-transformation-entity-dto">Outbound
+        Transformation: Entity → DTO</a></li>
+        <li><a href="#mapper-interface" id="toc-mapper-interface">Mapper
+        Interface</a></li>
+        <li><a href="#why-separate-dtos-from-entities"
+        id="toc-why-separate-dtos-from-entities">Why Separate DTOs from
+        Entities?</a>
+        <ul>
+        <li><a href="#api-versioning" id="toc-api-versioning">1. API
+        Versioning</a></li>
+        <li><a href="#security-prevent-over-exposure"
+        id="toc-security-prevent-over-exposure">2. Security: Prevent
+        Over-Exposure</a></li>
+        <li><a href="#flexibility-change-internal-schema"
+        id="toc-flexibility-change-internal-schema">3. Flexibility:
+        Change Internal Schema</a></li>
+        </ul></li>
+        <li><a href="#complex-transformations"
+        id="toc-complex-transformations">Complex
+        Transformations</a></li>
+        <li><a href="#anti-pattern-using-entities-as-dtos"
+        id="toc-anti-pattern-using-entities-as-dtos">Anti-Pattern: Using
+        Entities as DTOs</a></li>
+        <li><a href="#best-practice-always-transform"
+        id="toc-best-practice-always-transform">Best Practice: Always
+        Transform</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="data-transformation-dto-entity">Data Transformation (DTO
+        ↔︎ Entity)</h1>
+        <h2 id="pattern-overview">Pattern Overview</h2>
+        <p>Services act as transformation boundaries between API
+        contracts (DTOs) and domain models (Entities). This separation
+        protects internal schema from external consumers.</p>
+        <h2 id="inbound-transformation-dto-entity">Inbound
+        Transformation: DTO → Entity</h2>
+        <p>Converting inbound DTOs to domain entities for
+        persistence:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierMapper mapper<span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// DTO → Entity conversion</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        Supplier entity <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Persist entity</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        Supplier saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Entity → DTO conversion (for response)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="outbound-transformation-entity-dto">Outbound
+        Transformation: Entity → DTO</h2>
+        <p>Converting persisted entities back to DTOs for API
+        responses:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierMapper mapper<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span><span class="op">(</span>readOnly <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> Optional<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">findById</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">map</span><span class="op">(</span>mapper<span class="op">::</span>toDTO<span class="op">);</span>  <span class="co">// Entity → DTO</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="mapper-interface">Mapper Interface</h2>
+        <p>Mappers handle all transformation logic (typically using
+        MapStruct):</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Mapper</span><span class="op">(</span>componentModel <span class="op">=</span> <span class="st">&quot;spring&quot;</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">interface</span> SupplierMapper <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Inbound: DTO → Entity</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    Supplier <span class="fu">toEntity</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">);</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    Supplier <span class="fu">toEntity</span><span class="op">(</span>UpdateSupplierDTO dto<span class="op">);</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Outbound: Entity → DTO</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    SupplierDTO <span class="fu">toDTO</span><span class="op">(</span>Supplier entity<span class="op">);</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Collections</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">toDTOList</span><span class="op">(</span><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> entities<span class="op">);</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="why-separate-dtos-from-entities">Why Separate DTOs from
+        Entities?</h2>
+        <h3 id="api-versioning">1. API Versioning</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// API v1: DTO with minimal fields</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierDTOv1 <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">// API v2: DTO with extended fields</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierDTOv2 <span class="op">{</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> taxId<span class="op">;</span>  <span class="co">// New field</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> certifications<span class="op">;</span>  <span class="co">// New field</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="security-prevent-over-exposure">2. Security: Prevent
+        Over-Exposure</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Entity (internal)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> internalNotes<span class="op">;</span>  <span class="co">// CONFIDENTIAL</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> costPrice<span class="op">;</span>  <span class="co">// CONFIDENTIAL</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">// DTO (public)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierDTO <span class="op">{</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// internalNotes and costPrice NOT exposed</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="flexibility-change-internal-schema">3. Flexibility:
+        Change Internal Schema</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Old entity structure</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactPhone<span class="op">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">// New entity structure (refactored)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> Contact contact<span class="op">;</span>  <span class="co">// Nested object</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">// DTO remains unchanged</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierDTO <span class="op">{</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span>  <span class="co">// Same external API</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactPhone<span class="op">;</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">// Mapper handles the conversion</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="at">@Mapper</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierMapper <span class="op">{</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">toDTO</span><span class="op">(</span>Supplier supplier<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        SupplierDTO dto <span class="op">=</span> <span class="kw">new</span> <span class="fu">SupplierDTO</span><span class="op">();</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        dto<span class="op">.</span><span class="fu">setContactName</span><span class="op">(</span>supplier<span class="op">.</span><span class="fu">getContact</span><span class="op">().</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        dto<span class="op">.</span><span class="fu">setContactPhone</span><span class="op">(</span>supplier<span class="op">.</span><span class="fu">getContact</span><span class="op">().</span><span class="fu">getPhone</span><span class="op">());</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dto<span class="op">;</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="complex-transformations">Complex Transformations</h2>
+        <p>Services may perform additional transformations beyond
+        mapping:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemServiceImpl <span class="kw">implements</span> InventoryItemService <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> InventoryItemRepository repository<span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository supplierRepository<span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> InventoryItemMapper mapper<span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> InventoryItemDTO <span class="fu">create</span><span class="op">(</span>CreateInventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 1. Validate supplier exists</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getSupplierId</span><span class="op">())</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Supplier not found&quot;</span><span class="op">));</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 2. Map DTO to entity</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        InventoryItem entity <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 3. Additional transformation: set supplier reference</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        entity<span class="op">.</span><span class="fu">setSupplier</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 4. Persist</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        InventoryItem saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 5. Enhance DTO with computed fields</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO result <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        result<span class="op">.</span><span class="fu">setSupplierName</span><span class="op">(</span>supplier<span class="op">.</span><span class="fu">getName</span><span class="op">());</span>  <span class="co">// Computed</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        result<span class="op">.</span><span class="fu">setTotalValue</span><span class="op">(</span>saved<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">*</span> saved<span class="op">.</span><span class="fu">getUnitPrice</span><span class="op">());</span>  <span class="co">// Computed</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="anti-pattern-using-entities-as-dtos">Anti-Pattern: Using
+        Entities as DTOs</h2>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Entity exposed directly</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierController <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> Supplier <span class="fu">getSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">).</span><span class="fu">orElse</span><span class="op">(</span><span class="kw">null</span><span class="op">);</span>  <span class="co">// Entity exposed</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="best-practice-always-transform">Best Practice: Always
+        Transform</h2>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Always transform through DTO</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierController <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierService service<span class="op">;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">getSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> service<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span>  <span class="co">// Returns DTO</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Not found&quot;</span><span class="op">));</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

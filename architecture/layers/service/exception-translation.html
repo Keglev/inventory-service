@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/service/exception-translation · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#exception-translation"
+        id="toc-exception-translation">Exception Translation</a>
+        <ul>
+        <li><a href="#pattern-overview"
+        id="toc-pattern-overview">Pattern Overview</a></li>
+        <li><a href="#service-domain-exception-pattern"
+        id="toc-service-domain-exception-pattern">Service → Domain
+        Exception Pattern</a></li>
+        <li><a href="#globalexceptionhandler-http-response"
+        id="toc-globalexceptionhandler-http-response">GlobalExceptionHandler
+        → HTTP Response</a></li>
+        <li><a href="#exception-mapping-guide"
+        id="toc-exception-mapping-guide">Exception Mapping
+        Guide</a></li>
+        <li><a href="#example-complete-flow"
+        id="toc-example-complete-flow">Example: Complete Flow</a>
+        <ul>
+        <li><a href="#controller-call" id="toc-controller-call">1.
+        Controller Call</a></li>
+        <li><a href="#service-throws-exception"
+        id="toc-service-throws-exception">2. Service Throws
+        Exception</a></li>
+        <li><a href="#handler-catches-translates"
+        id="toc-handler-catches-translates">3. Handler Catches &amp;
+        Translates</a></li>
+        <li><a href="#client-receives" id="toc-client-receives">4.
+        Client Receives</a></li>
+        </ul></li>
+        <li><a href="#anti-pattern-catching-and-swallowing"
+        id="toc-anti-pattern-catching-and-swallowing">Anti-Pattern:
+        Catching and Swallowing</a></li>
+        <li><a href="#best-practice-let-exceptions-propagate"
+        id="toc-best-practice-let-exceptions-propagate">Best Practice:
+        Let Exceptions Propagate</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="exception-translation">Exception Translation</h1>
+        <h2 id="pattern-overview">Pattern Overview</h2>
+        <p>Services throw domain-specific exceptions. The global
+        exception handler catches these and translates to appropriate
+        HTTP responses.</p>
+        <h2 id="service-domain-exception-pattern">Service → Domain
+        Exception Pattern</h2>
+        <p>Services throw domain exceptions based on business rule
+        violations:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierValidator validator<span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Throws IllegalStateException (domain logic failure)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>repository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Supplier with name already exists&quot;</span><span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">)));</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2
+        id="globalexceptionhandler-http-response">GlobalExceptionHandler
+        → HTTP Response</h2>
+        <p>The global exception handler catches exceptions and
+        translates to HTTP:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Slf4j</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> GlobalExceptionHandler <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Handle duplicate supplier</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">IllegalStateException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleIllegalState</span><span class="op">(</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            <span class="bu">IllegalStateException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        log<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Business rule violation: {}&quot;</span><span class="op">,</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">body</span><span class="op">(</span>ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">code</span><span class="op">(</span><span class="st">&quot;CONFLICT&quot;</span><span class="op">)</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">message</span><span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">timestamp</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">());</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Handle missing supplier</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">NoSuchElementException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleNotFound</span><span class="op">(</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            <span class="bu">NoSuchElementException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        log<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Resource not found: {}&quot;</span><span class="op">,</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">NOT_FOUND</span><span class="op">)</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">body</span><span class="op">(</span>ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">code</span><span class="op">(</span><span class="st">&quot;NOT_FOUND&quot;</span><span class="op">)</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">message</span><span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">timestamp</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">());</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Handle validation failures</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleIllegalArgument</span><span class="op">(</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>            <span class="bu">IllegalArgumentException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        log<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Invalid argument: {}&quot;</span><span class="op">,</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span><span class="op">)</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">body</span><span class="op">(</span>ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">code</span><span class="op">(</span><span class="st">&quot;BAD_REQUEST&quot;</span><span class="op">)</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">message</span><span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">timestamp</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">())</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">());</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="exception-mapping-guide">Exception Mapping Guide</h2>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Domain Exception</th>
+        <th>HTTP Status</th>
+        <th>Use Case</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>IllegalStateException</code></td>
+        <td>409 Conflict</td>
+        <td>Business rule violation, duplicate resource</td>
+        </tr>
+        <tr class="even">
+        <td><code>NoSuchElementException</code></td>
+        <td>404 Not Found</td>
+        <td>Resource not found</td>
+        </tr>
+        <tr class="odd">
+        <td><code>IllegalArgumentException</code></td>
+        <td>400 Bad Request</td>
+        <td>Invalid input parameters</td>
+        </tr>
+        <tr class="even">
+        <td><code>UnsupportedOperationException</code></td>
+        <td>501 Not Implemented</td>
+        <td>Operation not available</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="example-complete-flow">Example: Complete Flow</h2>
+        <h3 id="controller-call">1. Controller Call</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierController <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Call service (may throw exception)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>service<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="service-throws-exception">2. Service Throws
+        Exception</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>repository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Duplicate supplier&quot;</span><span class="op">);</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">)));</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="handler-catches-translates">3. Handler Catches &amp;
+        Translates</h3>
+        <pre><code>Controller throws → GlobalExceptionHandler catches
+→ Exception matched to @ExceptionHandler
+→ Returns ErrorResponse with HTTP 409</code></pre>
+        <h3 id="client-receives">4. Client Receives</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="er">HTTP/1.1</span> <span class="er">409</span> <span class="er">Conflict</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;code&quot;</span><span class="fu">:</span> <span class="st">&quot;CONFLICT&quot;</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier with name already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-01-15T10:30:00&quot;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h2 id="anti-pattern-catching-and-swallowing">Anti-Pattern:
+        Catching and Swallowing</h2>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Exception caught but not handled</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">)));</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span>  <span class="co">// Lost error information</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="best-practice-let-exceptions-propagate">Best Practice:
+        Let Exceptions Propagate</h2>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Let exceptions propagate to handler</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>repository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Duplicate supplier&quot;</span><span class="op">);</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">)));</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

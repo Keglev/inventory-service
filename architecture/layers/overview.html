@@ -178,18 +178,29 @@
         <p>The business logic heart of the application. Services
         orchestrate complex operations, manage transactions, validate
         business rules, and handle domain logic.</p>
-        <p><strong>Key Services:</strong> - <code>SupplierService</code>
-        - Supplier lifecycle management -
-        <code>InventoryItemService</code> - Item and stock tracking -
-        <code>StockHistoryService</code> - Audit trail management -
-        <code>AnalyticsService</code> - Business intelligence -
-        <code>CustomOAuth2UserService</code> - User authentication</p>
-        <p><strong>Responsibilities:</strong> - Execute business logic -
-        Manage transaction boundaries - Coordinate data access across
-        repositories - Validate business rules - Translate exceptions to
-        HTTP status codes - Transform between DTOs and entities</p>
+        <p><strong>Key Services:</strong> - <strong><a
+        href="./service/supplier-service.html">SupplierService</a></strong>
+        - Supplier lifecycle management - <strong><a
+        href="./service/inventory-item-service.html">InventoryItemService</a></strong>
+        - Item and stock tracking - <strong><a
+        href="./service/stock-history-service.html">StockHistoryService</a></strong>
+        - Audit trail management - <strong><a
+        href="./service/analytics-service.html">AnalyticsService</a></strong>
+        - Business intelligence</p>
+        <p><strong>Responsibilities:</strong> - <a
+        href="./service/index.html#core-services">Execute business
+        logic</a> - <a
+        href="./service/transaction-management.html">Manage transaction
+        boundaries</a> - <a
+        href="./service/validation-strategy.html">Validate business
+        rules</a> - <a
+        href="./service/exception-translation.html">Translate exceptions
+        to HTTP status codes</a> - <a
+        href="./service/dto-transformation.html">Transform between DTOs
+        and entities</a> - <a href="./service/audit-logging.html">Set
+        audit logging</a></p>
         <p><strong>Learn More:</strong> <a
-        href="./service-layer.html">📄 Service Layer</a></p>
+        href="./service/index.html">📄 Service Layer</a></p>
         <hr />
         <h3 id="repository-layer-data-access">3. <strong>Repository
         Layer</strong> (Data Access)</h3>

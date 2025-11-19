@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/service/dependency-injection · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#dependency-injection"
+        id="toc-dependency-injection">Dependency Injection</a>
+        <ul>
+        <li><a href="#pattern-overview"
+        id="toc-pattern-overview">Pattern Overview</a></li>
+        <li><a href="#implementation-pattern"
+        id="toc-implementation-pattern">Implementation Pattern</a></li>
+        <li><a href="#why-constructor-injection"
+        id="toc-why-constructor-injection">Why Constructor
+        Injection?</a></li>
+        <li><a href="#example-usage" id="toc-example-usage">Example
+        Usage</a></li>
+        <li><a href="#anti-pattern-manual-instantiation"
+        id="toc-anti-pattern-manual-instantiation">Anti-Pattern: Manual
+        Instantiation</a></li>
+        <li><a href="#testing-with-di" id="toc-testing-with-di">Testing
+        with DI</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="dependency-injection">Dependency Injection</h1>
+        <h2 id="pattern-overview">Pattern Overview</h2>
+        <p>Dependency Injection (DI) is used to manage service
+        dependencies. All dependencies are injected via constructor to
+        ensure testability and explicit dependency declaration.</p>
+        <h2 id="implementation-pattern">Implementation Pattern</h2>
+        <p>Using Lombok’s <code>@RequiredArgsConstructor</code>
+        annotation automatically generates a constructor for all final
+        fields:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span>  <span class="co">// Lombok generates constructor</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierValidator validator<span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierMapper mapper<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Constructor auto-generated by Lombok:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// public SupplierServiceImpl(SupplierRepository repository, </span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">//                          SupplierValidator validator,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">//                          SupplierMapper mapper)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="why-constructor-injection">Why Constructor
+        Injection?</h2>
+        <ol type="1">
+        <li><strong>Testability</strong> - Dependencies easily mocked in
+        unit tests</li>
+        <li><strong>Immutability</strong> - Final fields prevent
+        accidental modification</li>
+        <li><strong>Explicit</strong> - Constructor clearly shows all
+        dependencies</li>
+        <li><strong>Simplicity</strong> - <span class="citation"
+        data-cites="RequiredArgsConstructor">@RequiredArgsConstructor</span>
+        eliminates boilerplate</li>
+        </ol>
+        <h2 id="example-usage">Example Usage</h2>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemServiceImpl <span class="kw">implements</span> InventoryItemService <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> InventoryItemRepository repository<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository supplierRepository<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> StockHistoryService stockHistoryService<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> InventoryItemDTO <span class="fu">create</span><span class="op">(</span>CreateInventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// All dependencies available for use</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getSupplierId</span><span class="op">())</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Supplier not found&quot;</span><span class="op">));</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        InventoryItem item <span class="op">=</span> <span class="kw">new</span> <span class="fu">InventoryItem</span><span class="op">();</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        item<span class="op">.</span><span class="fu">setSupplier</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        InventoryItem saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>item<span class="op">);</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        stockHistoryService<span class="op">.</span><span class="fu">logInitialStock</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="anti-pattern-manual-instantiation">Anti-Pattern: Manual
+        Instantiation</h2>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Hard-coded dependency</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierRepository repository <span class="op">=</span> <span class="kw">new</span> <span class="fu">SupplierRepository</span><span class="op">();</span>  <span class="co">// Cannot test</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">)));</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="testing-with-di">Testing with DI</h2>
+        <p>Constructor injection makes unit testing straightforward:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExtendWith</span><span class="op">(</span>MockitoExtension<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SupplierServiceImplTest <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierValidator validator<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@InjectMocks</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierServiceImpl service<span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testCreate</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Arrange</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">any</span><span class="op">())).</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">new</span> <span class="fu">Supplier</span><span class="op">(</span><span class="kw">...</span><span class="op">));</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Act</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        SupplierDTO result <span class="op">=</span> service<span class="op">.</span><span class="fu">create</span><span class="op">(</span><span class="kw">new</span> <span class="fu">CreateSupplierDTO</span><span class="op">(</span><span class="kw">...</span><span class="op">));</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Assert</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertNotNull</span><span class="op">(</span>result<span class="op">);</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

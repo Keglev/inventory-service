@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/service/inventory-item-service · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#inventory-item-service"
+        id="toc-inventory-item-service">Inventory Item Service</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#key-responsibilities"
+        id="toc-key-responsibilities">Key Responsibilities</a></li>
+        <li><a href="#interface-methods"
+        id="toc-interface-methods">Interface Methods</a></li>
+        <li><a href="#business-rules" id="toc-business-rules">Business
+        Rules</a></li>
+        <li><a href="#exception-handling"
+        id="toc-exception-handling">Exception Handling</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="inventory-item-service">Inventory Item Service</h1>
+        <h2 id="purpose">Purpose</h2>
+        <p>Manage inventory items with integrated stock tracking and
+        auditing. Items represent individual products tracked in
+        inventory.</p>
+        <h2 id="key-responsibilities">Key Responsibilities</h2>
+        <ul>
+        <li>Create items with validation of supplier and uniqueness</li>
+        <li>Retrieve items by ID or list with pagination</li>
+        <li>Search items by name, SKU, or supplier</li>
+        <li>Update item details (except stock, which goes through
+        update-stock endpoint)</li>
+        <li>Delete items from inventory</li>
+        <li>Update stock quantity with reason tracking</li>
+        <li>Calculate inventory metrics and analytics</li>
+        </ul>
+        <h2 id="interface-methods">Interface Methods</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">findAll</span><span class="op">(</span><span class="bu">Pageable</span> pageable<span class="op">);</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">findById</span><span class="op">(</span><span class="bu">String</span> id<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">search</span><span class="op">(</span><span class="bu">String</span> query<span class="op">,</span> <span class="bu">Pageable</span> pageable<span class="op">);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>InventoryItemDTO <span class="fu">create</span><span class="op">(</span>CreateInventoryItemDTO dto<span class="op">);</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>InventoryItemDTO <span class="fu">update</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> UpdateInventoryItemDTO dto<span class="op">);</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">delete</span><span class="op">(</span><span class="bu">String</span> id<span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>StockUpdateResultDTO <span class="fu">updateStock</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="dt">int</span> newQuantity<span class="op">,</span> </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    StockChangeReason reason<span class="op">,</span> <span class="bu">String</span> notes<span class="op">);</span></span></code></pre></div>
+        <h2 id="business-rules">Business Rules</h2>
+        <ol type="1">
+        <li><strong>Unique Names</strong> - Item names must be unique
+        within the system</li>
+        <li><strong>Valid Supplier</strong> - Item must reference
+        existing supplier</li>
+        <li><strong>Non-Negative Quantity</strong> - Stock quantity
+        cannot be negative</li>
+        <li><strong>Reason Required</strong> - Every stock change must
+        have a reason (PURCHASE, SALE, ADJUSTMENT, AUDIT)</li>
+        <li><strong>Initial Stock Audit</strong> - Initial stock creates
+        audit entry automatically</li>
+        <li><strong>Immutable History</strong> - Stock changes are
+        immutable (create-only, no update/delete)</li>
+        </ol>
+        <h2 id="exception-handling">Exception Handling</h2>
+        <ul>
+        <li><code>IllegalArgumentException</code> (400 Bad Request) -
+        Invalid quantity or reason</li>
+        <li><code>NoSuchElementException</code> (404 Not Found) - Item
+        or supplier not found</li>
+        <li><code>DuplicateResourceException</code> (409 Conflict) -
+        Name already exists</li>
+        <li><code>IllegalStateException</code> (409 Conflict) - Business
+        rule violation</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

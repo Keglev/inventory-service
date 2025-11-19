@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/service/interaction-diagram · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#service-interaction-diagram"
+        id="toc-service-interaction-diagram">Service Interaction
+        Diagram</a>
+        <ul>
+        <li><a href="#operation-flow" id="toc-operation-flow">Operation
+        Flow</a></li>
+        <li><a href="#step-by-step-breakdown"
+        id="toc-step-by-step-breakdown">Step-by-Step Breakdown</a>
+        <ul>
+        <li><a href="#input-dto" id="toc-input-dto">1. Input
+        DTO</a></li>
+        <li><a href="#validate" id="toc-validate">2. Validate</a></li>
+        <li><a href="#transform-dto-entity"
+        id="toc-transform-dto-entity">3. Transform DTO → Entity</a></li>
+        <li><a href="#persist-to-database"
+        id="toc-persist-to-database">4. Persist to Database</a></li>
+        <li><a href="#create-audit-entry" id="toc-create-audit-entry">5.
+        Create Audit Entry</a></li>
+        <li><a href="#transform-entity-dto"
+        id="toc-transform-entity-dto">6. Transform Entity → DTO</a></li>
+        <li><a href="#return-to-client" id="toc-return-to-client">7.
+        Return to Client</a></li>
+        </ul></li>
+        <li><a href="#example-create-supplier"
+        id="toc-example-create-supplier">Example: Create
+        Supplier</a></li>
+        <li><a href="#example-update-supplier"
+        id="toc-example-update-supplier">Example: Update
+        Supplier</a></li>
+        <li><a href="#example-delete-supplier"
+        id="toc-example-delete-supplier">Example: Delete
+        Supplier</a></li>
+        <li><a href="#layered-interaction"
+        id="toc-layered-interaction">Layered Interaction</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="service-interaction-diagram">Service Interaction
+        Diagram</h1>
+        <h2 id="operation-flow">Operation Flow</h2>
+        <p>The following diagram illustrates how a typical business
+        operation flows through the service layer:</p>
+        <div class="mermaid">
+        graph TB
+            subgraph "Business Operation"
+                Input["Input DTO"]
+                Valid["Validate"]
+                Transform["Transform DTO → Entity"]
+                Persist["Persist to Database"]
+                Audit["Create Audit Entry"]
+                Response["Transform Entity → DTO"]
+            end
+
+            Input --> Valid
+            Valid -->|Success| Transform
+            Valid -->|Failure| Error1["Throw Exception"]
+            Transform --> Persist
+            Persist -->|Success| Audit
+            Persist -->|Failure| Error2["Throw Exception"]
+            Audit --> Response
+            Response --> Output["Output DTO"]
+
+            style Input fill:#bbdefb
+            style Valid fill:#90caf9
+            style Transform fill:#64b5f6
+            style Persist fill:#42a5f5
+            style Audit fill:#2196f3
+            style Response fill:#1976d2
+            style Output fill:#1565c0
+            style Error1 fill:#ef9a9a
+            style Error2 fill:#ef9a9a
+        </div>
+        <h2 id="step-by-step-breakdown">Step-by-Step Breakdown</h2>
+        <h3 id="input-dto">1. Input DTO</h3>
+        <p>Request arrives from controller with data transfer
+        object:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>CreateSupplierDTO dto <span class="op">=</span> <span class="kw">new</span> <span class="fu">CreateSupplierDTO</span><span class="op">();</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>dto<span class="op">.</span><span class="fu">setName</span><span class="op">(</span><span class="st">&quot;TechCorp&quot;</span><span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>dto<span class="op">.</span><span class="fu">setContactName</span><span class="op">(</span><span class="st">&quot;John Doe&quot;</span><span class="op">);</span></span></code></pre></div>
+        <h3 id="validate">2. Validate</h3>
+        <p>Specialized validators check business rules before any
+        persistence:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>validator<span class="op">.</span><span class="fu">validateRequiredFields</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>validator<span class="op">.</span><span class="fu">validateUniquenessOnCreate</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Throws exception if validation fails</span></span></code></pre></div>
+        <h3 id="transform-dto-entity">3. Transform DTO → Entity</h3>
+        <p>Mapper converts API contract to domain model:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Supplier entity <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: Supplier with name=&quot;TechCorp&quot;, contactName=&quot;John Doe&quot;</span></span></code></pre></div>
+        <h3 id="persist-to-database">4. Persist to Database</h3>
+        <p>Repository saves entity and returns with generated ID:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Supplier saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: Supplier with id=&quot;uuid-123&quot;, all fields populated</span></span></code></pre></div>
+        <h3 id="create-audit-entry">5. Create Audit Entry</h3>
+        <p>Optional: Create related audit records (like stock
+        history):</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>stockHistoryService<span class="op">.</span><span class="fu">logInitialStock</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Creates StockHistory entry linked to item</span></span></code></pre></div>
+        <h3 id="transform-entity-dto">6. Transform Entity → DTO</h3>
+        <p>Mapper converts persisted entity back to API response:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>SupplierDTO result <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: SupplierDTO with all fields and audit timestamps</span></span></code></pre></div>
+        <h3 id="return-to-client">7. Return to Client</h3>
+        <p>DTO returned with HTTP 200 OK:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="er">HTTP/1.1</span> <span class="er">201</span> <span class="er">Created</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;uuid-123&quot;</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;TechCorp&quot;</span><span class="fu">,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;contactName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Doe&quot;</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdBy&quot;</span><span class="fu">:</span> <span class="st">&quot;admin&quot;</span><span class="fu">,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdAt&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-01-15T10:30:00&quot;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h2 id="example-create-supplier">Example: Create Supplier</h2>
+        <p>Complete example of a supplier creation operation:</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. Controller receives request</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    SupplierDTO result <span class="op">=</span> service<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>result<span class="op">);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. Service orchestrates the flow</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierRepository repository<span class="op">;</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierValidator validator<span class="op">;</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> SupplierMapper mapper<span class="op">;</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 1: Validate input</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        validator<span class="op">.</span><span class="fu">validateRequiredFields</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        validator<span class="op">.</span><span class="fu">validateUniquenessOnCreate</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 2: Transform DTO → Entity</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        Supplier entity <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 3: Set audit fields</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        entity<span class="op">.</span><span class="fu">setCreatedBy</span><span class="op">(</span><span class="fu">getCurrentUsername</span><span class="op">());</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        entity<span class="op">.</span><span class="fu">setCreatedAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">());</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 4: Persist to database</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        Supplier saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 5: Transform Entity → DTO</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> <span class="fu">getCurrentUsername</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> SecurityContextHolder<span class="op">.</span><span class="fu">getContext</span><span class="op">()</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getAuthentication</span><span class="op">()</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getName</span><span class="op">();</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. Exception handler catches failures</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> GlobalExceptionHandler <span class="op">{</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">IllegalStateException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDuplicate</span><span class="op">(</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>            <span class="bu">IllegalStateException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">body</span><span class="op">(</span><span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="st">&quot;CONFLICT&quot;</span><span class="op">,</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()));</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="example-update-supplier">Example: Update Supplier</h2>
+        <p>Update follows similar pattern with slight variations:</p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">update</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> UpdateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 1: Retrieve existing entity</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        Supplier entity <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Supplier not found: &quot;</span> <span class="op">+</span> id<span class="op">));</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 2: Validate changes</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        validator<span class="op">.</span><span class="fu">validateUpdateFields</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 3: Apply changes</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        entity<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        entity<span class="op">.</span><span class="fu">setContactName</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getContactName</span><span class="op">());</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 4: Update audit fields</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        entity<span class="op">.</span><span class="fu">setUpdatedBy</span><span class="op">(</span><span class="fu">getCurrentUsername</span><span class="op">());</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        entity<span class="op">.</span><span class="fu">setUpdatedAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">());</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 5: Persist (implicit via @Transactional)</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// entity is already managed, changes auto-persisted</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 6: Return DTO</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="example-delete-supplier">Example: Delete Supplier</h2>
+        <p>Deletion includes constraint validation:</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequiredArgsConstructor</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierServiceImpl <span class="kw">implements</span> SupplierService <span class="op">{</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">delete</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 1: Check if entity exists</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        Supplier entity <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Supplier not found: &quot;</span> <span class="op">+</span> id<span class="op">));</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 2: Validate deletion is allowed</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        validator<span class="op">.</span><span class="fu">validateDeletionAllowed</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Throws exception if items exist</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Step 3: Delete from database</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">delete</span><span class="op">(</span>entity<span class="op">);</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">// No response DTO needed for DELETE</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="layered-interaction">Layered Interaction</h2>
+        <p>Complete view of service within architecture:</p>
+        <pre><code>┌─────────────────────────────────────┐
+│     Controller Layer                 │
+│  (HTTP Requests/Responses)           │
+└────────────┬────────────────────────┘
+             │
+             │ Calls Service
+             ↓
+┌─────────────────────────────────────┐
+│     SERVICE LAYER                    │
+│  ┌─────────────────────────────────┐ │
+│  │ 1. Input DTO                    │ │
+│  ├─────────────────────────────────┤ │
+│  │ 2. Validation                   │ │
+│  ├─────────────────────────────────┤ │
+│  │ 3. DTO → Entity Transform       │ │
+│  ├─────────────────────────────────┤ │
+│  │ 4. Business Logic               │ │
+│  ├─────────────────────────────────┤ │
+│  │ 5. Audit Logging                │ │
+│  ├─────────────────────────────────┤ │
+│  │ 6. Entity → DTO Transform       │ │
+│  └─────────────────────────────────┘ │
+└────────────┬────────────────────────┘
+             │
+             │ Calls Repository
+             ↓
+┌─────────────────────────────────────┐
+│     Repository Layer                 │
+│  (JPA/Database Operations)           │
+└─────────────────────────────────────┘</code></pre>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

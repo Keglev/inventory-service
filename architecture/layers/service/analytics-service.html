@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/service/analytics-service · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#analytics-service"
+        id="toc-analytics-service">Analytics Service</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#key-responsibilities"
+        id="toc-key-responsibilities">Key Responsibilities</a></li>
+        <li><a href="#interface-methods"
+        id="toc-interface-methods">Interface Methods</a></li>
+        <li><a href="#calculation-patterns"
+        id="toc-calculation-patterns">Calculation Patterns</a>
+        <ul>
+        <li><a href="#wac-weighted-average-cost"
+        id="toc-wac-weighted-average-cost">WAC (Weighted Average
+        Cost)</a></li>
+        <li><a href="#inventory-value"
+        id="toc-inventory-value">Inventory Value</a></li>
+        <li><a href="#turnover-rate" id="toc-turnover-rate">Turnover
+        Rate</a></li>
+        <li><a href="#low-stock-alert" id="toc-low-stock-alert">Low
+        Stock Alert</a></li>
+        </ul></li>
+        <li><a href="#exception-handling"
+        id="toc-exception-handling">Exception Handling</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="analytics-service">Analytics Service</h1>
+        <h2 id="purpose">Purpose</h2>
+        <p>Provide business intelligence and financial analysis across
+        inventory operations.</p>
+        <h2 id="key-responsibilities">Key Responsibilities</h2>
+        <ul>
+        <li>Calculate dashboard KPIs (total items, suppliers, stock
+        value)</li>
+        <li>Compute financial metrics (total cost, weighted average cost
+        - WAC)</li>
+        <li>Analyze inventory trends (movement patterns, low stock)</li>
+        <li>Generate price trends and seasonal analysis</li>
+        <li>Calculate inventory turnover and efficiency metrics</li>
+        </ul>
+        <h2 id="interface-methods">Interface Methods</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>DashboardSummaryDTO <span class="fu">getDashboardSummary</span><span class="op">();</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>FinancialSummaryDTO <span class="fu">getFinancialSummary</span><span class="op">();</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>PriceTrendDTO<span class="op">&gt;</span> <span class="fu">getPriceTrends</span><span class="op">(</span>LocalDateTime from<span class="op">,</span> LocalDateTime to<span class="op">);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>LowStockItemDTO<span class="op">&gt;</span> <span class="fu">getLowStockItems</span><span class="op">(</span><span class="dt">int</span> threshold<span class="op">);</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>MonthlyStockMovementDTO<span class="op">&gt;</span> <span class="fu">getMonthlyMovements</span><span class="op">(</span><span class="bu">String</span> itemId<span class="op">);</span></span></code></pre></div>
+        <h2 id="calculation-patterns">Calculation Patterns</h2>
+        <h3 id="wac-weighted-average-cost">WAC (Weighted Average
+        Cost)</h3>
+        <p><span class="math display">$$\text{WAC} = \frac{\text{Total
+        Inventory Cost}}{\text{Total Quantity}} = \text{Average Unit
+        Cost}$$</span></p>
+        <h3 id="inventory-value">Inventory Value</h3>
+        <p><span class="math display">Inventory Value = ∑(Quantity×Unit
+        Cost)</span></p>
+        <h3 id="turnover-rate">Turnover Rate</h3>
+        <p><span class="math display">$$\text{Turnover Rate} =
+        \frac{\text{Total Sales}}{\text{Average Inventory
+        Value}}$$</span></p>
+        <h3 id="low-stock-alert">Low Stock Alert</h3>
+        <p>Items where current quantity &lt; reorder point</p>
+        <h2 id="exception-handling">Exception Handling</h2>
+        <ul>
+        <li>Returns empty results if no data available</li>
+        <li>Handles date range validation gracefully</li>
+        <li>No exceptions thrown (analytics is non-critical path)</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · layers/service/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#service-layer" id="toc-service-layer">Service
+        Layer</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#architecture"
+        id="toc-architecture">Architecture</a></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a>
+        <ul>
+        <li><a href="#by-topic" id="toc-by-topic">By Topic</a></li>
+        <li><a href="#by-role" id="toc-by-role">By Role</a></li>
+        </ul></li>
+        <li><a href="#core-services-overview"
+        id="toc-core-services-overview">Core Services Overview</a></li>
+        <li><a href="#service-patterns"
+        id="toc-service-patterns">Service Patterns</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Layers Overview</a> | <a
+        href="../overview.html">⬅️ Back to Architecture</a></p>
+        <h1 id="service-layer">Service Layer</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The <strong>Service Layer</strong> contains all business
+        logic and orchestrates operations across the application.
+        Services handle transaction management, complex validation,
+        exception translation, data transformation, and cross-cutting
+        concerns. This layer acts as the core of business intelligence,
+        translating domain requirements into executable operations.</p>
+        <p><strong>Location:</strong>
+        <code>src/main/java/com/smartsupplypro/inventory/service/</code></p>
+        <p><strong>Responsibility:</strong> Business logic execution,
+        transaction boundaries, validation orchestration, exception
+        translation</p>
+        <h2 id="architecture">Architecture</h2>
+        <div class="mermaid">
+        graph TB
+            Controller["Controller Layer<br/>HTTP Requests"]
+            ServiceInterface["Service Interface<br/>Contract Definition"]
+            ServiceImpl["Service Implementation<br/>Business Logic"]
+            Validation["Validation Layer<br/>Business Rules"]
+            Repository["Repository Layer<br/>Data Access"]
+            Exception["Exception Handling<br/>Domain → HTTP"]
+            Mapper["Data Mapper<br/>DTO ↔ Entity"]
+            Audit["Audit Service<br/>Change Tracking"]
+
+            Controller -->|Call| ServiceInterface
+            ServiceInterface -->|Implements| ServiceImpl
+            ServiceImpl --> Validation
+            ServiceImpl --> Repository
+            ServiceImpl --> Mapper
+            ServiceImpl --> Audit
+            ServiceImpl -->|Throws| Exception
+            Exception -->|Translated| Controller
+
+            style Controller fill:#42a5f5
+            style ServiceInterface fill:#42a5f5
+            style ServiceImpl fill:#2196f3
+            style Validation fill:#1976d2
+            style Repository fill:#1565c0
+            style Exception fill:#ef9a9a
+            style Mapper fill:#a5d6a7
+            style Audit fill:#a5d6a7
+        </div>
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <h3 id="by-topic">By Topic</h3>
+        <ul>
+        <li><a href="./supplier-service.html"><strong>Core
+        Services</strong></a> - Supplier, InventoryItem, StockHistory,
+        Analytics</li>
+        <li><a href="./service-patterns.html"><strong>Service
+        Patterns</strong></a> - DI, Transactions, Exception Translation,
+        DTOs, Validation, Audit</li>
+        <li><a href="./interaction-diagram.html"><strong>Interaction
+        Diagram</strong></a> - Service operation flow visualization</li>
+        <li><a
+        href="./cross-cutting-concerns.html"><strong>Cross-Cutting
+        Concerns</strong></a> - Exception handling, logging
+        strategies</li>
+        <li><a href="./testing.html"><strong>Testing</strong></a> - Unit
+        test patterns with Mockito</li>
+        <li><a
+        href="./integration.html"><strong>Integration</strong></a> -
+        Interaction with other layers</li>
+        <li><a href="./best-practices.html"><strong>Best
+        Practices</strong></a> - Service design guidelines</li>
+        </ul>
+        <h3 id="by-role">By Role</h3>
+        <ul>
+        <li><strong>Developers</strong> → Start with <a
+        href="./supplier-service.html">Core Services</a> and <a
+        href="./service-patterns.html">Service Patterns</a></li>
+        <li><strong>QA/Testers</strong> → See <a
+        href="./testing.html">Testing</a> for test patterns</li>
+        <li><strong>Architects</strong> → Review <a
+        href="./integration.html">Integration</a> for layer design</li>
+        <li><strong>DevOps</strong> → Check <a
+        href="./cross-cutting-concerns.html">Cross-Cutting Concerns</a>
+        for logging/monitoring</li>
+        <li><strong>Code Reviewers</strong> → Use <a
+        href="./best-practices.html">Best Practices</a> as
+        checklist</li>
+        </ul>
+        <h2 id="core-services-overview">Core Services Overview</h2>
+        <p>The service layer includes four primary services:</p>
+        <ol type="1">
+        <li><strong>SupplierService</strong> - Manage supplier lifecycle
+        (create, read, update, delete)</li>
+        <li><strong>InventoryItemService</strong> - Manage inventory
+        items with integrated stock tracking</li>
+        <li><strong>StockHistoryService</strong> - Log and query stock
+        movement audit trail</li>
+        <li><strong>AnalyticsService</strong> - Provide business
+        intelligence and financial analysis</li>
+        </ol>
+        <p>See <a href="./supplier-service.html">supplier-service.md</a>
+        for detailed documentation of each service.</p>
+        <h2 id="service-patterns">Service Patterns</h2>
+        <p>Services use consistent patterns for dependency injection,
+        transaction management, exception translation, and data
+        transformation.</p>
+        <p>See <a href="./service-patterns.html">Service Patterns</a>
+        for detailed documentation: - <a
+        href="./dependency-injection.html">Dependency Injection</a> - <a
+        href="./transaction-management.html">Transaction Management</a>
+        - <a href="./exception-translation.html">Exception
+        Translation</a> - <a href="./dto-transformation.html">Data
+        Transformation</a> - <a
+        href="./validation-strategy.html">Validation Strategy</a> - <a
+        href="./audit-logging.html">Audit Logging</a></p>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Layers Overview</a> | <a
+        href="../overview.html">⬅️ Back to Architecture</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

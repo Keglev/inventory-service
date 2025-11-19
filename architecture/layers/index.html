@@ -63,6 +63,9 @@
         <li><a href="#controller-components-detailed"
         id="toc-controller-components-detailed">Controller Components
         (Detailed)</a></li>
+        <li><a href="#service-components-detailed"
+        id="toc-service-components-detailed">Service Components
+        (Detailed)</a></li>
         <li><a href="#model-components-detailed"
         id="toc-model-components-detailed">Model Components
         (Detailed)</a></li>
@@ -98,7 +101,7 @@
         <li><strong><a href="./controller/index.html">Controller
         Layer</a></strong> - HTTP API entry point, request routing,
         authorization</li>
-        <li><strong><a href="./service-layer.html">Service
+        <li><strong><a href="./service/index.html">Service
         Layer</a></strong> - Business logic orchestration, transaction
         management</li>
         <li><strong><a href="./repository-layer.html">Repository
@@ -152,6 +155,61 @@
         href="./controller/testing.html">Testing</a></strong> - Unit and
         integration testing strategies</li>
         </ul>
+        <h3 id="service-components-detailed">Service Components
+        (Detailed)</h3>
+        <p>The Service Layer has been broken down into focused
+        guides:</p>
+        <ul>
+        <li><strong><a href="./service/index.html">Core Services
+        Overview</a></strong> - SupplierService, InventoryItemService,
+        StockHistoryService, AnalyticsService</li>
+        <li><strong><a href="./service/supplier-service.html">Supplier
+        Service</a></strong> - Supplier management operations</li>
+        <li><strong><a
+        href="./service/inventory-item-service.html">Inventory Item
+        Service</a></strong> - Item lifecycle and stock tracking</li>
+        <li><strong><a href="./service/stock-history-service.html">Stock
+        History Service</a></strong> - Immutable audit trail
+        management</li>
+        <li><strong><a href="./service/analytics-service.html">Analytics
+        Service</a></strong> - Business intelligence and reporting</li>
+        <li><strong><a href="./service/service-patterns.html">Service
+        Patterns</a></strong> - Dependency injection, transactions,
+        validation</li>
+        <li><strong><a
+        href="./service/dependency-injection.html">Dependency
+        Injection</a></strong> - Constructor-based DI pattern</li>
+        <li><strong><a
+        href="./service/transaction-management.html">Transaction
+        Management</a></strong> - <span class="citation"
+        data-cites="Transactional">@Transactional</span> boundaries</li>
+        <li><strong><a
+        href="./service/exception-translation.html">Exception
+        Translation</a></strong> - Domain exceptions → HTTP
+        responses</li>
+        <li><strong><a href="./service/dto-transformation.html">Data
+        Transformation</a></strong> - DTO ↔︎ Entity mapping</li>
+        <li><strong><a
+        href="./service/validation-strategy.html">Validation
+        Strategy</a></strong> - Business rule validation</li>
+        <li><strong><a href="./service/audit-logging.html">Audit
+        Logging</a></strong> - Tracking changes with
+        createdBy/updatedBy</li>
+        <li><strong><a
+        href="./service/interaction-diagram.html">Interaction
+        Diagram</a></strong> - Service operation flow</li>
+        <li><strong><a
+        href="./service/cross-cutting-concerns.html">Cross-Cutting
+        Concerns</a></strong> - Exception handling and logging</li>
+        <li><strong><a
+        href="./service/testing.html">Testing</a></strong> - Unit
+        testing with Mockito</li>
+        <li><strong><a
+        href="./service/integration.html">Integration</a></strong> - How
+        service layer connects to others</li>
+        <li><strong><a href="./service/best-practices.html">Best
+        Practices</a></strong> - Service design guidelines</li>
+        </ul>
         <h3 id="model-components-detailed">Model Components
         (Detailed)</h3>
         <p>The Model Layer has been broken down into focused guides:</p>
@@ -199,8 +257,10 @@
         Layer</a> to understand endpoint structure</li>
         <li>Check <a href="./controller/routing.html">Routing</a> for
         endpoint mapping</li>
-        <li>Check <a href="./service-layer.html">Service</a> for
+        <li>Check <a href="./service/index.html">Service Layer</a> for
         business logic patterns</li>
+        <li>Check <a href="./service/service-patterns.html">Service
+        Patterns</a> for design patterns</li>
         <li>Reference <a href="./controller/best-practices.html">Best
         Practices</a> for standards</li>
         </ul>
@@ -214,6 +274,8 @@
         Relationships</a> for schema design</li>
         <li>Reference <a href="./model/data-integrity.html">Data
         Integrity</a> for constraints</li>
+        <li>Check <a href="./service/index.html">Service Layer</a> for
+        transaction patterns</li>
         </ul>
         <h3 id="securitydevops">Security/DevOps</h3>
         <ul>
