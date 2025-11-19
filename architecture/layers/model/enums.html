@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · layers/model/enums · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#enumeration-types"
+        id="toc-enumeration-types">Enumeration Types</a>
+        <ul>
+        <li><a href="#role-enumeration" id="toc-role-enumeration">Role
+        Enumeration</a></li>
+        <li><a href="#stockchangereason-enumeration"
+        id="toc-stockchangereason-enumeration">StockChangeReason
+        Enumeration</a></li>
+        <li><a href="#best-practices-for-enumerations"
+        id="toc-best-practices-for-enumerations">Best Practices for
+        Enumerations</a>
+        <ul>
+        <li><a href="#store-as-string-not-ordinal"
+        id="toc-store-as-string-not-ordinal">Store as STRING, Not
+        Ordinal</a></li>
+        <li><a href="#use-for-categories-not-changeable-values"
+        id="toc-use-for-categories-not-changeable-values">Use for
+        Categories, Not Changeable Values</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+        <h1 id="enumeration-types">Enumeration Types</h1>
+        <p>Enumerations provide type-safe categorization for
+        domain-specific values.</p>
+        <h2 id="role-enumeration">Role Enumeration</h2>
+        <p><strong>Purpose:</strong> Define authorization levels in the
+        system</p>
+        <p><strong>Location:</strong>
+        <code>src/main/java/.../enums/Role.java</code></p>
+        <p><strong>Values:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> <span class="bu">Role</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    ADMIN<span class="op">,</span>   <span class="co">// Full system access - can create, read, update, delete</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    USER     <span class="co">// Limited access - read-only on most operations</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ROLE&quot;</span><span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span></code></pre></div>
+        <p><strong>Access Control:</strong> - <strong>ADMIN:</strong>
+        Can perform all operations (CRUD on suppliers, items, etc.) -
+        <strong>USER:</strong> Can read items and analytics, but cannot
+        modify core data</p>
+        <h2 id="stockchangereason-enumeration">StockChangeReason
+        Enumeration</h2>
+        <p><strong>Purpose:</strong> Categorize and explain why stock
+        quantity changed</p>
+        <p><strong>Location:</strong>
+        <code>src/main/java/.../enums/StockChangeReason.java</code></p>
+        <p><strong>Values:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">enum</span> StockChangeReason <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    PURCHASE<span class="op">,</span>      <span class="co">// Stock increase from supplier purchase/delivery</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    SALE<span class="op">,</span>          <span class="co">// Stock decrease from customer sale</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    ADJUSTMENT<span class="op">,</span>    <span class="co">// Manual adjustment (found items, correction, etc.)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    AUDIT<span class="op">,</span>         <span class="co">// Inventory audit/count adjustment</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    RETURN<span class="op">,</span>        <span class="co">// Return from customer (defective, unwanted)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    SHRINKAGE      <span class="co">// Unaccounted loss (damage, theft, etc.)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;REASON&quot;</span><span class="op">)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> StockChangeReason reason<span class="op">;</span></span></code></pre></div>
+        <p><strong>Business Context:</strong> -
+        <strong>PURCHASE:</strong> Goods received from supplier -
+        <strong>SALE:</strong> Goods shipped to customer -
+        <strong>ADJUSTMENT:</strong> Corrections for counting errors -
+        <strong>AUDIT:</strong> Results from physical inventory count -
+        <strong>RETURN:</strong> Customer returns the goods -
+        <strong>SHRINKAGE:</strong> Unexplained/unaccounted loss</p>
+        <h2 id="best-practices-for-enumerations">Best Practices for
+        Enumerations</h2>
+        <h3 id="store-as-string-not-ordinal">Store as STRING, Not
+        Ordinal</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Stores &quot;ADMIN&quot; in database</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Stores 0, 1, 2... (breaks if enum order changes)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">ORDINAL</span><span class="op">)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span></code></pre></div>
+        <h3 id="use-for-categories-not-changeable-values">Use for
+        Categories, Not Changeable Values</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Role is relatively static</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Item name changes frequently</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> itemName<span class="op">;</span>  <span class="co">// Use regular string field</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

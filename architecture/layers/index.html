@@ -63,6 +63,9 @@
         <li><a href="#controller-components-detailed"
         id="toc-controller-components-detailed">Controller Components
         (Detailed)</a></li>
+        <li><a href="#model-components-detailed"
+        id="toc-model-components-detailed">Model Components
+        (Detailed)</a></li>
         </ul></li>
         <li><a href="#quick-navigation-by-role"
         id="toc-quick-navigation-by-role">Quick Navigation by Role</a>
@@ -101,7 +104,7 @@
         <li><strong><a href="./repository-layer.html">Repository
         Layer</a></strong> - Data access abstraction, queries,
         persistence</li>
-        <li><strong><a href="./model-layer.html">Model
+        <li><strong><a href="./model/index.html">Model
         Layer</a></strong> - JPA entities, relationships, domain
         objects</li>
         <li><strong><a href="./infrastructure/index.html">Infrastructure
@@ -149,6 +152,44 @@
         href="./controller/testing.html">Testing</a></strong> - Unit and
         integration testing strategies</li>
         </ul>
+        <h3 id="model-components-detailed">Model Components
+        (Detailed)</h3>
+        <p>The Model Layer has been broken down into focused guides:</p>
+        <ul>
+        <li><strong><a href="./model/supplier-entity.html">Supplier
+        Entity</a></strong> - Inventory goods providers</li>
+        <li><strong><a
+        href="./model/inventory-item-entity.html">Inventory Item
+        Entity</a></strong> - Products/items in inventory</li>
+        <li><strong><a href="./model/stock-history-entity.html">Stock
+        History Entity</a></strong> - Immutable audit trail</li>
+        <li><strong><a href="./model/app-user-entity.html">App User
+        Entity</a></strong> - OAuth2 users and authentication</li>
+        <li><strong><a
+        href="./model/enums.html">Enumerations</a></strong> - Role and
+        StockChangeReason types</li>
+        <li><strong><a href="./model/relationships.html">Entity
+        Relationships</a></strong> - Supplier → Item → StockHistory,
+        User relationships</li>
+        <li><strong><a href="./model/jpa-annotations.html">JPA
+        Annotations</a></strong> - <span class="citation"
+        data-cites="Entity">@Entity</span>, <span class="citation"
+        data-cites="Column">@Column</span>, <span class="citation"
+        data-cites="ManyToOne">@ManyToOne</span>, <span class="citation"
+        data-cites="Version">@Version</span>, etc.</li>
+        <li><strong><a href="./model/design-patterns.html">Design
+        Patterns</a></strong> - Audit fields, optimistic locking,
+        denormalization</li>
+        <li><strong><a href="./model/data-integrity.html">Data
+        Integrity</a></strong> - Primary keys, unique constraints,
+        foreign keys</li>
+        <li><strong><a href="./model/lifecycle.html">Model
+        Lifecycle</a></strong> - Transient → Managed → Persistent
+        states</li>
+        <li><strong><a href="./model/best-practices.html">Best
+        Practices</a></strong> - Lombok, fetch strategies,
+        immutability</li>
+        </ul>
         <h2 id="quick-navigation-by-role">Quick Navigation by Role</h2>
         <h3 id="developers">Developers</h3>
         <ul>
@@ -167,11 +208,12 @@
         <ul>
         <li>Review <a href="./repository-layer.html">Repository
         Layer</a> for queries and indexing</li>
-        <li>Check <a href="./model-layer.html">Model Layer</a> for
-        schema and relationships</li>
-        <li>Reference <a
-        href="./infrastructure/exception-handling.html">Exception
-        Handling</a> for error scenarios</li>
+        <li>Check <a href="./model/index.html">Model Layer</a> to
+        understand entities and relationships</li>
+        <li>Review <a href="./model/relationships.html">Entity
+        Relationships</a> for schema design</li>
+        <li>Reference <a href="./model/data-integrity.html">Data
+        Integrity</a> for constraints</li>
         </ul>
         <h3 id="securitydevops">Security/DevOps</h3>
         <ul>

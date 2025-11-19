@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/model/best-practices · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a>
+        <ul>
+        <li><a href="#use-lombok-for-boilerplate"
+        id="toc-use-lombok-for-boilerplate">1. Use Lombok for
+        Boilerplate</a></li>
+        <li><a href="#use-appropriate-fetch-strategies"
+        id="toc-use-appropriate-fetch-strategies">2. Use Appropriate
+        Fetch Strategies</a></li>
+        <li><a href="#immutable-audit-fields"
+        id="toc-immutable-audit-fields">3. Immutable Audit
+        Fields</a></li>
+        <li><a href="#use-enums-for-categories"
+        id="toc-use-enums-for-categories">4. Use Enums for
+        Categories</a></li>
+        <li><a href="#version-field-for-optimistic-locking"
+        id="toc-version-field-for-optimistic-locking">5. Version Field
+        for Optimistic Locking</a></li>
+        <li><a href="#summary-entity-checklist"
+        id="toc-summary-entity-checklist">Summary: Entity
+        Checklist</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+        <h1 id="best-practices">Best Practices</h1>
+        <p>Guidelines and standards for effective domain model
+        design.</p>
+        <h2 id="use-lombok-for-boilerplate">1. Use Lombok for
+        Boilerplate</h2>
+        <p>Lombok eliminates repetitive getter/setter/constructor
+        code:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Clean and concise</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span>                    <span class="co">// Generates getters, setters, equals, hashCode, toString</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">@NoArgsConstructor</span>       <span class="co">// No-arg constructor (required for JPA)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">@AllArgsConstructor</span>      <span class="co">// All-args constructor (convenient for tests)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Builder</span>                 <span class="co">// Builder pattern support</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Boilerplate clutter</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> contactName<span class="op">;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">Supplier</span><span class="op">()</span> <span class="op">{</span> <span class="op">}</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">Supplier</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="bu">String</span> name<span class="op">,</span> <span class="bu">String</span> contactName<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getId</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> id<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">setId</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">.</span><span class="fu">id</span> <span class="op">=</span> id<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getName</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> name<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">setName</span><span class="op">(</span><span class="bu">String</span> name<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">.</span><span class="fu">name</span> <span class="op">=</span> name<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getContactName</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> contactName<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">setContactName</span><span class="op">(</span><span class="bu">String</span> contactName<span class="op">)</span> <span class="op">{</span> <span class="kw">this</span><span class="op">.</span><span class="fu">contactName</span> <span class="op">=</span> contactName<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">equals</span><span class="op">(</span><span class="bu">Object</span> o<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">int</span> <span class="fu">hashCode</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">toString</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="use-appropriate-fetch-strategies">2. Use Appropriate
+        Fetch Strategies</h2>
+        <p>Balance efficiency with lazy loading:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Supplier always needed with item</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">EAGER</span><span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> Supplier supplier<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - LAZY causes N+1 query problem</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">@OneToMany</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">LAZY</span><span class="op">)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">// In loop:</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>Supplier s <span class="op">:</span> suppliers<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> s<span class="op">.</span><span class="fu">getItems</span><span class="op">();</span>  <span class="co">// Extra query per supplier!</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Rule of Thumb:</strong> - <code>EAGER</code> for
+        “always needed” relationships (Supplier with Item) -
+        <code>LAZY</code> for “rarely accessed” relationships (OneToMany
+        collections) - Use <code>@Query</code> with
+        <code>JOIN FETCH</code> to override defaults when needed</p>
+        <h2 id="immutable-audit-fields">3. Immutable Audit Fields</h2>
+        <p>Protect audit fields from accidental modification:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Immutable creation fields</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@CreationTimestamp</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Updatable audit fields (allows tampering)</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_AT&quot;</span><span class="op">)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span>  <span class="co">// Can be modified</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">)</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>  <span class="co">// Can be modified</span></span></code></pre></div>
+        <p><strong>Why Immutable:</strong> - Audit trail integrity
+        (can’t erase who created something) - Compliance with
+        regulations - Prevents accidental overwrites - Reflects business
+        reality (creation is immutable)</p>
+        <h2 id="use-enums-for-categories">4. Use Enums for
+        Categories</h2>
+        <p>Type-safe enumeration over strings:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Type-safe, compiler checks</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span>  <span class="co">// Can only be ADMIN or USER</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>user<span class="op">.</span><span class="fu">getRole</span><span class="op">()</span> <span class="op">==</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span><span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - String prone to typos and errors</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> role <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">;</span>  <span class="co">// Could be &quot;admin&quot;, &quot;Admin&quot;, &quot;ADMN&quot;, etc.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>user<span class="op">.</span><span class="fu">getRole</span><span class="op">().</span><span class="fu">equals</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">))</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span>  <span class="co">// Runtime error if typo</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Compiler enforces valid values -
+        IDE autocomplete works properly - Type safety prevents bugs -
+        Refactoring is safe</p>
+        <h2 id="version-field-for-optimistic-locking">5. Version Field
+        for Optimistic Locking</h2>
+        <p>Prevent concurrent modification conflicts:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Optimistic locking enabled</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Version</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Long</span> version<span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Hibernate automatically:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">// - Increments on each update</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">// - Includes in WHERE clause: WHERE id = ? AND version = ?</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">// - Throws OptimisticLockException if stale</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - No locking, concurrent updates lost</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItem <span class="op">{</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">int</span> quantity<span class="op">;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Multiple threads can update without conflict detection</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>How It Works:</strong></p>
+        <pre><code>Thread A: Read quantity = 100, version = 5
+Thread B: Read quantity = 100, version = 5
+Thread B: Update quantity = 90, version = 6 ✓
+Thread A: Update quantity = 105, version = 5 ✗ 
+         OptimisticLockException (version mismatch)</code></pre>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    inventoryService<span class="op">.</span><span class="fu">updateQuantity</span><span class="op">(</span>id<span class="op">,</span> newQty<span class="op">);</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>OptimisticLockException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Refresh and retry</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    InventoryItem latest <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Retry update with fresh data</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="summary-entity-checklist">Summary: Entity Checklist</h2>
+        <p>When creating a new entity, ensure:</p>
+        <ul>
+        <li>✅ <code>@Entity</code> and <code>@Table</code>
+        annotations</li>
+        <li>✅ <code>@Id</code> primary key with appropriate
+        strategy</li>
+        <li>✅ <code>@Version</code> field for optimistic locking (if
+        updatable)</li>
+        <li>✅ <code>@CreationTimestamp</code> and
+        <code>updatable = false</code> for createdAt</li>
+        <li>✅ <code>@Column(updatable = false)</code> for
+        createdBy</li>
+        <li>✅ Unique constraints for business-unique fields</li>
+        <li>✅ Lombok annotations (<span class="citation"
+        data-cites="Data">@Data</span>, <span class="citation"
+        data-cites="Builder">@Builder</span>, <span class="citation"
+        data-cites="NoArgsConstructor">@NoArgsConstructor</span>)</li>
+        <li>✅ Foreign key columns and <code>@ManyToOne</code> with
+        proper fetch strategy</li>
+        <li>✅ <code>@Enumerated(EnumType.STRING)</code> for
+        enumerations</li>
+        <li>✅ Appropriate <code>nullable = false</code>
+        constraints</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

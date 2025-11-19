@@ -218,18 +218,25 @@
         <code>src/main/java/.../enums/</code></p>
         <p>Defines JPA entities that map to database tables. These are
         the core domain objects representing business concepts.</p>
-        <p><strong>Key Entities:</strong> - <code>Supplier</code> -
-        Goods providers - <code>InventoryItem</code> - Products in
-        inventory - <code>StockHistory</code> - Immutable audit trail -
-        <code>AppUser</code> - OAuth2 principals - <code>Role</code> -
-        Authorization levels - <code>StockChangeReason</code> -
-        Enumeration of change types</p>
-        <p><strong>Responsibilities:</strong> - Map database schema to
-        Java objects - Define entity relationships (foreign keys) -
-        Enforce data constraints (unique, not null) - Track audit
-        information (creator, timestamp) - Support optimistic locking
-        with version fields</p>
-        <p><strong>Learn More:</strong> <a href="./model-layer.html">📄
+        <p><strong>Key Entities:</strong> - <strong><a
+        href="./model/supplier-entity.html">Supplier</a></strong> -
+        Goods providers - <strong><a
+        href="./model/inventory-item-entity.html">InventoryItem</a></strong>
+        - Products in inventory - <strong><a
+        href="./model/stock-history-entity.html">StockHistory</a></strong>
+        - Immutable audit trail - <strong><a
+        href="./model/app-user-entity.html">AppUser</a></strong> -
+        OAuth2 principals - <strong><a
+        href="./model/enums.html">Enumerations</a></strong> - Role and
+        StockChangeReason types</p>
+        <p><strong>Responsibilities:</strong> - <a
+        href="./model/jpa-annotations.html">Map database schema to Java
+        objects</a> - <a href="./model/relationships.html">Define entity
+        relationships (foreign keys)</a> - <a
+        href="./model/data-integrity.html">Enforce data constraints
+        (unique, not null)</a> - Track audit information (creator,
+        timestamp) - Support optimistic locking with version fields</p>
+        <p><strong>Learn More:</strong> <a href="./model/index.html">📄
         Domain Model &amp; Data Layer</a></p>
         <hr />
         <h3

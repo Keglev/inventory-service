@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/model/lifecycle · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#model-lifecycle" id="toc-model-lifecycle">Model
+        Lifecycle</a>
+        <ul>
+        <li><a href="#entity-lifecycle-states"
+        id="toc-entity-lifecycle-states">Entity Lifecycle
+        States</a></li>
+        <li><a href="#state-descriptions"
+        id="toc-state-descriptions">State Descriptions</a>
+        <ul>
+        <li><a href="#new-entity-transient"
+        id="toc-new-entity-transient">1. New Entity (Transient)</a></li>
+        <li><a href="#managed-state" id="toc-managed-state">2. Managed
+        State</a></li>
+        <li><a href="#persistent" id="toc-persistent">3.
+        Persistent</a></li>
+        <li><a href="#detached-state" id="toc-detached-state">4.
+        Detached State</a></li>
+        <li><a href="#removed" id="toc-removed">5. Removed</a></li>
+        <li><a href="#deleted" id="toc-deleted">6. Deleted</a></li>
+        </ul></li>
+        <li><a href="#lifecycle-transitions"
+        id="toc-lifecycle-transitions">Lifecycle Transitions</a>
+        <ul>
+        <li><a href="#save-new-entity" id="toc-save-new-entity">Save New
+        Entity</a></li>
+        <li><a href="#update-managed-entity"
+        id="toc-update-managed-entity">Update Managed Entity</a></li>
+        <li><a href="#update-detached-entity"
+        id="toc-update-detached-entity">Update Detached Entity</a></li>
+        <li><a href="#delete-entity" id="toc-delete-entity">Delete
+        Entity</a></li>
+        </ul></li>
+        <li><a href="#practical-implications"
+        id="toc-practical-implications">Practical Implications</a>
+        <ul>
+        <li><a href="#why-state-matters" id="toc-why-state-matters">Why
+        State Matters</a></li>
+        </ul></li>
+        <li><a href="#best-practice-use-transactional"
+        id="toc-best-practice-use-transactional">Best Practice: Use
+        <span class="citation"
+        data-cites="Transactional">@Transactional</span></a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+        <h1 id="model-lifecycle">Model Lifecycle</h1>
+        <p>The <strong>Model Lifecycle</strong> describes the states an
+        entity passes through from creation to deletion.</p>
+        <h2 id="entity-lifecycle-states">Entity Lifecycle States</h2>
+        <div class="mermaid">
+        graph TB
+            New["New Entity<br/>Created in Code"]
+            Transient["Transient State<br/>Not Yet Persisted"]
+            Managed["Managed State<br/>Tracked by Hibernate"]
+            Persistent["Persistent<br/>Saved to Database"]
+            Detached["Detached State<br/>Transaction Ended"]
+            Removed["Removed<br/>Marked for Delete"]
+            Deleted["Deleted<br/>from Database"]
+
+            New --> Transient
+            Transient -->|repository.save()| Managed
+            Managed -->|Transaction Commits| Persistent
+            Persistent -->|Transaction Ends| Detached
+            Persistent -->|repository.delete()| Removed
+            Removed -->|Commit| Deleted
+
+            style New fill:#bbdefb
+            style Transient fill:#90caf9
+            style Managed fill:#64b5f6
+            style Persistent fill:#42a5f5
+            style Detached fill:#2196f3
+            style Removed fill:#ef9a9a
+            style Deleted fill:#ef5350
+        </div>
+        <h2 id="state-descriptions">State Descriptions</h2>
+        <h3 id="new-entity-transient">1. New Entity (Transient)</h3>
+        <p><strong>Created in code but not yet persisted</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Supplier supplier <span class="op">=</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="bu">UUID</span><span class="op">.</span><span class="fu">randomUUID</span><span class="op">().</span><span class="fu">toString</span><span class="op">())</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;ACME Corp&quot;</span><span class="op">)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">// supplier is NEW/TRANSIENT - not yet in database</span></span></code></pre></div>
+        <h3 id="managed-state">2. Managed State</h3>
+        <p><strong>Entity is tracked by Hibernate and associated with
+        session</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Supplier saved <span class="op">=</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">// saved is now MANAGED - within active session</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Changes are tracked automatically</span></span></code></pre></div>
+        <h3 id="persistent">3. Persistent</h3>
+        <p><strong>Entity saved to database with committed
+        transaction</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// After @Transactional method completes</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Entity is PERSISTENT - record exists in database</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Changes are persisted</span></span></code></pre></div>
+        <h3 id="detached-state">4. Detached State</h3>
+        <p><strong>Entity no longer tracked after session
+        closes</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// After @Transactional method ends</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Entity becomes DETACHED - session closed</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Changes are NO LONGER tracked automatically</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span><span class="st">&quot;New Name&quot;</span><span class="op">);</span>  <span class="co">// Won&#39;t be persisted</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Must reattach or save explicitly</span></span></code></pre></div>
+        <h3 id="removed">5. Removed</h3>
+        <p><strong>Entity marked for deletion</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>repository<span class="op">.</span><span class="fu">delete</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// supplier is REMOVED - scheduled for deletion</span></span></code></pre></div>
+        <h3 id="deleted">6. Deleted</h3>
+        <p><strong>Entity removed from database</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// After @Transactional completes</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">// supplier is DELETED - removed from database</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Record no longer exists</span></span></code></pre></div>
+        <h2 id="lifecycle-transitions">Lifecycle Transitions</h2>
+        <h3 id="save-new-entity">Save New Entity</h3>
+        <pre><code>New → Transient → Managed → Persistent</code></pre>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Supplier supplier <span class="op">=</span> <span class="kw">new</span> <span class="fu">Supplier</span><span class="op">();</span>  <span class="co">// NEW</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span><span class="st">&quot;ACME Corp&quot;</span><span class="op">);</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span>            <span class="co">// MANAGED (within session)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">// @Transactional ends → PERSISTENT (committed to database)</span></span></code></pre></div>
+        <h3 id="update-managed-entity">Update Managed Entity</h3>
+        <pre><code>Managed → Managed (automatically persisted on commit)</code></pre>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">updateSupplier</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="bu">String</span> newName<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    Supplier supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// MANAGED</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>newName<span class="op">);</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No need to call save() - automatically persisted on commit</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="update-detached-entity">Update Detached Entity</h3>
+        <pre><code>Detached → Managed → Persistent (requires reattachment)</code></pre>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Supplier supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// PERSISTENT</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Detach from session somehow...</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Now DETACHED - changes won&#39;t be persisted</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span><span class="st">&quot;New Name&quot;</span><span class="op">);</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Reattach via save or merge</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span>  <span class="co">// MANAGED again, then PERSISTENT</span></span></code></pre></div>
+        <h3 id="delete-entity">Delete Entity</h3>
+        <pre><code>Managed → Removed → Deleted</code></pre>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Supplier supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// MANAGED</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>repository<span class="op">.</span><span class="fu">delete</span><span class="op">(</span>supplier<span class="op">);</span>                  <span class="co">// REMOVED</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">// @Transactional ends → DELETED (committed deletion)</span></span></code></pre></div>
+        <h2 id="practical-implications">Practical Implications</h2>
+        <h3 id="why-state-matters">Why State Matters</h3>
+        <p><strong>Managed State:</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">updateSupplier</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="bu">String</span> newName<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    Supplier supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// MANAGED</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>newName<span class="op">);</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No explicit save() needed - automatically persisted</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Detached State:</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">updateSupplier</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="bu">String</span> newName<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    Supplier supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// DETACHED (no @Transactional)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>newName<span class="op">);</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Changes NOT persisted - session already closed</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Must explicitly save</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span>  <span class="co">// Reattaches and persists</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="best-practice-use-transactional">Best Practice: Use
+        <span class="citation"
+        data-cites="Transactional">@Transactional</span></h2>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ Good - Explicit transaction boundary</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Transactional</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">update</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> UpdateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    Supplier supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// MANAGED</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Auto-persisted on commit - clean and simple</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ Bad - Detached entity issues</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">update</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> UpdateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    Supplier supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// DETACHED</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Changes NOT persisted - forgotten save?</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mapper<span class="op">.</span><span class="fu">toDTO</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

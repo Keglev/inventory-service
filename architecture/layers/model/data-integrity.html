@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/model/data-integrity · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#data-integrity-constraints"
+        id="toc-data-integrity-constraints">Data Integrity
+        Constraints</a>
+        <ul>
+        <li><a href="#primary-keys" id="toc-primary-keys">Primary
+        Keys</a></li>
+        <li><a href="#unique-constraints"
+        id="toc-unique-constraints">Unique Constraints</a></li>
+        <li><a href="#foreign-keys" id="toc-foreign-keys">Foreign
+        Keys</a></li>
+        <li><a href="#not-null-constraints"
+        id="toc-not-null-constraints">NOT NULL Constraints</a></li>
+        <li><a href="#constraint-summary-table"
+        id="toc-constraint-summary-table">Constraint Summary
+        Table</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+        <h1 id="data-integrity-constraints">Data Integrity
+        Constraints</h1>
+        <p>Data integrity constraints at the database level protect data
+        quality and consistency.</p>
+        <h2 id="primary-keys">Primary Keys</h2>
+        <p><strong>Purpose:</strong> Uniquely identify each record</p>
+        <pre><code>SUPPLIER.ID - Unique supplier identifier
+INVENTORY_ITEM.ID - Unique item identifier
+STOCK_HISTORY.ID - Unique history entry identifier
+APP_USER.ID - Unique user identifier</code></pre>
+        <p><strong>Implementation:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Id</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ID&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span>  <span class="co">// UUID or generated ID</span></span></code></pre></div>
+        <p><strong>Database Constraint:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">PRIMARY</span> <span class="kw">KEY</span> (<span class="kw">ID</span>)</span></code></pre></div>
+        <p><strong>Benefits:</strong> - Every record uniquely
+        identifiable - Foreign keys can reference primary keys -
+        Prevents duplicate records - Enables fast lookups by ID</p>
+        <h2 id="unique-constraints">Unique Constraints</h2>
+        <p><strong>Purpose:</strong> Prevent duplicate values in
+        specific columns</p>
+        <pre><code>SUPPLIER.NAME - No two suppliers with same name
+INVENTORY_ITEM.NAME - No two items with same name
+APP_USER.EMAIL - No two users with same email</code></pre>
+        <p><strong>Implementation:</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;NAME&quot;</span><span class="op">,</span> unique <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Multiple columns unique together</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>uniqueConstraints <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@UniqueConstraint</span><span class="op">(</span>columnNames <span class="op">=</span> <span class="op">{</span><span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">,</span> <span class="st">&quot;NAME&quot;</span><span class="op">})</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="op">})</span></span></code></pre></div>
+        <p><strong>Database Constraint:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">UNIQUE</span> (NAME)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">UNIQUE</span> (EMAIL)</span></code></pre></div>
+        <p><strong>Benefits:</strong> - Enforces business rules at
+        database level - Prevents data anomalies - Database rejects
+        invalid inserts/updates - Faster validation than
+        application-level checks</p>
+        <h2 id="foreign-keys">Foreign Keys</h2>
+        <p><strong>Purpose:</strong> Enforce referential integrity
+        between tables</p>
+        <pre><code>INVENTORY_ITEM.SUPPLIER_ID → SUPPLIER.ID
+STOCK_HISTORY.ITEM_ID → INVENTORY_ITEM.ID</code></pre>
+        <p><strong>Implementation:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> supplierId<span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">@ManyToOne</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">,</span> foreignKey <span class="op">=</span> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ForeignKey</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;fk_item_supplier&quot;</span><span class="op">))</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> Supplier supplier<span class="op">;</span></span></code></pre></div>
+        <p><strong>Database Constraint:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FOREIGN</span> <span class="kw">KEY</span> (SUPPLIER_ID) <span class="kw">REFERENCES</span> SUPPLIER(<span class="kw">ID</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">ON</span> <span class="kw">UPDATE</span> <span class="kw">CASCADE</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Ensures data consistency across
+        tables - Prevents orphaned records - Database enforces
+        relationship validity - No invalid cross-table references</p>
+        <h2 id="not-null-constraints">NOT NULL Constraints</h2>
+        <p><strong>Purpose:</strong> Enforce required fields</p>
+        <pre><code>SUPPLIER.ID - Required
+SUPPLIER.NAME - Required
+SUPPLIER.CREATED_BY - Required
+INVENTORY_ITEM.QUANTITY - Required
+INVENTORY_ITEM.UNIT_PRICE - Required
+STOCK_HISTORY.REASON - Required</code></pre>
+        <p><strong>Implementation:</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;NAME&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span></span></code></pre></div>
+        <p><strong>Database Constraint:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode sql"><code class="sourceCode sql"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">NOT</span> <span class="kw">NULL</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Ensures required data is always
+        provided - Prevents NULL values in critical fields - Database
+        rejects incomplete records - Improves query reliability</p>
+        <h2 id="constraint-summary-table">Constraint Summary Table</h2>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Constraint</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>SUPPLIER.ID</td>
+        <td>String</td>
+        <td>PK, NOT NULL</td>
+        <td>Unique identifier</td>
+        </tr>
+        <tr class="even">
+        <td>SUPPLIER.NAME</td>
+        <td>String</td>
+        <td>UNIQUE, NOT NULL</td>
+        <td>No duplicate suppliers</td>
+        </tr>
+        <tr class="odd">
+        <td>SUPPLIER.CREATED_BY</td>
+        <td>String</td>
+        <td>NOT NULL</td>
+        <td>Audit tracking</td>
+        </tr>
+        <tr class="even">
+        <td>INVENTORY_ITEM.ID</td>
+        <td>String</td>
+        <td>PK, NOT NULL</td>
+        <td>Unique identifier</td>
+        </tr>
+        <tr class="odd">
+        <td>INVENTORY_ITEM.NAME</td>
+        <td>String</td>
+        <td>UNIQUE, NOT NULL</td>
+        <td>No duplicate items</td>
+        </tr>
+        <tr class="even">
+        <td>INVENTORY_ITEM.SUPPLIER_ID</td>
+        <td>String</td>
+        <td>FK, NOT NULL</td>
+        <td>Links to supplier</td>
+        </tr>
+        <tr class="odd">
+        <td>INVENTORY_ITEM.QUANTITY</td>
+        <td>Integer</td>
+        <td>NOT NULL</td>
+        <td>Required field</td>
+        </tr>
+        <tr class="even">
+        <td>STOCK_HISTORY.REASON</td>
+        <td>Enum</td>
+        <td>NOT NULL</td>
+        <td>Required field</td>
+        </tr>
+        <tr class="odd">
+        <td>APP_USER.EMAIL</td>
+        <td>String</td>
+        <td>UNIQUE, NOT NULL</td>
+        <td>Unique user</td>
+        </tr>
+        <tr class="even">
+        <td>APP_USER.ROLE</td>
+        <td>Enum</td>
+        <td>NOT NULL</td>
+        <td>Required field</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

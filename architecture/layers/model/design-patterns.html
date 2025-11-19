@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/model/design-patterns · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#design-patterns" id="toc-design-patterns">Design
+        Patterns</a>
+        <ul>
+        <li><a href="#audit-fields-pattern"
+        id="toc-audit-fields-pattern">Audit Fields Pattern</a></li>
+        <li><a href="#optimistic-locking-pattern"
+        id="toc-optimistic-locking-pattern">Optimistic Locking
+        Pattern</a></li>
+        <li><a href="#soft-deletes-pattern"
+        id="toc-soft-deletes-pattern">Soft Deletes Pattern</a></li>
+        <li><a href="#denormalization-for-analytics-pattern"
+        id="toc-denormalization-for-analytics-pattern">Denormalization
+        for Analytics Pattern</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+        <h1 id="design-patterns">Design Patterns</h1>
+        <p>Design patterns in the domain model layer provide solutions
+        to common persistence challenges.</p>
+        <h2 id="audit-fields-pattern">Audit Fields Pattern</h2>
+        <p><strong>Problem:</strong> Need to track who created/modified
+        records and when for compliance.</p>
+        <p><strong>Solution:</strong> Add immutable creation fields and
+        updateable timestamp fields.</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>  <span class="co">// Set from SecurityContext, never changes</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">@CreationTimestamp</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_AT&quot;</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span>  <span class="co">// Auto-set on INSERT, immutable</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">@UpdateTimestamp</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;UPDATED_AT&quot;</span><span class="op">)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime updatedAt<span class="op">;</span>  <span class="co">// Auto-set on INSERT and UPDATE</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Complete audit trail of who did
+        what and when - Immutability prevents accidental or malicious
+        changes - Automatic timestamp management (no manual code) -
+        Compliance with data protection regulations</p>
+        <h2 id="optimistic-locking-pattern">Optimistic Locking
+        Pattern</h2>
+        <p><strong>Problem:</strong> Multiple users editing the same
+        record simultaneously can cause conflicts.</p>
+        <p><strong>Solution:</strong> Use version field to detect
+        concurrent modifications.</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Version</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;VERSION&quot;</span><span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Long</span> version<span class="op">;</span>  <span class="co">// Incremented on each update</span></span></code></pre></div>
+        <p><strong>How It Works:</strong></p>
+        <pre><code>User A reads Supplier (version = 3)
+User B reads Supplier (version = 3)
+User B updates Supplier → version = 4
+User A tries to update → FAILS (version mismatch)
+User A must refresh and retry</code></pre>
+        <p><strong>Benefits:</strong> - No database locks needed
+        (read/write efficiency) - Detects concurrent modifications
+        automatically - Forces retry logic on conflicts - Better
+        performance than pessimistic locking</p>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Repository handles OptimisticLockException</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    supplierService<span class="op">.</span><span class="fu">update</span><span class="op">(</span>id<span class="op">,</span> dto<span class="op">);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>OptimisticLockException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Retry or notify user to refresh and try again</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="soft-deletes-pattern">Soft Deletes Pattern</h2>
+        <p><strong>Problem:</strong> Need to delete records but maintain
+        referential integrity and audit trails.</p>
+        <p><strong>Solution:</strong> Mark records as deleted instead of
+        removing them.</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;DELETED_AT&quot;</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime deletedAt<span class="op">;</span>  <span class="co">// NULL = active, not NULL = deleted</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Query for active records only</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">@Query</span><span class="op">(</span><span class="st">&quot;SELECT s FROM Supplier s WHERE s.deletedAt IS NULL&quot;</span><span class="op">)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findActive</span><span class="op">();</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Include in where clauses</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">@Query</span><span class="op">(</span><span class="st">&quot;SELECT s FROM Supplier s WHERE s.deletedAt IS NULL AND s.name = :name&quot;</span><span class="op">)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>Optional<span class="op">&lt;</span>Supplier<span class="op">&gt;</span> <span class="fu">findActiveByName</span><span class="op">(</span><span class="at">@Param</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">)</span> <span class="bu">String</span> name<span class="op">);</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Preserves historical data and
+        audit trails - Prevents cascading constraint violations - Can
+        restore deleted records if needed - Maintains referential
+        integrity</p>
+        <p><strong>Trade-offs:</strong> - Every query must filter
+        <code>deletedAt IS NULL</code> - Database size grows larger -
+        Requires discipline in query writing</p>
+        <h2 id="denormalization-for-analytics-pattern">Denormalization
+        for Analytics Pattern</h2>
+        <p><strong>Problem:</strong> Analytics queries require expensive
+        JOINs across multiple tables.</p>
+        <p><strong>Solution:</strong> Duplicate frequently-needed fields
+        in audit/history tables.</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Instead of:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT sh.*, ii.name, s.name FROM stock_history sh</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">// JOIN inventory_item ii ON sh.item_id = ii.id</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">// JOIN supplier s ON ii.supplier_id = s.id</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Denormalize supplier into stock_history:</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> supplierId<span class="op">;</span>  <span class="co">// Redundant but avoids joins</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Now queries are simpler and faster:</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">// SELECT * FROM stock_history WHERE supplier_id = &#39;abc123&#39;</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Significantly faster analytics
+        queries - Reduced database CPU usage - Simpler query logic -
+        Better scalability for reporting</p>
+        <p><strong>Trade-offs:</strong> - Data redundancy (storage cost)
+        - Must keep denormalized fields in sync - Adds complexity to
+        write operations</p>
+        <p><strong>Synchronization Example:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// When creating stock history, also store supplier ID</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>StockHistory history <span class="op">=</span> StockHistory<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">itemId</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getId</span><span class="op">())</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span>item<span class="op">.</span><span class="fu">getSupplierId</span><span class="op">())</span>  <span class="co">// Denormalized</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">reason</span><span class="op">(</span>StockChangeReason<span class="op">.</span><span class="fu">SALE</span><span class="op">)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">oldQuantity</span><span class="op">(</span>previous<span class="op">)</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">newQuantity</span><span class="op">(</span>current<span class="op">)</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

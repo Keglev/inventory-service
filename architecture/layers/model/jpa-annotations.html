@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+layers/model/jpa-annotations · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#jpa-annotations" id="toc-jpa-annotations">JPA
+        Annotations</a>
+        <ul>
+        <li><a href="#identity-and-basic-mapping"
+        id="toc-identity-and-basic-mapping">Identity and Basic
+        Mapping</a>
+        <ul>
+        <li><a href="#entity-and-table" id="toc-entity-and-table"><span
+        class="citation" data-cites="Entity">@Entity</span> and <span
+        class="citation" data-cites="Table">@Table</span></a></li>
+        <li><a href="#column-constraints"
+        id="toc-column-constraints"><span class="citation"
+        data-cites="Column">@Column</span> Constraints</a></li>
+        </ul></li>
+        <li><a href="#timestamps-and-audit"
+        id="toc-timestamps-and-audit">Timestamps and Audit</a>
+        <ul>
+        <li><a href="#auto-set-timestamps"
+        id="toc-auto-set-timestamps">Auto-Set Timestamps</a></li>
+        <li><a href="#audit-fields" id="toc-audit-fields">Audit
+        Fields</a></li>
+        </ul></li>
+        <li><a href="#relationships"
+        id="toc-relationships">Relationships</a>
+        <ul>
+        <li><a href="#many-to-one-relationship"
+        id="toc-many-to-one-relationship">Many-to-One
+        Relationship</a></li>
+        <li><a href="#one-to-many-relationship"
+        id="toc-one-to-many-relationship">One-to-Many
+        Relationship</a></li>
+        </ul></li>
+        <li><a href="#enumerations"
+        id="toc-enumerations">Enumerations</a>
+        <ul>
+        <li><a href="#enum-storage-options"
+        id="toc-enum-storage-options">Enum Storage Options</a></li>
+        </ul></li>
+        <li><a href="#optimistic-locking"
+        id="toc-optimistic-locking">Optimistic Locking</a>
+        <ul>
+        <li><a href="#version-field" id="toc-version-field">Version
+        Field</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+        <h1 id="jpa-annotations">JPA Annotations</h1>
+        <p>JPA (Java Persistence API) annotations map Java classes to
+        database tables and define entity behavior.</p>
+        <h2 id="identity-and-basic-mapping">Identity and Basic
+        Mapping</h2>
+        <h3 id="entity-and-table"><span class="citation"
+        data-cites="Entity">@Entity</span> and <span class="citation"
+        data-cites="Table">@Table</span></h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span>                          <span class="co">// Marks class as JPA entity</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Table</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER&quot;</span><span class="op">)</span>        <span class="co">// Maps to database table &quot;SUPPLIER&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span>                          <span class="co">// Primary key field</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ID&quot;</span><span class="op">)</span>         <span class="co">// Column name in database</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="column-constraints"><span class="citation"
+        data-cites="Column">@Column</span> Constraints</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;NAME&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> unique <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span>  <span class="co">// NOT NULL, UNIQUE constraint</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;EMAIL&quot;</span><span class="op">,</span> unique <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span>  <span class="co">// UNIQUE constraint (NULL values allowed)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>  <span class="co">// NOT NULL constraint</span></span></code></pre></div>
+        <p><strong>Attributes:</strong> - <code>name</code> - Explicit
+        column name in database - <code>nullable</code> - Corresponds to
+        NOT NULL constraint - <code>unique</code> - Enforces UNIQUE
+        constraint - <code>length</code> - Max length for strings</p>
+        <h2 id="timestamps-and-audit">Timestamps and Audit</h2>
+        <h3 id="auto-set-timestamps">Auto-Set Timestamps</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@CreationTimestamp</span>              <span class="co">// Auto-set on INSERT only</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span>      <span class="co">// Prevent UPDATEs</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">@UpdateTimestamp</span>                <span class="co">// Auto-set on INSERT and UPDATE</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> LocalDateTime updatedAt<span class="op">;</span></span></code></pre></div>
+        <p><strong>Usage:</strong> - <code>@CreationTimestamp</code> -
+        Set once when record created, never changes -
+        <code>@UpdateTimestamp</code> - Updated every time record is
+        modified - <code>updatable = false</code> - Protects field from
+        being overwritten</p>
+        <h3 id="audit-fields">Audit Fields</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;CREATED_BY&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> updatable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>  <span class="co">// Set from SecurityContext, immutable</span></span></code></pre></div>
+        <h2 id="relationships">Relationships</h2>
+        <h3 id="many-to-one-relationship">Many-to-One Relationship</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ManyToOne</span><span class="op">(</span>fetch <span class="op">=</span> FetchType<span class="op">.</span><span class="fu">EAGER</span><span class="op">)</span>  <span class="co">// Multiple items → one supplier</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@JoinColumn</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;SUPPLIER_ID&quot;</span><span class="op">)</span>    <span class="co">// Foreign key column</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> Supplier supplier<span class="op">;</span></span></code></pre></div>
+        <p><strong>Attributes:</strong> -
+        <code>fetch = FetchType.EAGER</code> - Always load related
+        supplier with item - <code>fetch = FetchType.LAZY</code> - Load
+        supplier only when accessed (slower if accessed often) -
+        <code>@JoinColumn</code> - Specifies foreign key column</p>
+        <h3 id="one-to-many-relationship">One-to-Many Relationship</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@OneToMany</span><span class="op">(</span>mappedBy <span class="op">=</span> <span class="st">&quot;supplier&quot;</span><span class="op">)</span>  <span class="co">// Inverse side of @ManyToOne</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items<span class="op">;</span></span></code></pre></div>
+        <p><strong>Attributes:</strong> - <code>mappedBy</code> -
+        References the field on the other side of relationship - Defines
+        inverse relationship (not stored as column)</p>
+        <h2 id="enumerations">Enumerations</h2>
+        <h3 id="enum-storage-options">Enum Storage Options</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ GOOD - Stores enum name as string (&quot;ADMIN&quot;, &quot;USER&quot;)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">STRING</span><span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ROLE&quot;</span><span class="op">)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ BAD - Stores enum ordinal (0, 1, 2...) - breaks if enum order changes</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Enumerated</span><span class="op">(</span>EnumType<span class="op">.</span><span class="fu">ORDINAL</span><span class="op">)</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;ROLE&quot;</span><span class="op">)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Role</span> role<span class="op">;</span></span></code></pre></div>
+        <p><strong>Best Practice:</strong> Always use
+        <code>EnumType.STRING</code> for readability and stability.</p>
+        <h2 id="optimistic-locking">Optimistic Locking</h2>
+        <h3 id="version-field">Version Field</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Version</span>                        <span class="co">// Automatic version tracking</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;VERSION&quot;</span><span class="op">)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">Long</span> version<span class="op">;</span>           <span class="co">// Incremented on each update</span></span></code></pre></div>
+        <p><strong>How It Works:</strong> 1. Hibernate reads current
+        version from database (e.g., version = 5) 2. Business logic
+        modifies entity 3. On UPDATE, Hibernate increments version
+        (version = 6) 4. WHERE clause includes version check:
+        <code>WHERE id = ? AND version = 5</code> 5. If another thread
+        updated first, version won’t match 6. Update fails with
+        <code>OptimisticLockException</code></p>
+        <p><strong>Example:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Thread 1 reads item (version = 5)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>InventoryItem item <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;abc123&quot;</span><span class="op">);</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>item<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(</span><span class="dv">100</span><span class="op">);</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Thread 2 reads same item (version = 5) and updates first</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">// ...updates item, version becomes 6...</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Thread 1 tries to save - FAILS</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>item<span class="op">);</span>  <span class="co">// OptimisticLockException: version mismatch</span></span></code></pre></div>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Model Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · layers/model/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#domain-model-data-layer"
+        id="toc-domain-model-data-layer">Domain Model &amp; Data
+        Layer</a>
+        <ul>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a>
+        <ul>
+        <li><a href="#by-topic" id="toc-by-topic">By Topic</a></li>
+        <li><a href="#by-role" id="toc-by-role">By Role</a></li>
+        </ul></li>
+        <li><a href="#core-entities-overview"
+        id="toc-core-entities-overview">Core Entities Overview</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../overview.html">⬅️ Back to Layers Overview</a></p>
+        <h1 id="domain-model-data-layer">Domain Model &amp; Data
+        Layer</h1>
+        <p>The <strong>Domain Model Layer</strong> represents the core
+        business entities and their relationships. These JPA entities
+        map directly to database tables and form the foundation of the
+        application’s data persistence.</p>
+        <p><strong>Location:</strong>
+        <code>src/main/java/com/smartsupplypro/inventory/model/</code></p>
+        <p><strong>Responsibility:</strong> Entity definitions,
+        relationships, constraints, audit tracking, enumeration
+        types</p>
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <h3 id="by-topic">By Topic</h3>
+        <ul>
+        <li><strong><a href="./supplier-entity.html">Supplier
+        Entity</a></strong> - Inventory goods providers</li>
+        <li><strong><a href="./inventory-item-entity.html">Inventory
+        Item Entity</a></strong> - Products/items in inventory</li>
+        <li><strong><a href="./stock-history-entity.html">Stock History
+        Entity</a></strong> - Immutable audit trail</li>
+        <li><strong><a href="./app-user-entity.html">App User
+        Entity</a></strong> - OAuth2 users and authentication</li>
+        <li><strong><a href="./enums.html">Enumerations</a></strong> -
+        Role and StockChangeReason types</li>
+        <li><strong><a href="./relationships.html">Entity
+        Relationships</a></strong> - Supplier → Item → StockHistory,
+        User relationships</li>
+        <li><strong><a href="./jpa-annotations.html">JPA
+        Annotations</a></strong> - <span class="citation"
+        data-cites="Entity">@Entity</span>, <span class="citation"
+        data-cites="Column">@Column</span>, <span class="citation"
+        data-cites="ManyToOne">@ManyToOne</span>, <span class="citation"
+        data-cites="Version">@Version</span>, etc.</li>
+        <li><strong><a href="./design-patterns.html">Design
+        Patterns</a></strong> - Audit fields, optimistic locking,
+        denormalization</li>
+        <li><strong><a href="./data-integrity.html">Data
+        Integrity</a></strong> - Primary keys, unique constraints,
+        foreign keys</li>
+        <li><strong><a href="./lifecycle.html">Model
+        Lifecycle</a></strong> - Transient → Managed → Persistent
+        states</li>
+        <li><strong><a href="./best-practices.html">Best
+        Practices</a></strong> - Lombok, fetch strategies,
+        immutability</li>
+        </ul>
+        <h3 id="by-role">By Role</h3>
+        <ul>
+        <li><strong>Database Designers</strong> → Start with <a
+        href="./relationships.html">Entity Relationships</a></li>
+        <li><strong>ORM Developers</strong> → Review <a
+        href="./jpa-annotations.html">JPA Annotations</a></li>
+        <li><strong>Backend Developers</strong> → Check <a
+        href="./supplier-entity.html">Supplier Entity</a> and <a
+        href="./inventory-item-entity.html">Inventory Item
+        Entity</a></li>
+        <li><strong>Data Architects</strong> → Review <a
+        href="./data-integrity.html">Data Integrity</a> and <a
+        href="./design-patterns.html">Design Patterns</a></li>
+        <li><strong>New Team Members</strong> → Begin with <a
+        href="./best-practices.html">Best Practices</a></li>
+        </ul>
+        <h2 id="core-entities-overview">Core Entities Overview</h2>
+        <ul>
+        <li><strong>Supplier</strong> - Inventory goods providers with
+        contact information</li>
+        <li><strong>InventoryItem</strong> - Individual products/items
+        with stock tracking</li>
+        <li><strong>StockHistory</strong> - Immutable audit trail of all
+        stock movements</li>
+        <li><strong>AppUser</strong> - OAuth2 user principals with
+        roles</li>
+        </ul>
+        <hr />
+        <p><a href="../overview.html">⬅️ Back to Layers Overview</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
