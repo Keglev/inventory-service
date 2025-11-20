@@ -547,6 +547,7 @@ public class TestSecurityConfig {
 - **[Testing Index](./index.html)** - Complete testing strategy
 - **[Integration Testing](./integration-testing.html)** - Controller and repository testing
 - **[Unit Testing](./unit-testing.html)** - Component isolation
+- **[Test Fixtures & Data Builders](./test-fixtures.html)** - Helper patterns and OAuth2 authentication setup
 - **[Security Architecture](../security/index.html)** - OAuth2 and RBAC design
 
 ---

@@ -401,8 +401,116 @@ mockMvc.perform(post("/api/suppliers")
 
 ---
 
+## TestContainers Configuration
+
+### testcontainers.properties
+
+**Location:** `src/test/resources/testcontainers.properties`
+
+**Purpose:** Configures TestContainers behavior during test execution.
+
+**Content:**
+```properties
+checks.enabled=false
+```
+
+**What This Does:**
+
+| Property | Value | Meaning |
+|----------|-------|---------|
+| `checks.enabled` | `false` | Disables startup checks and health verification for TestContainers |
+
+**Why Disable Checks?**
+
+TestContainers normally performs startup verification checks before running tests:
+- Validates container health and readiness
+- Checks database connectivity
+- Verifies all dependencies are ready
+
+**Performance Impact:**
+- ✅ **Faster test startup** - Skips checks, reduces ~2-5 second overhead per test run
+- ✅ **Cleaner test output** - No diagnostic logs from health checks
+- ⚠️ **Trade-off** - Fewer diagnostics if container fails to start (rare in practice)
+
+**How Testing Configuration Works:**
+
+```
+┌─────────────────────────────────────────────┐
+│ Test Execution Flow                         │
+├─────────────────────────────────────────────┤
+│ 1. Maven finds @ActiveProfiles("test")     │
+│ 2. Loads application-test.yml              │
+│ 3. Sees: spring.datasource.url = H2 mem:   │
+│ 4. Creates H2 in-memory database           │
+│ 5. Reads testcontainers.properties         │
+│ 6. checks.enabled=false → Skip health verify│
+│ 7. Starts test execution                   │
+└─────────────────────────────────────────────┘
+```
+
+**Key Point:** `testcontainers.properties` is a **supplement to application-test.yml**, not a replacement. The actual database configuration (H2, Oracle mode, connectivity) comes from `application-test.yml`. This file only tunes TestContainers behavior.
+
+### When to Modify testcontainers.properties
+
+**Rarely needed**, but if you encounter TestContainers startup issues:
+
+```properties
+# Enable debugging if containers fail to start
+checks.enabled=true
+
+# For Oracle TestContainers specifically
+testcontainers.docker.client.strategy=org.testcontainers.dockerclient.UnixSocketClientProviderStrategy
+```
+
+**Default Configuration Sufficient for:**
+- ✅ Unit tests with H2 (no containers used)
+- ✅ Integration tests with mocked services
+- ✅ CI/CD pipelines with standard Docker setup
+
+---
+
+## Test Fixtures & Data Builders
+
+### Test Helper Classes
+
+| Class | Purpose | Location |
+|-------|---------|----------|
+| `InventoryItemServiceImplTestHelper` | OAuth2 authentication setup, principal creation | `src/test/.../service/impl/` |
+| `TestSecurityConfig` | Mock OAuth2 config for @WebMvcTest | `src/test/.../config/` |
+| `TestApiStubController` | Probe endpoints for security testing | `src/test/.../security/` |
+| `AdminStubController` | Admin-protected endpoints for RBAC tests | `src/test/.../security/` |
+
+**See:** **[Test Fixtures & Data Builders](./test-fixtures.html)** for detailed documentation on:
+- OAuth2 authentication helper patterns
+- Test data builders and factories
+- Test isolation and cleanup strategies
+- Best practices for reusable test code
+
+### Quick Example
+
+```java
+// Authenticate test with OAuth2 principal
+@Test
+void testAdminCanSave() {
+    InventoryItemServiceImplTestHelper.authenticateAsOAuth2("admin@example.com", "ADMIN");
+    
+    InventoryItem item = InventoryItem.builder()
+            .id("item-1")
+            .name("Widget")
+            .price(BigDecimal.TEN)
+            .quantity(100)
+            .build();
+    
+    InventoryItem saved = service.save(item);
+    assertNotNull(saved.getId());
+}
+```
+
+---
+
 ## Quick Navigation
 
+- **[Test Fixtures & Data Builders](./test-fixtures.html)** - Helper patterns, OAuth2 setup, test data builders
 - **[Unit Testing Patterns](./unit-testing.html)** - Component isolation, mocking, test organization
 - **[Integration Testing](./integration-testing.html)** - @DataJpaTest, @WebMvcTest, database testing
 - **[Security Testing](./security-testing.html)** - OAuth2, RBAC, API authentication tests

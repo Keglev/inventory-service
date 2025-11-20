@@ -515,6 +515,7 @@ class RepositoryTransactionTest {
 
 - **[Testing Index](./index.html)** - Complete testing strategy
 - **[Unit Testing](./unit-testing.html)** - Component isolation patterns
+- **[Test Fixtures & Data Builders](./test-fixtures.html)** - Helper patterns and test data creation
 - **[Security Testing](./security-testing.html)** - Authentication and RBAC tests
 - **[Controller Documentation](../controller/index.html)** - Endpoint contracts
 

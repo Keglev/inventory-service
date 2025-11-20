@@ -553,6 +553,7 @@ assertEquals(expected, result);
 ## Related Documentation
 
 - **[Testing Index](./index.html)** - Complete testing strategy overview
+- **[Test Fixtures & Data Builders](./test-fixtures.html)** - Helper patterns and test data creation
 - **[Integration Testing](./integration-testing.html)** - Repository and database testing
 - **[Security Testing](./security-testing.html)** - Authentication and authorization tests
 - **[Validation Framework](../validation/index.html)** - Validator examples and patterns
