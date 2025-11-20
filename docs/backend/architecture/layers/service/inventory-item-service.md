@@ -61,6 +61,44 @@ The controller catches `IllegalArgumentException` and maps messages to proper HT
 - "already exists" in message → 409 Conflict
 - Other messages → 404 Not Found
 
+### Method: delete
+
+```java
+/**
+ * Deletes an inventory item from the system.
+ * ADMIN-only operation. Item must have quantity = 0 (all stock removed).
+ *
+ * @param id item identifier
+ * @param reason deletion reason (SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER)
+ * @throws IllegalArgumentException if item not found or deletion reason invalid
+ * @throws IllegalStateException if item quantity > 0 (still has merchandise in stock)
+ * @throws AccessDeniedException if user is not ADMIN
+ */
+void delete(String id, StockChangeReason reason);
+```
+
+**Implementation Details:**
+- Validates deletion reason is one of valid enum values (SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER)
+- Validates item exists by ID (throws `IllegalArgumentException` on failure)
+- **Enforces Business Rule**: Validates quantity = 0 before deletion
+  - If quantity > 0, throws `IllegalStateException` with message "You still have merchandise in stock. You need to first remove items from stock by changing quantity."
+  - This prevents accidental deletion of items with remaining inventory
+- Creates audit trail entry via `auditHelper.logFullRemoval()` with deletion reason
+- Deletes item from repository
+
+**Validation Flow:**
+1. Controller enforces authorization via `@PreAuthorize("hasRole('ADMIN')")`
+2. Service layer validates via `InventoryItemValidator.validateExists()`
+3. Service layer validates via `InventoryItemValidator.assertQuantityIsZeroForDeletion()`
+4. Audit trail is logged
+5. Item is removed from database
+
+**Error Responses:**
+- 400 Bad Request - Invalid deletion reason
+- 404 Not Found - Item not found
+- 409 Conflict - Item has quantity > 0 (still has merchandise)
+- 403 Forbidden - User is not ADMIN
+
 ## Business Rules
 
 1. **Unique Names** - Item names must be unique **per supplier** (case-insensitive)
@@ -71,6 +109,7 @@ The controller catches `IllegalArgumentException` and maps messages to proper HT
 6. **Immutable History** - Stock changes are immutable (create-only, no update/delete)
 7. **Admin-Only Rename** - Only users with ADMIN role can rename items
 8. **Non-Empty Name** - Item name must not be empty or contain only whitespace
+9. **Delete Requires Zero Quantity** - Items can only be deleted when quantity = 0 (all stock removed)
 
 ## Exception Handling
 

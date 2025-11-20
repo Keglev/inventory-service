@@ -31,10 +31,23 @@
   "actions": {
     "toggleDensity": "Kompakte Dichte umschalten",
     "toggleLanguage": "Sprache wechseln",
-    "backToDashboard": "Zurück zur Übersicht"
+    "backToDashboard": "Zurück zur Übersicht",
+    "cancel": "Abbrechen",
+    "create": "Erstellen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "apply": "Anwenden",
+    "update": "Aktualisieren",
+    "yes": "Ja",
+    "no": "Nein"
   },
-  
-  "toast": { "densityStatic": "Dichte ist in den Theme-Defaults festgelegt." },
+  "loading": "Wird geladen...",
+  "saving": "Wird gespeichert...",
+  "deleting": "Wird gelöscht...",
+  "toast": {
+    "densityStatic": "Der kompakte Dichtenmodus ist in dieser Version noch nicht vollständig implementiert"
+  },
   "profile": { "soon": "Profil (bald)" },
   "analytics": {
     "title": "Analysen",

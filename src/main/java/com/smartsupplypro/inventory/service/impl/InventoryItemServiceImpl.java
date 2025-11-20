@@ -195,7 +195,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             throw new IllegalArgumentException("Invalid reason for deletion");
         }
 
-        // Verify item exists
+        // Validate item exists and quantity is zero before deletion
+        validationHelper.validateForDeletion(id);
         InventoryItem item = validationHelper.validateExists(id);
 
         // Log full stock removal

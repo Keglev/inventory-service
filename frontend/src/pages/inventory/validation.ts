@@ -78,3 +78,19 @@ export const editItemSchema = z.object({
 });
 
 export type EditItemForm = z.infer<typeof editItemSchema>;
+
+/**
+ * Schema for deleting inventory items.
+ * Used in delete item dialogs.
+ * 
+ * @validation
+ * - itemId: Required, identifies which item to delete
+ * 
+ * @note Backend validates that item quantity is 0 before allowing deletion
+ * @note Only ADMIN users can delete items
+ */
+export const deleteItemSchema = z.object({
+  itemId: z.string().min(1, 'Item selection is required'),
+});
+
+export type DeleteItemForm = z.infer<typeof deleteItemSchema>;

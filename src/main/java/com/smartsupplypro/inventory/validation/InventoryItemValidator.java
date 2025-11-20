@@ -140,4 +140,20 @@ public class InventoryItemValidator {
             );
         }
     }
+
+    /**
+     * Validates that quantity is zero before deletion (business rule).
+     * Items can only be deleted when all stock has been removed.
+     *
+     * @param item inventory item to validate
+     * @throws IllegalStateException if quantity is greater than zero
+     */
+    public static void assertQuantityIsZeroForDeletion(InventoryItem item) {
+        if (item.getQuantity() > 0) {
+            throw new IllegalStateException(
+                "You still have merchandise in stock. " +
+                "You need to first remove items from stock by changing quantity."
+            );
+        }
+    }
 }

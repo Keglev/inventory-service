@@ -256,6 +256,29 @@ export async function renameItem(req: { id: string; newName: string }): Promise<
 }
 
 /**
+ * Delete an inventory item by ID.
+ * Item can only be deleted if quantity is 0 (no stock remaining).
+ * Only ADMIN users can delete items.
+ * 
+ * @param id - Item identifier to delete
+ * @returns Object with ok status and optional error message
+ * @note Only ADMIN users can delete items
+ * @note Backend validates that item quantity is 0 before deletion
+ * @note Backend may return error: "You still have merchandise in stock"
+ */
+export async function deleteItem(id: string): Promise<UpsertItemResponse> {
+  try {
+    await http.delete(
+      `${INVENTORY_BASE}/${encodeURIComponent(id)}`,
+      { params: { reason: 'MANUAL_UPDATE' } }
+    );
+    return { ok: true };
+  } catch (e: unknown) {
+    return { ok: false, error: errorMessage(e) };
+  }
+}
+
+/**
  * Supplier list for pickers (tolerant).
  * Accepts: raw array OR envelopes { items: [...] } / { content: [...] }.
  */

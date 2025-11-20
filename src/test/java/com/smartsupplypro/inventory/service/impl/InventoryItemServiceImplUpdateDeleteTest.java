@@ -139,6 +139,20 @@ class InventoryItemServiceImplUpdateDeleteTest {
             }
             return null;
         }).when(validationHelper).validateUniquenessOnUpdate(anyString(), any(), any());
+        
+        // Configure deletion validation to validate quantity is zero
+        lenient().doAnswer(inv -> {
+            String id = inv.getArgument(0);
+            InventoryItem item = repository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Item not found: " + id));
+            if (item.getQuantity() > 0) {
+                throw new IllegalStateException(
+                    "You still have merchandise in stock. " +
+                    "You need to first remove items from stock by changing quantity."
+                );
+            }
+            return null;
+        }).when(validationHelper).validateForDeletion(anyString());
     }
 
     @Test
@@ -230,10 +244,25 @@ class InventoryItemServiceImplUpdateDeleteTest {
     }
 
     @Test
-    @DisplayName("delete: logs negative stock once with priceAtChange then deletes")
-    void delete_shouldRemoveItemAndRecordHistory() {
-        // Mock: item exists and is found
+    @DisplayName("delete: quantity > 0 -> IllegalStateException")
+    void delete_shouldThrow_whenQuantityGreaterThanZero() {
+        // Mock: item exists but has quantity > 0
         InventoryItem found = copyOf(existing);
+        found.setQuantity(10); // Item has stock
+        when(repository.findById("item-1")).thenReturn(Optional.of(found));
+
+        // Attempt to delete item with stock
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.delete("item-1", StockChangeReason.SCRAPPED));
+        assertTrue(ex.getMessage() != null && ex.getMessage().toLowerCase().contains("still have"));
+    }
+
+    @Test
+    @DisplayName("delete: logs removal once with priceAtChange then deletes (quantity = 0)")
+    void delete_shouldRemoveItemAndRecordHistory() {
+        // Mock: item exists with quantity = 0 (safe to delete)
+        InventoryItem found = copyOf(existing);
+        found.setQuantity(0); // Item has no stock
         when(repository.findById("item-1")).thenReturn(Optional.of(found));
 
         // Execute delete operation
@@ -248,10 +277,10 @@ class InventoryItemServiceImplUpdateDeleteTest {
     @Test
     @DisplayName("delete: supports null price at change (graceful log)")
     void delete_logsHistoryThenDeletes() {
-        // Build item with null price (edge case)
+        // Build item with null price (edge case) but quantity = 0
         InventoryItem found = copyOf(existing);
         found.setId("i-1");
-        found.setQuantity(7);
+        found.setQuantity(0); // Must be 0 to delete
         found.setPrice(null); // Edge case: null price
         when(repository.findById("i-1")).thenReturn(Optional.of(found));
 

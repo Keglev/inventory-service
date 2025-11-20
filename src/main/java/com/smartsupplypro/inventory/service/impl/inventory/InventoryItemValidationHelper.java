@@ -145,6 +145,20 @@ public class InventoryItemValidationHelper {
     }
 
     /**
+     * Validates item for deletion.
+     *
+     * <p>Steps: Validate item exists → check quantity is zero.
+     *
+     * @param id the item ID to validate for deletion
+     * @throws IllegalArgumentException if item not found
+     * @throws IllegalStateException if quantity is greater than zero
+     */
+    public void validateForDeletion(String id) {
+        InventoryItem item = InventoryItemValidator.validateExists(id, repository);
+        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);
+    }
+
+    /**
      * Validates that the specified supplier exists.
      *
      * @param supplierId the supplier identifier

@@ -155,4 +155,43 @@ public class InventoryItemValidatorTest {
         assertEquals("CreatedBy must be provided", ex.getMessage());
     }
 
+    /**
+     * Verifies that an item with quantity greater than zero cannot be deleted.
+     * This enforces the business rule that items must be fully depleted before deletion.
+     */
+    @Test
+    void testAssertQuantityIsZeroForDeletion_withQuantityGreaterThanZero_shouldThrow() {
+        InventoryItem item = new InventoryItem();
+        item.setId("item-1");
+        item.setName("Monitor");
+        item.setQuantity(5);  // Non-zero quantity
+        item.setPrice(new BigDecimal("199.99"));
+
+        Exception ex = assertThrows(IllegalStateException.class, () ->
+            InventoryItemValidator.assertQuantityIsZeroForDeletion(item)
+        );
+
+        assertEquals(
+            "You still have merchandise in stock. " +
+            "You need to first remove items from stock by changing quantity.",
+            ex.getMessage()
+        );
+    }
+
+    /**
+     * Confirms that an item with zero quantity passes deletion validation without error.
+     */
+    @Test
+    void testAssertQuantityIsZeroForDeletion_withQuantityZero_shouldPass() {
+        InventoryItem item = new InventoryItem();
+        item.setId("item-1");
+        item.setName("Monitor");
+        item.setQuantity(0);  // Zero quantity - allowed for deletion
+        item.setPrice(new BigDecimal("199.99"));
+
+        assertDoesNotThrow(() ->
+            InventoryItemValidator.assertQuantityIsZeroForDeletion(item)
+        );
+    }
+
 }

@@ -5,9 +5,22 @@ delete:
   description: |
     Deletes an inventory item permanently. Requires ADMIN role.
     
-    **Audit Trail:**
+    **Business Rules:**
+    - Item must have quantity = 0 (all stock must be removed before deletion)
     - Reason parameter is required for compliance tracking
-    - Deletion is logged in stock history
+    - Deletion is logged in stock history with specified reason
+    
+    **Validation Flow:**
+    1. Verify item exists (404 if not found)
+    2. Enforce quantity = 0 business rule (409 if quantity > 0)
+    3. Validate deletion reason is one of allowed values
+    4. Log deletion in audit trail
+    5. Remove item from system
+    
+    **Error Response Examples:**
+    - 404: Item not found
+    - 409: Item has quantity > 0 (message: "You still have merchandise in stock. You need to first remove items from stock by changing quantity.")
+    - 400: Invalid deletion reason
   operationId: deleteInventoryItem
   security:
     - oauth2: [openid]
@@ -22,27 +35,45 @@ delete:
     - name: reason
       in: query
       required: true
-      description: Business reason for deletion (audit trail)
+      description: Business reason for deletion (audit trail). Must be one of deletion-valid reasons.
       schema:
         type: string
         enum:
-          - SALE
-          - RETURN
+          - SCRAPPED
+          - DESTROYED
           - DAMAGED
           - EXPIRED
-          - RESTOCK
-          - MANUAL_ADJUSTMENT
-          - INVENTORY_COUNT
-          - INITIAL_STOCK
-      example: "DAMAGED"
+          - LOST
+          - RETURNED_TO_SUPPLIER
+      example: "SCRAPPED"
   responses:
     '204':
       description: Inventory item deleted successfully (no content)
+    '400':
+      description: Bad Request - Invalid deletion reason or malformed request
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/error-response.yaml'
+          example:
+            error: "Invalid reason for deletion"
+            status: 400
+            timestamp: "2025-11-20T20:00:00Z"
     '401':
       $ref: '../../responses/errors.yaml#/components/responses/Unauthorized'
     '403':
       $ref: '../../responses/errors.yaml#/components/responses/Forbidden'
     '404':
       $ref: '../../responses/errors.yaml#/components/responses/NotFound'
+    '409':
+      description: Conflict - Item cannot be deleted due to business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/error-response.yaml'
+          example:
+            error: "You still have merchandise in stock. You need to first remove items from stock by changing quantity."
+            status: 409
+            timestamp: "2025-11-20T20:00:00Z"
     '500':
       $ref: '../../responses/errors.yaml#/components/responses/InternalServerError'

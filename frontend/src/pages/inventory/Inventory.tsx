@@ -37,6 +37,7 @@ import { InventoryFilters } from './InventoryFilters';
 
 import { ItemFormDialog } from './ItemFormDialog';
 import { EditItemDialog } from './EditItemDialog';
+import { DeleteItemDialog } from './DeleteItemDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
 import { useToast } from '../../app/ToastContext';
@@ -133,6 +134,7 @@ const Inventory: React.FC = () => {
   const [openNew, setOpenNew] = React.useState(false);
   const [openEdit, setOpenEdit] = React.useState(false);
   const [openEditName, setOpenEditName] = React.useState(false);
+  const [openDelete, setOpenDelete] = React.useState(false);
   const [openAdjust, setOpenAdjust] = React.useState(false);
   const [openPrice, setOpenPrice] = React.useState(false);
 
@@ -277,6 +279,9 @@ const Inventory: React.FC = () => {
           >
             {t('actions.edit', 'Edit')}
           </Button>
+          <Button onClick={() => setOpenDelete(true)}>
+            {t('actions.delete', 'Delete')}
+          </Button>
           <Button onClick={() => setOpenAdjust(true)}>
             {t('inventory:adjustQty', 'Adjust quantity')}
           </Button>
@@ -409,6 +414,12 @@ const Inventory: React.FC = () => {
         open={openEditName}
         onClose={() => setOpenEditName(false)}
         onItemRenamed={load}
+      />
+
+      <DeleteItemDialog
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+        onItemDeleted={load}
       />
 
       {selectedRow && (

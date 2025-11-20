@@ -57,6 +57,7 @@ src/main/java/com/smartsupplypro/inventory/validation/InventoryItemValidator.jav
 | `validateExists()` | Verify item exists before update/delete | ResponseStatusException (404) |
 | `assertFinalQuantityNonNegative()` | Ensure quantity >= 0 after adjustment | ResponseStatusException (422) |
 | `assertPriceValid()` | Ensure price > 0 for updates | ResponseStatusException (422) |
+| `assertQuantityIsZeroForDeletion()` | Ensure item can only be deleted when quantity = 0 | IllegalStateException |
 
 ### Implementation
 
@@ -146,6 +147,20 @@ public class InventoryItemValidator {
             );
         }
     }
+
+    /**
+     * Validates that quantity is zero before deletion.
+     * Items can only be deleted when all stock has been removed.
+     * Called at service layer before item removal.
+     */
+    public static void assertQuantityIsZeroForDeletion(InventoryItem item) {
+        if (item.getQuantity() > 0) {
+            throw new IllegalStateException(
+                "You still have merchandise in stock. " +
+                "You need to first remove items from stock by changing quantity."
+            );
+        }
+    }
 }
 ```
 
@@ -202,6 +217,27 @@ public class InventoryItemService {
         
         item.setQuantity(newQuantity);
         repo.save(item);
+    }
+
+    public void delete(String id, StockChangeReason reason) {
+        // 1. Validate deletion reason (enum safety)
+        if (reason != StockChangeReason.SCRAPPED && 
+            reason != StockChangeReason.DESTROYED &&
+            reason != StockChangeReason.DAMAGED) {
+            throw new IllegalArgumentException("Invalid reason for deletion");
+        }
+        
+        // 2. Validate item exists
+        InventoryItem item = InventoryItemValidator.validateExists(id, repo);
+        
+        // 3. Validate quantity is zero (business rule)
+        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);
+        
+        // 4. Log full removal in audit trail
+        auditHelper.logFullRemoval(item, reason);
+        
+        // 5. Delete from repository
+        repo.deleteById(id);
     }
 }
 ```
