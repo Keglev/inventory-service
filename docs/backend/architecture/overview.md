@@ -317,6 +317,47 @@ graph TB
 - **Mocking** - Mockito for service and repository mocking
 - **Test Fixtures** - Builders and factory methods for test data
 
+## Configuration & Resources
+
+Smart Supply Pro uses **externalized configuration** to keep code independent from environment-specific settings:
+
+**Key Configuration Areas:**
+
+- **[Resources & Configuration](./resources/index.html)** - Hub for all configuration files and externalized properties
+  - YAML/Properties files: `application.yml`, `application-prod.yml`, `application-test.yml`
+  - Environment variables: Database credentials, OAuth2 keys, API URLs
+  - Spring profiles: `test`, `prod` (no profile = local development)
+
+- **[Application YAML & Properties](./resources/application-yaml-and-properties.html)** - Structure of Spring Boot configuration
+  - Datasource config (driver, URL, credentials)
+  - JPA/Hibernate settings (DDL auto, SQL logging)
+  - OAuth2 provider registration (Google SSO)
+  - Custom app properties (demo mode, frontend URLs)
+
+- **[Environment-Specific Configuration](./resources/environment-specific-config.html)** - Profile-based configuration and .env setup
+  - Local development (.env template with database/OAuth2 credentials)
+  - Testing profile (H2 in-memory database, debug logging)
+  - Production profile (Oracle Autonomous DB, optimized connection pooling)
+
+- **[Logging Configuration](./resources/logging-config.html)** - Logger levels and output by environment
+  - Development/Test: DEBUG/TRACE (SQL queries, security details)
+  - Production: INFO (minimal logging for performance)
+
+- **[Database Configuration & Oracle Wallet](./resources/database-config-and-oracle-wallet.html)** - Datasource setup and secure credential management
+  - H2 for testing (Oracle-compatible mode)
+  - Oracle Autonomous DB for production (wallet-based credentials)
+  - HikariCP connection pooling (tuned for Fly.io RAM constraints)
+
+- **[Static Resources & Templates](./resources/static-resources-and-templates.html)** - Explanation of API-only architecture
+  - Backend is pure REST API (returns JSON, not HTML)
+  - Frontend lives in `/frontend` (separate React/TypeScript application)
+  - No server-side templates (Thymeleaf, etc.)
+
+- **[Messages & Internationalization](./resources/messages-and-i18n.html)** - Externalized user-facing messages
+  - Validation error messages (English, German)
+  - Error codes and descriptions
+  - Support for multiple languages via message properties files
+
 ## Next Steps
 
 1. **Explore [Layers Architecture](./layers/overview.html)** - Detailed breakdown of each layer (Controller, Service, Repository, Model, Infrastructure)

@@ -18,6 +18,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 - **[Security Architecture](./security/index.html)** - Authentication, authorization, OAuth2 integration, Docker security, and demo mode
 - **[Deployment & Infrastructure](./deployment.html)** - Containerization, CI/CD, and cloud deployment strategies
 - **[Configuration Management](./config.html)** - Application properties, profiles, and environment setup
+- **[Resources & Configuration](./resources/index.html)** - Spring Boot config files, profiles, logging, database configuration, Oracle Wallet integration
 - **[Data Models & Entities](./model/index.html)** - Comprehensive entity documentation including Supplier, InventoryItem, StockHistory, and AppUser with relationships, lifecycle, usage examples, and testing
 - **[Enums Reference](./enums/index.html)** - Type-safe enumerations (Role, StockChangeReason, AuditSeverity) with business logic and validation
 - **[DTOs & Data Transfer Objects](./dto/index.html)** - Comprehensive DTO documentation with conventions, patterns, validation, authentication, pagination, and response shapes
@@ -38,8 +39,8 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 
 **DevOps / Infrastructure teams:**
 1. Review [Deployment & Infrastructure](./deployment.html)
-2. Check [Configuration Management](./config.html)
-3. Understand [Security Architecture](./security.html)
+2. Check [Resources & Configuration](./resources/index.html) for environment setup
+3. Review [Security Architecture](./security.html) for OAuth2 and security configuration
 
 **Security reviewers:**
 1. Start with [Security Architecture](./security.html)

@@ -317,6 +317,47 @@ graph TB
 - **Mocking** - Mockito für Service- und Repository-Mocking
 - **Test-Fixtures** - Builder und Factory-Methoden für Test-Daten
 
+## Konfiguration & Ressourcen
+
+Smart Supply Pro nutzt **externalisierte Konfiguration**, um Code unabhängig von umgebungsspezifischen Einstellungen zu halten:
+
+**Wichtige Konfigurationsbereiche:**
+
+- **[Ressourcen & Konfiguration](./resources/index.html)** - Hub für alle Konfigurationsdateien und externalisierte Eigenschaften
+  - YAML/Properties-Dateien: `application.yml`, `application-prod.yml`, `application-test.yml`
+  - Umgebungsvariablen: Datenbankzugang, OAuth2-Schlüssel, API-URLs
+  - Spring-Profile: `test`, `prod` (kein Profil = lokale Entwicklung)
+
+- **[Application YAML & Properties](./resources/application-yaml-and-properties.html)** - Struktur der Spring-Boot-Konfiguration
+  - Datenbankverbindung (Treiber, URL, Anmeldeinformationen)
+  - JPA/Hibernate-Einstellungen (DDL Auto, SQL-Protokollierung)
+  - OAuth2-Anbieter-Registrierung (Google SSO)
+  - Benutzerdefinierte App-Eigenschaften (Demo-Modus, Frontend-URLs)
+
+- **[Umgebungsspezifische Konfiguration](./resources/environment-specific-config.html)** - Profilbasierte Konfiguration und .env-Setup
+  - Lokale Entwicklung (.env-Vorlage mit Datenbankzugang/OAuth2-Anmeldeinformationen)
+  - Test-Profil (H2 In-Memory-Datenbank, Debug-Protokollierung)
+  - Produktions-Profil (Oracle Autonomous DB, optimiertes Connection Pooling)
+
+- **[Protokollierungs-Konfiguration](./resources/logging-config.html)** - Logger-Ebenen und Ausgabe nach Umgebung
+  - Entwicklung/Test: DEBUG/TRACE (SQL-Abfragen, Sicherheitsdetails)
+  - Produktion: INFO (minimale Protokollierung für Performance)
+
+- **[Datenbank-Konfiguration & Oracle Wallet](./resources/database-config-and-oracle-wallet.html)** - Datenbankverbindungs-Setup und sichere Anmeldeinformationen-Verwaltung
+  - H2 zum Testen (Oracle-kompatibler Modus)
+  - Oracle Autonomous DB für Produktion (Wallet-basierte Anmeldeinformationen)
+  - HikariCP-Connection-Pooling (optimiert für Fly.io-RAM-Einschränkungen)
+
+- **[Statische Ressourcen & Templates](./resources/static-resources-and-templates.html)** - Erklärung der API-Only-Architektur
+  - Backend ist reines REST-API (gibt JSON zurück, nicht HTML)
+  - Frontend lebt in `/frontend` (separate React/TypeScript-Anwendung)
+  - Keine Server-seitigen Templates (Thymeleaf, etc.)
+
+- **[Nachrichten & Internationalisierung](./resources/messages-and-i18n.html)** - Externalisierte benutzerfreundliche Nachrichten
+  - Validierungsfehlermeldungen (Englisch, Deutsch)
+  - Fehler-Codes und Beschreibungen
+  - Unterstützung für mehrere Sprachen über Message-Properties-Dateien
+
 ## Nächste Schritte
 
 1. **Erkunden Sie [Schichten-Architektur](./layers/overview.html)** - Detaillierte Aufschlüsselung jeder Schicht (Controller, Service, Repository, Modell, Infrastruktur)
