@@ -12,7 +12,7 @@
 # Build-time inputs (examples passed by CI):
 #   PROFILE=prod            # build profile (default prod)
 #
-# Runtime is driven by start.sh which performs wallet decoding and secure startup.
+# Runtime is driven by scripts/start.sh which performs wallet decoding and secure startup.
 
 
 # -----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ LABEL org.opencontainers.image.source="https://github.com/Keglev/inventory-servi
 # ==========================================================
 
 # Startup script (handles wallet decode + JVM flags + app launch)
-COPY --chown=appuser:appgroup --chmod=0755 start.sh /app/start.sh
+COPY --chown=appuser:appgroup --chmod=0755 scripts/start.sh /app/start.sh
 
 # Copy packaged JAR from build stage with correct ownership
 COPY --from=build --chown=appuser:appgroup /build/target/*.jar /app/
@@ -116,7 +116,7 @@ USER appuser
 
 # /**
 #  * Define the startup command: extract Oracle wallet and launch Spring Boot.
-#  * (start.sh defaults SPRING_PROFILES_ACTIVE=prod and SERVER_PORT=8081)
+#  * (scripts/start.sh defaults SPRING_PROFILES_ACTIVE=prod and SERVER_PORT=8081)
 #  */
 CMD ["/app/start.sh"]
 

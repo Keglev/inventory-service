@@ -91,7 +91,7 @@ RUN apk add --no-cache unzip coreutils && apk upgrade --no-cache
 RUN chown -R appuser:appgroup /app
 
 # Copy startup script (with executable permission)
-COPY --chown=appuser:appgroup --chmod=0755 start.sh /app/start.sh
+COPY --chown=appuser:appgroup --chmod=0755 scripts/start.sh /app/start.sh
 
 # Copy JAR from build stage
 COPY --from=build --chown=appuser:appgroup /build/target/*.jar /app/

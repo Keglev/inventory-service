@@ -253,7 +253,7 @@ Below are a few common commands used during development:
    ```
    This approach:
    - ✅ Uses your whitelisted IP during local Docker build process
-   - ✅ Deploys via `fly.toml` configuration with `Dockerfile` and `start.sh` 
+   - ✅ Deploys via `fly.toml` configuration with `Dockerfile` and `scripts/start.sh` 
    - ✅ No dependency on external Docker registry pulls
    - ✅ Reliable deployment to: https://inventoryservice.fly.dev
 
