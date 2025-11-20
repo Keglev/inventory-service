@@ -72,7 +72,11 @@ layers/service/inventory-item-service · Smart Supply Pro Docs</title>
         <li><a href="#key-responsibilities"
         id="toc-key-responsibilities">Key Responsibilities</a></li>
         <li><a href="#interface-methods"
-        id="toc-interface-methods">Interface Methods</a></li>
+        id="toc-interface-methods">Interface Methods</a>
+        <ul>
+        <li><a href="#new-method-renameitem"
+        id="toc-new-method-renameitem">New Method: renameItem</a></li>
+        </ul></li>
         <li><a href="#business-rules" id="toc-business-rules">Business
         Rules</a></li>
         <li><a href="#exception-handling"
@@ -107,22 +111,58 @@ layers/service/inventory-item-service · Smart Supply Pro Docs</title>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>InventoryItemDTO <span class="fu">create</span><span class="op">(</span>CreateInventoryItemDTO dto<span class="op">);</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>InventoryItemDTO <span class="fu">update</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> UpdateInventoryItemDTO dto<span class="op">);</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">delete</span><span class="op">(</span><span class="bu">String</span> id<span class="op">);</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>StockUpdateResultDTO <span class="fu">updateStock</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="dt">int</span> newQuantity<span class="op">,</span> </span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    StockChangeReason reason<span class="op">,</span> <span class="bu">String</span> notes<span class="op">);</span></span></code></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>InventoryItemDTO <span class="fu">updatePrice</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="bu">BigDecimal</span> newPrice<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>InventoryItemDTO <span class="fu">renameItem</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="bu">String</span> newName<span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>InventoryItemDTO <span class="fu">adjustQuantity</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="dt">int</span> delta<span class="op">,</span> StockChangeReason reason<span class="op">);</span></span></code></pre></div>
+        <h3 id="new-method-renameitem">New Method: renameItem</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> Renames an inventory item <span class="co">(</span>changes the display name<span class="co">).</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> ADMIN<span class="co">-</span>only operation<span class="co">.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>param id      item identifier</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>param newName new item name <span class="co">(</span>must not be empty<span class="co">/</span>whitespace<span class="co">-</span>only<span class="co">)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>return updated inventory item DTO</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>throws IllegalArgumentException if name is empty or already exists for this supplier</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>throws NoSuchElementException if item not found</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a> <span class="co">*/</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>InventoryItemDTO <span class="fu">renameItem</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> <span class="bu">String</span> newName<span class="op">);</span></span></code></pre></div>
+        <p><strong>Implementation Details:</strong> - Validates that new
+        name is not empty or whitespace-only (throws
+        <code>IllegalArgumentException</code> with message “Item name
+        cannot be empty”) - Checks if item exists (throws
+        <code>NoSuchElementException</code> on failure, caught by
+        controller and returned as 404) - Performs case-insensitive
+        duplicate detection within the same supplier - Throws
+        <code>IllegalArgumentException</code> with message “An item with
+        this name already exists for this supplier” if duplicate
+        detected - Updates the item’s name field - Persists changes and
+        returns updated <code>InventoryItemDTO</code> - Does
+        <strong>not</strong> create audit trail (pure rename, no stock
+        change)</p>
+        <p><strong>Controller Handling:</strong> The controller catches
+        <code>IllegalArgumentException</code> and maps messages to
+        proper HTTP status codes: - “empty” in message → 400 Bad Request
+        - “already exists” in message → 409 Conflict - Other messages →
+        404 Not Found</p>
         <h2 id="business-rules">Business Rules</h2>
         <ol type="1">
         <li><strong>Unique Names</strong> - Item names must be unique
-        within the system</li>
+        <strong>per supplier</strong> (case-insensitive)</li>
         <li><strong>Valid Supplier</strong> - Item must reference
         existing supplier</li>
         <li><strong>Non-Negative Quantity</strong> - Stock quantity
         cannot be negative</li>
         <li><strong>Reason Required</strong> - Every stock change must
-        have a reason (PURCHASE, SALE, ADJUSTMENT, AUDIT)</li>
+        have a reason (RECEIVED, SOLD, ADJUSTED, DAMAGED, LOSS)</li>
         <li><strong>Initial Stock Audit</strong> - Initial stock creates
         audit entry automatically</li>
         <li><strong>Immutable History</strong> - Stock changes are
         immutable (create-only, no update/delete)</li>
+        <li><strong>Admin-Only Rename</strong> - Only users with ADMIN
+        role can rename items</li>
+        <li><strong>Non-Empty Name</strong> - Item name must not be
+        empty or contain only whitespace</li>
         </ol>
         <h2 id="exception-handling">Exception Handling</h2>
         <ul>
