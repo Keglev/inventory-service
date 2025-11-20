@@ -1,17 +1,42 @@
 name: 1️⃣ Backend CI - Build & Test
 
 # =============================================================================
-# Smart Supply Pro - Backend (Inventory Service) CI Pipeline
+# Smart Supply Pro – Backend (Inventory Service) CI Pipeline
 #
-# Enterprise-grade continuous integration pipeline:
-# - Purpose: Build, test, and generate coverage reports for backend service.
-# - Artifacts: JaCoCo coverage HTML, Docker image (security-scanned).
-# - Design: Does NOT commit to main branch; delegates to gh-pages workflow.
-# - Traceability: Images tagged by commit SHA for reproducible deployments.
-# - Security: Trivy scanning gates on HIGH/CRITICAL CVEs.
+# PIPELINE ROLE: Core continuous integration for backend service
 #
-# Workflow sequence:
-#   1-ci-test.yml (this file)  →  2-deploy-ghpages.yml  →  3-deploy-fly.yml
+# PURPOSE:
+# - Compile, test, and verify backend code quality on every push to main/develop
+# - Generate JaCoCo test coverage reports for metrics tracking
+# - Build and security-scan Docker image for reproducible deployments
+# - Ensure code meets enterprise standards before downstream workflows execute
+#
+# ARTIFACTS PRODUCED:
+# - JaCoCo coverage HTML report (uploaded to artifact, published by 2-deploy-ghpages.yml)
+# - Docker image tagged with commit SHA (push-ready, immutable reference)
+# - Docker image tagged as 'latest' (convenience reference for manual deployment)
+#
+# SECURITY & COMPLIANCE:
+# - Trivy container image vulnerability scan (gates on HIGH/CRITICAL severity)
+# - Maven dependency verification (detects known CVEs in library dependencies)
+# - Test coverage tracking via JaCoCo instrumentation and reporting
+# - No code commits from this workflow (immutable build artifacts only)
+#
+# DOWNSTREAM TRIGGERS (automatic, on success):
+# - 2-deploy-ghpages.yml: Publishes JaCoCo coverage + docs-pipeline artifacts to gh-pages
+# - 3-deploy-fly.yml: Deploys pre-built, security-scanned image to Fly.io production
+#
+# DESIGN PRINCIPLES:
+# - Immutable build artifacts: Images tagged by commit SHA for traceability and rollback
+# - Fail-fast security: Block deployment if Trivy detects HIGH/CRITICAL vulnerabilities
+# - Clean separation: This job produces artifacts; downstream jobs consume them
+# - Idempotent: Re-running same commit produces identical artifacts and decisions
+#
+# TROUBLESHOOTING:
+# - If build fails: Check Java/Maven versions, dependency resolution
+# - If tests fail: Review TestContainers startup, H2 database configuration
+# - If Trivy scan fails: Review security-critical dependencies, update if needed
+# - If Docker push fails: Verify DOCKER_USERNAME, DOCKER_PASSWORD secrets
 # =============================================================================
 
 on:

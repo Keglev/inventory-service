@@ -1,5 +1,41 @@
 name: 2️⃣ Deploy Docs to GitHub Pages
 
+# =============================================================================
+# Smart Supply Pro – Documentation Publishing Pipeline
+#
+# PIPELINE ROLE: Automated documentation deployment to GitHub Pages
+#
+# PURPOSE:
+# - Publish generated documentation artifacts to gh-pages branch automatically
+# - Maintain live API documentation, architecture guides, and test coverage reports
+# - Ensure documentation stays in sync with code changes and CI builds
+#
+# ARTIFACTS CONSUMED:
+# - docs-site (from docs-pipeline.yml) – Built documentation with OpenAPI specs
+# - jacoco-html-{SHA} (from 1-ci-test.yml) – Test coverage reports
+#
+# PUBLISHING STRATEGY:
+# - Preserves gh-pages branch history (shallow checkout, force-push with commit)
+# - Incremental updates: Only commits if documentation changed
+# - Coverage preservation: Retains JaCoCo reports if current build omits them
+# - Immutable artifact names: Uses commit SHA to avoid race conditions
+#
+# SECURITY & COMPLIANCE:
+# - Requires successful docs-pipeline.yml completion (no orphaned publishes)
+# - Git author: github-actions[bot] for audit trail
+# - No code execution on gh-pages branch (static content only)
+#
+# DESIGN PRINCIPLES:
+# - Upstream-only: Consumes artifacts; does not re-generate them
+# - Artifact preservation: Maintains coverage history if skipped in current build
+# - Idempotent commits: No-op if documentation unchanged (skips unnecessary pushes)
+#
+# TROUBLESHOOTING:
+# - If artifact download fails: Verify docs-pipeline.yml ran successfully
+# - If gh-pages push fails: Check GitHub token permissions (contents: write required)
+# - If coverage missing: Re-run 1-ci-test.yml to regenerate JaCoCo artifact
+# =============================================================================
+
 on:
   workflow_run:
     workflows: ["Docs Pipeline – OpenAPI & Architecture"]

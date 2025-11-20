@@ -1,28 +1,62 @@
 name: Frontend CI & Deploy
 
-# /**
-#  * CI/CD Pipeline for Smart Supply Pro — Frontend (React + Vite + Nginx)
-#  *
-#  * Triggers:
-#  *   - On push to main.
-#  *   - Only when files under frontend/, ops/nginx/, or this workflow change.
-#  *
-#  * Pipeline stages (high-level):
-#  *   1) Checkout repository.
-#  *   2) Sanity-check repository structure (defensive ls of key paths).
-#  *   3) Node toolchain setup + dependency cache warmup (actions/setup-node).
-#  *   4) Install dependencies and run unit tests with GitHub annotations (Vitest).
-#  *   5) Build and push Docker image (repo-root context; skip in-image tests).
-#  *   6) Install Koyeb CLI (non-interactive; latest with retry/fallback).
-#  *   7) Authenticate and deploy by immutable image digest; pin service ports.
-#  *   8) Health gate: wait until Koyeb service reports HEALTHY; dump diagnostics if not.
-#  *   9) Smoke test public URL (200 on / and SPA fallback on deep link).
-#  *
-#  * Key design choices:
-#  *   - Tests run OUTSIDE Docker for richer GitHub Annotations.
-#  *   - Deployment pins by image digest for safe, reproducible rollouts/rollbacks.
-#  *   - CLI-based health gate avoids transient 404/502 during router updates.
-#  */
+# =============================================================================
+# Smart Supply Pro – Frontend (React + Vite + Nginx) CI/CD Pipeline
+#
+# PIPELINE ROLE: Continuous integration and deployment for React frontend
+#
+# PURPOSE:
+# - Build, test, and verify frontend code quality on every push to main
+# - Generate optimized production-ready Vite bundle (minified, chunked)
+# - Build and push Docker image (Nginx reverse proxy for SPA routing)
+# - Deploy to Koyeb with health validation and smoke tests
+#
+# TRIGGERS:
+# - Push to main branch (automatic)
+# - Changes in: frontend/**, ops/nginx/**, or this workflow file
+# - Only runs if relevant files modified (avoids redundant builds)
+#
+# ARTIFACTS PRODUCED:
+# - Docker image tagged by commit SHA (immutable, push-ready)
+# - Docker image tagged as 'latest' (convenience reference)
+#
+# PIPELINE STAGES:
+# 1. Change Detection: Identify which code areas changed (frontend, nginx)
+# 2. Checkout & Diagnostics: Clone repo, verify directory structure
+# 3. Node Toolchain: Set up Node.js 20, warm up npm dependency cache
+# 4. Test & Lint: Run Vitest unit tests, emit GitHub Annotations for failures
+# 5. Build: Vite production build (minified, code-split bundles)
+# 6. Docker Build: Create image with Nginx and Vite artifacts
+# 7. Push: Deploy image to Docker Hub (tagged by SHA + latest)
+# 8. Deploy to Koyeb: Update service with new image digest
+# 9. Health Gate: Poll Koyeb until service reports HEALTHY (timeout 5min)
+# 10. Smoke Tests: Validate / and /api endpoints return expected responses
+#
+# DESIGN PRINCIPLES:
+# - Tests outside container: GitHub Annotations provide rich failure details
+# - Immutable images: Tagged by commit SHA for traceability and rollback
+# - Digest-based deployment: Pins image by SHA256 digest (not tags)
+# - Health-gated: Waits for service HEALTHY before declaring success
+# - SPA-aware: Nginx configured for single-page app routing (404→index.html)
+#
+# KEY DESIGN CHOICES:
+# - npm cache warmup: Speeds up dependency installation (node_modules reuse)
+# - Vite production mode: Optimized bundle (tree-shaking, minification)
+# - Nginx reverse proxy: Handles SPA routing, serves static assets efficiently
+# - Koyeb CLI health gate: Avoids transient 502/404 during deployment
+# - Smoke tests on public URL: End-to-end validation from external client
+#
+# ENVIRONMENT VARIABLES (baked into build):
+# - VITE_API_BASE: https://inventoryservice.fly.dev (backend API endpoint)
+# - Passed to frontend build; frontend fetch(${VITE_API_BASE}/api/...)
+#
+# TROUBLESHOOTING:
+# - If tests fail: Review Vitest output, check Node.js version compatibility
+# - If Docker build fails: Verify Dockerfile syntax, Nginx config
+# - If Koyeb deployment fails: Check Koyeb CLI authentication, app/service names
+# - If health gate times out: Verify Koyeb service can reach backend (API latency)
+# - If smoke tests fail: Check frontend/backend CORS, API endpoint accessibility
+# =============================================================================
 
 # Trigger: push to main, changes in frontend/ or ops/nginx/ or this workflow
 on:

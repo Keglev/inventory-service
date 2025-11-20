@@ -1,6 +1,55 @@
 name: Docs Pipeline – OpenAPI & Architecture
 
-on:
+# =============================================================================
+# Smart Supply Pro – Documentation Building & Publishing Pipeline
+#
+# PIPELINE ROLE: Automated documentation generation and artifact production
+#
+# PURPOSE:
+# - Generate OpenAPI (Swagger/ReDoc) documentation from code annotations
+# - Build architecture guides and markdown files into HTML documentation
+# - Collect JaCoCo test coverage reports from CI builds
+# - Produce 'docs-site' artifact for 2-deploy-ghpages.yml to publish
+#
+# TRIGGER MODES:
+# 1. AUTOMATIC (via workflow_run):
+#    - Triggered after 1-ci-test.yml succeeds
+#    - Purpose: Rebuild docs whenever code changes (ensures freshness)
+#    - Artifact: docs-site (consumed by 2-deploy-ghpages.yml)
+#
+# 2. ON-DEMAND (direct push to main):
+#    - Triggered on changes to docs/, scripts/, or this workflow
+#    - Purpose: Rapid documentation updates without waiting for CI
+#    - Use case: Documentation-only PRs, emergency doc fixes
+#
+# ARTIFACTS PRODUCED:
+# - docs-site: Complete documentation website (API docs, architecture, coverage)
+#
+# ARTIFACTS CONSUMED:
+# - jacoco-html-{SHA}: JaCoCo coverage report from 1-ci-test.yml (optional)
+#
+# TOOLS & TECHNOLOGIES:
+# - Redocly CLI: Converts OpenAPI YAML → ReDoc HTML (interactive API docs)
+# - Pandoc: Converts Markdown → HTML (architecture guides, README files)
+# - Lua filter: Custom Pandoc filter for mermaid diagram rendering
+# - Bash scripts: Orchestrates document generation and artifact assembly
+#
+# DESIGN PRINCIPLES:
+# - Dual-trigger: Responds to both code changes (via CI) and docs-only changes
+# - Artifact accumulation: Preserves JaCoCo coverage from CI if not rebuilt
+# - Offline-capable: All documentation is static HTML (no server-side processing)
+# - Immutable builds: Same input always produces same output
+#
+# SCRIPTS INVOKED:
+# - scripts/build-openapi-docs.sh: Generates OpenAPI documentation
+# - scripts/build-architecture-docs.sh: Builds architecture guides
+#
+# TROUBLESHOOTING:
+# - Missing JaCoCo artifact: Normal for docs-only pushes; skip JaCoCo step
+# - Redocly CLI errors: Check OpenAPI YAML syntax in code annotations
+# - Pandoc conversion failures: Review markdown syntax, mermaid diagrams
+# - Large artifact size: Verify coverage HTML is compressed, no duplicate files
+# =============================================================================
 # A) After CI: for code changes
   workflow_run:
     workflows: ["1️⃣ Backend CI - Build & Test"]

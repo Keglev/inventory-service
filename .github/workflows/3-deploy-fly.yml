@@ -1,22 +1,67 @@
 # =============================================================================
-# Smart Supply Pro - Fly.io Production Deployment
+# Smart Supply Pro – Production Deployment to Fly.io
 #
-# Enterprise production deployment pipeline:
-# - Purpose: Deploy pre-built, security-scanned Docker image to Fly.io.
-# - Trigger: Manual workflow_dispatch (controlled rollout).
-# - Design: Uses existing Docker image from registry (no rebuild).
-# - Security: Requires FLY_API_TOKEN secret with appropriate scopes.
+# PIPELINE ROLE: Production deployment orchestration for backend service
 #
-# Prerequisites:
-#   1. Docker image must exist in registry (built by 1-ci-test.yml)
-#   2. Image must have passed Trivy security scan
-#   3. FLY_API_TOKEN secret configured in GitHub repository
-#   4. Oracle Wallet secrets configured in Fly.io (ORACLE_WALLET_B64, etc.)
+# PURPOSE:
+# - Deploy pre-built, security-scanned Docker images to Fly.io production
+# - Provide controlled rollout options (immediate, canary, rolling)
+# - Validate deployment health with automated health checks and smoke tests
+# - Maintain deployment audit trail via GitHub Actions logs and Fly.io status
 #
-# Deployment workflow:
-#   1-ci-test.yml → builds & scans image
-#   2-deploy-ghpages.yml → publishes documentation
-#   3-deploy-fly.yml (this file) → deploys to production (automatic after CI)
+# TRIGGER MODES:
+# 1. AUTOMATIC: Triggered after 1-ci-test.yml succeeds on main branch
+#    - Image tag: commit SHA (from workflow_run.head_sha)
+#    - Strategy: immediate (rollout all instances)
+#    - Purpose: Production-ready image automatically deployed after CI passes
+#
+# 2. MANUAL: Via workflow_dispatch on any branch/ref
+#    - Image tag: User-supplied (e.g., 'latest', 'v1.0.0', commit SHA)
+#    - Strategy: User-selected (immediate, canary, rolling)
+#    - Purpose: Emergency deploys, manual rollbacks, testing
+#
+# PREREQUISITES:
+# ✓ Docker image must exist in Docker Hub (built by 1-ci-test.yml)
+# ✓ Image must have passed Trivy HIGH/CRITICAL security scan
+# ✓ FLY_API_TOKEN secret configured in GitHub (with app deployment scope)
+# ✓ Fly.io app 'inventoryservice' provisioned with:
+#   - Oracle Wallet mounted (ORACLE_WALLET_B64 secret, TNS_ADMIN=/app/wallet)
+#   - Database credentials configured (DB_URL, DB_USER, DB_PASS secrets)
+#   - OAuth2 provider secrets (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
+#   - App configuration (APP_DEMO_READONLY, APP_FRONTEND_BASE_URL, etc.)
+#
+# DEPLOYMENT PHASES:
+# 1. Validation: Verify image exists in registry, Fly app exists
+# 2. Deployment: Execute flyctl deploy with specified strategy
+# 3. Health Gate: Poll /health endpoint until HEALTHY or timeout (5min)
+# 4. Smoke Tests: Validate core API endpoints respond correctly
+# 5. Diagnostics: Capture Fly.io logs and status if health gate fails
+#
+# DEPLOYMENT STRATEGIES:
+# - immediate: All instances replaced simultaneously (fastest, brief downtime)
+# - canary: New version on 1 instance, monitor before full rollout
+# - rolling: Gradual instance replacement, maintains service availability
+#
+# SAFETY GATES:
+# - Image validation: Manifest inspection ensures image exists before deploy
+# - Health checks: Waits up to 5 minutes for /health endpoint (30-second polling)
+# - Smoke tests: Validates /health and / endpoints return expected status codes
+# - Automatic rollback: On health gate timeout, deployment terminates
+#
+# DESIGN PRINCIPLES:
+# - Immutable deployments: Only deploys pre-built, pre-scanned images (no rebuilds)
+# - Comprehensive validation: Checks image, app, health before marking success
+# - Audit trail: Logs all validation steps, image SHA, deployment strategy
+# - Fail-fast: Terminates on any critical error (missing image, unhealthy app)
+#
+# TROUBLESHOOTING:
+# - Image not found: Re-run 1-ci-test.yml, or manually build with 'workflow_dispatch'
+# - Health gate timeout: Check Fly.io logs (flyctl logs --app inventoryservice)
+# - Smoke test failures: Verify Oracle Wallet mounted, database connectivity
+# - Rollback: Re-run with previous image tag (automatic trigger has head_sha)
+#
+# DOWNSTREAM WORKFLOWS:
+# - None: This is the final deployment pipeline; no further workflows follow
 # =============================================================================
 
 on:
