@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+security/docker-security · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#docker-security" id="toc-docker-security">Docker
+        Security</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#multi-stage-build-architecture"
+        id="toc-multi-stage-build-architecture">Multi-Stage Build
+        Architecture</a>
+        <ul>
+        <li><a href="#stage-1-dependency-warmup-optional"
+        id="toc-stage-1-dependency-warmup-optional">Stage 1: Dependency
+        Warmup (Optional)</a></li>
+        <li><a href="#stage-2-build-stage"
+        id="toc-stage-2-build-stage">Stage 2: Build Stage</a></li>
+        <li><a href="#stage-3-runtime-stage"
+        id="toc-stage-3-runtime-stage">Stage 3: Runtime Stage</a></li>
+        </ul></li>
+        <li><a href="#non-root-user-execution"
+        id="toc-non-root-user-execution">Non-Root User Execution</a>
+        <ul>
+        <li><a href="#usergroup-creation"
+        id="toc-usergroup-creation">User/Group Creation</a></li>
+        <li><a href="#file-ownership" id="toc-file-ownership">File
+        Ownership</a></li>
+        <li><a href="#privilege-dropping"
+        id="toc-privilege-dropping">Privilege Dropping</a></li>
+        </ul></li>
+        <li><a href="#minimal-base-image"
+        id="toc-minimal-base-image">Minimal Base Image</a>
+        <ul>
+        <li><a href="#alpine-linux-for-jre"
+        id="toc-alpine-linux-for-jre">Alpine Linux for JRE</a></li>
+        <li><a href="#system-updates" id="toc-system-updates">System
+        Updates</a></li>
+        </ul></li>
+        <li><a href="#runtime-secret-injection"
+        id="toc-runtime-secret-injection">Runtime Secret Injection</a>
+        <ul>
+        <li><a href="#no-secrets-in-image"
+        id="toc-no-secrets-in-image">No Secrets in Image</a></li>
+        <li><a href="#secret-injection-points"
+        id="toc-secret-injection-points">Secret Injection
+        Points</a></li>
+        <li><a href="#start.sh-secret-handling"
+        id="toc-start.sh-secret-handling">start.sh Secret
+        Handling</a></li>
+        </ul></li>
+        <li><a href="#base-image-security"
+        id="toc-base-image-security">Base Image Security</a>
+        <ul>
+        <li><a href="#image-scanning-for-cves"
+        id="toc-image-scanning-for-cves">Image Scanning for
+        CVEs</a></li>
+        <li><a href="#image-provenance" id="toc-image-provenance">Image
+        Provenance</a></li>
+        </ul></li>
+        <li><a href="#container-runtime-security"
+        id="toc-container-runtime-security">Container Runtime
+        Security</a>
+        <ul>
+        <li><a href="#read-only-filesystem-advanced"
+        id="toc-read-only-filesystem-advanced">Read-Only Filesystem
+        (Advanced)</a></li>
+        <li><a href="#resource-limits" id="toc-resource-limits">Resource
+        Limits</a></li>
+        </ul></li>
+        <li><a href="#build-arguments-for-flexibility"
+        id="toc-build-arguments-for-flexibility">Build Arguments for
+        Flexibility</a>
+        <ul>
+        <li><a href="#profile-specific-builds"
+        id="toc-profile-specific-builds">Profile-Specific
+        Builds</a></li>
+        </ul></li>
+        <li><a href="#dockerfile-best-practices-checklist"
+        id="toc-dockerfile-best-practices-checklist">Dockerfile Best
+        Practices Checklist</a></li>
+        <li><a href="#deployment-platforms"
+        id="toc-deployment-platforms">Deployment Platforms</a>
+        <ul>
+        <li><a href="#fly.io-configuration-fly.toml"
+        id="toc-fly.io-configuration-fly.toml">Fly.io Configuration
+        (fly.toml)</a></li>
+        <li><a href="#kubernetes-advanced"
+        id="toc-kubernetes-advanced">Kubernetes (advanced)</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Security Index</a></p>
+        <h1 id="docker-security">Docker Security</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro uses <strong>Docker with security best
+        practices</strong> to containerize the Spring Boot application.
+        The Dockerfile implements:</p>
+        <ul>
+        <li>Multi-stage builds to minimize final image size</li>
+        <li>Non-root user execution</li>
+        <li>Minimal base image (JRE-only, not JDK)</li>
+        <li>Runtime secret injection (no secrets in layers)</li>
+        <li>Health checks and metadata</li>
+        </ul>
+        <hr />
+        <h2 id="multi-stage-build-architecture">Multi-Stage Build
+        Architecture</h2>
+        <p>The Dockerfile uses <strong>three stages</strong> to produce
+        a lean, secure image:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> maven:3.9.11-eclipse-temurin-17 <span class="kw">AS</span> deps</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Download dependencies (cached)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> maven:3.9.11-eclipse-temurin-17 <span class="kw">AS</span> build</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build application JAR</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> eclipse-temurin:17-jre-alpine <span class="kw">AS</span> runtime</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run application (no build tools)</span></span></code></pre></div>
+        <h3 id="stage-1-dependency-warmup-optional">Stage 1: Dependency
+        Warmup (Optional)</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> maven:3.9.11-eclipse-temurin-17 <span class="kw">AS</span> deps</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> pom.xml .</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> .mvn/ .mvn/</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">mvn</span> <span class="at">-q</span> <span class="at">-B</span> <span class="at">-DskipTests</span> dependency:go-offline</span></code></pre></div>
+        <p><strong>Benefits:</strong> - ✅ Docker layer caching:
+        dependencies cached, no re-download on code change - ✅ Faster
+        incremental builds - ✅ Saves bandwidth (CI/CD)</p>
+        <h3 id="stage-2-build-stage">Stage 2: Build Stage</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> maven:3.9.11-eclipse-temurin-17 <span class="kw">AS</span> build</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /build</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reuse warmed dependencies</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=deps</span> /root/.m2 /root/.m2</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy source</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> pom.xml .</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> .mvn/ .mvn/</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> src/ src/</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Build profile (prod, dev, etc.)</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">ARG</span> PROFILE=prod</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> SPRING_PROFILES_ACTIVE=${PROFILE}</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Package JAR</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">mvn</span> <span class="at">-q</span> <span class="at">-B</span> <span class="at">-DskipTests</span> <span class="at">-P</span> <span class="va">${PROFILE}</span> package</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean cache to reduce layer size</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">rm</span> <span class="at">-rf</span> /root/.m2/repository <span class="kw">||</span> <span class="fu">true</span></span></code></pre></div>
+        <p><strong>Key Points:</strong> - Build tools (Maven) only in
+        this stage - <code>DskipTests</code> - Tests run in CI, not
+        Docker - <code>PROFILE</code> argument for environment-specific
+        builds - Cache cleanup to reduce intermediate layer size</p>
+        <h3 id="stage-3-runtime-stage">Stage 3: Runtime Stage</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> eclipse-temurin:17-jre-alpine <span class="kw">AS</span> runtime</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create non-root user</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">addgroup</span> <span class="at">-S</span> appgroup <span class="kw">&amp;&amp;</span> <span class="ex">adduser</span> <span class="at">-S</span> appuser <span class="at">-G</span> appgroup</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Install minimal utilities</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apk</span> add <span class="at">--no-cache</span> unzip coreutils <span class="kw">&amp;&amp;</span> <span class="ex">apk</span> upgrade <span class="at">--no-cache</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Change ownership</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> appuser:appgroup /app</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy startup script (with executable permission)</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=appuser:appgroup</span> <span class="op">--chmod=0755</span> start.sh /app/start.sh</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy JAR from build stage</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=build</span> <span class="op">--chown=appuser:appgroup</span> /build/target/*.jar /app/</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">mv</span> /app/<span class="pp">*</span>.jar /app/app.jar</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop to non-root user</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="kw">USER</span> appuser</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Health check (informational, Fly.io overrides)</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 8081</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Startup command</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> [<span class="st">&quot;/app/start.sh&quot;</span>]</span></code></pre></div>
+        <p><strong>Security Features:</strong> - ✅ JRE only (no
+        compiler, no build tools) - ✅ Non-root user (appuser:appgroup)
+        - ✅ Minimal base image (alpine: ~77MB) - ✅ Secrets NOT in
+        image (injected at runtime) - ✅ File permissions enforced</p>
+        <hr />
+        <h2 id="non-root-user-execution">Non-Root User Execution</h2>
+        <h3 id="usergroup-creation">User/Group Creation</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">addgroup</span> <span class="at">-S</span> appgroup <span class="kw">&amp;&amp;</span> <span class="ex">adduser</span> <span class="at">-S</span> appuser <span class="at">-G</span> appgroup</span></code></pre></div>
+        <p><strong>Benefits:</strong> - ✅ Container breakout less
+        impactful - ✅ Prevents accidental modifications to system files
+        - ✅ Complies with container security standards (CIS
+        Benchmarks)</p>
+        <h3 id="file-ownership">File Ownership</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=appuser:appgroup</span> /build/target/*.jar /app/app.jar</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> appuser:appgroup /app</span></code></pre></div>
+        <p><strong>Verification:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inside container</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> /app/app.jar</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># -rw-r--r-- appuser appgroup app.jar</span></span></code></pre></div>
+        <h3 id="privilege-dropping">Privilege Dropping</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">USER</span> appuser  <span class="co"># Drop privileges BEFORE running app</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> [<span class="st">&quot;/app/start.sh&quot;</span>]</span></code></pre></div>
+        <p><strong>Effect:</strong> - Java process runs as UID 1000
+        (appuser), not UID 0 (root) - Cannot accidentally modify /etc,
+        /lib, /usr - Docker daemon enforces privilege restrictions</p>
+        <hr />
+        <h2 id="minimal-base-image">Minimal Base Image</h2>
+        <h3 id="alpine-linux-for-jre">Alpine Linux for JRE</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> eclipse-temurin:17-jre-alpine</span></code></pre></div>
+        <p><strong>Image Sizes:</strong> | Base | Size | Includes |
+        |——|——|———-| | jdk-17-full | ~360MB | Full JDK + compiler +
+        tools | | jre-17-full | ~190MB | JRE only (no compiler) | |
+        jre-17-alpine | ~77MB | JRE + minimal Alpine OS |</p>
+        <p><strong>Trade-offs:</strong> - ✅ Smaller: faster deploys,
+        smaller attack surface - ✅ Faster pulls: bandwidth/time savings
+        - ⚠️ Alpine limitations: some Linux utils missing (use busybox
+        alternatives)</p>
+        <h3 id="system-updates">System Updates</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apk</span> add <span class="at">--no-cache</span> unzip coreutils <span class="kw">&amp;&amp;</span> <span class="ex">apk</span> upgrade <span class="at">--no-cache</span></span></code></pre></div>
+        <p><strong>Practices:</strong> - ✅ <code>--no-cache</code>:
+        don’t cache apk index (smaller layers) - ✅
+        <code>apk upgrade</code>: apply security patches - ✅ Minimal
+        packages: unzip (wallet extraction), coreutils (base64
+        decode)</p>
+        <hr />
+        <h2 id="runtime-secret-injection">Runtime Secret Injection</h2>
+        <h3 id="no-secrets-in-image">No Secrets in Image</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ❌ DO NOT DO THIS:</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> ORACLE_WALLET_B64=&lt;wallet-data&gt;  <span class="co"># Baked into image!</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> DB_PASSWORD=secret123            <span class="co"># Exposed in layers!</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ DO THIS INSTEAD:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Secrets injected at runtime via environment variables</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Dockerfile just receives secrets from CI/container platform</span></span></code></pre></div>
+        <h3 id="secret-injection-points">Secret Injection Points</h3>
+        <p><strong>Fly.io Secrets:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set ORACLE_WALLET_B64=<span class="op">&lt;</span>value<span class="op">&gt;</span> ORACLE_WALLET_PASSWORD=<span class="op">&lt;</span>value<span class="op">&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fly.io injects into container environment at startup</span></span></code></pre></div>
+        <p><strong>Kubernetes Secrets:</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">apiVersion</span><span class="kw">:</span><span class="at"> v1</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> Pod</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">spec</span><span class="kw">:</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">containers</span><span class="kw">:</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> app</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">env</span><span class="kw">:</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> ORACLE_WALLET_B64</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">valueFrom</span><span class="kw">:</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">secretKeyRef</span><span class="kw">:</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">name</span><span class="kw">:</span><span class="at"> oracle-wallet</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">key</span><span class="kw">:</span><span class="at"> wallet_b64</span></span></code></pre></div>
+        <p><strong>Docker CLI:</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--env-file</span> secrets.env <span class="at">-p</span> 8081:8081 inventory-service:latest</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># .env file contains: ORACLE_WALLET_B64=...</span></span></code></pre></div>
+        <h3 id="start.sh-secret-handling">start.sh Secret Handling</h3>
+        <p>The <code>start.sh</code> script minimizes secret
+        exposure:</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/sh</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Read secret from environment</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="va">WALLET_DATA</span><span class="op">=</span><span class="st">&quot;</span><span class="va">${ORACLE_WALLET_B64}</span><span class="st">&quot;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Decode and extract (ephemeral filesystem)</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">&quot;%s&quot;</span> <span class="st">&quot;</span><span class="va">${WALLET_DATA}</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="fu">base64</span> <span class="at">-d</span> <span class="op">&gt;</span> /tmp/wallet.zip</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> <span class="at">-q</span> /tmp/wallet.zip <span class="at">-d</span> /tmp/wallet</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Build JVM options with wallet password</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="va">JAVA_OPTS</span><span class="op">=</span><span class="st">&quot;... -Doracle.net.wallet_password=</span><span class="va">${ORACLE_WALLET_PASSWORD}</span><span class="st">&quot;</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Unset environment variables (reduce memory exposure)</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="bu">unset</span> <span class="va">ORACLE_WALLET_B64</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="bu">unset</span> <span class="va">ORACLE_WALLET_PASSWORD</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Remove temporary files</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-f</span> /tmp/wallet.zip</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Start application (secrets no longer in environment)</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="bu">exec</span> java <span class="va">${JAVA_OPTS}</span> <span class="at">-jar</span> /app/app.jar</span></code></pre></div>
+        <p><strong>Security Points:</strong> - ✅ Secrets only in memory
+        during startup - ✅ Env vars unset before app starts - ✅ Temp
+        files deleted (no disk exposure) - ✅ JVM options in system
+        properties (not env)</p>
+        <hr />
+        <h2 id="base-image-security">Base Image Security</h2>
+        <h3 id="image-scanning-for-cves">Image Scanning for CVEs</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scan for known vulnerabilities</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> scan inventory-service:latest</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Or using Trivy (third-party tool)</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">trivy</span> image inventory-service:latest</span></code></pre></div>
+        <p><strong>Regular Updates:</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Before each release, rebuild to get latest patches</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">--no-cache</span> <span class="at">-t</span> inventory-service:v1.2.0 .</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --no-cache forces fresh base image pull</span></span></code></pre></div>
+        <h3 id="image-provenance">Image Provenance</h3>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">LABEL</span> maintainer=<span class="st">&quot;https://github.com/Keglev&quot;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">LABEL</span> version=<span class="st">&quot;1.0.0&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">LABEL</span> org.opencontainers.image.source=<span class="st">&quot;https://github.com/Keglev/inventory-service&quot;</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - ✅ Image provenance tracking -
+        ✅ Vulnerability scanning with origin info - ✅ Automated
+        security notifications</p>
+        <hr />
+        <h2 id="container-runtime-security">Container Runtime
+        Security</h2>
+        <h3 id="read-only-filesystem-advanced">Read-Only Filesystem
+        (Advanced)</h3>
+        <p>For maximum hardening (if startup files are static):</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mark critical files as read-only</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chmod</span> 444 /app/app.jar</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chmod</span> 555 /app/start.sh</span></code></pre></div>
+        <p><strong>Fly.io config (read-only root
+        filesystem):</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[experimental]</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">read_only_root_filesystem</span> <span class="op">=</span> <span class="cn">true</span></span></code></pre></div>
+        <p><strong>Effect:</strong> - ✅ Container cannot create/modify
+        files - ✅ Malware cannot establish persistence - ⚠️ Requires
+        careful handling of /tmp, /var/log</p>
+        <h3 id="resource-limits">Resource Limits</h3>
+        <p><strong>Fly.io fly.toml:</strong></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[vm]</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size</span> <span class="op">=</span> <span class="st">&quot;shared-cpu-1x&quot;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">memory</span> <span class="op">=</span> <span class="dv">1024</span>  <span class="co"># 1GB RAM limit</span></span></code></pre></div>
+        <p><strong>Docker Compose:</strong></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> inventory-service:latest</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">deploy</span><span class="kw">:</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">resources</span><span class="kw">:</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">limits</span><span class="kw">:</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">cpus</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;1&#39;</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">memory</span><span class="kw">:</span><span class="at"> 1G</span><span class="co">  # Kill if exceeds 1GB</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - ✅ Prevents memory exhaustion
+        attacks - ✅ Fair resource sharing in multi-tenant - ✅
+        Predictable billing in cloud platforms</p>
+        <hr />
+        <h2 id="build-arguments-for-flexibility">Build Arguments for
+        Flexibility</h2>
+        <h3 id="profile-specific-builds">Profile-Specific Builds</h3>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ARG</span> PROFILE=prod</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> SPRING_PROFILES_ACTIVE=${PROFILE}</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">mvn</span> ... <span class="at">-P</span> <span class="va">${PROFILE}</span> package</span></code></pre></div>
+        <p><strong>Usage:</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Production build (default)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> inventory-service:prod .</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Development build</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">--build-arg</span> PROFILE=dev <span class="at">-t</span> inventory-service:dev .</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom JDK</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">--build-arg</span> JDK_VERSION=21 <span class="at">-t</span> inventory-service:jdk21 .</span></code></pre></div>
+        <hr />
+        <h2 id="dockerfile-best-practices-checklist">Dockerfile Best
+        Practices Checklist</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Practice</th>
+        <th>Status</th>
+        <th>Details</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Multi-stage build</td>
+        <td>✅</td>
+        <td>3 stages: deps, build, runtime</td>
+        </tr>
+        <tr class="even">
+        <td>Non-root user</td>
+        <td>✅</td>
+        <td>appuser:appgroup, UID 1000</td>
+        </tr>
+        <tr class="odd">
+        <td>Minimal base</td>
+        <td>✅</td>
+        <td>alpine JRE (77MB)</td>
+        </tr>
+        <tr class="even">
+        <td>No secrets in image</td>
+        <td>✅</td>
+        <td>Runtime injection via env vars</td>
+        </tr>
+        <tr class="odd">
+        <td>Scan for CVEs</td>
+        <td>✅</td>
+        <td><code>docker scan</code> or <code>trivy</code></td>
+        </tr>
+        <tr class="even">
+        <td>Health checks</td>
+        <td>✅</td>
+        <td>TCP and HTTP probes configured</td>
+        </tr>
+        <tr class="odd">
+        <td>Metadata labels</td>
+        <td>✅</td>
+        <td>maintainer, version, source</td>
+        </tr>
+        <tr class="even">
+        <td>Resource limits</td>
+        <td>✅</td>
+        <td>Memory and CPU constraints</td>
+        </tr>
+        <tr class="odd">
+        <td>Distroless compatible</td>
+        <td>⚠️</td>
+        <td>Currently alpine; can use distroless</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="deployment-platforms">Deployment Platforms</h2>
+        <h3 id="fly.io-configuration-fly.toml">Fly.io Configuration
+        (fly.toml)</h3>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build]</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">dockerfile</span> <span class="op">=</span> <span class="st">&quot;Dockerfile&quot;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">context</span> <span class="op">=</span> <span class="st">&quot;.&quot;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">APP_DEMO_READONLY</span> <span class="op">=</span> <span class="st">&quot;true&quot;</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[vm]</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">memory</span> <span class="op">=</span> <span class="dv">1024</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[[services]]</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">internal_port</span> <span class="op">=</span> <span class="dv">8081</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[[services.ports]]</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">handlers</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;http&quot;</span><span class="op">]</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">port</span> <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[[services.ports]]</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">handlers</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;tls&quot;</span><span class="op">,</span> <span class="st">&quot;http&quot;</span><span class="op">]</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">port</span> <span class="op">=</span> <span class="dv">443</span></span></code></pre></div>
+        <h3 id="kubernetes-advanced">Kubernetes (advanced)</h3>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">apiVersion</span><span class="kw">:</span><span class="at"> apps/v1</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> Deployment</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">metadata</span><span class="kw">:</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">name</span><span class="kw">:</span><span class="at"> inventory-service</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">spec</span><span class="kw">:</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">containers</span><span class="kw">:</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> app</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> inventory-service:v1.0.0</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">imagePullPolicy</span><span class="kw">:</span><span class="at"> Always</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">securityContext</span><span class="kw">:</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">allowPrivilegeEscalation</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">runAsNonRoot</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">runAsUser</span><span class="kw">:</span><span class="at"> </span><span class="dv">1000</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">readOnlyRootFilesystem</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">resources</span><span class="kw">:</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">requests</span><span class="kw">:</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">memory</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;512Mi&quot;</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">cpu</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;500m&quot;</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">limits</span><span class="kw">:</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">memory</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;1Gi&quot;</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">cpu</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;1&quot;</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumeMounts</span><span class="kw">:</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> tmp</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">mountPath</span><span class="kw">:</span><span class="at"> /tmp</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> var-log</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">mountPath</span><span class="kw">:</span><span class="at"> /var/log</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">securityPolicy</span><span class="kw">:</span><span class="at"> restricted</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> tmp</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">emptyDir</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> var-log</span></span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">emptyDir</span><span class="kw">:</span><span class="at"> </span><span class="kw">{}</span></span></code></pre></div>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Security Index</a></strong> -
+        Master security overview</li>
+        <li><strong><a href="./oracle-wallet.html">Oracle
+        Wallet</a></strong> - Database credential encryption</li>
+        <li><strong><a href="../deployment.html">Deployment
+        Guide</a></strong> - Production deployment strategies</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Security Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

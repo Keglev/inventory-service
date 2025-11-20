@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+security/oracle-wallet · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#oracle-wallet-database-encryption"
+        id="toc-oracle-wallet-database-encryption">Oracle Wallet &amp;
+        Database Encryption</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#architecture"
+        id="toc-architecture">Architecture</a></li>
+        <li><a href="#wallet-setup-process"
+        id="toc-wallet-setup-process">Wallet Setup Process</a>
+        <ul>
+        <li><a href="#step-1-export-wallet-from-oracle"
+        id="toc-step-1-export-wallet-from-oracle">Step 1: Export Wallet
+        from Oracle</a></li>
+        <li><a href="#step-2-create-tnsnames.ora"
+        id="toc-step-2-create-tnsnames.ora">Step 2: Create
+        tnsnames.ora</a></li>
+        <li><a href="#step-3-encrypt-wallet-as-base64"
+        id="toc-step-3-encrypt-wallet-as-base64">Step 3: Encrypt Wallet
+        as Base64</a></li>
+        <li><a href="#step-4-store-as-runtime-secret"
+        id="toc-step-4-store-as-runtime-secret">Step 4: Store as Runtime
+        Secret</a></li>
+        </ul></li>
+        <li><a href="#runtime-extraction-start.sh"
+        id="toc-runtime-extraction-start.sh">Runtime Extraction
+        (start.sh)</a></li>
+        <li><a href="#database-connection-configuration"
+        id="toc-database-connection-configuration">Database Connection
+        Configuration</a>
+        <ul>
+        <li><a href="#application-properties"
+        id="toc-application-properties">Application Properties</a></li>
+        <li><a href="#connection-string-from-tns"
+        id="toc-connection-string-from-tns">Connection String (from
+        TNS)</a></li>
+        <li><a href="#environment-variables-at-runtime"
+        id="toc-environment-variables-at-runtime">Environment Variables
+        at Runtime</a></li>
+        </ul></li>
+        <li><a href="#postgresql-alternative-no-wallet"
+        id="toc-postgresql-alternative-no-wallet">PostgreSQL Alternative
+        (No Wallet)</a></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#error-wallet-location-not-set"
+        id="toc-error-wallet-location-not-set">Error: “Wallet Location
+        not set”</a></li>
+        <li><a href="#error-connection-refused-or-timeout"
+        id="toc-error-connection-refused-or-timeout">Error: “Connection
+        refused” or Timeout</a></li>
+        <li><a href="#error-invalid-wallet-password"
+        id="toc-error-invalid-wallet-password">Error: “Invalid wallet
+        password”</a></li>
+        <li><a href="#error-ewallet.p12-not-found"
+        id="toc-error-ewallet.p12-not-found">Error: “ewallet.p12 not
+        found”</a></li>
+        </ul></li>
+        <li><a href="#security-best-practices"
+        id="toc-security-best-practices">Security Best
+        Practices</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Security Index</a></p>
+        <h1 id="oracle-wallet-database-encryption">Oracle Wallet &amp;
+        Database Encryption</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro uses <strong>Oracle Wallet</strong> to
+        encrypt database credentials using <strong>Public Key
+        Infrastructure (PKI)</strong>. The wallet contains: -
+        <code>ewallet.p12</code> - Encrypted key store with private keys
+        - <code>tnsnames.ora</code> - Oracle TNS naming directory (maps
+        database aliases to connection strings)</p>
+        <p>This ensures database credentials are never stored in
+        plaintext.</p>
+        <hr />
+        <h2 id="architecture">Architecture</h2>
+        <div class="mermaid">
+        graph TB
+            Container["🐳 Container Startup"]
+            RuntimeSecret["Runtime Secret<br/>(ORACLE_WALLET_B64)"]
+            Decode["Decode Base64"]
+            Extract["Unzip Wallet"]
+            Wallet["Wallet Directory<br/>/app/wallet/Wallet_sspdb_fixed"]
+            EWallet["ewallet.p12<br/>(Encrypted Keys)"]
+            TNS["tnsnames.ora<br/>(DB Connection)"]
+            
+            Container -->|Read secret| RuntimeSecret
+            RuntimeSecret -->|Base64| Decode
+            Decode -->|ZIP| Extract
+            Extract -->|folder| Wallet
+            Wallet -->|contains| EWallet
+            Wallet -->|contains| TNS
+            
+            JavaApp["Java Application"]
+            TNS_ADMIN["TNS_ADMIN=/app/wallet/<br/>Wallet_sspdb_fixed"]
+            Password["ORACLE_WALLET_PASSWORD"]
+            
+            Wallet -->|Set env var| TNS_ADMIN
+            Password -->|Pass to JVM| JavaApp
+            TNS_ADMIN -->|OracleDriver uses| JavaApp
+            
+            JavaApp -->|TLS Connection| Database["🗄️ Database<br/>(Oracle/PostgreSQL)"]
+            
+            style Container fill:#e1f5ff
+            style RuntimeSecret fill:#fff9c4
+            style Decode fill:#f1f8e9
+            style Extract fill:#e8f5e9
+            style Wallet fill:#c8e6c9
+            style EWallet fill:#a5d6a7
+            style TNS fill:#81c784
+            style JavaApp fill:#4fc3f7
+            style Database fill:#01579b
+            style TNS_ADMIN fill:#fff59d
+        </div>
+        <hr />
+        <h2 id="wallet-setup-process">Wallet Setup Process</h2>
+        <h3 id="step-1-export-wallet-from-oracle">Step 1: Export Wallet
+        from Oracle</h3>
+        <p>Using Oracle Wallet Manager or <code>mkwallet</code>
+        command:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create wallet with auto-open enabled</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mkwallet</span> <span class="at">-wallet</span> /path/to/wallet <span class="at">-pwd</span> <span class="op">&lt;</span>password<span class="op">&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add database connection credentials</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">mkstore</span> <span class="at">-wrl</span> /path/to/wallet <span class="at">-create</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">mkstore</span> <span class="at">-wrl</span> /path/to/wallet <span class="at">-modifyEntry</span> DB_ALIAS <span class="st">&quot;&lt;connection-string&gt;&quot;</span> <span class="at">-pwd</span> <span class="op">&lt;</span>password<span class="op">&gt;</span></span></code></pre></div>
+        <p><strong>Result Files:</strong> - <code>ewallet.p12</code> -
+        PKCS#12 keystore with encrypted credentials -
+        <code>cwallet.sso</code> - Single-sign-on wallet (optional) -
+        <code>tnsnames.ora</code> - TNS connection definitions</p>
+        <h3 id="step-2-create-tnsnames.ora">Step 2: Create
+        tnsnames.ora</h3>
+        <p><strong>tnsnames.ora</strong> maps database aliases to
+        connection strings:</p>
+        <pre><code>SSPDB =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = oracle.example.com)(PORT = 1521))
+    (CONNECT_DATA =
+      (SERVICE_NAME = SSPDB)
+      (SECURITY = (SSL_SERVER_CERT_DN = &quot;CN=oracle.example.com&quot;))
+    )
+  )</code></pre>
+        <h3 id="step-3-encrypt-wallet-as-base64">Step 3: Encrypt Wallet
+        as Base64</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ZIP the wallet directory</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">zip</span> <span class="at">-r</span> wallet.zip Wallet_sspdb_fixed/</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Encode to Base64</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">base64</span> wallet.zip <span class="op">&gt;</span> wallet_b64.txt</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Result: very long string of Base64 characters</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> wallet_b64.txt</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># UEsDBAoAAAAAAPZo...AAAAAAAAAAAAA==</span></span></code></pre></div>
+        <h3 id="step-4-store-as-runtime-secret">Step 4: Store as Runtime
+        Secret</h3>
+        <p>Store the Base64 string as a secret:</p>
+        <p><strong>Fly.io secrets:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set ORACLE_WALLET_B64=<span class="op">&lt;</span>base64-string<span class="op">&gt;</span> <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                   ORACLE_WALLET_PASSWORD=<span class="op">&lt;</span>wallet-password<span class="op">&gt;</span></span></code></pre></div>
+        <p><strong>Kubernetes secrets:</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">apiVersion</span><span class="kw">:</span><span class="at"> v1</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> Secret</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">metadata</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">name</span><span class="kw">:</span><span class="at"> oracle-wallet</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> Opaque</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">wallet_b64</span><span class="kw">:</span><span class="at"> &lt;base64-encoded-wallet.zip&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">wallet_password</span><span class="kw">:</span><span class="at"> &lt;encoded-password&gt;</span></span></code></pre></div>
+        <p><strong>GitHub Secrets:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> secret set ORACLE_WALLET_B64 <span class="op">&lt;</span> wallet_b64.txt</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> secret set ORACLE_WALLET_PASSWORD <span class="at">-b</span> <span class="st">&quot;&lt;password&gt;&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="runtime-extraction-start.sh">Runtime Extraction
+        (start.sh)</h2>
+        <p>The <code>start.sh</code> script extracts the wallet at
+        container startup:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/sh</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-eu</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Require runtime secrets</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">[</span> <span class="ot">-z</span> <span class="st">&quot;</span><span class="va">${ORACLE_WALLET_B64</span><span class="op">:-</span><span class="va">}</span><span class="st">&quot;</span> <span class="bu">]</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: ORACLE_WALLET_B64 not set&quot;</span><span class="kw">;</span> <span class="bu">exit</span> 1</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">[</span> <span class="ot">-z</span> <span class="st">&quot;</span><span class="va">${ORACLE_WALLET_PASSWORD</span><span class="op">:-</span><span class="va">}</span><span class="st">&quot;</span> <span class="bu">]</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: ORACLE_WALLET_PASSWORD not set&quot;</span><span class="kw">;</span> <span class="bu">exit</span> 1</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Decode Base64 wallet</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> /app/wallet</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">&quot;%s&quot;</span> <span class="st">&quot;</span><span class="va">${ORACLE_WALLET_B64}</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="fu">base64</span> <span class="at">-d</span> <span class="op">&gt;</span> /app/wallet.zip</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Extract ZIP</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> <span class="at">-o</span> <span class="at">-q</span> /app/wallet.zip <span class="at">-d</span> /app/wallet</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Verify wallet files exist</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TNS_ADMIN</span><span class="op">=</span><span class="st">&quot;/app/wallet/Wallet_sspdb_fixed&quot;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">[</span> <span class="ot">!</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">$TNS_ADMIN</span><span class="st">/ewallet.p12&quot;</span> <span class="bu">]</span> <span class="kw">||</span> <span class="bu">[</span> <span class="ot">!</span> <span class="ot">-f</span> <span class="st">&quot;</span><span class="va">$TNS_ADMIN</span><span class="st">/tnsnames.ora&quot;</span> <span class="bu">]</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: Wallet files missing&quot;</span><span class="kw">;</span> <span class="bu">exit</span> 1</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Clean up Base64 secret (reduce exposure)</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-f</span> /app/wallet.zip</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="bu">unset</span> <span class="va">ORACLE_WALLET_B64</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Set JVM options with wallet password</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="va">JAVA_OPTS</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$JAVA_OPTS</span><span class="st"> </span><span class="dt">\</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="st"> -Doracle.net.tns_admin=</span><span class="va">${TNS_ADMIN}</span><span class="st"> </span><span class="dt">\</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="st"> -Doracle.net.wallet_password=</span><span class="va">${ORACLE_WALLET_PASSWORD}</span><span class="st">&quot;</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Unset password env var (already in JAVA_OPTS)</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="bu">unset</span> <span class="va">ORACLE_WALLET_PASSWORD</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. Start Spring Boot</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="bu">exec</span> java <span class="va">${JAVA_OPTS}</span> <span class="at">-jar</span> /app/app.jar</span></code></pre></div>
+        <p><strong>Key Security Points:</strong> - ✅ Base64 string
+        decoded only at runtime - ✅ ZIP extracted only to ephemeral
+        container filesystem - ✅ Secrets cleaned up after use (unset
+        env vars) - ✅ JVM system properties used instead of env vars -
+        ✅ Wallet files never logged or exposed</p>
+        <hr />
+        <h2 id="database-connection-configuration">Database Connection
+        Configuration</h2>
+        <h3 id="application-properties">Application Properties</h3>
+        <p><strong>application.yml:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> ${DB_URL}</span><span class="co">                              # jdbc:oracle:thin:@SSPDB</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> ${DB_USER}</span><span class="co">                        # database username</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASS}</span><span class="co">                        # database password</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> oracle.jdbc.OracleDriver</span></span></code></pre></div>
+        <h3 id="connection-string-from-tns">Connection String (from
+        TNS)</h3>
+        <p>The JDBC driver uses Oracle Net to resolve connection:</p>
+        <pre><code>DB_URL=jdbc:oracle:thin:@SSPDB</code></pre>
+        <p><strong>Oracle Net Resolution:</strong></p>
+        <pre><code>1. JDBC reads: jdbc:oracle:thin:@SSPDB
+2. Oracle Net Client looks up: SSPDB in tnsnames.ora
+3. Finds connection descriptor with HOST, PORT, SERVICE_NAME
+4. Looks up wallet at TNS_ADMIN environment variable
+5. Decrypts with ORACLE_WALLET_PASSWORD
+6. Opens TLS connection to database</code></pre>
+        <h3 id="environment-variables-at-runtime">Environment Variables
+        at Runtime</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Database connection (resolved via tnsnames.ora)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@SSPDB</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="va">DB_USER</span><span class="op">=</span>inventory_user</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="va">DB_PASS</span><span class="op">=&lt;</span>database-password<span class="op">&gt;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Wallet for encryption (set by start.sh from Base64)</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="va">ORACLE_WALLET_B64</span><span class="op">=&lt;</span>base64-encoded-wallet.zip<span class="op">&gt;</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="va">ORACLE_WALLET_PASSWORD</span><span class="op">=&lt;</span>wallet-encryption-password<span class="op">&gt;</span></span></code></pre></div>
+        <hr />
+        <h2 id="postgresql-alternative-no-wallet">PostgreSQL Alternative
+        (No Wallet)</h2>
+        <p>For PostgreSQL deployments, skip wallet:</p>
+        <p><strong>application-postgres.yml:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:postgresql://db.example.com:5432/inventory</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> ${DB_USER}</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASS}</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> org.postgresql.Driver</span></span></code></pre></div>
+        <p><strong>Dockerfile (PostgreSQL):</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># No Oracle wallet extraction needed</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Just set environment variables</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> DB_URL=jdbc:postgresql://db.example.com:5432/inventory</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> SPRING_PROFILES_ACTIVE=prod</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> <span class="bu">exec</span> java <span class="at">-jar</span> /app/app.jar</span></code></pre></div>
+        <hr />
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="error-wallet-location-not-set">Error: “Wallet Location
+        not set”</h3>
+        <p><strong>Cause:</strong> TNS_ADMIN not set in JVM</p>
+        <p><strong>Solution:</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># start.sh sets this:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TNS_ADMIN</span><span class="op">=</span><span class="st">&quot;/app/wallet/Wallet_sspdb_fixed&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify in JVM:</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">System.getenv</span><span class="er">(</span><span class="st">&quot;TNS_ADMIN&quot;</span><span class="kw">)</span>  <span class="ex">//</span> Should be set</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="ex">System.getProperty</span><span class="er">(</span><span class="st">&quot;oracle.net.tns_admin&quot;</span><span class="kw">)</span>  <span class="ex">//</span> Should be set</span></code></pre></div>
+        <h3 id="error-connection-refused-or-timeout">Error: “Connection
+        refused” or Timeout</h3>
+        <p><strong>Cause:</strong> Database host/port unreachable</p>
+        <p><strong>Solution:</strong> 1. Verify tnsnames.ora has correct
+        HOST and PORT 2. Check network connectivity from container to
+        database 3. Verify database is accepting TLS connections</p>
+        <h3 id="error-invalid-wallet-password">Error: “Invalid wallet
+        password”</h3>
+        <p><strong>Cause:</strong> ORACLE_WALLET_PASSWORD mismatch</p>
+        <p><strong>Solution:</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify password matches wallet creation</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># If password changed, re-create wallet</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mkwallet</span> <span class="at">-wallet</span> /path/to/wallet <span class="at">-pwd</span> <span class="op">&lt;</span>new-password<span class="op">&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Re-encode wallet and update secret</span></span></code></pre></div>
+        <h3 id="error-ewallet.p12-not-found">Error: “ewallet.p12 not
+        found”</h3>
+        <p><strong>Cause:</strong> Wallet extraction failed</p>
+        <p><strong>Solution:</strong> 1. Verify ORACLE_WALLET_B64 is
+        valid Base64 2. Check unzip compatibility (Windows ZIP quirk):
+        <code>bash    unzip -l /app/wallet.zip  # List contents</code>
+        3. Manually test extraction locally:
+        <code>bash    base64 -d wallet_b64.txt &gt; test.zip    unzip test.zip</code></p>
+        <hr />
+        <h2 id="security-best-practices">Security Best Practices</h2>
+        <table>
+        <colgroup>
+        <col style="width: 62%" />
+        <col style="width: 18%" />
+        <col style="width: 18%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Practice</th>
+        <th>Implementation</th>
+        <th>Benefit</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>No plaintext creds</strong></td>
+        <td>Use wallet encryption</td>
+        <td>Credentials protected at rest</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Runtime injection</strong></td>
+        <td>Extract from Base64 at startup</td>
+        <td>Never in Docker layers</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Secret cleanup</strong></td>
+        <td>Unset env vars after JVM options</td>
+        <td>Reduce process memory exposure</td>
+        </tr>
+        <tr class="even">
+        <td><strong>TLS for DB</strong></td>
+        <td>Oracle Net uses wallet for SSL</td>
+        <td>Encrypted database connections</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Isolated wallets</strong></td>
+        <td>Separate wallet per environment</td>
+        <td>Production isolation</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Security Index</a></strong> -
+        Master security overview</li>
+        <li><strong><a href="./docker-security.html">Docker
+        Security</a></strong> - Container security practices</li>
+        <li><strong><a href="../deployment.html">Deployment
+        Guide</a></strong> - Production deployment</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Security Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

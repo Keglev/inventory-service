@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · security/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#security-architecture"
+        id="toc-security-architecture">Security Architecture</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a></li>
+        <li><a href="#security-architecture-diagram"
+        id="toc-security-architecture-diagram">Security Architecture
+        Diagram</a></li>
+        <li><a href="#security-layers" id="toc-security-layers">Security
+        Layers</a>
+        <ul>
+        <li><a href="#authentication-layer"
+        id="toc-authentication-layer">1. <strong>Authentication
+        Layer</strong></a></li>
+        <li><a href="#authorization-layer"
+        id="toc-authorization-layer">2. <strong>Authorization
+        Layer</strong></a></li>
+        <li><a href="#requestresponse-security"
+        id="toc-requestresponse-security">3. <strong>Request/Response
+        Security</strong></a></li>
+        <li><a href="#data-access-security"
+        id="toc-data-access-security">4. <strong>Data Access
+        Security</strong></a></li>
+        <li><a href="#container-security" id="toc-container-security">5.
+        <strong>Container Security</strong></a></li>
+        </ul></li>
+        <li><a href="#authentication-flow-sequence"
+        id="toc-authentication-flow-sequence">Authentication Flow
+        Sequence</a></li>
+        <li><a href="#authorization-decision-tree"
+        id="toc-authorization-decision-tree">Authorization Decision
+        Tree</a></li>
+        <li><a href="#key-configuration-points"
+        id="toc-key-configuration-points">Key Configuration Points</a>
+        <ul>
+        <li><a href="#application-properties-application.yml"
+        id="toc-application-properties-application.yml">Application
+        Properties (application.yml)</a></li>
+        <li><a href="#environment-variables-required-at-runtime"
+        id="toc-environment-variables-required-at-runtime">Environment
+        Variables (Required at Runtime)</a></li>
+        </ul></li>
+        <li><a href="#security-best-practices-implemented"
+        id="toc-security-best-practices-implemented">Security Best
+        Practices Implemented</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="security-architecture">Security Architecture</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The Smart Supply Pro inventory management system implements a
+        <strong>comprehensive security architecture</strong> based on
+        OAuth2 authentication, role-based access control (RBAC), and
+        multiple security layers. The design emphasizes:</p>
+        <ul>
+        <li><strong>Enterprise OAuth2 authentication</strong> with
+        automatic user provisioning</li>
+        <li><strong>Role-based access control (RBAC)</strong> for
+        fine-grained authorization</li>
+        <li><strong>Secure credential management</strong> using Oracle
+        Wallet encryption</li>
+        <li><strong>Container security</strong> with non-root execution
+        and minimal attack surface</li>
+        <li><strong>Demo mode support</strong> for development and
+        public showcases</li>
+        </ul>
+        <hr />
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <table>
+        <colgroup>
+        <col style="width: 36%" />
+        <col style="width: 47%" />
+        <col style="width: 15%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Topic</th>
+        <th>Purpose</th>
+        <th>Documentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>OAuth2 Authentication</strong></td>
+        <td>Login flow, user provisioning, session management</td>
+        <td><a href="./oauth2-authentication.html">Read →</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Authorization &amp; RBAC</strong></td>
+        <td>Role-based access control, API endpoint protection</td>
+        <td><a href="./authorization-rbac.html">Read →</a></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Oracle Wallet</strong></td>
+        <td>Database credential encryption, TNS_ADMIN setup</td>
+        <td><a href="./oracle-wallet.html">Read →</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Docker Security</strong></td>
+        <td>Container hardening, non-root user, secret management</td>
+        <td><a href="./docker-security.html">Read →</a></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Demo Mode</strong></td>
+        <td>Read-only public access, configuration, use cases</td>
+        <td><a href="./demo-mode.html">Read →</a></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="security-architecture-diagram">Security Architecture
+        Diagram</h2>
+        <div class="mermaid">
+        graph TB
+            User["🧑 User"]
+            OAuth2Provider["Google OAuth2<br/>(External Provider)"]
+            Browser["🌐 Browser"]
+            
+            Frontend["Frontend App<br/>(React/TypeScript)"]
+            API["API Gateway<br/>(Spring Boot)"]
+            
+            AuthFilter["Security Filter<br/>(API Detection)"]
+            OAuth2Handler["OAuth2 Handler<br/>(User Provisioning)"]
+            AuthzHelper["Authorization Helper<br/>(RBAC Rules)"]
+            
+            Database["Database<br/>(Oracle/PostgreSQL)"]
+            OracleWallet["Oracle Wallet<br/>(Encrypted Credentials)"]
+            
+            User -->|"Click 'Login with Google'"| Browser
+            Browser -->|"Redirect to OAuth2"| OAuth2Provider
+            OAuth2Provider -->|"Authorization Code"| Frontend
+            
+            Frontend -->|"OAuth2 Code + User Info"| API
+            API -->|"API Request Detection"| AuthFilter
+            AuthFilter -->|"Delegate to Handler"| OAuth2Handler
+            OAuth2Handler -->|"Auto-provision User"| Database
+            OAuth2Handler -->|"Generate Auth Token"| Frontend
+            
+            Frontend -->|"Include Token in Headers"| API
+            API -->|"Check Authorization Rules"| AuthzHelper
+            AuthzHelper -->|"Verify Role (ADMIN/USER)"| Database
+            
+            API -->|"Query Data"| Database
+            Database -->|"Decrypt with Wallet"| OracleWallet
+            
+            style User fill:#e1f5ff
+            style Browser fill:#b3e5fc
+            style Frontend fill:#81d4fa
+            style API fill:#4fc3f7
+            style AuthFilter fill:#29b6f6
+            style OAuth2Handler fill:#0288d1
+            style AuthzHelper fill:#0277bd
+            style Database fill:#01579b
+            style OAuth2Provider fill:#ffccbc
+            style OracleWallet fill:#ffab91
+        </div>
+        <hr />
+        <h2 id="security-layers">Security Layers</h2>
+        <h3 id="authentication-layer">1. <strong>Authentication
+        Layer</strong></h3>
+        <p><strong>OAuth2 with Automatic User Provisioning</strong></p>
+        <ul>
+        <li>External identity providers (Google, GitHub, etc.) handle
+        password security</li>
+        <li>Upon successful login, user is automatically provisioned in
+        local database</li>
+        <li>Email used as unique identifier for user identity</li>
+        <li>Session managed via secure HTTP-only cookies with
+        SameSite=None for cross-origin</li>
+        </ul>
+        <p><strong>Key Components:</strong> -
+        <code>CustomOAuth2UserService</code> - OAuth2 user loading with
+        local user creation - <code>CustomOidcUserService</code> - OIDC
+        token validation (for Google OpenID Connect) -
+        <code>OAuth2LoginSuccessHandler</code> - Post-authentication
+        user provisioning and redirect -
+        <code>CookieOAuth2AuthorizationRequestRepository</code> -
+        Stateless auth request persistence</p>
+        <hr />
+        <h3 id="authorization-layer">2. <strong>Authorization
+        Layer</strong></h3>
+        <p><strong>Role-Based Access Control (RBAC)</strong></p>
+        <p>Two roles defined: - <strong>ADMIN</strong> - Full system
+        access (create, update, delete) - <strong>USER</strong> -
+        Read-only and limited write access</p>
+        <p><strong>Role Assignment:</strong> - Admin emails configured
+        via <code>APP_ADMIN_EMAILS</code> environment variable - All
+        other users default to USER role - Role “healing” occurs on each
+        login (dynamic allow-list updates)</p>
+        <p><strong>Authorization Rules:</strong> - Public endpoints:
+        /login, /logout, /actuator/health - Authenticated read: GET
+        /api/inventory/<em>, GET /api/suppliers/</em> - Admin-only
+        write: POST/PUT/DELETE /api/inventory/<em>, /api/suppliers/</em>
+        - Demo mode: Allows unauthenticated GET for public showcases</p>
+        <p><strong>Enforcement:</strong> - <code>@PreAuthorize</code>
+        method-level security - <code>SecurityAuthorizationHelper</code>
+        for HTTP request matching - SpEL expressions for dynamic demo
+        mode control</p>
+        <hr />
+        <h3 id="requestresponse-security">3. <strong>Request/Response
+        Security</strong></h3>
+        <p><strong>CORS Configuration</strong> - Allows cross-origin
+        requests from frontend domains - Credentials included in cookies
+        (SameSite=None) - Specific methods allowed: GET, POST, PUT,
+        PATCH, DELETE, OPTIONS</p>
+        <p><strong>Entry Point Handling</strong> - API requests return
+        JSON 401 on auth failure - Browser requests redirect to frontend
+        login page - Detection via Accept header and /api/ path
+        matching</p>
+        <p><strong>CSRF Protection</strong> - CSRF tokens ignored for
+        /api/<strong>, /logout, /actuator/</strong> - Stateless API
+        design (no session state in forms)</p>
+        <hr />
+        <h3 id="data-access-security">4. <strong>Data Access
+        Security</strong></h3>
+        <p><strong>Oracle Wallet (TLS/SSL for Database)</strong></p>
+        <ul>
+        <li>Database credentials encrypted using Oracle PKI
+        infrastructure</li>
+        <li>Wallet files (<code>ewallet.p12</code>,
+        <code>tnsnames.ora</code>) loaded at runtime</li>
+        <li>Password protection via <code>ORACLE_WALLET_PASSWORD</code>
+        environment variable</li>
+        <li>Connection pooling with secure TLS handshakes</li>
+        </ul>
+        <p><strong>Environment Variable Injection:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">ORACLE_WALLET_B64</span><span class="op">=&lt;</span>base64-encoded-wallet.zip<span class="op">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="va">ORACLE_WALLET_PASSWORD</span><span class="op">=&lt;</span>wallet-password<span class="op">&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=&lt;</span>jdbc-connect-string<span class="op">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">DB_USER</span><span class="op">=&lt;</span>db-username<span class="op">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">DB_PASS</span><span class="op">=&lt;</span>db-password<span class="op">&gt;</span></span></code></pre></div>
+        <hr />
+        <h3 id="container-security">5. <strong>Container
+        Security</strong></h3>
+        <p><strong>Docker Best Practices</strong></p>
+        <ul>
+        <li>Multi-stage build: separates build tools from runtime</li>
+        <li>Non-root user execution (appuser:appgroup)</li>
+        <li>Minimal JRE runtime (17-jre-alpine)</li>
+        <li>Secrets injected at runtime, not baked into image</li>
+        <li>Wallet extraction happens only at container startup</li>
+        </ul>
+        <p><strong>Hardening:</strong> - Base image updated:
+        <code>apk upgrade --no-cache</code> - Required tools only:
+        unzip, coreutils - File permissions: umask 077 for sensitive
+        files - Secrets unset after use: no wallet logs, no env
+        exposure</p>
+        <hr />
+        <h2 id="authentication-flow-sequence">Authentication Flow
+        Sequence</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            participant User as 👤 User
+            participant Browser as 🌐 Browser
+            participant Frontend as 📱 Frontend App
+            participant GoogleOAuth as 🔐 Google OAuth2
+            participant BackendAPI as 🖥️ Backend API
+            participant Database as 🗄️ Database
+
+            User->>Browser: Click "Login with Google"
+            Browser->>Frontend: Navigate to /login
+            Frontend->>GoogleOAuth: Redirect to authorization endpoint
+            GoogleOAuth->>Browser: Authorization consent form
+            User->>GoogleOAuth: Grant permissions
+            GoogleOAuth->>Frontend: Redirect with authorization code
+            Frontend->>BackendAPI: POST /oauth2/code/google + code
+            
+            BackendAPI->>GoogleOAuth: Exchange code for ID token
+            GoogleOAuth->>BackendAPI: ID token + user info (email, name)
+            
+            BackendAPI->>BackendAPI: CustomOAuth2UserService.loadUser()
+            BackendAPI->>Database: Check if user exists by email
+            
+            alt User not found
+                BackendAPI->>Database: INSERT new AppUser (role=USER by default)
+                Database-->>BackendAPI: User created
+            else User found
+                BackendAPI->>BackendAPI: Role healing: update if in ADMIN allow-list
+            end
+            
+            BackendAPI->>BackendAPI: Generate session cookie
+            BackendAPI->>Frontend: 302 Redirect + Set-Cookie (JSESSIONID)
+            Frontend->>Browser: Store session cookie
+            Frontend->>Frontend: Navigate to /auth (landing page)
+            Frontend-->>User: Dashboard loaded
+        </div>
+        <hr />
+        <h2 id="authorization-decision-tree">Authorization Decision
+        Tree</h2>
+        <div class="mermaid">
+        graph TD
+            A["Request arrives at API"] -->|Check path| B{Is /api/* endpoint?}
+            
+            B -->|No| C[Public endpoint]
+            C --> D[Allow - public access]
+            
+            B -->|Yes| E{Is demo mode enabled?}
+            E -->|Yes| F{Is GET request?}
+            F -->|Yes| G[Allow - demo read-only]
+            F -->|No| H[Require authentication]
+            
+            E -->|No| H
+            H --> I{User authenticated?}
+            
+            I -->|No| J[Return 401 Unauthorized]
+            I -->|Yes| K{Check authorization<br/>rules}
+            
+            K -->|GET /api/inventory/*| L{User role?}
+            K -->|POST /api/inventory/*| M[Require ADMIN role]
+            K -->|PUT /api/inventory/*| M
+            K -->|DELETE /api/inventory/*| M
+            
+            L -->|Any role| N[Allow]
+            M -->|ADMIN| N
+            M -->|USER| O[Return 403 Forbidden]
+            
+            N --> P[Execute request]
+            
+            style A fill:#e1f5ff
+            style D fill:#c8e6c9
+            style G fill:#fff9c4
+            style J fill:#ffccbc
+            style O fill:#ffccbc
+            style P fill:#c8e6c9
+        </div>
+        <hr />
+        <h2 id="key-configuration-points">Key Configuration Points</h2>
+        <h3 id="application-properties-application.yml">Application
+        Properties (application.yml)</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">security</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">oauth2</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">client</span><span class="kw">:</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">registration</span><span class="kw">:</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">google</span><span class="kw">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-id</span><span class="kw">:</span><span class="at"> ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-secret</span><span class="kw">:</span><span class="at"> ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="at">            </span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> ${APP_DEMO_READONLY:true}</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">frontend</span><span class="kw">:</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base-url</span><span class="kw">:</span><span class="at"> ${APP_FRONTEND_BASE_URL:https://localhost:5173}</span></span></code></pre></div>
+        <h3 id="environment-variables-required-at-runtime">Environment
+        Variables (Required at Runtime)</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OAuth2 Provider Credentials (from Google Cloud Console)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="va">SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID</span><span class="op">=&lt;</span>id<span class="op">&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="va">SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET</span><span class="op">=&lt;</span>secret<span class="op">&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Database Access (Oracle/PostgreSQL)</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@localhost:1521:SSPDB</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="va">DB_USER</span><span class="op">=</span>inventory_user</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="va">DB_PASS</span><span class="op">=</span>password123</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Oracle Wallet (base64-encoded)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="va">ORACLE_WALLET_B64</span><span class="op">=&lt;</span>base64-encoded-wallet.zip<span class="op">&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="va">ORACLE_WALLET_PASSWORD</span><span class="op">=</span>wallet_password</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Admin User Allow-List (comma-separated emails)</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="va">APP_ADMIN_EMAILS</span><span class="op">=</span>admin@company.com, <span class="ex">supervisor@company.de</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Demo Mode (for public showcases)</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="va">APP_DEMO_READONLY</span><span class="op">=</span>true</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Frontend URL (for OAuth2 redirects)</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="va">APP_FRONTEND_BASE_URL</span><span class="op">=</span>https://inventory.example.com</span></code></pre></div>
+        <hr />
+        <h2 id="security-best-practices-implemented">Security Best
+        Practices Implemented</h2>
+        <table>
+        <colgroup>
+        <col style="width: 62%" />
+        <col style="width: 18%" />
+        <col style="width: 18%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Practice</th>
+        <th>Implementation</th>
+        <th>Benefit</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>OAuth2 for Auth</strong></td>
+        <td>Delegate password security to Google/GitHub</td>
+        <td>No password storage, automatic MFA support</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Email as Identity</strong></td>
+        <td>Use email as unique user identifier</td>
+        <td>Consistent identity across systems</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Role Healing</strong></td>
+        <td>Update role on every login</td>
+        <td>Dynamic RBAC (allow-list changes take effect)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Demo Mode</strong></td>
+        <td>Allow read-only without authentication</td>
+        <td>Public product demos without login gates</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Non-Root Docker</strong></td>
+        <td>Run as appuser:appgroup</td>
+        <td>Container breakout less impactful</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Wallet Encryption</strong></td>
+        <td>Oracle PKI for DB credentials</td>
+        <td>Database credentials never exposed</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Secret Injection</strong></td>
+        <td>Runtime environment variables only</td>
+        <td>No secrets in Docker image layers</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Secure Cookies</strong></td>
+        <td>SameSite=None, Secure, HttpOnly</td>
+        <td>CSRF and XSS attack resistance</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>API vs Web Detection</strong></td>
+        <td>Different error responses (JSON vs redirect)</td>
+        <td>Better UX for both API clients and browsers</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./oauth2-authentication.html">OAuth2
+        Authentication</a></strong> - Detailed authentication flows and
+        user provisioning</li>
+        <li><strong><a href="./authorization-rbac.html">Authorization
+        &amp; RBAC</a></strong> - Role assignment and endpoint
+        protection</li>
+        <li><strong><a href="./oracle-wallet.html">Oracle
+        Wallet</a></strong> - Database credential encryption and
+        setup</li>
+        <li><strong><a href="./docker-security.html">Docker
+        Security</a></strong> - Container hardening and deployment</li>
+        <li><strong><a href="./demo-mode.html">Demo Mode</a></strong> -
+        Public access configuration</li>
+        <li><strong><a href="../overview.html">Backend Architecture
+        Overview</a></strong> - Full system architecture context</li>
+        <li><strong><a
+        href="../repository/app-user-repository.html">Repository Layer -
+        AppUserRepository</a></strong> - User data access patterns</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · security/demo-mode · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#demo-mode-read-only-public-access"
+        id="toc-demo-mode-read-only-public-access">Demo Mode (Read-Only
+        Public Access)</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#demo-mode-configuration"
+        id="toc-demo-mode-configuration">Demo Mode Configuration</a>
+        <ul>
+        <li><a href="#enabledisable-demo-mode"
+        id="toc-enabledisable-demo-mode">Enable/Disable Demo
+        Mode</a></li>
+        </ul></li>
+        <li><a href="#authorization-override"
+        id="toc-authorization-override">Authorization Override</a>
+        <ul>
+        <li><a href="#how-authorization-changes"
+        id="toc-how-authorization-changes">How Authorization
+        Changes</a></li>
+        <li><a href="#implementation"
+        id="toc-implementation">Implementation</a></li>
+        <li><a href="#preauthorize-with-demo-mode"
+        id="toc-preauthorize-with-demo-mode"><span class="citation"
+        data-cites="PreAuthorize">@PreAuthorize</span> with Demo
+        Mode</a></li>
+        </ul></li>
+        <li><a href="#demo-mode-authorization-flow"
+        id="toc-demo-mode-authorization-flow">Demo Mode Authorization
+        Flow</a></li>
+        <li><a href="#demo-mode-use-cases"
+        id="toc-demo-mode-use-cases">Demo Mode Use Cases</a>
+        <ul>
+        <li><a href="#live-product-demonstration"
+        id="toc-live-product-demonstration">1. Live Product
+        Demonstration</a></li>
+        <li><a href="#trialevaluation-accounts"
+        id="toc-trialevaluation-accounts">2. Trial/Evaluation
+        Accounts</a></li>
+        <li><a href="#public-showcasetutorial"
+        id="toc-public-showcasetutorial">3. Public
+        Showcase/Tutorial</a></li>
+        <li><a href="#testingqa-environment"
+        id="toc-testingqa-environment">4. Testing/QA
+        Environment</a></li>
+        </ul></li>
+        <li><a href="#error-messages-in-demo-mode"
+        id="toc-error-messages-in-demo-mode">Error Messages in Demo
+        Mode</a>
+        <ul>
+        <li><a href="#forbidden-response"
+        id="toc-forbidden-response">403 Forbidden Response</a></li>
+        <li><a href="#distinguishing-error-causes"
+        id="toc-distinguishing-error-causes">Distinguishing Error
+        Causes</a></li>
+        </ul></li>
+        <li><a href="#testing-demo-mode"
+        id="toc-testing-demo-mode">Testing Demo Mode</a>
+        <ul>
+        <li><a href="#unit-test-example" id="toc-unit-test-example">Unit
+        Test Example</a></li>
+        <li><a href="#integration-test-scenarios"
+        id="toc-integration-test-scenarios">Integration Test
+        Scenarios</a></li>
+        </ul></li>
+        <li><a href="#security-considerations-for-demo-mode"
+        id="toc-security-considerations-for-demo-mode">Security
+        Considerations for Demo Mode</a>
+        <ul>
+        <li><a href="#data-exposure" id="toc-data-exposure">1. Data
+        Exposure</a></li>
+        <li><a href="#rate-limiting" id="toc-rate-limiting">2. Rate
+        Limiting</a></li>
+        <li><a href="#resource-limits" id="toc-resource-limits">3.
+        Resource Limits</a></li>
+        <li><a href="#audit-logging" id="toc-audit-logging">4. Audit
+        Logging</a></li>
+        </ul></li>
+        <li><a href="#toggling-demo-mode-in-production"
+        id="toc-toggling-demo-mode-in-production">Toggling Demo Mode in
+        Production</a>
+        <ul>
+        <li><a href="#safe-approach" id="toc-safe-approach">Safe
+        Approach</a></li>
+        <li><a href="#gradual-rollout" id="toc-gradual-rollout">Gradual
+        Rollout</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Security Index</a></p>
+        <h1 id="demo-mode-read-only-public-access">Demo Mode (Read-Only
+        Public Access)</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro supports a <strong>read-only demo
+        mode</strong> for public showcases, product demonstrations, and
+        evaluation. Demo mode:</p>
+        <ul>
+        <li>Disables all write operations (POST, PUT, DELETE)</li>
+        <li>Allows anonymous GET access to inventory data</li>
+        <li>Overrides role-based access control (RBAC)</li>
+        <li>Useful for live product demos and trial accounts</li>
+        <li>Can be toggled via environment variable</li>
+        </ul>
+        <hr />
+        <h2 id="demo-mode-configuration">Demo Mode Configuration</h2>
+        <h3 id="enabledisable-demo-mode">Enable/Disable Demo Mode</h3>
+        <p><strong>Environment Variable:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">APP_DEMO_READONLY</span><span class="op">=</span>true   <span class="co"># Enable read-only mode</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="va">APP_DEMO_READONLY</span><span class="op">=</span>false  <span class="co"># Disable (default)</span></span></code></pre></div>
+        <p><strong>Application Properties:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application.yml (shared)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> ${APP_DEMO_READONLY:false}</span></span></code></pre></div>
+        <p><strong>Fly.io Production (fly.toml):</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">APP_DEMO_READONLY</span> <span class="op">=</span> <span class="st">&quot;true&quot;</span>  <span class="co"># Demo enabled in production</span></span></code></pre></div>
+        <p><strong>Docker Runtime:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> SPRING_PROFILES_ACTIVE=prod <span class="dt">\</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> APP_DEMO_READONLY=true <span class="dt">\</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-p</span> 8081:8081 <span class="dt">\</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  inventory-service:latest</span></code></pre></div>
+        <p><strong>Kubernetes:</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">env</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> APP_DEMO_READONLY</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">value</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;true&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="authorization-override">Authorization Override</h2>
+        <h3 id="how-authorization-changes">How Authorization
+        Changes</h3>
+        <p><strong>Normal Mode (demo-readonly=false):</strong></p>
+        <pre><code>User Role (ADMIN/USER) → Request Authorization → HTTP 403 if unauthorized</code></pre>
+        <p><strong>Demo Mode (demo-readonly=true):</strong></p>
+        <pre><code>GET Request? → Allow (all users, anonymous)
+            ↓
+Write Request? → Deny with &quot;Demo Mode&quot; message
+            ↓
+            HTTP 403 (Forbidden)</code></pre>
+        <h3 id="implementation">Implementation</h3>
+        <p><strong>SecuritySpelBridgeConfig.java:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecuritySpelBridgeConfig <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SpELSecurityBridge <span class="fu">spelSecurityBridge</span><span class="op">(</span>AppProperties appProperties<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">SpELSecurityBridge</span><span class="op">(</span>appProperties<span class="op">);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SpELSecurityBridge <span class="op">{</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="dt">boolean</span> demoReadonly<span class="op">;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">SpELSecurityBridge</span><span class="op">(</span>AppProperties appProperties<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">demoReadonly</span> <span class="op">=</span> appProperties<span class="op">.</span><span class="fu">isDemoReadonly</span><span class="op">();</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Check if request is allowed in demo mode</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Demo mode<span class="co">:</span> GET allowed <span class="co">(</span>read<span class="co">),</span> write operations denied</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isDemoModeAllowed</span><span class="op">(</span><span class="bu">String</span> httpMethod<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span>demoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span>  <span class="co">// Demo mode disabled, allow normally</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;GET&quot;</span><span class="op">.</span><span class="fu">equalsIgnoreCase</span><span class="op">(</span>httpMethod<span class="op">);</span>  <span class="co">// Demo: only GET allowed</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>SecurityAuthorizationHelper.java:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityAuthorizationHelper <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SecurityFilterChain <span class="fu">filterChain</span><span class="op">(</span>HttpSecurity http<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        http<span class="op">.</span><span class="fu">authorizeHttpRequests</span><span class="op">(</span>authz <span class="op">-&gt;</span> authz</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>            <span class="co">// GET requests - allowed in demo mode</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/**&quot;</span><span class="op">)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">permitAll</span><span class="op">()</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Write operations - require ADMIN or disallow in demo mode</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">POST</span><span class="op">,</span> <span class="st">&quot;/api/**&quot;</span><span class="op">)</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">access</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) and @spelSecurityBridge.isDemoModeAllowed(&#39;POST&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">PUT</span><span class="op">,</span> <span class="st">&quot;/api/**&quot;</span><span class="op">)</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">access</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) and @spelSecurityBridge.isDemoModeAllowed(&#39;PUT&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">DELETE</span><span class="op">,</span> <span class="st">&quot;/api/**&quot;</span><span class="op">)</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">access</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) and @spelSecurityBridge.isDemoModeAllowed(&#39;DELETE&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="preauthorize-with-demo-mode"><span class="citation"
+        data-cites="PreAuthorize">@PreAuthorize</span> with Demo
+        Mode</h3>
+        <p><strong>Controller Methods:</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/inventory&quot;</span><span class="op">)</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryController <span class="op">{</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@GetMapping</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;permitAll()&quot;</span><span class="op">)</span>  <span class="co">// Always allowed</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">listInventory</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>inventoryService<span class="op">.</span><span class="fu">getAll</span><span class="op">());</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) and @spelSecurityBridge.isDemoModeAllowed(&#39;POST&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">createInventory</span><span class="op">(</span><span class="at">@RequestBody</span> InventoryItemRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>inventoryService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>req<span class="op">));</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) and @spelSecurityBridge.isDemoModeAllowed(&#39;DELETE&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;?&gt;</span> <span class="fu">deleteInventory</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        inventoryService<span class="op">.</span><span class="fu">delete</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">noContent</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="demo-mode-authorization-flow">Demo Mode Authorization
+        Flow</h2>
+        <pre><code>User Request
+    ↓
+┌─────────────────────────────────┐
+│ Is it a GET request?             │
+└─────────────────────────────────┘
+    ↓ YES              ↓ NO
+[Return Data]      [Check Authorization]
+                       ↓
+                  ┌──────────────────────┐
+                  │ Demo Mode Enabled?   │
+                  └──────────────────────┘
+                    ↓ YES              ↓ NO
+              [403 Forbidden]     [Check User Role]
+             (Demo Mode blocks)        ↓
+                            ┌──────────────────────┐
+                            │ User is ADMIN?       │
+                            └──────────────────────┘
+                              ↓ YES        ↓ NO
+                          [Allow]     [403 Forbidden]</code></pre>
+        <hr />
+        <h2 id="demo-mode-use-cases">Demo Mode Use Cases</h2>
+        <h3 id="live-product-demonstration">1. Live Product
+        Demonstration</h3>
+        <p><strong>Scenario:</strong> Sales team demos app at
+        conference</p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start app in demo mode</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="va">APP_DEMO_READONLY</span><span class="op">=</span>true <span class="ex">./start.sh</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Attendees see live inventory data</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Click &quot;Add Item&quot; → 403 Forbidden</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Message: &quot;This feature is disabled in Demo Mode&quot;</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - ✅ Show read-only data without
+        risk - ✅ No accidental modifications - ✅ Emphasize full edit
+        features in paid version</p>
+        <h3 id="trialevaluation-accounts">2. Trial/Evaluation
+        Accounts</h3>
+        <p><strong>Scenario:</strong> Prospective customer evaluates app
+        for 30 days</p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For trial tenant (multi-tenant setup)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tenants</span><span class="kw">:</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">trial-acme</span><span class="kw">:</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">    # Trial account</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">expires</span><span class="kw">:</span><span class="at"> 2024-12-31</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">licensed-acme</span><span class="kw">:</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">   # Paying customer</span></span></code></pre></div>
+        <p><strong>Flow:</strong> 1. Trial user logs in with SSO 2. Can
+        read inventory, view analytics 3. Cannot create/modify data 4.
+        After 30 days, either upgrade or access revoked</p>
+        <h3 id="public-showcasetutorial">3. Public
+        Showcase/Tutorial</h3>
+        <p><strong>Scenario:</strong> Public website with embedded
+        read-only dashboard</p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Publicly accessible instance</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="va">APP_DEMO_READONLY</span><span class="op">=</span>true</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="va">SPRING_SECURITY_OAUTH2_LOGIN_CLIENT_ID</span><span class="op">=</span>public-demo-client</span></code></pre></div>
+        <p><strong>Use Case:</strong> - Public inventory viewer (like
+        retail product catalog) - No login required for GET requests -
+        Everyone sees same read-only data</p>
+        <h3 id="testingqa-environment">4. Testing/QA Environment</h3>
+        <p><strong>Scenario:</strong> QA team testing without needing
+        test data cleanup</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># QA environment</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="va">APP_DEMO_READONLY</span><span class="op">=</span>true <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span>qa</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># QA can:</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># - Run read tests against production-like data</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># - Verify UI with real data</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># - Ensure no test data pollutes production</span></span></code></pre></div>
+        <hr />
+        <h2 id="error-messages-in-demo-mode">Error Messages in Demo
+        Mode</h2>
+        <h3 id="forbidden-response">403 Forbidden Response</h3>
+        <p><strong>Request:</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">POST</span> /api/inventory <span class="dt">\</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;Content-Type: application/json&quot;</span> <span class="dt">\</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{&quot;itemName&quot;: &quot;New Item&quot;, &quot;quantity&quot;: 100}&#39;</span></span></code></pre></div>
+        <p><strong>Response (Demo Mode):</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="er">HTTP/1.1</span> <span class="er">403</span> <span class="er">Forbidden</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-01-15T10:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">403</span><span class="fu">,</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Forbidden&quot;</span><span class="fu">,</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;This operation is disabled in Demo Mode. Read-only access only.&quot;</span><span class="fu">,</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;path&quot;</span><span class="fu">:</span> <span class="st">&quot;/api/inventory&quot;</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (Normal Mode, User lacks
+        ADMIN):</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="er">HTTP/1.1</span> <span class="er">403</span> <span class="er">Forbidden</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-01-15T10:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">403</span><span class="fu">,</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Access Denied&quot;</span><span class="fu">,</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Only ADMIN users can create inventory items.&quot;</span><span class="fu">,</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;path&quot;</span><span class="fu">:</span> <span class="st">&quot;/api/inventory&quot;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="distinguishing-error-causes">Distinguishing Error
+        Causes</h3>
+        <p><strong>UI Logic (Frontend):</strong></p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">// frontend/src/api.ts</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">makeRequest</span>(method<span class="op">:</span> <span class="dt">string</span><span class="op">,</span> url<span class="op">:</span> <span class="dt">string</span><span class="op">,</span> data<span class="op">?:</span> <span class="dt">unknown</span>) {</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(url<span class="op">,</span> {</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    method<span class="op">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    headers<span class="op">:</span> { <span class="st">&#39;Content-Type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span> }<span class="op">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    body<span class="op">:</span> data <span class="op">?</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(data) <span class="op">:</span> <span class="dt">undefined</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (response<span class="op">.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">403</span>) {</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> error <span class="op">=</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Check if demo mode or insufficient permissions</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error<span class="op">.</span><span class="at">message</span><span class="op">.</span><span class="fu">includes</span>(<span class="st">&#39;Demo Mode&#39;</span>)) {</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Show &quot;Demo Mode&quot; notification</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">showToast</span>(<span class="st">&quot;Demo Mode: Read-only access&quot;</span><span class="op">,</span> <span class="st">&quot;info&quot;</span>)<span class="op">;</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (error<span class="op">.</span><span class="at">message</span><span class="op">.</span><span class="fu">includes</span>(<span class="st">&#39;ADMIN&#39;</span>)) {</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Show &quot;Permission denied&quot; notification</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">showToast</span>(<span class="st">&quot;You need ADMIN role&quot;</span><span class="op">,</span> <span class="st">&quot;error&quot;</span>)<span class="op">;</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(error<span class="op">.</span><span class="at">message</span>)<span class="op">;</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> response<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="testing-demo-mode">Testing Demo Mode</h2>
+        <h3 id="unit-test-example">Unit Test Example</h3>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span><span class="op">(</span>webEnvironment <span class="op">=</span> WebEnvironment<span class="op">.</span><span class="fu">RANDOM_PORT</span><span class="op">)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InventoryDemoModeTest <span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> TestRestTemplate restTemplate<span class="op">;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@TestPropertySource</span><span class="op">(</span>properties <span class="op">=</span> <span class="st">&quot;app.demo-readonly=true&quot;</span><span class="op">)</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testDemoModeBlocksCreate</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Given: Demo mode enabled</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        InventoryItemRequest request <span class="op">=</span> <span class="kw">new</span> <span class="fu">InventoryItemRequest</span><span class="op">();</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        request<span class="op">.</span><span class="fu">setItemName</span><span class="op">(</span><span class="st">&quot;Test Item&quot;</span><span class="op">);</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        request<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(</span><span class="dv">100</span><span class="op">);</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// When: Try to POST</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>        ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> response <span class="op">=</span> restTemplate<span class="op">.</span><span class="fu">postForEntity</span><span class="op">(</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;/api/inventory&quot;</span><span class="op">,</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>            request<span class="op">,</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>            ErrorResponse<span class="op">.</span><span class="fu">class</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Then: 403 Forbidden</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>response<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">FORBIDDEN</span><span class="op">);</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>response<span class="op">.</span><span class="fu">getBody</span><span class="op">().</span><span class="fu">getMessage</span><span class="op">()).</span><span class="fu">contains</span><span class="op">(</span><span class="st">&quot;Demo Mode&quot;</span><span class="op">);</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@TestPropertySource</span><span class="op">(</span>properties <span class="op">=</span> <span class="st">&quot;app.demo-readonly=true&quot;</span><span class="op">)</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testDemoModeAllowsRead</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>        <span class="co">// When: GET request</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>        ResponseEntity<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>InventoryItemDto<span class="op">&gt;&gt;</span> response <span class="op">=</span> restTemplate<span class="op">.</span><span class="fu">getForEntity</span><span class="op">(</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;/api/inventory&quot;</span><span class="op">,</span></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>            <span class="kw">new</span> ParameterizedTypeReference<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>InventoryItemDto<span class="op">&gt;&gt;()</span> <span class="op">{}</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Then: 200 OK</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>response<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">OK</span><span class="op">);</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>response<span class="op">.</span><span class="fu">getBody</span><span class="op">()).</span><span class="fu">isNotEmpty</span><span class="op">();</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">@TestPropertySource</span><span class="op">(</span>properties <span class="op">=</span> <span class="st">&quot;app.demo-readonly=false&quot;</span><span class="op">)</span></span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testNormalModeAllowsCreate</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Given: Demo mode disabled</span></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> token <span class="op">=</span> <span class="fu">obtainAdminToken</span><span class="op">();</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>        InventoryItemRequest request <span class="op">=</span> <span class="kw">new</span> <span class="fu">InventoryItemRequest</span><span class="op">();</span></span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>        request<span class="op">.</span><span class="fu">setItemName</span><span class="op">(</span><span class="st">&quot;Test Item&quot;</span><span class="op">);</span></span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>        request<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(</span><span class="dv">100</span><span class="op">);</span></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>        <span class="co">// When: POST with admin token</span></span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>        ResponseEntity<span class="op">&lt;</span>InventoryItemDto<span class="op">&gt;</span> response <span class="op">=</span> restTemplate</span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">withBasicAuth</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">,</span> <span class="st">&quot;password&quot;</span><span class="op">)</span></span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">postForEntity</span><span class="op">(</span><span class="st">&quot;/api/inventory&quot;</span><span class="op">,</span> request<span class="op">,</span> InventoryItemDto<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Then: 201 Created</span></span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>response<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">);</span></span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="integration-test-scenarios">Integration Test
+        Scenarios</h3>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span><span class="op">(</span>webEnvironment <span class="op">=</span> WebEnvironment<span class="op">.</span><span class="fu">RANDOM_PORT</span><span class="op">)</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DemoModeIntegrationTest <span class="op">{</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testFullDemoModeFlow</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 1. GET inventory (allowed)</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> <span class="fu">getInventory</span><span class="op">();</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>items<span class="op">).</span><span class="fu">isNotEmpty</span><span class="op">();</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 2. Try POST (blocked)</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        InventoryItemRequest newItem <span class="op">=</span> <span class="kw">new</span> <span class="fu">InventoryItemRequest</span><span class="op">();</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> postResponse <span class="op">=</span> <span class="fu">createInventory</span><span class="op">(</span>newItem<span class="op">);</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>postResponse<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">FORBIDDEN</span><span class="op">);</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 3. Try PUT (blocked)</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>        ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> putResponse <span class="op">=</span> <span class="fu">updateInventory</span><span class="op">(</span>items<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="dv">0</span><span class="op">).</span><span class="fu">getId</span><span class="op">(),</span> newItem<span class="op">);</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>putResponse<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">FORBIDDEN</span><span class="op">);</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 4. Try DELETE (blocked)</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>        ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> deleteResponse <span class="op">=</span> <span class="fu">deleteInventory</span><span class="op">(</span>items<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="dv">0</span><span class="op">).</span><span class="fu">getId</span><span class="op">());</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>deleteResponse<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">FORBIDDEN</span><span class="op">);</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="security-considerations-for-demo-mode">Security
+        Considerations for Demo Mode</h2>
+        <h3 id="data-exposure">1. Data Exposure</h3>
+        <p><strong>Risk:</strong> Demo mode shows all inventory data
+        publicly</p>
+        <p><strong>Mitigation:</strong></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Option A: Mask sensitive data</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/api/inventory&quot;</span><span class="op">)</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>InventoryItemDto<span class="op">&gt;&gt;</span> <span class="fu">listInventory</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items <span class="op">=</span> inventoryService<span class="op">.</span><span class="fu">getAll</span><span class="op">();</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        items<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">map</span><span class="op">(</span>item <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                InventoryItemDto dto <span class="op">=</span> mapper<span class="op">.</span><span class="fu">toDto</span><span class="op">(</span>item<span class="op">);</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>demoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                    dto<span class="op">.</span><span class="fu">setCost</span><span class="op">(</span><span class="dv">0</span><span class="op">);</span>  <span class="co">// Hide cost in demo</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                    dto<span class="op">.</span><span class="fu">setSupplier</span><span class="op">(</span><span class="kw">null</span><span class="op">);</span>  <span class="co">// Hide supplier</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> dto<span class="op">;</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">})</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">collect</span><span class="op">(</span>Collectors<span class="op">.</span><span class="fu">toList</span><span class="op">())</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co">// Option B: Separate demo dataset</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/api/demo-inventory&quot;</span><span class="op">)</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>InventoryItemDto<span class="op">&gt;&gt;</span> <span class="fu">listDemoInventory</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Return only public demo items (pre-selected subset)</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>demoInventoryService<span class="op">.</span><span class="fu">getPublicItems</span><span class="op">());</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="rate-limiting">2. Rate Limiting</h3>
+        <p><strong>Risk:</strong> Demo instance could be abused for
+        traffic</p>
+        <p><strong>Mitigation:</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application.yml</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">data</span><span class="kw">:</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">redis</span><span class="kw">:</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">60000</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">servlet</span><span class="kw">:</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">session</span><span class="kw">:</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">timeout</span><span class="kw">:</span><span class="at"> 30m</span><span class="co">  # Shorter session in demo</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Rate limiting (custom)</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">rate-limit</span><span class="kw">:</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">demo-only</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">  # Rate limit only in demo mode</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">requests-per-minute</span><span class="kw">:</span><span class="at"> </span><span class="dv">60</span></span></code></pre></div>
+        <h3 id="resource-limits">3. Resource Limits</h3>
+        <p><strong>Risk:</strong> Demo instance shared with public, high
+        load possible</p>
+        <p><strong>Mitigation:</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fly.toml</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">[vm]</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size</span> <span class="op">=</span> <span class="st">&quot;shared-cpu-2x&quot;</span>  <span class="co"># More resources for public demo</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">memory</span> <span class="op">=</span> <span class="dv">2048</span>          <span class="co"># 2GB for demo instance</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[[metrics]]</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">port</span> <span class="op">=</span> <span class="dv">9090</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">path</span> <span class="op">=</span> <span class="st">&quot;/metrics&quot;</span>  <span class="co"># Monitor resource usage</span></span></code></pre></div>
+        <h3 id="audit-logging">4. Audit Logging</h3>
+        <p><strong>Risk:</strong> Cannot track modifications (because
+        all writes blocked)</p>
+        <p><strong>Benefit:</strong> Simplified logging</p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Audit logs still created for GET requests</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">com.inventoryservice.security</span><span class="kw">:</span><span class="at"> DEBUG</span></span></code></pre></div>
+        <p><strong>Log Entry (Demo Mode):</strong></p>
+        <pre><code>2024-01-15T10:30:00.123 DEBUG - User: anonymous, IP: 192.168.1.5, Method: GET, Path: /api/inventory, DemoMode: true
+2024-01-15T10:30:05.456 DEBUG - User: anonymous, IP: 192.168.1.5, Method: POST, Path: /api/inventory, Status: 403, Reason: Demo Mode</code></pre>
+        <hr />
+        <h2 id="toggling-demo-mode-in-production">Toggling Demo Mode in
+        Production</h2>
+        <h3 id="safe-approach">Safe Approach</h3>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Check current value</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets get APP_DEMO_READONLY</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Update (triggers rolling restart)</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set APP_DEMO_READONLY=false</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Verify new instances started</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> status</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Monitor health</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs</span></code></pre></div>
+        <h3 id="gradual-rollout">Gradual Rollout</h3>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Start with small percentage in demo mode</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Use canary deployment or A/B testing</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Monitor error rates and performance</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. If good, enable for all</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set APP_DEMO_READONLY=false</span></code></pre></div>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Security Index</a></strong> -
+        Master security overview</li>
+        <li><strong><a href="./authorization-rbac.html">Authorization
+        &amp; RBAC</a></strong> - Role-based access control</li>
+        <li><strong><a href="./docker-security.html">Docker
+        Security</a></strong> - Container hardening</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Security Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

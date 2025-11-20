@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+security/authorization-rbac · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#authorization-rbac"
+        id="toc-authorization-rbac">Authorization &amp; RBAC</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#role-definitions" id="toc-role-definitions">Role
+        Definitions</a>
+        <ul>
+        <li><a href="#admin-role" id="toc-admin-role">ADMIN
+        Role</a></li>
+        <li><a href="#user-role" id="toc-user-role">USER Role</a></li>
+        </ul></li>
+        <li><a href="#role-assignment" id="toc-role-assignment">Role
+        Assignment</a>
+        <ul>
+        <li><a href="#during-oauth2-login"
+        id="toc-during-oauth2-login">During OAuth2 Login</a></li>
+        <li><a href="#configuration-via-environment"
+        id="toc-configuration-via-environment">Configuration via
+        Environment</a></li>
+        <li><a href="#role-healing-on-each-login"
+        id="toc-role-healing-on-each-login">Role Healing on Each
+        Login</a></li>
+        </ul></li>
+        <li><a href="#authorization-rules"
+        id="toc-authorization-rules">Authorization Rules</a>
+        <ul>
+        <li><a href="#http-request-authorization"
+        id="toc-http-request-authorization">HTTP Request
+        Authorization</a></li>
+        <li><a href="#method-level-security"
+        id="toc-method-level-security">Method-Level Security</a></li>
+        </ul></li>
+        <li><a href="#enforcement-mechanisms"
+        id="toc-enforcement-mechanisms">Enforcement Mechanisms</a>
+        <ul>
+        <li><a href="#filter-based-authorization"
+        id="toc-filter-based-authorization">1. Filter-Based
+        Authorization</a></li>
+        <li><a href="#method-level-security-1"
+        id="toc-method-level-security-1">2. Method-Level
+        Security</a></li>
+        <li><a href="#exception-handling" id="toc-exception-handling">3.
+        Exception Handling</a></li>
+        </ul></li>
+        <li><a href="#example-authorization-flows"
+        id="toc-example-authorization-flows">Example Authorization
+        Flows</a>
+        <ul>
+        <li><a href="#admin-creates-new-supplier"
+        id="toc-admin-creates-new-supplier">Admin Creates New
+        Supplier</a></li>
+        <li><a href="#regular-user-tries-to-delete-item"
+        id="toc-regular-user-tries-to-delete-item">Regular User Tries to
+        Delete Item</a></li>
+        <li><a href="#user-reads-data-in-demo-mode"
+        id="toc-user-reads-data-in-demo-mode">User Reads Data in Demo
+        Mode</a></li>
+        </ul></li>
+        <li><a href="#audit-trail" id="toc-audit-trail">Audit
+        Trail</a></li>
+        <li><a href="#error-responses" id="toc-error-responses">Error
+        Responses</a>
+        <ul>
+        <li><a href="#unauthorized-not-authenticated"
+        id="toc-unauthorized-not-authenticated">401 Unauthorized (Not
+        Authenticated)</a></li>
+        <li><a href="#forbidden-authenticated-but-denied"
+        id="toc-forbidden-authenticated-but-denied">403 Forbidden
+        (Authenticated but Denied)</a></li>
+        <li><a href="#bad-request" id="toc-bad-request">400 Bad
+        Request</a></li>
+        </ul></li>
+        <li><a href="#entry-point-handling"
+        id="toc-entry-point-handling">Entry Point Handling</a>
+        <ul>
+        <li><a href="#api-requests-accept-applicationjson"
+        id="toc-api-requests-accept-applicationjson">API Requests
+        (Accept: application/json)</a></li>
+        <li><a href="#browser-requests"
+        id="toc-browser-requests">Browser Requests</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Security Index</a></p>
+        <h1 id="authorization-rbac">Authorization &amp; RBAC</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro implements <strong>Role-Based Access Control
+        (RBAC)</strong> with two roles: ADMIN and USER. Authorization is
+        enforced at multiple levels:</p>
+        <ol type="1">
+        <li><strong>HTTP request matching</strong> - URL patterns and
+        HTTP methods</li>
+        <li><strong>Method-level security</strong> -
+        <code>@PreAuthorize</code> annotations</li>
+        <li><strong>Database constraints</strong> - Audit fields for
+        user tracking</li>
+        </ol>
+        <hr />
+        <h2 id="role-definitions">Role Definitions</h2>
+        <h3 id="admin-role">ADMIN Role</h3>
+        <p><strong>Capabilities:</strong> - Full CRUD operations on
+        suppliers and inventory - Access to analytics dashboards - User
+        management (future) - Admin console access</p>
+        <p><strong>API Permissions:</strong></p>
+        <pre><code>GET    /api/**          → ALLOWED
+POST   /api/**          → ALLOWED
+PUT    /api/**          → ALLOWED
+PATCH  /api/**          → ALLOWED
+DELETE /api/**          → ALLOWED</code></pre>
+        <h3 id="user-role">USER Role</h3>
+        <p><strong>Capabilities:</strong> - Read all inventory and
+        supplier data - Limited write operations (depends on endpoint) -
+        View analytics (read-only)</p>
+        <p><strong>API Permissions:</strong></p>
+        <pre><code>GET    /api/inventory/**  → ALLOWED
+GET    /api/suppliers/**  → ALLOWED
+GET    /api/analytics/**  → ALLOWED
+POST   /api/**            → DENIED (403 Forbidden)
+PUT    /api/**            → DENIED (403 Forbidden)
+DELETE /api/**            → DENIED (403 Forbidden)</code></pre>
+        <hr />
+        <h2 id="role-assignment">Role Assignment</h2>
+        <h3 id="during-oauth2-login">During OAuth2 Login</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// CustomOAuth2UserService.loadUser()</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> email <span class="op">=</span> oAuthUser<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">Set</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> adminEmails <span class="op">=</span> <span class="fu">readAdminAllowlist</span><span class="op">();</span>  <span class="co">// from APP_ADMIN_EMAILS</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">boolean</span> isAdmin <span class="op">=</span> adminEmails<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>email<span class="op">.</span><span class="fu">toLowerCase</span><span class="op">());</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">Role</span> role <span class="op">=</span> isAdmin <span class="op">?</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span> <span class="op">:</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>AppUser user <span class="op">=</span> <span class="kw">new</span> <span class="fu">AppUser</span><span class="op">();</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>user<span class="op">.</span><span class="fu">setRole</span><span class="op">(</span>role<span class="op">);</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>user<span class="op">);</span></span></code></pre></div>
+        <h3 id="configuration-via-environment">Configuration via
+        Environment</h3>
+        <p><strong>APP_ADMIN_EMAILS</strong> - Comma-separated list of
+        admin email addresses</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">APP_ADMIN_EMAILS</span><span class="op">=</span><span class="st">&quot;alice@company.com, bob@company.com, charlie@company.de&quot;</span></span></code></pre></div>
+        <p><strong>Case-Insensitive Matching:</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>adminEmails<span class="op">.</span><span class="fu">contains</span><span class="op">(</span>email<span class="op">.</span><span class="fu">toLowerCase</span><span class="op">())</span>  <span class="co">// &quot;Alice@Company.com&quot; matches &quot;alice@company.com&quot;</span></span></code></pre></div>
+        <h3 id="role-healing-on-each-login">Role Healing on Each
+        Login</h3>
+        <p>On every login, the system dynamically updates user role if
+        the allow-list changed:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// CustomOAuth2UserService.loadUser()</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>AppUser existingUser <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>email<span class="op">).</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">Role</span> desired <span class="op">=</span> isAdmin <span class="op">?</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">ADMIN</span> <span class="op">:</span> <span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>existingUser<span class="op">.</span><span class="fu">getRole</span><span class="op">()</span> <span class="op">!=</span> desired<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    existingUser<span class="op">.</span><span class="fu">setRole</span><span class="op">(</span>desired<span class="op">);</span>      <span class="co">// Update if changed</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    userRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>existingUser<span class="op">);</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - ✅ Removing email from
+        allow-list immediately revokes ADMIN on next login - ✅ Adding
+        email to allow-list immediately grants ADMIN on next login - ✅
+        No manual user management needed</p>
+        <hr />
+        <h2 id="authorization-rules">Authorization Rules</h2>
+        <h3 id="http-request-authorization">HTTP Request
+        Authorization</h3>
+        <p><strong>SecurityAuthorizationHelper configures
+        authorization:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">configureAuthorization</span><span class="op">(</span>AuthorizeHttpRequestsConfigurer auth<span class="op">,</span> <span class="dt">boolean</span> demoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 1. Public endpoints (no authentication required)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">OPTIONS</span><span class="op">,</span> <span class="st">&quot;/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span><span class="st">&quot;/logout&quot;</span><span class="op">,</span> <span class="st">&quot;/error&quot;</span><span class="op">,</span> <span class="st">&quot;/login/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span><span class="st">&quot;/actuator/**&quot;</span><span class="op">,</span> <span class="st">&quot;/health/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 2. Demo mode: allow read-only without login</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>demoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/analytics/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 3. Authenticated users may READ</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/analytics/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 4. Admin-only: WRITE operations</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">POST</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">PUT</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">PATCH</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">DELETE</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">POST</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">PUT</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">PATCH</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">DELETE</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 5. Admin console</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span><span class="st">&quot;/api/admin/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 6. Everything else requires authentication</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">anyRequest</span><span class="op">().</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="method-level-security">Method-Level Security</h3>
+        <p><strong>Spring Security <span class="citation"
+        data-cites="PreAuthorize">@PreAuthorize</span>
+        annotations:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierController <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Public read in demo mode, authenticated read otherwise</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@GetMapping</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;USER&#39;) or hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">getAllSuppliers</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Admin-only write</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span><span class="at">@RequestBody</span> CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PutMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">updateSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">,</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">@RequestBody</span> UpdateSupplierDTO dto<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Demo Mode with SpEL:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;@appProperties.demoReadonly or hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">getAllItems</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div>
+        <p>This allows read access if either: - Demo mode enabled
+        (<code>@appProperties.demoReadonly == true</code>) - User has
+        ADMIN role</p>
+        <hr />
+        <h2 id="enforcement-mechanisms">Enforcement Mechanisms</h2>
+        <h3 id="filter-based-authorization">1. Filter-Based
+        Authorization</h3>
+        <p><code>SecurityFilterChain</code> checks all requests:</p>
+        <pre><code>Request → API Detection Filter → Authorization Check → Handler
+                                  ↓
+                         Check HTTP method + role
+                                  ↓
+                    ALLOW / 403 Forbidden / 401 Unauthorized</code></pre>
+        <h3 id="method-level-security-1">2. Method-Level Security</h3>
+        <p><code>@PreAuthorize</code> interceptor checks before method
+        execution:</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Throws AccessDeniedException if role check fails</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        supplier <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">).</span><span class="fu">orElseThrow</span><span class="op">();</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        repository<span class="op">.</span><span class="fu">delete</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="exception-handling">3. Exception Handling</h3>
+        <p><strong>ExceptionHandler for
+        AccessDeniedException:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span>AccessDeniedException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleAccessDenied</span><span class="op">(</span>AccessDeniedException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">FORBIDDEN</span><span class="op">)</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">body</span><span class="op">(</span><span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="st">&quot;Access denied&quot;</span><span class="op">,</span> <span class="st">&quot;You lack permissions for this operation&quot;</span><span class="op">));</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="example-authorization-flows">Example Authorization
+        Flows</h2>
+        <h3 id="admin-creates-new-supplier">Admin Creates New
+        Supplier</h3>
+        <pre><code>1. User: alice@company.com (in APP_ADMIN_EMAILS)
+2. LOGIN: OAuth2 → Role = ADMIN
+3. REQUEST: POST /api/suppliers with admin token
+4. AUTHORIZATION CHECK:
+   - Path matches: /api/suppliers/**
+   - Method is POST: requires hasRole(&#39;ADMIN&#39;)
+   - User role: ADMIN ✅
+5. EXECUTE: SupplierService.createSupplier()</code></pre>
+        <h3 id="regular-user-tries-to-delete-item">Regular User Tries to
+        Delete Item</h3>
+        <pre><code>1. User: john@company.com (NOT in APP_ADMIN_EMAILS)
+2. LOGIN: OAuth2 → Role = USER
+3. REQUEST: DELETE /api/inventory/items/123
+4. AUTHORIZATION CHECK:
+   - Path matches: /api/inventory/**
+   - Method is DELETE: requires hasRole(&#39;ADMIN&#39;)
+   - User role: USER ❌
+5. RESPONSE: 403 Forbidden
+   {
+     &quot;error&quot;: &quot;Access Denied&quot;,
+     &quot;message&quot;: &quot;You lack permissions to delete inventory items&quot;
+   }</code></pre>
+        <h3 id="user-reads-data-in-demo-mode">User Reads Data in Demo
+        Mode</h3>
+        <pre><code>1. User: anonymous (no login)
+2. REQUEST: GET /api/suppliers (no token)
+3. AUTHORIZATION CHECK:
+   - APP_DEMO_READONLY = true
+   - Method is GET
+   - Demo allows GET without authentication ✅
+4. EXECUTE: SupplierService.getAllSuppliers()
+5. RESPONSE: [List of suppliers]</code></pre>
+        <hr />
+        <h2 id="audit-trail">Audit Trail</h2>
+        <p>All write operations capture user identity:</p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItem <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... other fields ...</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;created_by&quot;</span><span class="op">,</span> nullable <span class="op">=</span> <span class="kw">false</span><span class="op">)</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> createdBy<span class="op">;</span>  <span class="co">// User email from SecurityContext</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@CreationTimestamp</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Column</span><span class="op">(</span>name <span class="op">=</span> <span class="st">&quot;updated_by&quot;</span><span class="op">)</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> updatedBy<span class="op">;</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@UpdateTimestamp</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime updatedAt<span class="op">;</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Capturing User in Service:</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span>CreateSupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> currentUser <span class="op">=</span> SecurityContextHolder</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getContext</span><span class="op">()</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getAuthentication</span><span class="op">()</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getName</span><span class="op">();</span>  <span class="co">// Returns email</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> <span class="kw">new</span> <span class="fu">Supplier</span><span class="op">();</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>dto<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setCreatedBy</span><span class="op">(</span>currentUser<span class="op">);</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setCreatedAt</span><span class="op">(</span>LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">());</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="error-responses">Error Responses</h2>
+        <h3 id="unauthorized-not-authenticated">401 Unauthorized (Not
+        Authenticated)</h3>
+        <p><strong>Cause:</strong> User not logged in</p>
+        <p><strong>API Response (JSON):</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Unauthorized&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Browser Response:</strong> Redirect to
+        <code>/login</code></p>
+        <h3 id="forbidden-authenticated-but-denied">403 Forbidden
+        (Authenticated but Denied)</h3>
+        <p><strong>Cause:</strong> User logged in but lacks required
+        role</p>
+        <p><strong>Response:</strong></p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Access Denied&quot;</span><span class="fu">,</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;You lack the required role: ADMIN&quot;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="bad-request">400 Bad Request</h3>
+        <p><strong>Cause:</strong> Invalid request syntax or missing
+        parameters</p>
+        <p><strong>Response:</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Bad Request&quot;</span><span class="fu">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Missing required parameter: supplierId&quot;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="entry-point-handling">Entry Point Handling</h2>
+        <p>Different responses for API vs browser clients:</p>
+        <h3 id="api-requests-accept-applicationjson">API Requests
+        (Accept: application/json)</h3>
+        <pre><code>Request: GET /api/suppliers
+Headers: Accept: application/json
+
+Unauthorized Response:
+  Status: 401
+  Content-Type: application/json
+  Body: {&quot;message&quot;: &quot;Unauthorized&quot;}</code></pre>
+        <h3 id="browser-requests">Browser Requests</h3>
+        <pre><code>Request: GET /api/suppliers
+Accept: text/html
+
+Unauthorized Response:
+  Status: 302 Redirect
+  Location: https://inventory.example.com/login</code></pre>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <table>
+        <colgroup>
+        <col style="width: 62%" />
+        <col style="width: 18%" />
+        <col style="width: 18%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Practice</th>
+        <th>Implementation</th>
+        <th>Benefit</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Default Deny</strong></td>
+        <td>All endpoints require authentication</td>
+        <td>Secure by default</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Specific Roles</strong></td>
+        <td>Separate ADMIN/USER for granularity</td>
+        <td>Principle of least privilege</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Role Healing</strong></td>
+        <td>Dynamic role update on login</td>
+        <td>Changes take effect immediately</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Audit Trail</strong></td>
+        <td>createdBy/updatedBy fields</td>
+        <td>Full accountability</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Entry Points</strong></td>
+        <td>Different responses (API vs browser)</td>
+        <td>Better UX for all clients</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Method-Level</strong></td>
+        <td><span class="citation"
+        data-cites="PreAuthorize">@PreAuthorize</span> on service
+        methods</td>
+        <td>Fail-safe at service layer</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Security Index</a></strong> -
+        Master security overview</li>
+        <li><strong><a href="./oauth2-authentication.html">OAuth2
+        Authentication</a></strong> - Authentication flows</li>
+        <li><strong><a href="./demo-mode.html">Demo Mode</a></strong> -
+        Public access configuration</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Security Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
