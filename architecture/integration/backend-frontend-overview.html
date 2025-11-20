@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+integration/backend-frontend-overview · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#backend-frontend-overview"
+        id="toc-backend-frontend-overview">Backend-Frontend Overview</a>
+        <ul>
+        <li><a href="#architecture-overview"
+        id="toc-architecture-overview">Architecture Overview</a></li>
+        <li><a href="#responsibility-division"
+        id="toc-responsibility-division">Responsibility Division</a>
+        <ul>
+        <li><a href="#frontend-reacttypescript-in-frontend"
+        id="toc-frontend-reacttypescript-in-frontend">Frontend
+        (React/TypeScript in <code>/frontend</code>)</a></li>
+        <li><a href="#backend-spring-boot-in-srcmainjava"
+        id="toc-backend-spring-boot-in-srcmainjava">Backend (Spring Boot
+        in <code>/src/main/java</code>)</a></li>
+        </ul></li>
+        <li><a href="#data-flow-user-interaction"
+        id="toc-data-flow-user-interaction">Data Flow: User
+        Interaction</a>
+        <ul>
+        <li><a href="#example-user-views-suppliers"
+        id="toc-example-user-views-suppliers">Example: User Views
+        Suppliers</a></li>
+        <li><a href="#example-user-creates-new-supplier"
+        id="toc-example-user-creates-new-supplier">Example: User Creates
+        New Supplier</a></li>
+        </ul></li>
+        <li><a href="#key-design-patterns"
+        id="toc-key-design-patterns">Key Design Patterns</a>
+        <ul>
+        <li><a href="#dtos-as-api-contracts"
+        id="toc-dtos-as-api-contracts">1. DTOs as API Contracts</a></li>
+        <li><a href="#centralized-http-client"
+        id="toc-centralized-http-client">2. Centralized HTTP
+        Client</a></li>
+        <li><a href="#preauthorize-for-role-based-access"
+        id="toc-preauthorize-for-role-based-access">3. <span
+        class="citation" data-cites="PreAuthorize">@PreAuthorize</span>
+        for Role-Based Access</a></li>
+        <li><a href="#error-responses-are-standardized"
+        id="toc-error-responses-are-standardized">4. Error Responses Are
+        Standardized</a></li>
+        </ul></li>
+        <li><a href="#technology-stack"
+        id="toc-technology-stack">Technology Stack</a>
+        <ul>
+        <li><a href="#frontend" id="toc-frontend">Frontend</a></li>
+        <li><a href="#backend" id="toc-backend">Backend</a></li>
+        </ul></li>
+        <li><a href="#file-organization" id="toc-file-organization">File
+        Organization</a>
+        <ul>
+        <li><a
+        href="#backend-source-srcmainjavacomsmartsupplyproinventory"
+        id="toc-backend-source-srcmainjavacomsmartsupplyproinventory">Backend
+        Source
+        (<code>/src/main/java/com/smartsupplypro/inventory</code>)</a></li>
+        <li><a href="#frontend-source-frontendsrc"
+        id="toc-frontend-source-frontendsrc">Frontend Source
+        (<code>/frontend/src</code>)</a></li>
+        </ul></li>
+        <li><a href="#summary-how-they-work-together"
+        id="toc-summary-how-they-work-together">Summary: How They Work
+        Together</a></li>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="backend-frontend-overview">Backend-Frontend
+        Overview</h1>
+        <blockquote>
+        <p><strong>Understand how the React frontend and Spring Boot
+        backend work together, divide responsibilities, and exchange
+        data.</strong></p>
+        </blockquote>
+        <h2 id="architecture-overview">Architecture Overview</h2>
+        <p>Smart Supply Pro follows the <strong>modern SPA + REST
+        API</strong> pattern:</p>
+        <div class="mermaid">
+        graph TB
+            User["👤 User<br/>(Browser)"]
+            
+            subgraph Frontend["📱 Frontend (React/TypeScript)"]
+                Router["🛣️ React Router<br/>(Client-side routing)"]
+                Pages["📄 Page Components<br/>(Dashboard, Suppliers, etc.)"]
+                State["💾 React Context/State<br/>(Auth, Notifications, Filters)"]
+                APILayer["🌐 API Client<br/>(httpClient.ts)"]
+            end
+            
+            subgraph Network["🔒 HTTPS + Session Cookies"]
+                direction LR
+                Nginx["⚙️ Nginx<br/>(Reverse Proxy)"]
+            end
+            
+            subgraph Backend["⚙️ Backend (Spring Boot)"]
+                Controllers["🎯 Controllers<br/>(REST endpoints)"]
+                Services["💼 Services<br/>(Business logic)"]
+                Repos["🗄️ Repositories<br/>(Data access)"]
+                Security["🔐 Security<br/>(OAuth2, @PreAuthorize)"]
+            end
+            
+            Database["🗄️ Oracle DB<br/>(Data store)"]
+            OAuth2["🔑 Google OAuth2<br/>(Authentication)"]
+            
+            User -->|Browser| Router
+            Router --> Pages
+            Pages --> State
+            Pages --> APILayer
+            APILayer -->|REST + Cookies| Nginx
+            Nginx -->|Localhost| Controllers
+            Controllers --> Services
+            Services --> Repos
+            Repos --> Database
+            Controllers --> Security
+            Security --> OAuth2
+            
+            style Frontend fill:#61dafb,stroke:#0288d1,stroke-width:2px,color:#000
+            style Backend fill:#6db33f,stroke:#558b2f,stroke-width:2px,color:#fff
+            style Nginx fill:#009639,stroke:#006e2c,stroke-width:2px,color:#fff
+            style Database fill:#f80000,stroke:#b71c1c,stroke-width:2px,color:#fff
+            style OAuth2 fill:#4285f4,stroke:#1565c0,stroke-width:2px,color:#fff
+        </div>
+        <hr />
+        <h2 id="responsibility-division">Responsibility Division</h2>
+        <h3 id="frontend-reacttypescript-in-frontend">Frontend
+        (React/TypeScript in <code>/frontend</code>)</h3>
+        <p><strong>What the frontend handles:</strong></p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Responsibility</th>
+        <th>Example</th>
+        <th>Technology</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>User Interface</strong></td>
+        <td>Rendering forms, buttons, tables</td>
+        <td>React components</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Client-side Routing</strong></td>
+        <td>Navigation between pages</td>
+        <td>React Router</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>State Management</strong></td>
+        <td>Auth context, notification queue, filter state</td>
+        <td>React Context / hooks</td>
+        </tr>
+        <tr class="even">
+        <td><strong>API Calls</strong></td>
+        <td>Calling <code>/api/suppliers</code>,
+        <code>/api/inventory</code></td>
+        <td>axios via httpClient.ts</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Input Validation</strong></td>
+        <td>Form field error hints (client-side only)</td>
+        <td>HTML5 constraints + JS</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Error Display</strong></td>
+        <td>Toast notifications, error messages</td>
+        <td>React toast library</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Demo Mode Detection</strong></td>
+        <td>Read-only UI if <code>demoReadonly=true</code></td>
+        <td>localStorage check</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>What the frontend does NOT do:</strong></p>
+        <ul>
+        <li>❌ Business logic (calculations, rules, constraints)</li>
+        <li>❌ Database access (all data flows through backend API)</li>
+        <li>❌ Authentication (backend handles OAuth2, frontend detects
+        session)</li>
+        <li>❌ Authorization (frontend hides UI; backend enforces via
+        <code>@PreAuthorize</code>)</li>
+        <li>❌ Data validation (client-side hints only; server is source
+        of truth)</li>
+        </ul>
+        <h3 id="backend-spring-boot-in-srcmainjava">Backend (Spring Boot
+        in <code>/src/main/java</code>)</h3>
+        <p><strong>What the backend handles:</strong></p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Responsibility</th>
+        <th>Example</th>
+        <th>Technology</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>REST API</strong></td>
+        <td><code>/api/suppliers</code>, <code>/api/inventory</code>
+        endpoints</td>
+        <td>Spring <code>@RestController</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Business Logic</strong></td>
+        <td>Calculate stock levels, validate constraints</td>
+        <td>Spring <code>@Service</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Data Access</strong></td>
+        <td>Query/insert/update to Oracle DB</td>
+        <td>Spring Data JPA</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Authentication</strong></td>
+        <td>OAuth2 exchange, session creation</td>
+        <td>Spring Security OAuth2</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authorization</strong></td>
+        <td><code>@PreAuthorize("hasRole('ADMIN')")</code></td>
+        <td>Spring Security annotations</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Data Validation</strong></td>
+        <td>JSR-380 constraints, custom validators</td>
+        <td><code>@Valid</code> + validators</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Error Responses</strong></td>
+        <td><code>ErrorResponse</code> with status code + message</td>
+        <td>GlobalExceptionHandler</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Transactions</strong></td>
+        <td>ACID guarantees across updates</td>
+        <td><code>@Transactional</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>What the backend does NOT do:</strong></p>
+        <ul>
+        <li>❌ Render HTML (API-only, no templates)</li>
+        <li>❌ Client-side routing (frontend handles that)</li>
+        <li>❌ Store user session state in memory (uses cookies, Spring
+        Security handles it)</li>
+        <li>❌ User interface logic (buttons, forms, dialogs)</li>
+        </ul>
+        <hr />
+        <h2 id="data-flow-user-interaction">Data Flow: User
+        Interaction</h2>
+        <h3 id="example-user-views-suppliers">Example: User Views
+        Suppliers</h3>
+        <pre><code>User clicks &quot;Suppliers&quot; in nav
+          ↓
+Frontend Router navigates to /suppliers
+          ↓
+Page component mounts, calls httpClient.get(&#39;/suppliers&#39;)
+          ↓
+[CORS check] Nginx proxy allows (same-origin)
+          ↓
+Backend SupplierController.listAll() receives request
+          ↓
+@PreAuthorize checks if user is authenticated OR demo.readonly is true
+          ↓
+SupplierService.findAll() queries SupplierRepository
+          ↓
+JPA executes SQL: SELECT * FROM suppliers
+          ↓
+Oracle returns rows, JPA maps to Supplier entities
+          ↓
+Mapper converts entities → SupplierDTOs
+          ↓
+SupplierController returns ResponseEntity&lt;List&lt;SupplierDTO&gt;&gt;
+          ↓
+Spring converts to JSON: [{ id, name, email, phone }, ...]
+          ↓
+Response returns to frontend (with session cookie in Set-Cookie header)
+          ↓
+Frontend axios interceptor checks for 401 → no, success
+          ↓
+Frontend setState(suppliers) → React re-renders table
+          ↓
+User sees supplier list on screen</code></pre>
+        <h3 id="example-user-creates-new-supplier">Example: User Creates
+        New Supplier</h3>
+        <pre><code>User fills form: name=&quot;Acme Co&quot;, email=&quot;contact@acme.com&quot;
+          ↓
+User clicks &quot;Save&quot;
+          ↓
+Frontend validates required fields (client-side hint)
+          ↓
+Frontend calls httpClient.post(&#39;/suppliers&#39;, { name, email, ... })
+          ↓
+Backend SupplierController.create(SupplierDTO supplierDTO)
+          ↓
+@PreAuthorize(&quot;hasRole(&#39;ADMIN&#39;)&quot;) checks authorization
+          ↓
+SupplierService receives DTO
+          ↓
+Service validates constraints (JSR-380)
+          ↓
+Service checks for duplicate name using repository
+          ↓
+Service creates Supplier entity, saves to DB
+          ↓
+Service returns success response with new supplier
+          ↓
+Frontend receives 201 Created + SupplierDTO
+          ↓
+Frontend updates state, shows toast &quot;Supplier created!&quot;
+          ↓
+Frontend navigates to supplier detail page</code></pre>
+        <hr />
+        <h2 id="key-design-patterns">Key Design Patterns</h2>
+        <h3 id="dtos-as-api-contracts">1. DTOs as API Contracts</h3>
+        <p><strong>Problem:</strong> Entities have internal fields (JPA
+        relations, hibernateLazyInitializationException, password
+        hashes, etc.). Sending them directly is a security/performance
+        risk.</p>
+        <p><strong>Solution:</strong> DTOs (Data Transfer Objects)
+        represent what the API actually returns to clients.</p>
+        <p><strong>Example:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Entity (database model)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Entity</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Supplier <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Id</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> email<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> LocalDateTime createdAt<span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... 10 other internal fields</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@OneToMany</span><span class="op">(</span>mappedBy <span class="op">=</span> <span class="st">&quot;supplier&quot;</span><span class="op">)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">List</span><span class="op">&lt;</span>InventoryItem<span class="op">&gt;</span> items<span class="op">;</span> <span class="co">// lazy-loaded</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">// DTO (API contract)</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="fu">SupplierDTO</span><span class="op">(</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> id<span class="op">,</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> name<span class="op">,</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> email</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">// Controller</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;&gt;</span> <span class="fu">listAll</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        supplierService<span class="op">.</span><span class="fu">findAll</span><span class="op">()</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">map</span><span class="op">(</span>mapperService<span class="op">::</span>toDTO<span class="op">)</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">toList</span><span class="op">()</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Frontend consumes:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> httpClient<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;/suppliers&#39;</span>)<span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">// response.data = [</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">//   { id: &quot;S1&quot;, name: &quot;Acme&quot;, email: &quot;...&quot; },</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">//   { id: &quot;S2&quot;, name: &quot;Globex&quot;, email: &quot;...&quot; }</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">// ]</span></span></code></pre></div>
+        <h3 id="centralized-http-client">2. Centralized HTTP Client</h3>
+        <p><strong>Problem:</strong> If you scatter API calls across 20
+        components, how do you handle auth timeouts, retries, error
+        handling consistently?</p>
+        <p><strong>Solution:</strong> Centralize in
+        <code>httpClient.ts</code></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/api/httpClient.ts</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> httpClient <span class="op">=</span> axios<span class="op">.</span><span class="fu">create</span>({</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  baseURL<span class="op">:</span> <span class="st">&#39;/api&#39;</span><span class="op">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  withCredentials<span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="co">// include session cookie</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  timeout<span class="op">:</span> <span class="dv">30_000</span><span class="op">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Global 401 handler</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>httpClient<span class="op">.</span><span class="at">interceptors</span><span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="fu">use</span>(</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  (res) <span class="kw">=&gt;</span> res<span class="op">,</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  (error) <span class="kw">=&gt;</span> {</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">401</span>) {</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>      <span class="co">// redirect to /login</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">href</span> <span class="op">=</span> <span class="st">&#39;/login&#39;</span><span class="op">;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">reject</span>(error)<span class="op">;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> httpClient<span class="op">;</span></span></code></pre></div>
+        <p><strong>Usage in components:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SuppliersPage <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [suppliers<span class="op">,</span> setSuppliers] <span class="op">=</span> <span class="fu">useState</span>([])<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    httpClient<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;/suppliers&#39;</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(res <span class="kw">=&gt;</span> <span class="fu">setSuppliers</span>(res<span class="op">.</span><span class="at">data</span>))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(error <span class="kw">=&gt;</span> toast<span class="op">.</span><span class="fu">error</span>(error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">data</span><span class="op">?.</span><span class="at">message</span>))<span class="op">;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> [])<span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">&lt;</span>SupplierTable suppliers<span class="op">=</span>{suppliers} <span class="op">/&gt;;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+        <h3 id="preauthorize-for-role-based-access">3. <span
+        class="citation" data-cites="PreAuthorize">@PreAuthorize</span>
+        for Role-Based Access</h3>
+        <p><strong>Problem:</strong> If the UI hides an “Edit” button
+        for non-admins, a malicious user could still call the API
+        directly.</p>
+        <p><strong>Solution:</strong> Backend enforces authorization on
+        every endpoint.</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierController <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated() or @appProperties.demoReadonly&quot;</span><span class="op">)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@GetMapping</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;&gt;</span> <span class="fu">listAll</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Authenticated users OR demo-readonly mode can read</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">findAll</span><span class="op">());</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> SupplierDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Only admins can create</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">)</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">body</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">save</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">Void</span><span class="op">&gt;</span> <span class="fu">delete</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Only admins can delete</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        supplierService<span class="op">.</span><span class="fu">deleteById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">noContent</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Frontend respects this:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> canEditSupplier <span class="op">=</span> user<span class="op">?.</span><span class="at">role</span> <span class="op">===</span> <span class="st">&#39;ADMIN&#39;</span><span class="op">;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> (</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">&lt;</span>button </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    disabled<span class="op">=</span>{<span class="op">!</span>canEditSupplier}</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    onClick<span class="op">=</span>{() <span class="kw">=&gt;</span> <span class="fu">updateSupplier</span>(id<span class="op">,</span> data)}</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    Edit</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">&lt;/</span>button<span class="op">&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div>
+        <p>But <strong>backend doesn’t trust the frontend:</strong></p>
+        <pre><code>If user sends POST /api/suppliers without ADMIN role:
+   Backend returns 403 Forbidden
+   Frontend catches 401/403 and shows &quot;Access Denied&quot;</code></pre>
+        <h3 id="error-responses-are-standardized">4. Error Responses Are
+        Standardized</h3>
+        <p><strong>Problem:</strong> Different endpoints throw different
+        exceptions (DuplicateResourceException, InvalidRequestException,
+        etc.). Frontend has no idea what to display.</p>
+        <p><strong>Solution:</strong> GlobalExceptionHandler maps all
+        exceptions to a standard <code>ErrorResponse</code> shape.</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> GlobalExceptionHandler <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDuplicate</span><span class="op">(</span>DuplicateResourceException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span>e<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">()</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">toResponseEntity</span><span class="op">();</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>InvalidRequestException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleInvalid</span><span class="op">(</span>InvalidRequestException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span><span class="op">)</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span>e<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">()</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">toResponseEntity</span><span class="op">();</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Response format:</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier &#39;Acme Co&#39; already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:30:00.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551800123-7891&quot;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Frontend handles consistently:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>httpClient<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> formData)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">catch</span>(error <span class="kw">=&gt;</span> {</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { message<span class="op">,</span> error<span class="op">:</span> errorType } <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (errorType <span class="op">===</span> <span class="st">&#39;conflict&#39;</span>) {</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>      toast<span class="op">.</span><span class="fu">error</span>(<span class="vs">`Duplicate: </span><span class="sc">${</span>message<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (errorType <span class="op">===</span> <span class="st">&#39;bad_request&#39;</span>) {</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setFormErrors</span>(<span class="fu">parseValidationErrors</span>(message))<span class="op">;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>      toast<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Server error occurred&#39;</span>)<span class="op">;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h2 id="technology-stack">Technology Stack</h2>
+        <h3 id="frontend">Frontend</h3>
+        <ul>
+        <li><strong>Framework:</strong> React 18+</li>
+        <li><strong>Language:</strong> TypeScript</li>
+        <li><strong>HTTP Client:</strong> axios (wrapped in
+        <code>httpClient.ts</code>)</li>
+        <li><strong>Routing:</strong> React Router v6+</li>
+        <li><strong>State:</strong> React Context + hooks</li>
+        <li><strong>Build Tool:</strong> Vite</li>
+        <li><strong>Testing:</strong> React Testing Library, Vitest,
+        Cypress (if applicable)</li>
+        <li><strong>UI Components:</strong> (Material-UI, custom, or
+        other)</li>
+        </ul>
+        <h3 id="backend">Backend</h3>
+        <ul>
+        <li><strong>Framework:</strong> Spring Boot 3.x+</li>
+        <li><strong>Language:</strong> Java 17+</li>
+        <li><strong>REST:</strong> Spring Web MVC</li>
+        <li><strong>Database:</strong> Spring Data JPA + Hibernate</li>
+        <li><strong>Authentication:</strong> Spring Security OAuth2</li>
+        <li><strong>Validation:</strong> JSR-380 (Jakarta
+        Validation)</li>
+        <li><strong>Data Mapping:</strong> Custom mappers or
+        MapStruct</li>
+        <li><strong>Testing:</strong> JUnit5, Mockito,
+        TestContainers</li>
+        <li><strong>Build:</strong> Maven</li>
+        <li><strong>Logging:</strong> SLF4J + Logback</li>
+        </ul>
+        <hr />
+        <h2 id="file-organization">File Organization</h2>
+        <h3
+        id="backend-source-srcmainjavacomsmartsupplyproinventory">Backend
+        Source
+        (<code>/src/main/java/com/smartsupplypro/inventory</code>)</h3>
+        <pre><code>controller/              ← REST endpoints (@RestController)
+  ├── AuthController.java
+  ├── SupplierController.java
+  ├── InventoryItemController.java
+  ├── StockHistoryController.java
+  └── AnalyticsController.java
+
+dto/                    ← API contracts (request/response shapes)
+  ├── SupplierDTO.java
+  ├── InventoryItemDTO.java
+  ├── StockHistoryDTO.java
+  └── ...
+
+service/                ← Business logic (transactions, rules)
+  ├── SupplierService.java
+  ├── InventoryItemService.java
+  └── ...
+
+repository/             ← Data access (JPA queries)
+  ├── SupplierRepository.java
+  ├── InventoryItemRepository.java
+  └── ...
+
+security/               ← OAuth2, role/permission logic
+  └── SecurityConfig.java
+
+exception/              ← Exception handling
+  ├── GlobalExceptionHandler.java
+  └── dto/
+      └── ErrorResponse.java
+
+mapper/                 ← Entity ↔ DTO conversion
+  └── DtoMappers.java</code></pre>
+        <h3 id="frontend-source-frontendsrc">Frontend Source
+        (<code>/frontend/src</code>)</h3>
+        <pre><code>api/                    ← HTTP client &amp; API methods
+  ├── httpClient.ts     ← Centralized axios instance
+  ├── inventory/        ← Domain-specific API calls
+  ├── analytics/
+  └── ...
+
+pages/                  ← Page-level components (routes)
+  ├── DashboardPage.tsx
+  ├── SuppliersPage.tsx
+  ├── InventoryPage.tsx
+  └── LoginPage.tsx
+
+components/             ← Reusable UI components
+  ├── SupplierForm.tsx
+  ├── InventoryTable.tsx
+  └── ...
+
+context/                ← Global state (Auth, notifications)
+  ├── AuthContext.tsx
+  ├── NotificationContext.tsx
+  └── ...
+
+features/               ← Feature-specific logic
+  └── auth/             ← Auth flows, login/logout</code></pre>
+        <hr />
+        <h2 id="summary-how-they-work-together">Summary: How They Work
+        Together</h2>
+        <ol type="1">
+        <li><strong>User loads the app</strong> → Frontend loads, calls
+        <code>GET /api/auth/me</code></li>
+        <li><strong>Backend responds</strong> → Either user profile
+        (logged in) or 401 (not logged in)</li>
+        <li><strong>Frontend detects auth state</strong> → Renders
+        dashboard or redirects to login</li>
+        <li><strong>User navigates</strong> → Frontend React Router
+        handles (no page reload)</li>
+        <li><strong>User clicks action</strong> (e.g., “Create
+        Supplier”)</li>
+        <li><strong>Frontend calls API</strong> →
+        <code>POST /api/suppliers</code> with DTO JSON body</li>
+        <li><strong>Backend processes</strong> → Validates, applies
+        business logic, persists to DB</li>
+        <li><strong>Backend responds</strong> → 201 Created + new
+        SupplierDTO (or error)</li>
+        <li><strong>Frontend updates</strong> → React state changes, UI
+        re-renders</li>
+        <li><strong>User sees result</strong> → Toast notification,
+        updated table, etc.</li>
+        </ol>
+        <hr />
+        <h2 id="navigation">Navigation</h2>
+        <ul>
+        <li><strong>← <a href="./index.html">Back to Integration
+        Index</a></strong></li>
+        <li><strong>→ <a href="./api-contract-and-endpoints.html">API
+        Contract &amp; Endpoints</a></strong> - Endpoint catalog</li>
+        <li><strong>→ <a href="./auth-flow-frontend.html">Authentication
+        Flow</a></strong> - Login/logout details</li>
+        <li><strong>→ <a href="./error-handling-contract.html">Error
+        Handling Contract</a></strong> - Error shapes and mapping</li>
+        <li><strong>← <a href="../index.html">Back to Architecture
+        Index</a></strong></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

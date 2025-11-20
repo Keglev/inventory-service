@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+integration/error-handling-contract · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#error-handling-contract"
+        id="toc-error-handling-contract">Error Handling Contract</a>
+        <ul>
+        <li><a href="#error-response-shape"
+        id="toc-error-response-shape">Error Response Shape</a>
+        <ul>
+        <li><a href="#standard-errorresponse"
+        id="toc-standard-errorresponse">Standard ErrorResponse</a></li>
+        </ul></li>
+        <li><a href="#http-status-codes-error-types"
+        id="toc-http-status-codes-error-types">HTTP Status Codes &amp;
+        Error Types</a>
+        <ul>
+        <li><a href="#mapping-status-error-frontend-action"
+        id="toc-mapping-status-error-frontend-action">Mapping: Status →
+        Error → Frontend Action</a></li>
+        <li><a href="#ok---success" id="toc-ok---success">200 OK -
+        Success</a></li>
+        <li><a href="#created---resource-created"
+        id="toc-created---resource-created">201 Created - Resource
+        Created</a></li>
+        <li><a href="#bad-request" id="toc-bad-request">400 Bad
+        Request</a></li>
+        <li><a href="#unauthorized" id="toc-unauthorized">401
+        Unauthorized</a></li>
+        <li><a href="#forbidden" id="toc-forbidden">403
+        Forbidden</a></li>
+        <li><a href="#not-found" id="toc-not-found">404 Not
+        Found</a></li>
+        <li><a href="#conflict" id="toc-conflict">409 Conflict</a></li>
+        <li><a href="#internal-server-error"
+        id="toc-internal-server-error">500 Internal Server
+        Error</a></li>
+        </ul></li>
+        <li><a href="#frontend-error-handling-patterns"
+        id="toc-frontend-error-handling-patterns">Frontend Error
+        Handling Patterns</a>
+        <ul>
+        <li><a href="#global-error-handler-interceptor"
+        id="toc-global-error-handler-interceptor">1. Global Error
+        Handler (Interceptor)</a></li>
+        <li><a href="#api-call-error-handling"
+        id="toc-api-call-error-handling">2. API Call Error
+        Handling</a></li>
+        <li><a href="#form-error-display" id="toc-form-error-display">3.
+        Form Error Display</a></li>
+        </ul></li>
+        <li><a href="#error-types-reference"
+        id="toc-error-types-reference">Error Types Reference</a></li>
+        <li><a href="#common-error-messages"
+        id="toc-common-error-messages">Common Error Messages</a>
+        <ul>
+        <li><a href="#validation-errors"
+        id="toc-validation-errors">Validation Errors</a></li>
+        <li><a href="#duplicate-resource"
+        id="toc-duplicate-resource">Duplicate Resource</a></li>
+        <li><a href="#permission-denied"
+        id="toc-permission-denied">Permission Denied</a></li>
+        <li><a href="#resource-not-found"
+        id="toc-resource-not-found">Resource Not Found</a></li>
+        </ul></li>
+        <li><a href="#correlation-ids-for-debugging"
+        id="toc-correlation-ids-for-debugging">Correlation IDs for
+        Debugging</a></li>
+        <li><a href="#testing-error-scenarios"
+        id="toc-testing-error-scenarios">Testing Error Scenarios</a>
+        <ul>
+        <li><a href="#unit-test-example" id="toc-unit-test-example">Unit
+        Test Example</a></li>
+        </ul></li>
+        <li><a href="#backend-exception-mapping"
+        id="toc-backend-exception-mapping">Backend Exception
+        Mapping</a></li>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="error-handling-contract">Error Handling Contract</h1>
+        <blockquote>
+        <p><strong>How backend errors are shaped, how frontend
+        interprets them, and what UI feedback to display.</strong></p>
+        </blockquote>
+        <h2 id="error-response-shape">Error Response Shape</h2>
+        <p>All errors from Smart Supply Pro’s REST API follow a
+        <strong>standardized structure</strong>.</p>
+        <h3 id="standard-errorresponse">Standard ErrorResponse</h3>
+        <p>Every error response has this shape:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;error_type_in_snake_case&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Human-readable error description&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:30:45.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Fields:</strong></p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>error</code></td>
+        <td>string</td>
+        <td>Machine-readable error code (e.g., <code>bad_request</code>,
+        <code>conflict</code>, <code>unauthorized</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><code>message</code></td>
+        <td>string</td>
+        <td>Human-readable description of what went wrong</td>
+        </tr>
+        <tr class="odd">
+        <td><code>timestamp</code></td>
+        <td>ISO-8601</td>
+        <td>When the error occurred (UTC)</td>
+        </tr>
+        <tr class="even">
+        <td><code>correlationId</code></td>
+        <td>string</td>
+        <td>Unique ID to correlate this error across logs; useful for
+        debugging</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="http-status-codes-error-types">HTTP Status Codes &amp;
+        Error Types</h2>
+        <h3 id="mapping-status-error-frontend-action">Mapping: Status →
+        Error → Frontend Action</h3>
+        <div class="mermaid">
+        graph TD
+            Request["📤 Request"]
+            
+            Request -->|200 OK| Success["✅ Success<br/>Process data"]
+            Request -->|201 Created| Created["✅ Created<br/>Add to list"]
+            
+            Request -->|400| BadRequest["❌ bad_request<br/>Validation error"]
+            Request -->|401| Unauthorized["❌ unauthorized<br/>Not logged in"]
+            Request -->|403| Forbidden["❌ forbidden<br/>Not authorized"]
+            Request -->|404| NotFound["❌ not_found<br/>Resource missing"]
+            Request -->|409| Conflict["❌ conflict<br/>Duplicate/conflict"]
+            Request -->|500| ServerError["❌ internal_server_error<br/>Server error"]
+            
+            BadRequest --> FormErrors["Show form errors<br/>Highlight invalid fields"]
+            Unauthorized --> LoginPage["Redirect to /login<br/>Session expired?"]
+            Forbidden --> AccessDenied["Show 'Access Denied'<br/>Contact admin"]
+            NotFound --> NotFoundUI["Show 'Not Found'<br/>Check URL/ID"]
+            Conflict --> ConflictMsg["Show conflict message<br/>Try different value"]
+            ServerError --> GenericError["Show error toast<br/>Log for debugging"]
+            
+            style Success fill:#4caf50,color:#fff
+            style Created fill:#8bc34a,color:#fff
+            style BadRequest fill:#ff9800,color:#fff
+            style Unauthorized fill:#f44336,color:#fff
+            style Forbidden fill:#e91e63,color:#fff
+            style NotFound fill:#9c27b0,color:#fff
+            style Conflict fill:#ff5722,color:#fff
+            style ServerError fill:#673ab7,color:#fff
+        </div>
+        <hr />
+        <h3 id="ok---success">200 OK - Success</h3>
+        <p>Request succeeded, data is valid.</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>GET /api/suppliers
+
+200 OK
+Content-Type: application/json
+
+[
+  { &quot;id&quot;: &quot;SUP001&quot;, &quot;name&quot;: &quot;Acme&quot;, ... },
+  { &quot;id&quot;: &quot;SUP002&quot;, &quot;name&quot;: &quot;Globex&quot;, ... }
+]</code></pre>
+        <hr />
+        <h3 id="created---resource-created">201 Created - Resource
+        Created</h3>
+        <p>Resource was successfully created.</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>POST /api/suppliers
+Content-Type: application/json
+
+{ &quot;name&quot;: &quot;New Supplier&quot;, &quot;email&quot;: &quot;...&quot; }
+
+201 Created
+Content-Type: application/json
+
+{ &quot;id&quot;: &quot;SUP003&quot;, &quot;name&quot;: &quot;New Supplier&quot;, &quot;email&quot;: &quot;...&quot; }</code></pre>
+        <p><strong>Frontend:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> httpClient<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> formData)<span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> newSupplier <span class="op">=</span> response<span class="op">.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">setSuppliers</span>([<span class="op">...</span>suppliers<span class="op">,</span> newSupplier])<span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>toast<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Supplier created!&#39;</span>)<span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">navigate</span>(<span class="vs">`/suppliers/</span><span class="sc">${</span>newSupplier<span class="op">.</span><span class="at">id</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h3 id="bad-request">400 Bad Request</h3>
+        <p>Client sent invalid data (validation error, malformed
+        request, missing fields).</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>POST /api/suppliers
+Content-Type: application/json
+
+{ &quot;name&quot;: &quot;&quot;, &quot;email&quot;: &quot;invalid-email&quot; }
+
+400 Bad Request
+Content-Type: application/json
+
+{
+  &quot;error&quot;: &quot;bad_request&quot;,
+  &quot;message&quot;: &quot;Validation failed: name is required, email must be valid format&quot;,
+  &quot;timestamp&quot;: &quot;2025-11-20T10:30:45.123Z&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551445123-4891&quot;
+}</code></pre>
+        <p><strong>Frontend:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> httpClient<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> formData)<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">400</span>) {</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { message } <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Parse message or show generic error</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setFormErrors</span>({</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      name<span class="op">:</span> <span class="st">&#39;Name is required&#39;</span><span class="op">,</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      email<span class="op">:</span> <span class="st">&#39;Email must be valid format&#39;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Or show as toast</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    toast<span class="op">.</span><span class="fu">error</span>(<span class="vs">`Validation error: </span><span class="sc">${</span>message<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h3 id="unauthorized">401 Unauthorized</h3>
+        <p>User is not authenticated or session has expired.</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>GET /api/suppliers
+Cookie: (no valid SESSION)
+
+401 Unauthorized
+Content-Type: application/json
+
+{
+  &quot;error&quot;: &quot;unauthorized&quot;,
+  &quot;message&quot;: &quot;No valid session. Please log in.&quot;,
+  &quot;timestamp&quot;: &quot;2025-11-20T10:30:45.123Z&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551445123-4891&quot;
+}</code></pre>
+        <p><strong>Frontend:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>httpClient<span class="op">.</span><span class="at">interceptors</span><span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="fu">use</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  (res) <span class="kw">=&gt;</span> res<span class="op">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  (error) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">401</span>) {</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Clear user state</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setUser</span>(<span class="kw">null</span>)<span class="op">;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Show login page or redirect</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="op">!</span><span class="fu">isPublicRoute</span>(location<span class="op">.</span><span class="at">pathname</span>)) {</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">navigate</span>(<span class="st">&#39;/login&#39;</span><span class="op">,</span> { state<span class="op">:</span> { message<span class="op">:</span> <span class="st">&#39;Session expired. Please log in again.&#39;</span> } })<span class="op">;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">reject</span>(error)<span class="op">;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div>
+        <p><strong>User sees:</strong></p>
+        <ul>
+        <li>Redirect to <code>/login</code></li>
+        <li>Message: “Your session has expired. Please log in
+        again.”</li>
+        </ul>
+        <hr />
+        <h3 id="forbidden">403 Forbidden</h3>
+        <p>User is authenticated but doesn’t have permission.</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>DELETE /api/suppliers/SUP001
+Cookie: SESSION=user-cookie...
+(User role: USER, not ADMIN)
+
+403 Forbidden
+Content-Type: application/json
+
+{
+  &quot;error&quot;: &quot;forbidden&quot;,
+  &quot;message&quot;: &quot;You do not have permission to delete suppliers. Admin role required.&quot;,
+  &quot;timestamp&quot;: &quot;2025-11-20T10:30:45.123Z&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551445123-4891&quot;
+}</code></pre>
+        <p><strong>Frontend:</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> httpClient<span class="op">.</span><span class="fu">delete</span>(<span class="vs">`/suppliers/</span><span class="sc">${</span>id<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">403</span>) {</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    toast<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Access Denied: You do not have permission for this action.&#39;</span>)<span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Optionally hide the button in UI</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <p><strong>Before making request (defensive):</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> canDelete <span class="op">=</span> user<span class="op">?.</span><span class="at">role</span> <span class="op">===</span> <span class="st">&#39;ADMIN&#39;</span><span class="op">;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> (</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">&lt;</span>button </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    disabled<span class="op">=</span>{<span class="op">!</span>canDelete}</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    onClick<span class="op">=</span>{handleDelete}</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>{canDelete <span class="op">?</span> <span class="st">&#39;&#39;</span> <span class="op">:</span> <span class="st">&#39;Admin role required&#39;</span>}</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    Delete</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">&lt;/</span>button<span class="op">&gt;</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h3 id="not-found">404 Not Found</h3>
+        <p>Resource doesn’t exist (wrong ID, deleted, etc.).</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>GET /api/suppliers/NONEXISTENT
+
+404 Not Found
+Content-Type: application/json
+
+{
+  &quot;error&quot;: &quot;not_found&quot;,
+  &quot;message&quot;: &quot;Supplier not found: NONEXISTENT&quot;,
+  &quot;timestamp&quot;: &quot;2025-11-20T10:30:45.123Z&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551445123-4891&quot;
+}</code></pre>
+        <p><strong>Frontend:</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> supplier <span class="op">=</span> <span class="cf">await</span> httpClient<span class="op">.</span><span class="fu">get</span>(<span class="vs">`/suppliers/</span><span class="sc">${</span>id<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setSupplier</span>(supplier<span class="op">.</span><span class="at">data</span>)<span class="op">;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">404</span>) {</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">navigate</span>(<span class="st">&#39;/suppliers&#39;</span>)<span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    toast<span class="op">.</span><span class="fu">error</span>(<span class="vs">`Supplier not found. It may have been deleted.`</span>)<span class="op">;</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <p><strong>User sees:</strong></p>
+        <ul>
+        <li>Redirect to <code>/suppliers</code> list</li>
+        <li>Toast: “Supplier not found. It may have been deleted.”</li>
+        </ul>
+        <hr />
+        <h3 id="conflict">409 Conflict</h3>
+        <p>Request conflicts with existing data (duplicate name,
+        duplicate email, concurrent update, etc.).</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>POST /api/suppliers
+Content-Type: application/json
+
+{ &quot;name&quot;: &quot;Acme Corporation&quot;, &quot;email&quot;: &quot;...&quot; }
+
+(Acme Corporation already exists)
+
+409 Conflict
+Content-Type: application/json
+
+{
+  &quot;error&quot;: &quot;conflict&quot;,
+  &quot;message&quot;: &quot;Supplier with name &#39;Acme Corporation&#39; already exists&quot;,
+  &quot;timestamp&quot;: &quot;2025-11-20T10:30:45.123Z&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551445123-4891&quot;
+}</code></pre>
+        <p><strong>Frontend:</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> httpClient<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> formData)<span class="op">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">409</span>) {</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { message } <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    toast<span class="op">.</span><span class="fu">warning</span>(<span class="vs">`</span><span class="sc">${</span>message<span class="sc">}</span><span class="vs">. Try a different name.`</span>)<span class="op">;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setFormErrors</span>({ name<span class="op">:</span> <span class="st">&#39;This name already exists&#39;</span> })<span class="op">;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <p><strong>User sees:</strong></p>
+        <ul>
+        <li>Toast: “Supplier with name ‘Acme Corporation’ already
+        exists. Try a different name.”</li>
+        <li>Form field highlighted in red</li>
+        </ul>
+        <hr />
+        <h3 id="internal-server-error">500 Internal Server Error</h3>
+        <p>Unexpected server error (bug, database connection failure,
+        etc.).</p>
+        <p><strong>Example:</strong></p>
+        <pre class="http"><code>POST /api/suppliers
+Content-Type: application/json
+
+{ &quot;name&quot;: &quot;Test&quot;, &quot;email&quot;: &quot;test@example.com&quot; }
+
+(Database connection fails unexpectedly)
+
+500 Internal Server Error
+Content-Type: application/json
+
+{
+  &quot;error&quot;: &quot;internal_server_error&quot;,
+  &quot;message&quot;: &quot;An unexpected error occurred. Please try again later.&quot;,
+  &quot;timestamp&quot;: &quot;2025-11-20T10:30:45.123Z&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551445123-4891&quot;
+}</code></pre>
+        <p><strong>Frontend:</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> httpClient<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> formData)<span class="op">;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">500</span>) {</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { correlationId } <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    toast<span class="op">.</span><span class="fu">error</span>(</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>      <span class="vs">`Server error occurred. Please contact support with ID: </span><span class="sc">${</span>correlationId<span class="sc">}</span><span class="vs">`</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    )<span class="op">;</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Log to error tracking service</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    errorTracker<span class="op">.</span><span class="fu">captureException</span>(error<span class="op">,</span> { correlationId })<span class="op">;</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <p><strong>User sees:</strong></p>
+        <ul>
+        <li>Toast: “Server error occurred. Please contact support with
+        ID: SSP-1700551445123-4891”</li>
+        <li>Can include error ID in support ticket</li>
+        </ul>
+        <hr />
+        <h2 id="frontend-error-handling-patterns">Frontend Error
+        Handling Patterns</h2>
+        <h3 id="global-error-handler-interceptor">1. Global Error
+        Handler (Interceptor)</h3>
+        <p><strong>In <code>httpClient.ts</code>:</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>httpClient<span class="op">.</span><span class="at">interceptors</span><span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="fu">use</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  (response) <span class="kw">=&gt;</span> response<span class="op">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  (error) <span class="kw">=&gt;</span> {</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> status <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span><span class="op">;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> data <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> message <span class="op">=</span> data<span class="op">?.</span><span class="at">message</span> <span class="op">||</span> <span class="st">&#39;An error occurred&#39;</span><span class="op">;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Handle specific status codes globally</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (status <span class="op">===</span> <span class="dv">401</span>) {</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Redirect to login</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setUser</span>(<span class="kw">null</span>)<span class="op">;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>      <span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">href</span> <span class="op">=</span> <span class="st">&#39;/login&#39;</span><span class="op">;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (status <span class="op">===</span> <span class="dv">403</span>) {</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Show access denied</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>      toast<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Access denied&#39;</span>)<span class="op">;</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (status <span class="op">&gt;=</span> <span class="dv">500</span>) {</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Server error</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>      toast<span class="op">.</span><span class="fu">error</span>(<span class="vs">`Server error: </span><span class="sc">${</span>message<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>      errorTracker<span class="op">.</span><span class="fu">captureException</span>(error)<span class="op">;</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">reject</span>(error)<span class="op">;</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div>
+        <h3 id="api-call-error-handling">2. API Call Error Handling</h3>
+        <p><strong>In components:</strong></p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> handleCreateSupplier <span class="op">=</span> <span class="kw">async</span> (formData) <span class="kw">=&gt;</span> {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setLoading</span>(<span class="kw">true</span>)<span class="op">;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> httpClient<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> formData)<span class="op">;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setSuppliers</span>([<span class="op">...</span>suppliers<span class="op">,</span> response<span class="op">.</span><span class="at">data</span>])<span class="op">;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    toast<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Supplier created!&#39;</span>)<span class="op">;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (error) {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Let global handler catch 401/403/500</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">400</span>) {</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Handle validation</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setFormErrors</span>(<span class="fu">parseValidationErrors</span>(error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">message</span>))<span class="op">;</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">409</span>) {</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Handle conflict</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>      toast<span class="op">.</span><span class="fu">warning</span>(error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">message</span>)<span class="op">;</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (<span class="op">!</span>error<span class="op">.</span><span class="at">response</span>) {</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Network error</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>      toast<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Network error. Check your connection.&#39;</span>)<span class="op">;</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">finally</span> {</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setLoading</span>(<span class="kw">false</span>)<span class="op">;</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+        <h3 id="form-error-display">3. Form Error Display</h3>
+        <p><strong>HTML:</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode html"><code class="sourceCode html"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">form</span> <span class="er">onSubmit</span><span class="ot">=</span><span class="st">{handleSubmit}</span><span class="dt">&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">div</span> <span class="er">className</span><span class="ot">=</span><span class="st">&quot;form-group&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">label</span><span class="dt">&gt;</span>Supplier Name *<span class="dt">&lt;/</span><span class="kw">label</span><span class="dt">&gt;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&lt;</span><span class="kw">input</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="ot">      type=</span><span class="st">&quot;text&quot;</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="ot">      name=</span><span class="st">&quot;name&quot;</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="ot">      value=</span><span class="st">{formData.name}</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="ot">      onChange=</span><span class="st">{handleChange}</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="ot">      className=</span><span class="st">{formErrors.name</span> <span class="er">?</span> <span class="er">&#39;error&#39;</span> <span class="er">:</span> <span class="er">&#39;&#39;}</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">/&gt;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    {formErrors.name <span class="er">&amp;&amp;</span> (</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&lt;</span><span class="kw">span</span> <span class="er">className</span><span class="ot">=</span><span class="st">&quot;error-message&quot;</span><span class="dt">&gt;</span>{formErrors.name}<span class="dt">&lt;/</span><span class="kw">span</span><span class="dt">&gt;</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    )}</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">div</span><span class="dt">&gt;</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">button</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;submit&quot;</span> <span class="er">disabled</span><span class="ot">=</span><span class="st">{loading}</span><span class="dt">&gt;</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    Create Supplier</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;/</span><span class="kw">button</span><span class="dt">&gt;</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">form</span><span class="dt">&gt;</span></span></code></pre></div>
+        <p><strong>CSS:</strong></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode css"><code class="sourceCode css"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.form-group</span> input<span class="fu">.error</span> {</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">border-color</span>: <span class="cn">#f44336</span><span class="op">;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-color</span>: <span class="cn">#ffebee</span><span class="op">;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">.error-message</span> {</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">color</span>: <span class="cn">#f44336</span><span class="op">;</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">font-size</span>: <span class="dv">0.875</span><span class="dt">rem</span><span class="op">;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">margin-top</span>: <span class="dv">0.25</span><span class="dt">rem</span><span class="op">;</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">display</span>: <span class="dv">block</span><span class="op">;</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="error-types-reference">Error Types Reference</h2>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Error Code</th>
+        <th>Status</th>
+        <th>Meaning</th>
+        <th>User Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>bad_request</code></td>
+        <td>400</td>
+        <td>Validation failed or malformed request</td>
+        <td>Fix form fields and retry</td>
+        </tr>
+        <tr class="even">
+        <td><code>unauthorized</code></td>
+        <td>401</td>
+        <td>Not logged in or session expired</td>
+        <td>Log in again</td>
+        </tr>
+        <tr class="odd">
+        <td><code>forbidden</code></td>
+        <td>403</td>
+        <td>Authenticated but not authorized</td>
+        <td>Contact admin if access needed</td>
+        </tr>
+        <tr class="even">
+        <td><code>not_found</code></td>
+        <td>404</td>
+        <td>Resource doesn’t exist</td>
+        <td>Check URL or search again</td>
+        </tr>
+        <tr class="odd">
+        <td><code>conflict</code></td>
+        <td>409</td>
+        <td>Duplicate value or conflicting state</td>
+        <td>Try different value or refresh</td>
+        </tr>
+        <tr class="even">
+        <td><code>internal_server_error</code></td>
+        <td>500</td>
+        <td>Server error</td>
+        <td>Retry, contact support with ID</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="common-error-messages">Common Error Messages</h2>
+        <h3 id="validation-errors">Validation Errors</h3>
+        <pre><code>&quot;Validation failed: email must be valid format, name is required&quot;</code></pre>
+        <p><strong>Frontend should:</strong> - Parse message by field -
+        Highlight invalid form fields - Show inline error messages</p>
+        <h3 id="duplicate-resource">Duplicate Resource</h3>
+        <pre><code>&quot;Supplier with name &#39;Acme Co&#39; already exists&quot;</code></pre>
+        <p><strong>Frontend should:</strong> - Show warning toast -
+        Suggest alternatives (search existing) - Clear form or prefill
+        with suggestion</p>
+        <h3 id="permission-denied">Permission Denied</h3>
+        <pre><code>&quot;You do not have permission to delete suppliers. Admin role required.&quot;</code></pre>
+        <p><strong>Frontend should:</strong> - Hide delete button for
+        non-admins - If attempted, show “Access Denied” - Suggest
+        contacting admin</p>
+        <h3 id="resource-not-found">Resource Not Found</h3>
+        <pre><code>&quot;Supplier not found: SUP001&quot;</code></pre>
+        <p><strong>Frontend should:</strong> - Redirect to parent list
+        (/suppliers) - Show message indicating resource was deleted</p>
+        <hr />
+        <h2 id="correlation-ids-for-debugging">Correlation IDs for
+        Debugging</h2>
+        <p>Every error includes a <code>correlationId</code>:</p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;internal_server_error&quot;</span><span class="fu">,</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Format:</strong>
+        <code>SSP-{timestamp}-{random}</code></p>
+        <p><strong>Use for debugging:</strong></p>
+        <ol type="1">
+        <li>User reports error</li>
+        <li>Show them the correlation ID</li>
+        <li>Backend logs include the same ID</li>
+        <li>DevOps can search logs by ID to find root cause</li>
+        </ol>
+        <p><strong>Frontend storage (optional):</strong></p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> handleError <span class="op">=</span> (error) <span class="kw">=&gt;</span> {</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> correlationId <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">data</span><span class="op">?.</span><span class="at">correlationId</span><span class="op">;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Store in user&#39;s session for support chat</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  sessionStorage<span class="op">.</span><span class="fu">setItem</span>(<span class="st">&#39;lastError&#39;</span><span class="op">,</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>({</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    correlationId<span class="op">,</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    timestamp<span class="op">:</span> <span class="kw">new</span> <span class="bu">Date</span>()<span class="op">.</span><span class="fu">toISOString</span>()<span class="op">,</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    message<span class="op">:</span> error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">data</span><span class="op">?.</span><span class="at">message</span><span class="op">,</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  }))<span class="op">;</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Display to user</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  toast<span class="op">.</span><span class="fu">error</span>(<span class="vs">`Error (ID: </span><span class="sc">${</span>correlationId<span class="sc">}</span><span class="vs">). Please save this ID for support.`</span>)<span class="op">;</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-error-scenarios">Testing Error Scenarios</h2>
+        <h3 id="unit-test-example">Unit Test Example</h3>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(<span class="st">&#39;SupplierForm&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">&#39;should show validation error on bad email&#39;</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { getByText<span class="op">,</span> getByRole } <span class="op">=</span> <span class="fu">render</span>(<span class="op">&lt;</span>SupplierForm <span class="op">/&gt;</span>)<span class="op">;</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> emailInput <span class="op">=</span> <span class="fu">getByRole</span>(<span class="st">&#39;textbox&#39;</span><span class="op">,</span> { name<span class="op">:</span> <span class="ss">/email/i</span> })<span class="op">;</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    fireEvent<span class="op">.</span><span class="fu">change</span>(emailInput<span class="op">,</span> { target<span class="op">:</span> { value<span class="op">:</span> <span class="st">&#39;invalid&#39;</span> } })<span class="op">;</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> submitButton <span class="op">=</span> <span class="fu">getByRole</span>(<span class="st">&#39;button&#39;</span><span class="op">,</span> { name<span class="op">:</span> <span class="ss">/submit/i</span> })<span class="op">;</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    fireEvent<span class="op">.</span><span class="fu">click</span>(submitButton)<span class="op">;</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Mock API returns 400</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    mock<span class="op">.</span><span class="fu">onPost</span>(<span class="st">&#39;/suppliers&#39;</span>)<span class="op">.</span><span class="fu">reply</span>(<span class="dv">400</span><span class="op">,</span> {</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>      error<span class="op">:</span> <span class="st">&#39;bad_request&#39;</span><span class="op">,</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>      message<span class="op">:</span> <span class="st">&#39;email must be valid format&#39;</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">waitFor</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">expect</span>(<span class="fu">getByText</span>(<span class="ss">/email must be valid format/i</span>))<span class="op">.</span><span class="fu">toBeInTheDocument</span>()<span class="op">;</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">it</span>(<span class="st">&#39;should handle 409 conflict error&#39;</span><span class="op">,</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { getByRole } <span class="op">=</span> <span class="fu">render</span>(<span class="op">&lt;</span>SupplierForm <span class="op">/&gt;</span>)<span class="op">;</span></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>    mock<span class="op">.</span><span class="fu">onPost</span>(<span class="st">&#39;/suppliers&#39;</span>)<span class="op">.</span><span class="fu">reply</span>(<span class="dv">409</span><span class="op">,</span> {</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>      error<span class="op">:</span> <span class="st">&#39;conflict&#39;</span><span class="op">,</span></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>      message<span class="op">:</span> <span class="st">&#39;Supplier with name already exists&#39;</span></span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>    fireEvent<span class="op">.</span><span class="fu">click</span>(<span class="fu">getByRole</span>(<span class="st">&#39;button&#39;</span><span class="op">,</span> { name<span class="op">:</span> <span class="ss">/submit/i</span> }))<span class="op">;</span></span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">waitFor</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>      <span class="fu">expect</span>(toast<span class="op">.</span><span class="at">warning</span>)<span class="op">.</span><span class="fu">toHaveBeenCalledWith</span>(</span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>        expect<span class="op">.</span><span class="fu">stringContaining</span>(<span class="st">&#39;already exists&#39;</span>)</span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>      )<span class="op">;</span></span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h2 id="backend-exception-mapping">Backend Exception
+        Mapping</h2>
+        <p><strong>How backend exceptions map to error
+        responses:</strong></p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> GlobalExceptionHandler <span class="op">{</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>InvalidRequestException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleInvalid</span><span class="op">(</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>        InvalidRequestException e<span class="op">,</span> HttpServletRequest request</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span><span class="op">)</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span>e<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">()</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">toResponseEntity</span><span class="op">();</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDuplicate</span><span class="op">(</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        DuplicateResourceException e</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span>e<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">()</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">toResponseEntity</span><span class="op">();</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">Exception</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleGeneric</span><span class="op">(</span><span class="bu">Exception</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">INTERNAL_SERVER_ERROR</span><span class="op">)</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;An unexpected error occurred&quot;</span><span class="op">)</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">()</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">toResponseEntity</span><span class="op">();</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="navigation">Navigation</h2>
+        <ul>
+        <li><strong>← <a href="./index.html">Back to Integration
+        Index</a></strong></li>
+        <li><strong>← <a href="./auth-flow-frontend.html">Authentication
+        Flow</a></strong></li>
+        <li><strong>→ <a href="./cors-and-network.html">CORS &amp;
+        Network</a></strong></li>
+        <li><strong>← <a href="../index.html">Back to Architecture
+        Index</a></strong></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

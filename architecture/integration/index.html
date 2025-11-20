@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · integration/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#integration-architecture"
+        id="toc-integration-architecture">Integration Architecture</a>
+        <ul>
+        <li><a href="#what-is-integration-here"
+        id="toc-what-is-integration-here">What is “Integration”
+        Here?</a></li>
+        <li><a href="#architecture-overview-how-they-talk"
+        id="toc-architecture-overview-how-they-talk">Architecture
+        Overview: How They Talk</a>
+        <ul>
+        <li><a href="#data-flow-user-interaction"
+        id="toc-data-flow-user-interaction">Data Flow: User
+        Interaction</a></li>
+        <li><a href="#responsibility-split"
+        id="toc-responsibility-split">Responsibility Split</a></li>
+        </ul></li>
+        <li><a href="#where-auth-lives" id="toc-where-auth-lives">Where
+        Auth Lives</a>
+        <ul>
+        <li><a href="#backend-source-of-truth"
+        id="toc-backend-source-of-truth">Backend (Source of
+        Truth)</a></li>
+        <li><a href="#frontend-detects-session"
+        id="toc-frontend-detects-session">Frontend (Detects
+        Session)</a></li>
+        <li><a href="#session-cookies" id="toc-session-cookies">Session
+        Cookies</a></li>
+        </ul></li>
+        <li><a href="#file-organization" id="toc-file-organization">File
+        Organization</a></li>
+        <li><a href="#quick-links-to-topics"
+        id="toc-quick-links-to-topics">Quick Links to Topics</a>
+        <ul>
+        <li><a href="#backend-frontend-overview"
+        id="toc-backend-frontend-overview">🔗 <strong>Backend-Frontend
+        Overview</strong></a></li>
+        <li><a href="#api-contract-endpoints"
+        id="toc-api-contract-endpoints">🔗 <strong>API Contract &amp;
+        Endpoints</strong></a></li>
+        <li><a href="#authentication-flow-frontend-perspective"
+        id="toc-authentication-flow-frontend-perspective">🔗
+        <strong>Authentication Flow (Frontend
+        Perspective)</strong></a></li>
+        <li><a href="#error-handling-contract"
+        id="toc-error-handling-contract">🔗 <strong>Error Handling
+        Contract</strong></a></li>
+        <li><a href="#cors-network-configuration"
+        id="toc-cors-network-configuration">🔗 <strong>CORS &amp;
+        Network Configuration</strong></a></li>
+        <li><a href="#environments-urls" id="toc-environments-urls">🔗
+        <strong>Environments &amp; URLs</strong></a></li>
+        <li><a href="#integration-testing"
+        id="toc-integration-testing">🔗 <strong>Integration
+        Testing</strong></a></li>
+        </ul></li>
+        <li><a href="#related-architecture-docs"
+        id="toc-related-architecture-docs">Related Architecture Docs</a>
+        <ul>
+        <li><a href="#backend-architecture"
+        id="toc-backend-architecture">Backend Architecture</a></li>
+        <li><a href="#configuration-deployment"
+        id="toc-configuration-deployment">Configuration &amp;
+        Deployment</a></li>
+        </ul></li>
+        <li><a href="#key-takeaways" id="toc-key-takeaways">Key
+        Takeaways</a></li>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="integration-architecture">Integration Architecture</h1>
+        <blockquote>
+        <p><strong>Hub for backend-frontend integration, API contracts,
+        authentication flows, and cross-environment
+        configuration.</strong></p>
+        </blockquote>
+        <h2 id="what-is-integration-here">What is “Integration”
+        Here?</h2>
+        <p>Smart Supply Pro is a <strong>distributed system</strong>
+        with clear separation of concerns:</p>
+        <div class="mermaid">
+        graph LR
+            FrontendUser["🖥️ User<br/>(React SPA)"]
+            Frontend["📱 Frontend<br/>(React/TypeScript)"]
+            Nginx["🔀 Nginx<br/>(Reverse Proxy)"]
+            Backend["⚙️ Backend<br/>(Spring Boot)"]
+            DB[("🗄️ Database<br/>(Oracle)")]
+            OAuth["🔐 OAuth2<br/>(Google)"]
+
+            FrontendUser -->|Browser| Frontend
+            Frontend -->|HTTPS/REST| Nginx
+            Nginx -->|Proxy to| Backend
+            Backend -->|SQL| DB
+            Backend -->|Oauth2 Flow| OAuth
+            
+            style Frontend fill:#61dafb,color:#000
+            style Backend fill:#6db33f,color:#fff
+            style Nginx fill:#009639,color:#fff
+            style OAuth fill:#4285f4,color:#fff
+            style DB fill:#f80000,color:#fff
+            style FrontendUser fill:#ff9900,color:#000
+        </div>
+        <p><strong>Integration Points:</strong></p>
+        <ol type="1">
+        <li><strong>Frontend ↔︎ Backend:</strong> REST API over HTTPS
+        with session cookies (no JWT tokens)</li>
+        <li><strong>Backend ↔︎ OAuth2 Provider:</strong> Google OAuth2
+        for authentication</li>
+        <li><strong>Backend ↔︎ Database:</strong> Oracle Autonomous DB
+        (wallet-secured)</li>
+        <li><strong>Nginx ↔︎ Backend:</strong> Same container (localhost)
+        reverse proxy for API routing</li>
+        </ol>
+        <hr />
+        <h2 id="architecture-overview-how-they-talk">Architecture
+        Overview: How They Talk</h2>
+        <h3 id="data-flow-user-interaction">Data Flow: User
+        Interaction</h3>
+        <pre><code>User clicks &quot;Sign in with Google&quot;
+         ↓
+Frontend redirects to /oauth2/authorization/google (backend-initiated)
+         ↓
+Backend + OAuth2 client redirects user to Google login
+         ↓
+Google redirects back to backend with authorization code
+         ↓
+Backend exchanges code for tokens (backend-to-backend, not visible to frontend)
+         ↓
+Backend creates session cookie (HTTP-only, secure)
+         ↓
+Backend redirects frontend to /dashboard
+         ↓
+Frontend detects logged-in state via /api/auth/me endpoint
+         ↓
+Frontend loads protected pages and calls APIs with automatic credential include</code></pre>
+        <h3 id="responsibility-split">Responsibility Split</h3>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Responsibility</th>
+        <th>Frontend</th>
+        <th>Backend</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>UI Rendering</strong></td>
+        <td>✅ React components, routing, styling</td>
+        <td>❌</td>
+        </tr>
+        <tr class="even">
+        <td><strong>State Management</strong></td>
+        <td>✅ React Context/hooks, local storage</td>
+        <td>❌</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>API Calls</strong></td>
+        <td>✅ httpClient (axios wrapper)</td>
+        <td>❌</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Business Logic</strong></td>
+        <td>❌</td>
+        <td>✅ Spring Services, Java</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Data Persistence</strong></td>
+        <td>❌</td>
+        <td>✅ JPA repositories, Oracle DB</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Authentication</strong></td>
+        <td>Detects session via /me probe</td>
+        <td>✅ OAuth2, session cookies</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Authorization</strong></td>
+        <td>Hides UI elements</td>
+        <td>✅ <code>@PreAuthorize</code> annotations</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Validation</strong></td>
+        <td>Client-side hints</td>
+        <td>✅ JSR-380 constraints</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Error Handling</strong></td>
+        <td>Display toasts/messages</td>
+        <td>✅ <code>ErrorResponse</code> DTOs</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="where-auth-lives">Where Auth Lives</h2>
+        <h3 id="backend-source-of-truth">Backend (Source of Truth)</h3>
+        <ul>
+        <li><strong>OAuth2 Configuration:</strong>
+        <code>src/main/java/config/SecurityConfig.java</code></li>
+        <li><strong>Session Creation:</strong>
+        <code>AuthController.handleOAuth2Login()</code></li>
+        <li><strong>Authorization Checks:</strong>
+        <code>@PreAuthorize("hasRole('ADMIN')")</code> on controller
+        methods</li>
+        <li><strong>Session Validation:</strong> Spring Security
+        <code>SecurityContext</code></li>
+        </ul>
+        <h3 id="frontend-detects-session">Frontend (Detects
+        Session)</h3>
+        <ul>
+        <li><strong>Auth Detection:</strong> Calls
+        <code>GET /api/auth/me</code> on app load</li>
+        <li><strong>State Storage:</strong> React Context
+        (<code>AuthContext.tsx</code> or similar)</li>
+        <li><strong>Session Loss:</strong> 401 responses trigger
+        redirect to <code>/login</code></li>
+        <li><strong>Demo Mode:</strong> Special flag in localStorage for
+        read-only demo</li>
+        </ul>
+        <h3 id="session-cookies">Session Cookies</h3>
+        <ul>
+        <li><strong>Type:</strong> HTTP-only (not accessible via
+        JavaScript)</li>
+        <li><strong>Secure:</strong> HTTPS-only in production</li>
+        <li><strong>SameSite:</strong> STRICT (prevents CSRF)</li>
+        <li><strong>Lifetime:</strong> Managed by Spring Security
+        session timeout</li>
+        <li><strong>Domain:</strong> First-party (frontend and backend
+        under same domain via Nginx)</li>
+        </ul>
+        <hr />
+        <h2 id="file-organization">File Organization</h2>
+        <pre><code>/docs/backend/architecture/integration/
+├── index.md                           (THIS FILE - Hub &amp; overview)
+├── backend-frontend-overview.md       (High-level architecture narrative)
+├── api-contract-and-endpoints.md      (API surface, groups, centralized httpClient)
+├── auth-flow-frontend.md              (Login, logout, session detection)
+├── error-handling-contract.md         (ErrorResponse shape, status code mapping)
+├── cors-and-network.md                (Origins, CORS rules, cookie config)
+├── environments-and-urls.md           (Local, staging, production URLs &amp; config)
+├── integration-testing.md             (Backend + frontend integration test strategies)
+└── README.md                          (Quick start links)</code></pre>
+        <hr />
+        <h2 id="quick-links-to-topics">Quick Links to Topics</h2>
+        <h3 id="backend-frontend-overview">🔗 <strong><a
+        href="./backend-frontend-overview.html">Backend-Frontend
+        Overview</a></strong></h3>
+        <p>Understand how the two systems divide responsibilities and
+        communicate.</p>
+        <ul>
+        <li>Architecture layers: Frontend (UI, routing), Backend (API,
+        logic, data)</li>
+        <li>Data flow: User → Frontend → Backend → DB</li>
+        <li>DTOs as contracts</li>
+        <li>Where each technology lives (<code>/src</code> vs
+        <code>/frontend</code>)</li>
+        </ul>
+        <hr />
+        <h3 id="api-contract-endpoints">🔗 <strong><a
+        href="./api-contract-and-endpoints.html">API Contract &amp;
+        Endpoints</a></strong></h3>
+        <p>Catalog of all API endpoints and frontend consumption
+        patterns.</p>
+        <ul>
+        <li>Base URL: <code>/api/v1</code> (versioned)</li>
+        <li>Endpoint groups: suppliers, inventory, stock history,
+        analytics, auth</li>
+        <li>Frontend centralized API client
+        (<code>httpClient.ts</code>)</li>
+        <li>Authorization patterns (<code>@PreAuthorize</code>)</li>
+        <li>Response pagination</li>
+        </ul>
+        <hr />
+        <h3 id="authentication-flow-frontend-perspective">🔗 <strong><a
+        href="./auth-flow-frontend.html">Authentication Flow (Frontend
+        Perspective)</a></strong></h3>
+        <p>How login, logout, and session detection work from the
+        frontend.</p>
+        <ul>
+        <li>“Login with Google” OAuth2 flow</li>
+        <li>Backend exchange of codes for session cookies</li>
+        <li>Frontend’s <code>/api/auth/me</code> probe for logged-in
+        state</li>
+        <li>Logout: calling backend, clearing session</li>
+        <li>Demo mode (read-only without auth)</li>
+        </ul>
+        <hr />
+        <h3 id="error-handling-contract">🔗 <strong><a
+        href="./error-handling-contract.html">Error Handling
+        Contract</a></strong></h3>
+        <p>How backend errors map to frontend behavior and UI
+        feedback.</p>
+        <ul>
+        <li>Standard <code>ErrorResponse</code> shape:
+        <code>{ error, message, timestamp, correlationId }</code></li>
+        <li>HTTP status mapping: 400 (validation), 401 (auth), 403
+        (permission), 404 (not found), 409 (conflict), 500 (server)</li>
+        <li>Frontend parsing: toasts, snackbars, inline form validation
+        messages</li>
+        <li>Correlation IDs for debugging</li>
+        </ul>
+        <hr />
+        <h3 id="cors-network-configuration">🔗 <strong><a
+        href="./cors-and-network.html">CORS &amp; Network
+        Configuration</a></strong></h3>
+        <p>How origins, CORS rules, and cookies work across
+        environments.</p>
+        <ul>
+        <li>Local dev: <code>http://localhost:3000</code> (frontend) ↔︎
+        <code>http://localhost:8080</code> (backend)</li>
+        <li>Production: Frontend domain ↔︎ Fly.io backend via Nginx
+        proxy</li>
+        <li><code>withCredentials: true</code> for cookie inclusion</li>
+        <li>CORS rules in Spring Security</li>
+        <li>SameSite and Secure cookie flags</li>
+        </ul>
+        <hr />
+        <h3 id="environments-urls">🔗 <strong><a
+        href="./environments-and-urls.html">Environments &amp;
+        URLs</a></strong></h3>
+        <p>Map environment-specific configurations and API base
+        URLs.</p>
+        <ul>
+        <li>Local development: Frontend Vite dev server, backend Maven
+        dev</li>
+        <li>Production: Frontend on Vercel/GitHub Pages, backend on
+        Fly.io</li>
+        <li>Frontend <code>.env</code> variables
+        (<code>VITE_API_BASE</code>)</li>
+        <li>Backend <code>application-prod.yml</code> configuration</li>
+        <li>Fly.io environment secrets</li>
+        </ul>
+        <hr />
+        <h3 id="integration-testing">🔗 <strong><a
+        href="./integration-testing.html">Integration
+        Testing</a></strong></h3>
+        <p>Test strategies for backend-frontend integration.</p>
+        <ul>
+        <li><strong>Backend integration tests:</strong> Spring Boot
+        <code>@SpringBootTest</code>, TestContainers</li>
+        <li><strong>Frontend API mocks:</strong> MSW (Mock Service
+        Worker) or Cypress fixtures</li>
+        <li><strong>End-to-end tests:</strong> Full user flows (if using
+        Cypress, Playwright)</li>
+        <li>Coverage of happy paths, auth-required flows, error
+        scenarios</li>
+        </ul>
+        <hr />
+        <h2 id="related-architecture-docs">Related Architecture
+        Docs</h2>
+        <h3 id="backend-architecture">Backend Architecture</h3>
+        <ul>
+        <li><strong><a href="../controller/index.html">Controller
+        Layer</a></strong> - REST endpoints, request/response
+        patterns</li>
+        <li><strong><a href="../dto/index.html">DTO Layer</a></strong> -
+        Data transfer objects, validation contracts</li>
+        <li><strong><a href="../security/index.html">Security
+        Architecture</a></strong> - OAuth2, role-based access,
+        encryption</li>
+        <li><strong><a href="../exception/index.html">Exception
+        Handling</a></strong> - ErrorResponse,
+        GlobalExceptionHandler</li>
+        <li><strong><a href="../service/index.html">Service
+        Layer</a></strong> - Business logic, transaction management</li>
+        </ul>
+        <h3 id="configuration-deployment">Configuration &amp;
+        Deployment</h3>
+        <ul>
+        <li><strong><a href="../resources/index.html">Resources &amp;
+        Configuration</a></strong> - application-*.yml, environment
+        variables</li>
+        <li><strong><a
+        href="../deployment/index.html">Deployment</a></strong> -
+        Docker, CI/CD, Fly.io, Nginx</li>
+        <li><strong><a
+        href="../deployment/logs-and-observability.html">Logging &amp;
+        Observability</a></strong> - SLF4J/Logback, debugging</li>
+        </ul>
+        <hr />
+        <h2 id="key-takeaways">Key Takeaways</h2>
+        <ol type="1">
+        <li><strong>Frontend and Backend are Decoupled</strong>
+        <ul>
+        <li>Frontend is a standalone React SPA</li>
+        <li>Backend is a stateless REST API</li>
+        <li>No server-side templates; no server-side routing</li>
+        </ul></li>
+        <li><strong>Authentication is Backend-Controlled</strong>
+        <ul>
+        <li>OAuth2 exchange happens server-to-server</li>
+        <li>Session cookies are HTTP-only (JS-inaccessible)</li>
+        <li>Frontend detects auth state by probing
+        <code>/api/auth/me</code></li>
+        </ul></li>
+        <li><strong>APIs are Contract-Driven</strong>
+        <ul>
+        <li>All calls go through centralized
+        <code>httpClient.ts</code></li>
+        <li>Request/response shapes are DTOs</li>
+        <li>Errors follow standard <code>ErrorResponse</code>
+        format</li>
+        </ul></li>
+        <li><strong>Configuration is Environment-Aware</strong>
+        <ul>
+        <li>Frontend reads <code>VITE_API_BASE</code> env variable</li>
+        <li>Backend reads <code>application-{profile}.yml</code>
+        configuration</li>
+        <li>Production: same-origin proxy via Nginx (cookies work
+        naturally)</li>
+        </ul></li>
+        <li><strong>Testing is Layered</strong>
+        <ul>
+        <li>Backend: Unit + integration (Spring Boot,
+        TestContainers)</li>
+        <li>Frontend: Component + integration (React Testing Library,
+        MSW)</li>
+        <li>E2E: Full user flows (Cypress, Playwright) if
+        implemented</li>
+        </ul></li>
+        </ol>
+        <hr />
+        <h2 id="navigation">Navigation</h2>
+        <ul>
+        <li><strong>← <a href="../index.html">Back to Architecture
+        Index</a></strong></li>
+        <li><strong>← <a href="../overview.html">Back to Architecture
+        Overview</a></strong> (English)</li>
+        <li><strong>← <a href="../overview-de.html">Back to
+        Architektur-Übersicht</a></strong> (German)</li>
+        <li><strong><a href="../deployment/index.html">Deployment &amp;
+        Infrastructure</a></strong> - How the system runs in the
+        cloud</li>
+        <li><strong><a href="../resources/index.html">Configuration
+        &amp; Resources</a></strong> - Environment-specific setup</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

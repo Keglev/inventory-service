@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+integration/api-contract-and-endpoints · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#api-contract-endpoints"
+        id="toc-api-contract-endpoints">API Contract &amp; Endpoints</a>
+        <ul>
+        <li><a href="#api-overview" id="toc-api-overview">API
+        Overview</a></li>
+        <li><a href="#api-base-url" id="toc-api-base-url">API Base
+        URL</a>
+        <ul>
+        <li><a href="#environment-specific-urls"
+        id="toc-environment-specific-urls">Environment-Specific
+        URLs</a></li>
+        <li><a href="#frontend-configuration"
+        id="toc-frontend-configuration">Frontend Configuration</a></li>
+        </ul></li>
+        <li><a href="#endpoint-groups" id="toc-endpoint-groups">Endpoint
+        Groups</a>
+        <ul>
+        <li><a href="#authentication-endpoints-apiauth"
+        id="toc-authentication-endpoints-apiauth">🔐 Authentication
+        Endpoints (<code>/api/auth</code>)</a></li>
+        <li><a href="#supplier-endpoints-apisuppliers"
+        id="toc-supplier-endpoints-apisuppliers">📦 Supplier Endpoints
+        (<code>/api/suppliers</code>)</a></li>
+        <li><a href="#inventory-item-endpoints-apiinventory"
+        id="toc-inventory-item-endpoints-apiinventory">📊 Inventory Item
+        Endpoints (<code>/api/inventory</code>)</a></li>
+        <li><a href="#stock-history-endpoints-apistock-history"
+        id="toc-stock-history-endpoints-apistock-history">📈 Stock
+        History Endpoints (<code>/api/stock-history</code>)</a></li>
+        <li><a href="#analytics-endpoints-apianalytics"
+        id="toc-analytics-endpoints-apianalytics">📉 Analytics Endpoints
+        (<code>/api/analytics</code>)</a></li>
+        </ul></li>
+        <li><a href="#common-response-patterns"
+        id="toc-common-response-patterns">Common Response Patterns</a>
+        <ul>
+        <li><a href="#pagination-if-implemented"
+        id="toc-pagination-if-implemented">Pagination (if
+        implemented)</a></li>
+        <li><a href="#error-responses-standardized"
+        id="toc-error-responses-standardized">Error Responses
+        (Standardized)</a></li>
+        </ul></li>
+        <li><a href="#frontend-api-client-pattern"
+        id="toc-frontend-api-client-pattern">Frontend API Client
+        Pattern</a>
+        <ul>
+        <li><a
+        href="#centralized-http-client-frontendsrcapihttpclient.ts"
+        id="toc-centralized-http-client-frontendsrcapihttpclient.ts">Centralized
+        HTTP Client
+        (<code>/frontend/src/api/httpClient.ts</code>)</a></li>
+        <li><a href="#domain-specific-api-calls"
+        id="toc-domain-specific-api-calls">Domain-Specific API
+        Calls</a></li>
+        <li><a href="#component-usage"
+        id="toc-component-usage">Component Usage</a></li>
+        </ul></li>
+        <li><a href="#authorization-rules"
+        id="toc-authorization-rules">Authorization Rules</a>
+        <ul>
+        <li><a href="#authentication-levels"
+        id="toc-authentication-levels">Authentication Levels</a></li>
+        <li><a href="#backend-enforcement"
+        id="toc-backend-enforcement">Backend Enforcement</a></li>
+        </ul></li>
+        <li><a href="#api-documentation" id="toc-api-documentation">API
+        Documentation</a>
+        <ul>
+        <li><a href="#authoritative-source"
+        id="toc-authoritative-source">Authoritative Source</a></li>
+        <li><a href="#how-to-use-the-docs"
+        id="toc-how-to-use-the-docs">How to Use the Docs</a></li>
+        </ul></li>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="api-contract-endpoints">API Contract &amp;
+        Endpoints</h1>
+        <blockquote>
+        <p><strong>All REST API endpoints, response shapes, and how the
+        frontend consumes them.</strong></p>
+        </blockquote>
+        <h2 id="api-overview">API Overview</h2>
+        <p>Smart Supply Pro backend exposes a <strong>versioned REST
+        API</strong> under <code>/api/v1</code> (or <code>/api</code>
+        for backward compatibility).</p>
+        <div class="mermaid">
+        graph TB
+            Frontend["📱 Frontend<br/>(httpClient.ts)"]
+            
+            APIBase["🌐 /api"]
+            
+            AuthGroup["🔐 /api/auth<br/>(Authentication)"]
+            SupplierGroup["📦 /api/suppliers<br/>(Supplier CRUD)"]
+            InventoryGroup["📊 /api/inventory<br/>(Inventory CRUD)"]
+            StockGroup["📈 /api/stock-history<br/>(Stock Movements)"]
+            AnalyticsGroup["📉 /api/analytics<br/>(Dashboards & Reports)"]
+            
+            Frontend --> APIBase
+            APIBase --> AuthGroup
+            APIBase --> SupplierGroup
+            APIBase --> InventoryGroup
+            APIBase --> StockGroup
+            APIBase --> AnalyticsGroup
+            
+            style Frontend fill:#61dafb,stroke:#0288d1,stroke-width:2px,color:#000
+            style APIBase fill:#ff9800,stroke:#e65100,stroke-width:2px,color:#fff
+            style AuthGroup fill:#4caf50,stroke:#2e7d32,stroke-width:2px,color:#fff
+            style SupplierGroup fill:#2196f3,stroke:#1565c0,stroke-width:2px,color:#fff
+            style InventoryGroup fill:#9c27b0,stroke:#6a1b9a,stroke-width:2px,color:#fff
+            style StockGroup fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+            style AnalyticsGroup fill:#ff5722,stroke:#bf360c,stroke-width:2px,color:#fff
+        </div>
+        <hr />
+        <h2 id="api-base-url">API Base URL</h2>
+        <h3 id="environment-specific-urls">Environment-Specific
+        URLs</h3>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Environment</th>
+        <th>Frontend URL</th>
+        <th>Backend URL</th>
+        <th>API Base (Frontend sees)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Local Dev</strong></td>
+        <td><code>http://localhost:3000</code></td>
+        <td><code>http://localhost:8080</code></td>
+        <td><code>/api</code> (Vite proxy or explicit URL)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Production</strong></td>
+        <td><code>https://inventory-app.com</code></td>
+        <td><code>https://api.inventory-app.com</code></td>
+        <td><code>/api</code> (same-origin via Nginx proxy)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Fly.io (Staging)</strong></td>
+        <td><code>https://app.fly.dev</code></td>
+        <td>Same domain via Nginx</td>
+        <td><code>/api</code> (Nginx reverse proxy)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="frontend-configuration">Frontend Configuration</h3>
+        <p><strong>In <code>/frontend/.env.local</code> (local
+        dev):</strong></p>
+        <pre class="env"><code># Empty or not set = use /api (relative path)
+# VITE_API_BASE=/api
+
+# Or explicit if backend is on different port:
+# VITE_API_BASE=http://localhost:8080/api</code></pre>
+        <p><strong>In
+        <code>/frontend/.env.production</code>:</strong></p>
+        <pre class="env"><code># Production: backend is same-origin (Nginx proxy)
+# Leave empty or set to /api
+# VITE_API_BASE=/api</code></pre>
+        <p><strong>Resolution in
+        <code>httpClient.ts</code>:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> RAW_BASE <span class="op">=</span> import<span class="op">.</span><span class="at">meta</span><span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="at">VITE_API_BASE</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> API_BASE <span class="op">=</span> (RAW_BASE<span class="op">?.</span><span class="fu">trim</span>()<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">?</span> RAW_BASE</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">:</span> <span class="st">&#39;/api&#39;</span><span class="op">;</span>  <span class="co">// Default to relative path</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> httpClient <span class="op">=</span> axios<span class="op">.</span><span class="fu">create</span>({</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  baseURL<span class="op">:</span> API_BASE<span class="op">,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  withCredentials<span class="op">:</span> <span class="kw">true</span><span class="op">,</span>  <span class="co">// Include session cookies</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h2 id="endpoint-groups">Endpoint Groups</h2>
+        <h3 id="authentication-endpoints-apiauth">🔐 Authentication
+        Endpoints (<code>/api/auth</code>)</h3>
+        <p>Handle user profile and logout operations.</p>
+        <h4 id="get-apiauthme"><code>GET /api/auth/me</code></h4>
+        <p>Retrieve current user profile (if logged in).</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/auth/me
+Cookie: SESSION=abc123...</code></pre>
+        <p><strong>Response (200 OK - Logged In):</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;fullName&quot;</span><span class="fu">:</span> <span class="st">&quot;John Doe&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;role&quot;</span><span class="fu">:</span> <span class="st">&quot;ADMIN&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pictureUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;https://lh3.googleusercontent.com/...&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (401 Unauthorized - Not Logged
+        In):</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;No valid session&quot;</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:00:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551200000-1234&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Frontend Usage:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  httpClient<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;/auth/me&#39;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(res <span class="kw">=&gt;</span> <span class="fu">setUser</span>(res<span class="op">.</span><span class="at">data</span>))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">catch</span>(error <span class="kw">=&gt;</span> {</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">401</span>) {</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setUser</span>(<span class="kw">null</span>)<span class="op">;</span>  <span class="co">// Not logged in</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Show login page</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [])<span class="op">;</span></span></code></pre></div>
+        <p><strong>Authorization:</strong> None (anyone can call to
+        check if logged in)</p>
+        <hr />
+        <h4
+        id="post-apiauthlogout"><code>POST /api/auth/logout</code></h4>
+        <p>Logout the current user and invalidate session.</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>POST /api/auth/logout
+Cookie: SESSION=abc123...</code></pre>
+        <p><strong>Response (204 No Content):</strong></p>
+        <pre><code>(empty body)</code></pre>
+        <p><strong>Frontend Usage:</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> handleLogout <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  httpClient<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/auth/logout&#39;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setUser</span>(<span class="kw">null</span>)<span class="op">;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">navigate</span>(<span class="st">&#39;/login&#39;</span>)<span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>      toast<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Logged out&#39;</span>)<span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">catch</span>(error <span class="kw">=&gt;</span> toast<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Logout failed&#39;</span>))<span class="op">;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+        <p><strong>Authorization:</strong> Authenticated users only</p>
+        <hr />
+        <h3 id="supplier-endpoints-apisuppliers">📦 Supplier Endpoints
+        (<code>/api/suppliers</code>)</h3>
+        <p>Full CRUD operations on suppliers.</p>
+        <h4 id="get-apisuppliers"><code>GET /api/suppliers</code></h4>
+        <p>List all suppliers.</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers
+Cookie: SESSION=abc123...</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP001&quot;</span><span class="fu">,</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Acme Corporation&quot;</span><span class="fu">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;contact@acme.com&quot;</span><span class="fu">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;phoneNumber&quot;</span><span class="fu">:</span> <span class="st">&quot;+1-555-0100&quot;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP002&quot;</span><span class="fu">,</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Globex Corp&quot;</span><span class="fu">,</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;info@globex.com&quot;</span><span class="fu">,</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;phoneNumber&quot;</span><span class="fu">:</span> <span class="st">&quot;+1-555-0101&quot;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <p><strong>Authorization:</strong>
+        <code>isAuthenticated() OR demoReadonly</code> (public read in
+        demo mode)</p>
+        <p><strong>Frontend Usage:</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [suppliers<span class="op">,</span> setSuppliers] <span class="op">=</span> <span class="fu">useState</span>([])<span class="op">;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  httpClient<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;/suppliers&#39;</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">then</span>(res <span class="kw">=&gt;</span> <span class="fu">setSuppliers</span>(res<span class="op">.</span><span class="at">data</span>))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">catch</span>(error <span class="kw">=&gt;</span> toast<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Failed to load suppliers&#39;</span>))<span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [])<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h4
+        id="get-apisuppliersid"><code>GET /api/suppliers/{id}</code></h4>
+        <p>Retrieve single supplier by ID.</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers/SUP001
+Cookie: SESSION=abc123...</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP001&quot;</span><span class="fu">,</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Acme Corporation&quot;</span><span class="fu">,</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;contact@acme.com&quot;</span><span class="fu">,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phoneNumber&quot;</span><span class="fu">:</span> <span class="st">&quot;+1-555-0100&quot;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (404 Not Found):</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;not_found&quot;</span><span class="fu">,</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier not found: SUP001&quot;</span><span class="fu">,</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:00:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551200000-1234&quot;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4
+        id="get-apisupplierscount"><code>GET /api/suppliers/count</code></h4>
+        <p>Get total count of suppliers.</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers/count
+Cookie: SESSION=abc123...</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="er">42</span></span></code></pre></div>
+        <hr />
+        <h4
+        id="get-apisupplierssearchnameacme"><code>GET /api/suppliers/search?name=acme</code></h4>
+        <p>Search suppliers by name (partial match).</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers/search?name=acme
+Cookie: SESSION=abc123...</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP001&quot;</span><span class="fu">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Acme Corporation&quot;</span><span class="fu">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;contact@acme.com&quot;</span><span class="fu">,</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;phoneNumber&quot;</span><span class="fu">:</span> <span class="st">&quot;+1-555-0100&quot;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <hr />
+        <h4 id="post-apisuppliers"><code>POST /api/suppliers</code></h4>
+        <p>Create new supplier.</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>POST /api/suppliers
+Cookie: SESSION=abc123...
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;New Supplier Inc&quot;,
+  &quot;email&quot;: &quot;sales@newsupplier.com&quot;,
+  &quot;phoneNumber&quot;: &quot;+1-555-0200&quot;
+}</code></pre>
+        <p><strong>Response (201 Created):</strong></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP003&quot;</span><span class="fu">,</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;New Supplier Inc&quot;</span><span class="fu">,</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;sales@newsupplier.com&quot;</span><span class="fu">,</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phoneNumber&quot;</span><span class="fu">:</span> <span class="st">&quot;+1-555-0200&quot;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (400 Bad Request - Validation
+        Error):</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: email must be valid format, name is required&quot;</span><span class="fu">,</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:00:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551200000-1234&quot;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (409 Conflict - Duplicate):</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier with name &#39;New Supplier Inc&#39; already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:00:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551200000-1234&quot;</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Authorization:</strong> <code>hasRole('ADMIN')</code>
+        only</p>
+        <hr />
+        <h4
+        id="put-apisuppliersid"><code>PUT /api/suppliers/{id}</code></h4>
+        <p>Update existing supplier.</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>PUT /api/suppliers/SUP001
+Cookie: SESSION=abc123...
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;Acme Corporation Updated&quot;,
+  &quot;email&quot;: &quot;newemail@acme.com&quot;,
+  &quot;phoneNumber&quot;: &quot;+1-555-0100&quot;
+}</code></pre>
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP001&quot;</span><span class="fu">,</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Acme Corporation Updated&quot;</span><span class="fu">,</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;newemail@acme.com&quot;</span><span class="fu">,</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;phoneNumber&quot;</span><span class="fu">:</span> <span class="st">&quot;+1-555-0100&quot;</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Authorization:</strong> <code>hasRole('ADMIN')</code>
+        only</p>
+        <hr />
+        <h4
+        id="delete-apisuppliersid"><code>DELETE /api/suppliers/{id}</code></h4>
+        <p>Delete supplier by ID.</p>
+        <p><strong>Request:</strong></p>
+        <pre class="http"><code>DELETE /api/suppliers/SUP001
+Cookie: SESSION=abc123...</code></pre>
+        <p><strong>Response (204 No Content):</strong></p>
+        <pre><code>(empty body)</code></pre>
+        <p><strong>Response (404 Not Found):</strong></p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;not_found&quot;</span><span class="fu">,</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier not found: SUP001&quot;</span><span class="fu">,</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:00:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551200000-1234&quot;</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Authorization:</strong> <code>hasRole('ADMIN')</code>
+        only</p>
+        <hr />
+        <h3 id="inventory-item-endpoints-apiinventory">📊 Inventory Item
+        Endpoints (<code>/api/inventory</code>)</h3>
+        <p>CRUD operations on inventory items with similar pattern to
+        suppliers.</p>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Purpose</th>
+        <th>Auth</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>GET</code></td>
+        <td><code>/api/inventory</code></td>
+        <td>List all items</td>
+        <td>Authenticated OR demo</td>
+        </tr>
+        <tr class="even">
+        <td><code>GET</code></td>
+        <td><code>/api/inventory/{id}</code></td>
+        <td>Get single item</td>
+        <td>Authenticated</td>
+        </tr>
+        <tr class="odd">
+        <td><code>GET</code></td>
+        <td><code>/api/inventory/count</code></td>
+        <td>Count items</td>
+        <td>Authenticated OR demo</td>
+        </tr>
+        <tr class="even">
+        <td><code>GET</code></td>
+        <td><code>/api/inventory/search?name=...</code></td>
+        <td>Search by name</td>
+        <td>Authenticated OR demo</td>
+        </tr>
+        <tr class="odd">
+        <td><code>POST</code></td>
+        <td><code>/api/inventory</code></td>
+        <td>Create item</td>
+        <td>ADMIN</td>
+        </tr>
+        <tr class="even">
+        <td><code>PUT</code></td>
+        <td><code>/api/inventory/{id}</code></td>
+        <td>Update item</td>
+        <td>ADMIN</td>
+        </tr>
+        <tr class="odd">
+        <td><code>DELETE</code></td>
+        <td><code>/api/inventory/{id}</code></td>
+        <td>Delete item</td>
+        <td>ADMIN</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Response Shape (InventoryItemDTO):</strong></p>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;INV001&quot;</span><span class="fu">,</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sku&quot;</span><span class="fu">:</span> <span class="st">&quot;WID-A-001&quot;</span><span class="fu">,</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP001&quot;</span><span class="fu">,</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;reorderLevel&quot;</span><span class="fu">:</span> <span class="dv">50</span><span class="fu">,</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;unitPrice&quot;</span><span class="fu">:</span> <span class="fl">29.99</span><span class="fu">,</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;lastRestockDate&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-15T00:00:00.000Z&quot;</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="stock-history-endpoints-apistock-history">📈 Stock
+        History Endpoints (<code>/api/stock-history</code>)</h3>
+        <p>Query historical stock movements and changes.</p>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>GET</code></td>
+        <td><code>/api/stock-history</code></td>
+        <td>List all stock movements</td>
+        </tr>
+        <tr class="even">
+        <td><code>GET</code></td>
+        <td><code>/api/stock-history/item/{itemId}</code></td>
+        <td>Get movements for specific item</td>
+        </tr>
+        <tr class="odd">
+        <td><code>GET</code></td>
+        <td><code>/api/stock-history/reason/{reason}</code></td>
+        <td>Get movements by reason (e.g., “SALE”, “RESTOCK”)</td>
+        </tr>
+        <tr class="even">
+        <td><code>GET</code></td>
+        <td><code>/api/stock-history/search?...</code></td>
+        <td>Advanced search with filters</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Response Shape (StockHistoryDTO):</strong></p>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;STK001&quot;</span><span class="fu">,</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="st">&quot;INV001&quot;</span><span class="fu">,</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;itemName&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">50</span><span class="fu">,</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;reason&quot;</span><span class="fu">:</span> <span class="st">&quot;SALE&quot;</span><span class="fu">,</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;reference&quot;</span><span class="fu">:</span> <span class="st">&quot;ORDER-2025-1001&quot;</span><span class="fu">,</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:30:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;userId&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+        <hr />
+        <h3 id="analytics-endpoints-apianalytics">📉 Analytics Endpoints
+        (<code>/api/analytics</code>)</h3>
+        <p>Dashboard metrics and reporting endpoints.</p>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Purpose</th>
+        <th>Returns</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>GET</code></td>
+        <td><code>/api/analytics/dashboard-summary</code></td>
+        <td>Key metrics (total items, suppliers, stock value)</td>
+        <td><code>DashboardSummaryDTO</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>GET</code></td>
+        <td><code>/api/analytics/low-stock</code></td>
+        <td>Items below reorder level</td>
+        <td>List of <code>LowStockItemDTO</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>GET</code></td>
+        <td><code>/api/analytics/stock-per-supplier</code></td>
+        <td>Inventory breakdown by supplier</td>
+        <td>List of <code>StockPerSupplierDTO</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>GET</code></td>
+        <td><code>/api/analytics/price-trends</code></td>
+        <td>Price movement over time</td>
+        <td>List of <code>PriceTrendDTO</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>GET</code></td>
+        <td><code>/api/analytics/monthly-movements</code></td>
+        <td>Stock movements by month</td>
+        <td>List of <code>MonthlyStockMovementDTO</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Example Response (Dashboard Summary):</strong></p>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalSuppliers&quot;</span><span class="fu">:</span> <span class="dv">42</span><span class="fu">,</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalInventoryItems&quot;</span><span class="fu">:</span> <span class="dv">256</span><span class="fu">,</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalStockValue&quot;</span><span class="fu">:</span> <span class="fl">125000.50</span><span class="fu">,</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;lowStockCount&quot;</span><span class="fu">:</span> <span class="dv">12</span><span class="fu">,</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;recentMovements&quot;</span><span class="fu">:</span> <span class="dv">3456</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="common-response-patterns">Common Response Patterns</h2>
+        <h3 id="pagination-if-implemented">Pagination (if
+        implemented)</h3>
+        <p>Some endpoints may support pagination:</p>
+        <pre class="http"><code>GET /api/suppliers?page=0&amp;size=20&amp;sort=name,asc</code></pre>
+        <p><strong>Response:</strong></p>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP001&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Acme&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP002&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Globex&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">}</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">42</span><span class="fu">,</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageNumber&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;pageSize&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;hasNext&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;hasPrevious&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="error-responses-standardized">Error Responses
+        (Standardized)</h3>
+        <p>All errors follow this shape:</p>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;error_type_in_snake_case&quot;</span><span class="fu">,</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Human-readable error description&quot;</span><span class="fu">,</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T10:00:00.000Z&quot;</span><span class="fu">,</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551200000-1234&quot;</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Status Code Mapping:</strong></p>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Status</th>
+        <th>Error Type</th>
+        <th>Meaning</th>
+        <th>Frontend Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>200</code></td>
+        <td>(success)</td>
+        <td>Request succeeded</td>
+        <td>Process data</td>
+        </tr>
+        <tr class="even">
+        <td><code>201</code></td>
+        <td>(created)</td>
+        <td>Resource created</td>
+        <td>Show confirmation, add to list</td>
+        </tr>
+        <tr class="odd">
+        <td><code>400</code></td>
+        <td><code>bad_request</code></td>
+        <td>Validation failed</td>
+        <td>Show form errors</td>
+        </tr>
+        <tr class="even">
+        <td><code>401</code></td>
+        <td><code>unauthorized</code></td>
+        <td>Not logged in</td>
+        <td>Redirect to login</td>
+        </tr>
+        <tr class="odd">
+        <td><code>403</code></td>
+        <td><code>forbidden</code></td>
+        <td>Not authorized</td>
+        <td>Show “Access Denied”</td>
+        </tr>
+        <tr class="even">
+        <td><code>404</code></td>
+        <td><code>not_found</code></td>
+        <td>Resource doesn’t exist</td>
+        <td>Show “Not Found”</td>
+        </tr>
+        <tr class="odd">
+        <td><code>409</code></td>
+        <td><code>conflict</code></td>
+        <td>Duplicate/conflict</td>
+        <td>Show conflict message</td>
+        </tr>
+        <tr class="even">
+        <td><code>500</code></td>
+        <td><code>internal_server_error</code></td>
+        <td>Server error</td>
+        <td>Show generic error, log details</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="frontend-api-client-pattern">Frontend API Client
+        Pattern</h2>
+        <h3
+        id="centralized-http-client-frontendsrcapihttpclient.ts">Centralized
+        HTTP Client (<code>/frontend/src/api/httpClient.ts</code>)</h3>
+        <p>All API calls go through this single client:</p>
+        <div class="sourceCode" id="cb36"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> axios <span class="im">from</span> <span class="st">&#39;axios&#39;</span><span class="op">;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> httpClient <span class="op">=</span> axios<span class="op">.</span><span class="fu">create</span>({</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  baseURL<span class="op">:</span> <span class="st">&#39;/api&#39;</span><span class="op">,</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  withCredentials<span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  timeout<span class="op">:</span> <span class="dv">30_000</span><span class="op">,</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Global error handling</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>httpClient<span class="op">.</span><span class="at">interceptors</span><span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="fu">use</span>(</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  (res) <span class="kw">=&gt;</span> res<span class="op">,</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  (error) <span class="kw">=&gt;</span> {</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">401</span>) {</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Redirect to login on auth failure</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>      <span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">href</span> <span class="op">=</span> <span class="st">&#39;/login&#39;</span><span class="op">;</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">reject</span>(error)<span class="op">;</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> httpClient<span class="op">;</span></span></code></pre></div>
+        <h3 id="domain-specific-api-calls">Domain-Specific API
+        Calls</h3>
+        <p><strong>Example:
+        <code>/frontend/src/api/inventory/supplierApi.ts</code></strong></p>
+        <div class="sourceCode" id="cb37"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> httpClient <span class="im">from</span> <span class="st">&#39;../httpClient&#39;</span><span class="op">;</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { SupplierDTO } <span class="im">from</span> <span class="st">&#39;./types&#39;</span><span class="op">;</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> supplierApi <span class="op">=</span> {</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  listAll<span class="op">:</span> () <span class="kw">=&gt;</span> httpClient<span class="op">.</span><span class="fu">get</span><span class="op">&lt;</span>SupplierDTO[]<span class="op">&gt;</span>(<span class="st">&#39;/suppliers&#39;</span>)<span class="op">,</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  getById<span class="op">:</span> (id<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> httpClient<span class="op">.</span><span class="fu">get</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span>(<span class="vs">`/suppliers/</span><span class="sc">${</span>id<span class="sc">}</span><span class="vs">`</span>)<span class="op">,</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  search<span class="op">:</span> (name<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> </span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    httpClient<span class="op">.</span><span class="fu">get</span><span class="op">&lt;</span>SupplierDTO[]<span class="op">&gt;</span>(<span class="st">&#39;/suppliers/search&#39;</span><span class="op">,</span> { params<span class="op">:</span> { name } })<span class="op">,</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  create<span class="op">:</span> (data<span class="op">:</span> SupplierDTO) <span class="kw">=&gt;</span> </span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    httpClient<span class="op">.</span><span class="fu">post</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> data)<span class="op">,</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>  update<span class="op">:</span> (id<span class="op">:</span> <span class="dt">string</span><span class="op">,</span> data<span class="op">:</span> SupplierDTO) <span class="kw">=&gt;</span> </span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>    httpClient<span class="op">.</span><span class="fu">put</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span>(<span class="vs">`/suppliers/</span><span class="sc">${</span>id<span class="sc">}</span><span class="vs">`</span><span class="op">,</span> data)<span class="op">,</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">delete</span><span class="op">:</span> (id<span class="op">:</span> <span class="dt">string</span>) <span class="kw">=&gt;</span> </span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>    httpClient<span class="op">.</span><span class="fu">delete</span>(<span class="vs">`/suppliers/</span><span class="sc">${</span>id<span class="sc">}</span><span class="vs">`</span>)<span class="op">,</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+        <h3 id="component-usage">Component Usage</h3>
+        <div class="sourceCode" id="cb38"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { supplierApi } <span class="im">from</span> <span class="st">&#39;@/api/inventory/supplierApi&#39;</span><span class="op">;</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SuppliersPage <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [suppliers<span class="op">,</span> setSuppliers] <span class="op">=</span> <span class="fu">useState</span><span class="op">&lt;</span>SupplierDTO[]<span class="op">&gt;</span>([])<span class="op">;</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [loading<span class="op">,</span> setLoading] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">true</span>)<span class="op">;</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [error<span class="op">,</span> setError] <span class="op">=</span> <span class="fu">useState</span><span class="op">&lt;</span><span class="dt">string</span> <span class="op">|</span> <span class="dt">null</span><span class="op">&gt;</span>(<span class="kw">null</span>)<span class="op">;</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>    supplierApi<span class="op">.</span><span class="fu">listAll</span>()</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(res <span class="kw">=&gt;</span> <span class="fu">setSuppliers</span>(res<span class="op">.</span><span class="at">data</span>))</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="fu">setError</span>(err<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">data</span><span class="op">?.</span><span class="at">message</span>))</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">finally</span>(() <span class="kw">=&gt;</span> <span class="fu">setLoading</span>(<span class="kw">false</span>))<span class="op">;</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> [])<span class="op">;</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (loading) <span class="cf">return</span> <span class="op">&lt;</span>Spinner <span class="op">/&gt;;</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (error) <span class="cf">return</span> <span class="op">&lt;</span><span class="bu">Error</span> message<span class="op">=</span>{error} <span class="op">/&gt;;</span></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">&lt;</span>SupplierTable suppliers<span class="op">=</span>{suppliers} <span class="op">/&gt;;</span></span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h2 id="authorization-rules">Authorization Rules</h2>
+        <h3 id="authentication-levels">Authentication Levels</h3>
+        <ul>
+        <li><strong>No Auth Required:</strong> <code>demoReadonly</code>
+        flag (read-only public demo)</li>
+        <li><strong>Authenticated:</strong> Any logged-in user (USER or
+        ADMIN role)</li>
+        <li><strong>Admin Only:</strong> Users with ADMIN role</li>
+        </ul>
+        <h3 id="backend-enforcement">Backend Enforcement</h3>
+        <p><strong><span class="citation"
+        data-cites="PreAuthorize">@PreAuthorize</span>
+        Examples:</strong></p>
+        <div class="sourceCode" id="cb39"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Public (demo mode)</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated() or @appProperties.demoReadonly&quot;</span><span class="op">)</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;&gt;</span> <span class="fu">listAll</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Authenticated only</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated()&quot;</span><span class="op">)</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">getById</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Admin only</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> SupplierDTO dto<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="api-documentation">API Documentation</h2>
+        <h3 id="authoritative-source">Authoritative Source</h3>
+        <p>The complete OpenAPI specification is generated and available
+        at:</p>
+        <ul>
+        <li><strong>Local:</strong>
+        <code>http://localhost:8080/api/swagger-ui.html</code> (if
+        enabled)</li>
+        <li><strong>Production Docs:</strong> <a
+        href="../../../docs/api/index.html">GitHub Pages ReDoc</a></li>
+        <li><strong>Source:</strong> Generated from Java
+        <code>@RestController</code> annotations and
+        <code>@Operation</code> Javadoc</li>
+        </ul>
+        <h3 id="how-to-use-the-docs">How to Use the Docs</h3>
+        <ol type="1">
+        <li>Navigate to the ReDoc/Swagger page</li>
+        <li>Search for endpoint by resource (suppliers, inventory,
+        etc.)</li>
+        <li>Click endpoint to expand</li>
+        <li>See request/response examples</li>
+        <li>Try it out with <code>Try it out</code> button (if Swagger
+        UI)</li>
+        </ol>
+        <hr />
+        <h2 id="navigation">Navigation</h2>
+        <ul>
+        <li><strong>← <a href="./index.html">Back to Integration
+        Index</a></strong></li>
+        <li><strong>← <a
+        href="./backend-frontend-overview.html">Backend-Frontend
+        Overview</a></strong></li>
+        <li><strong>→ <a href="./auth-flow-frontend.html">Authentication
+        Flow</a></strong> - Login details</li>
+        <li><strong>→ <a href="./error-handling-contract.html">Error
+        Handling</a></strong> - Error shapes</li>
+        <li><strong>← <a href="../index.html">Back to Architecture
+        Index</a></strong></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+integration/environments-and-urls · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#environments-urls"
+        id="toc-environments-urls">Environments &amp; URLs</a>
+        <ul>
+        <li><a href="#environment-matrix"
+        id="toc-environment-matrix">Environment Matrix</a>
+        <ul>
+        <li><a href="#quick-reference-table"
+        id="toc-quick-reference-table">Quick Reference Table</a></li>
+        </ul></li>
+        <li><a href="#local-development"
+        id="toc-local-development">Local Development</a>
+        <ul>
+        <li><a href="#frontend" id="toc-frontend">Frontend</a></li>
+        <li><a href="#backend" id="toc-backend">Backend</a></li>
+        <li><a href="#test-the-integration"
+        id="toc-test-the-integration">Test the Integration</a></li>
+        </ul></li>
+        <li><a href="#production-fly.io"
+        id="toc-production-fly.io">Production (Fly.io)</a>
+        <ul>
+        <li><a href="#frontend-1" id="toc-frontend-1">Frontend</a></li>
+        <li><a href="#backend-1" id="toc-backend-1">Backend</a></li>
+        </ul></li>
+        <li><a href="#how-frontend-discovers-backend-url"
+        id="toc-how-frontend-discovers-backend-url">How Frontend
+        Discovers Backend URL</a>
+        <ul>
+        <li><a href="#resolution-order"
+        id="toc-resolution-order">Resolution Order</a></li>
+        <li><a href="#implementation-in-httpclient.ts"
+        id="toc-implementation-in-httpclient.ts">Implementation in
+        httpClient.ts</a></li>
+        <li><a href="#examples" id="toc-examples">Examples</a></li>
+        </ul></li>
+        <li><a href="#frontend-environment-files"
+        id="toc-frontend-environment-files">Frontend Environment
+        Files</a>
+        <ul>
+        <li><a href="#env.local-local-development"
+        id="toc-env.local-local-development">.env.local (Local
+        Development)</a></li>
+        <li><a href="#env.staging-staging"
+        id="toc-env.staging-staging">.env.staging (Staging)</a></li>
+        <li><a href="#env.production-production"
+        id="toc-env.production-production">.env.production
+        (Production)</a></li>
+        <li><a href="#build-with-environment"
+        id="toc-build-with-environment">Build with Environment</a></li>
+        </ul></li>
+        <li><a href="#backend-environment-configuration"
+        id="toc-backend-environment-configuration">Backend Environment
+        Configuration</a>
+        <ul>
+        <li><a href="#default-profile-local-dev"
+        id="toc-default-profile-local-dev">Default Profile (Local
+        Dev)</a></li>
+        <li><a href="#test-profile" id="toc-test-profile">Test
+        Profile</a></li>
+        <li><a href="#production-profile"
+        id="toc-production-profile">Production Profile</a></li>
+        <li><a href="#in-docker-fly.io" id="toc-in-docker-fly.io">In
+        Docker (Fly.io)</a></li>
+        </ul></li>
+        <li><a href="#database-urls-by-environment"
+        id="toc-database-urls-by-environment">Database URLs by
+        Environment</a>
+        <ul>
+        <li><a href="#local-database-setup"
+        id="toc-local-database-setup">Local Database Setup</a></li>
+        <li><a href="#production-database-setup"
+        id="toc-production-database-setup">Production Database
+        Setup</a></li>
+        </ul></li>
+        <li><a href="#oauth2-credentials-by-environment"
+        id="toc-oauth2-credentials-by-environment">OAuth2 Credentials by
+        Environment</a>
+        <ul>
+        <li><a href="#local-development-1"
+        id="toc-local-development-1">Local Development</a></li>
+        <li><a href="#production"
+        id="toc-production">Production</a></li>
+        </ul></li>
+        <li><a href="#session-configuration-by-environment"
+        id="toc-session-configuration-by-environment">Session
+        Configuration by Environment</a>
+        <ul>
+        <li><a href="#local-development-2"
+        id="toc-local-development-2">Local Development</a></li>
+        <li><a href="#production-1"
+        id="toc-production-1">Production</a></li>
+        </ul></li>
+        <li><a href="#testing-connectivity"
+        id="toc-testing-connectivity">Testing Connectivity</a>
+        <ul>
+        <li><a href="#test-frontend-backend"
+        id="toc-test-frontend-backend">Test Frontend → Backend</a></li>
+        <li><a href="#test-backend-directly"
+        id="toc-test-backend-directly">Test Backend Directly</a></li>
+        <li><a href="#test-from-docker" id="toc-test-from-docker">Test
+        from Docker</a></li>
+        </ul></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#issue-frontend-cant-reach-backend"
+        id="toc-issue-frontend-cant-reach-backend">Issue: Frontend Can’t
+        Reach Backend</a></li>
+        <li><a href="#issue-wrong-api-base-in-production"
+        id="toc-issue-wrong-api-base-in-production">Issue: Wrong API
+        Base in Production</a></li>
+        <li><a href="#issue-database-connection-fails"
+        id="toc-issue-database-connection-fails">Issue: Database
+        Connection Fails</a></li>
+        </ul></li>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="environments-urls">Environments &amp; URLs</h1>
+        <blockquote>
+        <p><strong>Map API base URLs, environment configurations, and
+        how the frontend connects to the correct backend across local,
+        staging, and production.</strong></p>
+        </blockquote>
+        <h2 id="environment-matrix">Environment Matrix</h2>
+        <h3 id="quick-reference-table">Quick Reference Table</h3>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Environment</th>
+        <th>Frontend URL</th>
+        <th>Backend URL</th>
+        <th>API Base</th>
+        <th>Frontend Config</th>
+        <th>Backend Profile</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Local Dev</strong></td>
+        <td><code>http://localhost:3000</code></td>
+        <td><code>http://localhost:8080</code></td>
+        <td><code>/api</code></td>
+        <td><code>.env.local</code></td>
+        <td>(default/dev)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Staging</strong></td>
+        <td><code>https://staging.app.com</code></td>
+        <td><code>https://staging.app.com/api</code></td>
+        <td><code>/api</code></td>
+        <td><code>.env.staging</code></td>
+        <td><code>prod</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Production</strong></td>
+        <td><code>https://app.com</code></td>
+        <td><code>https://app.com/api</code></td>
+        <td><code>/api</code></td>
+        <td><code>.env.production</code></td>
+        <td><code>prod</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Fly.io</strong></td>
+        <td><code>https://app.fly.dev</code></td>
+        <td><code>https://app.fly.dev/api</code></td>
+        <td><code>/api</code></td>
+        <td><code>.env.production</code></td>
+        <td><code>prod</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="local-development">Local Development</h2>
+        <h3 id="frontend">Frontend</h3>
+        <p><strong>URL:</strong> <code>http://localhost:3000</code></p>
+        <p><strong>Vite dev server:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd frontend</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> npm run dev</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Vite running on http://localhost:3000</span></span></code></pre></div>
+        <p><strong>Configuration (<code>.env.local</code> or not
+        set):</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env.local</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Leave VITE_API_BASE empty or unset</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># httpClient will default to /api and Vite proxy to localhost:8080</span></span></code></pre></div>
+        <p><strong>vite.config.ts proxy setup:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> <span class="fu">defineConfig</span>({</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  server<span class="op">:</span> {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    proxy<span class="op">:</span> {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;/api&#39;</span><span class="op">:</span> {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        target<span class="op">:</span> <span class="st">&#39;http://localhost:8080&#39;</span><span class="op">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        changeOrigin<span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        secure<span class="op">:</span> <span class="kw">false</span><span class="op">,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>      }<span class="op">,</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+        <h3 id="backend">Backend</h3>
+        <p><strong>URL:</strong> <code>http://localhost:8080</code></p>
+        <p><strong>Start server:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd inventory-service</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mvn spring-boot:run</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Spring Boot running on http://localhost:8080</span></span></code></pre></div>
+        <p><strong>Configuration (default profile):</strong></p>
+        <p><strong>In
+        <code>src/main/resources/application.yml</code>:</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Default dev configuration</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">port</span><span class="kw">:</span><span class="at"> </span><span class="dv">8080</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">servlet</span><span class="kw">:</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">context-path</span><span class="kw">:</span><span class="at"> /</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:h2:mem:testdb</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> org.h2.Driver</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">database-platform</span><span class="kw">:</span><span class="at"> org.hibernate.dialect.H2Dialect</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">ddl-auto</span><span class="kw">:</span><span class="at"> create-drop</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo</span><span class="kw">:</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">readonly</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">  # Full access (no read-only mode)</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">security</span><span class="kw">:</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">oauth2-client-id</span><span class="kw">:</span><span class="at"> ${OAUTH2_CLIENT_ID:dev-client-id}</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">oauth2-client-secret</span><span class="kw">:</span><span class="at"> ${OAUTH2_CLIENT_SECRET:dev-secret}</span></span></code></pre></div>
+        <h3 id="test-the-integration">Test the Integration</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Terminal 1: Start backend</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mvn spring-boot:run</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Terminal 2: Start frontend</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> npm run dev</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Terminal 3: Test endpoint</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl http://localhost:8080/api/auth/me <span class="at">-v</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Should see OPTIONS preflight + actual request</span></span></code></pre></div>
+        <hr />
+        <h2 id="production-fly.io">Production (Fly.io)</h2>
+        <h3 id="frontend-1">Frontend</h3>
+        <p><strong>URL:</strong> <code>https://app.fly.dev</code></p>
+        <p><strong>Deployed via:</strong> GitHub Pages, Vercel, or
+        Fly.io static hosting</p>
+        <p><strong>Configuration
+        (<code>.env.production</code>):</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env.production</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Leave VITE_API_BASE unset (or set to /api)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># In production, backend is at same domain via Nginx proxy</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_API_BASE</span><span class="op">=</span>/api</span></code></pre></div>
+        <p><strong>Build &amp; deploy:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> npm run build    <span class="co"># Outputs to dist/</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> npm run preview  <span class="co"># Test production build locally</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Then deploy (example: Vercel)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> vercel deploy</span></code></pre></div>
+        <h3 id="backend-1">Backend</h3>
+        <p><strong>URL:</strong> <code>https://app.fly.dev</code> (same
+        domain via Nginx)</p>
+        <p><strong>Deployed via:</strong> Fly.io (via Docker +
+        CI/CD)</p>
+        <p><strong>Configuration
+        (<code>application-prod.yml</code>):</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-prod.yml (production profile)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">port</span><span class="kw">:</span><span class="at"> </span><span class="dv">8080</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">servlet</span><span class="kw">:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">context-path</span><span class="kw">:</span><span class="at"> /</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">ssl</span><span class="kw">:</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">  # TLS handled by Nginx/Fly.io</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> ${DB_URL}</span><span class="co">  # From Fly.io secrets</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> ${DB_USER}</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASSWORD}</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> oracle.jdbc.driver.OracleDriver</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">ddl-auto</span><span class="kw">:</span><span class="at"> validate</span><span class="co">  # Don&#39;t modify schema in prod</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">security</span><span class="kw">:</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">oauth2</span><span class="kw">:</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">client</span><span class="kw">:</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">registration</span><span class="kw">:</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">google</span><span class="kw">:</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-id</span><span class="kw">:</span><span class="at"> ${OAUTH2_CLIENT_ID}</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-secret</span><span class="kw">:</span><span class="at"> ${OAUTH2_CLIENT_SECRET}</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo</span><span class="kw">:</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">readonly</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">security</span><span class="kw">:</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">cors-allowed-origins</span><span class="kw">:</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> https://app.fly.dev</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> https://www.app.fly.dev</span></span></code></pre></div>
+        <p><strong>Fly.io secrets (set via CLI):</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> flyctl secrets set <span class="dt">\</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  DB_URL=<span class="st">&quot;jdbc:oracle:thin:@...&quot;</span> <span class="dt">\</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  DB_USER=<span class="st">&quot;admin&quot;</span> <span class="dt">\</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  DB_PASSWORD=<span class="st">&quot;...&quot;</span> <span class="dt">\</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  OAUTH2_CLIENT_ID=<span class="st">&quot;...&quot;</span> <span class="dt">\</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  OAUTH2_CLIENT_SECRET=<span class="st">&quot;...&quot;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> flyctl secrets list</span></code></pre></div>
+        <p><strong>Nginx configuration
+        (<code>ops/nginx/nginx.conf</code>):</strong></p>
+        <pre class="nginx"><code>server {
+    listen 80 default_server;
+    
+    location /api/ {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    location / {
+        # Frontend static assets or SPA
+        root /usr/share/nginx/html;
+        try_files $uri /index.html;
+    }
+}</code></pre>
+        <hr />
+        <h2 id="how-frontend-discovers-backend-url">How Frontend
+        Discovers Backend URL</h2>
+        <h3 id="resolution-order">Resolution Order</h3>
+        <div class="mermaid">
+        graph TD
+            Start["Frontend loads"]
+            EnvVar{"VITE_API_BASE<br/>env var set?"}
+            Check{"Is value<br/>non-empty?"}
+            UseEnv["Use VITE_API_BASE<br/>(e.g., https://api.example.com)"]
+            UseDefault["Use /api<br/>(relative path)"]
+            Result["API_BASE resolved"]
+            
+            Start --> EnvVar
+            EnvVar -->|Yes| Check
+            EnvVar -->|No| UseDefault
+            Check -->|Yes| UseEnv
+            Check -->|No| UseDefault
+            UseEnv --> Result
+            UseDefault --> Result
+        </div>
+        <h3 id="implementation-in-httpclient.ts">Implementation in
+        httpClient.ts</h3>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * API base URL resolution logic.</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"> * </span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"> * Priority:</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"> * 1. If VITE_API_BASE env var is set and non-empty → use it</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"> * 2. Otherwise → use &#39;/api&#39; (relative path, same origin)</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="kw">interface</span> ViteEnv {</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  VITE_API_BASE<span class="op">?:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> RAW_BASE <span class="op">=</span> (import<span class="op">.</span><span class="at">meta</span><span class="op">.</span><span class="at">env</span> <span class="im">as</span> <span class="dt">unknown</span> <span class="im">as</span> ViteEnv)<span class="op">?.</span><span class="at">VITE_API_BASE</span><span class="op">;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> API_BASE<span class="op">:</span> <span class="dt">string</span> <span class="op">=</span> (() <span class="kw">=&gt;</span> {</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> trimmed <span class="op">=</span> (RAW_BASE <span class="op">??</span> <span class="st">&#39;&#39;</span>)<span class="op">.</span><span class="fu">trim</span>()<span class="op">;</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> trimmed<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">?</span> trimmed <span class="op">:</span> <span class="st">&#39;/api&#39;</span><span class="op">;</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>})()<span class="op">;</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> httpClient <span class="op">=</span> axios<span class="op">.</span><span class="fu">create</span>({</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  baseURL<span class="op">:</span> API_BASE<span class="op">,</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  withCredentials<span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  timeout<span class="op">:</span> <span class="dv">30_000</span><span class="op">,</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> httpClient<span class="op">;</span></span></code></pre></div>
+        <h3 id="examples">Examples</h3>
+        <p><strong>Local Dev (no .env.local):</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>VITE_API_BASE <span class="op">=</span> <span class="kw">undefined</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>→ trimmed <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>→ API_BASE <span class="op">=</span> <span class="st">&#39;/api&#39;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>→ httpClient calls http<span class="op">:</span><span class="co">//localhost:3000/api/... </span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>   (Vite proxy forwards to http<span class="op">:</span><span class="co">//localhost:8080)</span></span></code></pre></div>
+        <p><strong>Production (.env.production with
+        VITE_API_BASE=/api):</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>VITE_API_BASE <span class="op">=</span> <span class="st">&#39;/api&#39;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>→ trimmed <span class="op">=</span> <span class="st">&#39;/api&#39;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>→ API_BASE <span class="op">=</span> <span class="st">&#39;/api&#39;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>→ httpClient calls <span class="op">/</span>api<span class="op">/...</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>   (Browser makes same<span class="op">-</span>origin request to https<span class="op">:</span><span class="co">//app.fly.dev/api/...)</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>   (Nginx proxies to http<span class="op">:</span><span class="co">//localhost:8080)</span></span></code></pre></div>
+        <p><strong>External API (if needed):</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>VITE_API_BASE <span class="op">=</span> <span class="st">&#39;https://api.example.com&#39;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>→ trimmed <span class="op">=</span> <span class="st">&#39;https://api.example.com&#39;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>→ API_BASE <span class="op">=</span> <span class="st">&#39;https://api.example.com&#39;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>→ httpClient calls https<span class="op">:</span><span class="co">//api.example.com/...</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>   (Cross<span class="op">-</span>origin request<span class="op">;</span> CORS required)</span></code></pre></div>
+        <hr />
+        <h2 id="frontend-environment-files">Frontend Environment
+        Files</h2>
+        <h3 id="env.local-local-development">.env.local (Local
+        Development)</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env.local</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># DO NOT COMMIT (add to .gitignore)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Leave unset or set to relative path</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># VITE_API_BASE=/api</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Or explicit if testing against remote backend</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># VITE_API_BASE=https://staging.app.com/api</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Other dev settings</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_LOG_LEVEL</span><span class="op">=</span>debug</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_ENABLE_MOCK_DATA</span><span class="op">=</span>false</span></code></pre></div>
+        <h3 id="env.staging-staging">.env.staging (Staging)</h3>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env.staging</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_API_BASE</span><span class="op">=</span>/api</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_LOG_LEVEL</span><span class="op">=</span>info</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_ENABLE_MOCK_DATA</span><span class="op">=</span>false</span></code></pre></div>
+        <h3 id="env.production-production">.env.production
+        (Production)</h3>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env.production</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_API_BASE</span><span class="op">=</span>/api</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_LOG_LEVEL</span><span class="op">=</span>warn</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="va">VITE_ENABLE_MOCK_DATA</span><span class="op">=</span>false</span></code></pre></div>
+        <h3 id="build-with-environment">Build with Environment</h3>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build for development (uses .env.local)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> npm run dev</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Build for staging</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> npx vite build <span class="at">--mode</span> staging</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Build for production</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> npm run build  <span class="co"># Uses .env.production</span></span></code></pre></div>
+        <hr />
+        <h2 id="backend-environment-configuration">Backend Environment
+        Configuration</h2>
+        <h3 id="default-profile-local-dev">Default Profile (Local
+        Dev)</h3>
+        <p><strong>No profile set</strong> → uses
+        <code>application.yml</code></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mvn spring-boot:run</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># SPRING_PROFILES_ACTIVE not set</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Uses application.yml (H2 database, demo data, etc.)</span></span></code></pre></div>
+        <h3 id="test-profile">Test Profile</h3>
+        <p><strong><code>SPRING_PROFILES_ACTIVE=test</code></strong> →
+        uses <code>application-test.yml</code></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> SPRING_PROFILES_ACTIVE=test mvn spring-boot:run</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Uses application-test.yml (TestContainers, restricted logging)</span></span></code></pre></div>
+        <h3 id="production-profile">Production Profile</h3>
+        <p><strong><code>SPRING_PROFILES_ACTIVE=prod</code></strong> →
+        uses <code>application-prod.yml</code></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> SPRING_PROFILES_ACTIVE=prod mvn spring-boot:run</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Uses application-prod.yml (Oracle DB, optimized logging)</span></span></code></pre></div>
+        <h3 id="in-docker-fly.io">In Docker (Fly.io)</h3>
+        <p><strong>start.sh script:</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-e</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span>prod</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="ex">java</span> <span class="at">-jar</span> /app/inventory-service.jar</span></code></pre></div>
+        <hr />
+        <h2 id="database-urls-by-environment">Database URLs by
+        Environment</h2>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        <col style="width: 25%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Environment</th>
+        <th>Driver</th>
+        <th>URL</th>
+        <th>Credentials</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Local</strong></td>
+        <td>H2 (in-memory)</td>
+        <td><code>jdbc:h2:mem:testdb</code></td>
+        <td>None (embedded)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Test</strong></td>
+        <td>H2 (in-memory)</td>
+        <td><code>jdbc:h2:mem:testdb</code></td>
+        <td>None (test data)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Production</strong></td>
+        <td>Oracle Autonomous DB</td>
+        <td><code>jdbc:oracle:thin:@dbname_high?TNS_ADMIN=/opt/oracle/wallet</code></td>
+        <td>From Fly.io secrets</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="local-database-setup">Local Database Setup</h3>
+        <p>No setup needed! H2 in-memory database is auto-created.</p>
+        <h3 id="production-database-setup">Production Database
+        Setup</h3>
+        <p><strong>Oracle Wallet is required:</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Download wallet from Oracle Cloud Console</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Store in /oracle_wallet/Wallet_sspdb_fixed/ (in Docker)</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Set DB_URL to include wallet path</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_URL</span><span class="op">=</span><span class="st">&quot;jdbc:oracle:thin:@dbname_high?TNS_ADMIN=/opt/oracle/wallet&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="oauth2-credentials-by-environment">OAuth2 Credentials by
+        Environment</h2>
+        <h3 id="local-development-1">Local Development</h3>
+        <p><strong>In <code>application.yml</code> or
+        <code>.env.local</code> (if using Spring’s env var
+        support):</strong></p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">security</span><span class="kw">:</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">oauth2</span><span class="kw">:</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">client</span><span class="kw">:</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">registration</span><span class="kw">:</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">google</span><span class="kw">:</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-id</span><span class="kw">:</span><span class="at"> ${OAUTH2_CLIENT_ID:123456789.apps.googleusercontent.com}</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-secret</span><span class="kw">:</span><span class="at"> ${OAUTH2_CLIENT_SECRET:GOCSPX-xxxxx}</span></span></code></pre></div>
+        <p><strong>Create test OAuth2 credentials:</strong></p>
+        <ol type="1">
+        <li>Go to <a href="https://console.cloud.google.com/">Google
+        Cloud Console</a></li>
+        <li>Create a new project</li>
+        <li>Enable Google+ API</li>
+        <li>Create OAuth2 credentials (Web application)</li>
+        <li>Add <code>http://localhost:8080</code> and
+        <code>http://localhost:3000</code> as authorized origins</li>
+        <li>Copy Client ID and Secret</li>
+        <li>Set environment variables:</li>
+        </ol>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">OAUTH2_CLIENT_ID</span><span class="op">=</span><span class="st">&quot;...&quot;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">OAUTH2_CLIENT_SECRET</span><span class="op">=</span><span class="st">&quot;...&quot;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span></code></pre></div>
+        <h3 id="production">Production</h3>
+        <p><strong>Via Fly.io secrets:</strong></p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> flyctl secrets set <span class="dt">\</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  OAUTH2_CLIENT_ID=<span class="st">&quot;production-client-id.apps.googleusercontent.com&quot;</span> <span class="dt">\</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  OAUTH2_CLIENT_SECRET=<span class="st">&quot;GOCSPX-production-secret&quot;</span></span></code></pre></div>
+        <p><strong>Verify authorized origins in Google Cloud
+        Console:</strong></p>
+        <ul>
+        <li>✅ <code>https://app.fly.dev</code></li>
+        <li>✅ <code>https://www.app.fly.dev</code></li>
+        </ul>
+        <hr />
+        <h2 id="session-configuration-by-environment">Session
+        Configuration by Environment</h2>
+        <h3 id="local-development-2">Local Development</h3>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">servlet</span><span class="kw">:</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">session</span><span class="kw">:</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">timeout</span><span class="kw">:</span><span class="at"> 30m</span><span class="co">           # 30 minutes</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">cookie</span><span class="kw">:</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">http-only</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">     # Allow JS access (for dev)</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">secure</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">        # Allow HTTP</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">same-site</span><span class="kw">:</span><span class="at"> lax</span><span class="co">       # Allow some cross-site</span></span></code></pre></div>
+        <h3 id="production-1">Production</h3>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">servlet</span><span class="kw">:</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">session</span><span class="kw">:</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">timeout</span><span class="kw">:</span><span class="at"> 24h</span><span class="co">           # 24 hours</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">cookie</span><span class="kw">:</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">http-only</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">      # JS cannot access</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">secure</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">         # HTTPS only</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">same-site</span><span class="kw">:</span><span class="at"> strict</span><span class="co">    # No cross-site</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-connectivity">Testing Connectivity</h2>
+        <h3 id="test-frontend-backend">Test Frontend → Backend</h3>
+        <p><strong>From browser console (localhost:3000):</strong></p>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fetch</span>(<span class="st">&#39;/api/auth/me&#39;</span><span class="op">,</span> { <span class="dt">credentials</span><span class="op">:</span> <span class="st">&#39;include&#39;</span> })</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(r <span class="kw">=&gt;</span> r<span class="op">.</span><span class="fu">json</span>())</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(d <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;Connected!&#39;</span><span class="op">,</span> d))</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">catch</span>(e <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Failed:&#39;</span><span class="op">,</span> e))<span class="op">;</span></span></code></pre></div>
+        <p><strong>Expected:</strong></p>
+        <ul>
+        <li>✅ 200 OK (if logged in) with user profile</li>
+        <li>❌ 401 Unauthorized (if not logged in)</li>
+        </ul>
+        <h3 id="test-backend-directly">Test Backend Directly</h3>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> curl http://localhost:8080/api/auth/me <span class="at">-v</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Should see CORS headers and response</span></span></code></pre></div>
+        <h3 id="test-from-docker">Test from Docker</h3>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker exec inventory-service curl http://localhost:8080/api/health</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Should return 200 OK with health info</span></span></code></pre></div>
+        <hr />
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="issue-frontend-cant-reach-backend">Issue: Frontend Can’t
+        Reach Backend</h3>
+        <p><strong>Check:</strong></p>
+        <ol type="1">
+        <li>Backend is running:
+        <code>curl http://localhost:8080/api/health</code></li>
+        <li>Frontend API_BASE is correct: Open browser console, check
+        <code>API_BASE</code></li>
+        <li>CORS is configured: Look for
+        <code>Access-Control-Allow-Origin</code> headers</li>
+        <li>Vite proxy is set (if using relative path): Check
+        <code>vite.config.ts</code></li>
+        </ol>
+        <h3 id="issue-wrong-api-base-in-production">Issue: Wrong API
+        Base in Production</h3>
+        <p><strong>Check:</strong></p>
+        <ol type="1">
+        <li><code>.env.production</code> file</li>
+        <li>Build output: <code>npm run build</code>, check
+        <code>dist/index.html</code></li>
+        <li>Vercel/host environment variables (if applicable)</li>
+        </ol>
+        <h3 id="issue-database-connection-fails">Issue: Database
+        Connection Fails</h3>
+        <p><strong>Local:</strong></p>
+        <ul>
+        <li>No setup needed (H2 embedded)</li>
+        </ul>
+        <p><strong>Production:</strong></p>
+        <ul>
+        <li>Verify Fly.io secrets: <code>flyctl secrets list</code></li>
+        <li>Check wallet path:
+        <code>ls /oracle_wallet/Wallet_sspdb_fixed/</code></li>
+        <li>Check DB_URL format</li>
+        </ul>
+        <hr />
+        <h2 id="navigation">Navigation</h2>
+        <ul>
+        <li><strong>← <a href="./index.html">Back to Integration
+        Index</a></strong></li>
+        <li><strong>← <a href="./cors-and-network.html">CORS &amp;
+        Network</a></strong></li>
+        <li><strong>→ <a href="./integration-testing.html">Integration
+        Testing</a></strong></li>
+        <li><strong>← <a href="../index.html">Back to Architecture
+        Index</a></strong></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

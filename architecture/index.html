@@ -116,6 +116,10 @@
         <li><strong><a href="./layers/overview.html">Layers
         Architecture</a></strong> - Detailed breakdown of controller,
         service, repository, and data layers</li>
+        <li><strong><a href="./integration/index.html">Integration
+        Architecture</a></strong> - Frontend-backend integration, API
+        contracts, authentication flows, error handling, CORS
+        configuration, and testing strategies</li>
         <li><strong><a href="./repository/index.html">Repository
         Layer</a></strong> - Data access abstraction with 7 repositories
         (JpaRepository, custom analytics mixins, JPQL, native SQL)</li>
@@ -155,20 +159,37 @@
         <h3 id="by-audience">By Audience</h3>
         <p><strong>Developers implementing features:</strong> 1. Start
         with <a href="./overview.html">High-level Overview</a> 2. Review
-        <a href="./layers/overview.html">Layers Architecture</a> 3.
-        Explore relevant layer documentation (e.g., <a
+        <a href="./integration/index.html">Integration Architecture</a>
+        to understand frontend-backend communication 3. Review <a
+        href="./layers/overview.html">Layers Architecture</a> 4. Explore
+        relevant layer documentation (e.g., <a
         href="./model/index.html">Data Models</a>, <a
         href="./enums/index.html">Enums</a>, <a
-        href="./dto/index.html">DTOs</a>) 4. Check <a
+        href="./dto/index.html">DTOs</a>) 5. Check <a
         href="./validation.html">Validation Framework</a> for input
-        handling 5. Review <a href="./testing.html">Testing Strategy</a>
+        handling 6. Review <a href="./testing.html">Testing Strategy</a>
         for test patterns</p>
+        <p><strong>Frontend developers:</strong> 1. Start with <a
+        href="./integration/index.html">Integration Architecture</a> 2.
+        Review <a
+        href="./integration/api-contract-and-endpoints.html">API
+        Contract &amp; Endpoints</a> 3. Study <a
+        href="./integration/error-handling-contract.html">Error Handling
+        Contract</a> 4. Check <a
+        href="./integration/auth-flow-frontend.html">Authentication
+        Flow</a> 5. Review <a
+        href="./integration/cors-and-network.html">CORS &amp;
+        Network</a> 6. Setup <a
+        href="./integration/environments-and-urls.html">Environments
+        &amp; URLs</a></p>
         <p><strong>DevOps / Infrastructure teams:</strong> 1. Review <a
         href="./deployment.html">Deployment &amp; Infrastructure</a> 2.
         Check <a href="./resources/index.html">Resources &amp;
         Configuration</a> for environment setup 3. Review <a
         href="./security.html">Security Architecture</a> for OAuth2 and
-        security configuration</p>
+        security configuration 4. Study <a
+        href="./integration/index.html">Integration Architecture</a> for
+        network/CORS configuration</p>
         <p><strong>Security reviewers:</strong> 1. Start with <a
         href="./security.html">Security Architecture</a> 2. Review <a
         href="./exceptions.html">Exceptions &amp; Error Handling</a> 3.

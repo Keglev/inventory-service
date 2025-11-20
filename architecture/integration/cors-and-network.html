@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+integration/cors-and-network · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#cors-network-configuration"
+        id="toc-cors-network-configuration">CORS &amp; Network
+        Configuration</a>
+        <ul>
+        <li><a href="#problem-same-origin-policy"
+        id="toc-problem-same-origin-policy">Problem: Same-Origin
+        Policy</a></li>
+        <li><a href="#origins-in-play" id="toc-origins-in-play">Origins
+        in Play</a>
+        <ul>
+        <li><a href="#local-development"
+        id="toc-local-development">Local Development</a></li>
+        <li><a href="#production-fly.io-nginx"
+        id="toc-production-fly.io-nginx">Production (Fly.io +
+        Nginx)</a></li>
+        </ul></li>
+        <li><a href="#cors-cross-origin-resource-sharing"
+        id="toc-cors-cross-origin-resource-sharing">CORS (Cross-Origin
+        Resource Sharing)</a>
+        <ul>
+        <li><a href="#cors-handshake" id="toc-cors-handshake">CORS
+        Handshake</a></li>
+        <li><a href="#preflight-request-options"
+        id="toc-preflight-request-options">Preflight Request
+        (OPTIONS)</a></li>
+        </ul></li>
+        <li><a href="#backend-cors-configuration"
+        id="toc-backend-cors-configuration">Backend CORS
+        Configuration</a>
+        <ul>
+        <li><a href="#spring-security-setup"
+        id="toc-spring-security-setup">Spring Security Setup</a></li>
+        <li><a href="#example-application-dev.yml"
+        id="toc-example-application-dev.yml">Example:
+        application-dev.yml</a></li>
+        <li><a href="#example-application-prod.yml"
+        id="toc-example-application-prod.yml">Example:
+        application-prod.yml</a></li>
+        </ul></li>
+        <li><a href="#frontend-http-client-configuration"
+        id="toc-frontend-http-client-configuration">Frontend HTTP Client
+        Configuration</a>
+        <ul>
+        <li><a href="#httpclient.ts-setup"
+        id="toc-httpclient.ts-setup">httpClient.ts Setup</a></li>
+        <li><a href="#why-withcredentials-true"
+        id="toc-why-withcredentials-true">Why withCredentials:
+        true?</a></li>
+        </ul></li>
+        <li><a href="#cookie-configuration"
+        id="toc-cookie-configuration">Cookie Configuration</a>
+        <ul>
+        <li><a href="#session-cookie-settings"
+        id="toc-session-cookie-settings">Session Cookie
+        Settings</a></li>
+        <li><a href="#browser-cookie-behavior"
+        id="toc-browser-cookie-behavior">Browser Cookie
+        Behavior</a></li>
+        </ul></li>
+        <li><a href="#network-paths-proxying"
+        id="toc-network-paths-proxying">Network Paths &amp; Proxying</a>
+        <ul>
+        <li><a href="#local-development-1"
+        id="toc-local-development-1">Local Development</a></li>
+        <li><a href="#production-fly.io"
+        id="toc-production-fly.io">Production (Fly.io)</a></li>
+        </ul></li>
+        <li><a href="#environment-specific-configuration"
+        id="toc-environment-specific-configuration">Environment-Specific
+        Configuration</a>
+        <ul>
+        <li><a href="#table-origins-cors-by-environment"
+        id="toc-table-origins-cors-by-environment">Table: Origins &amp;
+        CORS by Environment</a></li>
+        </ul></li>
+        <li><a href="#common-issues-solutions"
+        id="toc-common-issues-solutions">Common Issues &amp;
+        Solutions</a>
+        <ul>
+        <li><a href="#issue-no-access-control-allow-origin-header"
+        id="toc-issue-no-access-control-allow-origin-header">Issue: “No
+        ‘Access-Control-Allow-Origin’ Header”</a></li>
+        <li><a href="#issue-cookie-not-sent-to-backend"
+        id="toc-issue-cookie-not-sent-to-backend">Issue: “Cookie Not
+        Sent to Backend”</a></li>
+        <li><a href="#issue-preflight-options-returning-404"
+        id="toc-issue-preflight-options-returning-404">Issue: “Preflight
+        (OPTIONS) Returning 404”</a></li>
+        <li><a href="#issue-cookies-work-in-dev-not-in-production"
+        id="toc-issue-cookies-work-in-dev-not-in-production">Issue:
+        “Cookies Work in Dev, Not in Production”</a></li>
+        </ul></li>
+        <li><a href="#cors-headers-reference"
+        id="toc-cors-headers-reference">CORS Headers Reference</a>
+        <ul>
+        <li><a href="#request-headers" id="toc-request-headers">Request
+        Headers</a></li>
+        <li><a href="#response-headers"
+        id="toc-response-headers">Response Headers</a></li>
+        </ul></li>
+        <li><a href="#testing-cors" id="toc-testing-cors">Testing
+        CORS</a>
+        <ul>
+        <li><a href="#manual-test-curl" id="toc-manual-test-curl">Manual
+        Test (curl)</a></li>
+        <li><a href="#browser-test-console"
+        id="toc-browser-test-console">Browser Test (console)</a></li>
+        </ul></li>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="cors-network-configuration">CORS &amp; Network
+        Configuration</h1>
+        <blockquote>
+        <p><strong>How cross-origin requests, cookies, and network paths
+        work across local, staging, and production
+        environments.</strong></p>
+        </blockquote>
+        <h2 id="problem-same-origin-policy">Problem: Same-Origin
+        Policy</h2>
+        <p>Browsers enforce the <strong>Same-Origin Policy</strong> for
+        security: JavaScript running on <code>example.com</code> cannot
+        make requests to <code>api.example.com</code> (different
+        origins).</p>
+        <div class="mermaid">
+        graph LR
+            Client["🖥️ Browser<br/>http://localhost:3000"]
+            
+            Backend1["⚙️ Backend<br/>http://localhost:8080"]
+            Backend2["⚙️ Backend<br/>http://api.example.com"]
+            
+            Client -->|CORS OK?| Backend1
+            Client -->|CORS NEEDED| Backend2
+            
+            style Client fill:#ff9900,color:#000
+            style Backend1 fill:#4caf50,color:#fff
+            style Backend2 fill:#f44336,color:#fff
+        </div>
+        <hr />
+        <h2 id="origins-in-play">Origins in Play</h2>
+        <h3 id="local-development">Local Development</h3>
+        <p><strong>Frontend:</strong> <code>http://localhost:3000</code>
+        (Vite dev server)</p>
+        <p><strong>Backend:</strong> <code>http://localhost:8080</code>
+        (Spring Boot)</p>
+        <p><strong>Are they the same origin?</strong></p>
+        <pre><code>https:     http:      ← Protocol differs
+localhost  localhost  ← Host is same
+:3000      :8080      ← Port differs</code></pre>
+        <p><strong>Result:</strong> ❌ Different origins (protocol +
+        port matter). <strong>CORS required.</strong></p>
+        <h3 id="production-fly.io-nginx">Production (Fly.io +
+        Nginx)</h3>
+        <p><strong>Frontend:</strong> <code>https://app.fly.dev</code>
+        (deployed to Vercel, GitHub Pages, or same domain)</p>
+        <p><strong>Backend:</strong>
+        <code>https://app.fly.dev/api</code> (same domain via Nginx
+        proxy)</p>
+        <pre><code>https://app.fly.dev      ← Frontend
+https://app.fly.dev/api  ← Backend (proxy)</code></pre>
+        <p><strong>Are they the same origin?</strong></p>
+        <pre><code>https:        https:       ← Same protocol
+app.fly.dev   app.fly.dev  ← Same host
+(default 443) (default 443)</code></pre>
+        <p><strong>Result:</strong> ✅ <strong>Same origin. No CORS
+        needed.</strong> Cookies work naturally.</p>
+        <hr />
+        <h2 id="cors-cross-origin-resource-sharing">CORS (Cross-Origin
+        Resource Sharing)</h2>
+        <p>When origins differ, the browser requires <strong>CORS
+        headers</strong> for certain requests.</p>
+        <h3 id="cors-handshake">CORS Handshake</h3>
+        <div class="mermaid">
+        graph TB
+            Browser["🖥️ Browser<br/>(localhost:3000)"]
+            Backend["⚙️ Backend<br/>(localhost:8080)"]
+            
+            Browser -->|1. OPTIONS /api/suppliers<br/>Origin: http://localhost:3000<br/>...| Backend
+            Backend -->|2. 200 OK<br/>Access-Control-Allow-Origin: http://localhost:3000<br/>Access-Control-Allow-Credentials: true<br/>...| Browser
+            Browser -->|3. Request allowed?<br/>Yes, proceed| Browser
+            Browser -->|4. GET /api/suppliers<br/>Cookie: SESSION=...| Backend
+            Backend -->|5. 200 OK<br/>[supplier data]| Browser
+            
+            style Browser fill:#ff9900,color:#000
+            style Backend fill:#6db33f,color:#fff
+        </div>
+        <h3 id="preflight-request-options">Preflight Request
+        (OPTIONS)</h3>
+        <p>Before sending certain requests (POST, PUT, DELETE), the
+        browser sends an <strong>OPTIONS</strong> request to check if
+        the server allows it.</p>
+        <p><strong>Browser sends:</strong></p>
+        <pre class="http"><code>OPTIONS /api/suppliers HTTP/1.1
+Host: localhost:8080
+Origin: http://localhost:3000
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type</code></pre>
+        <p><strong>Backend responds:</strong></p>
+        <pre class="http"><code>HTTP/1.1 200 OK
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 3600</code></pre>
+        <p><strong>Browser interprets:</strong></p>
+        <ul>
+        <li>✅ Origin <code>http://localhost:3000</code> is allowed</li>
+        <li>✅ Methods POST, PUT, DELETE are allowed</li>
+        <li>✅ Credentials (cookies) can be sent</li>
+        <li>✅ Cache this preflight for 1 hour</li>
+        </ul>
+        <p><strong>Then browser sends actual request:</strong></p>
+        <pre class="http"><code>POST /api/suppliers HTTP/1.1
+Host: localhost:8080
+Origin: http://localhost:3000
+Cookie: SESSION=abc123...
+Content-Type: application/json
+
+{ &quot;name&quot;: &quot;New Supplier&quot;, ... }</code></pre>
+        <hr />
+        <h2 id="backend-cors-configuration">Backend CORS
+        Configuration</h2>
+        <h3 id="spring-security-setup">Spring Security Setup</h3>
+        <p><strong>In
+        <code>src/main/java/com/smartsupplypro/inventory/config/SecurityConfig.java</code>:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityConfig <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SecurityFilterChain <span class="fu">filterChain</span><span class="op">(</span>HttpSecurity http<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        http</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">cors</span><span class="op">(</span>cors <span class="op">-&gt;</span> cors<span class="op">.</span><span class="fu">configurationSource</span><span class="op">(</span><span class="fu">corsConfigurationSource</span><span class="op">()))</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">csrf</span><span class="op">(</span>csrf <span class="op">-&gt;</span> csrf<span class="op">.</span><span class="fu">disable</span><span class="op">())</span>  <span class="co">// Disabled; relying on SameSite cookies</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">authorizeHttpRequests</span><span class="op">(</span>authz <span class="op">-&gt;</span> authz</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span><span class="st">&quot;/api/oauth2/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">()</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span><span class="st">&quot;/api/auth/me&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">()</span>  <span class="co">// Allow public check</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">anyRequest</span><span class="op">().</span><span class="fu">authenticated</span><span class="op">()</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> http<span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> CorsConfigurationSource <span class="fu">corsConfigurationSource</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        CorsConfiguration config <span class="op">=</span> <span class="kw">new</span> <span class="fu">CorsConfiguration</span><span class="op">();</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Allowed origins depend on environment</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="fu">isLocalDevelopment</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Local dev: allow localhost:3000</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>            config<span class="op">.</span><span class="fu">setAllowedOrigins</span><span class="op">(</span><span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;http://localhost:3000&quot;</span><span class="op">,</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;http://localhost:3001&quot;</span>  <span class="co">// For multiple dev servers</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">));</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Production: allow same domain (no CORS needed, but be explicit)</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            config<span class="op">.</span><span class="fu">setAllowedOrigins</span><span class="op">(</span><span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;https://app.fly.dev&quot;</span><span class="op">,</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;https://www.app.fly.dev&quot;</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">));</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Allowed HTTP methods</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span><span class="fu">setAllowedMethods</span><span class="op">(</span><span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;GET&quot;</span><span class="op">,</span> <span class="st">&quot;POST&quot;</span><span class="op">,</span> <span class="st">&quot;PUT&quot;</span><span class="op">,</span> <span class="st">&quot;DELETE&quot;</span><span class="op">,</span> <span class="st">&quot;OPTIONS&quot;</span><span class="op">,</span> <span class="st">&quot;HEAD&quot;</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>        <span class="op">));</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Allowed request headers</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span><span class="fu">setAllowedHeaders</span><span class="op">(</span><span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Authorization&quot;</span><span class="op">,</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Content-Type&quot;</span><span class="op">,</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;X-Requested-With&quot;</span><span class="op">,</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Accept&quot;</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>        <span class="op">));</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Allow credentials (session cookies)</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span><span class="fu">setAllowCredentials</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Preflight cache duration (1 hour)</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span><span class="fu">setMaxAge</span><span class="op">(</span><span class="dv">3600L</span><span class="op">);</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>        UrlBasedCorsConfigurationSource source <span class="op">=</span> <span class="kw">new</span> <span class="fu">UrlBasedCorsConfigurationSource</span><span class="op">();</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>        source<span class="op">.</span><span class="fu">registerCorsConfiguration</span><span class="op">(</span><span class="st">&quot;/**&quot;</span><span class="op">,</span> config<span class="op">);</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> source<span class="op">;</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">boolean</span> <span class="fu">isLocalDevelopment</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> profile <span class="op">=</span> <span class="bu">System</span><span class="op">.</span><span class="fu">getenv</span><span class="op">(</span><span class="st">&quot;SPRING_PROFILES_ACTIVE&quot;</span><span class="op">);</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> profile <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> profile<span class="op">.</span><span class="fu">isEmpty</span><span class="op">()</span> <span class="op">||</span> profile<span class="op">.</span><span class="fu">equals</span><span class="op">(</span><span class="st">&quot;dev&quot;</span><span class="op">);</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="example-application-dev.yml">Example:
+        application-dev.yml</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-dev.yml (local development)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cors</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">allowed-origins</span><span class="kw">:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;http://localhost:3000&quot;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;http://localhost:3001&quot;</span></span></code></pre></div>
+        <h3 id="example-application-prod.yml">Example:
+        application-prod.yml</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-prod.yml (production)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cors</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">allowed-origins</span><span class="kw">:</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;https://app.fly.dev&quot;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;https://www.app.fly.dev&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="frontend-http-client-configuration">Frontend HTTP Client
+        Configuration</h2>
+        <h3 id="httpclient.ts-setup">httpClient.ts Setup</h3>
+        <p><strong>In
+        <code>/frontend/src/api/httpClient.ts</code>:</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> axios <span class="im">from</span> <span class="st">&#39;axios&#39;</span><span class="op">;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> httpClient <span class="op">=</span> axios<span class="op">.</span><span class="fu">create</span>({</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Base URL (relative path in production, explicit in local dev)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  baseURL<span class="op">:</span> <span class="st">&#39;/api&#39;</span><span class="op">,</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ← KEY: Include credentials (cookies, HTTP auth)</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  withCredentials<span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Request timeout</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  timeout<span class="op">:</span> <span class="dv">30_000</span><span class="op">,</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Set common headers</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>httpClient<span class="op">.</span><span class="at">defaults</span><span class="op">.</span><span class="at">headers</span><span class="op">.</span><span class="at">common</span>[<span class="st">&#39;Accept&#39;</span>] <span class="op">=</span> <span class="st">&#39;application/json&#39;</span><span class="op">;</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>httpClient<span class="op">.</span><span class="at">defaults</span><span class="op">.</span><span class="at">headers</span><span class="op">.</span><span class="at">common</span>[<span class="st">&#39;X-Requested-With&#39;</span>] <span class="op">=</span> <span class="st">&#39;XMLHttpRequest&#39;</span><span class="op">;</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> httpClient<span class="op">;</span></span></code></pre></div>
+        <h3 id="why-withcredentials-true">Why withCredentials:
+        true?</h3>
+        <p>By default, axios (and fetch) <strong>do not send cookies on
+        cross-origin requests</strong> for security.</p>
+        <p><strong>With <code>withCredentials: true</code>:</strong></p>
+        <ul>
+        <li>Session cookies are included in every request</li>
+        <li>Backend can identify the user by session</li>
+        <li>Authentication works automatically</li>
+        </ul>
+        <p><strong>Without it:</strong></p>
+        <ul>
+        <li>Cookies are not sent</li>
+        <li>Backend sees 401 Unauthorized on every request</li>
+        <li>User stays logged out</li>
+        </ul>
+        <hr />
+        <h2 id="cookie-configuration">Cookie Configuration</h2>
+        <h3 id="session-cookie-settings">Session Cookie Settings</h3>
+        <p><strong>From Spring Security:</strong></p>
+        <pre class="http"><code>Set-Cookie: SESSION=abc123xyz789; 
+            HttpOnly;              ← JS can&#39;t access
+            Secure;                ← HTTPS-only
+            SameSite=Strict;       ← No cross-site requests
+            Path=/;                ← Sent with all paths
+            Max-Age=86400          ← 24 hours</code></pre>
+        <table>
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Attribute</th>
+        <th>Value</th>
+        <th>Meaning</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>HttpOnly</strong></td>
+        <td>true</td>
+        <td>JavaScript (<code>document.cookie</code>) cannot access it.
+        Prevents XSS attacks.</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Secure</strong></td>
+        <td>true</td>
+        <td>Only sent over HTTPS (not HTTP). Prevents
+        man-in-the-middle.</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>SameSite</strong></td>
+        <td>Strict</td>
+        <td>Not sent on cross-site requests. Prevents CSRF attacks.</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Path</strong></td>
+        <td>/</td>
+        <td>Sent with all requests to the domain.</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Domain</strong></td>
+        <td>(implicit)</td>
+        <td>First-party only (same domain as frontend).</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Max-Age</strong></td>
+        <td>86400</td>
+        <td>Expires after 24 hours of inactivity.</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="browser-cookie-behavior">Browser Cookie Behavior</h3>
+        <p><strong>Same-Origin Request (Local Dev):</strong></p>
+        <pre><code>Browser: http://localhost:3000
+Request: http://localhost:8080/api/suppliers
+
+Cookie included? 
+  - Origin differs (port 3000 vs 8080)
+  - withCredentials: true required
+  - Yes, cookie included (CORS allows)</code></pre>
+        <p><strong>Same-Origin Request (Production):</strong></p>
+        <pre><code>Browser: https://app.fly.dev
+Request: https://app.fly.dev/api/suppliers
+
+Cookie included?
+  - Same origin (both app.fly.dev)
+  - Always included
+  - Yes, cookie included (no CORS issue)</code></pre>
+        <hr />
+        <h2 id="network-paths-proxying">Network Paths &amp;
+        Proxying</h2>
+        <h3 id="local-development-1">Local Development</h3>
+        <p><strong>User accesses:</strong>
+        <code>http://localhost:3000</code></p>
+        <p><strong>Frontend source:</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// httpClient.ts</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> API_BASE <span class="op">=</span> <span class="st">&#39;/api&#39;</span><span class="op">;</span>  <span class="co">// Relative path</span></span></code></pre></div>
+        <p><strong>Vite dev server setup
+        (<code>vite.config.ts</code>):</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="im">default</span> <span class="fu">defineConfig</span>({</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  server<span class="op">:</span> {</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    proxy<span class="op">:</span> {</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;/api&#39;</span><span class="op">:</span> {</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        target<span class="op">:</span> <span class="st">&#39;http://localhost:8080&#39;</span><span class="op">,</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        changeOrigin<span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        secure<span class="op">:</span> <span class="kw">false</span><span class="op">,</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>      }<span class="op">,</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+        <p><strong>Request flow:</strong></p>
+        <pre><code>User → Browser localhost:3000
+       ↓
+  Vite dev server (localhost:3000)
+       ↓ [proxy /api → localhost:8080]
+  Backend (localhost:8080)</code></pre>
+        <p><strong>Cookies work?</strong> ✅ Yes (withCredentials: true
+        + CORS allows it)</p>
+        <h3 id="production-fly.io">Production (Fly.io)</h3>
+        <p><strong>User accesses:</strong>
+        <code>https://app.fly.dev</code></p>
+        <p><strong>Frontend source:</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// httpClient.ts</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> API_BASE <span class="op">=</span> <span class="st">&#39;/api&#39;</span><span class="op">;</span>  <span class="co">// Relative path</span></span></code></pre></div>
+        <p><strong>Nginx reverse proxy
+        (<code>/ops/nginx/nginx.conf</code>):</strong></p>
+        <pre class="nginx"><code>server {
+    listen 80;
+    
+    location /api/ {
+        proxy_pass http://localhost:8080;  # Backend on localhost
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    location / {
+        # Frontend static assets or SPA fallback
+        root /usr/share/nginx/html;
+        try_files $uri /index.html;
+    }
+}</code></pre>
+        <p><strong>Request flow:</strong></p>
+        <pre><code>User → Browser app.fly.dev
+       ↓
+  Nginx (port 80, same container)
+       ↓ [reverse proxy /api → localhost:8080]
+  Backend (port 8080, same container)
+       ↓
+  Database</code></pre>
+        <p><strong>Cookies work?</strong> ✅ Yes (same origin:
+        app.fly.dev ↔︎ app.fly.dev)</p>
+        <hr />
+        <h2 id="environment-specific-configuration">Environment-Specific
+        Configuration</h2>
+        <h3 id="table-origins-cors-by-environment">Table: Origins &amp;
+        CORS by Environment</h3>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        <col style="width: 16%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Environment</th>
+        <th>Frontend URL</th>
+        <th>Backend URL</th>
+        <th>Same Origin?</th>
+        <th>CORS Required?</th>
+        <th>Cookies Work?</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Local Dev</strong></td>
+        <td><code>http://localhost:3000</code></td>
+        <td><code>http://localhost:8080</code></td>
+        <td>❌ No</td>
+        <td>✅ Yes</td>
+        <td>✅ Yes (with <code>withCredentials</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Production</strong></td>
+        <td><code>https://app.fly.dev</code></td>
+        <td><code>https://app.fly.dev/api</code></td>
+        <td>✅ Yes</td>
+        <td>❌ No</td>
+        <td>✅ Yes (same domain)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>External API</strong></td>
+        <td><code>https://app.fly.dev</code></td>
+        <td><code>https://api.fly.dev</code></td>
+        <td>❌ No</td>
+        <td>✅ Yes</td>
+        <td>❌ No (different domain)</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="common-issues-solutions">Common Issues &amp;
+        Solutions</h2>
+        <h3 id="issue-no-access-control-allow-origin-header">Issue: “No
+        ‘Access-Control-Allow-Origin’ Header”</h3>
+        <p><strong>Cause:</strong> CORS not configured in backend, or
+        <code>Origin</code> doesn’t match allowed list.</p>
+        <p><strong>Debug:</strong></p>
+        <ol type="1">
+        <li>Check browser console for CORS error</li>
+        <li>Check backend logs for request</li>
+        <li>Verify frontend origin matches
+        <code>config.setAllowedOrigins(...)</code></li>
+        </ol>
+        <p><strong>Fix:</strong></p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Add actual origin</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>config<span class="op">.</span><span class="fu">setAllowedOrigins</span><span class="op">(</span><span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;http://localhost:3000&quot;</span><span class="op">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;https://app.fly.dev&quot;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="op">));</span></span></code></pre></div>
+        <hr />
+        <h3 id="issue-cookie-not-sent-to-backend">Issue: “Cookie Not
+        Sent to Backend”</h3>
+        <p><strong>Cause:</strong> <code>withCredentials: true</code>
+        missing or CORS not allowing credentials.</p>
+        <p><strong>Debug:</strong></p>
+        <ol type="1">
+        <li>Check httpClient config</li>
+        <li>Check request headers (Network tab, look for
+        <code>Cookie:</code>)</li>
+        <li>Check response headers for
+        <code>Access-Control-Allow-Credentials: true</code></li>
+        </ol>
+        <p><strong>Fix:</strong></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In httpClient.ts</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> httpClient <span class="op">=</span> axios<span class="op">.</span><span class="fu">create</span>({</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  withCredentials<span class="op">:</span> <span class="kw">true</span><span class="op">,</span>  <span class="co">// ← Must be set</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In backend</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>config<span class="op">.</span><span class="fu">setAllowCredentials</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span>  <span class="co">// ← Must be set</span></span></code></pre></div>
+        <hr />
+        <h3 id="issue-preflight-options-returning-404">Issue: “Preflight
+        (OPTIONS) Returning 404”</h3>
+        <p><strong>Cause:</strong> Backend doesn’t handle OPTIONS
+        requests.</p>
+        <p><strong>Debug:</strong></p>
+        <ul>
+        <li>Make a POST request → browser sends OPTIONS first</li>
+        <li>If OPTIONS returns 404, browser blocks actual request</li>
+        </ul>
+        <p><strong>Fix:</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In SecurityConfig</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>http<span class="op">.</span><span class="fu">cors</span><span class="op">(</span>cors <span class="op">-&gt;</span> cors<span class="op">.</span><span class="fu">configurationSource</span><span class="op">(</span><span class="fu">corsConfigurationSource</span><span class="op">()));</span></span></code></pre></div>
+        <p>Spring automatically handles OPTIONS if CORS is
+        configured.</p>
+        <hr />
+        <h3 id="issue-cookies-work-in-dev-not-in-production">Issue:
+        “Cookies Work in Dev, Not in Production”</h3>
+        <p><strong>Common cause:</strong> Frontend and backend on
+        different domains.</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>Dev:  localhost:3000 ↔ localhost:8080  (works with withCredentials)
+Prod: app.fly.dev ↔ api.fly.dev        (different domains, cookies don&#39;t work)</code></pre>
+        <p><strong>Solution:</strong> Use <strong>same domain</strong>
+        with Nginx proxy:</p>
+        <pre><code>Prod: app.fly.dev → /api → app.fly.dev/api (via Nginx proxy)</code></pre>
+        <hr />
+        <h2 id="cors-headers-reference">CORS Headers Reference</h2>
+        <h3 id="request-headers">Request Headers</h3>
+        <pre class="http"><code>Origin: http://localhost:3000
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type</code></pre>
+        <h3 id="response-headers">Response Headers</h3>
+        <pre class="http"><code>Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 3600</code></pre>
+        <hr />
+        <h2 id="testing-cors">Testing CORS</h2>
+        <h3 id="manual-test-curl">Manual Test (curl)</h3>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Preflight request</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-X</span> OPTIONS http://localhost:8080/api/suppliers <span class="dt">\</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;Origin: http://localhost:3000&quot;</span> <span class="dt">\</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;Access-Control-Request-Method: POST&quot;</span> <span class="dt">\</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span></span></code></pre></div>
+        <p><strong>Expected response:</strong></p>
+        <pre><code>Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Methods: POST
+Access-Control-Allow-Credentials: true</code></pre>
+        <h3 id="browser-test-console">Browser Test (console)</h3>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In browser console (localhost:3000)</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fetch</span>(<span class="st">&#39;http://localhost:8080/api/suppliers&#39;</span><span class="op">,</span> {</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">credentials</span><span class="op">:</span> <span class="st">&#39;include&#39;</span>  <span class="co">// Same as withCredentials: true</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(r <span class="kw">=&gt;</span> r<span class="op">.</span><span class="fu">json</span>())</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(data <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(data))</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">catch</span>(err <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(err))<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h2 id="navigation">Navigation</h2>
+        <ul>
+        <li><strong>← <a href="./index.html">Back to Integration
+        Index</a></strong></li>
+        <li><strong>← <a href="./error-handling-contract.html">Error
+        Handling</a></strong></li>
+        <li><strong>→ <a
+        href="./environments-and-urls.html">Environments &amp;
+        URLs</a></strong></li>
+        <li><strong>← <a href="../index.html">Back to Architecture
+        Index</a></strong></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
