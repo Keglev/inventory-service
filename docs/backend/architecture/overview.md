@@ -6,6 +6,8 @@
 
 Smart Supply Pro's backend is a modern, Spring Boot-based inventory management system designed to handle complex supplier relationships, inventory tracking, and real-time stock analytics. The architecture emphasizes **scalability**, **maintainability**, and **security** through well-defined layers and clear separation of concerns.
 
+> **👉 For visual diagrams of the architecture, see [Architectural Diagrams](./diagrams/index.html)** - Context diagram, logical layers, deployment topology, request flow, database schema, security flows, and analytics architecture.
+
 > **👉 For a detailed breakdown of each architectural layer, see [Layers Architecture](./layers/overview.html)** - Comprehensive documentation of Controller, Service, Repository, Model, and Infrastructure layers with code examples and interaction patterns.
 
 ## System Architecture Diagram

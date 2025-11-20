@@ -11,6 +11,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 ### Core Architecture
 - **[High-level Overview (English)](./overview.html)** - Comprehensive English overview of the backend architecture, layers, and key components
 - **[Überblick (German)](./overview-de.html)** - Deutschsprachige Zusammenfassung der Backend-Architektur
+- **[Architectural Diagrams](./diagrams/index.html)** - Visual diagrams showing system context, layers, deployment, request flows, database schema, security flows, and analytics architecture
 
 ### Detailed Sections
 - **[Layers Architecture](./layers/overview.html)** - Detailed breakdown of controller, service, repository, and data layers
