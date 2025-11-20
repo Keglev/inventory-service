@@ -271,7 +271,10 @@ const Inventory: React.FC = () => {
           <Button variant="contained" onClick={() => setOpenNew(true)}>
             {t('inventory:newItem', 'Add new item')}
           </Button>
-          <Button disabled={false} onClick={() => setOpenEditName(true)}>
+          <Button 
+            onClick={() => setOpenEditName(true)}
+            sx={{ opacity: 1, pointerEvents: 'auto' }}
+          >
             {t('actions.edit', 'Edit')}
           </Button>
           <Button onClick={() => setOpenAdjust(true)}>
