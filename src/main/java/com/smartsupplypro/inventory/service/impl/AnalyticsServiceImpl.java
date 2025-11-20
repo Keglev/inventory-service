@@ -25,8 +25,7 @@ import lombok.RequiredArgsConstructor;
  * Analytics service facade delegating to specialized analytics implementations.
  *
  * <p><strong>Purpose</strong>:
- * Maintains backward compatibility by providing the original {@link AnalyticsService}
- * interface while internally delegating to focused, domain-specific service implementations.
+ * Provides analytics functionality by delegating to focused, domain-specific service implementations.
  *
  * <p><strong>Delegation Strategy</strong>:
  * <ul>
@@ -35,20 +34,20 @@ import lombok.RequiredArgsConstructor;
  * </ul>
  *
  * <p><strong>Design Rationale</strong>:
- * The original 733-line service was split into specialized services (200-300 lines each)
- * for better maintainability while preserving the existing public API contract.
+ * The original monolithic analytics service (733 lines) was split into specialized services
+ * (200-300 lines each) for better maintainability, testability, and single responsibility.
+ * This facade provides the original {@link AnalyticsService} interface by delegating to
+ * these focused implementations.
  *
  * @author Smart Supply Pro Development Team
  * @version 2.0.0
  * @since 1.0.0
  * @see StockAnalyticsService
  * @see FinancialAnalyticsService
- * @deprecated Consider injecting specialized analytics services directly in new code
  */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Deprecated(since = "2.0.0", forRemoval = false)
 public class AnalyticsServiceImpl implements AnalyticsService {
 
     private final StockAnalyticsService stockAnalytics;
