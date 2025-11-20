@@ -174,7 +174,6 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
     formState: { errors, isSubmitting },
     reset,
     setValue,
-    watch,
   } = useForm<EditItemForm>({
     resolver: zodResolver(editItemSchema),
     defaultValues: {
@@ -182,8 +181,6 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
       newName: '',
     },
   });
-
-  const newNameValue = watch('newName');
 
   // ================================
   // Effects
@@ -443,7 +440,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
         <Button
           onClick={onSubmit}
           variant="contained"
-          disabled={!selectedItem || isSubmitting || !newNameValue}
+          disabled={isSubmitting}
         >
           {isSubmitting ? (
             <>
