@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * &lt;p&gt;&lt;strong&gt;Database&lt;/strong&gt;: Oracle Autonomous Database with wallet-based authentication.
  * 
  * &lt;p&gt;&lt;strong&gt;Security&lt;/strong&gt;: Oracle wallet configuration handled by deployment infrastructure 
- * (start.sh) for security and separation of concerns.
+ * (scripts/start.sh) for security and separation of concerns.
  * 
  * &lt;p&gt;&lt;strong&gt;Architecture&lt;/strong&gt;: Layered (Controller → Service → Repository), DTO pattern, 
  * validation layer, audit trail.
@@ -31,7 +31,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     /**
      * Main entry point for the Inventory Service application.
      * 
-     * &lt;p&gt;&lt;strong&gt;Oracle Wallet Setup&lt;/strong&gt;: Handled by start.sh before JVM startup 
+     * &lt;p&gt;&lt;strong&gt;Oracle Wallet Setup&lt;/strong&gt;: Handled by scripts/start.sh before JVM startup 
      * (decodes wallet, sets system properties, clears env vars).
      * 
      * &lt;p&gt;&lt;strong&gt;Benefits&lt;/strong&gt;: Security (no sensitive config in Java), testability 
