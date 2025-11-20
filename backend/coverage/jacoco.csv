@@ -15,7 +15,7 @@ Inventory Service,com.smartsupplypro.inventory.controller,AuthController.AppUser
 Inventory Service,com.smartsupplypro.inventory.controller,HealthCheckController,54,3,8,0,12,1,6,1,2,1
 Inventory Service,com.smartsupplypro.inventory.controller,RootRedirectController,6,6,0,0,1,1,1,1,1,1
 Inventory Service,com.smartsupplypro.inventory.controller,StockHistoryController,0,46,2,4,0,10,2,5,0,4
-Inventory Service,com.smartsupplypro.inventory.service.impl.inventory,InventoryItemValidationHelper,141,0,26,0,32,0,21,0,8,0
+Inventory Service,com.smartsupplypro.inventory.service.impl.inventory,InventoryItemValidationHelper,149,0,26,0,35,0,22,0,9,0
 Inventory Service,com.smartsupplypro.inventory.service.impl.inventory,InventoryItemAuditHelper,77,0,6,0,29,0,9,0,6,0
 Inventory Service,com.smartsupplypro.inventory.config,SecuritySpelBridgeConfig,0,5,0,0,0,2,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.config,SecurityFilterHelper.new OncePerRequestFilter() {...},25,6,6,0,6,1,4,1,1,1
@@ -35,7 +35,7 @@ Inventory Service,com.smartsupplypro.inventory.exception,InvalidRequestException
 Inventory Service,com.smartsupplypro.inventory.exception,DuplicateResourceException,126,18,11,1,22,6,15,2,9,2
 Inventory Service,com.smartsupplypro.inventory.exception,InvalidRequestException,198,26,11,1,38,7,21,2,15,2
 Inventory Service,com.smartsupplypro.inventory.exception,GlobalExceptionHandler,75,140,10,10,30,46,17,9,8,8
-Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,154,128,18,12,32,25,18,7,5,5
+Inventory Service,com.smartsupplypro.inventory.service.impl,InventoryItemServiceImpl,181,105,25,5,34,24,21,4,6,4
 Inventory Service,com.smartsupplypro.inventory.service.impl,SupplierServiceImpl,28,102,0,2,8,23,4,6,4,5
 Inventory Service,com.smartsupplypro.inventory.service.impl,AnalyticsServiceImpl,52,0,0,0,9,0,9,0,9,0
 Inventory Service,com.smartsupplypro.inventory.mapper,SupplierMapper,15,60,4,4,2,21,5,3,1,3
@@ -57,6 +57,6 @@ Inventory Service,com.smartsupplypro.inventory.service.impl.analytics,FinancialA
 Inventory Service,com.smartsupplypro.inventory.dto,PriceTrendDTO,0,11,0,0,0,4,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.dto,StockEventRowDTO,0,21,0,0,0,1,0,1,0,1
 Inventory Service,com.smartsupplypro.inventory.validation,StockHistoryValidator,16,101,8,18,2,18,7,8,0,2
-Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,54,101,16,18,13,18,16,8,4,3
+Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemValidator,54,110,16,20,13,21,16,10,4,4
 Inventory Service,com.smartsupplypro.inventory.validation,SupplierValidator,5,98,4,18,2,23,4,13,0,6
 Inventory Service,com.smartsupplypro.inventory.validation,InventoryItemSecurityValidator,84,0,18,0,16,0,13,0,4,0

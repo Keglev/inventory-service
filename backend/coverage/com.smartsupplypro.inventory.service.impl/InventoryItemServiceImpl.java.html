@@ -76,7 +76,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
      */
     @Override
     public Optional&lt;InventoryItemDTO&gt; getById(String id) {
-<span class="fc" id="L79">        return repository.findById(id).map(InventoryItemMapper::toDTO);</span>
+<span class="nc" id="L79">        return repository.findById(id).map(InventoryItemMapper::toDTO);</span>
     }
 
     /**
@@ -186,24 +186,25 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional
     public void delete(String id, StockChangeReason reason) {
         // Validate deletion reason
-<span class="pc bpc" id="L189" title="4 of 12 branches missed.">        if (reason != StockChangeReason.SCRAPPED &amp;&amp;</span>
+<span class="pc bpc" id="L189" title="11 of 12 branches missed.">        if (reason != StockChangeReason.SCRAPPED &amp;&amp;</span>
             reason != StockChangeReason.DESTROYED &amp;&amp;
             reason != StockChangeReason.DAMAGED &amp;&amp;
             reason != StockChangeReason.EXPIRED &amp;&amp;
             reason != StockChangeReason.LOST &amp;&amp;
             reason != StockChangeReason.RETURNED_TO_SUPPLIER) {
-<span class="fc" id="L195">            throw new IllegalArgumentException(&quot;Invalid reason for deletion&quot;);</span>
+<span class="nc" id="L195">            throw new IllegalArgumentException(&quot;Invalid reason for deletion&quot;);</span>
         }
 
-        // Verify item exists
-<span class="fc" id="L199">        InventoryItem item = validationHelper.validateExists(id);</span>
+        // Validate item exists and quantity is zero before deletion
+<span class="fc" id="L199">        validationHelper.validateForDeletion(id);</span>
+<span class="fc" id="L200">        InventoryItem item = validationHelper.validateExists(id);</span>
 
         // Log full stock removal
-<span class="fc" id="L202">        auditHelper.logFullRemoval(item, reason);</span>
+<span class="fc" id="L203">        auditHelper.logFullRemoval(item, reason);</span>
 
         // Perform hard delete
-<span class="fc" id="L205">        repository.deleteById(id);</span>
-<span class="fc" id="L206">    }</span>
+<span class="fc" id="L206">        repository.deleteById(id);</span>
+<span class="fc" id="L207">    }</span>
 
     /**
      * Adjusts inventory quantity by a delta (positive for stock-in, negative for stock-out).
@@ -218,24 +219,24 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional
     public InventoryItemDTO adjustQuantity(String id, int delta, StockChangeReason reason) {
         // Verify item exists
-<span class="nc" id="L221">        InventoryItem item = validationHelper.validateExists(id);</span>
+<span class="nc" id="L222">        InventoryItem item = validationHelper.validateExists(id);</span>
 
         // Calculate new quantity
-<span class="nc" id="L224">        int newQty = item.getQuantity() + delta;</span>
+<span class="nc" id="L225">        int newQty = item.getQuantity() + delta;</span>
         
         // Validate non-negative quantity
-<span class="nc" id="L227">        assertFinalQuantityNonNegative(newQty);</span>
+<span class="nc" id="L228">        assertFinalQuantityNonNegative(newQty);</span>
 
         // Update item quantity
-<span class="nc" id="L230">        item.setQuantity(newQty);</span>
+<span class="nc" id="L231">        item.setQuantity(newQty);</span>
         
         // Persist to database
-<span class="nc" id="L233">        InventoryItem saved = repository.save(item);</span>
+<span class="nc" id="L234">        InventoryItem saved = repository.save(item);</span>
 
         // Log stock history
-<span class="nc" id="L236">        auditHelper.logQuantityAdjustment(saved, delta, reason);</span>
+<span class="nc" id="L237">        auditHelper.logQuantityAdjustment(saved, delta, reason);</span>
 
-<span class="nc" id="L238">        return InventoryItemMapper.toDTO(saved);</span>
+<span class="nc" id="L239">        return InventoryItemMapper.toDTO(saved);</span>
     }
 
     /**
@@ -250,21 +251,21 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional
     public InventoryItemDTO updatePrice(String id, BigDecimal newPrice) {
         // Validate price is positive
-<span class="nc" id="L253">        assertPriceValid(newPrice);</span>
+<span class="nc" id="L254">        assertPriceValid(newPrice);</span>
 
         // Verify item exists
-<span class="nc" id="L256">        InventoryItem item = validationHelper.validateExists(id);</span>
+<span class="nc" id="L257">        InventoryItem item = validationHelper.validateExists(id);</span>
         
         // Update item price
-<span class="nc" id="L259">        item.setPrice(newPrice);</span>
+<span class="nc" id="L260">        item.setPrice(newPrice);</span>
         
         // Persist to database
-<span class="nc" id="L262">        InventoryItem saved = repository.save(item);</span>
+<span class="nc" id="L263">        InventoryItem saved = repository.save(item);</span>
 
         // Log price change history
-<span class="nc" id="L265">        auditHelper.logPriceChange(id, newPrice);</span>
+<span class="nc" id="L266">        auditHelper.logPriceChange(id, newPrice);</span>
         
-<span class="nc" id="L267">        return InventoryItemMapper.toDTO(saved);</span>
+<span class="nc" id="L268">        return InventoryItemMapper.toDTO(saved);</span>
     }
 
     /**
@@ -281,30 +282,30 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional
     public InventoryItemDTO renameItem(String id, String newName) {
         // Validate new name is not empty
-<span class="nc bnc" id="L284" title="All 4 branches missed.">        if (newName == null || newName.trim().isEmpty()) {</span>
-<span class="nc" id="L285">            throw new IllegalArgumentException(&quot;Item name cannot be empty&quot;);</span>
+<span class="nc bnc" id="L285" title="All 4 branches missed.">        if (newName == null || newName.trim().isEmpty()) {</span>
+<span class="nc" id="L286">            throw new IllegalArgumentException(&quot;Item name cannot be empty&quot;);</span>
         }
 
         // Verify item exists and get existing data
-<span class="nc" id="L289">        InventoryItem existing = validationHelper.validateExists(id);</span>
+<span class="nc" id="L290">        InventoryItem existing = validationHelper.validateExists(id);</span>
 
         // Check if new name already exists for the same supplier (case-insensitive)
-<span class="nc" id="L292">        List&lt;InventoryItem&gt; duplicates = repository.findByNameIgnoreCase(newName.trim());</span>
-<span class="nc bnc" id="L293" title="All 2 branches missed.">        for (InventoryItem dup : duplicates) {</span>
+<span class="nc" id="L293">        List&lt;InventoryItem&gt; duplicates = repository.findByNameIgnoreCase(newName.trim());</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">        for (InventoryItem dup : duplicates) {</span>
             // If we find an item with the same name and supplier (but different id), it's a conflict
-<span class="nc bnc" id="L295" title="All 2 branches missed.">            if (!dup.getId().equals(id) &amp;&amp; </span>
-<span class="nc bnc" id="L296" title="All 2 branches missed.">                dup.getSupplierId().equals(existing.getSupplierId())) {</span>
-<span class="nc" id="L297">                throw new IllegalArgumentException(&quot;An item with this name already exists for this supplier&quot;);</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">            if (!dup.getId().equals(id) &amp;&amp; </span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                dup.getSupplierId().equals(existing.getSupplierId())) {</span>
+<span class="nc" id="L298">                throw new IllegalArgumentException(&quot;An item with this name already exists for this supplier&quot;);</span>
             }
-<span class="nc" id="L299">        }</span>
+<span class="nc" id="L300">        }</span>
 
         // Update item name
-<span class="nc" id="L302">        existing.setName(newName.trim());</span>
+<span class="nc" id="L303">        existing.setName(newName.trim());</span>
         
         // Persist to database
-<span class="nc" id="L305">        InventoryItem saved = repository.save(existing);</span>
+<span class="nc" id="L306">        InventoryItem saved = repository.save(existing);</span>
         
-<span class="nc" id="L307">        return InventoryItemMapper.toDTO(saved);</span>
+<span class="nc" id="L308">        return InventoryItemMapper.toDTO(saved);</span>
     }
 }
 

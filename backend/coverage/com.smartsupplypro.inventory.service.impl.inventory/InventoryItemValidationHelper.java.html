@@ -145,16 +145,30 @@ public class InventoryItemValidationHelper {
     }
 
     /**
+     * Validates item for deletion.
+     *
+     * &lt;p&gt;Steps: Validate item exists → check quantity is zero.
+     *
+     * @param id the item ID to validate for deletion
+     * @throws IllegalArgumentException if item not found
+     * @throws IllegalStateException if quantity is greater than zero
+     */
+    public void validateForDeletion(String id) {
+<span class="nc" id="L157">        InventoryItem item = InventoryItemValidator.validateExists(id, repository);</span>
+<span class="nc" id="L158">        InventoryItemValidator.assertQuantityIsZeroForDeletion(item);</span>
+<span class="nc" id="L159">    }</span>
+
+    /**
      * Validates that the specified supplier exists.
      *
      * @param supplierId the supplier identifier
      * @throws IllegalArgumentException if supplier does not exist
      */
     private void validateSupplierExists(String supplierId) {
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (!supplierRepository.existsById(supplierId)) {</span>
-<span class="nc" id="L155">            throw new IllegalArgumentException(&quot;Supplier does not exist&quot;);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (!supplierRepository.existsById(supplierId)) {</span>
+<span class="nc" id="L169">            throw new IllegalArgumentException(&quot;Supplier does not exist&quot;);</span>
         }
-<span class="nc" id="L157">    }</span>
+<span class="nc" id="L171">    }</span>
 
     /**
      * Retrieves current authenticated username from Spring Security context.
@@ -162,9 +176,9 @@ public class InventoryItemValidationHelper {
      * @return authenticated username, or &quot;system&quot; if no authentication present
      */
     private String currentUsername() {
-<span class="nc bnc" id="L165" title="All 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
-<span class="nc" id="L166">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
-<span class="nc bnc" id="L167" title="All 2 branches missed.">        return a != null ? a.getName() : &quot;system&quot;;</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        Authentication a = SecurityContextHolder.getContext() != null</span>
+<span class="nc" id="L180">                ? SecurityContextHolder.getContext().getAuthentication() : null;</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        return a != null ? a.getName() : &quot;system&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
