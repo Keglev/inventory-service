@@ -61,6 +61,7 @@
   "change": "Change",
   "itemRenamed": "Item name changed successfully!",
   "renameItemFailed": "Failed to rename item. Please try again.",
+  "adminOnly": "Only administrators can rename items.",
   "currentPrice": "Current Price",
   "setPriceHint": "Price will be set to ${{price}}",
   "applyPriceChange": "Apply Price Change",

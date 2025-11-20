@@ -66,6 +66,7 @@
   "change": "Ändern",
   "itemRenamed": "Artikelname erfolgreich geändert!",
   "renameItemFailed": "Fehler beim Ändern des Artikelnamens. Bitte versuchen Sie es erneut.",
+  "adminOnly": "Nur Administratoren können Artikelnamen ändern.",
   "reasons": {
     "initial_stock": "Anfangsbestand",
     "manual_update": "Manuelle Anpassung",

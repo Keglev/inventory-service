@@ -280,6 +280,8 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
         );
         onItemRenamed();
         handleClose();
+      } else if (success.error?.includes('Admin') || success.error?.includes('Access denied')) {
+        setFormError(t('inventory:adminOnly', 'Only administrators can rename items.'));
       } else if (success.error?.includes('duplicate') || success.error?.includes('already exists')) {
         setFormError(t('inventory:duplicateName', 'An item with this name already exists.'));
       } else {

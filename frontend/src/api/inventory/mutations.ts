@@ -38,11 +38,20 @@ const errorMessage = (e: unknown): string => {
   // Axios-like error shape with response.data.{message|error}
   if (isRecord(e) && isRecord(e.response)) {
     const resp = e.response as UnknownRecord;
+    const status = pickNumber(resp, 'status');
+    
     if (isRecord(resp.data)) {
       const d = resp.data as UnknownRecord;
       const msg = pickString(d, 'message') ?? pickString(d, 'error');
       if (msg) return msg;
     }
+    
+    // Fallback to HTTP status message if available
+    if (status === 403) return 'Access denied - Admin permission required';
+    if (status === 401) return 'Not authenticated - Please log in';
+    if (status === 404) return 'Item not found';
+    if (status === 409) return 'Conflict - Name already exists';
+    if (status === 400) return 'Invalid input';
   }
   if (e instanceof Error) return e.message;
   return 'Request failed';
