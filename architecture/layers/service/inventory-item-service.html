@@ -76,6 +76,8 @@ layers/service/inventory-item-service · Smart Supply Pro Docs</title>
         <ul>
         <li><a href="#new-method-renameitem"
         id="toc-new-method-renameitem">New Method: renameItem</a></li>
+        <li><a href="#method-delete" id="toc-method-delete">Method:
+        delete</a></li>
         </ul></li>
         <li><a href="#business-rules" id="toc-business-rules">Business
         Rules</a></li>
@@ -145,6 +147,42 @@ layers/service/inventory-item-service · Smart Supply Pro Docs</title>
         proper HTTP status codes: - “empty” in message → 400 Bad Request
         - “already exists” in message → 409 Conflict - Other messages →
         404 Not Found</p>
+        <h3 id="method-delete">Method: delete</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> Deletes an inventory item from the system<span class="co">.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> ADMIN<span class="co">-</span>only operation<span class="co">.</span> Item must have quantity <span class="co">=</span> <span class="co">0</span> <span class="co">(</span>all stock removed<span class="co">).</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>param id item identifier</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>param reason deletion reason <span class="co">(</span>SCRAPPED<span class="co">,</span> DESTROYED<span class="co">,</span> DAMAGED<span class="co">,</span> EXPIRED<span class="co">,</span> LOST<span class="co">,</span> RETURNED_TO_SUPPLIER<span class="co">)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>throws IllegalArgumentException if item not found or deletion reason invalid</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>throws IllegalStateException if item quantity <span class="co">&gt;</span> <span class="co">0</span> <span class="co">(</span>still has merchandise in stock<span class="co">)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>throws AccessDeniedException if user is not ADMIN</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a> <span class="co">*/</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">delete</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> StockChangeReason reason<span class="op">);</span></span></code></pre></div>
+        <p><strong>Implementation Details:</strong> - Validates deletion
+        reason is one of valid enum values (SCRAPPED, DESTROYED,
+        DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER) - Validates item
+        exists by ID (throws <code>IllegalArgumentException</code> on
+        failure) - <strong>Enforces Business Rule</strong>: Validates
+        quantity = 0 before deletion - If quantity &gt; 0, throws
+        <code>IllegalStateException</code> with message “You still have
+        merchandise in stock. You need to first remove items from stock
+        by changing quantity.” - This prevents accidental deletion of
+        items with remaining inventory - Creates audit trail entry via
+        <code>auditHelper.logFullRemoval()</code> with deletion reason -
+        Deletes item from repository</p>
+        <p><strong>Validation Flow:</strong> 1. Controller enforces
+        authorization via <code>@PreAuthorize("hasRole('ADMIN')")</code>
+        2. Service layer validates via
+        <code>InventoryItemValidator.validateExists()</code> 3. Service
+        layer validates via
+        <code>InventoryItemValidator.assertQuantityIsZeroForDeletion()</code>
+        4. Audit trail is logged 5. Item is removed from database</p>
+        <p><strong>Error Responses:</strong> - 400 Bad Request - Invalid
+        deletion reason - 404 Not Found - Item not found - 409 Conflict
+        - Item has quantity &gt; 0 (still has merchandise) - 403
+        Forbidden - User is not ADMIN</p>
         <h2 id="business-rules">Business Rules</h2>
         <ol type="1">
         <li><strong>Unique Names</strong> - Item names must be unique
@@ -163,6 +201,8 @@ layers/service/inventory-item-service · Smart Supply Pro Docs</title>
         role can rename items</li>
         <li><strong>Non-Empty Name</strong> - Item name must not be
         empty or contain only whitespace</li>
+        <li><strong>Delete Requires Zero Quantity</strong> - Items can
+        only be deleted when quantity = 0 (all stock removed)</li>
         </ol>
         <h2 id="exception-handling">Exception Handling</h2>
         <ul>
