@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+diagrams/context-diagram · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#context-diagram" id="toc-context-diagram">Context
+        Diagram</a>
+        <ul>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#system-context" id="toc-system-context">System
+        Context</a></li>
+        <li><a href="#component-description"
+        id="toc-component-description">Component Description</a>
+        <ul>
+        <li><a href="#external-actors" id="toc-external-actors">External
+        Actors</a></li>
+        <li><a href="#core-systems" id="toc-core-systems">Core
+        Systems</a></li>
+        </ul></li>
+        <li><a href="#key-data-flows" id="toc-key-data-flows">Key Data
+        Flows</a>
+        <ul>
+        <li><a href="#user-login-flow" id="toc-user-login-flow">1. User
+        Login Flow</a></li>
+        <li><a href="#api-request-flow" id="toc-api-request-flow">2. API
+        Request Flow</a></li>
+        <li><a href="#data-update-flow" id="toc-data-update-flow">3.
+        Data Update Flow</a></li>
+        </ul></li>
+        <li><a href="#system-boundaries"
+        id="toc-system-boundaries">System Boundaries</a></li>
+        <li><a href="#important-notes"
+        id="toc-important-notes">Important Notes</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="context-diagram">Context Diagram</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="navigation">Navigation</h2>
+        <p><strong>Back to</strong>: <a href="./index.html">Diagrams
+        Index</a> | <a href="../index.html">Architecture Index</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>The context diagram shows Smart Supply Pro as a complete
+        system in its environment, including external actors, external
+        systems, and major data flows.</p>
+        <hr />
+        <h2 id="system-context">System Context</h2>
+        <div class="mermaid">
+        graph TB
+            User["👤 End Users<br/>(Admin/Supplier Manager)"]
+            Admin["👨‍💼 Admin User<br/>(System Administrator)"]
+            Frontend["🖥️ Frontend<br/>(React SPA)<br/>inventory-service/frontend"]
+            Backend["⚙️ Backend<br/>(Spring Boot REST API)<br/>inventory-service/src"]
+            OAuth["🔐 OAuth2 Provider<br/>(Google Login)"]
+            Database["💾 Oracle Database<br/>(Oracle Autonomous DB)"]
+            
+            User -->|"Uses"| Frontend
+            Admin -->|"Uses"| Frontend
+            Frontend -->|"HTTP/REST API<br/>JSON"| Backend
+            Backend -->|"OAuth2<br/>Authorization Code"| OAuth
+            OAuth -->|"User Info +<br/>Access Token"| Backend
+            Backend -->|"SQL Queries<br/>CRUD"| Database
+            Database -->|"Query Results"| Backend
+            Frontend -->|"Display"| User
+            Frontend -->|"Display"| Admin
+            
+            style User fill:#e3f2fd
+            style Admin fill:#e3f2fd
+            style Frontend fill:#f3e5f5
+            style Backend fill:#e8f5e9
+            style OAuth fill:#fff3e0
+            style Database fill:#fce4ec
+        </div>
+        <hr />
+        <h2 id="component-description">Component Description</h2>
+        <h3 id="external-actors">External Actors</h3>
+        <p><strong>End Users (Admin/Supplier Manager)</strong> - Use the
+        React frontend to view inventory, manage stock, and access
+        analytics - Authenticate via OAuth2 (Google) - View real-time
+        stock levels and historical data</p>
+        <p><strong>System Administrator</strong> - Manages suppliers,
+        inventory items, and system configuration - Has full access to
+        all system features - Can view audit logs and system
+        performance</p>
+        <h3 id="core-systems">Core Systems</h3>
+        <p><strong>Frontend (React SPA)</strong> - Single-page
+        application for user interface - Located at
+        <code>/frontend</code> in the repository - Communicates with
+        backend via REST API (HTTP/JSON) - Handles OAuth2 login flow
+        with Google</p>
+        <p><strong>Backend (Spring Boot API)</strong> - RESTful API
+        providing all business functionality - Located at
+        <code>/src/main/java</code> in the repository - Handles OAuth2
+        token validation - Manages all business logic (inventory,
+        analytics, security) - Communicates with Oracle database</p>
+        <p><strong>OAuth2 Provider (Google)</strong> - External
+        authentication service - Handles user identity verification -
+        Provides access tokens for authorized API access - Prevents
+        unauthorized access to sensitive data</p>
+        <p><strong>Oracle Autonomous Database</strong> - Persistent data
+        storage - Stores suppliers, inventory items, stock history, and
+        user information - Automatically managed by Oracle Cloud -
+        Accessed via JDBC connection pool</p>
+        <hr />
+        <h2 id="key-data-flows">Key Data Flows</h2>
+        <h3 id="user-login-flow">1. User Login Flow</h3>
+        <ol type="1">
+        <li>User clicks “Login with Google” on frontend</li>
+        <li>Frontend redirects to Google OAuth2 endpoint</li>
+        <li>User authenticates with Google credentials</li>
+        <li>Google redirects to backend callback URL with authorization
+        code</li>
+        <li>Backend exchanges code for access token</li>
+        <li>Backend validates token and creates/retrieves user in
+        database</li>
+        <li>Backend returns session/JWT to frontend</li>
+        <li>Frontend stores token and makes API requests with
+        authentication</li>
+        </ol>
+        <h3 id="api-request-flow">2. API Request Flow</h3>
+        <ol type="1">
+        <li>Frontend sends HTTP request with authorization header</li>
+        <li>Backend validates token and establishes user context</li>
+        <li>Backend processes request (validation, business logic)</li>
+        <li>Backend queries/updates database as needed</li>
+        <li>Backend returns response (data or error)</li>
+        <li>Frontend receives response and updates UI</li>
+        </ol>
+        <h3 id="data-update-flow">3. Data Update Flow</h3>
+        <ol type="1">
+        <li>User performs action (create supplier, update
+        inventory)</li>
+        <li>Frontend validates and sends HTTP POST/PUT to backend</li>
+        <li>Backend validates request data</li>
+        <li>Backend applies business rules</li>
+        <li>Backend saves changes to database</li>
+        <li>Database confirms transaction</li>
+        <li>Backend returns confirmation to frontend</li>
+        <li>Frontend updates UI to reflect changes</li>
+        </ol>
+        <hr />
+        <h2 id="system-boundaries">System Boundaries</h2>
+        <p><strong>Within System</strong> (Smart Supply Pro): - React
+        frontend and all UI components - Spring Boot backend and all
+        business logic - Internal domain model and validation rules -
+        Exception handling and error responses</p>
+        <p><strong>External Systems</strong> (Beyond System Control): -
+        Google OAuth2 provider (user authentication) - Oracle Cloud
+        (database hosting) - Internet/Network infrastructure
+        (communication)</p>
+        <hr />
+        <h2 id="important-notes">Important Notes</h2>
+        <ul>
+        <li><strong>OAuth2 Tokens</strong>: All API requests (except
+        login) require valid Google-issued access token</li>
+        <li><strong>Database Security</strong>: Oracle wallet-based
+        authentication prevents credential exposure</li>
+        <li><strong>API-First Design</strong>: Backend is pure REST API
+        (no server-side HTML rendering)</li>
+        <li><strong>Stateless</strong>: Backend doesn’t maintain session
+        state, enabling horizontal scaling</li>
+        <li><strong>CORS</strong>: Frontend communicates with backend
+        across different origins (handled via CORS configuration)</li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="./logical-architecture.html">Logical
+        Architecture</a> - Internal backend structure</li>
+        <li><a href="./deployment-diagram.html">Deployment Diagram</a> -
+        How the system is deployed</li>
+        <li><a href="./request-lifecycle.html">Request Lifecycle</a> -
+        End-to-end request flow</li>
+        <li><a href="./security-flow.html">Security Flow</a> - OAuth2
+        and authorization details</li>
+        <li><a href="../overview.html">Architecture Overview</a> -
+        Comprehensive architecture guide</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

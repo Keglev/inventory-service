@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+diagrams/security-flow · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#security-flow" id="toc-security-flow">Security
+        Flow</a>
+        <ul>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#oauth2-authorization-code-flow"
+        id="toc-oauth2-authorization-code-flow">OAuth2 Authorization
+        Code Flow</a></li>
+        <li><a href="#authenticated-api-request-flow"
+        id="toc-authenticated-api-request-flow">Authenticated API
+        Request Flow</a></li>
+        <li><a href="#authorization-checking-flow"
+        id="toc-authorization-checking-flow">Authorization Checking
+        Flow</a></li>
+        <li><a href="#authentication-authorization-markers"
+        id="toc-authentication-authorization-markers">Authentication
+        &amp; Authorization Markers</a>
+        <ul>
+        <li><a href="#api-method-with-authorization"
+        id="toc-api-method-with-authorization">API Method with
+        Authorization</a></li>
+        <li><a href="#common-preauthorize-patterns"
+        id="toc-common-preauthorize-patterns">Common <span
+        class="citation" data-cites="PreAuthorize">@PreAuthorize</span>
+        Patterns</a></li>
+        </ul></li>
+        <li><a href="#token-validation-details"
+        id="toc-token-validation-details">Token Validation Details</a>
+        <ul>
+        <li><a href="#token-contents-jwt-claims"
+        id="toc-token-contents-jwt-claims">Token Contents (JWT
+        Claims)</a></li>
+        <li><a href="#validation-steps"
+        id="toc-validation-steps">Validation Steps</a></li>
+        <li><a href="#cache-strategy" id="toc-cache-strategy">Cache
+        Strategy</a></li>
+        </ul></li>
+        <li><a href="#security-flows-by-scenario"
+        id="toc-security-flows-by-scenario">Security Flows by
+        Scenario</a>
+        <ul>
+        <li><a href="#happy-path-admin-creates-supplier"
+        id="toc-happy-path-admin-creates-supplier">Happy Path: Admin
+        Creates Supplier</a></li>
+        <li><a href="#error-user-tries-to-create-supplier"
+        id="toc-error-user-tries-to-create-supplier">Error: User Tries
+        to Create Supplier</a></li>
+        <li><a href="#error-invalidexpired-token"
+        id="toc-error-invalidexpired-token">Error: Invalid/Expired
+        Token</a></li>
+        </ul></li>
+        <li><a href="#security-best-practices-implemented"
+        id="toc-security-best-practices-implemented">Security Best
+        Practices Implemented</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="security-flow">Security Flow</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="navigation">Navigation</h2>
+        <p><strong>Back to</strong>: <a href="./index.html">Diagrams
+        Index</a> | <a href="../index.html">Architecture Index</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>The security flow diagrams show how OAuth2 authentication and
+        authorization work in Smart Supply Pro, including user login,
+        token validation, and permission checking.</p>
+        <hr />
+        <h2 id="oauth2-authorization-code-flow">OAuth2 Authorization
+        Code Flow</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            User->>Browser: 1. Click "Login with Google"
+            Browser->>Frontend: 2. Navigate to login page
+            Frontend->>Google: 3. Redirect to Google OAuth2<br/>/oauth2/authorization/google
+            
+            Google->>Google: 4. Display login screen
+            User->>Google: 5. Enter Google credentials
+            Google->>Google: 6. Authenticate user
+            
+            Google->>Backend: 7. Redirect to callback<br/>with authorization code<br/>/oauth2/login/google/code={code}
+            
+            Backend->>Google: 8. Exchange code for token<br/>POST /token with code & secret
+            Google-->>Backend: 9. Return access token & user info<br/>{access_token, id_token, expires_in}
+            
+            Backend->>Database: 10. Look up/create user<br/>SELECT/INSERT into APP_USER
+            Database-->>Backend: 11. User record returned
+            
+            Backend->>Frontend: 12. Redirect to home<br/>Set session cookie/JWT
+            Browser->>Frontend: 13. Cookie/Token stored
+            
+            Frontend->>User: 14. Display dashboard
+            
+            style User fill:#e3f2fd
+            style Browser fill:#bbdefb
+            style Frontend fill:#90caf9
+            style Backend fill:#64b5f6
+            style Google fill:#ffb74d
+            style Database fill:#81c784
+        </div>
+        <hr />
+        <h2 id="authenticated-api-request-flow">Authenticated API
+        Request Flow</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            Browser->>API: 1. HTTP GET /api/suppliers<br/>Authorization: Bearer {token}
+            
+            API->>SecurityFilter: 2. Validate token
+            SecurityFilter->>Google: 3. Verify token validity<br/>(if needed)
+            Google-->>SecurityFilter: 4. Token valid ✓
+            
+            SecurityFilter->>SecurityContext: 5. Establish user principal<br/>Set current user
+            SecurityFilter-->>API: 6. User authenticated
+            
+            API->>Database: 7. Query suppliers<br/>SELECT * FROM supplier
+            Database-->>API: 8. Return results
+            
+            API->>API: 9. Check authorization<br/>@PreAuthorize("hasRole('USER')")
+            API->>API: 10. User has USER role ✓
+            
+            API-->>Browser: 11. Return JSON response<br/>HTTP 200
+            
+            Browser->>Browser: 12. Update UI with data
+            
+            style Browser fill:#bbdefb
+            style API fill:#64b5f6
+            style SecurityFilter fill:#ef5350
+            style Google fill:#ffb74d
+            style Database fill:#81c784
+        </div>
+        <hr />
+        <h2 id="authorization-checking-flow">Authorization Checking
+        Flow</h2>
+        <div class="mermaid">
+        graph TD
+            Request["HTTP Request arrives<br/>with Authorization header"]
+            Validate["Spring Security<br/>validates token"]
+            ValidCheck{Token valid?}
+            AuthFail["❌ AuthenticationException<br/>Token invalid/expired"]
+            AuthSuccess["✓ SecurityContext established<br/>User principal set"]
+            
+            PreaAuth["@PreAuthorize annotation<br/>checks access"]
+            RoleCheck{User has<br/>required role?}
+            PermFail["❌ AccessDeniedException<br/>403 Forbidden"]
+            PermSuccess["✓ Method executes"]
+            
+            ExHandler["GlobalExceptionHandler<br/>catches exception"]
+            Response["HTTP 403 or 401<br/>with error message"]
+            
+            Request --> Validate
+            Validate --> ValidCheck
+            ValidCheck -->|No| AuthFail
+            ValidCheck -->|Yes| AuthSuccess
+            AuthSuccess --> PreaAuth
+            PreaAuth --> RoleCheck
+            RoleCheck -->|No| PermFail
+            RoleCheck -->|Yes| PermSuccess
+            AuthFail --> ExHandler
+            PermFail --> ExHandler
+            ExHandler --> Response
+            PermSuccess --> Request
+            
+            style Request fill:#e1f5ff
+            style Validate fill:#64b5f6
+            style AuthSuccess fill:#81c784
+            style AuthFail fill:#ef5350
+            style PermSuccess fill:#81c784
+            style PermFail fill:#ef5350
+            style Response fill:#ffb74d
+        </div>
+        <hr />
+        <h2 id="authentication-authorization-markers">Authentication
+        &amp; Authorization Markers</h2>
+        <h3 id="api-method-with-authorization">API Method with
+        Authorization</h3>
+        <p><strong>Example Code:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span>  <span class="co">// Only ADMIN can create</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">createSupplier</span><span class="op">(</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierDTO dto</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    SupplierDTO created <span class="op">=</span> supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>created<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Flow When User Calls</strong>: 1. Browser sends POST
+        with token 2. Spring Security validates token → OK 3. <span
+        class="citation" data-cites="PreAuthorize">@PreAuthorize</span>
+        evaluates “hasRole(‘ADMIN’)” 4. If user role = ADMIN → Method
+        executes 5. If user role = USER → AccessDeniedException
+        thrown</p>
+        <hr />
+        <h3 id="common-preauthorize-patterns">Common <span
+        class="citation" data-cites="PreAuthorize">@PreAuthorize</span>
+        Patterns</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Pattern</th>
+        <th>Meaning</th>
+        <th>HTTP on Failure</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>hasRole('ADMIN')</code></td>
+        <td>Only ADMIN users</td>
+        <td>403 Forbidden</td>
+        </tr>
+        <tr class="even">
+        <td><code>hasRole('USER')</code></td>
+        <td>Only USER role (or ADMIN)</td>
+        <td>403 Forbidden</td>
+        </tr>
+        <tr class="odd">
+        <td><code>hasAnyRole('ADMIN','USER')</code></td>
+        <td>Either ADMIN or USER</td>
+        <td>403 Forbidden</td>
+        </tr>
+        <tr class="even">
+        <td><code>isAuthenticated()</code></td>
+        <td>Any authenticated user</td>
+        <td>403 Forbidden</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="token-validation-details">Token Validation Details</h2>
+        <h3 id="token-contents-jwt-claims">Token Contents (JWT
+        Claims)</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sub&quot;</span><span class="fu">:</span> <span class="st">&quot;google-user-id&quot;</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;user@example.com&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;email_verified&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;John Doe&quot;</span><span class="fu">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;picture&quot;</span><span class="fu">:</span> <span class="st">&quot;https://...&quot;</span><span class="fu">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;aud&quot;</span><span class="fu">:</span> <span class="st">&quot;app-client-id.apps.googleusercontent.com&quot;</span><span class="fu">,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;iss&quot;</span><span class="fu">:</span> <span class="st">&quot;https://accounts.google.com&quot;</span><span class="fu">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;exp&quot;</span><span class="fu">:</span> <span class="dv">1700000000</span><span class="fu">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;iat&quot;</span><span class="fu">:</span> <span class="dv">1699999000</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="validation-steps">Validation Steps</h3>
+        <ol type="1">
+        <li><strong>Signature</strong>: Verify token is signed by
+        Google</li>
+        <li><strong>Expiration</strong>: Check <code>exp</code> claim
+        hasn’t passed</li>
+        <li><strong>Issuer</strong>: Verify <code>iss</code> is Google’s
+        OAuth2 endpoint</li>
+        <li><strong>Audience</strong>: Verify <code>aud</code> matches
+        our app’s client ID</li>
+        <li><strong>Subject</strong>: Extract <code>sub</code> to
+        identify user</li>
+        </ol>
+        <h3 id="cache-strategy">Cache Strategy</h3>
+        <ul>
+        <li>Token validation results are cached (5-10 minutes)</li>
+        <li>Reduces calls to Google OAuth2 provider</li>
+        <li>On cache miss: Query Google to re-validate</li>
+        <li>Expired tokens force re-validation</li>
+        </ul>
+        <hr />
+        <h2 id="security-flows-by-scenario">Security Flows by
+        Scenario</h2>
+        <h3 id="happy-path-admin-creates-supplier">Happy Path: Admin
+        Creates Supplier</h3>
+        <pre><code>1. Admin logs in via Google OAuth2
+2. Gets access token from Google
+3. Sends POST /suppliers with token
+4. Spring Security validates token → ✓ Valid
+5. @PreAuthorize checks &quot;hasRole(&#39;ADMIN&#39;)&quot; → ✓ Has role
+6. Service creates supplier
+7. HTTP 201 Created returned</code></pre>
+        <h3 id="error-user-tries-to-create-supplier">Error: User Tries
+        to Create Supplier</h3>
+        <pre><code>1. User logs in via Google OAuth2
+2. Gets access token
+3. Sends POST /suppliers with token
+4. Spring Security validates token → ✓ Valid
+5. @PreAuthorize checks &quot;hasRole(&#39;ADMIN&#39;)&quot; → ✗ User has role only
+6. AccessDeniedException thrown
+7. GlobalExceptionHandler catches
+8. HTTP 403 Forbidden returned
+9. Message: &quot;Access denied - ADMIN role required&quot;</code></pre>
+        <h3 id="error-invalidexpired-token">Error: Invalid/Expired
+        Token</h3>
+        <pre><code>1. Attacker sends request with old/fake token
+2. Spring Security validates token
+3. Token validation fails (expired or invalid signature)
+4. AuthenticationException thrown
+5. GlobalExceptionHandler catches
+6. HTTP 401 Unauthorized returned
+7. Message: &quot;Authentication failed&quot;</code></pre>
+        <hr />
+        <h2 id="security-best-practices-implemented">Security Best
+        Practices Implemented</h2>
+        <p>✅ <strong>Generic Error Messages</strong> - Don’t say “User
+        not found” (enables user enumeration) - Say “Authentication
+        failed” instead</p>
+        <p>✅ <strong>No Token Exposure</strong> - Tokens never logged -
+        Tokens never returned to client (except during login) - Token
+        stored securely in HTTP-only cookie</p>
+        <p>✅ <strong>HTTPS Only</strong> - All communication encrypted
+        - Tokens transmitted over TLS/HTTPS - Prevents man-in-the-middle
+        attacks</p>
+        <p>✅ <strong>Correlation ID Tracking</strong> - All security
+        events logged with correlation ID - If user reports issue,
+        correlation ID aids investigation - Server-side logs have full
+        security context</p>
+        <p>✅ <strong>Role-Based Access Control (RBAC)</strong> - <span
+        class="citation" data-cites="PreAuthorize">@PreAuthorize</span>
+        on methods enforces rules - Roles stored in database (not in
+        token) - Can revoke access by changing user role</p>
+        <p>✅ <strong>Session Timeout</strong> - Tokens expire
+        (typically 1 hour) - Requires re-login for extended sessions -
+        Reduces risk if token is compromised</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="./context-diagram.html">Context Diagram</a> -
+        System overview</li>
+        <li><a href="./request-lifecycle.html">Request Lifecycle</a> -
+        Request flow with auth</li>
+        <li><a href="../security/index.html">Security Architecture</a> -
+        Detailed security documentation</li>
+        <li><a href="../exception/security-exceptions.html">Exception
+        Handling</a> - Auth/authz exceptions</li>
+        <li><a
+        href="../integration/auth-flow-frontend.html">Authentication
+        &amp; Authorization</a> - Frontend integration</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

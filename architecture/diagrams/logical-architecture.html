@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+diagrams/logical-architecture · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#logical-architecture"
+        id="toc-logical-architecture">Logical Architecture</a>
+        <ul>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#layered-architecture-diagram"
+        id="toc-layered-architecture-diagram">Layered Architecture
+        Diagram</a></li>
+        <li><a href="#layer-descriptions"
+        id="toc-layer-descriptions">Layer Descriptions</a>
+        <ul>
+        <li><a href="#client-layer" id="toc-client-layer">1.
+        <strong>Client Layer</strong></a></li>
+        <li><a href="#api-controller-layer"
+        id="toc-api-controller-layer">2. <strong>API &amp; Controller
+        Layer</strong></a></li>
+        <li><a href="#service-business-logic-layer"
+        id="toc-service-business-logic-layer">3. <strong>Service &amp;
+        Business Logic Layer</strong></a></li>
+        <li><a href="#repository-data-access-layer"
+        id="toc-repository-data-access-layer">4. <strong>Repository
+        &amp; Data Access Layer</strong></a></li>
+        <li><a href="#domain-model-layer" id="toc-domain-model-layer">5.
+        <strong>Domain Model Layer</strong></a></li>
+        <li><a href="#infrastructure-cross-cutting"
+        id="toc-infrastructure-cross-cutting">6. <strong>Infrastructure
+        &amp; Cross-Cutting</strong></a></li>
+        </ul></li>
+        <li><a href="#request-flow-through-layers"
+        id="toc-request-flow-through-layers">Request Flow Through
+        Layers</a></li>
+        <li><a href="#key-design-principles"
+        id="toc-key-design-principles">Key Design Principles</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="logical-architecture">Logical Architecture</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="navigation">Navigation</h2>
+        <p><strong>Back to</strong>: <a href="./index.html">Diagrams
+        Index</a> | <a href="../index.html">Architecture Index</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>The logical architecture diagram shows how the Smart Supply
+        Pro backend is organized into layers, each with specific
+        responsibilities and dependencies.</p>
+        <hr />
+        <h2 id="layered-architecture-diagram">Layered Architecture
+        Diagram</h2>
+        <div class="mermaid">
+        graph TB
+            Client["🌐 Client Applications<br/>(Browser, Mobile, etc.)"]
+            
+            subgraph API["API & Controller Layer"]
+                Auth["🔐 Authentication<br/>Filter"]
+                Controller["📋 Controllers<br/>(SupplierController,<br/>InventoryController,<br/>AnalyticsController)"]
+                DTOIn["📨 Request DTOs<br/>(CreateSupplierDTO,<br/>UpdateItemDTO)"]
+            end
+            
+            subgraph Business["Service & Business Logic Layer"]
+                Service["⚙️ Services<br/>(SupplierService,<br/>InventoryItemService,<br/>AnalyticsService)"]
+                Validation["✓ Validation<br/>(Business Rules,<br/>Uniqueness Checks)"]
+                Exception["⚠️ Exception Handling<br/>(GlobalExceptionHandler,<br/>BusinessExceptionHandler)"]
+            end
+            
+            subgraph Data["Repository & Data Access Layer"]
+                Repository["📦 Repositories<br/>(SupplierRepository,<br/>InventoryItemRepository,<br/>StockHistoryRepository)"]
+                Query["🔍 Custom Queries<br/>(JPQL, Native SQL)"]
+            end
+            
+            subgraph Domain["Domain Model Layer"]
+                Entity["🏗️ JPA Entities<br/>(Supplier, InventoryItem,<br/>StockHistory, AppUser)"]
+                Enum["📚 Enums<br/>(Role, StockChangeReason,<br/>AuditSeverity)"]
+            end
+            
+            subgraph Infrastructure["Infrastructure & Cross-Cutting"]
+                Security["🔒 Security Context<br/>(Spring Security,<br/>OAuth2)"]
+                Audit["📝 Auditing<br/>(createdBy, createdAt,<br/>updatedAt, version)")
+                Logging["📊 Logging<br/>(SLF4J, Logback)")
+                Correlation["🔗 Correlation ID<br/>(Request Tracking)")
+            end
+            
+            Database[("💾 Oracle<br/>Autonomous DB")]
+            Cache["⚡ Cache<br/>(Redis)"]
+            
+            Client -->|HTTP REST| Auth
+            Auth -->|Authenticated| Controller
+            Controller -->|"Validate &<br/>Bind"| DTOIn
+            DTOIn -->|Request| Service
+            Service -->|"Apply Rules"| Validation
+            Validation -->|Valid| Service
+            Validation -->|Invalid| Exception
+            Exception -->|Error Response| Controller
+            Service -->|Read/Write| Repository
+            Repository -->|Custom Queries| Query
+            Repository -->|CRUD Ops| Entity
+            Entity -->|Contains| Enum
+            Service -.->|Use Context| Security
+            Service -.->|Log Changes| Audit
+            Service -.->|Log Events| Logging
+            Service -.->|Track Request| Correlation
+            Repository -->|SQL| Database
+            Repository -->|Cache| Cache
+            
+            Controller -->|Response DTOs| Client
+            
+            style Client fill:#e1f5ff
+            style API fill:#b3e5fc
+            style Auth fill:#0277bd
+            style Business fill:#e8f5e9
+            style Data fill:#fff3e0
+            style Domain fill:#fce4ec
+            style Infrastructure fill:#f3e5f5
+            style Database fill:#1b5e20
+            style Cache fill:#ffb300
+        </div>
+        <hr />
+        <h2 id="layer-descriptions">Layer Descriptions</h2>
+        <h3 id="client-layer">1. <strong>Client Layer</strong></h3>
+        <ul>
+        <li>External HTTP clients (browsers, mobile apps, API
+        clients)</li>
+        <li>Sends HTTP requests to REST endpoints</li>
+        <li>Receives JSON responses from backend</li>
+        </ul>
+        <h3 id="api-controller-layer">2. <strong>API &amp; Controller
+        Layer</strong></h3>
+        <ul>
+        <li><strong>Controllers</strong>: Handle HTTP requests/responses
+        (SupplierController, InventoryController,
+        AnalyticsController)</li>
+        <li><strong>Authentication Filter</strong>: Validates OAuth2
+        tokens and establishes user context</li>
+        <li><strong>Request DTOs</strong>: Data Transfer Objects for
+        incoming requests with validation constraints</li>
+        <li><strong>Response DTOs</strong>: Data Transfer Objects for
+        API responses</li>
+        <li>Responsibility: Route requests, validate input format,
+        return HTTP responses</li>
+        </ul>
+        <h3 id="service-business-logic-layer">3. <strong>Service &amp;
+        Business Logic Layer</strong></h3>
+        <ul>
+        <li><strong>Services</strong>: Core business logic
+        (SupplierService, InventoryItemService, AnalyticsService)</li>
+        <li><strong>Validation Layer</strong>: Complex business rule
+        validation beyond DTO constraints</li>
+        <li><strong>Exception Handling</strong>: GlobalExceptionHandler
+        and BusinessExceptionHandler</li>
+        <li>Responsibility: Apply business rules, orchestrate
+        operations, handle transactions, translate exceptions</li>
+        </ul>
+        <h3 id="repository-data-access-layer">4. <strong>Repository
+        &amp; Data Access Layer</strong></h3>
+        <ul>
+        <li><strong>Repositories</strong>: Abstract database access
+        (Spring Data JPA repositories)</li>
+        <li><strong>Custom Queries</strong>: Complex JPQL and native SQL
+        for aggregations and analytics</li>
+        <li>Responsibility: Query data, save/update/delete entities,
+        provide pagination support</li>
+        </ul>
+        <h3 id="domain-model-layer">5. <strong>Domain Model
+        Layer</strong></h3>
+        <ul>
+        <li><strong>JPA Entities</strong>: Domain objects (Supplier,
+        InventoryItem, StockHistory, AppUser)</li>
+        <li><strong>Enums</strong>: Type-safe enumerations (Role,
+        StockChangeReason, AuditSeverity)</li>
+        <li>Responsibility: Represent domain concepts, store business
+        data</li>
+        </ul>
+        <h3 id="infrastructure-cross-cutting">6. <strong>Infrastructure
+        &amp; Cross-Cutting</strong></h3>
+        <ul>
+        <li><strong>Security Context</strong>: Spring Security, OAuth2
+        authentication, authorization checking</li>
+        <li><strong>Auditing</strong>: Track who made changes
+        (createdBy, updatedAt, version fields)</li>
+        <li><strong>Logging</strong>: SLF4J + Logback for application
+        logging</li>
+        <li><strong>Correlation ID</strong>: Unique request tracking
+        across all layers</li>
+        <li><strong>Caching</strong>: Redis for performance
+        optimization</li>
+        <li>Responsibility: Provide non-functional requirements
+        (security, logging, caching)</li>
+        </ul>
+        <hr />
+        <h2 id="request-flow-through-layers">Request Flow Through
+        Layers</h2>
+        <p><strong>Typical Happy Path:</strong> 1. HTTP request arrives
+        at Controller 2. Authentication filter validates user 3.
+        Controller deserializes JSON to Request DTO 4. Controller calls
+        Service method 5. Service applies business logic 6. Service
+        calls Validator for business rules 7. Validator confirms all
+        rules are met 8. Service calls Repository to persist data 9.
+        Repository uses Entity objects and ORM 10. ORM generates SQL and
+        sends to database 11. Database confirms transaction 12. Service
+        returns result to Controller 13. Controller serializes Response
+        DTO to JSON 14. HTTP response sent to client</p>
+        <p><strong>Error Path:</strong> 1. Service detects validation
+        error 2. Service throws domain exception (e.g.,
+        InvalidRequestException) 3. Exception handler catches exception
+        4. Handler maps to HTTP status code (400, 409, etc.) 5. Handler
+        builds ErrorResponse with correlation ID 6. HTTP response with
+        error sent to client</p>
+        <hr />
+        <h2 id="key-design-principles">Key Design Principles</h2>
+        <p><strong>Separation of Concerns</strong>: Each layer has
+        distinct responsibilities - Controllers: HTTP/REST - Services:
+        Business logic - Repositories: Data access - Entities: Domain
+        model - Infrastructure: Cross-cutting features</p>
+        <p><strong>Dependency Flow</strong>: Upper layers depend on
+        lower layers - Controllers depend on Services - Services depend
+        on Repositories - Repositories depend on Entities -
+        Infrastructure is injected where needed</p>
+        <p><strong>Abstraction</strong>: Lower layers are abstractions
+        that upper layers use - Repository interface hides SQL details -
+        Service interface hides business logic complexity - Entity
+        objects hide schema details</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="./context-diagram.html">Context Diagram</a> -
+        System-level view</li>
+        <li><a href="./request-lifecycle.html">Request Lifecycle</a> -
+        End-to-end request flow</li>
+        <li><a href="./database-er-diagram.html">Database ER Diagram</a>
+        - Domain model structure</li>
+        <li><a href="../layers/overview.html">Layers Architecture</a> -
+        Detailed layer documentation</li>
+        <li><a href="../overview.html">Architecture Overview</a> -
+        Complete architecture guide</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

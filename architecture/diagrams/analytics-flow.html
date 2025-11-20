@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+diagrams/analytics-flow · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#analytics-flow" id="toc-analytics-flow">Analytics
+        Flow</a>
+        <ul>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#analytics-data-flow"
+        id="toc-analytics-data-flow">Analytics Data Flow</a></li>
+        <li><a href="#detailed-analytics-flows"
+        id="toc-detailed-analytics-flows">Detailed Analytics Flows</a>
+        <ul>
+        <li><a href="#wac-weighted-average-cost-calculation"
+        id="toc-wac-weighted-average-cost-calculation">1. WAC (Weighted
+        Average Cost) Calculation</a></li>
+        <li><a href="#fifo-first-in-first-out-calculation"
+        id="toc-fifo-first-in-first-out-calculation">2. FIFO (First In
+        First Out) Calculation</a></li>
+        <li><a href="#stock-trend-analysis"
+        id="toc-stock-trend-analysis">3. Stock Trend Analysis</a></li>
+        <li><a href="#kpi-key-performance-indicator-calculation"
+        id="toc-kpi-key-performance-indicator-calculation">4. KPI (Key
+        Performance Indicator) Calculation</a></li>
+        </ul></li>
+        <li><a href="#daily-analytics-calculation-window"
+        id="toc-daily-analytics-calculation-window">Daily Analytics
+        Calculation Window</a></li>
+        <li><a href="#api-endpoints" id="toc-api-endpoints">API
+        Endpoints</a>
+        <ul>
+        <li><a href="#get-wac-analytics" id="toc-get-wac-analytics">Get
+        WAC Analytics</a></li>
+        <li><a href="#get-fifo-analytics"
+        id="toc-get-fifo-analytics">Get FIFO Analytics</a></li>
+        <li><a href="#get-trends" id="toc-get-trends">Get
+        Trends</a></li>
+        <li><a href="#get-kpis" id="toc-get-kpis">Get KPIs</a></li>
+        </ul></li>
+        <li><a href="#frontend-integration"
+        id="toc-frontend-integration">Frontend Integration</a></li>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="analytics-flow">Analytics Flow</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="navigation">Navigation</h2>
+        <p><strong>Back to</strong>: <a href="./index.html">Diagrams
+        Index</a> | <a href="../index.html">Architecture Index</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>The analytics flow diagram shows how Smart Supply Pro
+        aggregates data from repositories and transforms it into
+        meaningful insights for decision-making, including cost analysis
+        (WAC, FIFO), stock trends, and performance metrics.</p>
+        <hr />
+        <h2 id="analytics-data-flow">Analytics Data Flow</h2>
+        <div class="mermaid">
+        graph TB
+            subgraph Data["Data Sources"]
+                ItemRepo["📦 InventoryItem<br/>Repository"]
+                HistoryRepo["📝 StockHistory<br/>Repository"]
+            end
+            
+            subgraph Service["Analytics Service"]
+                Engine["⚙️ AnalyticsService<br/>Data Aggregation<br/>Computation Engine"]
+                WACCalc["💰 WAC Calculator<br/>(Weighted Average Cost)"]
+                FIFOCalc["🔄 FIFO Calculator<br/>(First In First Out)"]
+                TrendCalc["📈 Trend Calculator<br/>(Historical Analysis)"]
+                KPICalc["📊 KPI Calculator<br/>(Key Performance Indicators)"]
+            end
+            
+            subgraph DTO["Data Transfer Objects"]
+                ItemDTO["Item Analytics DTO<br/>(SKU, name, costs)"]
+                HistoryDTO["History Analytics DTO<br/>(movements, dates)"]
+                ReportDTO["Report DTO<br/>(aggregated metrics)"]
+                KPIDTO["KPI DTO<br/>(overall performance)"]
+            end
+            
+            subgraph API["API Layer"]
+                Controller["🎛️ AnalyticsController<br/>/api/analytics/wac<br/>/api/analytics/fifo<br/>/api/analytics/trends<br/>/api/analytics/kpis"]
+            end
+            
+            Frontend["🖥️ Frontend<br/>(React Charts<br/>Dashboards)"]
+            
+            ItemRepo -->|"SELECT all items<br/>with prices"| Engine
+            HistoryRepo -->|"SELECT all movements<br/>grouped by item/period"| Engine
+            
+            Engine -->|"Fetch prices &<br/>quantities"| WACCalc
+            Engine -->|"Fetch in/out order<br/>with prices"| FIFOCalc
+            Engine -->|"Fetch historical<br/>quantities"| TrendCalc
+            Engine -->|"Aggregate all<br/>metrics"| KPICalc
+            
+            WACCalc -->|"Return WAC<br/>values"| ItemDTO
+            FIFOCalc -->|"Return FIFO<br/>costs"| ItemDTO
+            TrendCalc -->|"Return trends<br/>data"| HistoryDTO
+            KPICalc -->|"Return KPIs"| KPIDTO
+            
+            ItemDTO -->|"REST API<br/>JSON"| Controller
+            HistoryDTO -->|"REST API<br/>JSON"| Controller
+            KPIDTO -->|"REST API<br/>JSON"| Controller
+            ReportDTO -->|"REST API<br/>JSON"| Controller
+            
+            Controller -->|"HTTP 200<br/>JSON Data"| Frontend
+            
+            Frontend -->|"Display charts<br/>dashboards<br/>reports"| User["👤 User"]
+            
+            style Data fill:#fff3e0
+            style Service fill:#e8f5e9
+            style DTO fill:#e3f2fd
+            style API fill:#f3e5f5
+            style Frontend fill:#c8e6c9
+            style User fill:#bbdefb
+        </div>
+        <hr />
+        <h2 id="detailed-analytics-flows">Detailed Analytics Flows</h2>
+        <h3 id="wac-weighted-average-cost-calculation">1. WAC (Weighted
+        Average Cost) Calculation</h3>
+        <p><strong>Purpose</strong>: Calculate average cost of inventory
+        items based on historical purchases</p>
+        <p><strong>Flow</strong>: 1. AnalyticsService queries
+        InventoryItem repository 2. For each item, fetch all stock
+        history records (purchases) 3. For each purchase, capture
+        quantity and unit price 4. Calculate weighted average: - (sum of
+        quantity × price) ÷ (sum of quantity) 5. Store result in WAC
+        cache/DTO 6. Return to controller as JSON</p>
+        <p><strong>Example</strong>:</p>
+        <pre><code>Item: Widget
+Purchase 1: 100 units @ $10 = $1,000
+Purchase 2: 50 units @ $12 = $600
+WAC = ($1,000 + $600) ÷ (100 + 50) = $10.67</code></pre>
+        <p><strong>Business Value</strong>: - Accurate inventory
+        valuation - Cost-of-goods-sold (COGS) calculation -
+        Profitability analysis</p>
+        <hr />
+        <h3 id="fifo-first-in-first-out-calculation">2. FIFO (First In
+        First Out) Calculation</h3>
+        <p><strong>Purpose</strong>: Calculate inventory cost using FIFO
+        accounting method (US standard)</p>
+        <p><strong>Flow</strong>: 1. AnalyticsService queries stock
+        history ordered by date (oldest first) 2. Track consumed/sold
+        inventory in FIFO order 3. Calculate cost of consumed items: -
+        First purchases consumed at their original cost - Remaining
+        inventory valued at latest purchase price 4. Generate FIFO cost
+        report 5. Return to controller</p>
+        <p><strong>Example</strong>:</p>
+        <pre><code>Purchase 1 (earliest): 100 units @ $10
+Purchase 2 (middle): 100 units @ $12
+Purchase 3 (latest): 100 units @ $15
+Current stock: 150 units
+
+FIFO valuation:
+- 100 units from Purchase 1 @ $10 = $1,000
+- 50 units from Purchase 2 @ $12 = $600
+- Total inventory value = $1,600</code></pre>
+        <p><strong>Business Value</strong>: - Accounting compliance (US
+        GAAP) - Tax optimization - Inventory valuation for financial
+        statements</p>
+        <hr />
+        <h3 id="stock-trend-analysis">3. Stock Trend Analysis</h3>
+        <p><strong>Purpose</strong>: Analyze inventory movements over
+        time</p>
+        <p><strong>Flow</strong>: 1. Query stock history grouped by: -
+        Time period (daily, weekly, monthly) - Item - Supplier 2.
+        Calculate for each period: - Total quantity in - Total quantity
+        out - Net change - Running balance 3. Generate trend report
+        with: - Dates - Quantities - Trends (up/down/stable) 4. Return
+        historical data</p>
+        <p><strong>Output Example</strong>:</p>
+        <pre><code>Item: Widget
+2025-11-01: 100 units
+2025-11-02: 95 units (5 sold)
+2025-11-03: 120 units (25 purchased)
+2025-11-04: 110 units (10 sold)
+Trend: Stable, slight downward</code></pre>
+        <p><strong>Business Value</strong>: - Identify fast-moving
+        vs. slow-moving items - Forecast demand - Detect anomalies
+        (unusual spikes/drops)</p>
+        <hr />
+        <h3 id="kpi-key-performance-indicator-calculation">4. KPI (Key
+        Performance Indicator) Calculation</h3>
+        <p><strong>Purpose</strong>: Calculate overall supply chain
+        performance metrics</p>
+        <p><strong>KPIs Calculated</strong>:</p>
+        <table>
+        <colgroup>
+        <col style="width: 21%" />
+        <col style="width: 39%" />
+        <col style="width: 39%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>KPI</th>
+        <th>Formula</th>
+        <th>Meaning</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Inventory Turnover</td>
+        <td>(COGS) ÷ (Avg Inventory Value)</td>
+        <td>How fast inventory sells</td>
+        </tr>
+        <tr class="even">
+        <td>Days Inventory Outstanding</td>
+        <td>365 ÷ Turnover</td>
+        <td>Average days to sell inventory</td>
+        </tr>
+        <tr class="odd">
+        <td>Stock Accuracy</td>
+        <td>(Counted) ÷ (System) × 100%</td>
+        <td>Accuracy of inventory records</td>
+        </tr>
+        <tr class="even">
+        <td>Supplier Performance</td>
+        <td>(On-Time) ÷ (Total Orders) × 100%</td>
+        <td>Supplier reliability</td>
+        </tr>
+        <tr class="odd">
+        <td>Cost per Unit</td>
+        <td>Total Cost ÷ Total Units</td>
+        <td>Average cost per item</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Flow</strong>: 1. Gather all analytics data (WAC,
+        FIFO, trends) 2. Aggregate across all items 3. Calculate ratios
+        and percentages 4. Generate comprehensive KPI report 5. Compare
+        to historical KPIs (trend analysis)</p>
+        <p><strong>Example KPI Report</strong>:</p>
+        <pre><code>Overall Inventory Turnover: 4.2 (units per year)
+Days Inventory Outstanding: 87 days
+Total Inventory Value: $125,000 (at WAC)
+Total Inventory Value: $132,000 (at FIFO)
+Stock Accuracy: 98.5%
+Average Supplier Performance: 94%</code></pre>
+        <hr />
+        <h2 id="daily-analytics-calculation-window">Daily Analytics
+        Calculation Window</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            Scheduler->>AnalyticsService: 1. Daily trigger (midnight UTC)
+            AnalyticsService->>ItemRepo: 2. Fetch all items
+            ItemRepo-->>AnalyticsService: 3. Item list
+            
+            loop For each item
+                AnalyticsService->>HistoryRepo: 4. Get stock history
+                HistoryRepo-->>AnalyticsService: 5. History data
+                AnalyticsService->>WAC: 6. Calculate WAC
+                AnalyticsService->>FIFO: 7. Calculate FIFO
+                AnalyticsService->>Trend: 8. Calculate trends
+            end
+            
+            AnalyticsService->>KPI: 9. Calculate KPIs
+            KPI-->>AnalyticsService: 10. KPI results
+            
+            AnalyticsService->>Cache: 11. Store in cache
+            Cache-->>AnalyticsService: 12. Cached
+            
+            AnalyticsService->>Scheduler: 13. Complete ✓
+            
+            Note over AnalyticsService: Daily calculation<br/>completes in < 5 sec<br/>for typical dataset
+        </div>
+        <hr />
+        <h2 id="api-endpoints">API Endpoints</h2>
+        <h3 id="get-wac-analytics">Get WAC Analytics</h3>
+        <pre><code>GET /api/analytics/wac
+Response: {
+  &quot;items&quot;: [
+    {
+      &quot;id&quot;: &quot;item-123&quot;,
+      &quot;sku&quot;: &quot;WIDGET-001&quot;,
+      &quot;name&quot;: &quot;Widget&quot;,
+      &quot;wac&quot;: 10.67,
+      &quot;quantity&quot;: 100,
+      &quot;totalValue&quot;: 1067.00
+    },
+    ...
+  ],
+  &quot;totalValue&quot;: 125000.00,
+  &quot;calculatedAt&quot;: &quot;2025-11-20T12:00:00Z&quot;
+}</code></pre>
+        <h3 id="get-fifo-analytics">Get FIFO Analytics</h3>
+        <pre><code>GET /api/analytics/fifo
+Response: {
+  &quot;items&quot;: [
+    {
+      &quot;id&quot;: &quot;item-123&quot;,
+      &quot;sku&quot;: &quot;WIDGET-001&quot;,
+      &quot;name&quot;: &quot;Widget&quot;,
+      &quot;fifoValue&quot;: 1200.00,
+      &quot;quantity&quot;: 100,
+      &quot;layers&quot;: [
+        {&quot;quantity&quot;: 100, &quot;unitPrice&quot;: 10.00, &quot;value&quot;: 1000.00},
+        {&quot;quantity&quot;: 0, &quot;unitPrice&quot;: 12.00, &quot;value&quot;: 0.00}
+      ]
+    }
+  ],
+  &quot;totalValue&quot;: 132000.00,
+  &quot;calculatedAt&quot;: &quot;2025-11-20T12:00:00Z&quot;
+}</code></pre>
+        <h3 id="get-trends">Get Trends</h3>
+        <pre><code>GET /api/analytics/trends?itemId=&amp;period=DAILY
+Response: {
+  &quot;data&quot;: [
+    {&quot;date&quot;: &quot;2025-11-18&quot;, &quot;quantity&quot;: 100},
+    {&quot;date&quot;: &quot;2025-11-19&quot;, &quot;quantity&quot;: 95},
+    {&quot;date&quot;: &quot;2025-11-20&quot;, &quot;quantity&quot;: 120}
+  ],
+  &quot;trend&quot;: &quot;STABLE&quot;
+}</code></pre>
+        <h3 id="get-kpis">Get KPIs</h3>
+        <pre><code>GET /api/analytics/kpis
+Response: {
+  &quot;inventoryTurnover&quot;: 4.2,
+  &quot;daysInventoryOutstanding&quot;: 87,
+  &quot;stockAccuracy&quot;: 0.985,
+  &quot;supplierPerformance&quot;: 0.94,
+  &quot;totalInventoryValue&quot;: 125000.00,
+  &quot;lastCalculated&quot;: &quot;2025-11-20T00:00:00Z&quot;
+}</code></pre>
+        <hr />
+        <h2 id="frontend-integration">Frontend Integration</h2>
+        <p><strong>Charts &amp; Visualizations:</strong> 1. <strong>WAC
+        Breakdown</strong>: Pie chart by item/supplier 2. <strong>FIFO
+        Layers</strong>: Stacked bar chart showing inventory layers 3.
+        <strong>Trends</strong>: Line chart showing quantity over time
+        4. <strong>KPI Dashboard</strong>: Cards showing key metrics
+        with trends</p>
+        <p><strong>Update Frequency:</strong> - Real-time: Stock levels
+        update on transaction - Daily: WAC/FIFO recalculated at midnight
+        - Hourly: KPI dashboard refreshes - On-demand: User can trigger
+        manual recalculation</p>
+        <hr />
+        <h2 id="performance-considerations">Performance
+        Considerations</h2>
+        <p><strong>Optimization Strategies</strong>: 1.
+        <strong>Caching</strong>: Results cached for 24 hours 2.
+        <strong>Batch Queries</strong>: Fetch all needed data in few
+        queries 3. <strong>Indexing</strong>: Database indexes on
+        stock_history (item_id, date) 4. <strong>Pagination</strong>:
+        Large result sets paginated 5. <strong>Aggregation</strong>:
+        Database-side aggregation when possible</p>
+        <p><strong>Typical Query Times</strong>: - WAC: &lt; 1 second -
+        FIFO: &lt; 2 seconds - Trends: &lt; 1 second - KPIs: &lt; 3
+        seconds</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="./context-diagram.html">Context Diagram</a> -
+        System overview</li>
+        <li><a href="./logical-architecture.html">Logical
+        Architecture</a> - Service layer structure</li>
+        <li><a href="./database-er-diagram.html">Database ER Diagram</a>
+        - Stock history entity</li>
+        <li><a href="../repository/index.html">Repository Layer</a> -
+        Data access details</li>
+        <li><a href="../services/index.html">Service Layer</a> -
+        Business logic details</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

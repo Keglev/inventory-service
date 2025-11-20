@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+diagrams/request-lifecycle · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#request-lifecycle"
+        id="toc-request-lifecycle">Request Lifecycle</a>
+        <ul>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#happy-path-successful-request"
+        id="toc-happy-path-successful-request">Happy Path: Successful
+        Request</a></li>
+        <li><a href="#error-path-exception-handling"
+        id="toc-error-path-exception-handling">Error Path: Exception
+        Handling</a></li>
+        <li><a href="#detailed-flow-descriptions"
+        id="toc-detailed-flow-descriptions">Detailed Flow
+        Descriptions</a>
+        <ul>
+        <li><a href="#happy-path-create-supplier-success"
+        id="toc-happy-path-create-supplier-success">Happy Path: Create
+        Supplier (Success)</a></li>
+        <li><a href="#error-path-invalid-request-failure"
+        id="toc-error-path-invalid-request-failure">Error Path: Invalid
+        Request (Failure)</a></li>
+        </ul></li>
+        <li><a href="#correlation-id-flow"
+        id="toc-correlation-id-flow">Correlation ID Flow</a></li>
+        <li><a href="#transaction-boundaries"
+        id="toc-transaction-boundaries">Transaction Boundaries</a></li>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a></li>
+        <li><a href="#error-recovery" id="toc-error-recovery">Error
+        Recovery</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="request-lifecycle">Request Lifecycle</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="navigation">Navigation</h2>
+        <p><strong>Back to</strong>: <a href="./index.html">Diagrams
+        Index</a> | <a href="../index.html">Architecture Index</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>The request lifecycle diagram shows the complete end-to-end
+        flow of an HTTP request through the Smart Supply Pro backend,
+        including both the happy path (success) and error path
+        (exception handling).</p>
+        <hr />
+        <h2 id="happy-path-successful-request">Happy Path: Successful
+        Request</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            Browser->>Controller: HTTP POST /suppliers<br/>with Authorization header<br/>JSON body
+            
+            Controller->>Auth: Validate OAuth2 Token
+            Auth-->>Controller: ✓ User authenticated<br/>SecurityContext set
+            
+            Controller->>Controller: Deserialize JSON→DTO<br/>@Valid checks constraints
+            
+            Controller->>Service: call createSupplier(DTO)
+            
+            Service->>Validator: validateSupplierName(name)
+            Validator->>Repository: check uniqueness
+            Repository->>Database: SELECT COUNT WHERE name=?
+            Database-->>Repository: count result
+            Repository-->>Validator: exists/not exists
+            Validator-->>Service: ✓ Valid
+            
+            Service->>Service: convert DTO → Entity
+            Service->>Repository: save(entity)
+            
+            Repository->>Database: INSERT supplier
+            Database-->>Repository: generated ID
+            Repository-->>Service: saved entity
+            
+            Service->>Service: audit log<br/>createdBy = current user
+            Service-->>Controller: SupplierDTO result
+            
+            Controller->>Controller: Serialize Entity→DTO→JSON
+            Controller-->>Browser: HTTP 201 Created<br/>JSON response<br/>Location header
+            
+            Browser->>Browser: Update UI<br/>Show new supplier
+        </div>
+        <hr />
+        <h2 id="error-path-exception-handling">Error Path: Exception
+        Handling</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            Browser->>Controller: HTTP POST /suppliers<br/>invalid data
+            
+            Controller->>Auth: Validate token
+            Auth-->>Controller: ✓ Authenticated
+            
+            Controller->>Controller: Deserialize & @Valid
+            
+            Controller->>Service: call createSupplier(DTO)
+            
+            Service->>Validator: validateSupplierName("")
+            Validator->>Validator: ✗ Validation fails<br/>(name is empty)
+            Validator-->>Service: throw InvalidRequestException
+            
+            Note over Service,Browser: Exception propagates up
+            
+            Service-->>Controller: throws InvalidRequestException
+            
+            Controller-->>Browser: exception caught by filter
+            
+            Browser->>GlobalExceptionHandler: Handle InvalidRequestException
+            
+            GlobalExceptionHandler->>GlobalExceptionHandler: Map to HTTP 400<br/>Build ErrorResponse<br/>Generate Correlation ID
+            
+            GlobalExceptionHandler-->>Browser: HTTP 400 Bad Request<br/>JSON ErrorResponse<br/>{error, message, timestamp,<br/>correlationId}
+            
+            Browser->>Browser: Parse error response<br/>Display validation errors
+        </div>
+        <hr />
+        <h2 id="detailed-flow-descriptions">Detailed Flow
+        Descriptions</h2>
+        <h3 id="happy-path-create-supplier-success">Happy Path: Create
+        Supplier (Success)</h3>
+        <p><strong>1. HTTP Request</strong> - Browser sends: POST
+        /suppliers with JSON body and Authorization header -
+        Content-Type: application/json - Authorization: Bearer
+        {google_access_token}</p>
+        <p><strong>2. Authentication</strong> - Spring Security filter
+        intercepts request - Validates OAuth2 token against Google
+        provider - Establishes SecurityContext with user information -
+        Extracts user ID and roles</p>
+        <p><strong>3. Controller Deserialization</strong> - Controller
+        method receives HTTP request - Spring deserializes JSON →
+        CreateSupplierDTO - <span class="citation"
+        data-cites="Valid">@Valid</span> annotation triggers DTO
+        validation - Checks <span class="citation"
+        data-cites="NotBlank">@NotBlank</span>, <span class="citation"
+        data-cites="NotNull">@NotNull</span> constraints - If DTO
+        constraints fail → HTTP 400 immediately</p>
+        <p><strong>4. Business Logic</strong> - Controller calls
+        SupplierService.createSupplier(dto) - Service converts DTO →
+        Supplier entity - Service calls Validator to check business
+        rules - Validator queries repository for existing suppliers -
+        Database returns count of existing suppliers - Validator
+        confirms name is unique</p>
+        <p><strong>5. Persistence</strong> - Service calls
+        SupplierRepository.save(entity) - Repository uses Spring Data
+        JPA - JPA generates SQL: INSERT INTO supplier (name, …) -
+        Database executes INSERT, returns generated ID - Entity is now
+        persisted with ID</p>
+        <p><strong>6. Audit Trail</strong> - Service sets createdBy to
+        current user (from SecurityContext) - Service sets createdAt
+        timestamp - These fields are automatically saved with entity</p>
+        <p><strong>7. Response</strong> - Service returns populated
+        entity to Controller - Controller converts entity → SupplierDTO
+        - Controller serializes DTO → JSON - HTTP response: 201 Created
+        with Location header</p>
+        <p><strong>8. Browser Update</strong> - Browser receives
+        response with HTTP 201 - JavaScript parses JSON response - UI
+        updates to show new supplier in list</p>
+        <hr />
+        <h3 id="error-path-invalid-request-failure">Error Path: Invalid
+        Request (Failure)</h3>
+        <p><strong>1. Invalid Input</strong> - Browser sends malformed
+        request (e.g., empty supplier name) - Controller receives
+        request and validates DTO - <span class="citation"
+        data-cites="NotBlank">@NotBlank</span> constraint on name field
+        fails - Spring wraps into MethodArgumentNotValidException</p>
+        <p><strong>2. Exception Handling</strong> -
+        GlobalExceptionHandler catches MethodArgumentNotValidException -
+        Handler extracts field errors from exception - Creates
+        ErrorResponse with: - error: “BAD_REQUEST” - message:
+        “Validation failed: name is required” - timestamp: ISO-8601 UTC
+        timestamp - correlationId: “SSP-{timestamp}-{random}”</p>
+        <p><strong>3. HTTP Response</strong> - Returns HTTP 400 with
+        ErrorResponse JSON - Browser receives 400 status code -
+        JavaScript parses error response - UI displays validation error
+        message to user</p>
+        <p><strong>4. Logging &amp; Tracking</strong> - Correlation ID
+        is logged on server side - If user reports issue, they can
+        provide correlation ID - Server logs can be searched by
+        correlation ID to find full request trace - No sensitive data is
+        returned to client</p>
+        <hr />
+        <h2 id="correlation-id-flow">Correlation ID Flow</h2>
+        <p>The <strong>correlation ID</strong> uniquely identifies a
+        single request across all system components:</p>
+        <pre><code>Browser Request
+    ↓
+[No correlation ID yet]
+    ↓
+Controller receives request
+    ↓
+GlobalExceptionHandler generates correlation ID
+    ↓
+Correlation ID embedded in ErrorResponse
+    ↓
+Server logs include correlation ID
+    ↓
+Response sent to browser with correlation ID
+    ↓
+Browser receives correlation ID
+    ↓
+User can provide correlation ID for support
+    ↓
+Support team searches logs by correlation ID
+    ↓
+Full request trace found (all log entries)</code></pre>
+        <hr />
+        <h2 id="transaction-boundaries">Transaction Boundaries</h2>
+        <p><strong>Service Method = Transaction</strong> - Each service
+        method is marked with <code>@Transactional</code> - Spring
+        begins transaction at method entry - All database operations are
+        ACID compliant - If exception occurs → rollback all pending
+        changes - If success → commit all changes</p>
+        <p><strong>Example:</strong></p>
+        <pre><code>@Transactional
+createSupplier(dto):
+  - Entity created but not yet saved
+  - Repository.save() executes SQL INSERT
+  - If error during save → rollback
+  - If success → commit and ID is assigned</code></pre>
+        <hr />
+        <h2 id="performance-considerations">Performance
+        Considerations</h2>
+        <p><strong>Request Path</strong>: 1. Authentication
+        (milliseconds) – Token validation 2. DTO validation
+        (milliseconds) – Constraint checking 3. Business validation
+        (milliseconds to seconds) – Database queries 4. Persistence
+        (milliseconds to seconds) – INSERT/UPDATE/SELECT 5. Response
+        serialization (milliseconds) – JSON generation</p>
+        <p><strong>Typical Request Time</strong>: 50-500ms depending on
+        complexity</p>
+        <p><strong>Bottlenecks</strong>: - Database query complexity -
+        Number of database round trips - Serialization of large
+        responses - Validation queries (can be cached)</p>
+        <hr />
+        <h2 id="error-recovery">Error Recovery</h2>
+        <p><strong>Automatic Retries</strong>: - Client can retry failed
+        requests (idempotent operations) - Correlation ID remains same
+        for related requests - Server logs show retry pattern</p>
+        <p><strong>Manual Recovery</strong>: - For business logic
+        failures, user may need to: - Fix input and retry - Contact
+        support with correlation ID - Check audit logs (via admin
+        panel)</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="./context-diagram.html">Context Diagram</a> -
+        System overview</li>
+        <li><a href="./logical-architecture.html">Logical
+        Architecture</a> - Layered structure</li>
+        <li><a href="../exception/index.html">Exception Handling</a> -
+        Exception mapping and handling</li>
+        <li><a href="../controller/index.html">Controller
+        Documentation</a> - API endpoints</li>
+        <li><a href="../services/index.html">Service Layer</a> -
+        Business logic details</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

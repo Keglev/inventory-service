@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · diagrams/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#architectural-diagrams-hub"
+        id="toc-architectural-diagrams-hub">Architectural Diagrams
+        Hub</a>
+        <ul>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#diagram-library" id="toc-diagram-library">Diagram
+        Library</a>
+        <ul>
+        <li><a href="#context-diagram" id="toc-context-diagram">1.
+        Context Diagram</a></li>
+        <li><a href="#logical-architecture"
+        id="toc-logical-architecture">2. Logical Architecture</a></li>
+        <li><a href="#deployment-diagram" id="toc-deployment-diagram">3.
+        Deployment Diagram</a></li>
+        <li><a href="#request-lifecycle" id="toc-request-lifecycle">4.
+        Request Lifecycle</a></li>
+        <li><a href="#database-er-diagram"
+        id="toc-database-er-diagram">5. Database ER Diagram</a></li>
+        <li><a href="#security-flow" id="toc-security-flow">6. Security
+        Flow</a></li>
+        <li><a href="#analytics-flow" id="toc-analytics-flow">7.
+        Analytics Flow</a></li>
+        </ul></li>
+        <li><a href="#diagram-reference-quick-card"
+        id="toc-diagram-reference-quick-card">Diagram Reference Quick
+        Card</a></li>
+        <li><a href="#diagram-reuse-pattern"
+        id="toc-diagram-reuse-pattern">Diagram Reuse Pattern</a></li>
+        <li><a href="#integration-points"
+        id="toc-integration-points">Integration Points</a>
+        <ul>
+        <li><a href="#architecture-index"
+        id="toc-architecture-index">Architecture Index</a></li>
+        <li><a href="#overview-documents"
+        id="toc-overview-documents">Overview Documents</a></li>
+        <li><a href="#specific-architecture-sections"
+        id="toc-specific-architecture-sections">Specific Architecture
+        Sections</a></li>
+        </ul></li>
+        <li><a href="#best-practices-for-diagram-use"
+        id="toc-best-practices-for-diagram-use">Best Practices for
+        Diagram Use</a></li>
+        <li><a href="#next-steps" id="toc-next-steps">Next
+        Steps</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="architectural-diagrams-hub">Architectural Diagrams
+        Hub</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="navigation">Navigation</h2>
+        <p><strong>Back to</strong>: <a
+        href="../index.html">Architecture Index</a> | <a
+        href="../overview.html">Overview</a> | <a
+        href="../overview-de.html">Overview (German)</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>All main architectural diagrams for Smart Supply Pro live
+        here. These diagrams provide visual representations of the
+        system’s structure, flows, and interactions at different levels
+        of abstraction.</p>
+        <p>Each diagram includes: - Visual representation (Mermaid
+        diagram) - Short explanation of key components and relationships
+        - Links to related documentation - Context about when and how to
+        use the diagram</p>
+        <hr />
+        <h2 id="diagram-library">Diagram Library</h2>
+        <h3 id="context-diagram">1. <a
+        href="./context-diagram.html">Context Diagram</a></h3>
+        <p><strong>Purpose</strong>: System-level view showing Smart
+        Supply Pro in its environment</p>
+        <p><strong>Shows</strong>: - Frontend (React SPA) - Backend
+        (Spring Boot API) - Oracle Autonomous Database - OAuth2 Provider
+        (Google) - External actors (Admin/User)</p>
+        <p><strong>Use When</strong>: You need to understand the overall
+        system boundaries and external interactions</p>
+        <hr />
+        <h3 id="logical-architecture">2. <a
+        href="./logical-architecture.html">Logical Architecture</a></h3>
+        <p><strong>Purpose</strong>: Layered architecture showing the
+        internal structure of the backend</p>
+        <p><strong>Shows</strong>: - Client/API layer - Controller layer
+        - Service layer - Validation layer - Repository layer - Domain
+        model layer - Infrastructure / Cross-cutting concerns</p>
+        <p><strong>Use When</strong>: You need to understand how the
+        backend is organized internally or when explaining request
+        handling flow</p>
+        <hr />
+        <h3 id="deployment-diagram">3. <a
+        href="./deployment-diagram.html">Deployment Diagram</a></h3>
+        <p><strong>Purpose</strong>: Infrastructure and deployment
+        topology</p>
+        <p><strong>Shows</strong>: - Developer workstation → GitHub
+        repository - GitHub Actions CI/CD pipeline - Docker image
+        building - Fly.io cloud deployment (regions, machines, scaling)
+        - Oracle Autonomous Database connection - Nginx reverse proxy -
+        TLS/HTTPS termination</p>
+        <p><strong>Use When</strong>: You’re deploying the application,
+        scaling infrastructure, or understanding production topology</p>
+        <hr />
+        <h3 id="request-lifecycle">4. <a
+        href="./request-lifecycle.html">Request Lifecycle</a></h3>
+        <p><strong>Purpose</strong>: End-to-end flow of a single HTTP
+        request through the system</p>
+        <p><strong>Shows</strong>: - Happy path: Browser → Controller →
+        Service → Validator → Repository → Database → Response - Error
+        path: Exception handling → GlobalExceptionHandler →
+        ErrorResponse - Correlation ID tracking throughout the
+        request</p>
+        <p><strong>Use When</strong>: You’re debugging request handling,
+        understanding request flow, or implementing request-scoped
+        features</p>
+        <hr />
+        <h3 id="database-er-diagram">5. <a
+        href="./database-er-diagram.html">Database ER Diagram</a></h3>
+        <p><strong>Purpose</strong>: Entity-relationship diagram for the
+        domain model</p>
+        <p><strong>Shows</strong>: - SUPPLIER entity (supplier
+        information, contact details) - INVENTORY_ITEM entity
+        (product/item details) - STOCK_HISTORY entity (audit trail of
+        stock movements) - APP_USER entity (authentication and user
+        information) - Relationships between entities - Audit fields
+        (createdAt, updatedAt, createdBy) - Version fields (optimistic
+        locking)</p>
+        <p><strong>Use When</strong>: You’re designing database queries,
+        understanding relationships, or working with the persistence
+        layer</p>
+        <hr />
+        <h3 id="security-flow">6. <a
+        href="./security-flow.html">Security Flow</a></h3>
+        <p><strong>Purpose</strong>: OAuth2 authentication and
+        authorization flows</p>
+        <p><strong>Shows</strong>: - OAuth2 authorization code flow
+        (user login via Google) - Token validation and user context
+        establishment - Authorization checking (<span class="citation"
+        data-cites="PreAuthorize">@PreAuthorize</span>) - Exception
+        handling for authentication/authorization failures - Correlation
+        ID tracking in security operations</p>
+        <p><strong>Use When</strong>: You’re implementing
+        authentication, understanding authorization, or debugging
+        security issues</p>
+        <hr />
+        <h3 id="analytics-flow">7. <a
+        href="./analytics-flow.html">Analytics Flow</a></h3>
+        <p><strong>Purpose</strong>: Data flow for analytics
+        operations</p>
+        <p><strong>Shows</strong>: - Stock history repository (source of
+        analytics data) - Inventory item repository (product
+        information) - AnalyticsService (computation and aggregation) -
+        DTOs (data transfer to frontend) - AnalyticsController (REST
+        endpoints) - Frontend charts and dashboards</p>
+        <p><strong>Includes</strong>: - Daily analytics calculation flow
+        - Window-based analytics calculations - Cost analysis (WAC,
+        FIFO) calculations</p>
+        <p><strong>Use When</strong>: You’re working on analytics
+        features, understanding data aggregation, or building reporting
+        functionality</p>
+        <hr />
+        <h2 id="diagram-reference-quick-card">Diagram Reference Quick
+        Card</h2>
+        <table>
+        <colgroup>
+        <col style="width: 36%" />
+        <col style="width: 28%" />
+        <col style="width: 36%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Diagram</th>
+        <th>Focus</th>
+        <th>Use For</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><a href="./context-diagram.html">Context</a></td>
+        <td>System boundaries</td>
+        <td>Understanding overall system</td>
+        </tr>
+        <tr class="even">
+        <td><a href="./logical-architecture.html">Logical
+        Architecture</a></td>
+        <td>Layered structure</td>
+        <td>Internal organization</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="./deployment-diagram.html">Deployment</a></td>
+        <td>Infrastructure</td>
+        <td>Operations &amp; scaling</td>
+        </tr>
+        <tr class="even">
+        <td><a href="./request-lifecycle.html">Request
+        Lifecycle</a></td>
+        <td>Request flow</td>
+        <td>Debugging &amp; features</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="./database-er-diagram.html">Database ER</a></td>
+        <td>Data model</td>
+        <td>Persistence &amp; queries</td>
+        </tr>
+        <tr class="even">
+        <td><a href="./security-flow.html">Security Flow</a></td>
+        <td>Auth/Authz</td>
+        <td>Security features</td>
+        </tr>
+        <tr class="odd">
+        <td><a href="./analytics-flow.html">Analytics Flow</a></td>
+        <td>Data aggregation</td>
+        <td>Analytics features</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="diagram-reuse-pattern">Diagram Reuse Pattern</h2>
+        <p><strong>To keep documentation maintainable</strong>, each
+        diagram has a single source:</p>
+        <ol type="1">
+        <li><strong>For the complete view</strong>: Link to the
+        dedicated diagram file</li>
+        <li><strong>For embedding</strong>: Reference other
+        documentation to the diagram page with a link like: &gt; “For
+        the full system-level view, see the <a
+        href="./context-diagram.html">Context Diagram</a>.”</li>
+        <li><strong>Cross-references</strong>: Related documentation
+        files link back to diagrams rather than duplicating them</li>
+        </ol>
+        <p><strong>Examples:</strong> - <a
+        href="../overview.html">Architecture Overview</a> references the
+        Context and Request Lifecycle diagrams - <a
+        href="../deployment/index.html">Deployment Index</a> links to
+        the Deployment Diagram - <a
+        href="../security/index.html">Security Architecture</a>
+        references the Security Flow diagram - <a
+        href="../repository/index.html">Repository Documentation</a>
+        links to the Database ER Diagram</p>
+        <hr />
+        <h2 id="integration-points">Integration Points</h2>
+        <h3 id="architecture-index">Architecture Index</h3>
+        <p><a href="../index.html">/architecture/index.md</a> → Links to
+        diagrams/index.md</p>
+        <h3 id="overview-documents">Overview Documents</h3>
+        <ul>
+        <li><a href="../overview.html">English Overview</a> → References
+        Context, Request Lifecycle, and Deployment diagrams</li>
+        <li><a href="../overview-de.html">German Overview</a> →
+        References same diagrams with German labels</li>
+        </ul>
+        <h3 id="specific-architecture-sections">Specific Architecture
+        Sections</h3>
+        <ul>
+        <li><strong>Layers Documentation</strong>: Links to Logical
+        Architecture diagram</li>
+        <li><strong>Deployment Documentation</strong>: Links to
+        Deployment diagram</li>
+        <li><strong>Security Documentation</strong>: Links to Security
+        Flow diagram</li>
+        <li><strong>Repository/Model Documentation</strong>: Links to
+        Database ER diagram</li>
+        <li><strong>Analytics Documentation</strong>: Links to Analytics
+        Flow diagram</li>
+        </ul>
+        <hr />
+        <h2 id="best-practices-for-diagram-use">Best Practices for
+        Diagram Use</h2>
+        <ol type="1">
+        <li><p><strong>Start with Context Diagram</strong> - Get the
+        “30,000 ft view” first</p></li>
+        <li><p><strong>Understand Logical Architecture</strong> - Learn
+        how the backend is organized</p></li>
+        <li><p><strong>Study Request Lifecycle</strong> - See how
+        requests actually flow through layers</p></li>
+        <li><p><strong>Reference others as needed</strong> - Deployment,
+        Database, Security, Analytics based on your role</p></li>
+        <li><p><strong>Link, don’t duplicate</strong> - If a diagram
+        exists here, link to it from other docs</p></li>
+        <li><p><strong>Keep diagrams updated</strong> - When
+        architecture changes, update these diagrams first, then update
+        related documentation to reference them</p></li>
+        </ol>
+        <hr />
+        <h2 id="next-steps">Next Steps</h2>
+        <ol type="1">
+        <li><strong>Review <a href="./context-diagram.html">Context
+        Diagram</a></strong> - Start with the system-level view</li>
+        <li><strong>Study <a href="./logical-architecture.html">Logical
+        Architecture</a></strong> - Understand internal layering</li>
+        <li><strong>Follow <a href="./request-lifecycle.html">Request
+        Lifecycle</a></strong> - See how requests flow through the
+        system</li>
+        <li><strong>Explore specific diagrams</strong> based on your
+        focus (Deployment, Database, Security, Analytics)</li>
+        <li><strong>Return to <a href="../index.html">Architecture
+        Index</a></strong> for deeper documentation on each area</li>
+        </ol>
+        <hr />
+        <p><strong>Related Documentation:</strong> - <a
+        href="../index.html">Architecture Index</a> - <a
+        href="../overview.html">Architecture Overview (English)</a> - <a
+        href="../overview-de.html">Architecture Overview (German)</a> -
+        <a href="../layers/overview.html">Layers Architecture</a> - <a
+        href="../deployment/index.html">Deployment Architecture</a> - <a
+        href="../security/index.html">Security Architecture</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

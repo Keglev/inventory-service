@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+diagrams/database-er-diagram · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#database-er-diagram"
+        id="toc-database-er-diagram">Database ER Diagram</a>
+        <ul>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#entity-relationship-diagram"
+        id="toc-entity-relationship-diagram">Entity-Relationship
+        Diagram</a></li>
+        <li><a href="#entity-descriptions"
+        id="toc-entity-descriptions">Entity Descriptions</a>
+        <ul>
+        <li><a href="#supplier" id="toc-supplier">SUPPLIER</a></li>
+        <li><a href="#inventory_item"
+        id="toc-inventory_item">INVENTORY_ITEM</a></li>
+        <li><a href="#stock_history"
+        id="toc-stock_history">STOCK_HISTORY</a></li>
+        <li><a href="#app_user" id="toc-app_user">APP_USER</a></li>
+        </ul></li>
+        <li><a href="#key-design-patterns"
+        id="toc-key-design-patterns">Key Design Patterns</a>
+        <ul>
+        <li><a href="#audit-fields" id="toc-audit-fields">Audit
+        Fields</a></li>
+        <li><a href="#optimistic-locking"
+        id="toc-optimistic-locking">Optimistic Locking</a></li>
+        <li><a href="#denormalization"
+        id="toc-denormalization">Denormalization</a></li>
+        <li><a href="#unique-constraints"
+        id="toc-unique-constraints">Unique Constraints</a></li>
+        </ul></li>
+        <li><a href="#relationships-cardinality"
+        id="toc-relationships-cardinality">Relationships &amp;
+        Cardinality</a></li>
+        <li><a href="#database-constraints"
+        id="toc-database-constraints">Database Constraints</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="database-er-diagram">Database ER Diagram</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="navigation">Navigation</h2>
+        <p><strong>Back to</strong>: <a href="./index.html">Diagrams
+        Index</a> | <a href="../index.html">Architecture Index</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>The Entity-Relationship (ER) diagram shows the domain model
+        structure and relationships between key entities in the Smart
+        Supply Pro system. This diagram represents the persistent data
+        model stored in the Oracle Autonomous Database.</p>
+        <hr />
+        <h2 id="entity-relationship-diagram">Entity-Relationship
+        Diagram</h2>
+        <div class="mermaid">
+        erDiagram
+            SUPPLIER ||--o{ INVENTORY_ITEM : "supplies"
+            SUPPLIER ||--o{ STOCK_HISTORY : "owns"
+            INVENTORY_ITEM ||--o{ STOCK_HISTORY : "tracked_by"
+            APP_USER ||--o{ SUPPLIER : "created_by"
+            APP_USER ||--o{ INVENTORY_ITEM : "created_by"
+            APP_USER ||--o{ STOCK_HISTORY : "created_by"
+
+            SUPPLIER {
+                string id PK "UUID primary key"
+                string name UK "Supplier name (unique)"
+                string contact_person "Contact person name"
+                string email "Contact email"
+                string phone "Contact phone"
+                timestamp created_at "Creation timestamp"
+                timestamp updated_at "Last update timestamp"
+                string created_by FK "User who created"
+                string updated_by FK "User who last updated"
+            }
+
+            INVENTORY_ITEM {
+                string id PK "UUID primary key"
+                string sku UK "Stock Keeping Unit (unique)"
+                string name UK "Item name (unique)"
+                string supplier_id FK "References SUPPLIER"
+                decimal unit_price "Price per unit"
+                decimal quantity_on_hand "Current stock level"
+                timestamp created_at "Creation timestamp"
+                timestamp updated_at "Last update timestamp"
+                int version "Optimistic lock version"
+                string created_by FK "User who created"
+                string updated_by FK "User who last updated"
+            }
+
+            STOCK_HISTORY {
+                string id PK "UUID primary key"
+                string item_id FK "References INVENTORY_ITEM"
+                string supplier_id FK "References SUPPLIER"
+                decimal quantity_change "Change amount (+ or -)"
+                decimal unit_price "Price at time of change"
+                string reason "Reason for change"
+                string severity "Audit severity (LOW, MEDIUM, HIGH, CRITICAL)"
+                timestamp transaction_date "When change occurred"
+                timestamp created_at "Record creation timestamp"
+                string created_by FK "User who caused change"
+            }
+
+            APP_USER {
+                string id PK "UUID primary key"
+                string google_sub "Google OAuth2 subject"
+                string email UK "User email (unique)"
+                string name "User display name"
+                string role "User role (ADMIN, USER)"
+                boolean active "Account active flag"
+                timestamp created_at "Account creation timestamp"
+                timestamp last_login "Last login timestamp"
+                timestamp updated_at "Last profile update"
+            }
+        </div>
+        <hr />
+        <h2 id="entity-descriptions">Entity Descriptions</h2>
+        <h3 id="supplier">SUPPLIER</h3>
+        <p><strong>Purpose</strong>: Stores supplier/vendor
+        information</p>
+        <p><strong>Key Fields</strong>: - <strong>id</strong> (PK):
+        Unique identifier (UUID) - <strong>name</strong> (UNIQUE):
+        Supplier name, must be unique to prevent duplicates -
+        <strong>contact_person</strong>: Primary contact name -
+        <strong>email</strong>: Contact email address -
+        <strong>phone</strong>: Contact phone number -
+        <strong>created_at</strong>: When supplier was added to system -
+        <strong>updated_at</strong>: Last time supplier info was
+        modified - <strong>created_by</strong> (FK): Reference to
+        APP_USER who created - <strong>updated_by</strong> (FK):
+        Reference to APP_USER who last updated</p>
+        <p><strong>Relationships</strong>: - One supplier → Many
+        inventory items (supplies) - One supplier → Many stock history
+        records (owns) - One supplier ← One app_user (created_by)</p>
+        <p><strong>Business Rules</strong>: - Name must be unique
+        (cannot have duplicate suppliers) - Cannot delete supplier if it
+        has inventory items</p>
+        <hr />
+        <h3 id="inventory_item">INVENTORY_ITEM</h3>
+        <p><strong>Purpose</strong>: Stores product/inventory item
+        information</p>
+        <p><strong>Key Fields</strong>: - <strong>id</strong> (PK):
+        Unique identifier (UUID) - <strong>sku</strong> (UNIQUE): Stock
+        Keeping Unit, must be unique - <strong>name</strong> (UNIQUE):
+        Item name, must be unique - <strong>supplier_id</strong> (FK):
+        References SUPPLIER, cannot be null -
+        <strong>unit_price</strong>: Price per unit, used in cost
+        calculations - <strong>quantity_on_hand</strong>: Current stock
+        level (updated by stock history) - <strong>created_at</strong>:
+        When item was added to inventory - <strong>updated_at</strong>:
+        Last time item was updated - <strong>version</strong>
+        (OPTIMISTIC LOCK): Prevents concurrent update conflicts -
+        <strong>created_by</strong> (FK): Reference to APP_USER who
+        created - <strong>updated_by</strong> (FK): Reference to
+        APP_USER who last updated</p>
+        <p><strong>Relationships</strong>: - Many items ← One supplier
+        (has supplier_id) - One item → Many stock history records
+        (tracked_by) - Many items ← One app_user (created_by)</p>
+        <p><strong>Business Rules</strong>: - Must have valid supplier -
+        SKU and name must be unique - Cannot go below zero quantity -
+        Version field prevents concurrent update collisions</p>
+        <hr />
+        <h3 id="stock_history">STOCK_HISTORY</h3>
+        <p><strong>Purpose</strong>: Audit trail of all stock movements
+        and changes</p>
+        <p><strong>Key Fields</strong>: - <strong>id</strong> (PK):
+        Unique identifier (UUID) - <strong>item_id</strong> (FK):
+        References INVENTORY_ITEM - <strong>supplier_id</strong> (FK):
+        Denormalized for analytics queries (also in INVENTORY_ITEM) -
+        <strong>quantity_change</strong>: Amount added/removed (positive
+        or negative) - <strong>unit_price</strong>: Price per unit at
+        time of transaction - <strong>reason</strong>: Why the stock
+        changed (e.g., “Purchase”, “Adjustment”, “Damage”) -
+        <strong>severity</strong>: Audit severity level (LOW, MEDIUM,
+        HIGH, CRITICAL) - <strong>transaction_date</strong>: When the
+        stock movement occurred - <strong>created_at</strong>: When this
+        record was created - <strong>created_by</strong> (FK): User who
+        caused the change</p>
+        <p><strong>Relationships</strong>: - Many records ← One
+        inventory item - Many records ← One supplier (denormalized) -
+        Many records ← One app_user (created_by)</p>
+        <p><strong>Business Rules</strong>: - Records are immutable
+        (never updated after creation) - Supplier denormalized here for
+        efficient analytics queries - Created whenever quantity
+        changes</p>
+        <hr />
+        <h3 id="app_user">APP_USER</h3>
+        <p><strong>Purpose</strong>: Stores user authentication and
+        profile information</p>
+        <p><strong>Key Fields</strong>: - <strong>id</strong> (PK):
+        Unique identifier (UUID) - <strong>google_sub</strong> (FK):
+        Google OAuth2 subject identifier - <strong>email</strong>
+        (UNIQUE): Email address, unique per user -
+        <strong>name</strong>: User’s display name -
+        <strong>role</strong> (ENUM): ADMIN or USER -
+        <strong>active</strong>: Whether account is active -
+        <strong>created_at</strong>: Account creation timestamp -
+        <strong>last_login</strong>: Timestamp of last login -
+        <strong>updated_at</strong>: Last profile update timestamp</p>
+        <p><strong>Relationships</strong>: - One user → Many suppliers
+        created (created_by) - One user → Many inventory items created
+        (created_by) - One user → Many stock history records
+        (created_by)</p>
+        <p><strong>Business Rules</strong>: - Email must be unique -
+        Role determines access level (ADMIN has full access, USER has
+        limited) - Created automatically on first OAuth2 login</p>
+        <hr />
+        <h2 id="key-design-patterns">Key Design Patterns</h2>
+        <h3 id="audit-fields">Audit Fields</h3>
+        <p><strong>Present in every entity</strong> (except APP_USER): -
+        <strong>created_at</strong>: Immutable, set at creation -
+        <strong>updated_at</strong>: Updated on every change -
+        <strong>created_by</strong>: User who created (FK to APP_USER) -
+        <strong>updated_by</strong>: User who last updated (FK to
+        APP_USER)</p>
+        <p><strong>Purpose</strong>: Track who did what when for
+        compliance and debugging</p>
+        <h3 id="optimistic-locking">Optimistic Locking</h3>
+        <p><strong>Present in INVENTORY_ITEM</strong>: -
+        <strong>version</strong>: Integer field incremented on each
+        update - Prevents two concurrent updates from overwriting each
+        other - If version doesn’t match →
+        OptimisticLockingFailureException → HTTP 409</p>
+        <p><strong>Pattern</strong>:</p>
+        <pre><code>SELECT * WHERE id=? AND version=?  [expect version=5]
+UPDATE SET quantity=?, version=6 WHERE id=? AND version=5</code></pre>
+        <h3 id="denormalization">Denormalization</h3>
+        <p><strong>STOCK_HISTORY.supplier_id</strong> is technically
+        denormalized (also available via item_id → supplier_id) -
+        Reason: Optimizes analytics queries that aggregate by supplier -
+        Kept in sync via foreign key constraints and triggers - Improves
+        query performance for common analytics reports</p>
+        <h3 id="unique-constraints">Unique Constraints</h3>
+        <p><strong>Natural keys for business concepts</strong>: -
+        SUPPLIER.name: Prevents duplicate supplier names -
+        INVENTORY_ITEM.sku: Prevents duplicate stock keeping units -
+        INVENTORY_ITEM.name: Prevents duplicate item names -
+        APP_USER.email: Prevents duplicate user accounts</p>
+        <hr />
+        <h2 id="relationships-cardinality">Relationships &amp;
+        Cardinality</h2>
+        <table>
+        <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 41%" />
+        <col style="width: 14%" />
+        <col style="width: 26%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>From</th>
+        <th>Relationship</th>
+        <th>To</th>
+        <th>Meaning</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>SUPPLIER</td>
+        <td>supplies</td>
+        <td>INVENTORY_ITEM</td>
+        <td>One supplier has many items</td>
+        </tr>
+        <tr class="even">
+        <td>SUPPLIER</td>
+        <td>owns</td>
+        <td>STOCK_HISTORY</td>
+        <td>One supplier has many history records</td>
+        </tr>
+        <tr class="odd">
+        <td>INVENTORY_ITEM</td>
+        <td>tracked_by</td>
+        <td>STOCK_HISTORY</td>
+        <td>One item has many history records</td>
+        </tr>
+        <tr class="even">
+        <td>APP_USER</td>
+        <td>created_by</td>
+        <td>SUPPLIER/INVENTORY_ITEM/STOCK_HISTORY</td>
+        <td>One user created many entities</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="database-constraints">Database Constraints</h2>
+        <p><strong>Primary Keys</strong>: UUID (string) for distributed
+        systems <strong>Foreign Keys</strong>: All FK relationships have
+        ON DELETE constraints <strong>Unique Constraints</strong>:
+        Prevent duplicates on business keys (name, sku, email)
+        <strong>Not Null</strong>: Critical fields enforce NOT NULL
+        constraint <strong>Check Constraints</strong>: Quantity must be
+        &gt;= 0, price must be &gt;= 0</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><a href="./logical-architecture.html">Logical
+        Architecture</a> - Data layer overview</li>
+        <li><a href="./context-diagram.html">Context Diagram</a> -
+        System boundaries</li>
+        <li><a href="../repository/index.html">Repository Layer</a> -
+        Data access patterns</li>
+        <li><a href="../model/index.html">Model Documentation</a> -
+        Entity code details</li>
+        <li><a
+        href="../deployment/database-config-and-oracle-wallet.html">Database
+        Configuration</a> - Database setup</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
