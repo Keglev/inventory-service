@@ -122,6 +122,9 @@
         id="toc-skalierungsstrategie">Skalierungsstrategie</a></li>
         <li><a href="#test-architektur"
         id="toc-test-architektur">Test-Architektur</a></li>
+        <li><a href="#konfiguration-ressourcen"
+        id="toc-konfiguration-ressourcen">Konfiguration &amp;
+        Ressourcen</a></li>
         <li><a href="#nächste-schritte"
         id="toc-nächste-schritte">Nächste Schritte</a></li>
         </ul></li>
@@ -465,6 +468,92 @@
         nutzen - <strong>Mocking</strong> - Mockito für Service- und
         Repository-Mocking - <strong>Test-Fixtures</strong> - Builder
         und Factory-Methoden für Test-Daten</p>
+        <h2 id="konfiguration-ressourcen">Konfiguration &amp;
+        Ressourcen</h2>
+        <p>Smart Supply Pro nutzt <strong>externalisierte
+        Konfiguration</strong>, um Code unabhängig von
+        umgebungsspezifischen Einstellungen zu halten:</p>
+        <p><strong>Wichtige Konfigurationsbereiche:</strong></p>
+        <ul>
+        <li><strong><a href="./resources/index.html">Ressourcen &amp;
+        Konfiguration</a></strong> - Hub für alle Konfigurationsdateien
+        und externalisierte Eigenschaften
+        <ul>
+        <li>YAML/Properties-Dateien: <code>application.yml</code>,
+        <code>application-prod.yml</code>,
+        <code>application-test.yml</code></li>
+        <li>Umgebungsvariablen: Datenbankzugang, OAuth2-Schlüssel,
+        API-URLs</li>
+        <li>Spring-Profile: <code>test</code>, <code>prod</code> (kein
+        Profil = lokale Entwicklung)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/application-yaml-and-properties.html">Application
+        YAML &amp; Properties</a></strong> - Struktur der
+        Spring-Boot-Konfiguration
+        <ul>
+        <li>Datenbankverbindung (Treiber, URL,
+        Anmeldeinformationen)</li>
+        <li>JPA/Hibernate-Einstellungen (DDL Auto,
+        SQL-Protokollierung)</li>
+        <li>OAuth2-Anbieter-Registrierung (Google SSO)</li>
+        <li>Benutzerdefinierte App-Eigenschaften (Demo-Modus,
+        Frontend-URLs)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/environment-specific-config.html">Umgebungsspezifische
+        Konfiguration</a></strong> - Profilbasierte Konfiguration und
+        .env-Setup
+        <ul>
+        <li>Lokale Entwicklung (.env-Vorlage mit
+        Datenbankzugang/OAuth2-Anmeldeinformationen)</li>
+        <li>Test-Profil (H2 In-Memory-Datenbank,
+        Debug-Protokollierung)</li>
+        <li>Produktions-Profil (Oracle Autonomous DB, optimiertes
+        Connection Pooling)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/logging-config.html">Protokollierungs-Konfiguration</a></strong>
+        - Logger-Ebenen und Ausgabe nach Umgebung
+        <ul>
+        <li>Entwicklung/Test: DEBUG/TRACE (SQL-Abfragen,
+        Sicherheitsdetails)</li>
+        <li>Produktion: INFO (minimale Protokollierung für
+        Performance)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/database-config-and-oracle-wallet.html">Datenbank-Konfiguration
+        &amp; Oracle Wallet</a></strong> - Datenbankverbindungs-Setup
+        und sichere Anmeldeinformationen-Verwaltung
+        <ul>
+        <li>H2 zum Testen (Oracle-kompatibler Modus)</li>
+        <li>Oracle Autonomous DB für Produktion (Wallet-basierte
+        Anmeldeinformationen)</li>
+        <li>HikariCP-Connection-Pooling (optimiert für
+        Fly.io-RAM-Einschränkungen)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/static-resources-and-templates.html">Statische
+        Ressourcen &amp; Templates</a></strong> - Erklärung der
+        API-Only-Architektur
+        <ul>
+        <li>Backend ist reines REST-API (gibt JSON zurück, nicht
+        HTML)</li>
+        <li>Frontend lebt in <code>/frontend</code> (separate
+        React/TypeScript-Anwendung)</li>
+        <li>Keine Server-seitigen Templates (Thymeleaf, etc.)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/messages-and-i18n.html">Nachrichten &amp;
+        Internationalisierung</a></strong> - Externalisierte
+        benutzerfreundliche Nachrichten
+        <ul>
+        <li>Validierungsfehlermeldungen (Englisch, Deutsch)</li>
+        <li>Fehler-Codes und Beschreibungen</li>
+        <li>Unterstützung für mehrere Sprachen über
+        Message-Properties-Dateien</li>
+        </ul></li>
+        </ul>
         <h2 id="nächste-schritte">Nächste Schritte</h2>
         <ol type="1">
         <li><strong>Erkunden Sie <a

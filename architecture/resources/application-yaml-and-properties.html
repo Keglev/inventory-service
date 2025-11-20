@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+resources/application-yaml-and-properties · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#application-yaml-properties-files"
+        id="toc-application-yaml-properties-files">Application YAML
+        &amp; Properties Files</a>
+        <ul>
+        <li><a href="#table-of-contents"
+        id="toc-table-of-contents">Table of Contents</a></li>
+        <li><a href="#configuration-files-overview"
+        id="toc-configuration-files-overview">Configuration Files
+        Overview</a>
+        <ul>
+        <li><a href="#files-in-this-project"
+        id="toc-files-in-this-project">Files in This Project</a></li>
+        <li><a href="#loading-order" id="toc-loading-order">Loading
+        Order</a></li>
+        </ul></li>
+        <li><a href="#yaml-vs-properties-format"
+        id="toc-yaml-vs-properties-format">YAML vs Properties Format</a>
+        <ul>
+        <li><a href="#application.yml-yaml-format"
+        id="toc-application.yml-yaml-format">application.yml (YAML
+        Format)</a></li>
+        <li><a href="#application.properties-properties-format"
+        id="toc-application.properties-properties-format">application.properties
+        (Properties Format)</a></li>
+        <li><a href="#in-this-project" id="toc-in-this-project">In This
+        Project</a></li>
+        </ul></li>
+        <li><a href="#major-configuration-sections"
+        id="toc-major-configuration-sections">Major Configuration
+        Sections</a>
+        <ul>
+        <li><a href="#spring-datasource-configuration"
+        id="toc-spring-datasource-configuration">1. Spring Datasource
+        Configuration</a></li>
+        <li><a href="#spring-jpa-hibernate-configuration"
+        id="toc-spring-jpa-hibernate-configuration">2. Spring JPA &amp;
+        Hibernate Configuration</a></li>
+        <li><a href="#spring-security-oauth2-configuration"
+        id="toc-spring-security-oauth2-configuration">3. Spring Security
+        &amp; OAuth2 Configuration</a></li>
+        <li><a href="#logging-configuration"
+        id="toc-logging-configuration">4. Logging Configuration</a></li>
+        <li><a href="#server-servlet-configuration"
+        id="toc-server-servlet-configuration">5. Server &amp; Servlet
+        Configuration</a></li>
+        <li><a href="#custom-app-configuration"
+        id="toc-custom-app-configuration">6. Custom App
+        Configuration</a></li>
+        <li><a href="#management-actuator-configuration"
+        id="toc-management-actuator-configuration">7. Management &amp;
+        Actuator Configuration</a></li>
+        <li><a href="#spring-main-configuration"
+        id="toc-spring-main-configuration">8. Spring Main
+        Configuration</a></li>
+        </ul></li>
+        <li><a href="#profile-specific-overrides"
+        id="toc-profile-specific-overrides">Profile-Specific
+        Overrides</a>
+        <ul>
+        <li><a href="#how-overrides-work"
+        id="toc-how-overrides-work">How Overrides Work</a></li>
+        <li><a href="#which-values-are-overridden"
+        id="toc-which-values-are-overridden">Which Values Are
+        Overridden</a></li>
+        <li><a href="#adding-new-profile"
+        id="toc-adding-new-profile">Adding New Profile</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a>
+        <ul>
+        <li><a href="#never-hardcode-secrets-in-config-files"
+        id="toc-never-hardcode-secrets-in-config-files">1. Never
+        Hardcode Secrets in Config Files</a></li>
+        <li><a
+        href="#use-placeholders-with-defaults-for-optional-values"
+        id="toc-use-placeholders-with-defaults-for-optional-values">2.
+        Use Placeholders with Defaults for Optional Values</a></li>
+        <li><a href="#document-why-overrides-exist"
+        id="toc-document-why-overrides-exist">3. Document Why Overrides
+        Exist</a></li>
+        <li><a href="#keep-base-config-minimal-and-shared"
+        id="toc-keep-base-config-minimal-and-shared">4. Keep Base Config
+        Minimal and Shared</a></li>
+        </ul></li>
+        <li><a href="#reference" id="toc-reference">Reference</a>
+        <ul>
+        <li><a href="#environment-variables-used"
+        id="toc-environment-variables-used">Environment Variables
+        Used</a></li>
+        <li><a href="#configuration-properties-map"
+        id="toc-configuration-properties-map">Configuration Properties
+        Map</a></li>
+        </ul></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#configuration-not-applied"
+        id="toc-configuration-not-applied">Configuration Not
+        Applied</a></li>
+        <li><a href="#environment-variable-not-substituted"
+        id="toc-environment-variable-not-substituted">Environment
+        Variable Not Substituted</a></li>
+        <li><a href="#wrong-profile-applied"
+        id="toc-wrong-profile-applied">Wrong Profile Applied</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+        <h1 id="application-yaml-properties-files">Application YAML
+        &amp; Properties Files</h1>
+        <p><strong>Overview:</strong> This document explains the
+        structure and purpose of Spring Boot configuration files that
+        define how the application behaves.</p>
+        <hr />
+        <h2 id="table-of-contents">Table of Contents</h2>
+        <ol type="1">
+        <li><a href="#configuration-files-overview">Configuration Files
+        Overview</a></li>
+        <li><a href="#yaml-vs-properties-format">YAML vs Properties
+        Format</a></li>
+        <li><a href="#major-configuration-sections">Major Configuration
+        Sections</a></li>
+        <li><a href="#profile-specific-overrides">Profile-Specific
+        Overrides</a></li>
+        <li><a href="#best-practices">Best Practices</a></li>
+        <li><a href="#reference">Reference</a></li>
+        </ol>
+        <hr />
+        <h2 id="configuration-files-overview">Configuration Files
+        Overview</h2>
+        <h3 id="files-in-this-project">Files in This Project</h3>
+        <table>
+        <colgroup>
+        <col style="width: 19%" />
+        <col style="width: 22%" />
+        <col style="width: 22%" />
+        <col style="width: 35%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>File</th>
+        <th>Scope</th>
+        <th>Usage</th>
+        <th>Environment</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>application.yml</strong></td>
+        <td>Base/Shared</td>
+        <td>All profiles</td>
+        <td>Dev, Test, Prod</td>
+        </tr>
+        <tr class="even">
+        <td><strong>application-prod.yml</strong></td>
+        <td>Production</td>
+        <td>Only when <code>SPRING_PROFILES_ACTIVE=prod</code></td>
+        <td>Production (Fly.io)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>application-test.yml</strong></td>
+        <td>Testing</td>
+        <td>Only when <code>SPRING_PROFILES_ACTIVE=test</code></td>
+        <td>CI/CD Tests</td>
+        </tr>
+        <tr class="even">
+        <td><strong>application.properties</strong></td>
+        <td>Minimal</td>
+        <td>Metadata only</td>
+        <td>All</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="loading-order">Loading Order</h3>
+        <pre><code>Step 1: Load application.yml (base config for all profiles)
+         ↓
+Step 2: If SPRING_PROFILES_ACTIVE=prod → Load application-prod.yml (overrides)
+         If SPRING_PROFILES_ACTIVE=test → Load application-test.yml (overrides)
+         If no profile → Use application.yml only + environment variables
+         ↓
+Step 3: Apply environment variables (highest priority override)
+         ↓
+Result: Final merged configuration</code></pre>
+        <hr />
+        <h2 id="yaml-vs-properties-format">YAML vs Properties
+        Format</h2>
+        <h3 id="application.yml-yaml-format">application.yml (YAML
+        Format)</h3>
+        <p><strong>Advantages:</strong> - Hierarchical structure (easier
+        to read) - Comments are prominent - No repeated prefixes</p>
+        <p><strong>Example:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:oracle:thin:@localhost:1521/xe</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> admin</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">ddl-auto</span><span class="kw">:</span><span class="at"> update</span></span></code></pre></div>
+        <h3
+        id="application.properties-properties-format">application.properties
+        (Properties Format)</h3>
+        <p><strong>Advantages:</strong> - Flat key=value format - Good
+        for simple metadata</p>
+        <p><strong>Example:</strong></p>
+        <pre class="properties"><code>spring.application.name=Inventory Service</code></pre>
+        <h3 id="in-this-project">In This Project</h3>
+        <ul>
+        <li><strong>YAML used for:</strong> Main configuration
+        (datasource, JPA, security, logging)</li>
+        <li><strong>Properties used for:</strong> Only application name
+        metadata</li>
+        <li><strong>Reason:</strong> YAML is more readable for complex
+        hierarchies; properties for simple values</li>
+        </ul>
+        <hr />
+        <h2 id="major-configuration-sections">Major Configuration
+        Sections</h2>
+        <h3 id="spring-datasource-configuration">1. Spring Datasource
+        Configuration</h3>
+        <p><strong>Where Configured:</strong>
+        <code>application.yml</code>, <code>application-prod.yml</code>,
+        <code>application-test.yml</code></p>
+        <h4 id="base-configuration-application.yml">Base Configuration
+        (application.yml)</h4>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> ${DB_URL}</span><span class="co">                              # Placeholder - injected from environment</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> ${DB_USER}</span><span class="co">                        # Placeholder - injected from environment</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASS}</span><span class="co">                        # Placeholder - injected from environment</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> oracle.jdbc.OracleDriver</span><span class="co"> # Oracle driver</span></span></code></pre></div>
+        <p><strong>Key Points:</strong> - Uses environment variable
+        placeholders (<code>${...}</code>) - Base file doesn’t contain
+        actual credentials - Driver defaults to Oracle</p>
+        <h4 id="production-override-application-prod.yml">Production
+        Override (application-prod.yml)</h4>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> ${DB_URL}</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> ${DB_USER}</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASS}</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> oracle.jdbc.OracleDriver</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hikari</span><span class="kw">:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">connection-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">30000</span><span class="co">          # 30 seconds</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">validation-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">5000</span><span class="co">           # 5 seconds</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">maximum-pool-size</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span><span class="co">               # Limited for Fly.io (512MB-1GB RAM)</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">minimum-idle</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">max-lifetime</span><span class="kw">:</span><span class="at"> </span><span class="dv">240000</span><span class="co">               # 4 minutes</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">idle-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">180000</span><span class="co">               # 3 minutes</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">connection-test-query</span><span class="kw">:</span><span class="at"> SELECT 1 FROM DUAL</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">leak-detection-threshold</span><span class="kw">:</span><span class="at"> </span><span class="dv">60000</span><span class="co">    # 60 seconds</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">keepalive-time</span><span class="kw">:</span><span class="at"> </span><span class="dv">120000</span><span class="co">             # 2 minutes</span></span></code></pre></div>
+        <p><strong>Why These Settings?</strong> - Oracle Autonomous DB
+        has aggressive 5-minute idle timeout - HikariCP settings prevent
+        “ORA-17008: Closed connection” errors - Pool kept small (5 max)
+        for Fly.io memory constraints (512MB-1GB)</p>
+        <h4 id="test-override-application-test.yml">Test Override
+        (application-test.yml)</h4>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:h2:mem:ssp;MODE=Oracle;DATABASE_TO_UPPER=true;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> org.h2.Driver</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> sa</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="co">  # Empty for H2</span></span></code></pre></div>
+        <p><strong>Why H2 in Tests?</strong> - ✅ Fast: In-memory, no
+        network calls - ✅ Isolated: Fresh database per test run - ✅
+        Oracle-compatible: <code>MODE=Oracle</code> emulates Oracle
+        syntax - ✅ No setup: No separate Oracle instance needed</p>
+        <hr />
+        <h3 id="spring-jpa-hibernate-configuration">2. Spring JPA &amp;
+        Hibernate Configuration</h3>
+        <p><strong>Where Configured:</strong>
+        <code>application.yml</code>, <code>application-prod.yml</code>,
+        <code>application-test.yml</code></p>
+        <h4 id="base-configuration-application.yml-1">Base Configuration
+        (application.yml)</h4>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">ddl-auto</span><span class="kw">:</span><span class="at"> none</span><span class="co">                            # Don&#39;t auto-create schemas</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">show-sql</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">                              # Log all SQL (for debugging)</span></span></code></pre></div>
+        <h4 id="production-override-application-prod.yml-1">Production
+        Override (application-prod.yml)</h4>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">ddl-auto</span><span class="kw">:</span><span class="at"> update</span><span class="co">                          # Update schema (use Flyway/Liquibase in enterprise)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">show-sql</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">                             # No SQL logging (performance, security)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">properties</span><span class="kw">:</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">dialect</span><span class="kw">:</span><span class="at"> org.hibernate.dialect.OracleDialect</span></span></code></pre></div>
+        <p><strong>Key Points:</strong> - <code>ddl-auto: update</code>
+        modifies schema without dropping data - SQL logging disabled for
+        performance and security - Oracle-specific dialect for custom
+        SQL functions</p>
+        <h4 id="test-override-application-test.yml-1">Test Override
+        (application-test.yml)</h4>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">jpa</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">database-platform</span><span class="kw">:</span><span class="at"> org.hibernate.dialect.H2Dialect</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">ddl-auto</span><span class="kw">:</span><span class="at"> create-drop</span><span class="co">                     # Create fresh schema, drop after tests</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">show-sql</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">                              # Show SQL for debugging</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">properties</span><span class="kw">:</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">hibernate</span><span class="kw">:</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">&#39;[format_sql]&#39;</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">                    # Pretty-print SQL</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">&#39;[globally_quoted_identifiers]&#39;</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">  # Keep quoted identifiers</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">&#39;[jdbc.time_zone]&#39;</span><span class="kw">:</span><span class="at"> UTC</span><span class="co">                 # Consistent timezone</span></span></code></pre></div>
+        <p><strong>Why <code>create-drop</code>?</strong> - Fresh
+        database for each test run - No data leaks between tests -
+        Automatic cleanup after tests finish</p>
+        <hr />
+        <h3 id="spring-security-oauth2-configuration">3. Spring Security
+        &amp; OAuth2 Configuration</h3>
+        <p><strong>Where Configured:</strong>
+        <code>application.yml</code>, <code>application-test.yml</code>
+        (no prod override)</p>
+        <h4 id="all-profiles-application.yml">All Profiles
+        (application.yml)</h4>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">security</span><span class="kw">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">oauth2</span><span class="kw">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">client</span><span class="kw">:</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">registration</span><span class="kw">:</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">google</span><span class="kw">:</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-id</span><span class="kw">:</span><span class="at"> ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-secret</span><span class="kw">:</span><span class="at"> ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">redirect-uri</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;{baseUrl}/login/oauth2/code/{registrationId}&quot;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">scope</span><span class="kw">:</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="at">              </span><span class="kw">-</span><span class="at"> openid</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">              </span><span class="kw">-</span><span class="at"> profile</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="at">              </span><span class="kw">-</span><span class="at"> email</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">provider</span><span class="kw">:</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">google</span><span class="kw">:</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">authorization-uri</span><span class="kw">:</span><span class="at"> https://accounts.google.com/o/oauth2/v2/auth</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">token-uri</span><span class="kw">:</span><span class="at"> https://oauth2.googleapis.com/token</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">user-info-uri</span><span class="kw">:</span><span class="at"> https://www.googleapis.com/oauth2/v3/userinfo</span></span></code></pre></div>
+        <p><strong>Key Points:</strong> - <strong>Client ID &amp;
+        Secret:</strong> Externalized (environment variables, not in
+        config files) - <strong>Redirect URI:</strong> Uses placeholder
+        <code>{baseUrl}</code> (replaced at runtime) -
+        <strong>Scopes:</strong> Request email and profile from Google -
+        <strong>Provider URLs:</strong> Hardcoded (public Google
+        endpoints)</p>
+        <h4 id="test-override-application-test.yml-2">Test Override
+        (application-test.yml)</h4>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">security</span><span class="kw">:</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">oauth2</span><span class="kw">:</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">client</span><span class="kw">:</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">registration</span><span class="kw">:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">google</span><span class="kw">:</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-id</span><span class="kw">:</span><span class="at"> test-client-id</span><span class="co">               # Dummy values for testing</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">client-secret</span><span class="kw">:</span><span class="at"> test-client-secret</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">scope</span><span class="kw">:</span><span class="at"> openid,profile,email</span></span></code></pre></div>
+        <p><strong>Why Different for Tests?</strong> - No real OAuth2
+        flow needed in tests - Dummy values prevent external API calls -
+        Tests mock authentication instead</p>
+        <hr />
+        <h3 id="logging-configuration">4. Logging Configuration</h3>
+        <p><strong>Where Configured:</strong>
+        <code>application.yml</code>, <code>application-prod.yml</code>,
+        <code>application-test.yml</code></p>
+        <h4 id="base-configuration-application.yml-2">Base Configuration
+        (application.yml)</h4>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.jdbc.core]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">     # Detailed JDBC logs</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                 # Hibernate SQL statements</span></span></code></pre></div>
+        <h4 id="production-override-application-prod.yml-2">Production
+        Override (application-prod.yml)</h4>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro]&#39;</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                 # Application logs: informative only</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                                   # Framework logs: minimal</span></span></code></pre></div>
+        <h4 id="test-override-application-test.yml-3">Test Override
+        (application-test.yml)</h4>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">file</span><span class="kw">:</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> logs/test-application.log</span><span class="co">              # Write to file</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                 # SQL statements</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.type.descriptor.sql]&#39;</span><span class="kw">:</span><span class="at"> trace</span><span class="co"> # SQL parameter values</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span></span></code></pre></div>
+        <p><strong>Why Different Levels?</strong> -
+        <strong>Dev/Test:</strong> DEBUG/TRACE to understand what’s
+        happening - <strong>Prod:</strong> INFO to reduce noise and log
+        file size</p>
+        <hr />
+        <h3 id="server-servlet-configuration">5. Server &amp; Servlet
+        Configuration</h3>
+        <p><strong>Where Configured:</strong>
+        <code>application.yml</code>, <code>application-test.yml</code>
+        (port override)</p>
+        <h4 id="all-profiles-application.yml-1">All Profiles
+        (application.yml)</h4>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">port</span><span class="kw">:</span><span class="at"> </span><span class="dv">8081</span><span class="co">                                     # Non-standard port (avoid conflicts)</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">address</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.0.0.0</span><span class="co">                               # Listen on all interfaces</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">forward-headers-strategy</span><span class="kw">:</span><span class="at"> framework</span><span class="co">            # Respect X-Forwarded-* headers from proxies</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">servlet</span><span class="kw">:</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">session</span><span class="kw">:</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">cookie</span><span class="kw">:</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">same-site</span><span class="kw">:</span><span class="at"> none</span><span class="co">                          # Allow cross-site cookies (OAuth2)</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">secure</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">                             # Use secure cookies (HTTPS)</span></span></code></pre></div>
+        <p><strong>Key Points:</strong> - <strong>Port 8081:</strong>
+        Avoids conflict with port 8080 (common default) -
+        <strong>Forward-headers:</strong> Important for reverse proxies
+        (Fly.io, nginx) - <strong>same-site: none:</strong> Allows
+        OAuth2 redirects across origins - <strong>secure: true:</strong>
+        Cookies only over HTTPS (recommended for prod)</p>
+        <h4 id="test-override-application-test.yml-4">Test Override
+        (application-test.yml)</h4>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">server</span><span class="kw">:</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">port</span><span class="kw">:</span><span class="at"> </span><span class="dv">8081</span><span class="co">                                     # Same port for consistency</span></span></code></pre></div>
+        <hr />
+        <h3 id="custom-app-configuration">6. Custom App
+        Configuration</h3>
+        <p><strong>Where Configured:</strong>
+        <code>application.yml</code>,
+        <code>application-test.yml</code></p>
+        <h4 id="all-profiles-application.yml-2">All Profiles
+        (application.yml)</h4>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> ${APP_DEMO_READONLY:true}</span><span class="co">       # Default: true if env var not set</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">frontend</span><span class="kw">:</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base-url</span><span class="kw">:</span><span class="at"> ${APP_FRONTEND_BASE_URL:https://localhost:5173}</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">landing-path</span><span class="kw">:</span><span class="at"> /auth</span></span></code></pre></div>
+        <p><strong>What This Does:</strong> -
+        <strong>demo-readonly:</strong> Enables read-only mode (test
+        data, no modifications) - <strong>frontend.base-url:</strong>
+        URL of React frontend (for redirects after login) -
+        <strong>frontend.landing-path:</strong> Frontend route to
+        redirect to after OAuth2 login</p>
+        <h4 id="test-override-application-test.yml-5">Test Override
+        (application-test.yml)</h4>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">                           # Allow modifications in tests</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">frontend</span><span class="kw">:</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base-url</span><span class="kw">:</span><span class="at"> http://localhost:8081</span><span class="co">              # Points to backend itself</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">landing-path</span><span class="kw">:</span><span class="at"> /api/me</span><span class="co">                        # Test endpoint instead of frontend</span></span></code></pre></div>
+        <p><strong>Why Different?</strong> - Tests need to modify data
+        (set <code>demo-readonly: false</code>) - Tests don’t have
+        frontend running (redirect to backend API)</p>
+        <hr />
+        <h3 id="management-actuator-configuration">7. Management &amp;
+        Actuator Configuration</h3>
+        <p><strong>Where Configured:</strong>
+        <code>application-prod.yml</code>,
+        <code>application-test.yml</code></p>
+        <h4 id="production-application-prod.yml">Production
+        (application-prod.yml)</h4>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">management</span><span class="kw">:</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">endpoints</span><span class="kw">:</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">web</span><span class="kw">:</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">exposure</span><span class="kw">:</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">include</span><span class="kw">:</span><span class="at"> health</span><span class="co">                          # Only expose health endpoint</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">endpoint</span><span class="kw">:</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">health</span><span class="kw">:</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">show-details</span><span class="kw">:</span><span class="at"> never</span><span class="co">                        # Hide internal details for security</span></span></code></pre></div>
+        <h4 id="test-application-test.yml">Test
+        (application-test.yml)</h4>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">management</span><span class="kw">:</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">endpoints</span><span class="kw">:</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">web</span><span class="kw">:</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">exposure</span><span class="kw">:</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">include</span><span class="kw">:</span><span class="at"> health</span><span class="co">                          # Expose for CI assertions</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">endpoint</span><span class="kw">:</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">health</span><span class="kw">:</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">show-details</span><span class="kw">:</span><span class="at"> always</span><span class="co">                       # Show details for debugging</span></span></code></pre></div>
+        <p><strong>Why Different?</strong> - <strong>Prod:</strong>
+        Minimize exposed endpoints for security - <strong>Test:</strong>
+        Show details to verify application health in CI</p>
+        <hr />
+        <h3 id="spring-main-configuration">8. Spring Main
+        Configuration</h3>
+        <h4 id="base-application.yml">Base (application.yml)</h4>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">main</span><span class="kw">:</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">allow-bean-definition-overriding</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span><span class="co">       # Allows test mocks to override beans</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">profiles</span><span class="kw">:</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">active</span><span class="kw">:</span><span class="co"> # none (don&#39;t force a default)</span></span></code></pre></div>
+        <hr />
+        <h2 id="profile-specific-overrides">Profile-Specific
+        Overrides</h2>
+        <h3 id="how-overrides-work">How Overrides Work</h3>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application.yml (Base - ALL profiles)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> ${DB_URL}</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># application-test.yml (When profile=test)</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:h2:mem:ssp...</span><span class="co">  # OVERRIDES the base url</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Result when SPRING_PROFILES_ACTIVE=test:</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># datasource.url = &quot;jdbc:h2:mem:ssp...&quot; (test value wins)</span></span></code></pre></div>
+        <h3 id="which-values-are-overridden">Which Values Are
+        Overridden</h3>
+        <p><strong>Completely Overridden:</strong> - datasource.url
+        (base: placeholder, test: H2) - datasource.driver-class-name
+        (base: Oracle, test: H2) - jpa.hibernate.ddl-auto (base: none,
+        test: create-drop)</p>
+        <p><strong>Merged/Extended:</strong> - logging.level.* (base:
+        DEBUG for JDBC, test: adds TRACE for SQL params) -
+        management.endpoints.web.exposure.include (base: not set, test:
+        health)</p>
+        <h3 id="adding-new-profile">Adding New Profile</h3>
+        <p>To add a profile (e.g., <code>local</code>):</p>
+        <ol type="1">
+        <li>Create <code>application-local.yml</code></li>
+        <li>Set <code>SPRING_PROFILES_ACTIVE=local</code> to
+        activate</li>
+        <li>Add only the overrides you need</li>
+        <li>Base config from <code>application.yml</code> still
+        applies</li>
+        </ol>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <h3 id="never-hardcode-secrets-in-config-files">1. Never
+        Hardcode Secrets in Config Files</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> mysecretpassword123</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASS}</span><span class="co">  # Injected from environment</span></span></code></pre></div>
+        <h3 id="use-placeholders-with-defaults-for-optional-values">2.
+        Use Placeholders with Defaults for Optional Values</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">frontend</span><span class="kw">:</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base-url</span><span class="kw">:</span><span class="at"> https://localhost:5173</span><span class="co">  # Breaks in production</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">frontend</span><span class="kw">:</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base-url</span><span class="kw">:</span><span class="at"> ${APP_FRONTEND_BASE_URL:https://localhost:5173}</span><span class="co">  # Default for local dev</span></span></code></pre></div>
+        <h3 id="document-why-overrides-exist">3. Document Why Overrides
+        Exist</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-prod.yml</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hikari</span><span class="kw">:</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">maximum-pool-size</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-prod.yml</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hikari</span><span class="kw">:</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co">      # Fly.io has limited memory (512MB-1GB)</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co">      # Keep pool small to avoid OOM errors</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">maximum-pool-size</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span></code></pre></div>
+        <h3 id="keep-base-config-minimal-and-shared">4. Keep Base Config
+        Minimal and Shared</h3>
+        <p>Put in <code>application.yml</code>: - ✅ Default values used
+        by all profiles - ✅ Shared URLs (OAuth2 providers, which don’t
+        change) - ✅ Server port (unless overridden)</p>
+        <p>Don’t put in <code>application.yml</code>: - ❌
+        Production-specific tuning - ❌ Database credentials - ❌ Debug
+        logging settings</p>
+        <hr />
+        <h2 id="reference">Reference</h2>
+        <h3 id="environment-variables-used">Environment Variables
+        Used</h3>
+        <table>
+        <colgroup>
+        <col style="width: 25%" />
+        <col style="width: 28%" />
+        <col style="width: 23%" />
+        <col style="width: 23%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Variable</th>
+        <th>Base Value</th>
+        <th>Used In</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>DB_URL</code></td>
+        <td><code>${DB_URL}</code></td>
+        <td>application.yml</td>
+        <td><code>jdbc:oracle:thin:@localhost:1521/xe</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>DB_USER</code></td>
+        <td><code>${DB_USER}</code></td>
+        <td>application.yml</td>
+        <td><code>admin</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>DB_PASS</code></td>
+        <td><code>${DB_PASS}</code></td>
+        <td>application.yml</td>
+        <td><code>password123</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID</code></td>
+        <td><code>${...}</code></td>
+        <td>application.yml</td>
+        <td><code>abc123.apps.googleusercontent.com</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET</code></td>
+        <td><code>${...}</code></td>
+        <td>application.yml</td>
+        <td><code>secret_xyz</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>APP_DEMO_READONLY</code></td>
+        <td><code>true</code></td>
+        <td>application.yml</td>
+        <td><code>false</code> (for tests)</td>
+        </tr>
+        <tr class="odd">
+        <td><code>APP_FRONTEND_BASE_URL</code></td>
+        <td><code>https://localhost:5173</code></td>
+        <td>application.yml</td>
+        <td><code>https://myapp.com</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>APP_ADMIN_EMAILS</code></td>
+        <td>(not set)</td>
+        <td>Java code (<span class="citation"
+        data-cites="Value">@Value</span>)</td>
+        <td><code>admin@example.com,other@example.com</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>TNS_ADMIN</code></td>
+        <td>(not set)</td>
+        <td>Oracle driver</td>
+        <td><code>/path/to/wallet</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>SPRING_PROFILES_ACTIVE</code></td>
+        <td>(none)</td>
+        <td>Spring Boot</td>
+        <td><code>prod</code>, <code>test</code>,
+        <code>local</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="configuration-properties-map">Configuration Properties
+        Map</h3>
+        <pre><code>application.yml
+├── spring.datasource.*              (Database connection)
+├── spring.jpa.*                     (JPA &amp; Hibernate)
+├── spring.security.oauth2.*         (OAuth2 registration)
+├── spring.main.*                    (Spring Boot behavior)
+├── server.*                         (HTTP server)
+├── logging.*                        (Log levels)
+├── management.*                     (Actuator endpoints)
+└── app.*                            (Custom application config)</code></pre>
+        <hr />
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="configuration-not-applied">Configuration Not
+        Applied</h3>
+        <p><strong>Problem:</strong> Config change doesn’t take
+        effect</p>
+        <p><strong>Solution:</strong> 1. Stop the application 2. Check
+        correct profile is set:
+        <code>echo $SPRING_PROFILES_ACTIVE</code> 3. Restart application
+        4. Look for log: “The following profiles are active: X”</p>
+        <h3 id="environment-variable-not-substituted">Environment
+        Variable Not Substituted</h3>
+        <p><strong>Problem:</strong> Placeholder shows in output instead
+        of value</p>
+        <p><strong>Solution:</strong> 1. Check variable name matches
+        exactly 2. Verify variable is exported:
+        <code>echo $VAR_NAME</code> 3. Use default value:
+        <code>${VAR_NAME:defaultValue}</code></p>
+        <h3 id="wrong-profile-applied">Wrong Profile Applied</h3>
+        <p><strong>Problem:</strong> Production config applied in
+        development</p>
+        <p><strong>Solution:</strong> 1. Check environment variables:
+        <code>env | grep SPRING_PROFILES_ACTIVE</code> 2. Clear cached
+        config: <code>rm -rf ~/.m2/repository/*</code> (Maven cache) 3.
+        Restart IDE/terminal to apply new env vars</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

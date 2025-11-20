@@ -122,6 +122,9 @@
         id="toc-scalability-strategy">Scalability Strategy</a></li>
         <li><a href="#testing-architecture"
         id="toc-testing-architecture">Testing Architecture</a></li>
+        <li><a href="#configuration-resources"
+        id="toc-configuration-resources">Configuration &amp;
+        Resources</a></li>
         <li><a href="#next-steps" id="toc-next-steps">Next
         Steps</a></li>
         </ul></li>
@@ -450,6 +453,86 @@
         <strong>Mocking</strong> - Mockito for service and repository
         mocking - <strong>Test Fixtures</strong> - Builders and factory
         methods for test data</p>
+        <h2 id="configuration-resources">Configuration &amp;
+        Resources</h2>
+        <p>Smart Supply Pro uses <strong>externalized
+        configuration</strong> to keep code independent from
+        environment-specific settings:</p>
+        <p><strong>Key Configuration Areas:</strong></p>
+        <ul>
+        <li><strong><a href="./resources/index.html">Resources &amp;
+        Configuration</a></strong> - Hub for all configuration files and
+        externalized properties
+        <ul>
+        <li>YAML/Properties files: <code>application.yml</code>,
+        <code>application-prod.yml</code>,
+        <code>application-test.yml</code></li>
+        <li>Environment variables: Database credentials, OAuth2 keys,
+        API URLs</li>
+        <li>Spring profiles: <code>test</code>, <code>prod</code> (no
+        profile = local development)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/application-yaml-and-properties.html">Application
+        YAML &amp; Properties</a></strong> - Structure of Spring Boot
+        configuration
+        <ul>
+        <li>Datasource config (driver, URL, credentials)</li>
+        <li>JPA/Hibernate settings (DDL auto, SQL logging)</li>
+        <li>OAuth2 provider registration (Google SSO)</li>
+        <li>Custom app properties (demo mode, frontend URLs)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/environment-specific-config.html">Environment-Specific
+        Configuration</a></strong> - Profile-based configuration and
+        .env setup
+        <ul>
+        <li>Local development (.env template with database/OAuth2
+        credentials)</li>
+        <li>Testing profile (H2 in-memory database, debug logging)</li>
+        <li>Production profile (Oracle Autonomous DB, optimized
+        connection pooling)</li>
+        </ul></li>
+        <li><strong><a href="./resources/logging-config.html">Logging
+        Configuration</a></strong> - Logger levels and output by
+        environment
+        <ul>
+        <li>Development/Test: DEBUG/TRACE (SQL queries, security
+        details)</li>
+        <li>Production: INFO (minimal logging for performance)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/database-config-and-oracle-wallet.html">Database
+        Configuration &amp; Oracle Wallet</a></strong> - Datasource
+        setup and secure credential management
+        <ul>
+        <li>H2 for testing (Oracle-compatible mode)</li>
+        <li>Oracle Autonomous DB for production (wallet-based
+        credentials)</li>
+        <li>HikariCP connection pooling (tuned for Fly.io RAM
+        constraints)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/static-resources-and-templates.html">Static
+        Resources &amp; Templates</a></strong> - Explanation of API-only
+        architecture
+        <ul>
+        <li>Backend is pure REST API (returns JSON, not HTML)</li>
+        <li>Frontend lives in <code>/frontend</code> (separate
+        React/TypeScript application)</li>
+        <li>No server-side templates (Thymeleaf, etc.)</li>
+        </ul></li>
+        <li><strong><a
+        href="./resources/messages-and-i18n.html">Messages &amp;
+        Internationalization</a></strong> - Externalized user-facing
+        messages
+        <ul>
+        <li>Validation error messages (English, German)</li>
+        <li>Error codes and descriptions</li>
+        <li>Support for multiple languages via message properties
+        files</li>
+        </ul></li>
+        </ul>
         <h2 id="next-steps">Next Steps</h2>
         <ol type="1">
         <li><strong>Explore <a href="./layers/overview.html">Layers

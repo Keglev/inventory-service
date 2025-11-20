@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+resources/database-config-and-oracle-wallet · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#database-configuration-oracle-wallet"
+        id="toc-database-configuration-oracle-wallet">Database
+        Configuration &amp; Oracle Wallet</a>
+        <ul>
+        <li><a href="#table-of-contents"
+        id="toc-table-of-contents">Table of Contents</a></li>
+        <li><a href="#datasource-configuration-overview"
+        id="toc-datasource-configuration-overview">Datasource
+        Configuration Overview</a>
+        <ul>
+        <li><a href="#datasource-in-spring-boot"
+        id="toc-datasource-in-spring-boot">Datasource in Spring
+        Boot</a></li>
+        <li><a href="#configuration-sources"
+        id="toc-configuration-sources">Configuration Sources</a></li>
+        </ul></li>
+        <li><a href="#configuration-by-environment"
+        id="toc-configuration-by-environment">Configuration by
+        Environment</a>
+        <ul>
+        <li><a href="#development-local"
+        id="toc-development-local">Development (Local)</a></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#production-fly.io"
+        id="toc-production-fly.io">Production (Fly.io)</a></li>
+        </ul></li>
+        <li><a href="#oracle-wallet-integration"
+        id="toc-oracle-wallet-integration">Oracle Wallet Integration</a>
+        <ul>
+        <li><a href="#what-is-oracle-wallet"
+        id="toc-what-is-oracle-wallet">What is Oracle Wallet?</a></li>
+        <li><a href="#how-wallet-based-connection-works"
+        id="toc-how-wallet-based-connection-works">How Wallet-Based
+        Connection Works</a></li>
+        <li><a href="#configuration-for-wallet"
+        id="toc-configuration-for-wallet">Configuration for
+        Wallet</a></li>
+        <li><a href="#setting-up-wallet-in-fly.io"
+        id="toc-setting-up-wallet-in-fly.io">Setting Up Wallet in
+        Fly.io</a></li>
+        </ul></li>
+        <li><a href="#connection-pooling-hikaricp"
+        id="toc-connection-pooling-hikaricp">Connection Pooling
+        (HikariCP)</a>
+        <ul>
+        <li><a href="#what-is-connection-pooling"
+        id="toc-what-is-connection-pooling">What is Connection
+        Pooling?</a></li>
+        <li><a href="#hikaricp-configuration"
+        id="toc-hikaricp-configuration">HikariCP Configuration</a></li>
+        <li><a href="#why-these-settings-for-fly.io"
+        id="toc-why-these-settings-for-fly.io">Why These Settings for
+        Fly.io?</a></li>
+        <li><a href="#common-pool-issues"
+        id="toc-common-pool-issues">Common Pool Issues</a></li>
+        </ul></li>
+        <li><a href="#database-selection"
+        id="toc-database-selection">Database Selection</a>
+        <ul>
+        <li><a href="#h2-vs-oracle-vs-postgresql"
+        id="toc-h2-vs-oracle-vs-postgresql">H2 vs Oracle vs
+        PostgreSQL</a></li>
+        <li><a href="#decision-tree" id="toc-decision-tree">Decision
+        Tree</a></li>
+        <li><a href="#example-switch-from-h2-to-postgresql-locally"
+        id="toc-example-switch-from-h2-to-postgresql-locally">Example:
+        Switch from H2 to PostgreSQL Locally</a></li>
+        </ul></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#issue-java.sql.sqlexception-connection-refused"
+        id="toc-issue-java.sql.sqlexception-connection-refused">Issue:
+        “java.sql.SQLException: Connection refused”</a></li>
+        <li><a
+        href="#issue-ora-01017-invalid-usernamepassword-logon-denied"
+        id="toc-issue-ora-01017-invalid-usernamepassword-logon-denied">Issue:
+        “ORA-01017: invalid username/password; logon denied”</a></li>
+        <li><a
+        href="#issue-unexpected-error-java.lang.unsatisfiedlinkerror-no-sqljdbc_auth-in-java.library.path"
+        id="toc-issue-unexpected-error-java.lang.unsatisfiedlinkerror-no-sqljdbc_auth-in-java.library.path">Issue:
+        “Unexpected Error: java.lang.UnsatisfiedLinkError: no
+        sqljdbc_auth in java.library.path”</a></li>
+        <li><a
+        href="#issue-the-database-has-not-been-locked-for-1-day-and-is-not-available"
+        id="toc-issue-the-database-has-not-been-locked-for-1-day-and-is-not-available">Issue:
+        “The database has not been locked for 1 day and is not
+        available”</a></li>
+        <li><a href="#issue-h2-database-locked-test-failure"
+        id="toc-issue-h2-database-locked-test-failure">Issue: “H2
+        database locked (test failure)”</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+        <h1 id="database-configuration-oracle-wallet">Database
+        Configuration &amp; Oracle Wallet</h1>
+        <p><strong>Overview:</strong> This document explains how
+        database connectivity is configured, including datasource
+        properties, Oracle Wallet integration, and connection pooling
+        strategies for different environments.</p>
+        <hr />
+        <h2 id="table-of-contents">Table of Contents</h2>
+        <ol type="1">
+        <li><a href="#datasource-configuration-overview">Datasource
+        Configuration Overview</a></li>
+        <li><a href="#configuration-by-environment">Configuration by
+        Environment</a></li>
+        <li><a href="#oracle-wallet-integration">Oracle Wallet
+        Integration</a></li>
+        <li><a href="#connection-pooling-hikaricp">Connection Pooling
+        (HikariCP)</a></li>
+        <li><a href="#database-selection">Database Selection</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+        </ol>
+        <hr />
+        <h2 id="datasource-configuration-overview">Datasource
+        Configuration Overview</h2>
+        <h3 id="datasource-in-spring-boot">Datasource in Spring
+        Boot</h3>
+        <p>The datasource is the <strong>bridge between Java application
+        and database</strong>:</p>
+        <pre><code>Application Code
+    ↓
+DataSource Bean (from spring.datasource.*)
+    ↓
+JDBC Driver (Oracle, H2, PostgreSQL, etc.)
+    ↓
+Physical Database</code></pre>
+        <h3 id="configuration-sources">Configuration Sources</h3>
+        <table>
+        <colgroup>
+        <col style="width: 57%" />
+        <col style="width: 21%" />
+        <col style="width: 21%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Source</th>
+        <th>Configured In</th>
+        <th>Examples</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Base</strong></td>
+        <td><code>application.yml</code></td>
+        <td>Placeholder values, driver class</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Profile Override</strong></td>
+        <td><code>application-{profile}.yml</code></td>
+        <td>H2 for test, Oracle for prod</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Environment Variables</strong></td>
+        <td><code>.env</code> or fly.toml secrets</td>
+        <td>Actual DB credentials</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="configuration-by-environment">Configuration by
+        Environment</h2>
+        <h3 id="development-local">Development (Local)</h3>
+        <p><strong>Configuration Chain:</strong></p>
+        <pre><code>application.yml (base: ${DB_URL} placeholder)
+    ↓
+application-{no-profile}.yml (none - uses base)
+    ↓
+Environment Variables from .env (actual values)</code></pre>
+        <p><strong>application.yml:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> ${DB_URL}</span><span class="co">                              # Placeholder</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> ${DB_USER}</span><span class="co">                        # Placeholder</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASS}</span><span class="co">                        # Placeholder</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> oracle.jdbc.OracleDriver</span><span class="co"> # Default driver</span></span></code></pre></div>
+        <p><strong>From .env:</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Oracle with Wallet</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@service_name</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="va">DB_USER</span><span class="op">=</span>admin</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="va">DB_PASS</span><span class="op">=</span>password</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="va">TNS_ADMIN</span><span class="op">=</span>/path/to/wallet</span></code></pre></div>
+        <p><strong>Result at Runtime:</strong></p>
+        <pre><code>datasource.url = &quot;jdbc:oracle:thin:@service_name&quot;
+datasource.username = &quot;admin&quot;
+datasource.password = &quot;password&quot;</code></pre>
+        <h3 id="testing">Testing</h3>
+        <p><strong>Configuration Chain:</strong></p>
+        <pre><code>application.yml (base)
+    ↓
+application-test.yml (complete override)
+    ↓
+Environment Variables (not needed - H2 hardcoded)</code></pre>
+        <p><strong>application-test.yml:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:h2:mem:ssp;MODE=Oracle;DATABASE_TO_UPPER=true;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> org.h2.Driver</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> sa</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="co">  # Empty</span></span></code></pre></div>
+        <p><strong>Why H2?</strong> - ✅ In-memory (no setup needed) -
+        ✅ Oracle-compatible (<code>MODE=Oracle</code>) - ✅ Fresh
+        database per test run - ✅ No credentials needed - ✅ Fast (no
+        network latency)</p>
+        <h3 id="production-fly.io">Production (Fly.io)</h3>
+        <p><strong>Configuration Chain:</strong></p>
+        <pre><code>application.yml (base)
+    ↓
+application-prod.yml (overrides)
+    ↓
+fly.toml (env section + secrets)</code></pre>
+        <p><strong>application-prod.yml:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> ${DB_URL}</span><span class="co">                              # From fly secrets</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> ${DB_USER}</span><span class="co">                        # From fly secrets</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASS}</span><span class="co">                        # From fly secrets</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> oracle.jdbc.OracleDriver</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hikari</span><span class="kw">:</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">connection-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">30000</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">validation-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">5000</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">maximum-pool-size</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">minimum-idle</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">max-lifetime</span><span class="kw">:</span><span class="at"> </span><span class="dv">240000</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">idle-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">180000</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">connection-test-query</span><span class="kw">:</span><span class="at"> SELECT 1 FROM DUAL</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">leak-detection-threshold</span><span class="kw">:</span><span class="at"> </span><span class="dv">60000</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">keepalive-time</span><span class="kw">:</span><span class="at"> </span><span class="dv">120000</span></span></code></pre></div>
+        <p><strong>fly.toml (public):</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span></code></pre></div>
+        <p><strong>fly secrets (encrypted vault):</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@prod_db_service</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="va">DB_USER</span><span class="op">=</span>admin</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="va">DB_PASS</span><span class="op">=</span><span class="pp">***</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="va">TNS_ADMIN</span><span class="op">=</span>/etc/oracle_wallet</span></code></pre></div>
+        <p><strong>Result at Runtime:</strong></p>
+        <pre><code>datasource.url = &quot;jdbc:oracle:thin:@prod_db_service&quot;
+datasource.username = &quot;admin&quot;
+datasource.password = &quot;***&quot;
+datasource.hikari.maximum-pool-size = 5  # Limited for Fly.io 1GB RAM</code></pre>
+        <hr />
+        <h2 id="oracle-wallet-integration">Oracle Wallet
+        Integration</h2>
+        <h3 id="what-is-oracle-wallet">What is Oracle Wallet?</h3>
+        <pre><code>Oracle Wallet
+    ↓
+Encrypted file directory containing:
+  - sqlnet.ora (connection parameters)
+  - tnsnames.ora (service names)
+  - cwallet.sso (encrypted credentials)
+    ↓
+Enables secure credential-less connections to Oracle Autonomous DB</code></pre>
+        <h3 id="how-wallet-based-connection-works">How Wallet-Based
+        Connection Works</h3>
+        <pre><code>Application
+    ↓
+Sets: TNS_ADMIN=/path/to/wallet
+    ↓
+JDBC Driver reads wallet files
+    ↓
+Driver finds service name in tnsnames.ora
+    ↓
+Driver retrieves encrypted credentials from cwallet.sso
+    ↓
+Driver connects to Oracle Autonomous DB (no plaintext password in code!)</code></pre>
+        <h3 id="configuration-for-wallet">Configuration for Wallet</h3>
+        <h4 id="environment-variable">Environment Variable</h4>
+        <p><strong>In .env (local dev):</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="va">TNS_ADMIN</span><span class="op">=</span>/Users/yourname/Downloads/Wallet_mydb</span></code></pre></div>
+        <p><strong>In fly.toml secrets (production):</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fly</span> secrets set TNS_ADMIN=<span class="st">&quot;/etc/oracle_wallet&quot;</span></span></code></pre></div>
+        <h4 id="jdbc-url-format">JDBC URL Format</h4>
+        <p><strong>Without Wallet (local Oracle):</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@localhost:1521/xe</span></code></pre></div>
+        <p><strong>With Wallet (Oracle Autonomous DB):</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@mydb_high  <span class="co"># Service name from tnsnames.ora</span></span></code></pre></div>
+        <p>Or with explicit wallet path (less common):</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:<span class="pp">@(</span>DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=tcps<span class="pp">)</span><span class="kw">(</span><span class="va">HOST</span><span class="op">=</span>...<span class="kw">)</span><span class="er">))</span><span class="kw">(</span><span class="va">CONNECT_DATA</span><span class="op">=</span><span class="va">(</span>SERVICE_NAME=...<span class="va">)</span><span class="kw">)</span><span class="er">)</span></span></code></pre></div>
+        <h4 id="wallet-file-structure">Wallet File Structure</h4>
+        <pre><code>Wallet_mydb/
+├── sqlnet.ora              # Connection params
+├── tnsnames.ora            # Service name mappings
+├── cwallet.sso             # Encrypted credentials
+├── ewallet.p12             # PKCS12 keystore (if using mTLS)
+├── keystore.jks            # Java keystore (if using mTLS)
+└── truststore.jks          # Java truststore</code></pre>
+        <h3 id="setting-up-wallet-in-fly.io">Setting Up Wallet in
+        Fly.io</h3>
+        <h4 id="download-wallet-from-oracle-cloud-console">1. Download
+        Wallet from Oracle Cloud Console</h4>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Download from Oracle Autonomous Database connection dialog</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract to local machine</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> Wallet_mydb.zip <span class="at">-d</span> /path/to/wallet</span></code></pre></div>
+        <h4 id="create-secret-in-fly">2. Create Secret in Fly</h4>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fly</span> secrets set TNS_ADMIN=<span class="st">&quot;/etc/oracle_wallet&quot;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">fly</span> secrets set ORACLE_WALLET_PASSWORD=<span class="st">&quot;wallet_password&quot;</span>  <span class="co"># If password-protected</span></span></code></pre></div>
+        <h4 id="copy-wallet-into-docker-image">3. Copy Wallet into
+        Docker Image</h4>
+        <p><strong>Dockerfile:</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> maven:3.9-eclipse-temurin-11 as builder</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> . .</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">mvn</span> clean package <span class="at">-DskipTests</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> eclipse-temurin:11-jre-slim</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=builder</span> /app/target/inventory-service-*.jar app.jar</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy Oracle Wallet</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> oracle_wallet /etc/oracle_wallet</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Set TNS_ADMIN environment variable</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="kw">ENV</span> TNS_ADMIN=/etc/oracle_wallet</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="kw">ENTRYPOINT</span> [<span class="st">&quot;java&quot;</span>, <span class="st">&quot;-jar&quot;</span>, <span class="st">&quot;app.jar&quot;</span>]</span></code></pre></div>
+        <h4 id="deploy">4. Deploy</h4>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fly</span> deploy</span></code></pre></div>
+        <p><strong>Runtime:</strong> - Fly injects TNS_ADMIN secret -
+        Dockerfile copies wallet to /etc/oracle_wallet - JDBC driver
+        finds tnsnames.ora and cwallet.sso - Connection succeeds without
+        plaintext credentials</p>
+        <hr />
+        <h2 id="connection-pooling-hikaricp">Connection Pooling
+        (HikariCP)</h2>
+        <h3 id="what-is-connection-pooling">What is Connection
+        Pooling?</h3>
+        <pre><code>Without Pool (slow):
+  Request → Create connection → Execute query → Close connection
+  (Each request = ~100-500ms overhead)
+
+With Pool (fast):
+  Request → Get from pool → Execute query → Return to pool
+  (Each request = ~0-5ms overhead, reuse connections)</code></pre>
+        <h3 id="hikaricp-configuration">HikariCP Configuration</h3>
+        <p><strong>In application-prod.yml:</strong></p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">hikari</span><span class="kw">:</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">connection-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">30000</span><span class="co">          # Max wait for available connection</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">validation-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">5000</span><span class="co">           # Max wait for validation query</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">maximum-pool-size</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span><span class="co">               # Max idle connections to maintain</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">minimum-idle</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span><span class="co">                    # Min idle connections to maintain</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">max-lifetime</span><span class="kw">:</span><span class="at"> </span><span class="dv">240000</span><span class="co">               # Max connection age (4 minutes)</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">idle-timeout</span><span class="kw">:</span><span class="at"> </span><span class="dv">180000</span><span class="co">               # Idle before eviction (3 minutes)</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">connection-test-query</span><span class="kw">:</span><span class="at"> SELECT 1 FROM DUAL</span><span class="co">  # Keep-alive test</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">leak-detection-threshold</span><span class="kw">:</span><span class="at"> </span><span class="dv">60000</span><span class="co">    # Warn if connection not returned after 60s</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">keepalive-time</span><span class="kw">:</span><span class="at"> </span><span class="dv">120000</span><span class="co">             # Ping idle connections every 2 minutes</span></span></code></pre></div>
+        <h3 id="why-these-settings-for-fly.io">Why These Settings for
+        Fly.io?</h3>
+        <table>
+        <colgroup>
+        <col style="width: 37%" />
+        <col style="width: 29%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Setting</th>
+        <th>Value</th>
+        <th>Reason</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>maximum-pool-size</strong></td>
+        <td>5</td>
+        <td>Fly.io has limited RAM (512MB-1GB); 5 concurrent connections
+        is reasonable</td>
+        </tr>
+        <tr class="even">
+        <td><strong>minimum-idle</strong></td>
+        <td>2</td>
+        <td>Maintain ready connections without wasting memory</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>max-lifetime</strong></td>
+        <td>240000 (4 min)</td>
+        <td>Oracle ADB closes idle connections at ~5 min; refresh before
+        that</td>
+        </tr>
+        <tr class="even">
+        <td><strong>idle-timeout</strong></td>
+        <td>180000 (3 min)</td>
+        <td>Evict truly idle connections; keep pool lean</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>connection-test-query</strong></td>
+        <td><code>SELECT 1 FROM DUAL</code></td>
+        <td>Test query valid for Oracle (H2 would use
+        <code>SELECT 1</code>)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>keepalive-time</strong></td>
+        <td>120000 (2 min)</td>
+        <td>Prevent connection timeout from idle; keep alive with
+        pings</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="common-pool-issues">Common Pool Issues</h3>
+        <h4 id="issue-ora-17008-closed-connection">Issue: “ORA-17008:
+        Closed connection”</h4>
+        <p><strong>Cause:</strong> Oracle ADB closes idle connections;
+        pool doesn’t refresh before timeout</p>
+        <p><strong>Solution:</strong> Configure max-lifetime &lt; Oracle
+        timeout</p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max-lifetime</span><span class="kw">:</span><span class="at"> </span><span class="dv">240000</span><span class="co">     # 4 minutes (less than Oracle&#39;s 5-minute timeout)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">keepalive-time</span><span class="kw">:</span><span class="at"> </span><span class="dv">120000</span><span class="co">   # Ping every 2 minutes</span></span></code></pre></div>
+        <h4 id="issue-connection-pool-exhausted">Issue: “Connection pool
+        exhausted”</h4>
+        <p><strong>Cause:</strong> All max-pool-size connections in use;
+        no available for new requests</p>
+        <p><strong>Debug:</strong></p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leak-detection-threshold</span><span class="kw">:</span><span class="at"> </span><span class="dv">60000</span><span class="co">  # Log if connection held &gt; 60 seconds</span></span></code></pre></div>
+        <p><strong>Solution:</strong> 1. Reduce pool size if it’s
+        leaking connections 2. Increase max-pool-size if application
+        needs more concurrency 3. Monitor actual usage and adjust
+        accordingly</p>
+        <h4 id="issue-too-many-connections-to-the-database">Issue: “too
+        many connections to the database”</h4>
+        <p><strong>Cause:</strong> Multiple application instances; each
+        creates pool</p>
+        <p><strong>Solution:</strong> If scaling horizontally, reduce
+        pool size per instance</p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">maximum-pool-size</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span><span class="co">  # If running 3+ instances</span></span></code></pre></div>
+        <hr />
+        <h2 id="database-selection">Database Selection</h2>
+        <h3 id="h2-vs-oracle-vs-postgresql">H2 vs Oracle vs
+        PostgreSQL</h3>
+        <table>
+        <colgroup>
+        <col style="width: 29%" />
+        <col style="width: 14%" />
+        <col style="width: 14%" />
+        <col style="width: 40%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>H2</th>
+        <th>Oracle</th>
+        <th>PostgreSQL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Setup</strong></td>
+        <td>None (in-memory)</td>
+        <td>Wallet + TNS config</td>
+        <td>docker run postgres</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Cost</strong></td>
+        <td>Free</td>
+        <td>Autonomous DB ($$$)</td>
+        <td>Free (open source)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Performance</strong></td>
+        <td>Fast (in-memory)</td>
+        <td>Fast (network)</td>
+        <td>Fast</td>
+        </tr>
+        <tr class="even">
+        <td><strong>SQL Compatibility</strong></td>
+        <td>Partial (MODE=Oracle)</td>
+        <td>Full Oracle</td>
+        <td>PostgreSQL</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Best For</strong></td>
+        <td>Testing</td>
+        <td>Production</td>
+        <td>Local dev/staging</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="decision-tree">Decision Tree</h3>
+        <pre><code>What environment?
+    ├── Local Development
+    │   ├── Need to test Oracle behavior? → Use Oracle with wallet
+    │   └── Just need working DB? → Use PostgreSQL or H2
+    │
+    ├── Testing (CI/CD)
+    │   └── Use H2 (in-memory, fast, isolated)
+    │
+    └── Production
+        └── Use Oracle Autonomous DB (most secure, scalable)</code></pre>
+        <h3 id="example-switch-from-h2-to-postgresql-locally">Example:
+        Switch from H2 to PostgreSQL Locally</h3>
+        <p><strong>Create application-dev.yml:</strong></p>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:postgresql://localhost:5432/inventory_db</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> org.postgresql.Driver</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> postgres</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> postgres</span></span></code></pre></div>
+        <p><strong>Activate:</strong></p>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span>dev</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span></code></pre></div>
+        <p><strong>Start PostgreSQL:</strong></p>
+        <div class="sourceCode" id="cb33"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--name</span> postgres <span class="dt">\</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> POSTGRES_PASSWORD=postgres <span class="dt">\</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-p</span> 5432:5432 <span class="dt">\</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  postgres:latest</span></code></pre></div>
+        <hr />
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="issue-java.sql.sqlexception-connection-refused">Issue:
+        “java.sql.SQLException: Connection refused”</h3>
+        <p><strong>Cause:</strong> Database not reachable</p>
+        <p><strong>Debug:</strong></p>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check DB_URL is set</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$DB_URL</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Test connection manually (if Oracle)</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlplus</span> <span class="va">$DB_USER</span>/<span class="va">$DB_PASS</span>@<span class="va">$DB_URL</span></span></code></pre></div>
+        <p><strong>Solution:</strong> 1. Verify database is running 2.
+        Check DB_URL is correct (hostname, port, service name) 3. Check
+        firewall allows connection 4. For Oracle Autonomous DB, ensure
+        wallet is accessible</p>
+        <h3
+        id="issue-ora-01017-invalid-usernamepassword-logon-denied">Issue:
+        “ORA-01017: invalid username/password; logon denied”</h3>
+        <p><strong>Cause:</strong> Database credentials wrong</p>
+        <p><strong>Debug:</strong></p>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify credentials</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$DB_USER</span> <span class="va">$DB_PASS</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Test with sqlplus (Oracle)</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="ex">sqlplus</span> <span class="va">$DB_USER</span>/<span class="va">$DB_PASS</span>@<span class="va">$DB_URL</span></span></code></pre></div>
+        <p><strong>Solution:</strong> 1. Update .env or fly secrets with
+        correct credentials 2. Restart application to pick up new values
+        3. For Oracle Autonomous DB, ensure TNS_ADMIN points to correct
+        wallet</p>
+        <h3
+        id="issue-unexpected-error-java.lang.unsatisfiedlinkerror-no-sqljdbc_auth-in-java.library.path">Issue:
+        “Unexpected Error: java.lang.UnsatisfiedLinkError: no
+        sqljdbc_auth in java.library.path”</h3>
+        <p><strong>Cause:</strong> SQL Server native auth; doesn’t apply
+        to Oracle</p>
+        <p><strong>Solution:</strong> Not applicable for Oracle JDBC</p>
+        <h3
+        id="issue-the-database-has-not-been-locked-for-1-day-and-is-not-available">Issue:
+        “The database has not been locked for 1 day and is not
+        available”</h3>
+        <p><strong>Cause:</strong> Oracle Autonomous DB locked due to 5
+        days of no activity (Always Free tier)</p>
+        <p><strong>Debug:</strong></p>
+        <div class="sourceCode" id="cb36"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check cloud console</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Database state in Oracle Cloud Console</span></span></code></pre></div>
+        <p><strong>Solution:</strong> 1. Open database in Oracle Cloud
+        Console 2. Click “Start” to reopen 3. Wait for database to
+        become available 4. Retry connection</p>
+        <h3 id="issue-h2-database-locked-test-failure">Issue: “H2
+        database locked (test failure)”</h3>
+        <p><strong>Cause:</strong> Multiple test processes accessing
+        same H2 DB</p>
+        <p><strong>Debug:</strong></p>
+        <div class="sourceCode" id="cb37"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if tests are running in parallel</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ps</span> aux <span class="kw">|</span> <span class="fu">grep</span> java</span></code></pre></div>
+        <p><strong>Solution:</strong> 1. Configure H2 to allow multiple
+        connections:</p>
+        <div class="sourceCode" id="cb38"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-test.yml</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:h2:mem:ssp;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</span></span></code></pre></div>
+        <ol start="2" type="1">
+        <li>Or disable parallel test execution:</li>
+        </ol>
+        <div class="sourceCode" id="cb39"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-DthreadCount</span><span class="op">=</span>1</span></code></pre></div>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 36%" />
+        <col style="width: 33%" />
+        <col style="width: 10%" />
+        <col style="width: 10%" />
+        <col style="width: 10%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Environment</th>
+        <th>Database</th>
+        <th>Config File</th>
+        <th>Credentials</th>
+        <th>Connection Pool</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Local Dev</strong></td>
+        <td>Oracle/PostgreSQL</td>
+        <td>application.yml + .env</td>
+        <td>.env</td>
+        <td>Default (no pooling config)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Testing</strong></td>
+        <td>H2</td>
+        <td>application-test.yml</td>
+        <td>Hardcoded</td>
+        <td>None (in-memory)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Staging</strong></td>
+        <td>Oracle</td>
+        <td>application-staging.yml</td>
+        <td>fly secrets</td>
+        <td>Custom pool config</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Production</strong></td>
+        <td>Oracle Autonomous</td>
+        <td>application-prod.yml</td>
+        <td>fly secrets</td>
+        <td>HikariCP (5 max, 4-min lifetime)</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

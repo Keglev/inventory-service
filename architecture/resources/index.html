@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · resources/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#resources-architecture"
+        id="toc-resources-architecture">Resources Architecture</a>
+        <ul>
+        <li><a href="#table-of-contents"
+        id="toc-table-of-contents">Table of Contents</a></li>
+        <li><a href="#resources-folder-purpose"
+        id="toc-resources-folder-purpose">Resources Folder Purpose</a>
+        <ul>
+        <li><a href="#what-goes-in-resources"
+        id="toc-what-goes-in-resources">What Goes in Resources</a></li>
+        </ul></li>
+        <li><a href="#file-mapping" id="toc-file-mapping">File
+        Mapping</a>
+        <ul>
+        <li><a href="#spring-boot-configuration-files"
+        id="toc-spring-boot-configuration-files">Spring Boot
+        Configuration Files</a></li>
+        <li><a href="#environment-deployment-files"
+        id="toc-environment-deployment-files">Environment &amp;
+        Deployment Files</a></li>
+        <li><a href="#database-oracle-files-references"
+        id="toc-database-oracle-files-references">Database &amp; Oracle
+        Files (References)</a></li>
+        </ul></li>
+        <li><a href="#configuration-hierarchy"
+        id="toc-configuration-hierarchy">Configuration Hierarchy</a>
+        <ul>
+        <li><a href="#how-spring-boot-loads-configuration"
+        id="toc-how-spring-boot-loads-configuration">How Spring Boot
+        Loads Configuration</a></li>
+        <li><a href="#example-database-configuration"
+        id="toc-example-database-configuration">Example: Database
+        Configuration</a></li>
+        </ul></li>
+        <li><a href="#environment-variables"
+        id="toc-environment-variables">Environment Variables</a>
+        <ul>
+        <li><a href="#required-variables-by-profile"
+        id="toc-required-variables-by-profile">Required Variables by
+        Profile</a></li>
+        <li><a href="#how-variables-are-referenced"
+        id="toc-how-variables-are-referenced">How Variables Are
+        Referenced</a></li>
+        </ul></li>
+        <li><a href="#related-configuration"
+        id="toc-related-configuration">Related Configuration</a>
+        <ul>
+        <li><a href="#how-resources-connect-to-other-documentation"
+        id="toc-how-resources-connect-to-other-documentation">How
+        Resources Connect to Other Documentation</a></li>
+        <li><a href="#java-configuration-classes"
+        id="toc-java-configuration-classes">Java Configuration
+        Classes</a></li>
+        <li><a href="#oracle-wallet-integration"
+        id="toc-oracle-wallet-integration">Oracle Wallet
+        Integration</a></li>
+        </ul></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a>
+        <ul>
+        <li><a href="#configuration-deep-dives"
+        id="toc-configuration-deep-dives">Configuration Deep
+        Dives</a></li>
+        <li><a href="#related-architecture-documentation"
+        id="toc-related-architecture-documentation">Related Architecture
+        Documentation</a></li>
+        </ul></li>
+        <li><a href="#common-tasks" id="toc-common-tasks">Common
+        Tasks</a>
+        <ul>
+        <li><a href="#local-development-setup"
+        id="toc-local-development-setup">Local Development
+        Setup</a></li>
+        <li><a href="#run-tests" id="toc-run-tests">Run Tests</a></li>
+        <li><a href="#deploy-to-production"
+        id="toc-deploy-to-production">Deploy to Production</a></li>
+        </ul></li>
+        <li><a href="#summary-table" id="toc-summary-table">Summary
+        Table</a></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#configuration-not-being-picked-up"
+        id="toc-configuration-not-being-picked-up">Configuration Not
+        Being Picked Up</a></li>
+        <li><a href="#environment-variables-not-resolved"
+        id="toc-environment-variables-not-resolved">Environment
+        Variables Not Resolved</a></li>
+        <li><a href="#oracle-wallet-connection-fails"
+        id="toc-oracle-wallet-connection-fails">Oracle Wallet Connection
+        Fails</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="resources-architecture">Resources Architecture</h1>
+        <p><strong>Overview:</strong> This section documents all
+        externalized configuration and resource files used by the Spring
+        Boot application, including profiles, environment variables,
+        logging, and database configuration.</p>
+        <hr />
+        <h2 id="table-of-contents">Table of Contents</h2>
+        <ol type="1">
+        <li><a href="#resources-folder-purpose">Resources Folder
+        Purpose</a></li>
+        <li><a href="#file-mapping">File Mapping</a></li>
+        <li><a href="#configuration-hierarchy">Configuration
+        Hierarchy</a></li>
+        <li><a href="#environment-variables">Environment
+        Variables</a></li>
+        <li><a href="#related-configuration">Related
+        Configuration</a></li>
+        <li><a href="#quick-navigation">Quick Navigation</a></li>
+        </ol>
+        <hr />
+        <h2 id="resources-folder-purpose">Resources Folder Purpose</h2>
+        <p>The <code>src/main/resources/</code> folder contains all
+        externalized configuration that <strong>varies by
+        environment</strong> or <strong>sensitive data injected at
+        runtime</strong>. This keeps application behavior flexible
+        without recompilation.</p>
+        <pre><code>Principle: Code → Compiled once
+          Configuration → Injected per environment
+          Secrets → Managed externally</code></pre>
+        <h3 id="what-goes-in-resources">What Goes in Resources</h3>
+        <p>✅ <strong>Configuration Files:</strong> -
+        <code>application.yml</code> - Base config for all profiles -
+        <code>application-prod.yml</code> - Production overrides -
+        <code>application-test.yml</code> - Test overrides -
+        <code>application.properties</code> - Application metadata</p>
+        <p>✅ <strong>Environment-Specific:</strong> -
+        <code>.env.example</code> - Template for local development -
+        <code>fly.toml</code> - Fly.io deployment config (root) - Oracle
+        Wallet path references (to <code>/oracle_wallet</code>)</p>
+        <p>❌ <strong>What Does NOT Go Here:</strong> - Secrets (OAuth2
+        tokens, DB passwords) - use environment variables - Build
+        artifacts - use <code>target/</code> directory - Static HTML/CSS
+        - backend is API-only; see <code>/frontend</code> - Java code -
+        use <code>src/main/java/</code></p>
+        <hr />
+        <h2 id="file-mapping">File Mapping</h2>
+        <h3 id="spring-boot-configuration-files">Spring Boot
+        Configuration Files</h3>
+        <table>
+        <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 26%" />
+        <col style="width: 26%" />
+        <col style="width: 29%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>File</th>
+        <th>Profile</th>
+        <th>Purpose</th>
+        <th>Use Case</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>application.yml</strong></td>
+        <td>All</td>
+        <td>Base defaults, shared config</td>
+        <td>Common settings, OAuth2 provider URLs, server setup</td>
+        </tr>
+        <tr class="even">
+        <td><strong>application-prod.yml</strong></td>
+        <td><code>prod</code></td>
+        <td>Production overrides</td>
+        <td>Oracle connection pool, performance tuning, security</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>application-test.yml</strong></td>
+        <td><code>test</code></td>
+        <td>Test overrides</td>
+        <td>H2 in-memory DB, debug logging, test data</td>
+        </tr>
+        <tr class="even">
+        <td><strong>application.properties</strong></td>
+        <td>All</td>
+        <td>App metadata</td>
+        <td>Application name only</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="environment-deployment-files">Environment &amp;
+        Deployment Files</h3>
+        <table>
+        <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 29%" />
+        <col style="width: 26%" />
+        <col style="width: 26%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>File</th>
+        <th>Location</th>
+        <th>Purpose</th>
+        <th>Used By</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>.env.example</strong></td>
+        <td>Root</td>
+        <td>Template for local development</td>
+        <td>Developers setting up locally</td>
+        </tr>
+        <tr class="even">
+        <td><strong>fly.toml</strong></td>
+        <td>Root</td>
+        <td>Fly.io deployment config</td>
+        <td>CI/CD and cloud deployment</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="database-oracle-files-references">Database &amp; Oracle
+        Files (References)</h3>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 23%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Location</th>
+        <th>Purpose</th>
+        <th>Role in Resources</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>/oracle_wallet</strong></td>
+        <td>Oracle Wallet (TNS_ADMIN)</td>
+        <td>Referenced via env var <code>TNS_ADMIN</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>/lib/ojdbc11.jar</strong></td>
+        <td>Oracle JDBC driver</td>
+        <td>Maven dependency, not in resources</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="configuration-hierarchy">Configuration Hierarchy</h2>
+        <h3 id="how-spring-boot-loads-configuration">How Spring Boot
+        Loads Configuration</h3>
+        <div class="mermaid">
+        graph TD
+            A["1. application.yml<br/>(Base defaults)"] --> B["2. application-{profile}.yml<br/>(Profile overrides)"]
+            B --> C["3. Environment Variables<br/>(Runtime overrides)"]
+            C --> D["4. System Properties<br/>(Highest priority)"]
+            
+            style A fill:#c8e6c9
+            style B fill:#fff9c4
+            style C fill:#ffcdd2
+            style D fill:#ffcdd2
+        </div>
+        <h3 id="example-database-configuration">Example: Database
+        Configuration</h3>
+        <p><strong>application.yml:</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> ${DB_URL}</span><span class="co">              # Placeholder - actual value from env</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">username</span><span class="kw">:</span><span class="at"> ${DB_USER}</span><span class="co">        # Placeholder - actual value from env</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">password</span><span class="kw">:</span><span class="at"> ${DB_PASS}</span><span class="co">        # Placeholder - actual value from env</span></span></code></pre></div>
+        <p><strong>application-test.yml:</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spring</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">datasource</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">url</span><span class="kw">:</span><span class="at"> jdbc:h2:mem:ssp;...</span><span class="co">    # Override: H2 in-memory for tests</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">driver-class-name</span><span class="kw">:</span><span class="at"> org.h2.Driver</span></span></code></pre></div>
+        <p><strong>Local Environment (export or .env):</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@localhost:1521/xe</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_USER</span><span class="op">=</span>inventory_admin</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">DB_PASS</span><span class="op">=</span>secret123</span></code></pre></div>
+        <p><strong>Result at Runtime:</strong> - <code>test</code>
+        profile → H2 (from application-test.yml) - local dev (no
+        profile) → Oracle (from environment variables) - production →
+        Oracle (from fly.toml secrets)</p>
+        <hr />
+        <h2 id="environment-variables">Environment Variables</h2>
+        <h3 id="required-variables-by-profile">Required Variables by
+        Profile</h3>
+        <h4 id="production-via-fly.toml">Production (via fly.toml)</h4>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">DB_URL</span> <span class="op">=</span> <span class="st">&quot;jdbc:oracle:thin:@...&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">DB_USER</span> <span class="op">=</span> <span class="st">&quot;admin&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">DB_PASS</span> <span class="op">=</span> <span class="st">&quot;***&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID</span> <span class="op">=</span> <span class="st">&quot;***&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET</span> <span class="op">=</span> <span class="st">&quot;***&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">TNS_ADMIN</span> <span class="op">=</span> <span class="st">&quot;/path/to/wallet&quot;</span></span></code></pre></div>
+        <h4 id="local-development-via-.env.example">Local Development
+        (via .env.example)</h4>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Database (Oracle or PostgreSQL)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@localhost:1521/xe</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="va">DB_USER</span><span class="op">=</span>inventory_admin</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="va">DB_PASS</span><span class="op">=</span>password</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># OAuth2</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="va">SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID</span><span class="op">=</span>your_client_id</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="va">SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET</span><span class="op">=</span>your_secret</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Oracle Wallet (if using Oracle Autonomous DB)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="va">TNS_ADMIN</span><span class="op">=</span>/path/to/wallet</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="va">ORACLE_WALLET_PASSWORD</span><span class="op">=</span>wallet_password</span></code></pre></div>
+        <h4 id="testing">Testing</h4>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span>test</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># H2 database configured in application-test.yml - no DB_URL needed</span></span></code></pre></div>
+        <h3 id="how-variables-are-referenced">How Variables Are
+        Referenced</h3>
+        <p><strong>Pattern:</strong> <code>${VARIABLE_NAME}</code> in
+        YAML/properties files</p>
+        <p><strong>With Default Values:</strong>
+        <code>${APP_DEMO_READONLY:true}</code> - If
+        <code>APP_DEMO_READONLY</code> not set, use <code>true</code> as
+        default</p>
+        <p><strong>Example from application.yml:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">app</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">demo-readonly</span><span class="kw">:</span><span class="at"> ${APP_DEMO_READONLY:true}</span><span class="co">   # Default: true if not set</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">frontend</span><span class="kw">:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">base-url</span><span class="kw">:</span><span class="at"> ${APP_FRONTEND_BASE_URL:https://localhost:5173}</span><span class="co">  # Default for local dev</span></span></code></pre></div>
+        <hr />
+        <h2 id="related-configuration">Related Configuration</h2>
+        <h3 id="how-resources-connect-to-other-documentation">How
+        Resources Connect to Other Documentation</h3>
+        <div class="mermaid">
+        graph LR
+            A["Resources<br/>Config Files"] --> B["Spring Boot<br/>Config Classes"]
+            A --> C["Database<br/>Setup"]
+            A --> D["Security<br/>OAuth2"]
+            A --> E["Logging<br/>Management"]
+            
+            B -.-> F["architecture/config<br/>Java Config Beans"]
+            C -.-> G["Database & Oracle<br/>Wallet Integration"]
+            D -.-> H["Security<br/>Authentication Flow"]
+            E -.-> I["Operations &<br/>Monitoring"]
+            
+            style A fill:#c8e6c9
+            style B fill:#fff9c4
+            style F fill:#e1f5fe
+            style G fill:#e1f5fe
+            style H fill:#e1f5fe
+            style I fill:#e1f5fe
+        </div>
+        <h3 id="java-configuration-classes">Java Configuration
+        Classes</h3>
+        <p>Resources are <strong>loaded by Spring</strong> into
+        <code>@ConfigurationProperties</code> and <code>@Value</code>
+        fields:</p>
+        <table>
+        <colgroup>
+        <col style="width: 45%" />
+        <col style="width: 29%" />
+        <col style="width: 24%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Resource Config</th>
+        <th>Java Class</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>spring.datasource.*</code></td>
+        <td><code>DataSourceProperties</code> (Spring)</td>
+        <td>Database connection</td>
+        </tr>
+        <tr class="even">
+        <td><code>spring.security.oauth2.*</code></td>
+        <td><code>OAuth2ClientProperties</code> (Spring)</td>
+        <td>OAuth2 registration</td>
+        </tr>
+        <tr class="odd">
+        <td><code>app.*</code></td>
+        <td><code>AppProperties</code></td>
+        <td>Custom app configuration</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>See:</strong> <a
+        href="../config/index.html">Configuration (Java)
+        Documentation</a></p>
+        <h3 id="oracle-wallet-integration">Oracle Wallet
+        Integration</h3>
+        <p>Database credentials are stored in Oracle Wallet instead of
+        hardcoded:</p>
+        <table>
+        <colgroup>
+        <col style="width: 45%" />
+        <col style="width: 40%" />
+        <col style="width: 13%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Resource</th>
+        <th>Purpose</th>
+        <th>Documentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>/oracle_wallet</code></td>
+        <td>Physical wallet files (encrypted)</td>
+        <td><a href="./database-config-and-oracle-wallet.html">Database
+        &amp; Oracle Wallet</a></td>
+        </tr>
+        <tr class="even">
+        <td><code>TNS_ADMIN</code> env var</td>
+        <td>Points Spring to wallet location</td>
+        <td><a href="./database-config-and-oracle-wallet.html">Database
+        Config</a></td>
+        </tr>
+        <tr class="odd">
+        <td><code>application-prod.yml</code></td>
+        <td>References Oracle via JDBC URL</td>
+        <td><a
+        href="./environment-specific-config.html">Environment-Specific
+        Config</a></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <h3 id="configuration-deep-dives">Configuration Deep Dives</h3>
+        <ul>
+        <li><strong><a
+        href="./application-yaml-and-properties.html">Application YAML
+        &amp; Properties</a></strong> - Structure of base config files,
+        which keys go where</li>
+        <li><strong><a
+        href="./environment-specific-config.html">Environment-Specific
+        Config</a></strong> - Profiles (prod/test), .env usage, how
+        Fly.io injects variables</li>
+        <li><strong><a href="./logging-config.html">Logging
+        Configuration</a></strong> - Log levels by profile, where logs
+        are written, debug logging</li>
+        <li><strong><a
+        href="./database-config-and-oracle-wallet.html">Database Config
+        &amp; Oracle Wallet</a></strong> - Datasource setup, connection
+        pools, wallet integration</li>
+        <li><strong><a
+        href="./static-resources-and-templates.html">Static Resources
+        &amp; Templates</a></strong> - Why backend is API-only, frontend
+        location</li>
+        </ul>
+        <h3 id="related-architecture-documentation">Related Architecture
+        Documentation</h3>
+        <ul>
+        <li><strong><a href="../config/index.html">Configuration
+        Management (Java)</a></strong> - Spring
+        <code>@Configuration</code> classes that use these
+        resources</li>
+        <li><strong><a href="../security/index.html">Security
+        Architecture</a></strong> - OAuth2 config, authentication
+        setup</li>
+        <li><strong><a href="../testing/index.html">Testing
+        Strategy</a></strong> - How test profile overrides work</li>
+        <li><strong><a href="../deployment.html">Deployment</a></strong>
+        - How resources deploy to Fly.io, Docker</li>
+        </ul>
+        <hr />
+        <h2 id="common-tasks">Common Tasks</h2>
+        <h3 id="local-development-setup">Local Development Setup</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Copy environment template</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> .env.example .env</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Edit .env with your database connection</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> .env</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Source variables</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">$(</span><span class="fu">cat</span> .env <span class="kw">|</span> <span class="fu">xargs</span><span class="va">)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Run application (no profile = uses application.yml + env vars)</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span></code></pre></div>
+        <h3 id="run-tests">Run Tests</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># No env vars needed - uses application-test.yml with H2</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> clean test</span></code></pre></div>
+        <h3 id="deploy-to-production">Deploy to Production</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fly.io reads fly.toml for env and SPRING_PROFILES_ACTIVE=prod</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">fly</span> deploy</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Automatically uses application-prod.yml</span></span></code></pre></div>
+        <hr />
+        <h2 id="summary-table">Summary Table</h2>
+        <table>
+        <colgroup>
+        <col style="width: 40%" />
+        <col style="width: 30%" />
+        <col style="width: 15%" />
+        <col style="width: 15%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>File</th>
+        <th>Configured In</th>
+        <th>Overridable By</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Base server port</td>
+        <td>application.yml</td>
+        <td>Config file</td>
+        <td>application-{profile}.yml</td>
+        </tr>
+        <tr class="even">
+        <td>Database URL</td>
+        <td>application.yml (placeholder)</td>
+        <td>Environment variable</td>
+        <td>application-{profile}.yml</td>
+        </tr>
+        <tr class="odd">
+        <td>OAuth2 provider URLs</td>
+        <td>application.yml</td>
+        <td>Config file</td>
+        <td>Not overridable (hardcoded)</td>
+        </tr>
+        <tr class="even">
+        <td>Logging levels</td>
+        <td>application.yml</td>
+        <td>Config file</td>
+        <td>application-{profile}.yml</td>
+        </tr>
+        <tr class="odd">
+        <td>Demo mode</td>
+        <td>application.yml (default true)</td>
+        <td>Default value</td>
+        <td>Application argument or env</td>
+        </tr>
+        <tr class="even">
+        <td>H2 database</td>
+        <td>application-test.yml</td>
+        <td>Test profile</td>
+        <td>N/A</td>
+        </tr>
+        <tr class="odd">
+        <td>Oracle connection pool</td>
+        <td>application-prod.yml</td>
+        <td>Prod profile</td>
+        <td>Environment variables</td>
+        </tr>
+        <tr class="even">
+        <td>Admin email list</td>
+        <td>Environment variable</td>
+        <td>APP_ADMIN_EMAILS</td>
+        <td>Application startup</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="configuration-not-being-picked-up">Configuration Not
+        Being Picked Up</h3>
+        <p><strong>Check:</strong> Is the right profile active?</p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># See active profiles in logs during startup</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Look for: &quot;The following profiles are active: prod,test&quot;</span></span></code></pre></div>
+        <p><strong>Solution:</strong> Set
+        <code>SPRING_PROFILES_ACTIVE</code> environment variable</p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span>prod</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span></code></pre></div>
+        <h3 id="environment-variables-not-resolved">Environment
+        Variables Not Resolved</h3>
+        <p><strong>Check:</strong> Variable name matches placeholder</p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In application.yml</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DB_URL</span><span class="kw">:</span><span class="at"> ${DB_URL}</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Must export with exact name</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="at">export DB_URL=&quot;jdbc:oracle:...&quot;</span></span></code></pre></div>
+        <p><strong>Solution:</strong> Use
+        <code>${VAR_NAME:defaultValue}</code> with defaults if variable
+        is optional</p>
+        <h3 id="oracle-wallet-connection-fails">Oracle Wallet Connection
+        Fails</h3>
+        <p><strong>Check:</strong> <code>TNS_ADMIN</code> points to
+        wallet directory</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> <span class="va">$TNS_ADMIN</span>  <span class="co"># Should show sqlnet.ora, tnsnames.ora, etc.</span></span></code></pre></div>
+        <p><strong>Solution:</strong> See <a
+        href="./database-config-and-oracle-wallet.html">Database Config
+        &amp; Oracle Wallet</a></p>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

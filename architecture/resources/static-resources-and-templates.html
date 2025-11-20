@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+resources/static-resources-and-templates · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#static-resources-templates"
+        id="toc-static-resources-templates">Static Resources &amp;
+        Templates</a>
+        <ul>
+        <li><a href="#table-of-contents"
+        id="toc-table-of-contents">Table of Contents</a></li>
+        <li><a href="#architecture-api-only-backend"
+        id="toc-architecture-api-only-backend">Architecture: API-Only
+        Backend</a>
+        <ul>
+        <li><a href="#backend-design" id="toc-backend-design">Backend
+        Design</a></li>
+        <li><a href="#key-characteristics"
+        id="toc-key-characteristics">Key Characteristics</a></li>
+        <li><a href="#requestresponse-example"
+        id="toc-requestresponse-example">Request/Response
+        Example</a></li>
+        </ul></li>
+        <li><a href="#directory-structure"
+        id="toc-directory-structure">Directory Structure</a>
+        <ul>
+        <li><a href="#actual-files-in-resources"
+        id="toc-actual-files-in-resources">Actual Files in
+        Resources</a></li>
+        <li><a href="#whats-actually-empty"
+        id="toc-whats-actually-empty">What’s Actually Empty</a></li>
+        </ul></li>
+        <li><a href="#frontend-location"
+        id="toc-frontend-location">Frontend Location</a>
+        <ul>
+        <li><a href="#where-frontend-code-lives"
+        id="toc-where-frontend-code-lives">Where Frontend Code
+        Lives</a></li>
+        <li><a href="#frontend-technology-stack"
+        id="toc-frontend-technology-stack">Frontend Technology
+        Stack</a></li>
+        <li><a href="#frontend-deployment"
+        id="toc-frontend-deployment">Frontend Deployment</a></li>
+        <li><a href="#frontend-backend-communication"
+        id="toc-frontend-backend-communication">Frontend-Backend
+        Communication</a></li>
+        </ul></li>
+        <li><a href="#why-no-backend-templates"
+        id="toc-why-no-backend-templates">Why No Backend Templates</a>
+        <ul>
+        <li><a href="#historical-context"
+        id="toc-historical-context">Historical Context</a></li>
+        <li><a href="#modern-architecture-used-here"
+        id="toc-modern-architecture-used-here">Modern Architecture (Used
+        Here)</a></li>
+        <li><a href="#advantages-of-api-only-backend"
+        id="toc-advantages-of-api-only-backend">Advantages of API-Only
+        Backend</a></li>
+        </ul></li>
+        <li><a href="#cors-configuration"
+        id="toc-cors-configuration">CORS Configuration</a>
+        <ul>
+        <li><a href="#what-is-cors" id="toc-what-is-cors">What is
+        CORS?</a></li>
+        <li><a href="#backend-cors-configuration"
+        id="toc-backend-cors-configuration">Backend CORS
+        Configuration</a></li>
+        </ul></li>
+        <li><a href="#api-documentation-for-frontend-developers"
+        id="toc-api-documentation-for-frontend-developers">API
+        Documentation for Frontend Developers</a>
+        <ul>
+        <li><a href="#openapiswagger"
+        id="toc-openapiswagger">OpenAPI/Swagger</a></li>
+        <li><a href="#frontend-integration"
+        id="toc-frontend-integration">Frontend Integration</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        <li><a href="#getting-started-with-frontend"
+        id="toc-getting-started-with-frontend">Getting Started with
+        Frontend</a>
+        <ul>
+        <li><a href="#develop-locally" id="toc-develop-locally">Develop
+        Locally</a></li>
+        <li><a href="#build-for-production"
+        id="toc-build-for-production">Build for Production</a></li>
+        <li><a href="#frontend-documentation"
+        id="toc-frontend-documentation">Frontend Documentation</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+        <h1 id="static-resources-templates">Static Resources &amp;
+        Templates</h1>
+        <p><strong>Overview:</strong> This document explains the static
+        resources and template handling in Smart Supply Pro.</p>
+        <hr />
+        <h2 id="table-of-contents">Table of Contents</h2>
+        <ol type="1">
+        <li><a href="#architecture-api-only-backend">Architecture:
+        API-Only Backend</a></li>
+        <li><a href="#directory-structure">Directory Structure</a></li>
+        <li><a href="#frontend-location">Frontend Location</a></li>
+        <li><a href="#why-no-backend-templates">Why No Backend
+        Templates</a></li>
+        </ol>
+        <hr />
+        <h2 id="architecture-api-only-backend">Architecture: API-Only
+        Backend</h2>
+        <h3 id="backend-design">Backend Design</h3>
+        <p>Smart Supply Pro backend is a <strong>pure REST
+        API</strong>:</p>
+        <pre><code>Clients (Browser, Mobile, Desktop)
+    ↓
+HTTP REST Requests
+    ↓
+Spring Boot API
+    ↓
+Returns JSON responses (not HTML)</code></pre>
+        <h3 id="key-characteristics">Key Characteristics</h3>
+        <p>✅ <strong>Returns JSON, not HTML</strong> - Endpoints
+        respond with <code>Content-Type: application/json</code> -
+        Response body is JSON (not HTML pages)</p>
+        <p>✅ <strong>No Server-Side Rendering</strong> - No Thymeleaf
+        or other template engines - No JSP files - No static HTML served
+        from backend</p>
+        <p>✅ <strong>No Frontend Code in Backend</strong> -
+        <code>src/main/resources/static/</code> → Empty -
+        <code>src/main/resources/templates/</code> → Empty</p>
+        <p>✅ <strong>Separation of Concerns</strong> - Backend handles:
+        Business logic, data, security - Frontend handles: UI, user
+        experience, layout - Clear division of responsibilities</p>
+        <h3 id="requestresponse-example">Request/Response Example</h3>
+        <p><strong>Frontend Request:</strong></p>
+        <pre class="http"><code>GET /api/suppliers?page=1&amp;size=20</code></pre>
+        <p><strong>Backend Response (JSON):</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;content&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-001&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget Corp&quot;</span><span class="fu">,</span> <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;contact@widgetcorp.com&quot;</span> <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;SUP-002&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gadget Inc&quot;</span><span class="fu">,</span> <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;info@gadgetinc.com&quot;</span> <span class="fu">}</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;page&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalPages&quot;</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalElements&quot;</span><span class="fu">:</span> <span class="dv">92</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Frontend renders this JSON into HTML</strong> (using
+        React, Vue, Angular, etc.)</p>
+        <hr />
+        <h2 id="directory-structure">Directory Structure</h2>
+        <h3 id="actual-files-in-resources">Actual Files in
+        Resources</h3>
+        <pre><code>src/main/resources/
+├── application.yml              # Spring Boot config (load this!)
+├── application-prod.yml
+├── application-test.yml
+├── application.properties
+├── templates/                   # EMPTY (no backend templates)
+│   └── (no files)
+├── static/                      # EMPTY (no static files here)
+│   └── (no files)
+└── logback-spring.xml          # (if present, logging config)</code></pre>
+        <h3 id="whats-actually-empty">What’s Actually Empty</h3>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 33%" />
+        <col style="width: 27%" />
+        <col style="width: 24%" />
+        <col style="width: 15%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Directory</th>
+        <th>Purpose</th>
+        <th>Status</th>
+        <th>Why</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>templates/</code></td>
+        <td>Thymeleaf/FreeMarker templates</td>
+        <td>❌ Empty</td>
+        <td>API returns JSON, not HTML</td>
+        </tr>
+        <tr class="even">
+        <td><code>static/</code></td>
+        <td>CSS, JavaScript, images</td>
+        <td>❌ Empty</td>
+        <td>Frontend handles presentation</td>
+        </tr>
+        <tr class="odd">
+        <td><code>public/</code></td>
+        <td>Alternative static location</td>
+        <td>❌ Empty</td>
+        <td>Same reason</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="frontend-location">Frontend Location</h2>
+        <h3 id="where-frontend-code-lives">Where Frontend Code
+        Lives</h3>
+        <p><strong>Location:</strong> <code>/frontend</code> directory
+        (project root level, not in backend)</p>
+        <pre><code>inventory-service/  (git root)
+├── src/                         # Backend (Java)
+│   ├── main/java
+│   ├── main/resources
+│   └── test/
+├── frontend/                    # Frontend (React/TypeScript)
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── App.tsx
+│   ├── public/
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   └── Dockerfile
+├── docs/                        # This documentation
+├── pom.xml                      # Backend build (Maven)
+├── docker-compose.yml
+├── fly.toml
+└── README.md</code></pre>
+        <h3 id="frontend-technology-stack">Frontend Technology
+        Stack</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Component</th>
+        <th>Technology</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Framework</strong></td>
+        <td>React</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Language</strong></td>
+        <td>TypeScript</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Build Tool</strong></td>
+        <td>Vite</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Package Manager</strong></td>
+        <td>npm</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Styling</strong></td>
+        <td>TBD (check frontend/package.json)</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="frontend-deployment">Frontend Deployment</h3>
+        <p><strong>Deployed Separately</strong> from backend: - Backend:
+        Fly.io (Java/Spring Boot) - Frontend: Typically Vercel, Netlify,
+        or Fly.io (as separate service)</p>
+        <p><strong>Example deployment flow:</strong></p>
+        <pre><code>Push to origin/main
+    ↓
+GitHub Actions triggers 2 deployments:
+    ├─→ Backend build &amp; deploy (Java → Fly.io)
+    └─→ Frontend build &amp; deploy (React → Vercel)
+    ↓
+Both services deployed independently</code></pre>
+        <h3 id="frontend-backend-communication">Frontend-Backend
+        Communication</h3>
+        <p><strong>HTTP Protocol:</strong></p>
+        <pre><code>Frontend (React):
+  const response = await fetch(&#39;https://api.example.com/api/suppliers&#39;);
+  const data = await response.json();
+  // Renders data with React components
+
+Backend (Spring Boot):
+  @GetMapping(&quot;/api/suppliers&quot;)
+  public Page&lt;SupplierDTO&gt; getSuppliers(...) {
+    return supplierService.findAll(...);  // Returns JSON
+  }</code></pre>
+        <p><strong>CORS Configuration:</strong> Backend enables CORS for
+        frontend domain</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># See Security Architecture docs for CORS config</span></span></code></pre></div>
+        <hr />
+        <h2 id="why-no-backend-templates">Why No Backend Templates</h2>
+        <h3 id="historical-context">Historical Context</h3>
+        <p>Earlier web development used <strong>server-side
+        rendering</strong>:</p>
+        <pre><code>Browser → Request HTML file
+    ↓
+Server → Generate HTML from template + data
+    ↓
+Server → Send complete HTML page
+    ↓
+Browser → Render HTML</code></pre>
+        <p><strong>Tools:</strong> Thymeleaf, JSP, ERB, Jinja2</p>
+        <h3 id="modern-architecture-used-here">Modern Architecture (Used
+        Here)</h3>
+        <pre><code>Browser → Request JSON from API
+    ↓
+Server → Return JSON (no rendering)
+    ↓
+Browser → Receive JSON
+    ↓
+Browser → Render HTML locally with JavaScript framework</code></pre>
+        <p><strong>Tools:</strong> React, Vue, Angular, Svelte</p>
+        <h3 id="advantages-of-api-only-backend">Advantages of API-Only
+        Backend</h3>
+        <p>✅ <strong>Decoupling:</strong> - Backend and frontend teams
+        work independently - Backend can serve multiple clients (web,
+        mobile, desktop) - Frontend can change without backend
+        changes</p>
+        <p>✅ <strong>Performance:</strong> - Frontend caching (browser
+        cache, service workers) - Faster iteration on UI without server
+        redeploy - Client handles rendering (less server load)</p>
+        <p>✅ <strong>Scalability:</strong> - Frontend served from CDN
+        (static files) - Backend scales horizontally without UI concerns
+        - Separate deployments prevent coupling</p>
+        <p>✅ <strong>Developer Experience:</strong> - Frontend
+        developers use modern tools (Vite, npm, webpack) - Backend
+        developers use Java/Spring tools - Clear separation of concerns
+        - Easier testing and debugging</p>
+        <hr />
+        <h2 id="cors-configuration">CORS Configuration</h2>
+        <p>Because frontend and backend are separate,
+        <strong>Cross-Origin Resource Sharing (CORS)</strong> must be
+        configured.</p>
+        <h3 id="what-is-cors">What is CORS?</h3>
+        <pre><code>Frontend at: https://myapp.com (runs in browser)
+Backend at:  https://api.example.com
+
+Browser blocks requests from frontend to backend
+  (Security feature: prevent unauthorized cross-domain requests)
+
+Solution: Backend must explicitly allow requests from frontend
+  (via CORS headers)</code></pre>
+        <h3 id="backend-cors-configuration">Backend CORS
+        Configuration</h3>
+        <p><strong>See:</strong> <a
+        href="../security/index.html">Security Architecture - CORS
+        Configuration</a></p>
+        <p><strong>Example:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> CorsConfig <span class="kw">implements</span> WebMvcConfigurer <span class="op">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">addCorsMappings</span><span class="op">(</span>CorsRegistry registry<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        registry<span class="op">.</span><span class="fu">addMapping</span><span class="op">(</span><span class="st">&quot;/api/**&quot;</span><span class="op">)</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">allowedOrigins</span><span class="op">(</span><span class="st">&quot;https://myapp.com&quot;</span><span class="op">)</span>  <span class="co">// Frontend URL</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">allowedMethods</span><span class="op">(</span><span class="st">&quot;GET&quot;</span><span class="op">,</span> <span class="st">&quot;POST&quot;</span><span class="op">,</span> <span class="st">&quot;PUT&quot;</span><span class="op">,</span> <span class="st">&quot;DELETE&quot;</span><span class="op">)</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">allowedHeaders</span><span class="op">(</span><span class="st">&quot;*&quot;</span><span class="op">)</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">allowCredentials</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="api-documentation-for-frontend-developers">API
+        Documentation for Frontend Developers</h2>
+        <h3 id="openapiswagger">OpenAPI/Swagger</h3>
+        <p><strong>Automatic API docs generated from code:</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Access at:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">http://localhost:8081/swagger-ui.html</span></span></code></pre></div>
+        <p><strong>Provides:</strong> - Interactive API explorer -
+        Request/response examples - Parameter documentation - Try it out
+        functionality</p>
+        <h3 id="frontend-integration">Frontend Integration</h3>
+        <p><strong>Frontend uses generated API client:</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// React component</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { supplierApi } <span class="im">from</span> <span class="st">&#39;@/api/suppliers&#39;</span><span class="op">;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">SupplierList</span>() {</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [suppliers<span class="op">,</span> setSuppliers] <span class="op">=</span> <span class="fu">useState</span>([])<span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    supplierApi<span class="op">.</span><span class="fu">getAll</span>()</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">then</span>(response <span class="kw">=&gt;</span> <span class="fu">setSuppliers</span>(response<span class="op">.</span><span class="at">data</span>))</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">catch</span>(error <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(error))<span class="op">;</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span> [])<span class="op">;</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> (</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>div<span class="op">&gt;</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>      {suppliers<span class="op">.</span><span class="fu">map</span>(s <span class="kw">=&gt;</span> <span class="op">&lt;</span>SupplierCard key<span class="op">=</span>{s<span class="op">.</span><span class="at">id</span>} supplier<span class="op">=</span>{s} <span class="op">/&gt;</span>)}</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;/</span>div<span class="op">&gt;</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  )<span class="op">;</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 29%" />
+        <col style="width: 33%" />
+        <col style="width: 37%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Backend</th>
+        <th>Frontend</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Location</strong></td>
+        <td>src/main/java, src/main/resources</td>
+        <td>/frontend</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Technology</strong></td>
+        <td>Spring Boot, Java</td>
+        <td>React, TypeScript</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Returns</strong></td>
+        <td>JSON</td>
+        <td>HTML (rendered by React)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Serves Static Files</strong></td>
+        <td>No (empty static/ folder)</td>
+        <td>Yes (public/ folder)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Templates</strong></td>
+        <td>None (REST API only)</td>
+        <td>JSX/TSX components</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Deployed To</strong></td>
+        <td>Fly.io</td>
+        <td>Vercel/Netlify/CDN</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Port</strong></td>
+        <td>8081 (API)</td>
+        <td>5173 (dev), 443 (prod)</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="getting-started-with-frontend">Getting Started with
+        Frontend</h2>
+        <h3 id="develop-locally">Develop Locally</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> frontend</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Install dependencies</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Start dev server (Vite)</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run dev</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Frontend runs at: http://localhost:5173</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Backend at: http://localhost:8081</span></span></code></pre></div>
+        <h3 id="build-for-production">Build for Production</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> frontend</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Build optimized bundle</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Output in: frontend/dist/</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># This is deployed to CDN or frontend hosting</span></span></code></pre></div>
+        <h3 id="frontend-documentation">Frontend Documentation</h3>
+        <p><strong>See:</strong> <code>/frontend/README.md</code> for
+        frontend-specific setup and development</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

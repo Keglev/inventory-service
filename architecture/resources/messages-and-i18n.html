@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+resources/messages-and-i18n · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#messages-internationalization-i18n"
+        id="toc-messages-internationalization-i18n">Messages &amp;
+        Internationalization (i18n)</a>
+        <ul>
+        <li><a href="#table-of-contents"
+        id="toc-table-of-contents">Table of Contents</a></li>
+        <li><a href="#message-properties-overview"
+        id="toc-message-properties-overview">Message Properties
+        Overview</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#current-implementation-status"
+        id="toc-current-implementation-status">Current Implementation
+        Status</a></li>
+        <li><a href="#why-externalize-messages"
+        id="toc-why-externalize-messages">Why Externalize
+        Messages?</a></li>
+        </ul></li>
+        <li><a href="#supported-languages"
+        id="toc-supported-languages">Supported Languages</a>
+        <ul>
+        <li><a href="#language-configuration"
+        id="toc-language-configuration">Language Configuration</a></li>
+        <li><a href="#how-locale-is-determined"
+        id="toc-how-locale-is-determined">How Locale is
+        Determined</a></li>
+        </ul></li>
+        <li><a href="#validation-messages"
+        id="toc-validation-messages">Validation Messages</a>
+        <ul>
+        <li><a href="#jsr-380-annotation-messages"
+        id="toc-jsr-380-annotation-messages">JSR-380 Annotation
+        Messages</a></li>
+        <li><a href="#message-properties-files"
+        id="toc-message-properties-files">Message Properties
+        Files</a></li>
+        <li><a href="#custom-validator-messages"
+        id="toc-custom-validator-messages">Custom Validator
+        Messages</a></li>
+        </ul></li>
+        <li><a href="#error-codes-messages"
+        id="toc-error-codes-messages">Error Codes &amp; Messages</a>
+        <ul>
+        <li><a href="#exception-response-structure"
+        id="toc-exception-response-structure">Exception Response
+        Structure</a></li>
+        <li><a href="#error-code-mapping"
+        id="toc-error-code-mapping">Error Code Mapping</a></li>
+        <li><a href="#usage-in-exception-handler"
+        id="toc-usage-in-exception-handler">Usage in Exception
+        Handler</a></li>
+        </ul></li>
+        <li><a href="#internationalization-strategy"
+        id="toc-internationalization-strategy">Internationalization
+        Strategy</a>
+        <ul>
+        <li><a href="#message-key-naming-convention"
+        id="toc-message-key-naming-convention">Message Key Naming
+        Convention</a></li>
+        <li><a href="#message-file-organization"
+        id="toc-message-file-organization">Message File
+        Organization</a></li>
+        <li><a href="#adding-new-languages"
+        id="toc-adding-new-languages">Adding New Languages</a></li>
+        </ul></li>
+        <li><a href="#frontend-integration"
+        id="toc-frontend-integration">Frontend Integration</a>
+        <ul>
+        <li><a href="#fetching-messages-from-backend"
+        id="toc-fetching-messages-from-backend">Fetching Messages from
+        Backend</a></li>
+        <li><a href="#frontend-localization-example"
+        id="toc-frontend-localization-example">Frontend Localization
+        Example</a></li>
+        <li><a href="#alternatively-use-frontend-i18n-library"
+        id="toc-alternatively-use-frontend-i18n-library">Alternatively:
+        Use Frontend i18n Library</a></li>
+        </ul></li>
+        <li><a href="#current-status-next-steps"
+        id="toc-current-status-next-steps">Current Status &amp; Next
+        Steps</a>
+        <ul>
+        <li><a href="#currently-implemented"
+        id="toc-currently-implemented">Currently Implemented</a></li>
+        <li><a href="#next-steps-future-enhancement"
+        id="toc-next-steps-future-enhancement">Next Steps (Future
+        Enhancement)</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a>
+        <ul>
+        <li><a href="#always-externalize-user-facing-messages"
+        id="toc-always-externalize-user-facing-messages">1. Always
+        Externalize User-Facing Messages</a></li>
+        <li><a href="#use-consistent-key-naming"
+        id="toc-use-consistent-key-naming">2. Use Consistent Key
+        Naming</a></li>
+        <li><a href="#keep-message-files-small-organized"
+        id="toc-keep-message-files-small-organized">3. Keep Message
+        Files Small &amp; Organized</a></li>
+        <li><a href="#provide-context-in-messages"
+        id="toc-provide-context-in-messages">4. Provide Context in
+        Messages</a></li>
+        <li><a href="#parameterize-messages-when-needed"
+        id="toc-parameterize-messages-when-needed">5. Parameterize
+        Messages When Needed</a></li>
+        </ul></li>
+        <li><a href="#summary" id="toc-summary">Summary</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+        <h1 id="messages-internationalization-i18n">Messages &amp;
+        Internationalization (i18n)</h1>
+        <p><strong>Overview:</strong> This document explains how
+        messages, validation errors, and internationalization are
+        configured in Smart Supply Pro.</p>
+        <hr />
+        <h2 id="table-of-contents">Table of Contents</h2>
+        <ol type="1">
+        <li><a href="#message-properties-overview">Message Properties
+        Overview</a></li>
+        <li><a href="#supported-languages">Supported Languages</a></li>
+        <li><a href="#validation-messages">Validation Messages</a></li>
+        <li><a href="#error-codes--messages">Error Codes &amp;
+        Messages</a></li>
+        <li><a
+        href="#internationalization-strategy">Internationalization
+        Strategy</a></li>
+        <li><a href="#frontend-integration">Frontend
+        Integration</a></li>
+        </ol>
+        <hr />
+        <h2 id="message-properties-overview">Message Properties
+        Overview</h2>
+        <h3 id="purpose">Purpose</h3>
+        <p>Message properties files centralize text content used
+        throughout the application: - Validation error messages - Error
+        response messages - Business exception descriptions -
+        User-facing error codes</p>
+        <h3 id="current-implementation-status">Current Implementation
+        Status</h3>
+        <p><strong>Status:</strong> Infrastructure prepared,
+        implementation ongoing</p>
+        <pre><code>src/main/resources/
+├── messages.properties          # Default/English messages
+├── messages_de.properties       # German messages
+└── (more languages as needed)</code></pre>
+        <p><strong>What’s Externalized:</strong> - ✅ Validation
+        constraint messages (JSR-380) - ✅ Custom validator error
+        messages - ✅ GlobalExceptionHandler response messages - ✅
+        Error codes for frontend error handling</p>
+        <h3 id="why-externalize-messages">Why Externalize Messages?</h3>
+        <p><strong>Without externalization (bad):</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>item<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">InvalidParameterException</span><span class="op">(</span><span class="st">&quot;Quantity cannot be negative&quot;</span><span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Problem: Message hardcoded; can&#39;t translate; difficult to maintain</span></span></code></pre></div>
+        <p><strong>With externalization (good):</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>item<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">InvalidParameterException</span><span class="op">(</span>messageSource<span class="op">.</span><span class="fu">getMessage</span><span class="op">(</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;inventory.item.quantity.negative&quot;</span><span class="op">,</span> <span class="kw">null</span><span class="op">,</span> locale<span class="op">));</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Message stored in: messages.properties (EN), messages_de.properties (DE)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Automatically returns correct translation based on locale</span></span></code></pre></div>
+        <hr />
+        <h2 id="supported-languages">Supported Languages</h2>
+        <h3 id="language-configuration">Language Configuration</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Language</th>
+        <th>File</th>
+        <th>Locale Code</th>
+        <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>English</strong></td>
+        <td><code>messages.properties</code></td>
+        <td><code>en</code></td>
+        <td>✅ Base language</td>
+        </tr>
+        <tr class="even">
+        <td><strong>German</strong></td>
+        <td><code>messages_de.properties</code></td>
+        <td><code>de</code></td>
+        <td>✅ Supported</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="how-locale-is-determined">How Locale is Determined</h3>
+        <p><strong>Server-side (HTTP requests):</strong></p>
+        <pre><code>Spring checks (in order):
+  1. URL parameter: ?lang=de
+  2. Cookie: SPRING_LOCALE
+  3. Accept-Language header: Accept-Language: de-DE
+  4. Server default (locale.setDefaultLocale())</code></pre>
+        <p><strong>Example:</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Request with German locale</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="st">&quot;http://localhost:8081/api/suppliers?lang=de&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Response messages will be in German</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Using Accept-Language header</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-H</span> <span class="st">&quot;Accept-Language: de-DE&quot;</span> http://localhost:8081/api/suppliers</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Response messages will be in German</span></span></code></pre></div>
+        <p><strong>Client-side (Frontend React):</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Frontend controls locale independently</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [locale<span class="op">,</span> setLocale] <span class="op">=</span> <span class="fu">useState</span>(<span class="st">&#39;en&#39;</span>)<span class="op">;</span>  <span class="co">// or &#39;de&#39;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Frontend sends request with locale</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="st">&#39;/api/suppliers?lang=&#39;</span> <span class="op">+</span> locale)<span class="op">;</span></span></code></pre></div>
+        <hr />
+        <h2 id="validation-messages">Validation Messages</h2>
+        <h3 id="jsr-380-annotation-messages">JSR-380 Annotation
+        Messages</h3>
+        <p>Validation constraints can specify message keys:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemDTO <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;{inventory.item.name.required}&quot;</span><span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Min</span><span class="op">(</span>value <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> message <span class="op">=</span> <span class="st">&quot;{inventory.item.quantity.min}&quot;</span><span class="op">)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Integer</span> quantity<span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Email</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;{inventory.supplier.email.invalid}&quot;</span><span class="op">)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> supplierEmail<span class="op">;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="message-properties-files">Message Properties Files</h3>
+        <p><strong>messages.properties (English):</strong></p>
+        <pre class="properties"><code># Inventory Item Validation
+inventory.item.name.required=Item name is required
+inventory.item.name.too.long=Item name cannot exceed 255 characters
+inventory.item.quantity.min=Quantity must be at least 0
+inventory.item.quantity.max=Quantity cannot exceed 999999
+inventory.item.price.min=Price must be greater than 0
+inventory.item.price.precision=Price can have at most 2 decimal places
+
+# Supplier Validation
+inventory.supplier.email.invalid=Invalid email address
+inventory.supplier.name.required=Supplier name is required</code></pre>
+        <p><strong>messages_de.properties (German):</strong></p>
+        <pre class="properties"><code># Lagerverwaltung Validierung
+inventory.item.name.required=Artikelname ist erforderlich
+inventory.item.name.too.long=Artikelname darf 255 Zeichen nicht überschreiten
+inventory.item.quantity.min=Menge muss mindestens 0 sein
+inventory.item.quantity.max=Menge darf 999999 nicht überschreiten
+inventory.item.price.min=Preis muss größer als 0 sein
+inventory.item.price.precision=Preis darf höchstens 2 Dezimalstellen haben
+
+# Lieferant Validierung
+inventory.supplier.email.invalid=Ungültige E-Mail-Adresse
+inventory.supplier.name.required=Lieferantenname ist erforderlich</code></pre>
+        <h3 id="custom-validator-messages">Custom Validator
+        Messages</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Custom validator class</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemValidator <span class="op">{</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> MessageSource messageSource<span class="op">;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">InventoryItemValidator</span><span class="op">(</span>MessageSource messageSource<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">messageSource</span> <span class="op">=</span> messageSource<span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">validateInventoryItemNotExists</span><span class="op">(</span><span class="bu">String</span> name<span class="op">,</span> <span class="bu">BigDecimal</span> price<span class="op">,</span> <span class="bu">Locale</span> locale<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>inventoryItemRepository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span>name<span class="op">).</span><span class="fu">isPresent</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span> message <span class="op">=</span> messageSource<span class="op">.</span><span class="fu">getMessage</span><span class="op">(</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;inventory.item.duplicate&quot;</span><span class="op">,</span>  <span class="co">// Key from properties</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                <span class="kw">null</span><span class="op">,</span>                        <span class="co">// Arguments (if parameterized)</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                locale                       <span class="co">// Locale</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span>message<span class="op">);</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>messages.properties:</strong></p>
+        <pre class="properties"><code>inventory.item.duplicate=An inventory item with this name already exists</code></pre>
+        <p><strong>messages_de.properties:</strong></p>
+        <pre class="properties"><code>inventory.item.duplicate=Ein Artikel mit diesem Namen existiert bereits</code></pre>
+        <hr />
+        <h2 id="error-codes-messages">Error Codes &amp; Messages</h2>
+        <h3 id="exception-response-structure">Exception Response
+        Structure</h3>
+        <p><strong>GlobalExceptionHandler returns:</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;DUPLICATE_RESOURCE&quot;</span><span class="fu">,</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;An inventory item with this name already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-11-20T14:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;path&quot;</span><span class="fu">:</span> <span class="st">&quot;/api/suppliers&quot;</span><span class="fu">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">409</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="error-code-mapping">Error Code Mapping</h3>
+        <p><strong>messages.properties:</strong></p>
+        <pre class="properties"><code># Error codes and descriptions
+error.duplicate.resource=An inventory item with this name already exists
+error.not.found.supplier=Supplier not found
+error.invalid.parameter=Invalid parameter provided
+error.unauthorized=You are not authorized to perform this action
+error.forbidden=Access to this resource is forbidden
+error.internal.server.error=An unexpected error occurred</code></pre>
+        <p><strong>messages_de.properties:</strong></p>
+        <pre class="properties"><code>error.duplicate.resource=Ein Artikel mit diesem Namen existiert bereits
+error.not.found.supplier=Lieferant nicht gefunden
+error.invalid.parameter=Ungültiger Parameter angegeben
+error.unauthorized=Sie sind nicht berechtigt, diese Aktion durchzuführen
+error.forbidden=Zugriff auf diese Ressource ist nicht gestattet
+error.internal.server.error=Ein unerwarteter Fehler ist aufgetreten</code></pre>
+        <h3 id="usage-in-exception-handler">Usage in Exception
+        Handler</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> GlobalExceptionHandler <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> MessageSource messageSource<span class="op">;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDuplicateResource</span><span class="op">(</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>            DuplicateResourceException ex<span class="op">,</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>            HttpServletRequest request<span class="op">,</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>            <span class="bu">Locale</span> locale<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> message <span class="op">=</span> messageSource<span class="op">.</span><span class="fu">getMessage</span><span class="op">(</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;error.duplicate.resource&quot;</span><span class="op">,</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>            <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>            locale</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span><span class="dv">409</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>            <span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;DUPLICATE_RESOURCE&quot;</span><span class="op">,</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>                message<span class="op">,</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>                LocalDateTime<span class="op">.</span><span class="fu">now</span><span class="op">(),</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>                request<span class="op">.</span><span class="fu">getRequestURI</span><span class="op">(),</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>                <span class="dv">409</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">)</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="internationalization-strategy">Internationalization
+        Strategy</h2>
+        <h3 id="message-key-naming-convention">Message Key Naming
+        Convention</h3>
+        <p><strong>Pattern:</strong>
+        <code>{domain}.{entity}.{aspect}.{detail}</code></p>
+        <p><strong>Examples:</strong></p>
+        <pre><code>inventory.item.name.required
+├── domain: inventory (application domain)
+├── entity: item (what entity)
+├── aspect: name (which field or concern)
+└── detail: required (specific message)
+
+inventory.supplier.email.invalid
+└── validation error for supplier email
+
+error.not.found.supplier
+├── domain: error (error message)
+├── aspect: not (what happened)
+└── detail: found (what)</code></pre>
+        <h3 id="message-file-organization">Message File
+        Organization</h3>
+        <p><strong>Flat structure (current):</strong></p>
+        <pre><code>messages.properties
+├── inventory.item.*
+├── inventory.supplier.*
+├── error.*
+└── (all messages in one file)</code></pre>
+        <p><strong>Alternative hierarchical (for larger
+        apps):</strong></p>
+        <pre><code>messages/
+├── inventory/
+│   ├── item.properties
+│   └── supplier.properties
+├── error/
+│   └── messages.properties
+└── common.properties</code></pre>
+        <h3 id="adding-new-languages">Adding New Languages</h3>
+        <p><strong>To add French (fr):</strong></p>
+        <ol type="1">
+        <li>Create file:</li>
+        </ol>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/main/resources/messages_fr.properties</span></code></pre></div>
+        <ol start="2" type="1">
+        <li>Add translations:</li>
+        </ol>
+        <pre class="properties"><code># messages_fr.properties
+inventory.item.name.required=Le nom de l&#39;article est requis
+inventory.item.quantity.min=La quantité doit être au moins 0</code></pre>
+        <ol start="3" type="1">
+        <li>Clients can use:</li>
+        </ol>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="st">&quot;http://localhost:8081/api/suppliers?lang=fr&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="frontend-integration">Frontend Integration</h2>
+        <h3 id="fetching-messages-from-backend">Fetching Messages from
+        Backend</h3>
+        <p><strong>Option 1: Get all messages at once</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// frontend/src/services/i18n.ts</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">fetchMessages</span>(locale<span class="op">:</span> <span class="dt">string</span>) {</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="vs">`/api/messages?lang=</span><span class="sc">${</span>locale<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> response<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Returns: { &quot;inventory.item.name.required&quot;: &quot;Item name is required&quot;, ... }</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <p><strong>Backend endpoint (if implemented):</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/api/messages&quot;</span><span class="op">)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="fu">getMessages</span><span class="op">(</span><span class="at">@RequestParam</span> <span class="bu">String</span> lang<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Locale</span> locale <span class="op">=</span> <span class="kw">new</span> <span class="bu">Locale</span><span class="op">(</span>lang<span class="op">);</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Return all messages for locale</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> messageService<span class="op">.</span><span class="fu">getAllMessages</span><span class="op">(</span>locale<span class="op">);</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Option 2: Include messages in error
+        response</strong></p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;VALIDATION_ERROR&quot;</span><span class="fu">,</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;validation.inventory.item.quantity.min&quot;</span><span class="fu">,</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;localizedMessage&quot;</span><span class="fu">:</span> <span class="st">&quot;Quantity must be at least 0&quot;</span><span class="fu">,</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">400</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Frontend reads:</strong></p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> error <span class="op">=</span> response<span class="op">.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Display: error.localizedMessage</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Or: fetch translation using error.message key</span></span></code></pre></div>
+        <h3 id="frontend-localization-example">Frontend Localization
+        Example</h3>
+        <p><strong>React component with i18n:</strong></p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">// frontend/src/i18n/messages.ts</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> messages <span class="op">=</span> {</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  en<span class="op">:</span> {</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;inventory.item.name.required&#39;</span><span class="op">:</span> <span class="st">&#39;Item name is required&#39;</span><span class="op">,</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;inventory.item.quantity.min&#39;</span><span class="op">:</span> <span class="st">&#39;Quantity must be at least 0&#39;</span><span class="op">,</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;error.duplicate.resource&#39;</span><span class="op">:</span> <span class="st">&#39;An item with this name already exists&#39;</span><span class="op">,</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  de<span class="op">:</span> {</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;inventory.item.name.required&#39;</span><span class="op">:</span> <span class="st">&#39;Artikelname ist erforderlich&#39;</span><span class="op">,</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;inventory.item.quantity.min&#39;</span><span class="op">:</span> <span class="st">&#39;Menge muss mindestens 0 sein&#39;</span><span class="op">,</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;error.duplicate.resource&#39;</span><span class="op">:</span> <span class="st">&#39;Ein Artikel mit diesem Namen existiert bereits&#39;</span><span class="op">,</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="co">// Component usage</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">useMessage</span>(key<span class="op">:</span> <span class="dt">string</span><span class="op">,</span> locale<span class="op">:</span> <span class="dt">string</span> <span class="op">=</span> <span class="st">&#39;en&#39;</span>) {</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> messages[locale]<span class="op">?.</span>[key] <span class="op">||</span> key<span class="op">;</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="co">// In component</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">SupplierForm</span>() {</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [locale<span class="op">,</span> setLocale] <span class="op">=</span> <span class="fu">useState</span>(<span class="st">&#39;en&#39;</span>)<span class="op">;</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> (</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>div<span class="op">&gt;</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>      <span class="op">&lt;</span>label<span class="op">&gt;</span>{<span class="fu">useMessage</span>(<span class="st">&#39;inventory.item.name.required&#39;</span><span class="op">,</span> locale)}<span class="op">&lt;/</span>label<span class="op">&gt;</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>      <span class="op">&lt;</span>input <span class="kw">type</span><span class="op">=</span><span class="st">&quot;text&quot;</span> placeholder<span class="op">=</span><span class="st">&quot;Enter item name&quot;</span> <span class="op">/&gt;</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;/</span>div<span class="op">&gt;</span></span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>  )<span class="op">;</span></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <h3 id="alternatively-use-frontend-i18n-library">Alternatively:
+        Use Frontend i18n Library</h3>
+        <p><strong>Popular options:</strong> - <strong>i18next</strong>
+        - Most popular, mature - <strong>React Intl</strong> - Format
+        dates, numbers, pluralization - <strong>Format.js</strong> -
+        Lightweight, small bundle</p>
+        <p><strong>Example with i18next:</strong></p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> i18n <span class="im">from</span> <span class="st">&#39;i18next&#39;</span><span class="op">;</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>i18n<span class="op">.</span><span class="fu">init</span>({</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  resources<span class="op">:</span> {</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    en<span class="op">:</span> {</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>      translation<span class="op">:</span> {</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;inventory.item.name&#39;</span><span class="op">:</span> <span class="st">&#39;Item Name&#39;</span><span class="op">,</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;inventory.item.quantity&#39;</span><span class="op">:</span> <span class="st">&#39;Quantity&#39;</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    de<span class="op">:</span> {</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>      translation<span class="op">:</span> {</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;inventory.item.name&#39;</span><span class="op">:</span> <span class="st">&#39;Artikelname&#39;</span><span class="op">,</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;inventory.item.quantity&#39;</span><span class="op">:</span> <span class="st">&#39;Menge&#39;</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="co">// In React component</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>h1<span class="op">&gt;</span>{<span class="fu">t</span>(<span class="st">&#39;inventory.item.name&#39;</span>)}<span class="op">&lt;/</span>h1<span class="op">&gt;</span></span></code></pre></div>
+        <hr />
+        <h2 id="current-status-next-steps">Current Status &amp; Next
+        Steps</h2>
+        <h3 id="currently-implemented">Currently Implemented</h3>
+        <p>✅ Message properties files created ✅ Validation message
+        keys defined ✅ Error code messages externalized ✅ German
+        translations available</p>
+        <h3 id="next-steps-future-enhancement">Next Steps (Future
+        Enhancement)</h3>
+        <ul class="task-list">
+        <li><label><input type="checkbox" />Create
+        <code>/api/messages</code> endpoint to fetch all
+        messages</label></li>
+        <li><label><input type="checkbox" />Integrate with frontend i18n
+        library</label></li>
+        <li><label><input type="checkbox" />Add message caching for
+        performance</label></li>
+        <li><label><input type="checkbox" />Add more languages (French,
+        Spanish, etc.)</label></li>
+        <li><label><input type="checkbox" />Document frontend
+        translation strategy</label></li>
+        <li><label><input type="checkbox" />Add pluralization rules per
+        language</label></li>
+        <li><label><input type="checkbox" />Add date/number formatting
+        by locale</label></li>
+        </ul>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <h3 id="always-externalize-user-facing-messages">1. Always
+        Externalize User-Facing Messages</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">InvalidParameterException</span><span class="op">(</span><span class="st">&quot;Quantity must be positive&quot;</span><span class="op">);</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> message <span class="op">=</span> messageSource<span class="op">.</span><span class="fu">getMessage</span><span class="op">(</span><span class="st">&quot;inventory.item.quantity.positive&quot;</span><span class="op">,</span> <span class="kw">null</span><span class="op">,</span> locale<span class="op">);</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">InvalidParameterException</span><span class="op">(</span>message<span class="op">);</span></span></code></pre></div>
+        <h3 id="use-consistent-key-naming">2. Use Consistent Key
+        Naming</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <pre class="properties"><code>item_name_error=Item name is required
+ItemNameRequired=Item name is required
+nameRequired=Item name is required</code></pre>
+        <p><strong>✅ Good:</strong></p>
+        <pre class="properties"><code>inventory.item.name.required=Item name is required</code></pre>
+        <h3 id="keep-message-files-small-organized">3. Keep Message
+        Files Small &amp; Organized</h3>
+        <p><strong>❌ Bad:</strong> 1000+ messages in single file</p>
+        <p><strong>✅ Good:</strong> Group by domain/entity</p>
+        <pre><code>messages.properties       (base English)
+messages_de.properties    (German translation)
+messages_fr.properties    (French translation, if added)</code></pre>
+        <h3 id="provide-context-in-messages">4. Provide Context in
+        Messages</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <pre class="properties"><code>error=An error occurred</code></pre>
+        <p><strong>✅ Good:</strong></p>
+        <pre class="properties"><code>error.duplicate.resource=An inventory item with this name already exists
+error.not.found.supplier=Supplier with ID {0} not found</code></pre>
+        <h3 id="parameterize-messages-when-needed">5. Parameterize
+        Messages When Needed</h3>
+        <p><strong>❌ Bad:</strong> Create separate messages for each
+        ID/name</p>
+        <pre class="properties"><code>supplier.not.found.1=Supplier with ID 1 not found
+supplier.not.found.2=Supplier with ID 2 not found</code></pre>
+        <p><strong>✅ Good:</strong> Use parameterized message</p>
+        <pre class="properties"><code>supplier.not.found=Supplier with ID {0} not found
+
+// Usage
+messageSource.getMessage(&quot;supplier.not.found&quot;, new Object[]{supplierId}, locale)</code></pre>
+        <hr />
+        <h2 id="summary">Summary</h2>
+        <table>
+        <colgroup>
+        <col style="width: 47%" />
+        <col style="width: 52%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Details</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>File Format</strong></td>
+        <td>Java <code>.properties</code> (key=value format)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Base Language</strong></td>
+        <td>English (<code>messages.properties</code>)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Supported Languages</strong></td>
+        <td>English, German (more can be added)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Location</strong></td>
+        <td><code>src/main/resources/</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Framework</strong></td>
+        <td>Spring’s <code>MessageSource</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Usage</strong></td>
+        <td>Validation messages, error responses, user-facing text</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Frontend Integration</strong></td>
+        <td>React can fetch and display localized messages</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

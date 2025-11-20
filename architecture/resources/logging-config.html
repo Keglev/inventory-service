@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+resources/logging-config · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#logging-configuration"
+        id="toc-logging-configuration">Logging Configuration</a>
+        <ul>
+        <li><a href="#table-of-contents"
+        id="toc-table-of-contents">Table of Contents</a></li>
+        <li><a href="#logging-architecture"
+        id="toc-logging-architecture">Logging Architecture</a>
+        <ul>
+        <li><a href="#logging-stack" id="toc-logging-stack">Logging
+        Stack</a></li>
+        <li><a href="#configuration-source"
+        id="toc-configuration-source">Configuration Source</a></li>
+        </ul></li>
+        <li><a href="#configuration-by-profile"
+        id="toc-configuration-by-profile">Configuration by Profile</a>
+        <ul>
+        <li><a href="#base-configuration-application.yml"
+        id="toc-base-configuration-application.yml">Base Configuration
+        (application.yml)</a></li>
+        <li><a href="#test-profile-application-test.yml"
+        id="toc-test-profile-application-test.yml">Test Profile
+        (application-test.yml)</a></li>
+        <li><a href="#production-profile-application-prod.yml"
+        id="toc-production-profile-application-prod.yml">Production
+        Profile (application-prod.yml)</a></li>
+        </ul></li>
+        <li><a href="#logger-levels-explained"
+        id="toc-logger-levels-explained">Logger Levels Explained</a>
+        <ul>
+        <li><a href="#log-levels-from-most-to-least-verbose"
+        id="toc-log-levels-from-most-to-least-verbose">Log Levels (from
+        most to least verbose)</a></li>
+        <li><a href="#how-levels-work" id="toc-how-levels-work">How
+        Levels Work</a></li>
+        <li><a href="#specific-loggers-in-this-project"
+        id="toc-specific-loggers-in-this-project">Specific Loggers in
+        This Project</a></li>
+        <li><a href="#logger-hierarchy" id="toc-logger-hierarchy">Logger
+        Hierarchy</a></li>
+        </ul></li>
+        <li><a href="#log-output-locations"
+        id="toc-log-output-locations">Log Output Locations</a>
+        <ul>
+        <li><a href="#default-console-only"
+        id="toc-default-console-only">Default: Console Only</a></li>
+        <li><a href="#test-console-file"
+        id="toc-test-console-file">Test: Console + File</a></li>
+        <li><a href="#file-naming-convention"
+        id="toc-file-naming-convention">File Naming Convention</a></li>
+        <li><a href="#log-file-rotation-future-enhancement"
+        id="toc-log-file-rotation-future-enhancement">Log File Rotation
+        (Future Enhancement)</a></li>
+        </ul></li>
+        <li><a href="#debugging-with-logs"
+        id="toc-debugging-with-logs">Debugging with Logs</a>
+        <ul>
+        <li><a href="#scenario-1-understanding-sql-generation"
+        id="toc-scenario-1-understanding-sql-generation">Scenario 1:
+        Understanding SQL Generation</a></li>
+        <li><a href="#scenario-2-debugging-security"
+        id="toc-scenario-2-debugging-security">Scenario 2: Debugging
+        Security</a></li>
+        <li><a href="#scenario-3-database-connection-pool-issues"
+        id="toc-scenario-3-database-connection-pool-issues">Scenario 3:
+        Database Connection Pool Issues</a></li>
+        <li><a href="#scenario-4-application-startup-issues"
+        id="toc-scenario-4-application-startup-issues">Scenario 4:
+        Application Startup Issues</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a>
+        <ul>
+        <li><a href="#never-set-root-logger-to-debug-in-production"
+        id="toc-never-set-root-logger-to-debug-in-production">1. Never
+        Set Root Logger to DEBUG in Production</a></li>
+        <li><a href="#use-hierarchical-logger-names"
+        id="toc-use-hierarchical-logger-names">2. Use Hierarchical
+        Logger Names</a></li>
+        <li><a href="#include-context-in-application-logs"
+        id="toc-include-context-in-application-logs">3. Include Context
+        in Application Logs</a></li>
+        <li><a href="#use-appropriate-log-levels"
+        id="toc-use-appropriate-log-levels">4. Use Appropriate Log
+        Levels</a></li>
+        <li><a href="#log-exceptions-with-stack-traces"
+        id="toc-log-exceptions-with-stack-traces">5. Log Exceptions with
+        Stack Traces</a></li>
+        <li><a
+        href="#use-parameterized-messages-not-string-concatenation"
+        id="toc-use-parameterized-messages-not-string-concatenation">6.
+        Use Parameterized Messages (Not String Concatenation)</a></li>
+        </ul></li>
+        <li><a href="#log-file-analysis" id="toc-log-file-analysis">Log
+        File Analysis</a>
+        <ul>
+        <li><a href="#view-test-logs" id="toc-view-test-logs">View Test
+        Logs</a></li>
+        <li><a href="#parse-logs-for-metrics"
+        id="toc-parse-logs-for-metrics">Parse Logs for Metrics</a></li>
+        </ul></li>
+        <li><a href="#common-issues" id="toc-common-issues">Common
+        Issues</a>
+        <ul>
+        <li><a href="#issue-logs-are-empty-or-missing"
+        id="toc-issue-logs-are-empty-or-missing">Issue: “Logs are empty
+        or missing”</a></li>
+        <li><a href="#issue-too-many-logs-in-production"
+        id="toc-issue-too-many-logs-in-production">Issue: “Too many logs
+        in production”</a></li>
+        <li><a href="#issue-cant-find-test-logs-in-cicd"
+        id="toc-issue-cant-find-test-logs-in-cicd">Issue: “Can’t find
+        test logs in CI/CD”</a></li>
+        </ul></li>
+        <li><a href="#summary-table" id="toc-summary-table">Summary
+        Table</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+        <h1 id="logging-configuration">Logging Configuration</h1>
+        <p><strong>Overview:</strong> This document explains how logging
+        is configured across different Spring Boot profiles and
+        environments.</p>
+        <hr />
+        <h2 id="table-of-contents">Table of Contents</h2>
+        <ol type="1">
+        <li><a href="#logging-architecture">Logging
+        Architecture</a></li>
+        <li><a href="#configuration-by-profile">Configuration by
+        Profile</a></li>
+        <li><a href="#logger-levels-explained">Logger Levels
+        Explained</a></li>
+        <li><a href="#log-output-locations">Log Output
+        Locations</a></li>
+        <li><a href="#debugging-with-logs">Debugging with Logs</a></li>
+        <li><a href="#best-practices">Best Practices</a></li>
+        </ol>
+        <hr />
+        <h2 id="logging-architecture">Logging Architecture</h2>
+        <h3 id="logging-stack">Logging Stack</h3>
+        <pre><code>Spring Boot Application
+    ↓
+SLF4J (Logging Facade)
+    ↓
+Logback (Default Implementation)
+    ↓
+Output: Console | File | Both</code></pre>
+        <p><strong>Why This Stack?</strong> - <strong>SLF4J:</strong>
+        Abstract logging API (can switch implementations) -
+        <strong>Logback:</strong> Fast, efficient, XML-free
+        configuration (uses .yml) - <strong>Spring Boot:</strong>
+        Auto-configures based on application.yml</p>
+        <h3 id="configuration-source">Configuration Source</h3>
+        <p>Logging is configured in <code>application*.yml</code>:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">      # Specific logger</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                         # Default for all</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">file</span><span class="kw">:</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> logs/application.log</span><span class="co">         # Output file</span></span></code></pre></div>
+        <hr />
+        <h2 id="configuration-by-profile">Configuration by Profile</h2>
+        <h3 id="base-configuration-application.yml">Base Configuration
+        (application.yml)</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.jdbc.core]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">     # JDBC queries (dev/debugging)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                 # Hibernate SQL statements</span></span></code></pre></div>
+        <p><strong>What This Does:</strong> - Logs all JDBC queries
+        (useful for understanding database interactions) - Logs
+        Hibernate SQL (shows what JPA generates) - Root logger defaults
+        to INFO (not set, uses Spring Boot default)</p>
+        <p><strong>Use Case:</strong> Local development - need to
+        understand database operations</p>
+        <h3 id="test-profile-application-test.yml">Test Profile
+        (application-test.yml)</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">file</span><span class="kw">:</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> logs/test-application.log</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                 # SQL statements</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.type.descriptor.sql]&#39;</span><span class="kw">:</span><span class="at"> trace</span><span class="co"> # SQL parameter values</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span></span></code></pre></div>
+        <p><strong>What This Does:</strong> - Writes logs to file for
+        CI/CD test artifacts - Logs all SQL statements (useful for test
+        debugging) - <strong>TRACE level:</strong> Shows SQL parameter
+        values - Example: <code>SELECT * FROM users WHERE id = ?</code>
+        becomes <code>... WHERE id = 123</code></p>
+        <p><strong>Use Case:</strong> Testing - capture detailed logs
+        for failed test diagnostics</p>
+        <h3 id="production-profile-application-prod.yml">Production
+        Profile (application-prod.yml)</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro]&#39;</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                 # Application logs: informative</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                                   # Framework: minimal noise</span></span></code></pre></div>
+        <p><strong>What This Does:</strong> - Application logs at INFO
+        level (important events only) - No DEBUG/TRACE logging (reduces
+        log volume) - No SQL logging (performance, security)</p>
+        <p><strong>Use Case:</strong> Production - minimal logging for
+        performance and security</p>
+        <hr />
+        <h2 id="logger-levels-explained">Logger Levels Explained</h2>
+        <h3 id="log-levels-from-most-to-least-verbose">Log Levels (from
+        most to least verbose)</h3>
+        <table>
+        <colgroup>
+        <col style="width: 17%" />
+        <col style="width: 25%" />
+        <col style="width: 23%" />
+        <col style="width: 33%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Level</th>
+        <th>Use Case</th>
+        <th>Example</th>
+        <th>Production?</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>TRACE</strong></td>
+        <td>Most detailed debugging</td>
+        <td>SQL parameters, detailed method entry/exit</td>
+        <td>❌ Never</td>
+        </tr>
+        <tr class="even">
+        <td><strong>DEBUG</strong></td>
+        <td>Development &amp; debugging</td>
+        <td>SQL queries, bean initialization, config loading</td>
+        <td>❌ No</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>INFO</strong></td>
+        <td>Important business events</td>
+        <td>User login, batch job completion, warnings</td>
+        <td>✅ Yes</td>
+        </tr>
+        <tr class="even">
+        <td><strong>WARN</strong></td>
+        <td>Something unexpected</td>
+        <td>Deprecated API use, fallback behavior</td>
+        <td>✅ Yes</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>ERROR</strong></td>
+        <td>Error condition</td>
+        <td>Exception stack traces, failed operations</td>
+        <td>✅ Yes</td>
+        </tr>
+        <tr class="even">
+        <td><strong>FATAL</strong></td>
+        <td>System failure</td>
+        <td>Application crash, unrecoverable error</td>
+        <td>✅ Yes</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="how-levels-work">How Levels Work</h3>
+        <pre><code>Logger configured at: INFO
+Logs output: INFO, WARN, ERROR, FATAL
+Logs suppressed: DEBUG, TRACE
+
+Logger configured at: DEBUG
+Logs output: DEBUG, INFO, WARN, ERROR, FATAL
+Logs suppressed: TRACE
+
+Logger configured at: TRACE
+Logs output: ALL (most verbose)</code></pre>
+        <h3 id="specific-loggers-in-this-project">Specific Loggers in
+        This Project</h3>
+        <h4 id="spring-framework-loggers">Spring Framework Loggers</h4>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.jdbc.core]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">           # JDBC queries</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.jdbc.core.JdbcTemplate]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">            # Security debugging</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security.web.access]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co"> # Security filter chain</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.boot]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                # Boot startup</span></span></code></pre></div>
+        <h4 id="hibernate-jpa-loggers">Hibernate / JPA Loggers</h4>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                       # Generated SQL</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.type.descriptor.sql]&#39;</span><span class="kw">:</span><span class="at"> TRACE</span><span class="co">      # SQL parameters</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.stat]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                      # Statistics</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.validator]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                 # Validation</span></span></code></pre></div>
+        <h4 id="database-connection-loggers">Database Connection
+        Loggers</h4>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.engine.transaction]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">        # Transaction handling</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.zaxxer.hikari]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">                       # HikariCP pool</span></span></code></pre></div>
+        <h4 id="custom-application-loggers">Custom Application
+        Loggers</h4>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro.inventory]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">            # All app classes</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro.inventory.security]&#39;</span><span class="kw">:</span><span class="at"> TRACE</span><span class="co">   # Just security package</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro.inventory.service]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">    # Just service layer</span></span></code></pre></div>
+        <h3 id="logger-hierarchy">Logger Hierarchy</h3>
+        <pre><code>Loggers follow a hierarchical naming convention:
+
+root (implicit, level: INFO by default)
+├── org (Spring framework loggers)
+│   ├── springframework
+│   │   ├── jdbc
+│   │   ├── security
+│   │   └── boot
+│   ├── hibernate
+│   └── ...
+├── com (Application loggers)
+│   └── smartsupplypro
+│       ├── inventory
+│       │   ├── service
+│       │   ├── security
+│       │   └── controller
+│       └── ...
+└── ...
+
+Setting level on &quot;com.smartsupplypro&quot; affects:
+  com.smartsupplypro.inventory.service
+  com.smartsupplypro.inventory.controller
+  (all child packages)</code></pre>
+        <hr />
+        <h2 id="log-output-locations">Log Output Locations</h2>
+        <h3 id="default-console-only">Default: Console Only</h3>
+        <p><strong>application.yml (Base)</strong> - Logs go to
+        <strong>console/stdout</strong> only - Useful for development
+        (watch output in terminal)</p>
+        <p><strong>Activation:</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Logs appear in terminal window</span></span></code></pre></div>
+        <h3 id="test-console-file">Test: Console + File</h3>
+        <p><strong>application-test.yml</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">file</span><span class="kw">:</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> logs/test-application.log</span></span></code></pre></div>
+        <p><strong>What Happens:</strong> - Logs go to console AND file
+        - File: <code>logs/test-application.log</code> - Useful for
+        CI/CD artifact preservation</p>
+        <p><strong>Access test logs:</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-f</span> logs/test-application.log</span></code></pre></div>
+        <h3 id="file-naming-convention">File Naming Convention</h3>
+        <pre><code>logs/
+├── test-application.log      (test profile)
+├── application.log           (prod profile, if configured)
+└── application-YYYY-MM-DD.HH.log  (rolling files, if configured)</code></pre>
+        <h3 id="log-file-rotation-future-enhancement">Log File Rotation
+        (Future Enhancement)</h3>
+        <p>Could be configured:</p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">file</span><span class="kw">:</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> logs/application.log</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">max-size</span><span class="kw">:</span><span class="at"> 10MB</span><span class="co">              # Rotate when file reaches 10MB</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">max-history</span><span class="kw">:</span><span class="at"> </span><span class="dv">30</span><span class="co">             # Keep last 30 files</span></span></code></pre></div>
+        <hr />
+        <h2 id="debugging-with-logs">Debugging with Logs</h2>
+        <h3 id="scenario-1-understanding-sql-generation">Scenario 1:
+        Understanding SQL Generation</h3>
+        <p><strong>Enable:</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.SQL]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.hibernate.type.descriptor.sql]&#39;</span><span class="kw">:</span><span class="at"> TRACE</span></span></code></pre></div>
+        <p><strong>Output:</strong></p>
+        <pre><code>2024-11-20 14:23:45.123 DEBUG 12345 [main] org.hibernate.SQL
+  : select inventoryi0_.id as id1_2_0_, inventoryi0_.name as name2_2_0_
+    from inventory_item inventoryi0_
+    where inventoryi0_.id=?
+
+2024-11-20 14:23:45.456 TRACE 12345 [main] org.hibernate.type.descriptor.sql
+  : binding parameter [1] as [VARCHAR] - [item-123]</code></pre>
+        <p><strong>Useful For:</strong> - ✅ Finding N+1 query problems
+        - ✅ Optimizing slow queries - ✅ Understanding ORM behavior</p>
+        <h3 id="scenario-2-debugging-security">Scenario 2: Debugging
+        Security</h3>
+        <p><strong>Enable:</strong></p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security.web.access]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span></code></pre></div>
+        <p><strong>Output:</strong></p>
+        <pre><code>2024-11-20 14:24:10.123 DEBUG 12345 [main] org.springframework.security.web.access.AntPathRequestMatcher
+  : Checking match of request : &#39;/api/admin/users&#39;; against &#39;/admin/**&#39;
+
+2024-11-20 14:24:10.456 DEBUG 12345 [main] org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry
+  : Configured security contexts using SecurityContextRepository [...]</code></pre>
+        <p><strong>Useful For:</strong> - ✅ Understanding which filters
+        are matching - ✅ Debugging authentication failures - ✅ Tracing
+        authorization decisions</p>
+        <h3 id="scenario-3-database-connection-pool-issues">Scenario 3:
+        Database Connection Pool Issues</h3>
+        <p><strong>Enable:</strong></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.zaxxer.hikari]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span></code></pre></div>
+        <p><strong>Output:</strong></p>
+        <pre><code>2024-11-20 14:25:00.123 DEBUG 12345 [main] com.zaxxer.hikari.HikariConfig
+  : Maximum pool size is set to 5
+
+2024-11-20 14:25:05.456 DEBUG 12345 [main] com.zaxxer.hikari.pool.HikariPool
+  : Connection added to pool. Pool size: 1
+
+2024-11-20 14:25:10.789 WARN 12345 [main] com.zaxxer.hikari.pool.HikariPool
+  : Thread starvation or clock leap detected (hc=0, s=2, a=1, sr=0, i=2)</code></pre>
+        <p><strong>Useful For:</strong> - ✅ Monitoring connection pool
+        behavior - ✅ Detecting connection leaks - ✅ Understanding pool
+        exhaustion issues</p>
+        <h3 id="scenario-4-application-startup-issues">Scenario 4:
+        Application Startup Issues</h3>
+        <p><strong>Enable:</strong></p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.boot]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span></code></pre></div>
+        <p><strong>Output:</strong></p>
+        <pre><code>2024-11-20 14:26:00.123 INFO  12345 [main] org.springframework.boot.StartupInfoLogger
+  : Starting InventoryServiceApplication v0.0.1-SNAPSHOT
+
+2024-11-20 14:26:00.456 INFO  12345 [main] org.springframework.boot.StartupInfoLogger
+  : The following profiles are active: test
+
+2024-11-20 14:26:02.789 INFO  12345 [main] org.springframework.boot.StartupInfoLogger
+  : Started InventoryServiceApplication in 2.5 seconds (JVM running for 3.1)</code></pre>
+        <p><strong>Useful For:</strong> - ✅ Confirming correct profile
+        activation - ✅ Measuring startup time - ✅ Finding missing
+        beans or configuration</p>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <h3 id="never-set-root-logger-to-debug-in-production">1. Never
+        Set Root Logger to DEBUG in Production</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-prod.yml</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">  # Too verbose!</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-prod.yml</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[com.smartsupplypro]&#39;</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">  # Just app logs</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">                     # Framework at INFO</span></span></code></pre></div>
+        <p><strong>Why?</strong> - DEBUG level generates massive log
+        volumes - Impacts performance (I/O bound) - Increases storage
+        costs - Makes real errors hard to find</p>
+        <h3 id="use-hierarchical-logger-names">2. Use Hierarchical
+        Logger Names</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security.web.access.intercept.FilterSecurityInterceptor]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security.web.context.SecurityContextPersistenceFilter]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security.oauth2.client]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">&#39;[org.springframework.security]&#39;</span><span class="kw">:</span><span class="at"> DEBUG</span><span class="co">  # Covers all security loggers</span></span></code></pre></div>
+        <p><strong>Why?</strong> - Simpler configuration - Consistent
+        levels across related loggers - Easier to understand at a
+        glance</p>
+        <h3 id="include-context-in-application-logs">3. Include Context
+        in Application Logs</h3>
+        <p><strong>❌ Bad (code):</strong></p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;User deleted&quot;</span><span class="op">);</span></span></code></pre></div>
+        <p><strong>✅ Good (code):</strong></p>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;User deleted: userId={}, deletedBy={}&quot;</span><span class="op">,</span> userId<span class="op">,</span> currentUser<span class="op">);</span></span></code></pre></div>
+        <p><strong>Why?</strong> - Easier to correlate logs - Better for
+        debugging - Auditable operations</p>
+        <h3 id="use-appropriate-log-levels">4. Use Appropriate Log
+        Levels</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;User not found&quot;</span><span class="op">);</span>           <span class="co">// Not an error, more like INFO</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">debug</span><span class="op">(</span><span class="st">&quot;Query executed&quot;</span><span class="op">);</span>           <span class="co">// Should be TRACE</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;User not found: {}&quot;</span><span class="op">,</span> userId<span class="op">);</span>           <span class="co">// Expected behavior</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">trace</span><span class="op">(</span><span class="st">&quot;Executing query: {}&quot;</span><span class="op">,</span> sql<span class="op">);</span>            <span class="co">// Debug details</span></span></code></pre></div>
+        <h3 id="log-exceptions-with-stack-traces">5. Log Exceptions with
+        Stack Traces</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb33"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;Operation failed&quot;</span><span class="op">);</span>     <span class="co">// No stack trace!</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;Operation failed&quot;</span><span class="op">,</span> e<span class="op">);</span>  <span class="co">// Includes stack trace</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="use-parameterized-messages-not-string-concatenation">6.
+        Use Parameterized Messages (Not String Concatenation)</h3>
+        <p><strong>❌ Bad:</strong></p>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">debug</span><span class="op">(</span><span class="st">&quot;Processing user: &quot;</span> <span class="op">+</span> user<span class="op">.</span><span class="fu">getName</span><span class="op">());</span>  <span class="co">// Always concatenates</span></span></code></pre></div>
+        <p><strong>✅ Good:</strong></p>
+        <div class="sourceCode" id="cb36"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">debug</span><span class="op">(</span><span class="st">&quot;Processing user: {}&quot;</span><span class="op">,</span> user<span class="op">.</span><span class="fu">getName</span><span class="op">());</span> <span class="co">// Only if DEBUG enabled</span></span></code></pre></div>
+        <p><strong>Why?</strong> - More efficient (message formatting
+        skipped if level not enabled) - Less garbage collection
+        pressure</p>
+        <hr />
+        <h2 id="log-file-analysis">Log File Analysis</h2>
+        <h3 id="view-test-logs">View Test Logs</h3>
+        <div class="sourceCode" id="cb37"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stream log output</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-f</span> logs/test-application.log</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Search for errors</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> ERROR logs/test-application.log</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Count log messages by level</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-c</span> <span class="st">&quot;ERROR&quot;</span> logs/test-application.log</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-c</span> <span class="st">&quot;WARN&quot;</span> logs/test-application.log</span></code></pre></div>
+        <h3 id="parse-logs-for-metrics">Parse Logs for Metrics</h3>
+        <div class="sourceCode" id="cb38"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find slowest queries</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&quot;DEBUG org.hibernate.SQL&quot;</span> logs/test-application.log <span class="kw">|</span> <span class="fu">head</span> <span class="at">-20</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Find all authentication failures</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&quot;DEBUG org.springframework.security&quot;</span> logs/test-application.log <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> <span class="st">&quot;denied&quot;</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Monitor connection pool</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&quot;com.zaxxer.hikari&quot;</span> logs/test-application.log</span></code></pre></div>
+        <hr />
+        <h2 id="common-issues">Common Issues</h2>
+        <h3 id="issue-logs-are-empty-or-missing">Issue: “Logs are empty
+        or missing”</h3>
+        <p><strong>Cause:</strong> Wrong log level configured</p>
+        <p><strong>Solution:</strong> 1. Verify configuration is loaded:
+        <code>echo $SPRING_PROFILES_ACTIVE</code> 2. Check correct
+        profile’s application-{profile}.yml is being read 3. Restart
+        application</p>
+        <h3 id="issue-too-many-logs-in-production">Issue: “Too many logs
+        in production”</h3>
+        <p><strong>Cause:</strong> DEBUG level set in production
+        config</p>
+        <p><strong>Solution:</strong> 1. Verify application-prod.yml
+        sets INFO level 2. Check no environment variable overrides it 3.
+        Redeploy to apply changes</p>
+        <h3 id="issue-cant-find-test-logs-in-cicd">Issue: “Can’t find
+        test logs in CI/CD”</h3>
+        <p><strong>Cause:</strong> Test logs not captured</p>
+        <p><strong>Solution:</strong> 1. Verify
+        <code>logging.file.name</code> is set in application-test.yml 2.
+        Check CI/CD uploads <code>logs/</code> directory as artifact 3.
+        Ensure test runs completed (logs written on shutdown)</p>
+        <hr />
+        <h2 id="summary-table">Summary Table</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Profile</th>
+        <th>Root Level</th>
+        <th>SQL Level</th>
+        <th>Output</th>
+        <th>Use Case</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Local (dev)</strong></td>
+        <td>INFO</td>
+        <td>DEBUG</td>
+        <td>Console</td>
+        <td>Development</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Test</strong></td>
+        <td>INFO</td>
+        <td>DEBUG/TRACE</td>
+        <td>File</td>
+        <td>CI/CD diagnostics</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Prod</strong></td>
+        <td>INFO</td>
+        <td>OFF</td>
+        <td>File*</td>
+        <td>Production monitoring</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>*Production file logging not configured in this project
+        (currently console only), but can be added.</p>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Resources Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
