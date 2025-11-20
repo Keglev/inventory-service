@@ -23,7 +23,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 - **[DTOs & Data Transfer Objects](./dto/index.html)** - Comprehensive DTO documentation with conventions, patterns, validation, authentication, pagination, and response shapes
 - **[Exceptions & Error Handling](./exceptions.html)** - Exception hierarchy and error response patterns
 - **[Validation Framework](./validation/index.html)** - Multi-layer validation with JSR-380, custom validators, exception handling, and patterns
-- **[Testing Strategy](./testing.html)** - Unit testing, integration testing, and test patterns
+- **[Testing Strategy](./testing/index.html)** - Unit testing, integration testing, security testing, and test patterns
 
 ## Quick Navigation
 
