@@ -74,13 +74,16 @@
         <li><a href="#authorization-layer"
         id="toc-authorization-layer">2. <strong>Authorization
         Layer</strong></a></li>
+        <li><a href="#field-level-validation"
+        id="toc-field-level-validation">3. <strong>Field-Level
+        Validation</strong></a></li>
         <li><a href="#requestresponse-security"
-        id="toc-requestresponse-security">3. <strong>Request/Response
+        id="toc-requestresponse-security">4. <strong>Request/Response
         Security</strong></a></li>
         <li><a href="#data-access-security"
-        id="toc-data-access-security">4. <strong>Data Access
+        id="toc-data-access-security">5. <strong>Data Access
         Security</strong></a></li>
-        <li><a href="#container-security" id="toc-container-security">5.
+        <li><a href="#container-security" id="toc-container-security">6.
         <strong>Container Security</strong></a></li>
         </ul></li>
         <li><a href="#authentication-flow-sequence"
@@ -155,16 +158,22 @@
         <td><a href="./authorization-rbac.html">Read →</a></td>
         </tr>
         <tr class="odd">
+        <td><strong>Field-Level Validation</strong></td>
+        <td>Role-based field update restrictions, USER vs ADMIN
+        permissions</td>
+        <td><a href="./field-level-validation.html">Read →</a></td>
+        </tr>
+        <tr class="even">
         <td><strong>Oracle Wallet</strong></td>
         <td>Database credential encryption, TNS_ADMIN setup</td>
         <td><a href="./oracle-wallet.html">Read →</a></td>
         </tr>
-        <tr class="even">
+        <tr class="odd">
         <td><strong>Docker Security</strong></td>
         <td>Container hardening, non-root user, secret management</td>
         <td><a href="./docker-security.html">Read →</a></td>
         </tr>
-        <tr class="odd">
+        <tr class="even">
         <td><strong>Demo Mode</strong></td>
         <td>Read-only public access, configuration, use cases</td>
         <td><a href="./demo-mode.html">Read →</a></td>
@@ -261,7 +270,23 @@
         for HTTP request matching - SpEL expressions for dynamic demo
         mode control</p>
         <hr />
-        <h3 id="requestresponse-security">3. <strong>Request/Response
+        <h3 id="field-level-validation">3. <strong>Field-Level
+        Validation</strong></h3>
+        <p><strong>Role-Based Field Restrictions</strong></p>
+        <p>Restricts which user roles can modify specific inventory item
+        fields: - <strong>ADMIN</strong> - Can modify all fields (name,
+        supplier, quantity, price) - <strong>USER</strong> - Can only
+        modify quantity and price</p>
+        <p><strong>Validation Points:</strong> -
+        <code>InventoryItemSecurityValidator</code> enforces field-level
+        permissions - Integrated into service layer before database
+        commit - Returns HTTP 403 if unauthorized field change
+        attempted</p>
+        <p><strong>Use Case:</strong> - Inventory coordinators (USER)
+        can adjust stock levels without changing item metadata -
+        Managers/admins (ADMIN) have full item control</p>
+        <hr />
+        <h3 id="requestresponse-security">4. <strong>Request/Response
         Security</strong></h3>
         <p><strong>CORS Configuration</strong> - Allows cross-origin
         requests from frontend domains - Credentials included in cookies
@@ -275,7 +300,7 @@
         /api/<strong>, /logout, /actuator/</strong> - Stateless API
         design (no session state in forms)</p>
         <hr />
-        <h3 id="data-access-security">4. <strong>Data Access
+        <h3 id="data-access-security">5. <strong>Data Access
         Security</strong></h3>
         <p><strong>Oracle Wallet (TLS/SSL for Database)</strong></p>
         <ul>
@@ -295,7 +320,7 @@
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">DB_USER</span><span class="op">=&lt;</span>db-username<span class="op">&gt;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">DB_PASS</span><span class="op">=&lt;</span>db-password<span class="op">&gt;</span></span></code></pre></div>
         <hr />
-        <h3 id="container-security">5. <strong>Container
+        <h3 id="container-security">6. <strong>Container
         Security</strong></h3>
         <p><strong>Docker Best Practices</strong></p>
         <ul>
