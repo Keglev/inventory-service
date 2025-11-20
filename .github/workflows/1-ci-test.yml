@@ -1,5 +1,3 @@
-name: 1️⃣ Backend CI - Build & Test
-
 # =============================================================================
 # Smart Supply Pro – Backend (Inventory Service) CI Pipeline
 #
@@ -38,7 +36,7 @@ name: 1️⃣ Backend CI - Build & Test
 # - If Trivy scan fails: Review security-critical dependencies, update if needed
 # - If Docker push fails: Verify DOCKER_USERNAME, DOCKER_PASSWORD secrets
 # =============================================================================
-
+name: 1️⃣ Backend CI - Build & Test
 on:
   push:
     branches: [ "main", "develop" ]
@@ -83,7 +81,7 @@ on:
       - 'start.sh'
       - '.github/workflows/1-ci-test.yml'
   workflow_dispatch:
-
+# Manual trigger for ad-hoc runs
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -95,7 +93,8 @@ jobs:
     permissions:
       contents: read
       packages: write
-
+      
+    # Environment variables for Docker image tagging
     env:
       IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/inventory-service
       IMAGE_TAG_SHA: ${{ github.sha }}

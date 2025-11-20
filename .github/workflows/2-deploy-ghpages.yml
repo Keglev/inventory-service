@@ -1,5 +1,3 @@
-name: 2️⃣ Deploy Docs to GitHub Pages
-
 # =============================================================================
 # Smart Supply Pro – Documentation Publishing Pipeline
 #
@@ -35,7 +33,7 @@ name: 2️⃣ Deploy Docs to GitHub Pages
 # - If gh-pages push fails: Check GitHub token permissions (contents: write required)
 # - If coverage missing: Re-run 1-ci-test.yml to regenerate JaCoCo artifact
 # =============================================================================
-
+name: 2️⃣ Deploy Docs to GitHub Pages
 on:
   workflow_run:
     workflows: ["Docs Pipeline – OpenAPI & Architecture"]
@@ -44,12 +42,12 @@ on:
 permissions:
   contents: write
   actions: read
-
+# Needed to checkout gh-pages and push updates
 jobs:
   deploy-ghpages:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    
+    # Checkout gh-pages branch for publishing
     steps:
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4
@@ -57,7 +55,7 @@ jobs:
           ref: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-
+    # Download docs-site artifact from docs-pipeline.yml
       - name: Download docs-site artifact
         uses: actions/download-artifact@v4
         with:
@@ -65,7 +63,7 @@ jobs:
           path: docs-site
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
+      # Sync docs-site contents into gh-pages root
       - name: Sync docs-site into gh-pages
         run: |
           # Debug: show what was downloaded
@@ -105,7 +103,7 @@ jobs:
             echo "✅ Restored existing JaCoCo coverage"
             rm -rf /tmp/coverage-backup
           fi
-
+      # Commit and push changes to gh-pages branch
       - name: Commit and push to gh-pages
         run: |
           git config user.name "github-actions[bot]"
@@ -119,7 +117,7 @@ jobs:
           else
             echo "✅ No changes to publish"
           fi
-
+      # Job summary for GitHub Actions UI
       - name: Job Summary
         if: always()
         run: |

@@ -1,5 +1,3 @@
-name: Docs Pipeline – OpenAPI & Architecture
-
 # =============================================================================
 # Smart Supply Pro – Documentation Building & Publishing Pipeline
 #
@@ -50,6 +48,8 @@ name: Docs Pipeline – OpenAPI & Architecture
 # - Pandoc conversion failures: Review markdown syntax, mermaid diagrams
 # - Large artifact size: Verify coverage HTML is compressed, no duplicate files
 # =============================================================================
+name: Docs Pipeline – OpenAPI & Architecture
+on:
 # A) After CI: for code changes
   workflow_run:
     workflows: ["1️⃣ Backend CI - Build & Test"]
@@ -114,7 +114,8 @@ jobs:
           path: ${{ steps.where.outputs.dir }}/target/site/jacoco
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      
+
+      # Debug JaCoCo download 
       - name: Check JaCoCo artifact
         run: |
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
