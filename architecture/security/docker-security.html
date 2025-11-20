@@ -236,7 +236,7 @@ security/docker-security · Smart Supply Pro Docs</title>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chown</span> <span class="at">-R</span> appuser:appgroup /app</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy startup script (with executable permission)</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=appuser:appgroup</span> <span class="op">--chmod=0755</span> start.sh /app/start.sh</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--chown=appuser:appgroup</span> <span class="op">--chmod=0755</span> scripts/start.sh /app/start.sh</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy JAR from build stage</span></span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=build</span> <span class="op">--chown=appuser:appgroup</span> /build/target/*.jar /app/</span>
