@@ -358,6 +358,59 @@ Smart Supply Pro uses **externalized configuration** to keep code independent fr
   - Error codes and descriptions
   - Support for multiple languages via message properties files
 
+## Deployment & Operations
+
+Smart Supply Pro uses a **fully automated deployment pipeline** from source code to production cloud infrastructure:
+
+**Complete Deployment Documentation:**
+
+- **[Deployment Index](./deployment/index.html)** - Hub for all deployment and infrastructure documentation
+  - End-to-end deployment flow: Source → Maven → Docker → Fly.io
+  - Involved files, folders, and cross-references
+  - Quick troubleshooting guide
+
+- **[Build & Docker Image](./deployment/build-and-docker-image.html)** - How backend is compiled and packaged
+  - Maven build pipeline (compile, test, package stages)
+  - Multi-stage Dockerfile (builder stage, runtime stage)
+  - Docker image validation and contents verification
+  - Build arguments and environment-specific images
+
+- **[CI/CD & Documentation Pipeline](./deployment/ci-cd-and-docs-pipeline.html)** - GitHub Actions automation
+  - 1-ci-test.yml: Build, test, Docker image, security scanning
+  - docs-pipeline.yml: Generate OpenAPI and architecture documentation
+  - 2-deploy-ghpages.yml: Publish docs to GitHub Pages
+  - Tools: Redocly, Pandoc, Lua filters for Mermaid diagrams
+  - Artifact flow and GitHub Actions secrets
+
+- **[Fly.io Infrastructure](./deployment/flyio-infrastructure.html)** - Cloud hosting configuration
+  - fly.toml: App name, regions, machine resources, environment variables, secrets
+  - Health checks and deployment strategies (immediate, canary, rolling)
+  - Scaling and instance management
+  - TLS/HTTPS configuration and domain setup
+  - Troubleshooting common deployment issues
+
+- **[Nginx & Routing](./deployment/nginx-and-routing.html)** - Reverse proxy and request routing
+  - Nginx configuration structure and purpose
+  - Reverse proxy to backend, frontend static file serving
+  - SPA routing, GZIP compression, header forwarding
+  - Multi-process container setup with start.sh
+  - Performance tuning and connection pooling
+
+- **[Environments & Secrets](./deployment/environments-and-secrets.html)** - Configuration management across environments
+  - Local development (.env file, local database setup)
+  - GitHub Actions CI (secrets vault, environment variables)
+  - Fly.io production (encrypted secrets, environment configuration)
+  - Secret mapping: ENV VAR → Spring property convention
+  - Sensitive values checklist and protection strategies
+
+- **[Logs & Observability](./deployment/logs-and-observability.html)** - Logging and debugging in production
+  - SLF4J + Logback architecture
+  - Log levels by environment (DEBUG dev, INFO prod)
+  - Where logs go (console, files, Fly.io)
+  - Viewing logs with flyctl CLI
+  - Common logging patterns and troubleshooting
+  - Future monitoring hooks (Micrometer, Sleuth, health checks)
+
 ## Next Steps
 
 1. **Explore [Layers Architecture](./layers/overview.html)** - Detailed breakdown of each layer (Controller, Service, Repository, Model, Infrastructure)
@@ -370,7 +423,8 @@ Smart Supply Pro uses **externalized configuration** to keep code independent fr
 8. Study [Enums Reference](./enums/index.html) - Type-safe enumerations and their business logic (Role, StockChangeReason, AuditSeverity)
 9. Study [DTOs & Data Transfer Objects](./dto/index.html) - Comprehensive documentation of all DTOs with conventions, validation, mappers, pagination, and response patterns
 10. Study [Testing Strategy](./testing.html) - Testing patterns and best practices
-11. Examine the source code - Navigate `/src/main/java/com/smartsupplypro/inventory/`
+11. **Review [Deployment & Operations](./deployment/index.html)** - Complete deployment pipeline and infrastructure
+12. Examine the source code - Navigate `/src/main/java/com/smartsupplypro/inventory/`
 
 ---
 

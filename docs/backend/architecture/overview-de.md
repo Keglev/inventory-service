@@ -358,6 +358,59 @@ Smart Supply Pro nutzt **externalisierte Konfiguration**, um Code unabhängig vo
   - Fehler-Codes und Beschreibungen
   - Unterstützung für mehrere Sprachen über Message-Properties-Dateien
 
+## Bereitstellung & Operationen
+
+Smart Supply Pro verwendet eine **vollständig automatisierte Bereitstellungs-Pipeline** vom Quellcode zur Produktions-Cloud-Infrastruktur:
+
+**Umfassende Bereitstellungsdokumentation:**
+
+- **[Bereitstellungsindex](./deployment/index.html)** - Hub für alle Bereitstellungs- und Infrastrukturdokumentation
+  - End-to-End-Bereitstellungsfluss: Quellcode → Maven → Docker → Fly.io
+  - Beteiligte Dateien, Ordner und Querverweise
+  - Schnellgarde für die Fehlerbehebung
+
+- **[Build & Docker-Image](./deployment/build-and-docker-image.html)** - Wie das Backend kompiliert und verpackt wird
+  - Maven-Build-Pipeline (Compile-, Test-, Package-Phasen)
+  - Multi-Stage-Dockerfile (Builder-Phase, Runtime-Phase)
+  - Docker-Image-Validierung und Inhaltsverifikation
+  - Build-Argumente und umgebungsspezifische Images
+
+- **[CI/CD & Dokumentations-Pipeline](./deployment/ci-cd-and-docs-pipeline.html)** - GitHub Actions-Automatisierung
+  - 1-ci-test.yml: Build, Test, Docker-Image, Sicherheitsscan
+  - docs-pipeline.yml: Generieren Sie OpenAPI- und Architektur-Dokumentation
+  - 2-deploy-ghpages.yml: Veröffentlichen Sie Docs auf GitHub Pages
+  - Tools: Redocly, Pandoc, Lua-Filter für Mermaid-Diagramme
+  - Artefakt-Fluss und GitHub Actions-Secrets
+
+- **[Fly.io-Infrastruktur](./deployment/flyio-infrastructure.html)** - Cloud-Hosting-Konfiguration
+  - fly.toml: App-Name, Regionen, Maschinen-Ressourcen, Umgebungsvariablen, Secrets
+  - Integritätsprüfungen und Bereitstellungsstrategien (unmittelbar, Canary, Rolling)
+  - Skalierung und Instanz-Management
+  - TLS/HTTPS-Konfiguration und Domain-Setup
+  - Fehlerbehebung bei häufigen Bereitstellungsproblemen
+
+- **[Nginx & Routing](./deployment/nginx-and-routing.html)** - Umgekehrter Proxy und Request-Routing
+  - Nginx-Konfigurationsstruktur und Zweck
+  - Umgekehrter Proxy zum Backend, Frontend-Dateiservering
+  - SPA-Routing, GZIP-Komprimierung, Header-Weiteleitung
+  - Multi-Process-Container-Setup mit start.sh
+  - Performance-Optimierung und Connection Pooling
+
+- **[Umgebungen & Secrets](./deployment/environments-and-secrets.html)** - Konfigurationsverwaltung über Umgebungen
+  - Lokale Entwicklung (.env-Datei, lokales Datenbank-Setup)
+  - GitHub Actions CI (Secrets-Vault, Umgebungsvariablen)
+  - Fly.io Produktion (verschlüsselte Secrets, Umgebungskonfiguration)
+  - Secret-Mapping: ENV VAR → Spring-Property-Konvention
+  - Sensitive Values Checklist und Schutzstrategien
+
+- **[Protokolle & Observability](./deployment/logs-and-observability.html)** - Protokollierung und Debugging in der Produktion
+  - SLF4J + Logback-Architektur
+  - Log-Ebenen nach Umgebung (DEBUG dev, INFO prod)
+  - Wohin Logs gehen (Konsole, Dateien, Fly.io)
+  - Logs mit flyctl CLI anzeigen
+  - Häufige Protokollierungsmuster und Fehlerbehebung
+  - Zukünftige Monitoring-Hooks (Micrometer, Sleuth, Health Checks)
+
 ## Nächste Schritte
 
 1. **Erkunden Sie [Schichten-Architektur](./layers/overview.html)** - Detaillierte Aufschlüsselung jeder Schicht (Controller, Service, Repository, Modell, Infrastruktur)
@@ -370,7 +423,8 @@ Smart Supply Pro nutzt **externalisierte Konfiguration**, um Code unabhängig vo
 8. **Studieren Sie [Enums-Referenz](./enums/index.html)** - Typsichere Enumerationen und ihre Geschäftslogik (Role, StockChangeReason, AuditSeverity)
 9. **Studieren Sie [DTOs und Data Transfer Objects](./dto/index.html)** - Umfassende Dokumentation aller DTOs mit Konventionen, Validierung, Mapper, Pagination und Response-Mustern
 10. **Studieren Sie [Test-Strategie](./testing.html)** - Test-Muster und Best Practices
-11. **Untersuchen Sie den Quellcode** - Navigieren Sie zu `/src/main/java/com/smartsupplypro/inventory/`
+11. **Überprüfen Sie [Bereitstellung & Operationen](./deployment/index.html)** - Vollständige Bereitstellungs-Pipeline und Infrastruktur
+12. **Untersuchen Sie den Quellcode** - Navigieren Sie zu `/src/main/java/com/smartsupplypro/inventory/`
 
 ---
 
