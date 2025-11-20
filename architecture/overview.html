@@ -333,7 +333,118 @@
         before method execution 5. Audit information captured
         (<code>createdBy</code> field) from SecurityContext</p>
         <h2 id="exception-handling">Exception Handling</h2>
-        <p>Consistent exception handling throughout the application:</p>
+        <p>Consistent, comprehensive exception handling throughout the
+        application:</p>
+        <p><strong>Complete Exception Architecture
+        Documentation:</strong></p>
+        <ul>
+        <li><strong><a href="./exception/index.html">Exception
+        Architecture Index</a></strong> - Hub for all exception handling
+        documentation
+        <ul>
+        <li>Exception types and classifications (framework
+        vs. domain)</li>
+        <li>Handler execution flow and ordering</li>
+        <li>HTTP status code reference table</li>
+        <li>Error response structure and correlation IDs</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/global-exception-handler.html">Global
+        Exception Handler</a></strong> - Framework-level exception
+        handling
+        <ul>
+        <li>14 exception handler methods with implementation</li>
+        <li>Handler ordering strategy (HIGHEST_PRECEDENCE)</li>
+        <li>Validation errors (MethodArgumentNotValidException,
+        ConstraintViolationException)</li>
+        <li>Parameter and format errors
+        (HttpMessageNotReadableException,
+        MissingServletRequestParameterException)</li>
+        <li>Authentication &amp; authorization (AuthenticationException,
+        AccessDeniedException)</li>
+        <li>Resource not found (NoSuchElementException)</li>
+        <li>Conflicts &amp; concurrent updates
+        (DataIntegrityViolationException,
+        ObjectOptimisticLockingFailureException)</li>
+        <li>Sensitive data sanitization patterns</li>
+        <li>Testing strategies and examples</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/error-response-structure.html">Error Response
+        Structure</a></strong> - Standardized error DTO
+        <ul>
+        <li>JSON structure with machine-readable error tokens</li>
+        <li>Timestamp and correlation ID generation</li>
+        <li>Builder pattern implementation</li>
+        <li>Frontend integration patterns</li>
+        <li>Security considerations (no stack traces exposed)</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/exception-to-http-mapping.html">Exception to
+        HTTP Mapping</a></strong> - Complete reference guide
+        <ul>
+        <li>400 Bad Request (validation, parameters, malformed
+        JSON)</li>
+        <li>401 Unauthorized (authentication failures)</li>
+        <li>403 Forbidden (authorization failures)</li>
+        <li>404 Not Found (missing resources)</li>
+        <li>409 Conflict (duplicates, concurrent updates, state
+        violations)</li>
+        <li>500 Internal Server Error (unhandled exceptions)</li>
+        <li>Decision tree for status code selection</li>
+        <li>Frontend error handling patterns</li>
+        </ul></li>
+        <li><strong><a href="./exception/domain-exceptions.html">Domain
+        Exceptions</a></strong> - Custom business exceptions
+        <ul>
+        <li>InvalidRequestException with validation severity levels</li>
+        <li>DuplicateResourceException with resource context</li>
+        <li>IllegalStateException for state violations</li>
+        <li>Factory methods for common scenarios</li>
+        <li>BusinessExceptionHandler integration</li>
+        <li>Testing and usage examples</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/validation-exceptions.html">Validation
+        Exceptions</a></strong> - Field-level validation errors
+        <ul>
+        <li>MethodArgumentNotValidException (request body
+        validation)</li>
+        <li>ConstraintViolationException (constraint violations)</li>
+        <li>14 JSR-380 validation annotations documented</li>
+        <li>Common validation scenarios (email, numeric, pattern,
+        collection)</li>
+        <li>Spring validation integration</li>
+        <li>Custom validator implementation</li>
+        <li>Frontend error parsing patterns</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/security-exceptions.html">Security
+        Exceptions</a></strong> - Authentication &amp; authorization
+        <ul>
+        <li>AuthenticationException (401) with security best
+        practices</li>
+        <li>AccessDeniedException (403) handling</li>
+        <li>Generic error messaging (prevents user enumeration)</li>
+        <li>Server-side logging and correlation tracking</li>
+        <li>JWT validation patterns</li>
+        <li>Production logging checklist</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/guidelines-and-best-practices.html">Guidelines
+        &amp; Best Practices</a></strong> - Developer guidelines
+        <ul>
+        <li>Decision tree: When to throw vs. return values</li>
+        <li>Choosing the right exception type</li>
+        <li>Writing effective error messages</li>
+        <li>5 common anti-patterns to avoid</li>
+        <li>4 recovery strategies (retry, graceful degradation,
+        fail-fast, fallback)</li>
+        <li>Testing exception handling</li>
+        <li>Logging guidelines and standards</li>
+        <li>Complete developer checklist</li>
+        </ul></li>
+        </ul>
         <div class="mermaid">
         graph LR
             Service["Service Logic"]
@@ -348,20 +459,6 @@
             DataEx --> ControllerAdv
             ControllerAdv --> ErrorResponse
         </div>
-        <p><strong>Exception Hierarchy:</strong> -
-        <code>IllegalArgumentException</code> → HTTP 400 Bad Request -
-        <code>IllegalStateException</code> → HTTP 409 Conflict -
-        <code>DataIntegrityViolationException</code> → HTTP 409 Conflict
-        - <code>EntityNotFoundException</code> → HTTP 404 Not Found -
-        <code>AccessDeniedException</code> → HTTP 403 Forbidden -
-        <code>Exception</code> → HTTP 500 Internal Server Error</p>
-        <p><strong>Example:</strong></p>
-        <div class="sourceCode" id="cb4"><pre
-        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">IllegalStateException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleIllegalState</span><span class="op">(</span><span class="bu">IllegalStateException</span> ex<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">body</span><span class="op">(</span><span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="st">&quot;CONFLICT&quot;</span><span class="op">,</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()));</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
         <h2 id="data-flow-example-creating-an-inventory-item">Data Flow
         Example: Creating an Inventory Item</h2>
         <p>Here’s how a request flows through the architecture:</p>

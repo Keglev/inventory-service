@@ -346,8 +346,122 @@
         durchgeführt vor Method-Ausführung 5. Audit-Informationen
         erfasst (<code>createdBy</code> Feld) aus SecurityContext</p>
         <h2 id="exception-handling">Exception-Handling</h2>
-        <p>Konsistentes Exception-Handling in der gesamten
+        <p>Umfassende, konsistente Fehlerbehandlung in der gesamten
         Anwendung:</p>
+        <p><strong>Vollständige
+        Exception-Architektur-Dokumentation:</strong></p>
+        <ul>
+        <li><strong><a
+        href="./exception/index.html">Exception-Architektur-Index</a></strong>
+        - Zentrale Dokumentation für Fehlerbehandlung
+        <ul>
+        <li>Exception-Typen und Klassifizierung (Framework
+        vs. Domain)</li>
+        <li>Handler-Ausführungsfluss und Reihenfolge</li>
+        <li>HTTP-Status-Code-Referenztabelle</li>
+        <li>Error-Response-Struktur und Korrelations-IDs</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/global-exception-handler.html">Global
+        Exception Handler</a></strong> - Framework-Level
+        Fehlerbehandlung
+        <ul>
+        <li>14 Exception-Handler-Methoden mit Implementierung</li>
+        <li>Handler-Reihenfolgestrategie (HIGHEST_PRECEDENCE)</li>
+        <li>Validierungsfehler (MethodArgumentNotValidException,
+        ConstraintViolationException)</li>
+        <li>Parameter- und Formatfehler
+        (HttpMessageNotReadableException,
+        MissingServletRequestParameterException)</li>
+        <li>Authentifizierung &amp; Autorisierung
+        (AuthenticationException, AccessDeniedException)</li>
+        <li>Ressource nicht gefunden (NoSuchElementException)</li>
+        <li>Konflikte &amp; gleichzeitige Updates
+        (DataIntegrityViolationException,
+        ObjectOptimisticLockingFailureException)</li>
+        <li>Muster für Sanitization von sensiblen Daten</li>
+        <li>Test-Strategien und Beispiele</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/error-response-structure.html">Error-Response-Struktur</a></strong>
+        - Standardisierte Error-DTO
+        <ul>
+        <li>JSON-Struktur mit maschinenlesbaren Error-Token</li>
+        <li>Timestamp- und Korrelations-ID-Generierung</li>
+        <li>Builder-Pattern-Implementierung</li>
+        <li>Frontend-Integrationsmuster</li>
+        <li>Sicherheitsaspekte (keine Stack-Traces exponiert)</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/exception-to-http-mapping.html">Exception-zu-HTTP-Mapping</a></strong>
+        - Vollständige Referenzanleitung
+        <ul>
+        <li>400 Bad Request (Validierung, Parameter, fehlerhafte
+        JSON)</li>
+        <li>401 Unauthorized (Authentifizierungsfehler)</li>
+        <li>403 Forbidden (Autorisierungsfehler)</li>
+        <li>404 Not Found (fehlende Ressourcen)</li>
+        <li>409 Conflict (Duplikate, gleichzeitige Updates,
+        State-Verletzungen)</li>
+        <li>500 Internal Server Error (unbehandelte Exceptions)</li>
+        <li>Entscheidungsbaum für Status-Code-Auswahl</li>
+        <li>Frontend-Fehlerbehandlungsmuster</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/domain-exceptions.html">Domain-Exceptions</a></strong>
+        - Benutzerdefinierte Geschäfts-Exceptions
+        <ul>
+        <li>InvalidRequestException mit
+        Validierungs-Schweregrad-Level</li>
+        <li>DuplicateResourceException mit Ressourcen-Kontext</li>
+        <li>IllegalStateException für State-Verletzungen</li>
+        <li>Factory-Methoden für häufige Szenarien</li>
+        <li>BusinessExceptionHandler-Integration</li>
+        <li>Test- und Verwendungsbeispiele</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/validation-exceptions.html">Validierungs-Exceptions</a></strong>
+        - Field-Level Validierungsfehler
+        <ul>
+        <li>MethodArgumentNotValidException
+        (Request-Body-Validierung)</li>
+        <li>ConstraintViolationException (Constraint-Verletzungen)</li>
+        <li>14 JSR-380 Validierungs-Annotationen dokumentiert</li>
+        <li>Häufige Validierungs-Szenarien (E-Mail, numerisch, Pattern,
+        Collection)</li>
+        <li>Spring-Validierungs-Integration</li>
+        <li>Benutzerdefinierte Validator-Implementierung</li>
+        <li>Frontend-Fehlerverarbeitungsmuster</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/security-exceptions.html">Sicherheits-Exceptions</a></strong>
+        - Authentifizierung &amp; Autorisierung
+        <ul>
+        <li>AuthenticationException (401) mit Best Practices für
+        Sicherheit</li>
+        <li>AccessDeniedException (403) Handling</li>
+        <li>Generische Fehlermeldungen (verhindert
+        User-Enumeration)</li>
+        <li>Server-seitiges Logging und Korrelations-Tracking</li>
+        <li>JWT-Validierungsmuster</li>
+        <li>Production-Logging-Checkliste</li>
+        </ul></li>
+        <li><strong><a
+        href="./exception/guidelines-and-best-practices.html">Richtlinien
+        &amp; Best Practices</a></strong> - Entwickler-Richtlinien
+        <ul>
+        <li>Entscheidungsbaum: Wann Exception werfen vs. Werte
+        zurückgeben</li>
+        <li>Auswahl des richtigen Exception-Typs</li>
+        <li>Schreiben effektiver Fehlermeldungen</li>
+        <li>5 häufige Anti-Patterns zu vermeiden</li>
+        <li>4 Recovery-Strategien (Retry, Graceful Degradation,
+        Fail-Fast, Fallback)</li>
+        <li>Testen von Exception-Handling</li>
+        <li>Logging-Richtlinien und Standards</li>
+        <li>Vollständige Entwickler-Checkliste</li>
+        </ul></li>
+        </ul>
         <div class="mermaid">
         graph LR
             Service["Service-Logik"]
@@ -362,20 +476,6 @@
             DataEx --> ControllerAdv
             ControllerAdv --> ErrorResponse
         </div>
-        <p><strong>Exception-Hierarchie:</strong> -
-        <code>IllegalArgumentException</code> → HTTP 400 Bad Request -
-        <code>IllegalStateException</code> → HTTP 409 Conflict -
-        <code>DataIntegrityViolationException</code> → HTTP 409 Conflict
-        - <code>EntityNotFoundException</code> → HTTP 404 Not Found -
-        <code>AccessDeniedException</code> → HTTP 403 Forbidden -
-        <code>Exception</code> → HTTP 500 Internal Server Error</p>
-        <p><strong>Beispiel:</strong></p>
-        <div class="sourceCode" id="cb4"><pre
-        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">IllegalStateException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleIllegalState</span><span class="op">(</span><span class="bu">IllegalStateException</span> ex<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">body</span><span class="op">(</span><span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="st">&quot;CONFLICT&quot;</span><span class="op">,</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()));</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
         <h2
         id="datenfluss-beispiel-erstellen-eines-bestandsitems">Datenfluss-Beispiel:
         Erstellen eines Bestandsitems</h2>
