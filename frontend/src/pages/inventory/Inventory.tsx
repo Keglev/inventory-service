@@ -407,7 +407,7 @@ const Inventory: React.FC = () => {
 
       <EditItemDialog
         open={openEditName}
-        onClose={() => setOpenEditName(false)}
+        onClose={() => setOpenEditName(true)}
         onItemRenamed={load}
       />
 
