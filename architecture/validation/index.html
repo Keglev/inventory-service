@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · validation/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#input-validation-framework"
+        id="toc-input-validation-framework">Input Validation
+        Framework</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a></li>
+        <li><a href="#validation-architecture-diagram"
+        id="toc-validation-architecture-diagram">Validation Architecture
+        Diagram</a></li>
+        <li><a href="#validation-layers"
+        id="toc-validation-layers">Validation Layers</a>
+        <ul>
+        <li><a href="#presentation-layer-controller"
+        id="toc-presentation-layer-controller">1. <strong>Presentation
+        Layer (Controller)</strong></a></li>
+        <li><a href="#jsr-380-bean-validation-layer"
+        id="toc-jsr-380-bean-validation-layer">2. <strong>JSR-380 Bean
+        Validation Layer</strong></a></li>
+        <li><a href="#custom-validator-layer"
+        id="toc-custom-validator-layer">3. <strong>Custom Validator
+        Layer</strong></a></li>
+        <li><a href="#security-validation-layer"
+        id="toc-security-validation-layer">4. <strong>Security
+        Validation Layer</strong></a></li>
+        <li><a href="#exception-handling-layer"
+        id="toc-exception-handling-layer">5. <strong>Exception Handling
+        Layer</strong></a></li>
+        </ul></li>
+        <li><a href="#validation-flow-example"
+        id="toc-validation-flow-example">Validation Flow Example</a>
+        <ul>
+        <li><a href="#create-inventory-item-request"
+        id="toc-create-inventory-item-request">Create Inventory Item
+        Request</a></li>
+        </ul></li>
+        <li><a href="#error-scenarios" id="toc-error-scenarios">Error
+        Scenarios</a>
+        <ul>
+        <li><a href="#scenario-1-jsr-380-constraint-violation"
+        id="toc-scenario-1-jsr-380-constraint-violation">Scenario 1:
+        JSR-380 Constraint Violation</a></li>
+        <li><a href="#scenario-2-custom-validator-violation"
+        id="toc-scenario-2-custom-validator-violation">Scenario 2:
+        Custom Validator Violation</a></li>
+        <li><a href="#scenario-3-security-validation-failure"
+        id="toc-scenario-3-security-validation-failure">Scenario 3:
+        Security Validation Failure</a></li>
+        </ul></li>
+        <li><a href="#validation-entities"
+        id="toc-validation-entities">Validation Entities</a>
+        <ul>
+        <li><a href="#inventoryitemvalidator"
+        id="toc-inventoryitemvalidator">InventoryItemValidator</a></li>
+        <li><a href="#suppliervalidator"
+        id="toc-suppliervalidator">SupplierValidator</a></li>
+        <li><a href="#stockhistoryvalidator"
+        id="toc-stockhistoryvalidator">StockHistoryValidator</a></li>
+        <li><a href="#inventoryitemsecurityvalidator"
+        id="toc-inventoryitemsecurityvalidator">InventoryItemSecurityValidator</a></li>
+        </ul></li>
+        <li><a href="#exception-types"
+        id="toc-exception-types">Exception Types</a>
+        <ul>
+        <li><a href="#invalidrequestexception"
+        id="toc-invalidrequestexception">InvalidRequestException</a></li>
+        <li><a href="#duplicateresourceexception"
+        id="toc-duplicateresourceexception">DuplicateResourceException</a></li>
+        <li><a href="#responsestatusexception-spring"
+        id="toc-responsestatusexception-spring">ResponseStatusException
+        (Spring)</a></li>
+        </ul></li>
+        <li><a href="#validation-groups-advanced"
+        id="toc-validation-groups-advanced">Validation Groups
+        (Advanced)</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="input-validation-framework">Input Validation
+        Framework</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro implements a <strong>multi-layer validation
+        framework</strong> that ensures data integrity, business rule
+        compliance, and security across all API operations. The
+        framework combines:</p>
+        <ul>
+        <li><strong>JSR-380 Bean Validation</strong> (Jakarta
+        Validation) for declarative constraints</li>
+        <li><strong>Custom validators</strong> for domain-specific
+        business rules</li>
+        <li><strong>Global exception handling</strong> for standardized
+        error responses</li>
+        <li><strong>Security validation</strong> for role-based field
+        restrictions</li>
+        </ul>
+        <hr />
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <table>
+        <colgroup>
+        <col style="width: 47%" />
+        <col style="width: 39%" />
+        <col style="width: 13%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Component</th>
+        <th>Purpose</th>
+        <th>Documentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>JSR-380 Constraints</strong></td>
+        <td>Declarative DTO field validation (<span class="citation"
+        data-cites="NotNull">@NotNull</span>, <span class="citation"
+        data-cites="Positive">@Positive</span>, etc.)</td>
+        <td><a href="./jsr-380-constraints.html">Read →</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Custom Validators</strong></td>
+        <td>Domain logic validation (uniqueness, existence, business
+        rules)</td>
+        <td><a href="./custom-validators.html">Read →</a></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Exception Handling</strong></td>
+        <td>Global error mapping to standardized HTTP responses</td>
+        <td><a href="./exception-handling.html">Read →</a></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Security Validation</strong></td>
+        <td>Field-level authorization checks (Role-based
+        restrictions)</td>
+        <td><a href="../security/field-level-validation.html">Read
+        →</a></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Validation Patterns</strong></td>
+        <td>Best practices for multi-layer validation architecture</td>
+        <td><a href="./patterns.html">Read →</a></td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="validation-architecture-diagram">Validation Architecture
+        Diagram</h2>
+        <div class="mermaid">
+        graph TB
+            Client["Client Request<br/>(JSON)"]
+            Controller["Controller<br/>(@PostMapping, @PutMapping)"]
+            JSR380["JSR-380 Validation<br/>(@Valid @NotNull @Positive)"]
+            CustomVal["Custom Validators<br/>(InventoryItemValidator)"]
+            Security["Security Validation<br/>(InventoryItemSecurityValidator)"]
+            Service["Service Layer<br/>(Business Logic)"]
+            Repo["Repository<br/>(Database)"]
+            GlobalEx["Global Exception Handler<br/>(Standardized Responses)"]
+            ErrorResp["Error Response<br/>(400/409/422)"]
+            Success["Success Response<br/>(200/201)"]
+
+            Client -->|"POST /api/inventory"| Controller
+            Controller -->|"@Valid annotation"| JSR380
+            JSR380 -->|"Constraints valid?"| CustomVal
+            CustomVal -->|"Business rules valid?"| Security
+            Security -->|"User authorized?"| Service
+            Service -->|"Persist"| Repo
+            Repo -->|"Success"| Success
+            
+            JSR380 -->|"Constraint failed"| GlobalEx
+            CustomVal -->|"InvalidRequestException"| GlobalEx
+            Security -->|"ResponseStatusException"| GlobalEx
+            GlobalEx -->|"Format error"| ErrorResp
+            
+            style Client fill:#e1f5ff
+            style Controller fill:#b3e5fc
+            style JSR380 fill:#81d4fa
+            style CustomVal fill:#4fc3f7
+            style Security fill:#29b6f6
+            style Service fill:#0288d1
+            style Repo fill:#01579b
+            style GlobalEx fill:#ff6f00
+            style ErrorResp fill:#d32f2f
+            style Success fill:#388e3c
+        </div>
+        <hr />
+        <h2 id="validation-layers">Validation Layers</h2>
+        <h3 id="presentation-layer-controller">1. <strong>Presentation
+        Layer (Controller)</strong></h3>
+        <p><strong>Entry point for all validation.</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Valid</span> <span class="at">@RequestBody</span> InventoryItemDTO dto  <span class="co">// JSR-380 validation</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// JSR-380 constraints automatically checked by Spring</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If validation fails, 400 Bad Request returned</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>service<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Responsibility:</strong> - ✅ Accept <span
+        class="citation" data-cites="Valid">@Valid</span> annotated DTOs
+        - ✅ Spring automatically triggers JSR-380 validation - ✅
+        MethodArgumentNotValidException caught by
+        GlobalExceptionHandler</p>
+        <hr />
+        <h3 id="jsr-380-bean-validation-layer">2. <strong>JSR-380 Bean
+        Validation Layer</strong></h3>
+        <p><strong>Declarative field-level constraints.</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemDTO <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name is required&quot;</span><span class="op">)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Quantity is required&quot;</span><span class="op">)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PositiveOrZero</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Quantity must be &gt;= 0&quot;</span><span class="op">)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">Integer</span> quantity<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotNull</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price is required&quot;</span><span class="op">)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Positive</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Price must be &gt; 0&quot;</span><span class="op">)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">BigDecimal</span> price<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Triggers automatically on:</strong> - POST/PUT
+        requests with <span class="citation"
+        data-cites="Valid">@Valid</span> annotation - Validates before
+        method body executes</p>
+        <p><strong>Common Constraints:</strong> | Constraint | Usage |
+        Example | |———–|——-|———| | <code>@NotNull</code> | Field cannot
+        be null | Price must exist | | <code>@NotBlank</code> | String
+        cannot be blank | Name required | | <code>@Positive</code> |
+        Number &gt; 0 | Price &gt; 0 | | <code>@PositiveOrZero</code> |
+        Number &gt;= 0 | Quantity &gt;= 0 | | <code>@Email</code> |
+        Valid email format | Email address | | <code>@Null</code> |
+        Field must be null | ID null on create |</p>
+        <hr />
+        <h3 id="custom-validator-layer">3. <strong>Custom Validator
+        Layer</strong></h3>
+        <p><strong>Domain-specific business rules.</strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemValidator <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Check for duplicates</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">validateInventoryItemNotExists</span><span class="op">(</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> name<span class="op">,</span> <span class="bu">BigDecimal</span> price<span class="op">,</span> InventoryItemRepository repo<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Enforce unique (name, price) combination</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Check for existence</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">validateExists</span><span class="op">(</span><span class="bu">String</span> id<span class="op">,</span> InventoryItemRepository repo<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Verify item exists before update/delete</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Business rule validation</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">assertFinalQuantityNonNegative</span><span class="op">(</span><span class="dt">int</span> resultingQuantity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Prevent negative stock after adjustment</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Triggers from:</strong> - Service layer (before
+        persistence) - Business logic validation point - After JSR-380
+        constraints pass</p>
+        <hr />
+        <h3 id="security-validation-layer">4. <strong>Security
+        Validation Layer</strong></h3>
+        <p><strong>Role-based field authorization.</strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemSecurityValidator <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">validateUpdatePermissions</span><span class="op">(</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        InventoryItem existing<span class="op">,</span> </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO incoming<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// USER role: only quantity/price updates allowed</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ADMIN role: all fields allowed</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Integrated in:</strong> - Service layer (after custom
+        validation) - Enforces role-based field restrictions</p>
+        <hr />
+        <h3 id="exception-handling-layer">5. <strong>Exception Handling
+        Layer</strong></h3>
+        <p><strong>Standardized error response mapping.</strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> GlobalExceptionHandler <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>MethodArgumentNotValidException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleValidation</span><span class="op">(</span><span class="kw">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// JSR-380 violations → 400 Bad Request</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>InvalidRequestException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleInvalidRequest</span><span class="op">(</span><span class="kw">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Custom validators → 400 Bad Request</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDuplicate</span><span class="op">(</span><span class="kw">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Uniqueness violations → 409 Conflict</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Responsibility:</strong> - Catch all validation
+        exceptions - Format as standardized ErrorResponse - Return
+        appropriate HTTP status codes</p>
+        <hr />
+        <h2 id="validation-flow-example">Validation Flow Example</h2>
+        <h3 id="create-inventory-item-request">Create Inventory Item
+        Request</h3>
+        <p><strong>1. Client sends POST request:</strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="er">POST</span> <span class="er">/api/inventory</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">25.50</span><span class="fu">,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUPP-001&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>2. Controller receives and validates:</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Valid</span> <span class="at">@RequestBody</span> InventoryItemDTO dto  <span class="co">// ← JSR-380 triggered</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">(</span>service<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">));</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>3. JSR-380 checks:</strong> - ✅ <code>name</code> is
+        not blank - ✅ <code>quantity</code> is &gt;= 0 - ✅
+        <code>price</code> is positive - ✅ <code>supplierId</code> is
+        not blank</p>
+        <p><strong>4. Service performs custom validation:</strong></p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> InventoryItemDTO <span class="fu">create</span><span class="op">(</span>InventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span>dto<span class="op">);</span>           <span class="co">// Field existence</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    InventoryItemValidator<span class="op">.</span><span class="fu">validateInventoryItemNotExists</span><span class="op">(</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        dto<span class="op">.</span><span class="fu">getName</span><span class="op">(),</span> dto<span class="op">.</span><span class="fu">getPrice</span><span class="op">(),</span> repo<span class="op">);</span>           <span class="co">// Uniqueness check</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... create item</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>5. Service calls security validator:</strong></p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>InventoryItemSecurityValidator<span class="op">.</span><span class="fu">validateUpdatePermissions</span><span class="op">(</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    existing<span class="op">,</span> incoming<span class="op">);</span>  <span class="co">// Field-level authorization</span></span></code></pre></div>
+        <p><strong>6. Success response:</strong></p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="er">HTTP/1.1</span> <span class="er">201</span> <span class="er">Created</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;item-123&quot;</span><span class="fu">,</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">25.50</span><span class="fu">,</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUPP-001&quot;</span><span class="fu">,</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;createdAt&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-01-15T10:30:00Z&quot;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="error-scenarios">Error Scenarios</h2>
+        <h3 id="scenario-1-jsr-380-constraint-violation">Scenario 1:
+        JSR-380 Constraint Violation</h3>
+        <p><strong>Request (missing required field):</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="er">POST</span> <span class="er">/api/inventory</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">100</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="er">//</span> <span class="er">Missing:</span> <span class="er">price</span> <span class="er">(required)</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (400 Bad Request):</strong></p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="er">HTTP/1.1</span> <span class="er">400</span> <span class="er">Bad</span> <span class="er">Request</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-01-15T10:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">400</span><span class="fu">,</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Bad Request&quot;</span><span class="fu">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;price Price must be greater than zero&quot;</span><span class="fu">,</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;path&quot;</span><span class="fu">:</span> <span class="st">&quot;/api/inventory&quot;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="scenario-2-custom-validator-violation">Scenario 2:
+        Custom Validator Violation</h3>
+        <p><strong>Request (duplicate item):</strong></p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="er">POST</span> <span class="er">/api/inventory</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">25.50</span><span class="fu">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUPP-001&quot;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (409 Conflict - item already
+        exists):</strong></p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="er">HTTP/1.1</span> <span class="er">409</span> <span class="er">Conflict</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-01-15T10:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">409</span><span class="fu">,</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;An inventory item with this name and price already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;path&quot;</span><span class="fu">:</span> <span class="st">&quot;/api/inventory&quot;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="scenario-3-security-validation-failure">Scenario 3:
+        Security Validation Failure</h3>
+        <p><strong>Request (USER role tries to change
+        supplier):</strong></p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="er">PUT</span> <span class="er">/api/inventory/item-123</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Widget A&quot;</span><span class="fu">,</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;supplierId&quot;</span><span class="fu">:</span> <span class="st">&quot;SUPP-002&quot;</span><span class="fu">,</span>  <span class="er">//</span> <span class="er">←</span> <span class="er">USER</span> <span class="er">cannot</span> <span class="er">change</span> <span class="er">this</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;quantity&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="fl">25.50</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Response (403 Forbidden):</strong></p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="er">HTTP/1.1</span> <span class="er">403</span> <span class="er">Forbidden</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="er">Content-Type:</span> <span class="er">application/json</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-01-15T10:30:00Z&quot;</span><span class="fu">,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;status&quot;</span><span class="fu">:</span> <span class="dv">403</span><span class="fu">,</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;Forbidden&quot;</span><span class="fu">,</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Users are only allowed to change quantity or price&quot;</span><span class="fu">,</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;path&quot;</span><span class="fu">:</span> <span class="st">&quot;/api/inventory/item-123&quot;</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="validation-entities">Validation Entities</h2>
+        <h3 id="inventoryitemvalidator">InventoryItemValidator</h3>
+        <p><strong>Validates inventory item operations:</strong> - Base
+        field validation (name, quantity, price) - Duplicate detection
+        (name + price combination) - Existence checks before
+        update/delete - Quantity safety checks (non-negative after
+        adjustments)</p>
+        <h3 id="suppliervalidator">SupplierValidator</h3>
+        <p><strong>Validates supplier operations:</strong> - Required
+        field checks (name must be non-blank) - Uniqueness enforcement
+        (case-insensitive names) - Deletion safety (prevents deletion
+        with linked items)</p>
+        <h3 id="stockhistoryvalidator">StockHistoryValidator</h3>
+        <p><strong>Validates stock change operations:</strong> - DTO
+        field validation (item ID, change value, reason) - Enum
+        validation (StockChangeReason whitelist) - Business rules
+        (zero-delta only for PRICE_CHANGE) - Audit field requirements
+        (createdBy mandatory)</p>
+        <h3
+        id="inventoryitemsecurityvalidator">InventoryItemSecurityValidator</h3>
+        <p><strong>Validates field-level authorization:</strong> -
+        Role-based field update restrictions - USER role: quantity/price
+        only - ADMIN role: all fields allowed</p>
+        <hr />
+        <h2 id="exception-types">Exception Types</h2>
+        <h3 id="invalidrequestexception">InvalidRequestException</h3>
+        <p><strong>400 Bad Request - Validation Failure</strong></p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Supplier name must not be blank&quot;</span><span class="op">,</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    ValidationSeverity<span class="op">.</span><span class="fu">MEDIUM</span><span class="op">,</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;BLANK_FIELD&quot;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span></code></pre></div>
+        <p><strong>Mapped by:</strong> GlobalExceptionHandler → 400 Bad
+        Request</p>
+        <hr />
+        <h3
+        id="duplicateresourceexception">DuplicateResourceException</h3>
+        <p><strong>409 Conflict - Uniqueness Violation</strong></p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;An inventory item with this name and price already exists&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span></code></pre></div>
+        <p><strong>Mapped by:</strong> BusinessExceptionHandler → 409
+        Conflict</p>
+        <hr />
+        <h3 id="responsestatusexception-spring">ResponseStatusException
+        (Spring)</h3>
+        <p><strong>Custom HTTP status exceptions:</strong></p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">ResponseStatusException</span><span class="op">(</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    HttpStatus<span class="op">.</span><span class="fu">NOT_FOUND</span><span class="op">,</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Item not found&quot;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">ResponseStatusException</span><span class="op">(</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    HttpStatus<span class="op">.</span><span class="fu">UNPROCESSABLE_ENTITY</span><span class="op">,</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Resulting stock cannot be negative&quot;</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h2 id="validation-groups-advanced">Validation Groups
+        (Advanced)</h2>
+        <p>Some DTOs support validation groups for different
+        operations:</p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InventoryItemDTO <span class="op">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">interface</span> Create <span class="op">{}</span>   <span class="co">// Create-specific constraints</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">interface</span> Update <span class="op">{}</span>   <span class="co">// Update-specific constraints</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Null</span><span class="op">(</span>groups <span class="op">=</span> Create<span class="op">.</span><span class="fu">class</span><span class="op">)</span>  <span class="co">// ID must be null on create</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> id<span class="op">;</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@NotBlank</span><span class="op">(</span>groups <span class="op">=</span> <span class="op">{</span>Create<span class="op">.</span><span class="fu">class</span><span class="op">,</span> Update<span class="op">.</span><span class="fu">class</span><span class="op">})</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> name<span class="op">;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage in controllers:</strong></p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">create</span><span class="op">(</span><span class="at">@Validated</span><span class="op">(</span>Create<span class="op">.</span><span class="fu">class</span><span class="op">)</span> <span class="at">@RequestBody</span> InventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Only Create group constraints checked</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="at">@PutMapping</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">update</span><span class="op">(</span><span class="at">@Validated</span><span class="op">(</span>Update<span class="op">.</span><span class="fu">class</span><span class="op">)</span> <span class="at">@RequestBody</span> InventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Only Update group constraints checked</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./jsr-380-constraints.html">JSR-380
+        Constraints</a></strong> - Declarative field validation</li>
+        <li><strong><a href="./custom-validators.html">Custom
+        Validators</a></strong> - Domain-specific business rules</li>
+        <li><strong><a href="./exception-handling.html">Exception
+        Handling</a></strong> - Error response mapping</li>
+        <li><strong><a href="./patterns.html">Validation
+        Patterns</a></strong> - Best practices and design patterns</li>
+        <li><strong><a
+        href="../security/field-level-validation.html">Security
+        Validation</a></strong> - Role-based field restrictions</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
