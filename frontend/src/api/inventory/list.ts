@@ -140,7 +140,7 @@ export async function getInventoryPage(
         sort,
       },
     });
-
+    // Normalize response
     const data = isRecord(resp) && 'data' in resp ? (resp as UnknownRecord).data : {};
     const rowsRaw = extractRowsContainer(data);
 
