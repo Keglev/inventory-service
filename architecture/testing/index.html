@@ -119,6 +119,25 @@
         <li><a href="#common-patterns" id="toc-common-patterns">Common
         Patterns</a></li>
         </ul></li>
+        <li><a href="#testcontainers-configuration"
+        id="toc-testcontainers-configuration">TestContainers
+        Configuration</a>
+        <ul>
+        <li><a href="#testcontainers.properties"
+        id="toc-testcontainers.properties">testcontainers.properties</a></li>
+        <li><a href="#when-to-modify-testcontainers.properties"
+        id="toc-when-to-modify-testcontainers.properties">When to Modify
+        testcontainers.properties</a></li>
+        </ul></li>
+        <li><a href="#test-fixtures-data-builders"
+        id="toc-test-fixtures-data-builders">Test Fixtures &amp; Data
+        Builders</a>
+        <ul>
+        <li><a href="#test-helper-classes-1"
+        id="toc-test-helper-classes-1">Test Helper Classes</a></li>
+        <li><a href="#quick-example" id="toc-quick-example">Quick
+        Example</a></li>
+        </ul></li>
         <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
         Navigation</a></li>
         <li><a href="#related-documentation"
@@ -502,8 +521,151 @@ management.endpoints.web.exposure.exclude=*</code></pre>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isCreated</span><span class="op">())</span></span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.id&quot;</span><span class="op">).</span><span class="fu">exists</span><span class="op">());</span></span></code></pre></div>
         <hr />
+        <h2 id="testcontainers-configuration">TestContainers
+        Configuration</h2>
+        <h3
+        id="testcontainers.properties">testcontainers.properties</h3>
+        <p><strong>Location:</strong>
+        <code>src/test/resources/testcontainers.properties</code></p>
+        <p><strong>Purpose:</strong> Configures TestContainers behavior
+        during test execution.</p>
+        <p><strong>Content:</strong></p>
+        <pre class="properties"><code>checks.enabled=false</code></pre>
+        <p><strong>What This Does:</strong></p>
+        <table>
+        <colgroup>
+        <col style="width: 38%" />
+        <col style="width: 26%" />
+        <col style="width: 34%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Property</th>
+        <th>Value</th>
+        <th>Meaning</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>checks.enabled</code></td>
+        <td><code>false</code></td>
+        <td>Disables startup checks and health verification for
+        TestContainers</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Why Disable Checks?</strong></p>
+        <p>TestContainers normally performs startup verification checks
+        before running tests: - Validates container health and readiness
+        - Checks database connectivity - Verifies all dependencies are
+        ready</p>
+        <p><strong>Performance Impact:</strong> - ✅ <strong>Faster test
+        startup</strong> - Skips checks, reduces ~2-5 second overhead
+        per test run - ✅ <strong>Cleaner test output</strong> - No
+        diagnostic logs from health checks - ⚠️
+        <strong>Trade-off</strong> - Fewer diagnostics if container
+        fails to start (rare in practice)</p>
+        <p><strong>How Testing Configuration Works:</strong></p>
+        <pre><code>┌─────────────────────────────────────────────┐
+│ Test Execution Flow                         │
+├─────────────────────────────────────────────┤
+│ 1. Maven finds @ActiveProfiles(&quot;test&quot;)     │
+│ 2. Loads application-test.yml              │
+│ 3. Sees: spring.datasource.url = H2 mem:   │
+│ 4. Creates H2 in-memory database           │
+│ 5. Reads testcontainers.properties         │
+│ 6. checks.enabled=false → Skip health verify│
+│ 7. Starts test execution                   │
+└─────────────────────────────────────────────┘</code></pre>
+        <p><strong>Key Point:</strong>
+        <code>testcontainers.properties</code> is a <strong>supplement
+        to application-test.yml</strong>, not a replacement. The actual
+        database configuration (H2, Oracle mode, connectivity) comes
+        from <code>application-test.yml</code>. This file only tunes
+        TestContainers behavior.</p>
+        <h3 id="when-to-modify-testcontainers.properties">When to Modify
+        testcontainers.properties</h3>
+        <p><strong>Rarely needed</strong>, but if you encounter
+        TestContainers startup issues:</p>
+        <pre class="properties"><code># Enable debugging if containers fail to start
+checks.enabled=true
+
+# For Oracle TestContainers specifically
+testcontainers.docker.client.strategy=org.testcontainers.dockerclient.UnixSocketClientProviderStrategy</code></pre>
+        <p><strong>Default Configuration Sufficient for:</strong> - ✅
+        Unit tests with H2 (no containers used) - ✅ Integration tests
+        with mocked services - ✅ CI/CD pipelines with standard Docker
+        setup</p>
+        <hr />
+        <h2 id="test-fixtures-data-builders">Test Fixtures &amp; Data
+        Builders</h2>
+        <h3 id="test-helper-classes-1">Test Helper Classes</h3>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 34%" />
+        <col style="width: 38%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Class</th>
+        <th>Purpose</th>
+        <th>Location</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>InventoryItemServiceImplTestHelper</code></td>
+        <td>OAuth2 authentication setup, principal creation</td>
+        <td><code>src/test/.../service/impl/</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>TestSecurityConfig</code></td>
+        <td>Mock OAuth2 config for <span class="citation"
+        data-cites="WebMvcTest">@WebMvcTest</span></td>
+        <td><code>src/test/.../config/</code></td>
+        </tr>
+        <tr class="odd">
+        <td><code>TestApiStubController</code></td>
+        <td>Probe endpoints for security testing</td>
+        <td><code>src/test/.../security/</code></td>
+        </tr>
+        <tr class="even">
+        <td><code>AdminStubController</code></td>
+        <td>Admin-protected endpoints for RBAC tests</td>
+        <td><code>src/test/.../security/</code></td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>See:</strong> <strong><a
+        href="./test-fixtures.html">Test Fixtures &amp; Data
+        Builders</a></strong> for detailed documentation on: - OAuth2
+        authentication helper patterns - Test data builders and
+        factories - Test isolation and cleanup strategies - Best
+        practices for reusable test code</p>
+        <h3 id="quick-example">Quick Example</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Authenticate test with OAuth2 principal</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testAdminCanSave</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    InventoryItemServiceImplTestHelper<span class="op">.</span><span class="fu">authenticateAsOAuth2</span><span class="op">(</span><span class="st">&quot;admin@example.com&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    InventoryItem item <span class="op">=</span> InventoryItem<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">)</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Widget&quot;</span><span class="op">)</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">TEN</span><span class="op">)</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">100</span><span class="op">)</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    InventoryItem saved <span class="op">=</span> service<span class="op">.</span><span class="fu">save</span><span class="op">(</span>item<span class="op">);</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertNotNull</span><span class="op">(</span>saved<span class="op">.</span><span class="fu">getId</span><span class="op">());</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
         <h2 id="quick-navigation">Quick Navigation</h2>
         <ul>
+        <li><strong><a href="./test-fixtures.html">Test Fixtures &amp;
+        Data Builders</a></strong> - Helper patterns, OAuth2 setup, test
+        data builders</li>
         <li><strong><a href="./unit-testing.html">Unit Testing
         Patterns</a></strong> - Component isolation, mocking, test
         organization</li>
