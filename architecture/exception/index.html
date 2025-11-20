@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · exception/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#exception-architecture"
+        id="toc-exception-architecture">Exception Architecture</a>
+        <ul>
+        <li><a href="#navigation"
+        id="toc-navigation">Navigation</a></li>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a>
+        <ul>
+        <li><a href="#for-backend-developers"
+        id="toc-for-backend-developers">For Backend Developers</a></li>
+        <li><a href="#for-frontendapi-integration"
+        id="toc-for-frontendapi-integration">For Frontend/API
+        Integration</a></li>
+        <li><a href="#for-devopssecurity"
+        id="toc-for-devopssecurity">For DevOps/Security</a></li>
+        </ul></li>
+        <li><a href="#exception-type-classifications"
+        id="toc-exception-type-classifications">Exception Type
+        Classifications</a>
+        <ul>
+        <li><a href="#framework-level-exceptions-globalexceptionhandler"
+        id="toc-framework-level-exceptions-globalexceptionhandler">1.
+        Framework-Level Exceptions (GlobalExceptionHandler)</a></li>
+        <li><a href="#domain-level-exceptions-businessexceptionhandler"
+        id="toc-domain-level-exceptions-businessexceptionhandler">2.
+        Domain-Level Exceptions (BusinessExceptionHandler)</a></li>
+        <li><a href="#validation-exceptions"
+        id="toc-validation-exceptions">3. Validation Exceptions</a></li>
+        <li><a href="#security-exceptions"
+        id="toc-security-exceptions">4. Security Exceptions</a></li>
+        </ul></li>
+        <li><a href="#exception-handling-flow"
+        id="toc-exception-handling-flow">Exception Handling Flow</a>
+        <ul>
+        <li><a href="#execution-order"
+        id="toc-execution-order">Execution Order</a></li>
+        </ul></li>
+        <li><a href="#http-status-code-reference"
+        id="toc-http-status-code-reference">HTTP Status Code
+        Reference</a></li>
+        <li><a href="#error-response-structure"
+        id="toc-error-response-structure">Error Response
+        Structure</a></li>
+        <li><a href="#handler-architecture-diagram"
+        id="toc-handler-architecture-diagram">Handler Architecture
+        Diagram</a></li>
+        <li><a href="#file-organization" id="toc-file-organization">File
+        Organization</a>
+        <ul>
+        <li><a href="#core-implementation"
+        id="toc-core-implementation">Core Implementation</a></li>
+        <li><a href="#reference-mapping"
+        id="toc-reference-mapping">Reference &amp; Mapping</a></li>
+        <li><a href="#developer-guidance"
+        id="toc-developer-guidance">Developer Guidance</a></li>
+        </ul></li>
+        <li><a href="#key-design-principles"
+        id="toc-key-design-principles">Key Design Principles</a>
+        <ul>
+        <li><a href="#separation-of-concerns"
+        id="toc-separation-of-concerns">1. <strong>Separation of
+        Concerns</strong></a></li>
+        <li><a href="#handler-ordering" id="toc-handler-ordering">2.
+        <strong>Handler Ordering</strong></a></li>
+        <li><a href="#consistent-error-format"
+        id="toc-consistent-error-format">3. <strong>Consistent Error
+        Format</strong></a></li>
+        <li><a href="#security-by-default"
+        id="toc-security-by-default">4. <strong>Security by
+        Default</strong></a></li>
+        <li><a href="#debuggability" id="toc-debuggability">5.
+        <strong>Debuggability</strong></a></li>
+        <li><a href="#extensibility" id="toc-extensibility">6.
+        <strong>Extensibility</strong></a></li>
+        </ul></li>
+        <li><a href="#integration-points"
+        id="toc-integration-points">Integration Points</a>
+        <ul>
+        <li><a href="#with-controllers" id="toc-with-controllers">With
+        Controllers</a></li>
+        <li><a href="#with-service-layer"
+        id="toc-with-service-layer">With Service Layer</a></li>
+        <li><a href="#with-frontend" id="toc-with-frontend">With
+        Frontend</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        <li><a href="#version-history" id="toc-version-history">Version
+        History</a></li>
+        <li><a href="#quick-start-common-scenarios"
+        id="toc-quick-start-common-scenarios">Quick Start: Common
+        Scenarios</a>
+        <ul>
+        <li><a href="#scenario-1-validate-required-field"
+        id="toc-scenario-1-validate-required-field">Scenario 1: Validate
+        Required Field</a></li>
+        <li><a href="#scenario-2-enforce-uniqueness"
+        id="toc-scenario-2-enforce-uniqueness">Scenario 2: Enforce
+        Uniqueness</a></li>
+        <li><a href="#scenario-3-business-rule-violation"
+        id="toc-scenario-3-business-rule-violation">Scenario 3: Business
+        Rule Violation</a></li>
+        <li><a href="#scenario-4-handle-frontend-error"
+        id="toc-scenario-4-handle-frontend-error">Scenario 4: Handle
+        Frontend Error</a></li>
+        </ul></li>
+        <li><a href="#performance-observability"
+        id="toc-performance-observability">Performance &amp;
+        Observability</a>
+        <ul>
+        <li><a href="#correlation-id-benefits"
+        id="toc-correlation-id-benefits">Correlation ID
+        Benefits</a></li>
+        <li><a href="#timestamp-tracking"
+        id="toc-timestamp-tracking">Timestamp Tracking</a></li>
+        <li><a href="#logging-best-practices"
+        id="toc-logging-best-practices">Logging Best Practices</a></li>
+        </ul></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a></li>
+        <li><a href="#next-steps" id="toc-next-steps">Next
+        Steps</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="exception-architecture">Exception Architecture</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        2.0.0</p>
+        <h2 id="navigation">Navigation</h2>
+        <p><strong>Back to</strong>: <a
+        href="../index.html">Architecture Overview</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>The Smart Supply Pro exception handling architecture provides
+        a <strong>centralized, layered approach</strong> to error
+        management across the entire backend application. By separating
+        framework-level exceptions from domain-specific business
+        exceptions, we ensure consistent error responses, maintainable
+        code, and secure error handling that prevents information
+        disclosure.</p>
+        <p>This documentation hub covers: - Exception types and their
+        mappings - Handler ordering and execution flow - Error response
+        structure and correlation tracking - Security considerations and
+        best practices - Implementation guidelines for developers</p>
+        <hr />
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <h3 id="for-backend-developers">For Backend Developers</h3>
+        <ol type="1">
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – Framework-level exception
+        handling, handler ordering, catch-all strategies</li>
+        <li><strong><a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a></strong> – Complete status code mapping table and
+        logic</li>
+        <li><strong><a href="./domain-exceptions.html">Domain
+        Exceptions</a></strong> – Custom business logic exceptions
+        (InvalidRequestException, DuplicateResourceException)</li>
+        <li><strong><a
+        href="./guidelines-and-best-practices.html">Guidelines &amp;
+        Best Practices</a></strong> – When to throw, anti-patterns,
+        error recovery</li>
+        </ol>
+        <h3 id="for-frontendapi-integration">For Frontend/API
+        Integration</h3>
+        <ol type="1">
+        <li><strong><a href="./error-response-structure.html">Error
+        Response Structure</a></strong> – JSON format, fields,
+        correlation IDs</li>
+        <li><strong><a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a></strong> – Expected status codes and error
+        tokens</li>
+        <li><strong><a href="./validation-exceptions.html">Validation
+        Exceptions</a></strong> – Field-level error handling</li>
+        </ol>
+        <h3 id="for-devopssecurity">For DevOps/Security</h3>
+        <ol type="1">
+        <li><strong><a href="./security-exceptions.html">Security
+        Exceptions</a></strong> – Authentication/authorization errors,
+        generic messaging</li>
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – Sensitive data sanitization,
+        error exposure prevention</li>
+        </ol>
+        <hr />
+        <h2 id="exception-type-classifications">Exception Type
+        Classifications</h2>
+        <h3 id="framework-level-exceptions-globalexceptionhandler">1.
+        Framework-Level Exceptions (GlobalExceptionHandler)</h3>
+        <p>These are exceptions thrown by Spring Framework, Spring MVC,
+        and other libraries. They are <strong>automatically caught and
+        mapped</strong> to HTTP status codes.</p>
+        <p><strong>Common Framework Exceptions</strong>: -
+        <strong>MethodArgumentNotValidException</strong> – Validation
+        failure on <span class="citation"
+        data-cites="Valid">@Valid</span> objects → 400 -
+        <strong>ConstraintViolationException</strong> – JSR-380
+        constraint violation → 400 -
+        <strong>HttpMessageNotReadableException</strong> – Malformed
+        request body (e.g., invalid JSON) → 400 -
+        <strong>MissingServletRequestParameterException</strong> –
+        Missing required query/form parameter → 400 -
+        <strong>MethodArgumentTypeMismatchException</strong> – Parameter
+        type conversion failure → 400 -
+        <strong>AuthenticationException</strong> – Authentication
+        failure (credentials invalid) → 401 -
+        <strong>AccessDeniedException</strong> – Authorization failure
+        (insufficient permissions) → 403 -
+        <strong>NoSuchElementException</strong> – Resource not found in
+        collection → 404 - <strong>IllegalArgumentException</strong> –
+        Invalid argument (business lookup failure) → 404 -
+        <strong>DataIntegrityViolationException</strong> – Database
+        constraint violation → 409 -
+        <strong>ObjectOptimisticLockingFailureException</strong> –
+        Concurrent update conflict → 409 -
+        <strong>ResponseStatusException</strong> – Explicit HTTP status
+        exception → Preserved status - <strong>Exception</strong>
+        (catch-all) – Unhandled exceptions → 500 (no stack trace)</p>
+        <p><strong>Characteristics</strong>: - ✅ Handled automatically
+        by GlobalExceptionHandler - ✅ No code changes needed to
+        propagate to error response - ✅ Always return consistent error
+        response format - ✅ Sensitive information is sanitized (e.g.,
+        SQL details hidden)</p>
+        <h3 id="domain-level-exceptions-businessexceptionhandler">2.
+        Domain-Level Exceptions (BusinessExceptionHandler)</h3>
+        <p>These are <strong>custom exceptions representing business
+        rule violations</strong>. They are thrown explicitly from
+        service layer code to handle domain-specific scenarios.</p>
+        <p><strong>Current Domain Exceptions</strong>: -
+        <strong>InvalidRequestException</strong> – Business validation
+        failures, field-level errors → 400 -
+        <strong>DuplicateResourceException</strong> – Uniqueness
+        constraint violations → 409 -
+        <strong>IllegalStateException</strong> – Business state rule
+        violations → 409</p>
+        <p><strong>Characteristics</strong>: - ✅ Thrown explicitly from
+        service methods - ✅ Carry context information (field names,
+        resource types, conflict details) - ✅ Prioritized before
+        framework exceptions (via <span class="citation"
+        data-cites="Order">@Order</span>) - ✅ Can include structured
+        error details for client handling</p>
+        <h3 id="validation-exceptions">3. Validation Exceptions</h3>
+        <p>A specialized category of exceptions for handling request
+        validation errors with <strong>field-level
+        granularity</strong>.</p>
+        <p><strong>Types</strong>: -
+        <strong>InvalidRequestException</strong> with field errors –
+        Specific field validation failures -
+        <strong>MethodArgumentNotValidException</strong> – Spring’s bean
+        validation (<span class="citation"
+        data-cites="Valid">@Valid</span>) -
+        <strong>ConstraintViolationException</strong> – JSR-380
+        constraints on method parameters</p>
+        <p><strong>Fields Captured</strong>: - Field names (e.g.,
+        “email”, “quantity”) - Validation codes (e.g., “NOT_EMPTY”,
+        “POSITIVE”) - Field-specific error messages (e.g., “Email format
+        is invalid”)</p>
+        <h3 id="security-exceptions">4. Security Exceptions</h3>
+        <p>Exceptions related to authentication and authorization with
+        <strong>special handling for sensitive information</strong>.</p>
+        <p><strong>Types</strong>: -
+        <strong>AuthenticationException</strong> – Credentials invalid,
+        user not found, token expired → 401 -
+        <strong>AccessDeniedException</strong> – User lacks required
+        permissions → 403 - <strong>InvalidRequestException</strong>
+        with CRITICAL severity – Security validation failures</p>
+        <p><strong>Security Behavior</strong>: - ⚠️ Generic error
+        messages (prevents user enumeration attacks) - ⚠️ No details
+        about why authentication/authorization failed - ⚠️ Details
+        logged server-side for debugging (never exposed to client) - ⚠️
+        Correlation IDs enable server-side investigation</p>
+        <hr />
+        <h2 id="exception-handling-flow">Exception Handling Flow</h2>
+        <div class="mermaid">
+        graph TD
+            A["REST Request"] --> B["Controller Method"]
+            B -->|No Exception| C["Success Response"]
+            B -->|Exception Thrown| D{{"Is it a\nDomain Exception?"}}
+            
+            D -->|Yes<br/>InvalidRequestException<br/>DuplicateResourceException<br/>IllegalStateException| E["BusinessExceptionHandler<br/>@Order: HIGHEST_PRECEDENCE"]
+            D -->|No<br/>Framework Exception| F["GlobalExceptionHandler<br/>@Order: HIGHEST_PRECEDENCE + 1"]
+            
+            E --> G["Map to HTTP Status<br/>Extract Business Context"]
+            F --> H["Map to HTTP Status<br/>Sanitize Sensitive Data"]
+            
+            G --> I["Build ErrorResponse<br/>- error token<br/>- message<br/>- timestamp<br/>- correlationId"]
+            H --> I
+            
+            I --> J["Return ResponseEntity<br/>with JSON"]
+            J --> K["HTTP Response to Client"]
+            C --> K
+        </div>
+        <h3 id="execution-order">Execution Order</h3>
+        <ol type="1">
+        <li><strong>Request arrives</strong> at controller method</li>
+        <li><strong>Exception thrown</strong> during request
+        processing</li>
+        <li><strong>BusinessExceptionHandler</strong> intercepts first
+        (<span class="citation" data-cites="Order">@Order</span>:
+        HIGHEST_PRECEDENCE)
+        <ul>
+        <li>If domain exception → handle it, return error response</li>
+        <li>If not domain exception → pass to next handler</li>
+        </ul></li>
+        <li><strong>GlobalExceptionHandler</strong> intercepts second
+        (<span class="citation" data-cites="Order">@Order</span>:
+        HIGHEST_PRECEDENCE + 1)
+        <ul>
+        <li>If framework/known exception → handle it, return error
+        response</li>
+        <li>If unhandled exception → catch-all handler (500, no stack
+        trace)</li>
+        </ul></li>
+        <li><strong>ErrorResponse built</strong> with timestamp and
+        correlation ID</li>
+        <li><strong>ResponseEntity returned</strong> with proper HTTP
+        status and JSON</li>
+        </ol>
+        <hr />
+        <h2 id="http-status-code-reference">HTTP Status Code
+        Reference</h2>
+        <table>
+        <colgroup>
+        <col style="width: 19%" />
+        <col style="width: 21%" />
+        <col style="width: 36%" />
+        <col style="width: 21%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Status</th>
+        <th>Meaning</th>
+        <th>Common Causes</th>
+        <th>Handler</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>400</strong></td>
+        <td>Bad Request</td>
+        <td>Invalid input, validation failure, malformed JSON</td>
+        <td>Global/Business</td>
+        </tr>
+        <tr class="even">
+        <td><strong>401</strong></td>
+        <td>Unauthorized</td>
+        <td>Authentication failed, expired token</td>
+        <td>Global</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>403</strong></td>
+        <td>Forbidden</td>
+        <td>Insufficient permissions, access denied</td>
+        <td>Global</td>
+        </tr>
+        <tr class="even">
+        <td><strong>404</strong></td>
+        <td>Not Found</td>
+        <td>Resource doesn’t exist</td>
+        <td>Global</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>409</strong></td>
+        <td>Conflict</td>
+        <td>Duplicate resource, concurrent update, state violation</td>
+        <td>Global/Business</td>
+        </tr>
+        <tr class="even">
+        <td><strong>500</strong></td>
+        <td>Internal Server Error</td>
+        <td>Unhandled exception, unexpected error</td>
+        <td>Global</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="error-response-structure">Error Response Structure</h2>
+        <p>All error responses follow this standard JSON structure:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: email is required&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:45.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Fields</strong>: - <strong>error</strong> –
+        Machine-readable error token (lowercase HTTP status name) -
+        <strong>message</strong> – Human-readable description of the
+        error - <strong>timestamp</strong> – ISO-8601 UTC timestamp of
+        error occurrence - <strong>correlationId</strong> – Unique
+        tracking ID linking client request to server logs</p>
+        <p>See <strong><a href="./error-response-structure.html">Error
+        Response Structure</a></strong> for detailed field
+        documentation.</p>
+        <hr />
+        <h2 id="handler-architecture-diagram">Handler Architecture
+        Diagram</h2>
+        <div class="mermaid">
+        classDiagram
+            class BusinessExceptionHandler {
+                @Order(HIGHEST_PRECEDENCE)
+                @RestControllerAdvice
+                handleInvalidRequest(InvalidRequestException)
+                handleDuplicateResource(DuplicateResourceException)
+                handleBusinessStateConflict(IllegalStateException)
+            }
+            
+            class GlobalExceptionHandler {
+                @Order(HIGHEST_PRECEDENCE + 1)
+                @RestControllerAdvice
+                handleValidation(MethodArgumentNotValidException)
+                handleConstraint(ConstraintViolationException)
+                handleNotFound(NoSuchElementException)
+                handleDataIntegrity(DataIntegrityViolationException)
+                handleAuthentication(AuthenticationException)
+                handleAuthorization(AccessDeniedException)
+                handleUnexpected(Exception)
+            }
+            
+            class ErrorResponse {
+                String error
+                String message
+                String timestamp
+                String correlationId
+                build()
+                generateCorrelationId()
+            }
+            
+            class InvalidRequestException {
+                ValidationSeverity severity
+                String validationCode
+                Map fieldErrors
+                List generalErrors
+                hasFieldErrors()
+                isCritical()
+            }
+            
+            class DuplicateResourceException {
+                String resourceType
+                String conflictField
+                String duplicateValue
+                hasDetailedContext()
+                getClientMessage()
+            }
+            
+            BusinessExceptionHandler --> ErrorResponse
+            GlobalExceptionHandler --> ErrorResponse
+            BusinessExceptionHandler --> InvalidRequestException
+            BusinessExceptionHandler --> DuplicateResourceException
+            GlobalExceptionHandler --|catches| InvalidRequestException : domain exception first
+        </div>
+        <hr />
+        <h2 id="file-organization">File Organization</h2>
+        <p>This exception architecture documentation is organized as
+        follows:</p>
+        <h3 id="core-implementation">Core Implementation</h3>
+        <ul>
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – <span class="citation"
+        data-cites="RestControllerAdvice">@RestControllerAdvice</span>,
+        handler methods, exception mapping</li>
+        <li><strong><a href="./domain-exceptions.html">Domain
+        Exceptions</a></strong> – Custom exceptions, factory methods,
+        context information</li>
+        <li><strong><a href="./error-response-structure.html">Error
+        Response Structure</a></strong> – DTO structure, builder
+        pattern, correlation IDs</li>
+        </ul>
+        <h3 id="reference-mapping">Reference &amp; Mapping</h3>
+        <ul>
+        <li><strong><a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a></strong> – Complete mapping table, logic, decision
+        tree</li>
+        <li><strong><a href="./validation-exceptions.html">Validation
+        Exceptions</a></strong> – Validation failure handling,
+        field-level errors</li>
+        <li><strong><a href="./security-exceptions.html">Security
+        Exceptions</a></strong> – Auth/authz, generic messaging,
+        security best practices</li>
+        </ul>
+        <h3 id="developer-guidance">Developer Guidance</h3>
+        <ul>
+        <li><strong><a
+        href="./guidelines-and-best-practices.html">Guidelines &amp;
+        Best Practices</a></strong> – When to throw, anti-patterns,
+        error recovery strategies</li>
+        </ul>
+        <hr />
+        <h2 id="key-design-principles">Key Design Principles</h2>
+        <h3 id="separation-of-concerns">1. <strong>Separation of
+        Concerns</strong></h3>
+        <ul>
+        <li>Framework exceptions handled separately from domain
+        exceptions</li>
+        <li>Each handler focuses on its domain (framework
+        vs. business)</li>
+        <li>Clear responsibility boundaries</li>
+        </ul>
+        <h3 id="handler-ordering">2. <strong>Handler
+        Ordering</strong></h3>
+        <ul>
+        <li>BusinessExceptionHandler runs first
+        (HIGHEST_PRECEDENCE)</li>
+        <li>GlobalExceptionHandler runs second (HIGHEST_PRECEDENCE +
+        1)</li>
+        <li>Ensures domain exceptions take priority over framework
+        exceptions</li>
+        </ul>
+        <h3 id="consistent-error-format">3. <strong>Consistent Error
+        Format</strong></h3>
+        <ul>
+        <li>All errors return same JSON structure (error, message,
+        timestamp, correlationId)</li>
+        <li>Predictable for client code to handle</li>
+        <li>Correlation IDs enable request tracking across logs</li>
+        </ul>
+        <h3 id="security-by-default">4. <strong>Security by
+        Default</strong></h3>
+        <ul>
+        <li>Generic messages for auth/authz (prevents user
+        enumeration)</li>
+        <li>No stack traces in 500 responses (prevents information
+        disclosure)</li>
+        <li>SQL errors sanitized (hides database schema)</li>
+        <li>Sensitive data never exposed in error messages</li>
+        </ul>
+        <h3 id="debuggability">5. <strong>Debuggability</strong></h3>
+        <ul>
+        <li>Correlation IDs tie client requests to server logs</li>
+        <li>Timestamps help with log correlation</li>
+        <li>Server-side logging captures full exception details (not
+        exposed to client)</li>
+        </ul>
+        <h3 id="extensibility">6. <strong>Extensibility</strong></h3>
+        <ul>
+        <li>New domain exceptions can be added to
+        BusinessExceptionHandler</li>
+        <li>New framework exception types caught by
+        GlobalExceptionHandler</li>
+        <li>Custom factory methods in domain exceptions simplify common
+        scenarios</li>
+        </ul>
+        <hr />
+        <h2 id="integration-points">Integration Points</h2>
+        <h3 id="with-controllers">With Controllers</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierController <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">createSupplier</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Validation errors thrown by @Valid → GlobalExceptionHandler</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// BusinessExceptionHandler catches domain exceptions</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> supplierService<span class="op">.</span><span class="fu">createSupplier</span><span class="op">(</span>req<span class="op">);</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="with-service-layer">With Service Layer</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span>CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Check for duplicates → throw DuplicateResourceException</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="fu">supplierExists</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">supplierName</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Business rule violation → throw IllegalStateException</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span><span class="fu">isValidSupplierType</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getType</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Supplier type is not supported&quot;</span><span class="op">);</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="with-frontend">With Frontend</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Frontend receives error response with correlation ID</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> api<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> supplierData)<span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> correlationId <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">correlationId</span><span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`Error </span><span class="sc">${</span>error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">status</span><span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">error</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`Correlation ID: </span><span class="sc">${</span>correlationId<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`Message: </span><span class="sc">${</span>error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">message</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// User reports issue with correlation ID for debugging</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – Implementation details of
+        framework exception handling</li>
+        <li><strong><a href="./domain-exceptions.html">Domain
+        Exceptions</a></strong> – Custom exception classes and usage
+        patterns</li>
+        <li><strong><a href="./error-response-structure.html">Error
+        Response Structure</a></strong> – JSON response format and
+        fields</li>
+        <li><strong><a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a></strong> – Complete status code mapping
+        reference</li>
+        <li><strong><a
+        href="./guidelines-and-best-practices.html">Guidelines &amp;
+        Best Practices</a></strong> – Developer best practices for
+        exception handling</li>
+        <li><strong><a href="./validation-exceptions.html">Validation
+        Exceptions</a></strong> – Handling request validation
+        errors</li>
+        <li><strong><a href="./security-exceptions.html">Security
+        Exceptions</a></strong> – Authentication and authorization error
+        handling</li>
+        <li><strong><a href="../integration/index.html">Integration
+        Architecture</a></strong> – Frontend-backend error contract</li>
+        <li><strong><a href="../index.html">Architecture
+        Overview</a></strong> – Complete backend architecture
+        documentation</li>
+        </ul>
+        <hr />
+        <h2 id="version-history">Version History</h2>
+        <table>
+        <colgroup>
+        <col style="width: 37%" />
+        <col style="width: 25%" />
+        <col style="width: 37%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Version</th>
+        <th>Date</th>
+        <th>Changes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>2.0.0</td>
+        <td>2025-11-20</td>
+        <td>Complete exception architecture documentation (8 files,
+        7000+ lines)</td>
+        </tr>
+        <tr class="even">
+        <td>1.0.0</td>
+        <td>2025-10-15</td>
+        <td>Initial exception handling implementation</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="quick-start-common-scenarios">Quick Start: Common
+        Scenarios</h2>
+        <h3 id="scenario-1-validate-required-field">Scenario 1: Validate
+        Required Field</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Service</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>request<span class="op">.</span><span class="fu">getEmail</span><span class="op">()</span> <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> request<span class="op">.</span><span class="fu">getEmail</span><span class="op">().</span><span class="fu">isBlank</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">requiredField</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: 400 with error token &quot;bad_request&quot;</span></span></code></pre></div>
+        <h3 id="scenario-2-enforce-uniqueness">Scenario 2: Enforce
+        Uniqueness</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Service</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByName</span><span class="op">(</span>name<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">supplierName</span><span class="op">(</span>name<span class="op">);</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: 409 with error token &quot;conflict&quot; and resource context</span></span></code></pre></div>
+        <h3 id="scenario-3-business-rule-violation">Scenario 3: Business
+        Rule Violation</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Service</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>supplier<span class="op">.</span><span class="fu">getStatus</span><span class="op">()</span> <span class="op">==</span> DELETED<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot modify deleted supplier&quot;</span><span class="op">);</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: 409 with error token &quot;conflict&quot;</span></span></code></pre></div>
+        <h3 id="scenario-4-handle-frontend-error">Scenario 4: Handle
+        Frontend Error</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Frontend</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> api<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> data)<span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (response<span class="op">.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">409</span> <span class="op">&amp;&amp;</span> response<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">error</span> <span class="op">===</span> <span class="st">&#39;conflict&#39;</span>) {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> context <span class="op">=</span> response<span class="op">.</span><span class="at">data</span><span class="op">;</span> <span class="co">// { resourceType, conflictField, duplicateValue }</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">showConflictDialog</span>(context)<span class="op">;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="performance-observability">Performance &amp;
+        Observability</h2>
+        <h3 id="correlation-id-benefits">Correlation ID Benefits</h3>
+        <ul>
+        <li>🔍 Link client requests to server logs</li>
+        <li>📊 Track error patterns across requests</li>
+        <li>🐛 Facilitate debugging user-reported issues</li>
+        <li>📈 Analyze error distribution by type/status</li>
+        </ul>
+        <h3 id="timestamp-tracking">Timestamp Tracking</h3>
+        <ul>
+        <li>⏱️ Order errors chronologically in logs</li>
+        <li>🔗 Correlate with other system events</li>
+        <li>📊 Calculate error response times</li>
+        </ul>
+        <h3 id="logging-best-practices">Logging Best Practices</h3>
+        <ul>
+        <li>✅ Log exception details server-side (full stack trace)</li>
+        <li>✅ Include correlation ID in log entries</li>
+        <li>❌ Never expose stack traces to clients</li>
+        <li>❌ Never expose database schema details</li>
+        </ul>
+        <hr />
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <p><strong>Q: I’m not seeing my custom exception handler
+        called?</strong> - A: Ensure your custom exception extends
+        RuntimeException and your handler is in a <span class="citation"
+        data-cites="RestControllerAdvice">@RestControllerAdvice</span>
+        class</p>
+        <p><strong>Q: How do I add context information to
+        errors?</strong> - A: Use factory methods or constructors in
+        custom exceptions to capture context (e.g.,
+        DuplicateResourceException)</p>
+        <p><strong>Q: Why am I getting a generic 500 error instead of
+        meaningful information?</strong> - A: Check logs for correlation
+        ID; use it to find detailed server-side exception logs</p>
+        <p><strong>Q: How do I prevent sensitive data in error
+        messages?</strong> - A: Use the sanitize() method in
+        GlobalExceptionHandler or generic exception messages</p>
+        <hr />
+        <h2 id="next-steps">Next Steps</h2>
+        <ol type="1">
+        <li><strong>Review</strong> <a
+        href="./global-exception-handler.html">Global Exception
+        Handler</a> for implementation details</li>
+        <li><strong>Study</strong> <a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a> for complete status code reference</li>
+        <li><strong>Understand</strong> <a
+        href="./domain-exceptions.html">Domain Exceptions</a> for custom
+        exception patterns</li>
+        <li><strong>Follow</strong> <a
+        href="./guidelines-and-best-practices.html">Guidelines &amp;
+        Best Practices</a> when implementing new exception handling</li>
+        </ol>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

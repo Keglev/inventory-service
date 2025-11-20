@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+exception/error-response-structure · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#errorresponse-structure"
+        id="toc-errorresponse-structure">ErrorResponse Structure</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#json-response-structure"
+        id="toc-json-response-structure">JSON Response Structure</a>
+        <ul>
+        <li><a href="#standard-error-response-format"
+        id="toc-standard-error-response-format">Standard Error Response
+        Format</a></li>
+        <li><a href="#field-definitions"
+        id="toc-field-definitions">Field Definitions</a></li>
+        </ul></li>
+        <li><a href="#field-details" id="toc-field-details">Field
+        Details</a>
+        <ul>
+        <li><a href="#field-1-error" id="toc-field-1-error">Field 1:
+        error</a></li>
+        <li><a href="#field-2-message" id="toc-field-2-message">Field 2:
+        message</a></li>
+        <li><a href="#field-3-timestamp"
+        id="toc-field-3-timestamp">Field 3: timestamp</a></li>
+        <li><a href="#field-4-correlationid"
+        id="toc-field-4-correlationid">Field 4: correlationId</a></li>
+        </ul></li>
+        <li><a href="#correlation-id-benefits"
+        id="toc-correlation-id-benefits">Correlation ID Benefits</a>
+        <ul>
+        <li><a href="#for-debugging" id="toc-for-debugging">For
+        Debugging</a></li>
+        <li><a href="#request-tracking"
+        id="toc-request-tracking">Request Tracking</a></li>
+        <li><a href="#error-pattern-analysis"
+        id="toc-error-pattern-analysis">Error Pattern Analysis</a></li>
+        </ul></li>
+        <li><a href="#errorresponse-implementation"
+        id="toc-errorresponse-implementation">ErrorResponse
+        Implementation</a>
+        <ul>
+        <li><a href="#complete-class-code"
+        id="toc-complete-class-code">Complete Class Code</a></li>
+        <li><a href="#usage-examples" id="toc-usage-examples">Usage
+        Examples</a></li>
+        </ul></li>
+        <li><a href="#http-status-to-error-token-mapping"
+        id="toc-http-status-to-error-token-mapping">HTTP Status to Error
+        Token Mapping</a></li>
+        <li><a href="#response-entity-construction"
+        id="toc-response-entity-construction">Response Entity
+        Construction</a></li>
+        <li><a href="#frontend-integration"
+        id="toc-frontend-integration">Frontend Integration</a>
+        <ul>
+        <li><a href="#parsing-error-responses"
+        id="toc-parsing-error-responses">Parsing Error
+        Responses</a></li>
+        <li><a href="#usage-in-components"
+        id="toc-usage-in-components">Usage in Components</a></li>
+        <li><a href="#error-logging-service"
+        id="toc-error-logging-service">Error Logging Service</a></li>
+        </ul></li>
+        <li><a href="#json-serialization"
+        id="toc-json-serialization">JSON Serialization</a>
+        <ul>
+        <li><a href="#spring-jackson-serialization"
+        id="toc-spring-jackson-serialization">Spring Jackson
+        Serialization</a></li>
+        </ul></li>
+        <li><a href="#testing-error-responses"
+        id="toc-testing-error-responses">Testing Error Responses</a>
+        <ul>
+        <li><a href="#unit-test-example" id="toc-unit-test-example">Unit
+        Test Example</a></li>
+        <li><a href="#integration-test-example"
+        id="toc-integration-test-example">Integration Test
+        Example</a></li>
+        </ul></li>
+        <li><a href="#security-considerations"
+        id="toc-security-considerations">Security Considerations</a>
+        <ul>
+        <li><a href="#information-disclosure-prevention"
+        id="toc-information-disclosure-prevention">Information
+        Disclosure Prevention</a></li>
+        <li><a href="#generic-messages-for-authauthz"
+        id="toc-generic-messages-for-authauthz">Generic Messages for
+        Auth/Authz</a></li>
+        </ul></li>
+        <li><a href="#comparison-with-alternative-designs"
+        id="toc-comparison-with-alternative-designs">Comparison with
+        Alternative Designs</a>
+        <ul>
+        <li><a href="#design-option-1-errorresponse-current"
+        id="toc-design-option-1-errorresponse-current">Design Option 1:
+        ErrorResponse (Current)</a></li>
+        <li><a href="#design-option-2-with-field-errors"
+        id="toc-design-option-2-with-field-errors">Design Option 2: With
+        Field Errors</a></li>
+        <li><a href="#smart-supply-pro-choice"
+        id="toc-smart-supply-pro-choice">Smart Supply Pro
+        Choice</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        <li><a href="#version-history" id="toc-version-history">Version
+        History</a></li>
+        <li><a href="#quick-reference" id="toc-quick-reference">Quick
+        Reference</a>
+        <ul>
+        <li><a href="#errorresponse-json-template"
+        id="toc-errorresponse-json-template">ErrorResponse JSON
+        Template</a></li>
+        <li><a href="#builder-usage" id="toc-builder-usage">Builder
+        Usage</a></li>
+        <li><a href="#error-token-lookup"
+        id="toc-error-token-lookup">Error Token Lookup</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="errorresponse-structure">ErrorResponse Structure</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <p><strong>Back to</strong>: <a href="./index.html">Exception
+        Architecture Index</a> | <a href="../index.html">Architecture
+        Overview</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>The <code>ErrorResponse</code> class is a
+        <strong>standardized DTO (Data Transfer Object)</strong> that
+        defines the structure of all error responses returned by the
+        Smart Supply Pro backend API. It provides a <strong>consistent,
+        predictable format</strong> for clients to parse error
+        information, track requests, and implement robust error
+        handling.</p>
+        <p><strong>Key Features</strong>: - ✅ Immutable error response
+        objects - ✅ Fluent builder pattern for easy construction - ✅
+        Automatic timestamp generation (ISO-8601 UTC) - ✅ Automatic
+        correlation ID generation for request tracking - ✅ Normalized
+        error tokens for client-side error handling - ✅ JSON
+        serialization via getters (Spring auto-detects them)</p>
+        <hr />
+        <h2 id="json-response-structure">JSON Response Structure</h2>
+        <h3 id="standard-error-response-format">Standard Error Response
+        Format</h3>
+        <p>All API errors return this JSON structure:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: email is required&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:45.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="field-definitions">Field Definitions</h3>
+        <table>
+        <colgroup>
+        <col style="width: 22%" />
+        <col style="width: 19%" />
+        <col style="width: 29%" />
+        <col style="width: 29%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Field</th>
+        <th>Type</th>
+        <th>Example</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>error</strong></td>
+        <td>String</td>
+        <td><code>"bad_request"</code></td>
+        <td>Machine-readable error code (lowercase HTTP status
+        name)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>message</strong></td>
+        <td>String</td>
+        <td><code>"Email is required"</code></td>
+        <td>Human-readable description of the error</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>timestamp</strong></td>
+        <td>String (ISO-8601)</td>
+        <td><code>"2025-11-20T14:30:45.123Z"</code></td>
+        <td>UTC timestamp when error occurred</td>
+        </tr>
+        <tr class="even">
+        <td><strong>correlationId</strong></td>
+        <td>String</td>
+        <td><code>"SSP-1700551445123-4891"</code></td>
+        <td>Unique ID linking client request to server logs</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="field-details">Field Details</h2>
+        <h3 id="field-1-error">Field 1: error</h3>
+        <p><strong>Type</strong>: String (machine-readable)</p>
+        <p><strong>Format</strong>: Lowercase HTTP status name (e.g.,
+        “bad_request”, “unauthorized”, “not_found”)</p>
+        <p><strong>Valid Values</strong>: - <code>"bad_request"</code> –
+        400 Bad Request (validation, parameter errors) -
+        <code>"unauthorized"</code> – 401 Unauthorized (authentication
+        failure) - <code>"forbidden"</code> – 403 Forbidden
+        (authorization failure) - <code>"not_found"</code> – 404 Not
+        Found (resource doesn’t exist) - <code>"conflict"</code> – 409
+        Conflict (duplicate, concurrent update) -
+        <code>"internal_server_error"</code> – 500 Internal Server Error
+        (unhandled exception)</p>
+        <p><strong>Derivation</strong>:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> Builder <span class="fu">status</span><span class="op">(</span>HttpStatus status<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">status</span> <span class="op">=</span> status<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">error</span> <span class="op">=</span> status<span class="op">.</span><span class="fu">name</span><span class="op">().</span><span class="fu">toLowerCase</span><span class="op">();</span> <span class="co">// e.g., BAD_REQUEST → &quot;bad_request&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage in Frontend</strong>:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Switch on error token for specific handling</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">switch</span> (error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">error</span>) {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="st">&#39;bad_request&#39;</span><span class="op">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Show validation errors to user</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">displayValidationForm</span>(error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span>)<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="st">&#39;unauthorized&#39;</span><span class="op">:</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Redirect to login</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">redirectToLogin</span>()<span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="st">&#39;conflict&#39;</span><span class="op">:</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Show conflict resolution dialog</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">showConflictDialog</span>(error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span>)<span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h3 id="field-2-message">Field 2: message</h3>
+        <p><strong>Type</strong>: String (human-readable)</p>
+        <p><strong>Purpose</strong>: Describes the error in plain
+        language for users and developers.</p>
+        <p><strong>Content Guidelines</strong>: - ✅ Specific:
+        “Validation failed: email must be valid format” - ✅ Actionable:
+        “Missing required field: quantity” - ✅ User-friendly: “Password
+        must be at least 8 characters” - ❌ Generic: “Error occurred”
+        (not specific) - ❌ Leaky: Shows SQL or schema details (security
+        risk) - ❌ Too long: Abbreviated for readability</p>
+        <p><strong>Examples</strong>:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Validation</span> <span class="er">failure</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: email is required, password must be at least 8 characters&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Conflict</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier with name &#39;ACME Inc&#39; already exists&quot;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Authentication</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Authentication failed: invalid credentials or expired session&quot;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Not</span> <span class="er">found</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;not_found&quot;</span><span class="fu">,</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier with ID 999 not found&quot;</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Server</span> <span class="er">error</span> <span class="er">(generic</span> <span class="er">to</span> <span class="er">prevent</span> <span class="er">information</span> <span class="er">disclosure)</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;internal_server_error&quot;</span><span class="fu">,</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;An unexpected error occurred. Please contact support.&quot;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Fallback Behavior</strong>:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> Builder <span class="fu">message</span><span class="op">(</span><span class="bu">String</span> message<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">message</span> <span class="op">=</span> <span class="op">(</span>message <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> message<span class="op">.</span><span class="fu">isBlank</span><span class="op">())</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">?</span> <span class="op">(</span>status <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> status<span class="op">.</span><span class="fu">getReasonPhrase</span><span class="op">()</span> <span class="op">:</span> <span class="st">&quot;Unknown error&quot;</span><span class="op">)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">:</span> message<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">this</span><span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p>If no message provided, uses HTTP status reason phrase (e.g.,
+        “Bad Request”, “Unauthorized”).</p>
+        <hr />
+        <h3 id="field-3-timestamp">Field 3: timestamp</h3>
+        <p><strong>Type</strong>: String (ISO-8601 format)</p>
+        <p><strong>Format</strong>:
+        <code>"YYYY-MM-DDTHH:mm:ss.sssZ"</code> (UTC/Zulu time)</p>
+        <p><strong>Example</strong>:
+        <code>"2025-11-20T14:30:45.123Z"</code></p>
+        <p><strong>Generation</strong>:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span><span class="kw">this</span><span class="op">.</span><span class="fu">timestamp</span> <span class="op">==</span> <span class="kw">null</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">timestamp</span> <span class="op">=</span> Instant<span class="op">.</span><span class="fu">now</span><span class="op">().</span><span class="fu">toString</span><span class="op">();</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Uses</strong>: - 🔍 Correlate with server-side logs
+        by timestamp - 📊 Track error frequency over time - 🔗 Order
+        errors chronologically - 📈 Analyze error patterns across
+        request history</p>
+        <p><strong>Parsing in Frontend</strong>:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> errorTime <span class="op">=</span> <span class="kw">new</span> <span class="bu">Date</span>(error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">timestamp</span>)<span class="op">;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Error occurred at: </span><span class="sc">${</span>errorTime<span class="op">.</span><span class="fu">toLocaleString</span>()<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Calculate time difference</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> now <span class="op">=</span> <span class="kw">new</span> <span class="bu">Date</span>()<span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> timeDiff <span class="op">=</span> now <span class="op">-</span> errorTime<span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Error was </span><span class="sc">${</span>timeDiff<span class="sc">}</span><span class="vs">ms ago`</span>)<span class="op">;</span></span></code></pre></div>
+        <p><strong>ISO-8601 Format Details</strong>: - ✅ UTC/Zulu time
+        (ends with ‘Z’) - ✅ No timezone offset (always UTC) - ✅
+        Millisecond precision (3 decimal places) - ✅ Sortable as string
+        (YYYY-MM-DD order)</p>
+        <hr />
+        <h3 id="field-4-correlationid">Field 4: correlationId</h3>
+        <p><strong>Type</strong>: String (unique identifier)</p>
+        <p><strong>Format</strong>:
+        <code>"SSP-{timestamp}-{randomNumber}"</code></p>
+        <p><strong>Example</strong>:
+        <code>"SSP-1700551445123-4891"</code></p>
+        <p><strong>Generation</strong>:</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">String</span> <span class="fu">generateCorrelationId</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;SSP-&quot;</span> <span class="op">+</span> <span class="bu">System</span><span class="op">.</span><span class="fu">currentTimeMillis</span><span class="op">()</span> <span class="op">+</span> <span class="st">&quot;-&quot;</span> <span class="op">+</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>           ThreadLocalRandom<span class="op">.</span><span class="fu">current</span><span class="op">().</span><span class="fu">nextInt</span><span class="op">(</span><span class="dv">1000</span><span class="op">,</span> <span class="dv">9999</span><span class="op">);</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Components</strong>: - <strong>“SSP”</strong> –
+        Project prefix (Smart Supply Pro) - <strong>{timestamp}</strong>
+        – Current milliseconds (uniqueness across time) -
+        <strong>{randomNumber}</strong> – 4-digit random number
+        (uniqueness in same millisecond)</p>
+        <p><strong>Example Generation</strong>:</p>
+        <pre><code>Timestamp: 1700551445123 (Nov 20, 2025 14:30:45.123 UTC)
+Random: 4891
+Correlation ID: SSP-1700551445123-4891</code></pre>
+        <hr />
+        <h2 id="correlation-id-benefits">Correlation ID Benefits</h2>
+        <h3 id="for-debugging">For Debugging</h3>
+        <p><strong>Frontend Side</strong>:</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> api<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> data)<span class="op">;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> correlationId <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">correlationId</span><span class="op">;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`Error occurred: </span><span class="sc">${</span>correlationId<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// User reports: &quot;I got error SSP-1700551445123-4891&quot;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <p><strong>Backend Side</strong> (finding the error):</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Search logs for the correlation ID</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span> application.log</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Result: Full stack trace with complete error details</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># (only shown server-side, never to client)</span></span></code></pre></div>
+        <h3 id="request-tracking">Request Tracking</h3>
+        <pre><code>Client Request:
+  POST /api/suppliers
+  → Generates correlation ID: SSP-1700551445123-4891
+
+Server Processing:
+  → MDC (Mapped Diagnostic Context) includes correlation ID
+  → All log lines include: [SSP-1700551445123-4891] 
+  → Database queries also logged with correlation ID
+  → Response includes same correlation ID
+
+Client receives error with correlation ID:
+  → Can cite exact error occurrence for support
+  → Enables precise server-side investigation</code></pre>
+        <h3 id="error-pattern-analysis">Error Pattern Analysis</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Aggregate error metrics</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> errorLog <span class="op">=</span> [</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    { <span class="dt">error</span><span class="op">:</span> <span class="st">&#39;bad_request&#39;</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">145</span><span class="op">,</span> <span class="dt">time</span><span class="op">:</span> <span class="st">&#39;2025-11-20T10:00:00Z&#39;</span> }<span class="op">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    { <span class="dt">error</span><span class="op">:</span> <span class="st">&#39;conflict&#39;</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">32</span><span class="op">,</span> <span class="dt">time</span><span class="op">:</span> <span class="st">&#39;2025-11-20T11:00:00Z&#39;</span> }<span class="op">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    { <span class="dt">error</span><span class="op">:</span> <span class="st">&#39;unauthorized&#39;</span><span class="op">,</span> <span class="dt">count</span><span class="op">:</span> <span class="dv">8</span><span class="op">,</span> <span class="dt">time</span><span class="op">:</span> <span class="st">&#39;2025-11-20T12:00:00Z&#39;</span> }</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>]<span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Find spike in 400 errors → investigate validation rules</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Find spike in 409 errors → investigate concurrency issues</span></span></code></pre></div>
+        <hr />
+        <h2 id="errorresponse-implementation">ErrorResponse
+        Implementation</h2>
+        <h3 id="complete-class-code">Complete Class Code</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ErrorResponse <span class="op">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> error<span class="op">;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> message<span class="op">;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> timestamp<span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> correlationId<span class="op">;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="fu">ErrorResponse</span><span class="op">(</span>Builder builder<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">error</span> <span class="op">=</span> builder<span class="op">.</span><span class="fu">error</span><span class="op">;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">message</span> <span class="op">=</span> builder<span class="op">.</span><span class="fu">message</span><span class="op">;</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">timestamp</span> <span class="op">=</span> builder<span class="op">.</span><span class="fu">timestamp</span><span class="op">;</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">correlationId</span> <span class="op">=</span> builder<span class="op">.</span><span class="fu">correlationId</span><span class="op">;</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Getters (used by Spring JSON serialization)</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getError</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> error<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getMessage</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> message<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getTimestamp</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> timestamp<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getCorrelationId</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> correlationId<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Builder for fluent construction</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> Builder <span class="fu">builder</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">Builder</span><span class="op">();</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="kw">class</span> Builder <span class="op">{</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">private</span> <span class="bu">String</span> error<span class="op">;</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>        <span class="kw">private</span> <span class="bu">String</span> message<span class="op">;</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>        <span class="kw">private</span> <span class="bu">String</span> timestamp<span class="op">;</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>        <span class="kw">private</span> <span class="bu">String</span> correlationId<span class="op">;</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>        <span class="kw">private</span> HttpStatus status<span class="op">;</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>        <span class="kw">public</span> Builder <span class="fu">status</span><span class="op">(</span>HttpStatus status<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>            <span class="kw">this</span><span class="op">.</span><span class="fu">status</span> <span class="op">=</span> status<span class="op">;</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>            <span class="kw">this</span><span class="op">.</span><span class="fu">error</span> <span class="op">=</span> status<span class="op">.</span><span class="fu">name</span><span class="op">().</span><span class="fu">toLowerCase</span><span class="op">();</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">this</span><span class="op">;</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>        <span class="kw">public</span> Builder <span class="fu">message</span><span class="op">(</span><span class="bu">String</span> message<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>            <span class="kw">this</span><span class="op">.</span><span class="fu">message</span> <span class="op">=</span> <span class="op">(</span>message <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> message<span class="op">.</span><span class="fu">isBlank</span><span class="op">())</span> </span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>                <span class="op">?</span> <span class="op">(</span>status <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> status<span class="op">.</span><span class="fu">getReasonPhrase</span><span class="op">()</span> <span class="op">:</span> <span class="st">&quot;Unknown error&quot;</span><span class="op">)</span></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>                <span class="op">:</span> message<span class="op">;</span></span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">this</span><span class="op">;</span></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>        <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">build</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Auto-generate timestamp if not provided</span></span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span><span class="kw">this</span><span class="op">.</span><span class="fu">timestamp</span> <span class="op">==</span> <span class="kw">null</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>                <span class="kw">this</span><span class="op">.</span><span class="fu">timestamp</span> <span class="op">=</span> Instant<span class="op">.</span><span class="fu">now</span><span class="op">().</span><span class="fu">toString</span><span class="op">();</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Auto-generate correlation ID if not provided</span></span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span><span class="kw">this</span><span class="op">.</span><span class="fu">correlationId</span> <span class="op">==</span> <span class="kw">null</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>                <span class="kw">this</span><span class="op">.</span><span class="fu">correlationId</span> <span class="op">=</span> <span class="fu">generateCorrelationId</span><span class="op">();</span></span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>            ErrorResponse response <span class="op">=</span> <span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="kw">this</span><span class="op">);</span></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>status<span class="op">)</span></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">body</span><span class="op">(</span>response<span class="op">);</span></span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>        <span class="kw">private</span> <span class="bu">String</span> <span class="fu">generateCorrelationId</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="st">&quot;SSP-&quot;</span> <span class="op">+</span> <span class="bu">System</span><span class="op">.</span><span class="fu">currentTimeMillis</span><span class="op">()</span> <span class="op">+</span> <span class="st">&quot;-&quot;</span> <span class="op">+</span> </span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a>                   ThreadLocalRandom<span class="op">.</span><span class="fu">current</span><span class="op">().</span><span class="fu">nextInt</span><span class="op">(</span><span class="dv">1000</span><span class="op">,</span> <span class="dv">9999</span><span class="op">);</span></span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Key Design</strong>: - ✅ <strong>Immutable</strong>
+        – No setters, only private fields - ✅ <strong>Builder
+        Pattern</strong> – Fluent, chainable construction - ✅
+        <strong>Auto-Generation</strong> – Timestamp and correlation ID
+        auto-created - ✅ <strong>Type-Safe</strong> – HttpStatus enum
+        prevents invalid error tokens - ✅ <strong>JSON-Ready</strong> –
+        Getter methods enable automatic serialization</p>
+        <h3 id="usage-examples">Usage Examples</h3>
+        <p><strong>In Exception Handler</strong>:</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">ValidationException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleValidation</span><span class="op">(</span><span class="bu">ValidationException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span><span class="op">)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Validation failed: &quot;</span> <span class="op">+</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>With Custom Message</strong>:</p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Supplier name &#39;ACME&#39; already exists in database&quot;</span><span class="op">)</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <p><strong>Fallback to Status Reason</strong>:</p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">NOT_FOUND</span><span class="op">)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        <span class="co">// No .message() call → defaults to &quot;Not Found&quot;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <hr />
+        <h2 id="http-status-to-error-token-mapping">HTTP Status to Error
+        Token Mapping</h2>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// HTTP Status → Error Token (lowercase)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span>              → <span class="st">&quot;bad_request&quot;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>HttpStatus<span class="op">.</span><span class="fu">UNAUTHORIZED</span>             → <span class="st">&quot;unauthorized&quot;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>HttpStatus<span class="op">.</span><span class="fu">FORBIDDEN</span>                → <span class="st">&quot;forbidden&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>HttpStatus<span class="op">.</span><span class="fu">NOT_FOUND</span>                → <span class="st">&quot;not_found&quot;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span>                 → <span class="st">&quot;conflict&quot;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>HttpStatus<span class="op">.</span><span class="fu">INTERNAL_SERVER_ERROR</span>    → <span class="st">&quot;internal_server_error&quot;</span></span></code></pre></div>
+        <p><strong>Why Lowercase?</strong> - ✅ RESTful convention (JSON
+        uses camelCase/lowercase) - ✅ Easier to handle in JavaScript
+        (no constant conversion) - ✅ Consistent with JSON field naming
+        - ✅ Less verbose than ENUM names (BAD_REQUEST vs
+        bad_request)</p>
+        <hr />
+        <h2 id="response-entity-construction">Response Entity
+        Construction</h2>
+        <p>The builder returns a <strong>ResponseEntity</strong>:</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">build</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... generate timestamp and correlation ID ...</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    ErrorResponse response <span class="op">=</span> <span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="kw">this</span><span class="op">);</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>status<span class="op">)</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">body</span><span class="op">(</span>response<span class="op">);</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Result</strong>:</p>
+        <pre><code>HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+  &quot;error&quot;: &quot;bad_request&quot;,
+  &quot;message&quot;: &quot;Validation failed: email is required&quot;,
+  &quot;timestamp&quot;: &quot;2025-11-20T14:30:45.123Z&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551445123-4891&quot;
+}</code></pre>
+        <hr />
+        <h2 id="frontend-integration">Frontend Integration</h2>
+        <h3 id="parsing-error-responses">Parsing Error Responses</h3>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">// TypeScript interface for type safety</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">interface</span> ErrorResponse {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    error<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    message<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    timestamp<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    correlationId<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Error handler utility</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">handleApiError</span>(error<span class="op">:</span> AxiosError<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span>) {</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> errorData <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>errorData) {</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Unknown error occurred&#39;</span>)<span class="op">;</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`[</span><span class="sc">${</span>errorData<span class="op">.</span><span class="at">correlationId</span><span class="sc">}</span><span class="vs">] </span><span class="sc">${</span>errorData<span class="op">.</span><span class="at">error</span><span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>errorData<span class="op">.</span><span class="at">message</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`Time: </span><span class="sc">${</span>errorData<span class="op">.</span><span class="at">timestamp</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <h3 id="usage-in-components">Usage in Components</h3>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">submitSupplier</span>(formData) {</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> api<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/suppliers&#39;</span><span class="op">,</span> formData)<span class="op">;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">showSuccessMessage</span>(<span class="st">&#39;Supplier created successfully&#39;</span>)<span class="op">;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (error) {</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> errorData <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Log with correlation ID for debugging</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`Error </span><span class="sc">${</span>errorData<span class="op">.</span><span class="at">correlationId</span><span class="sc">}</span><span class="vs">: </span><span class="sc">${</span>errorData<span class="op">.</span><span class="at">message</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Show user-friendly message</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">showErrorMessage</span>(errorData<span class="op">.</span><span class="at">message</span>)<span class="op">;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Allow user to copy correlation ID for support</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">showSupportInfo</span>(<span class="vs">`Report ID: </span><span class="sc">${</span>errorData<span class="op">.</span><span class="at">correlationId</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <h3 id="error-logging-service">Error Logging Service</h3>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">class</span> ErrorLogger {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">log</span>(error<span class="op">:</span> ErrorResponse<span class="op">,</span> context<span class="op">?:</span> <span class="dt">string</span>) {</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> logEntry <span class="op">=</span> {</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>            timestamp<span class="op">:</span> error<span class="op">.</span><span class="at">timestamp</span><span class="op">,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>            correlationId<span class="op">:</span> error<span class="op">.</span><span class="at">correlationId</span><span class="op">,</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>            errorCode<span class="op">:</span> error<span class="op">.</span><span class="at">error</span><span class="op">,</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>            message<span class="op">:</span> error<span class="op">.</span><span class="at">message</span><span class="op">,</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>            context<span class="op">:</span> context <span class="op">||</span> <span class="st">&#39;Unknown context&#39;</span><span class="op">,</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>            userAgent<span class="op">:</span> <span class="bu">navigator</span><span class="op">.</span><span class="at">userAgent</span><span class="op">,</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>            url<span class="op">:</span> <span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">href</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>        }<span class="op">;</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Send to analytics/logging service</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>        analytics<span class="op">.</span><span class="fu">logError</span>(logEntry)<span class="op">;</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Store in local sessionStorage for support team</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>        sessionStorage<span class="op">.</span><span class="fu">setItem</span>(<span class="st">&#39;lastError&#39;</span><span class="op">,</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(logEntry))<span class="op">;</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="json-serialization">JSON Serialization</h2>
+        <h3 id="spring-jackson-serialization">Spring Jackson
+        Serialization</h3>
+        <p>Spring Framework automatically serializes ErrorResponse to
+        JSON:</p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>ObjectMapper mapper <span class="op">=</span> <span class="kw">new</span> <span class="fu">ObjectMapper</span><span class="op">();</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>ErrorResponse error <span class="op">=</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span><span class="op">)</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Invalid input&quot;</span><span class="op">)</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Serializes to:</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">// {&quot;error&quot;:&quot;bad_request&quot;,&quot;message&quot;:&quot;Invalid input&quot;,&quot;timestamp&quot;:&quot;2025-11-20T14:30:45.123Z&quot;,&quot;correlationId&quot;:&quot;SSP-...&quot;}</span></span></code></pre></div>
+        <p><strong>How It Works</strong>: 1. Spring detects
+        ResponseEntity<ErrorResponse> 2. Looks for getter methods
+        (getError(), getMessage(), etc.) 3. Maps method names to JSON
+        fields (getError → “error”) 4. Uses Jackson to serialize to
+        JSON</p>
+        <p><strong>Field Order</strong> (from getter method order):</p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getError</span><span class="op">()</span>          → <span class="st">&quot;error&quot;</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">getMessage</span><span class="op">()</span>        → <span class="st">&quot;message&quot;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">getTimestamp</span><span class="op">()</span>      → <span class="st">&quot;timestamp&quot;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">getCorrelationId</span><span class="op">()</span>  → <span class="st">&quot;correlationId&quot;</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-error-responses">Testing Error Responses</h2>
+        <h3 id="unit-test-example">Unit Test Example</h3>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testErrorResponseBuilder</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    ErrorResponse error <span class="op">=</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Resource already exists&quot;</span><span class="op">)</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">()</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">getBody</span><span class="op">();</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>error<span class="op">).</span><span class="fu">isNotNull</span><span class="op">();</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>error<span class="op">.</span><span class="fu">getError</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span><span class="st">&quot;conflict&quot;</span><span class="op">);</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>error<span class="op">.</span><span class="fu">getMessage</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span><span class="st">&quot;Resource already exists&quot;</span><span class="op">);</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>error<span class="op">.</span><span class="fu">getTimestamp</span><span class="op">()).</span><span class="fu">isNotBlank</span><span class="op">();</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>error<span class="op">.</span><span class="fu">getCorrelationId</span><span class="op">())</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">startsWith</span><span class="op">(</span><span class="st">&quot;SSP-&quot;</span><span class="op">)</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">matches</span><span class="op">(</span><span class="st">&quot;SSP-</span><span class="sc">\\</span><span class="st">d+-</span><span class="sc">\\</span><span class="st">d{4}&quot;</span><span class="op">);</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="integration-test-example">Integration Test Example</h3>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testValidationErrorResponse</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    MockHttpServletResponse response <span class="op">=</span> mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>APPLICATION_JSON<span class="op">)</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">content</span><span class="op">(</span><span class="st">&quot;{</span><span class="sc">\&quot;</span><span class="st">name</span><span class="sc">\&quot;</span><span class="st">: </span><span class="sc">\&quot;\&quot;</span><span class="st">}&quot;</span><span class="op">)</span> <span class="co">// Empty name</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isBadRequest</span><span class="op">())</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">andReturn</span><span class="op">()</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">getResponse</span><span class="op">();</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> body <span class="op">=</span> response<span class="op">.</span><span class="fu">getContentAsString</span><span class="op">();</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    JsonNode json <span class="op">=</span> objectMapper<span class="op">.</span><span class="fu">readTree</span><span class="op">(</span>body<span class="op">);</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>json<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;error&quot;</span><span class="op">).</span><span class="fu">asText</span><span class="op">()).</span><span class="fu">isEqualTo</span><span class="op">(</span><span class="st">&quot;bad_request&quot;</span><span class="op">);</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>json<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;message&quot;</span><span class="op">).</span><span class="fu">asText</span><span class="op">()).</span><span class="fu">contains</span><span class="op">(</span><span class="st">&quot;Validation&quot;</span><span class="op">);</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>json<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;timestamp&quot;</span><span class="op">).</span><span class="fu">asText</span><span class="op">()).</span><span class="fu">matches</span><span class="op">(</span>ISO8601_PATTERN<span class="op">);</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>json<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;correlationId&quot;</span><span class="op">).</span><span class="fu">asText</span><span class="op">()).</span><span class="fu">matches</span><span class="op">(</span><span class="st">&quot;SSP-</span><span class="sc">\\</span><span class="st">d+-</span><span class="sc">\\</span><span class="st">d{4}&quot;</span><span class="op">);</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="security-considerations">Security Considerations</h2>
+        <h3 id="information-disclosure-prevention">Information
+        Disclosure Prevention</h3>
+        <p><strong>Bad Practice</strong> ❌:</p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;internal_server_error&quot;</span><span class="fu">,</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;NullPointerException in SupplierService.java:45 while processing SQL query: SELECT * FROM SUPPLIERS WHERE id = ?&quot;</span><span class="fu">,</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Good Practice</strong> ✅:</p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;internal_server_error&quot;</span><span class="fu">,</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;An unexpected error occurred. Please contact support.&quot;</span><span class="fu">,</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: The correlation ID allows support team
+        to look up the detailed error server-side without exposing
+        sensitive information to the client.</p>
+        <h3 id="generic-messages-for-authauthz">Generic Messages for
+        Auth/Authz</h3>
+        <p><strong>Bad</strong> ❌:</p>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;User &#39;john@example.com&#39; not found in database&quot;</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Good</strong> ✅:</p>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Authentication failed&quot;</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Prevents attacker from determining
+        which email addresses are registered (user enumeration
+        attack).</p>
+        <hr />
+        <h2 id="comparison-with-alternative-designs">Comparison with
+        Alternative Designs</h2>
+        <h3 id="design-option-1-errorresponse-current">Design Option 1:
+        ErrorResponse (Current)</h3>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Email is required&quot;</span><span class="fu">,</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:45.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Pros</strong>: - ✅ Simple, flat structure - ✅ Easy
+        to parse - ✅ Includes correlation ID for debugging - ✅
+        ISO-8601 timestamp</p>
+        <p><strong>Cons</strong>: - ❌ No field-level error details - ❌
+        Single message for all validation errors</p>
+        <h3 id="design-option-2-with-field-errors">Design Option 2: With
+        Field Errors</h3>
+        <div class="sourceCode" id="cb33"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed&quot;</span><span class="fu">,</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;fieldErrors&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;must be valid format&quot;</span><span class="fu">,</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;password&quot;</span><span class="fu">:</span> <span class="st">&quot;must be at least 8 characters&quot;</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Pros</strong>: - ✅ Detailed field-level errors - ✅
+        Structured error data</p>
+        <p><strong>Cons</strong>: - ❌ More complex parsing - ❌
+        Optional fieldErrors make parsing harder</p>
+        <h3 id="smart-supply-pro-choice">Smart Supply Pro Choice</h3>
+        <p>We use <strong>Option 1 (Simple)</strong> because: - ✅
+        Validation errors handled by InvalidRequestException with
+        structured field details - ✅ Keeps ErrorResponse DTOresponse
+        lightweight - ✅ Domain exceptions can include context in their
+        fields - ✅ Frontend can parse message string if needed</p>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Exception Architecture
+        Overview</a></strong> – Exception types, handler ordering,
+        execution flow</li>
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – How ErrorResponse is built in
+        exception handlers</li>
+        <li><strong><a href="./domain-exceptions.html">Domain
+        Exceptions</a></strong> – Custom exceptions that populate
+        ErrorResponse</li>
+        <li><strong><a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a></strong> – Complete status code mapping
+        reference</li>
+        <li><strong><a
+        href="./guidelines-and-best-practices.html">Guidelines &amp;
+        Best Practices</a></strong> – Best practices for error
+        handling</li>
+        </ul>
+        <hr />
+        <h2 id="version-history">Version History</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Version</th>
+        <th>Date</th>
+        <th>Changes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>1.0.0</td>
+        <td>2025-11-20</td>
+        <td>Initial comprehensive documentation</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="quick-reference">Quick Reference</h2>
+        <h3 id="errorresponse-json-template">ErrorResponse JSON
+        Template</h3>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;[error-token]&quot;</span><span class="fu">,</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;[human-readable message]&quot;</span><span class="fu">,</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;[ISO-8601 UTC timestamp]&quot;</span><span class="fu">,</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;[SSP-{timestamp}-{random}]&quot;</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <h3 id="builder-usage">Builder Usage</h3>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Basic usage</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span><span class="op">)</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Error description&quot;</span><span class="op">)</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co">// With multiple chained calls</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Resource already exists&quot;</span><span class="op">)</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Fallback to status reason phrase</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">NOT_FOUND</span><span class="op">)</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// message() not called → defaults to &quot;Not Found&quot;</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <h3 id="error-token-lookup">Error Token Lookup</h3>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Token</th>
+        <th>HTTP Status</th>
+        <th>Meaning</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>bad_request</code></td>
+        <td>400</td>
+        <td>Validation or parameter error</td>
+        </tr>
+        <tr class="even">
+        <td><code>unauthorized</code></td>
+        <td>401</td>
+        <td>Authentication failed</td>
+        </tr>
+        <tr class="odd">
+        <td><code>forbidden</code></td>
+        <td>403</td>
+        <td>Authorization failed</td>
+        </tr>
+        <tr class="even">
+        <td><code>not_found</code></td>
+        <td>404</td>
+        <td>Resource not found</td>
+        </tr>
+        <tr class="odd">
+        <td><code>conflict</code></td>
+        <td>409</td>
+        <td>Duplicate or concurrent update</td>
+        </tr>
+        <tr class="even">
+        <td><code>internal_server_error</code></td>
+        <td>500</td>
+        <td>Unhandled exception</td>
+        </tr>
+        </tbody>
+        </table>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

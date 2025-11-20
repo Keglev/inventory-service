@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+exception/security-exceptions · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#security-exceptions"
+        id="toc-security-exceptions">Security Exceptions</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#exception-types"
+        id="toc-exception-types">Exception Types</a></li>
+        <li><a
+        href="#exception-1-authenticationexception-401-unauthorized"
+        id="toc-exception-1-authenticationexception-401-unauthorized">Exception
+        1: AuthenticationException (401 Unauthorized)</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#trigger-scenarios"
+        id="toc-trigger-scenarios">Trigger Scenarios</a></li>
+        <li><a href="#security-best-practices"
+        id="toc-security-best-practices">Security Best
+        Practices</a></li>
+        <li><a href="#frontend-handling"
+        id="toc-frontend-handling">Frontend Handling</a></li>
+        </ul></li>
+        <li><a href="#exception-2-accessdeniedexception-403-forbidden"
+        id="toc-exception-2-accessdeniedexception-403-forbidden">Exception
+        2: AccessDeniedException (403 Forbidden)</a>
+        <ul>
+        <li><a href="#purpose-1" id="toc-purpose-1">Purpose</a></li>
+        <li><a href="#trigger-scenarios-1"
+        id="toc-trigger-scenarios-1">Trigger Scenarios</a></li>
+        <li><a href="#security-best-practices-1"
+        id="toc-security-best-practices-1">Security Best
+        Practices</a></li>
+        <li><a href="#frontend-handling-1"
+        id="toc-frontend-handling-1">Frontend Handling</a></li>
+        </ul></li>
+        <li><a href="#common-authenticationauthorization-scenarios"
+        id="toc-common-authenticationauthorization-scenarios">Common
+        Authentication/Authorization Scenarios</a>
+        <ul>
+        <li><a href="#scenario-a-login-flow-with-invalid-credentials"
+        id="toc-scenario-a-login-flow-with-invalid-credentials">Scenario
+        A: Login Flow with Invalid Credentials</a></li>
+        <li><a href="#scenario-b-expired-sessiontoken"
+        id="toc-scenario-b-expired-sessiontoken">Scenario B: Expired
+        Session/Token</a></li>
+        <li><a href="#scenario-c-missing-admin-role"
+        id="toc-scenario-c-missing-admin-role">Scenario C: Missing Admin
+        Role</a></li>
+        <li><a href="#scenario-d-token-not-provided"
+        id="toc-scenario-d-token-not-provided">Scenario D: Token Not
+        Provided</a></li>
+        </ul></li>
+        <li><a href="#implementation-examples"
+        id="toc-implementation-examples">Implementation Examples</a>
+        <ul>
+        <li><a href="#spring-security-configuration"
+        id="toc-spring-security-configuration">Spring Security
+        Configuration</a></li>
+        <li><a href="#jwt-token-validation"
+        id="toc-jwt-token-validation">JWT Token Validation</a></li>
+        </ul></li>
+        <li><a href="#testing-security-exceptions"
+        id="toc-testing-security-exceptions">Testing Security
+        Exceptions</a>
+        <ul>
+        <li><a href="#unit-test-authentication-failure"
+        id="toc-unit-test-authentication-failure">Unit Test:
+        Authentication Failure</a></li>
+        <li><a href="#unit-test-authorization-failure"
+        id="toc-unit-test-authorization-failure">Unit Test:
+        Authorization Failure</a></li>
+        </ul></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a>
+        <ul>
+        <li><a href="#do" id="toc-do">DO:</a></li>
+        <li><a href="#dont" id="toc-dont">DON’T:</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        <li><a href="#version-history" id="toc-version-history">Version
+        History</a></li>
+        <li><a href="#quick-reference" id="toc-quick-reference">Quick
+        Reference</a>
+        <ul>
+        <li><a href="#http-status-codes" id="toc-http-status-codes">HTTP
+        Status Codes</a></li>
+        <li><a href="#generic-messages"
+        id="toc-generic-messages">Generic Messages</a></li>
+        <li><a href="#error-handling-flow"
+        id="toc-error-handling-flow">Error Handling Flow</a></li>
+        <li><a href="#logging-checklist"
+        id="toc-logging-checklist">Logging Checklist</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="security-exceptions">Security Exceptions</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="overview">Overview</h2>
+        <p>Security exceptions are <strong>authentication and
+        authorization errors</strong> with <strong>special handling for
+        sensitive information</strong>. Unlike other exception types,
+        security exceptions must use <strong>generic error
+        messages</strong> to prevent security vulnerabilities (user
+        enumeration, permission enumeration attacks).</p>
+        <p><strong>Key Characteristics</strong>: - ✅ Map to HTTP 401
+        (authentication) and 403 (authorization) - ✅ Use generic
+        messages (prevent information disclosure) - ✅ Full details
+        logged server-side (never exposed to client) - ✅ Correlation
+        IDs enable server-side investigation - ✅ Clear for legitimate
+        users, frustrate attackers - ✅ Consistent error responses
+        across auth/authz failures</p>
+        <hr />
+        <h2 id="exception-types">Exception Types</h2>
+        <div class="mermaid">
+        graph TD
+            A["Security Exceptions"] --> B["Authentication<br/>401 Unauthorized"]
+            A --> C["Authorization<br/>403 Forbidden"]
+            
+            B --> B1["User Not Authenticated<br/>Missing/invalid credentials"]
+            B --> B2["Token Expired<br/>JWT/session invalid"]
+            B --> B3["Credentials Invalid<br/>Wrong password"]
+            
+            C --> C1["Missing Required Role<br/>@PreAuthorize hasRole"]
+            C --> C2["Missing Permission<br/>Custom policy"]
+            C --> C3["Resource Owner Mismatch<br/>Not the owner"]
+        </div>
+        <hr />
+        <h2
+        id="exception-1-authenticationexception-401-unauthorized">Exception
+        1: AuthenticationException (401 Unauthorized)</h2>
+        <h3 id="purpose">Purpose</h3>
+        <p>Thrown when <strong>user authentication fails</strong> (not
+        logged in, invalid credentials, expired token). Maps to
+        <strong>HTTP 401 Unauthorized</strong>.</p>
+        <p><strong>Use Cases</strong>: - User not authenticated (no
+        token/session) - Token is expired - Token is invalid (tampered
+        with) - Credentials (username/password) don’t match - Session
+        has been invalidated</p>
+        <h3 id="trigger-scenarios">Trigger Scenarios</h3>
+        <h4
+        id="scenario-1-accessing-protected-resource-without-token">Scenario
+        1: Accessing Protected Resource Without Token</h4>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/profile&quot;</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated()&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ProfileDTO <span class="fu">getProfile</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If user not authenticated → AuthenticationException</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> userService<span class="op">.</span><span class="fu">getCurrentUserProfile</span><span class="op">();</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Request</strong>:</p>
+        <pre><code>GET /api/profile
+(no Authorization header)</code></pre>
+        <p><strong>GlobalExceptionHandler</strong>:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">AuthenticationException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleAuthentication</span><span class="op">(</span><span class="bu">AuthenticationException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Generic message - don&#39;t leak whether user exists or password is wrong</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">UNAUTHORIZED</span><span class="op">)</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Authentication failed: invalid credentials or expired session&quot;</span><span class="op">)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response (401)</strong>:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Authentication failed: invalid credentials or expired session&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:45.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4 id="scenario-2-expired-jwt-token">Scenario 2: Expired JWT
+        Token</h4>
+        <p><strong>JWT Validation</strong>:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> JwtAuthenticationFilter <span class="kw">extends</span> OncePerRequestFilter <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">protected</span> <span class="dt">void</span> <span class="fu">doFilterInternal</span><span class="op">(</span>HttpServletRequest request<span class="op">,</span> </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                                   HttpServletResponse response<span class="op">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                                   FilterChain filterChain<span class="op">)</span> <span class="kw">throws</span> ServletException<span class="op">,</span> <span class="bu">IOException</span> <span class="op">{</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span> token <span class="op">=</span> <span class="fu">extractToken</span><span class="op">(</span>request<span class="op">);</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>token <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="fu">isTokenExpired</span><span class="op">(</span>token<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                <span class="co">// Token valid - proceed</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span><span class="fu">isTokenExpired</span><span class="op">(</span>token<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Token has expired&quot;</span><span class="op">);</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;No token provided&quot;</span><span class="op">);</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">AuthenticationException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Handled by GlobalExceptionHandler</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> ex<span class="op">;</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Error Response</strong>:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Authentication failed: invalid credentials or expired session&quot;</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:46.234Z&quot;</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551446234-5902&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4 id="scenario-3-invalid-credentials">Scenario 3: Invalid
+        Credentials</h4>
+        <p><strong>Login Endpoint</strong>:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/login&quot;</span><span class="op">)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> LoginResponse <span class="fu">login</span><span class="op">(</span><span class="at">@RequestBody</span> LoginRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    User user <span class="op">=</span> userRepository<span class="op">.</span><span class="fu">findByEmail</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;Authentication failed&quot;</span>  <span class="co">// Don&#39;t say &quot;user not found&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">));</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>passwordEncoder<span class="op">.</span><span class="fu">matches</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getPassword</span><span class="op">(),</span> user<span class="op">.</span><span class="fu">getPassword</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Authentication failed&quot;</span>  <span class="co">// Don&#39;t say &quot;password incorrect&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> token <span class="op">=</span> jwtProvider<span class="op">.</span><span class="fu">generateToken</span><span class="op">(</span>user<span class="op">);</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> LoginResponse<span class="op">.</span><span class="fu">builder</span><span class="op">().</span><span class="fu">token</span><span class="op">(</span>token<span class="op">).</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Invalid Email Request</strong>:</p>
+        <pre><code>POST /login
+Content-Type: application/json
+
+{&quot;email&quot;:&quot;john@example.com&quot;,&quot;password&quot;:&quot;password123&quot;}</code></pre>
+        <p><strong>Error Response</strong>:</p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Authentication failed: invalid credentials or expired session&quot;</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:47.345Z&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551447345-6013&quot;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Server-Side Log</strong> (never sent to client):</p>
+        <pre><code>[SSP-1700551447345-6013] AuthenticationException: User not found: john@example.com
+Attempted authentication with non-existent email address</code></pre>
+        <hr />
+        <h3 id="security-best-practices">Security Best Practices</h3>
+        <h4 id="do-use-generic-messages">✅ DO: Use Generic
+        Messages</h4>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good - Generic message</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Authentication failed&quot;</span><span class="op">);</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Good - Doesn&#39;t leak details</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">UNAUTHORIZED</span><span class="op">)</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Authentication failed: invalid credentials or expired session&quot;</span><span class="op">)</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <h4 id="dont-leak-user-existence">❌ DON’T: Leak User
+        Existence</h4>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals user doesn&#39;t exist</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;User &#39;john@example.com&#39; not found&quot;</span><span class="op">);</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals password is wrong</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Email found but password incorrect&quot;</span><span class="op">);</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals account is locked</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Account &#39;john&#39; is locked due to too many attempts&quot;</span><span class="op">);</span></span></code></pre></div>
+        <h4 id="dont-expose-token-details">❌ DON’T: Expose Token
+        Details</h4>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals token details</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;JWT token signature is invalid&quot;</span><span class="op">);</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals algorithm</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;HMAC-SHA256 verification failed&quot;</span><span class="op">);</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals expiration details</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Token expired at 2025-11-20T14:00:00Z&quot;</span><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h3 id="frontend-handling">Frontend Handling</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Login form submission</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">login</span>(email<span class="op">,</span> password) {</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> api<span class="op">.</span><span class="fu">post</span>(<span class="st">&#39;/login&#39;</span><span class="op">,</span> { email<span class="op">,</span> password })<span class="op">;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setAuthToken</span>(response<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">token</span>)<span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">navigateToDashboard</span>()<span class="op">;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (error) {</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">401</span>) {</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Show generic error message</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showMessage</span>(<span class="st">&#39;Invalid credentials. Please check email and password.&#39;</span>)<span class="op">;</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Log correlation ID for support</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> correlationId <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">correlationId</span><span class="op">;</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>            <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`Login failed: </span><span class="sc">${</span>correlationId<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Don&#39;t try to guess which field is wrong</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>            <span class="co">// User will figure it out by trying again</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co">// Accessing protected resource</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">fetchProfile</span>() {</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> api<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;/profile&#39;</span>)<span class="op">;</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> response<span class="op">.</span><span class="at">data</span><span class="op">;</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (error) {</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">401</span>) {</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Session expired or token invalid</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>            <span class="fu">clearAuthToken</span>()<span class="op">;</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>            <span class="fu">redirectToLogin</span>()<span class="op">;</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Show message</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showMessage</span>(<span class="st">&#39;Your session has expired. Please log in again.&#39;</span>)<span class="op">;</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2
+        id="exception-2-accessdeniedexception-403-forbidden">Exception
+        2: AccessDeniedException (403 Forbidden)</h2>
+        <h3 id="purpose-1">Purpose</h3>
+        <p>Thrown when <strong>user is authenticated but lacks
+        permission</strong> for the operation. Maps to <strong>HTTP 403
+        Forbidden</strong>.</p>
+        <p><strong>Use Cases</strong>: - User doesn’t have required role
+        (ADMIN, MANAGER) - User lacks specific permission
+        (DELETE_SUPPLIER) - User is not the resource owner - Resource
+        access is restricted by status/flags</p>
+        <h3 id="trigger-scenarios-1">Trigger Scenarios</h3>
+        <h4 id="scenario-1-missing-required-role">Scenario 1: Missing
+        Required Role</h4>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span><span class="bu">Void</span><span class="op">&gt;</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If user is not ADMIN → AccessDeniedException</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    supplierService<span class="op">.</span><span class="fu">deleteSupplier</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">ok</span><span class="op">().</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Request</strong> (Non-ADMIN user):</p>
+        <pre><code>DELETE /api/suppliers/123
+Authorization: Bearer {userToken}</code></pre>
+        <p><strong>GlobalExceptionHandler</strong>:</p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span>AccessDeniedException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleAuthorization</span><span class="op">(</span>AccessDeniedException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Generic message - don&#39;t leak what role/permission is required</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">FORBIDDEN</span><span class="op">)</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Access denied: insufficient permissions for this operation&quot;</span><span class="op">)</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response (403)</strong>:</p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;forbidden&quot;</span><span class="fu">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Access denied: insufficient permissions for this operation&quot;</span><span class="fu">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:48.456Z&quot;</span><span class="fu">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551448456-7124&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4 id="scenario-2-missing-custom-permission">Scenario 2:
+        Missing Custom Permission</h4>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/{id}/export&quot;</span><span class="op">)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;@permissionService.canExport(#id, authentication.principal)&quot;</span><span class="op">)</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ByteArrayResource<span class="op">&gt;</span> <span class="fu">exportData</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If user lacks export permission → AccessDeniedException</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierService<span class="op">.</span><span class="fu">exportData</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> PermissionService <span class="op">{</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">canExport</span><span class="op">(</span><span class="bu">Long</span> supplierId<span class="op">,</span> UserPrincipal user<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Check custom permission logic</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> user<span class="op">.</span><span class="fu">hasPermission</span><span class="op">(</span><span class="st">&quot;EXPORT_DATA&quot;</span><span class="op">)</span> <span class="op">&amp;&amp;</span> </span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>               user<span class="op">.</span><span class="fu">hasAccessToSupplier</span><span class="op">(</span>supplierId<span class="op">);</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Error Response</strong>:</p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;forbidden&quot;</span><span class="fu">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Access denied: insufficient permissions for this operation&quot;</span><span class="fu">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:49.567Z&quot;</span><span class="fu">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551449567-8235&quot;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4 id="scenario-3-resource-owner-verification">Scenario 3:
+        Resource Owner Verification</h4>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PutMapping</span><span class="op">(</span><span class="st">&quot;/profile/{userId}&quot;</span><span class="op">)</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>UserDTO<span class="op">&gt;</span> <span class="fu">updateProfile</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> userId<span class="op">,</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">@RequestBody</span> UpdateProfileRequest req<span class="op">,</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">@AuthenticationPrincipal</span> UserPrincipal user<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Verify user is updating their own profile</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>user<span class="op">.</span><span class="fu">getId</span><span class="op">().</span><span class="fu">equals</span><span class="op">(</span>userId<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;User &quot;</span> <span class="op">+</span> user<span class="op">.</span><span class="fu">getId</span><span class="op">()</span> <span class="op">+</span> </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot; cannot modify profile of user &quot;</span> <span class="op">+</span> userId</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> userService<span class="op">.</span><span class="fu">updateProfile</span><span class="op">(</span>userId<span class="op">,</span> req<span class="op">);</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Request</strong> (User 123 trying to update User
+        456’s profile):</p>
+        <pre><code>PUT /api/profile/456
+Authorization: Bearer {user123Token}
+Content-Type: application/json
+
+{&quot;name&quot;:&quot;NewName&quot;}</code></pre>
+        <p><strong>Error Response</strong>:</p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;forbidden&quot;</span><span class="fu">,</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Access denied: insufficient permissions for this operation&quot;</span><span class="fu">,</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:50.678Z&quot;</span><span class="fu">,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551450678-9346&quot;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Server-Side Log</strong> (never sent to client):</p>
+        <pre><code>[SSP-1700551450678-9346] AccessDeniedException: User 123 attempted to modify profile of user 456
+Unauthorized profile modification attempt</code></pre>
+        <hr />
+        <h3 id="security-best-practices-1">Security Best Practices</h3>
+        <h4 id="do-use-generic-messages-1">✅ DO: Use Generic
+        Messages</h4>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good - Generic message</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span><span class="st">&quot;Access denied&quot;</span><span class="op">);</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Good - Doesn&#39;t reveal required role</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">FORBIDDEN</span><span class="op">)</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;Access denied: insufficient permissions for this operation&quot;</span><span class="op">)</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <h4 id="dont-leak-required-rolespermissions">❌ DON’T: Leak
+        Required Roles/Permissions</h4>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals required role</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span><span class="st">&quot;Requires ADMIN role&quot;</span><span class="op">);</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals required permission</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span><span class="st">&quot;Missing EXPORT_DATA permission&quot;</span><span class="op">);</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Lists all required roles</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span><span class="st">&quot;Requires one of: ADMIN, MANAGER&quot;</span><span class="op">);</span></span></code></pre></div>
+        <h4 id="dont-expose-permission-details">❌ DON’T: Expose
+        Permission Details</h4>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals permission logic</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span><span class="st">&quot;User must have SUPPLIER_WRITE and REGION_US permissions&quot;</span><span class="op">);</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Leaks security policy</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span><span class="st">&quot;Only supplier account owners can delete&quot;</span><span class="op">);</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad - Reveals configuration</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span><span class="st">&quot;User IP 192.168.1.100 not in whitelist&quot;</span><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h3 id="frontend-handling-1">Frontend Handling</h3>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Handle 403 errors</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">performAdminAction</span>() {</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> api<span class="op">.</span><span class="fu">delete</span>(<span class="st">&#39;/suppliers/123&#39;</span>)<span class="op">;</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (error) {</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (error<span class="op">.</span><span class="at">response</span><span class="op">?.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">403</span>) {</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>            <span class="co">// User lacks permission</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showMessage</span>(<span class="st">&#39;You do not have permission to perform this action.&#39;</span>)<span class="op">;</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Optional: disable/hide the button</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>            <span class="bu">document</span><span class="op">.</span><span class="fu">querySelector</span>(<span class="st">&#39;#delete-btn&#39;</span>)<span class="op">.</span><span class="at">disabled</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Optional: show &quot;contact admin&quot; message</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showContactAdminLink</span>()<span class="op">;</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Log for telemetry</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> correlationId <span class="op">=</span> error<span class="op">.</span><span class="at">response</span><span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">correlationId</span><span class="op">;</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>            <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="vs">`Access denied: </span><span class="sc">${</span>correlationId<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="common-authenticationauthorization-scenarios">Common
+        Authentication/Authorization Scenarios</h2>
+        <h3 id="scenario-a-login-flow-with-invalid-credentials">Scenario
+        A: Login Flow with Invalid Credentials</h3>
+        <pre><code>Request:
+POST /login
+{&quot;email&quot;:&quot;john@example.com&quot;,&quot;password&quot;:&quot;wrongpassword&quot;}
+
+Response (401):
+{
+  &quot;error&quot;: &quot;unauthorized&quot;,
+  &quot;message&quot;: &quot;Authentication failed: invalid credentials or expired session&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551445123-4891&quot;
+}
+
+Frontend:
+- Show generic error message
+- Don&#39;t reveal that email was found or password was wrong
+- Clear any stored credentials</code></pre>
+        <hr />
+        <h3 id="scenario-b-expired-sessiontoken">Scenario B: Expired
+        Session/Token</h3>
+        <pre><code>Request:
+GET /profile
+Authorization: Bearer {expiredToken}
+
+Response (401):
+{
+  &quot;error&quot;: &quot;unauthorized&quot;,
+  &quot;message&quot;: &quot;Authentication failed: invalid credentials or expired session&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551446234-5902&quot;
+}
+
+Frontend:
+- Redirect to login page
+- Clear stored token
+- Show &quot;session expired&quot; message
+- Offer to re-login</code></pre>
+        <hr />
+        <h3 id="scenario-c-missing-admin-role">Scenario C: Missing Admin
+        Role</h3>
+        <pre><code>Request:
+DELETE /suppliers/123
+Authorization: Bearer {standardUserToken}
+
+Response (403):
+{
+  &quot;error&quot;: &quot;forbidden&quot;,
+  &quot;message&quot;: &quot;Access denied: insufficient permissions for this operation&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551447345-6013&quot;
+}
+
+Frontend:
+- Show generic &quot;access denied&quot; message
+- Don&#39;t try to guess which role is needed
+- Disable the delete button
+- Show &quot;contact admin&quot; option</code></pre>
+        <hr />
+        <h3 id="scenario-d-token-not-provided">Scenario D: Token Not
+        Provided</h3>
+        <pre><code>Request:
+GET /protected
+(no Authorization header)
+
+Response (401):
+{
+  &quot;error&quot;: &quot;unauthorized&quot;,
+  &quot;message&quot;: &quot;Authentication failed: invalid credentials or expired session&quot;,
+  &quot;correlationId&quot;: &quot;SSP-1700551448456-7124&quot;
+}
+
+Frontend:
+- Redirect to login
+- Show &quot;login required&quot; message</code></pre>
+        <hr />
+        <h2 id="implementation-examples">Implementation Examples</h2>
+        <h3 id="spring-security-configuration">Spring Security
+        Configuration</h3>
+        <div class="sourceCode" id="cb33"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="at">@EnableWebSecurity</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="at">@EnableGlobalMethodSecurity</span><span class="op">(</span>prePostEnabled <span class="op">=</span> <span class="kw">true</span><span class="op">)</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityConfig <span class="op">{</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SecurityFilterChain <span class="fu">filterChain</span><span class="op">(</span>HttpSecurity http<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> http</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">csrf</span><span class="op">().</span><span class="fu">disable</span><span class="op">()</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">authorizeRequests</span><span class="op">()</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">antMatchers</span><span class="op">(</span><span class="st">&quot;/login&quot;</span><span class="op">,</span> <span class="st">&quot;/register&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">()</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">antMatchers</span><span class="op">(</span><span class="st">&quot;/admin/**&quot;</span><span class="op">).</span><span class="fu">hasRole</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">antMatchers</span><span class="op">(</span><span class="st">&quot;/api/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">()</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">anyRequest</span><span class="op">().</span><span class="fu">authenticated</span><span class="op">()</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">and</span><span class="op">()</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">httpBasic</span><span class="op">()</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">and</span><span class="op">()</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> AuthenticationEntryPoint <span class="fu">authenticationEntryPoint</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">(</span>request<span class="op">,</span> response<span class="op">,</span> ex<span class="op">)</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>            response<span class="op">.</span><span class="fu">setStatus</span><span class="op">(</span>HttpServletResponse<span class="op">.</span><span class="fu">SC_UNAUTHORIZED</span><span class="op">);</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>            response<span class="op">.</span><span class="fu">setContentType</span><span class="op">(</span><span class="st">&quot;application/json&quot;</span><span class="op">);</span></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>            response<span class="op">.</span><span class="fu">getWriter</span><span class="op">().</span><span class="fu">write</span><span class="op">(</span></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;{</span><span class="sc">\&quot;</span><span class="st">error</span><span class="sc">\&quot;</span><span class="st">:</span><span class="sc">\&quot;</span><span class="st">unauthorized</span><span class="sc">\&quot;</span><span class="st">,</span><span class="sc">\&quot;</span><span class="st">message</span><span class="sc">\&quot;</span><span class="st">:</span><span class="sc">\&quot;</span><span class="st">Authentication failed</span><span class="sc">\&quot;</span><span class="st">}&quot;</span></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="jwt-token-validation">JWT Token Validation</h3>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> JwtTokenProvider <span class="op">{</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">validateToken</span><span class="op">(</span><span class="bu">String</span> token<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>            Jwts<span class="op">.</span><span class="fu">parserBuilder</span><span class="op">()</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">setSigningKey</span><span class="op">(</span><span class="fu">getSigningKey</span><span class="op">())</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">()</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">parseClaimsJws</span><span class="op">(</span>token<span class="op">);</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>ExpiredJwtException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>            logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;JWT token expired&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Token expired&quot;</span><span class="op">);</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">SignatureException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>            logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Invalid JWT signature&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Invalid token&quot;</span><span class="op">);</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>JwtException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>            logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Invalid JWT token&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Invalid token&quot;</span><span class="op">);</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">extractEmail</span><span class="op">(</span><span class="bu">String</span> token<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> Jwts<span class="op">.</span><span class="fu">parserBuilder</span><span class="op">()</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">setSigningKey</span><span class="op">(</span><span class="fu">getSigningKey</span><span class="op">())</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">()</span></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">parseClaimsJws</span><span class="op">(</span>token<span class="op">)</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">getBody</span><span class="op">()</span></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">getSubject</span><span class="op">();</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>JwtException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Cannot extract email from token&quot;</span><span class="op">);</span></span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-security-exceptions">Testing Security
+        Exceptions</h2>
+        <h3 id="unit-test-authentication-failure">Unit Test:
+        Authentication Failure</h3>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AuthenticationExceptionTest <span class="op">{</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> MockMvc mockMvc<span class="op">;</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testAccessProtectedResourceWithoutToken</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/profile&quot;</span><span class="op">))</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isUnauthorized</span><span class="op">())</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.error&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;unauthorized&quot;</span><span class="op">))</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.message&quot;</span><span class="op">)</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                        <span class="op">.</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;Authentication failed: invalid credentials or expired session&quot;</span><span class="op">));</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testInvalidJwtToken</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/profile&quot;</span><span class="op">)</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">header</span><span class="op">(</span><span class="st">&quot;Authorization&quot;</span><span class="op">,</span> <span class="st">&quot;Bearer invalid.token.here&quot;</span><span class="op">))</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isUnauthorized</span><span class="op">())</span></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.error&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;unauthorized&quot;</span><span class="op">));</span></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="unit-test-authorization-failure">Unit Test:
+        Authorization Failure</h3>
+        <div class="sourceCode" id="cb36"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AuthorizationExceptionTest <span class="op">{</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span>  <span class="co">// Regular user, not ADMIN</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testAdminEndpointWithoutAdminRole</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/123&quot;</span><span class="op">))</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">())</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.error&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;forbidden&quot;</span><span class="op">))</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.message&quot;</span><span class="op">)</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>                        <span class="op">.</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;Access denied: insufficient permissions for this operation&quot;</span><span class="op">));</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testAdminEndpointWithAdminRole</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/123&quot;</span><span class="op">))</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">());</span>  <span class="co">// Success</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <h3 id="do">DO:</h3>
+        <ul>
+        <li>✅ Use generic error messages for auth/authz errors</li>
+        <li>✅ Log full details server-side (for debugging)</li>
+        <li>✅ Provide correlation ID in error response (for support
+        investigation)</li>
+        <li>✅ Validate authentication early (in
+        filter/interceptor)</li>
+        <li>✅ Use standard Spring Security exceptions</li>
+        <li>✅ Separate auth (401) from authz (403) errors</li>
+        <li>✅ Clear tokens on logout/session expiration</li>
+        </ul>
+        <h3 id="dont">DON’T:</h3>
+        <ul>
+        <li>❌ Reveal whether user exists (“user not found” vs “password
+        wrong”)</li>
+        <li>❌ Leak required roles (“requires ADMIN”)</li>
+        <li>❌ Expose permission details to unauthorized users</li>
+        <li>❌ Include sensitive data in error messages</li>
+        <li>❌ Use different messages for different failure reasons</li>
+        <li>❌ Log stack traces to response (only to server logs)</li>
+        <li>❌ Send tokens in error responses</li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Exception Architecture
+        Overview</a></strong> – Exception types and hierarchy</li>
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – Framework exception
+        handling</li>
+        <li><strong><a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a></strong> – 401/403 mapping details</li>
+        <li><strong><a href="./error-response-structure.html">Error
+        Response Structure</a></strong> – JSON format and fields</li>
+        <li><strong><a
+        href="./guidelines-and-best-practices.html">Guidelines &amp;
+        Best Practices</a></strong> – General best practices</li>
+        <li><strong><a
+        href="../integration/auth-flow-frontend.html">Integration
+        Architecture - Auth Flow</a></strong> – Frontend-backend auth
+        flow</li>
+        </ul>
+        <hr />
+        <h2 id="version-history">Version History</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Version</th>
+        <th>Date</th>
+        <th>Changes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>1.0.0</td>
+        <td>2025-11-20</td>
+        <td>Initial comprehensive documentation</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="quick-reference">Quick Reference</h2>
+        <h3 id="http-status-codes">HTTP Status Codes</h3>
+        <table>
+        <colgroup>
+        <col style="width: 28%" />
+        <col style="width: 39%" />
+        <col style="width: 32%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Status</th>
+        <th>Exception</th>
+        <th>Meaning</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>401</strong></td>
+        <td>AuthenticationException</td>
+        <td>User not authenticated or credentials invalid</td>
+        </tr>
+        <tr class="even">
+        <td><strong>403</strong></td>
+        <td>AccessDeniedException</td>
+        <td>User authenticated but lacks permission</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="generic-messages">Generic Messages</h3>
+        <pre><code>// Authentication (401)
+&quot;Authentication failed: invalid credentials or expired session&quot;
+
+// Authorization (403)
+&quot;Access denied: insufficient permissions for this operation&quot;</code></pre>
+        <h3 id="error-handling-flow">Error Handling Flow</h3>
+        <pre><code>API Request
+    ↓
+[Authentication Check]
+    ├→ Not authenticated → 401 Unauthorized (AuthenticationException)
+    └→ Authenticated → [Authorization Check]
+        ├→ Lacks permission → 403 Forbidden (AccessDeniedException)
+        └→ Has permission → [Process Request]
+            ├→ Success → 2xx Response
+            └→ Error → 4xx/5xx Response</code></pre>
+        <h3 id="logging-checklist">Logging Checklist</h3>
+        <p>When logging auth/authz failures: - ✅ Log full user identity
+        (email, user ID) - ✅ Log which role/permission was checked - ✅
+        Log the actual failure reason - ✅ Include correlation ID - ✅
+        Include timestamp - ✅ ❌ Don’t send details to client - ✅ ❌
+        Don’t expose password/token</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

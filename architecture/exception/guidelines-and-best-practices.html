@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+exception/guidelines-and-best-practices · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#guidelines-best-practices"
+        id="toc-guidelines-best-practices">Guidelines &amp; Best
+        Practices</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#exception-handling-decision-tree"
+        id="toc-exception-handling-decision-tree">Exception Handling
+        Decision Tree</a></li>
+        <li><a
+        href="#guideline-1-when-to-throw-exceptions-vs.-return-values"
+        id="toc-guideline-1-when-to-throw-exceptions-vs.-return-values">Guideline
+        1: When to Throw Exceptions vs. Return Values</a>
+        <ul>
+        <li><a href="#do-throw-exceptions-when"
+        id="toc-do-throw-exceptions-when">DO Throw Exceptions
+        When:</a></li>
+        <li><a href="#return-values-when"
+        id="toc-return-values-when">Return Values When:</a></li>
+        </ul></li>
+        <li><a href="#guideline-2-choosing-the-right-exception-type"
+        id="toc-guideline-2-choosing-the-right-exception-type">Guideline
+        2: Choosing the Right Exception Type</a>
+        <ul>
+        <li><a href="#decision-matrix" id="toc-decision-matrix">Decision
+        Matrix</a></li>
+        <li><a href="#when-to-create-custom-exception-vs.-use-standard"
+        id="toc-when-to-create-custom-exception-vs.-use-standard">When
+        to Create Custom Exception vs. Use Standard</a></li>
+        </ul></li>
+        <li><a href="#guideline-3-exception-messages"
+        id="toc-guideline-3-exception-messages">Guideline 3: Exception
+        Messages</a>
+        <ul>
+        <li><a href="#do-provide-actionable-messages"
+        id="toc-do-provide-actionable-messages">DO: Provide Actionable
+        Messages</a></li>
+        <li><a href="#do-avoid-sensitive-data-in-messages"
+        id="toc-do-avoid-sensitive-data-in-messages">DO: Avoid Sensitive
+        Data in Messages</a></li>
+        </ul></li>
+        <li><a href="#guideline-4-common-anti-patterns"
+        id="toc-guideline-4-common-anti-patterns">Guideline 4: Common
+        Anti-Patterns</a>
+        <ul>
+        <li><a href="#anti-pattern-1-swallowing-exceptions"
+        id="toc-anti-pattern-1-swallowing-exceptions">Anti-Pattern 1:
+        Swallowing Exceptions</a></li>
+        <li><a href="#anti-pattern-2-catching-too-broad"
+        id="toc-anti-pattern-2-catching-too-broad">Anti-Pattern 2:
+        Catching Too Broad</a></li>
+        <li><a
+        href="#anti-pattern-3-catching-then-throwing-different-exception"
+        id="toc-anti-pattern-3-catching-then-throwing-different-exception">Anti-Pattern
+        3: Catching Then Throwing Different Exception</a></li>
+        <li><a href="#anti-pattern-4-using-exceptions-for-control-flow"
+        id="toc-anti-pattern-4-using-exceptions-for-control-flow">Anti-Pattern
+        4: Using Exceptions for Control Flow</a></li>
+        <li><a
+        href="#anti-pattern-5-not-specifying-which-validation-failed"
+        id="toc-anti-pattern-5-not-specifying-which-validation-failed">Anti-Pattern
+        5: Not Specifying Which Validation Failed</a></li>
+        </ul></li>
+        <li><a href="#guideline-5-error-recovery-strategies"
+        id="toc-guideline-5-error-recovery-strategies">Guideline 5:
+        Error Recovery Strategies</a>
+        <ul>
+        <li><a href="#strategy-1-retry-with-backoff"
+        id="toc-strategy-1-retry-with-backoff">Strategy 1: Retry with
+        Backoff</a></li>
+        <li><a href="#strategy-2-graceful-degradation"
+        id="toc-strategy-2-graceful-degradation">Strategy 2: Graceful
+        Degradation</a></li>
+        <li><a href="#strategy-3-fail-fast-with-clear-error"
+        id="toc-strategy-3-fail-fast-with-clear-error">Strategy 3: Fail
+        Fast with Clear Error</a></li>
+        <li><a href="#strategy-4-fallback-to-default"
+        id="toc-strategy-4-fallback-to-default">Strategy 4: Fallback to
+        Default</a></li>
+        </ul></li>
+        <li><a href="#guideline-6-testing-exception-handling"
+        id="toc-guideline-6-testing-exception-handling">Guideline 6:
+        Testing Exception Handling</a>
+        <ul>
+        <li><a href="#unit-test-exception-thrown-on-validation-failure"
+        id="toc-unit-test-exception-thrown-on-validation-failure">Unit
+        Test: Exception Thrown on Validation Failure</a></li>
+        <li><a href="#unit-test-exception-message-content"
+        id="toc-unit-test-exception-message-content">Unit Test:
+        Exception Message Content</a></li>
+        <li><a href="#integration-test-http-status-code"
+        id="toc-integration-test-http-status-code">Integration Test:
+        HTTP Status Code</a></li>
+        </ul></li>
+        <li><a href="#guideline-7-logging-exceptions"
+        id="toc-guideline-7-logging-exceptions">Guideline 7: Logging
+        Exceptions</a>
+        <ul>
+        <li><a href="#do-log-with-context"
+        id="toc-do-log-with-context">DO: Log with Context</a></li>
+        <li><a href="#dont-log-sensitive-data"
+        id="toc-dont-log-sensitive-data">DON’T: Log Sensitive
+        Data</a></li>
+        </ul></li>
+        <li><a href="#guideline-8-documentation-standards"
+        id="toc-guideline-8-documentation-standards">Guideline 8:
+        Documentation Standards</a>
+        <ul>
+        <li><a href="#do-document-exceptions-in-method-javadoc"
+        id="toc-do-document-exceptions-in-method-javadoc">DO: Document
+        Exceptions in Method Javadoc</a></li>
+        </ul></li>
+        <li><a href="#guideline-9-exception-handling-checklist"
+        id="toc-guideline-9-exception-handling-checklist">Guideline 9:
+        Exception Handling Checklist</a></li>
+        <li><a href="#guideline-10-recovery-action-flowchart"
+        id="toc-guideline-10-recovery-action-flowchart">Guideline 10:
+        Recovery Action Flowchart</a></li>
+        <li><a href="#exception-handling-workflow"
+        id="toc-exception-handling-workflow">Exception Handling
+        Workflow</a></li>
+        <li><a href="#example-complete-exception-handling"
+        id="toc-example-complete-exception-handling">Example: Complete
+        Exception Handling</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        <li><a href="#version-history" id="toc-version-history">Version
+        History</a></li>
+        <li><a href="#quick-checklist" id="toc-quick-checklist">Quick
+        Checklist</a></li>
+        <li><a href="#one-page-reference"
+        id="toc-one-page-reference">One-Page Reference</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="guidelines-best-practices">Guidelines &amp; Best
+        Practices</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="overview">Overview</h2>
+        <p>This document provides <strong>actionable guidelines and best
+        practices</strong> for exception handling in Smart Supply Pro.
+        It covers when to throw exceptions, how to choose the right
+        exception type, common anti-patterns to avoid, and error
+        recovery strategies.</p>
+        <hr />
+        <h2 id="exception-handling-decision-tree">Exception Handling
+        Decision Tree</h2>
+        <div class="mermaid">
+        graph TD
+            A["Need to Signal Error?"] -->|No| B["Return null or Optional"]
+            A -->|Yes| C{{"Type of Error?"}}
+            
+            C -->|Framework/Spring| D["Let GlobalExceptionHandler<br/>catch it naturally"]
+            C -->|Domain/Business| E{{"Which Kind?"}}
+            
+            E -->|Invalid Input| F["Throw InvalidRequestException"]
+            E -->|Duplicate Resource| G["Throw DuplicateResourceException"]
+            E -->|State Violation| H["Throw IllegalStateException"]
+            E -->|Unknown| I["Document & throw<br/>appropriate exception"]
+            
+            D --> J["HTTP Error Response"]
+            F --> J
+            G --> J
+            H --> J
+        </div>
+        <hr />
+        <h2
+        id="guideline-1-when-to-throw-exceptions-vs.-return-values">Guideline
+        1: When to Throw Exceptions vs. Return Values</h2>
+        <h3 id="do-throw-exceptions-when">DO Throw Exceptions When:</h3>
+        <h4 id="invalid-request-bad-input">1. Invalid Request / Bad
+        Input</h4>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Throw exception for invalid input</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>request<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">&lt;</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">valueOutOfRange</span><span class="op">(</span><span class="st">&quot;quantity&quot;</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">999999</span><span class="op">);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Silently ignore invalid input</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>request<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">&lt;</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    quantity <span class="op">=</span> <span class="dv">1</span><span class="op">;</span>  <span class="co">// DON&#39;T: Fix silently</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Invalid input should never proceed.
+        Throwing forces handling at caller.</p>
+        <hr />
+        <h4 id="constraint-violations">2. Constraint Violations</h4>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Throw exception for duplicate</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByName</span><span class="op">(</span>name<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">supplierName</span><span class="op">(</span>name<span class="op">);</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Return null to indicate duplicate</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByName</span><span class="op">(</span>name<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span>  <span class="co">// DON&#39;T: Ambiguous - could mean other errors</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Explicit exception is clearer than
+        null/sentinel value.</p>
+        <hr />
+        <h4 id="business-rule-violations">3. Business Rule
+        Violations</h4>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Throw exception for violated rule</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>supplier<span class="op">.</span><span class="fu">getStatus</span><span class="op">()</span> <span class="op">==</span> DELETED<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot modify deleted supplier&quot;</span><span class="op">);</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Check everywhere manually</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(!</span><span class="fu">isValidSupplierStatus</span><span class="op">(</span>supplierId<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Handle error...</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Exception forces rule enforcement;
+        prevents accidental bypass.</p>
+        <hr />
+        <h3 id="return-values-when">Return Values When:</h3>
+        <h4 id="expected-non-exceptional-outcomes">1. Expected,
+        Non-Exceptional Outcomes</h4>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Return Optional for missing resource</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span>  <span class="co">// Returns Optional</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Throw exception for normal &quot;not found&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(!</span>supplierRepository<span class="op">.</span><span class="fu">existsById</span><span class="op">(</span>id<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Not found&quot;</span><span class="op">);</span>  <span class="co">// Overkill for normal case</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Optional communicates that absence is
+        normal/expected.</p>
+        <hr />
+        <h4 id="multiple-results-collections">2. Multiple Results
+        (Collections)</h4>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Return empty list for no results</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findByStatus</span><span class="op">(</span>status<span class="op">);</span>  <span class="co">// Returns List (possibly empty)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Throw exception for empty results</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>suppliers<span class="op">.</span><span class="fu">isEmpty</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;No suppliers found&quot;</span><span class="op">);</span>  <span class="co">// Overkill</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Empty list is standard way to
+        communicate “no results”.</p>
+        <hr />
+        <h4 id="boolean-conditions">3. Boolean Conditions</h4>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Return boolean for checks</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">canDeleteSupplier</span><span class="op">(</span><span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">!</span>inventoryRepository<span class="op">.</span><span class="fu">existsBySupplier</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Usage</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span><span class="fu">canDeleteSupplier</span><span class="op">(</span>supplierId<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">delete</span><span class="op">(</span>supplierId<span class="op">);</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Handle cannot-delete case</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Throw exception for validation checks</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">validateCanDelete</span><span class="op">(</span><span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>inventoryRepository<span class="op">.</span><span class="fu">existsBySupplier</span><span class="op">(</span>id<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot delete&quot;</span><span class="op">);</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Boolean methods are for checks;
+        exceptions are for errors.</p>
+        <hr />
+        <h2 id="guideline-2-choosing-the-right-exception-type">Guideline
+        2: Choosing the Right Exception Type</h2>
+        <h3 id="decision-matrix">Decision Matrix</h3>
+        <table>
+        <colgroup>
+        <col style="width: 20%" />
+        <col style="width: 22%" />
+        <col style="width: 27%" />
+        <col style="width: 29%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Scenario</th>
+        <th>Exception</th>
+        <th>HTTP Status</th>
+        <th>Code Pattern</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Required field missing</strong></td>
+        <td>InvalidRequestException</td>
+        <td>400</td>
+        <td><code>throw InvalidRequestException.requiredField("name")</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Invalid format</strong></td>
+        <td>InvalidRequestException</td>
+        <td>400</td>
+        <td><code>throw InvalidRequestException.invalidFormat("sku", "XXX-YYYY")</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Value out of range</strong></td>
+        <td>InvalidRequestException</td>
+        <td>400</td>
+        <td><code>throw InvalidRequestException.valueOutOfRange("qty", 1, 999)</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Business rule violated</strong></td>
+        <td>InvalidRequestException</td>
+        <td>400</td>
+        <td><code>throw InvalidRequestException.businessRuleViolation("...")</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Resource already exists</strong></td>
+        <td>DuplicateResourceException</td>
+        <td>409</td>
+        <td><code>throw DuplicateResourceException.supplierName(name)</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>State rule violated</strong></td>
+        <td>IllegalStateException</td>
+        <td>409</td>
+        <td><code>throw new IllegalStateException("Cannot delete...")</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Resource not found</strong></td>
+        <td>NoSuchElementException</td>
+        <td>404</td>
+        <td><code>throw new NoSuchElementException("Not found")</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Not authenticated</strong></td>
+        <td>AuthenticationException</td>
+        <td>401</td>
+        <td>Thrown by Spring Security</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Insufficient permission</strong></td>
+        <td>AccessDeniedException</td>
+        <td>403</td>
+        <td>Thrown by Spring Security</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="when-to-create-custom-exception-vs.-use-standard">When
+        to Create Custom Exception vs. Use Standard</h3>
+        <h4 id="create-custom-exception-when">Create Custom Exception
+        When:</h4>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// DO: Custom exception for domain-specific error</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InsufficientInventoryException <span class="kw">extends</span> <span class="bu">RuntimeException</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Specific to inventory management domain</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Usage</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>availableQuantity <span class="op">&lt;</span> requestedQuantity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">InsufficientInventoryException</span><span class="op">(</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Not enough inventory: requested &quot;</span> <span class="op">+</span> requestedQuantity <span class="op">+</span> </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot; but only &quot;</span> <span class="op">+</span> availableQuantity <span class="op">+</span> <span class="st">&quot; available&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h4 id="use-standard-exception-when">Use Standard Exception
+        When:</h4>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// DON&#39;T: Custom exception for generic validation</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> NameValidationException <span class="kw">extends</span> <span class="bu">RuntimeException</span> <span class="op">{</span>  <span class="co">// Too specific</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">// DO: Use InvalidRequestException instead</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">invalidFormat</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">,</span> <span class="st">&quot;Must be 1-100 characters&quot;</span><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h2 id="guideline-3-exception-messages">Guideline 3: Exception
+        Messages</h2>
+        <h3 id="do-provide-actionable-messages">DO: Provide Actionable
+        Messages</h3>
+        <p><strong>Good Messages</strong>:</p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Specific about what&#39;s wrong</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">requiredField</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Message: &quot;Required field missing: email&quot;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Suggests how to fix it</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">invalidFormat</span><span class="op">(</span><span class="st">&quot;sku&quot;</span><span class="op">,</span> <span class="st">&quot;XXX-YYYY-ZZZZ&quot;</span><span class="op">);</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Message: &quot;Invalid format for field: sku&quot;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Explains the business impact</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Cannot delete supplier: active inventory items exist. &quot;</span> <span class="op">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Please delete all inventory items first.&quot;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">// Gives numeric boundaries</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">valueOutOfRange</span><span class="op">(</span><span class="st">&quot;quantity&quot;</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">999999</span><span class="op">);</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Message: &quot;Value must be between 1 and 999999&quot;</span></span></code></pre></div>
+        <p><strong>Bad Messages</strong>:</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Too generic</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalArgumentException</span><span class="op">(</span><span class="st">&quot;Invalid&quot;</span><span class="op">);</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Too technical</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalArgumentException</span><span class="op">(</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;java.sql.SQLException: Integrity constraint violation&quot;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Unclear</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Something went wrong&quot;</span><span class="op">);</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Too vague</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">RuntimeException</span><span class="op">(</span><span class="st">&quot;Error occurred&quot;</span><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h3 id="do-avoid-sensitive-data-in-messages">DO: Avoid Sensitive
+        Data in Messages</h3>
+        <p><strong>Good</strong>:</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Generic message (no user enumeration)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;Authentication failed&quot;</span><span class="op">);</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">// No SQL details (database not exposed)</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">DataIntegrityViolationException</span><span class="op">(</span><span class="st">&quot;Resource already exists&quot;</span><span class="op">);</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">// No internal paths</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Resource not found&quot;</span><span class="op">);</span></span></code></pre></div>
+        <p><strong>Bad</strong>:</p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Reveals user doesn&#39;t exist</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">AuthenticationException</span><span class="op">(</span><span class="st">&quot;User &#39;john@example.com&#39; not found&quot;</span><span class="op">);</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Exposes SQL</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">DataIntegrityViolationException</span><span class="op">(</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;UNIQUE constraint failed on SUPPLIERS.EMAIL&quot;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Shows internal structure</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;ID 123 not found in table INVENTORY_ITEMS&quot;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h2 id="guideline-4-common-anti-patterns">Guideline 4: Common
+        Anti-Patterns</h2>
+        <h3 id="anti-pattern-1-swallowing-exceptions">Anti-Pattern 1:
+        Swallowing Exceptions</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// BAD: Silent catch - loses error information</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span>  <span class="co">// DON&#39;T: Where did error go?</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">// GOOD: Log or re-throw</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>DataAccessException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;Database error finding supplier&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> ex<span class="op">;</span>  <span class="co">// Or throw custom exception</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Swallowing exceptions makes debugging
+        impossible.</p>
+        <hr />
+        <h3 id="anti-pattern-2-catching-too-broad">Anti-Pattern 2:
+        Catching Too Broad</h3>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// BAD: Catches everything, including system errors</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">processSupplier</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;Error processing supplier&quot;</span><span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">// GOOD: Catch specific exceptions</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">processSupplier</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>InvalidRequestException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Validation failed&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;Validation error&quot;</span><span class="op">;</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>DuplicateResourceException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Duplicate supplier&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;Duplicate supplier&quot;</span><span class="op">;</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Broad catch hides real bugs; specific
+        catch handles predictable errors.</p>
+        <hr />
+        <h3
+        id="anti-pattern-3-catching-then-throwing-different-exception">Anti-Pattern
+        3: Catching Then Throwing Different Exception</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// BAD: Loses original error context</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>DataAccessException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">RuntimeException</span><span class="op">(</span><span class="st">&quot;Database error&quot;</span><span class="op">);</span>  <span class="co">// Lost root cause</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">// GOOD: Wrap with cause</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>DataAccessException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot load supplier&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">// GOOD: Let it propagate if no handling needed</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span></code></pre></div>
+        <p><strong>Why</strong>: Preserving cause chain enables root
+        cause analysis.</p>
+        <hr />
+        <h3
+        id="anti-pattern-4-using-exceptions-for-control-flow">Anti-Pattern
+        4: Using Exceptions for Control Flow</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// BAD: Throwing exception for normal condition</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> list<span class="op">.</span><span class="fu">size</span><span class="op">();</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>list<span class="op">.</span><span class="fu">get</span><span class="op">(</span>i<span class="op">).</span><span class="fu">equals</span><span class="op">(</span>target<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">FoundException</span><span class="op">();</span>  <span class="co">// Using exception as goto</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>FoundException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> i<span class="op">;</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co">// GOOD: Use normal control flow</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> list<span class="op">.</span><span class="fu">size</span><span class="op">();</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>list<span class="op">.</span><span class="fu">get</span><span class="op">(</span>i<span class="op">).</span><span class="fu">equals</span><span class="op">(</span>target<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> i<span class="op">;</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span></code></pre></div>
+        <p><strong>Why</strong>: Exceptions are slow and meant for error
+        conditions, not normal flow.</p>
+        <hr />
+        <h3
+        id="anti-pattern-5-not-specifying-which-validation-failed">Anti-Pattern
+        5: Not Specifying Which Validation Failed</h3>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// BAD: Generic message, no field info</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(!</span><span class="fu">isValidRequest</span><span class="op">(</span>request<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span><span class="st">&quot;Validation failed&quot;</span><span class="op">);</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">// GOOD: Specific field and reason</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>request<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">==</span> <span class="kw">null</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">requiredField</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">);</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(!</span><span class="fu">isValidEmail</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getEmail</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">invalidFormat</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">,</span> <span class="st">&quot;valid@example.com&quot;</span><span class="op">);</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why</strong>: Frontend needs specific field info to
+        highlight in form.</p>
+        <hr />
+        <h2 id="guideline-5-error-recovery-strategies">Guideline 5:
+        Error Recovery Strategies</h2>
+        <h3 id="strategy-1-retry-with-backoff">Strategy 1: Retry with
+        Backoff</h3>
+        <p><strong>When</strong>: Transient failures (network timeout,
+        database temporarily down)</p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="op">&lt;</span>T<span class="op">&gt;</span> T <span class="fu">executeWithRetry</span><span class="op">(</span>Supplier<span class="op">&lt;</span>T<span class="op">&gt;</span> operation<span class="op">,</span> <span class="dt">int</span> maxRetries<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> attempt <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> operation<span class="op">.</span><span class="fu">get</span><span class="op">();</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>TemporaryException ex<span class="op">)</span> <span class="op">{</span>  <span class="co">// Transient error</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>            attempt<span class="op">++;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>attempt <span class="op">&gt;=</span> maxRetries<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                <span class="cf">throw</span> ex<span class="op">;</span>  <span class="co">// Give up after max retries</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Exponential backoff: 100ms, 200ms, 400ms</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>            <span class="dt">long</span> delayMs <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> <span class="op">(</span><span class="dt">long</span><span class="op">)</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">pow</span><span class="op">(</span><span class="dv">2</span><span class="op">,</span> attempt <span class="op">-</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">sleep</span><span class="op">(</span>delayMs<span class="op">);</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="co">// Usage</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>User user <span class="op">=</span> <span class="fu">executeWithRetry</span><span class="op">(</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">()</span> <span class="op">-&gt;</span> userRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>userId<span class="op">),</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span>  <span class="co">// Max 3 attempts</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h3 id="strategy-2-graceful-degradation">Strategy 2: Graceful
+        Degradation</h3>
+        <p><strong>When</strong>: Service dependency fails but operation
+        can partially succeed</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ReportService <span class="op">{</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ReportDTO <span class="fu">generateReport</span><span class="op">(</span><span class="bu">Long</span> supplierId<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        ReportDTO report <span class="op">=</span> <span class="kw">new</span> <span class="fu">ReportDTO</span><span class="op">();</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Primary data</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            report<span class="op">.</span><span class="fu">setBasicInfo</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">getSupplier</span><span class="op">(</span>supplierId<span class="op">));</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Optional enhancement (fail-safe)</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>                report<span class="op">.</span><span class="fu">setAnalytics</span><span class="op">(</span>analyticsService<span class="op">.</span><span class="fu">getAnalytics</span><span class="op">(</span>supplierId<span class="op">));</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>AnalyticsServiceException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>                logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Analytics unavailable, continuing&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>                <span class="co">// Continue without analytics</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> report<span class="op">;</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>SupplierNotFoundException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> ex<span class="op">;</span>  <span class="co">// Critical error - can&#39;t generate report</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="strategy-3-fail-fast-with-clear-error">Strategy 3: Fail
+        Fast with Clear Error</h3>
+        <p><strong>When</strong>: Validation error - can’t proceed
+        without user fixing it</p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span>CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Validate all fields first</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> errors <span class="op">=</span> <span class="kw">new</span> <span class="bu">ArrayList</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> req<span class="op">.</span><span class="fu">getName</span><span class="op">().</span><span class="fu">isBlank</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            errors<span class="op">.</span><span class="fu">add</span><span class="op">(</span><span class="st">&quot;name: Required field&quot;</span><span class="op">);</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>req<span class="op">.</span><span class="fu">getEmail</span><span class="op">()</span> <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> <span class="op">!</span><span class="fu">isValidEmail</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getEmail</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            errors<span class="op">.</span><span class="fu">add</span><span class="op">(</span><span class="st">&quot;email: Invalid format&quot;</span><span class="op">);</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span>errors<span class="op">.</span><span class="fu">isEmpty</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Validation failed: &quot;</span> <span class="op">+</span> <span class="bu">String</span><span class="op">.</span><span class="fu">join</span><span class="op">(</span><span class="st">&quot;; &quot;</span><span class="op">,</span> errors<span class="op">)</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Now proceed with creation</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">save</span><span class="op">(</span>req<span class="op">);</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="strategy-4-fallback-to-default">Strategy 4: Fallback to
+        Default</h3>
+        <p><strong>When</strong>: Optional enhancement with reasonable
+        default</p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">getSupplier</span><span class="op">(</span><span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Not found&quot;</span><span class="op">));</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Optional: Load ratings from external service</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Double</span> rating <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>            rating <span class="op">=</span> externalRatingService<span class="op">.</span><span class="fu">getRating</span><span class="op">(</span>supplier<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>ExternalServiceException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>            logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Rating service unavailable&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>            rating <span class="op">=</span> <span class="fl">3.0</span><span class="op">;</span>  <span class="co">// Default rating</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> SupplierDTO<span class="op">.</span><span class="fu">from</span><span class="op">(</span>supplier<span class="op">,</span> rating<span class="op">);</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="guideline-6-testing-exception-handling">Guideline 6:
+        Testing Exception Handling</h2>
+        <h3 id="unit-test-exception-thrown-on-validation-failure">Unit
+        Test: Exception Thrown on Validation Failure</h3>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testCreateSupplier_InvalidEmail</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    CreateSupplierRequest request <span class="op">=</span> CreateSupplierRequest<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;ACME&quot;</span><span class="op">)</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;invalid-email&quot;</span><span class="op">)</span>  <span class="co">// Invalid</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThrows</span><span class="op">(</span>InvalidRequestException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        supplierService<span class="op">.</span><span class="fu">createSupplier</span><span class="op">(</span>request<span class="op">);</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">});</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="unit-test-exception-message-content">Unit Test:
+        Exception Message Content</h3>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testInvalidQuantity_MessageIncludesRange</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> quantity <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>  <span class="co">// Out of range</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    InvalidRequestException ex <span class="op">=</span> <span class="fu">assertThrows</span><span class="op">(</span>InvalidRequestException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        inventoryService<span class="op">.</span><span class="fu">createInventory</span><span class="op">(</span>quantity<span class="op">);</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">});</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThat</span><span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contains</span><span class="op">(</span><span class="st">&quot;quantity&quot;</span><span class="op">)</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contains</span><span class="op">(</span><span class="st">&quot;1&quot;</span><span class="op">)</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contains</span><span class="op">(</span><span class="st">&quot;999999&quot;</span><span class="op">);</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="integration-test-http-status-code">Integration Test:
+        HTTP Status Code</h3>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">testCreateSupplier_DuplicateName_Returns409</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Create supplier with name &quot;ACME&quot;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    supplierRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">createSupplier</span><span class="op">(</span><span class="st">&quot;ACME&quot;</span><span class="op">));</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Try to create another with same name</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>APPLICATION_JSON<span class="op">)</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span><span class="fu">json</span><span class="op">(</span>CreateSupplierRequest<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;ACME&quot;</span><span class="op">)</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;other@example.com&quot;</span><span class="op">)</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>                    <span class="op">.</span><span class="fu">build</span><span class="op">())))</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isConflict</span><span class="op">())</span>  <span class="co">// 409</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.error&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;conflict&quot;</span><span class="op">));</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="guideline-7-logging-exceptions">Guideline 7: Logging
+        Exceptions</h2>
+        <h3 id="do-log-with-context">DO: Log with Context</h3>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Logs exception with context</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDuplicate</span><span class="op">(</span>DuplicateResourceException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> context <span class="op">=</span> <span class="bu">String</span><span class="op">.</span><span class="fu">format</span><span class="op">(</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Duplicate resource attempt: resourceType=</span><span class="sc">%s</span><span class="st">, field=</span><span class="sc">%s</span><span class="st">, value=</span><span class="sc">%s</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        ex<span class="op">.</span><span class="fu">getResourceType</span><span class="op">(),</span> ex<span class="op">.</span><span class="fu">getConflictField</span><span class="op">(),</span> ex<span class="op">.</span><span class="fu">getDuplicateValue</span><span class="op">()</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span>context<span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span><span class="kw">...</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Includes correlation ID in logs</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">Exception</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleUnexpected</span><span class="op">(</span><span class="bu">Exception</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> correlationId <span class="op">=</span> MDC<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;correlationId&quot;</span><span class="op">);</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;Unexpected exception [&quot;</span> <span class="op">+</span> correlationId <span class="op">+</span> <span class="st">&quot;]&quot;</span><span class="op">,</span> ex<span class="op">);</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span><span class="kw">...</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="dont-log-sensitive-data">DON’T: Log Sensitive Data</h3>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Logs sensitive data</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;User login attempt: email=&quot;</span> <span class="op">+</span> email <span class="op">+</span> <span class="st">&quot;, password=&quot;</span> <span class="op">+</span> password<span class="op">);</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Logs full SQL</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;Database error&quot;</span><span class="op">,</span> ex<span class="op">);</span>  <span class="co">// If ex contains full SQL with schema</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Sanitize sensitive data</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;Login attempt for user: &quot;</span> <span class="op">+</span> <span class="fu">maskEmail</span><span class="op">(</span>email<span class="op">));</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>logger<span class="op">.</span><span class="fu">debug</span><span class="op">(</span><span class="st">&quot;Database error: &quot;</span> <span class="op">+</span> <span class="fu">sanitize</span><span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()));</span></span></code></pre></div>
+        <hr />
+        <h2 id="guideline-8-documentation-standards">Guideline 8:
+        Documentation Standards</h2>
+        <h3 id="do-document-exceptions-in-method-javadoc">DO: Document
+        Exceptions in Method Javadoc</h3>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> Creates a new supplier in the system<span class="co">.</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>param request supplier creation request</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>return created supplier DTO</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>throws InvalidRequestException if name is blank or email invalid</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>throws DuplicateResourceException if supplier name already exists</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> </span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>see InvalidRequestException<span class="co">#</span>requiredField<span class="co">(</span>String<span class="co">)</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a> <span class="co">*</span> <span class="co">@</span>see DuplicateResourceException<span class="co">#</span>supplierName<span class="co">(</span>String<span class="co">)</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a> <span class="co">*/</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span>CreateSupplierRequest request<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>request<span class="op">.</span><span class="fu">getName</span><span class="op">().</span><span class="fu">isBlank</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">requiredField</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">);</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByName</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">supplierName</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="guideline-9-exception-handling-checklist">Guideline 9:
+        Exception Handling Checklist</h2>
+        <p>Use this checklist when writing exception handling code:</p>
+        <ul class="task-list">
+        <li><label><input type="checkbox" /><strong>Specific
+        Exception?</strong> Use specific exception type, not generic
+        Exception</label></li>
+        <li><label><input type="checkbox" /><strong>Meaningful
+        Message?</strong> Message explains what failed and how to
+        fix</label></li>
+        <li><label><input type="checkbox" /><strong>No Sensitive
+        Data?</strong> No passwords, tokens, or schema
+        details</label></li>
+        <li><label><input type="checkbox" /><strong>Logged?</strong>
+        Exception logged server-side with full details</label></li>
+        <li><label><input type="checkbox" /><strong>Correlation
+        ID?</strong> Error response includes correlation ID</label></li>
+        <li><label><input type="checkbox" /><strong>HTTP Status
+        Correct?</strong> Matches REST conventions (4xx client, 5xx
+        server)</label></li>
+        <li><label><input type="checkbox" /><strong>Frontend
+        Actionable?</strong> Error message helps frontend user
+        understand issue</label></li>
+        <li><label><input type="checkbox" /><strong>Tested?</strong>
+        Unit tests verify exception is thrown and message is
+        correct</label></li>
+        <li><label><input type="checkbox" /><strong>Documented?</strong>
+        Javadoc documents exceptions thrown by method</label></li>
+        <li><label><input type="checkbox" /><strong>Cause
+        Preserved?</strong> Root cause exception is not
+        lost</label></li>
+        </ul>
+        <hr />
+        <h2 id="guideline-10-recovery-action-flowchart">Guideline 10:
+        Recovery Action Flowchart</h2>
+        <div class="mermaid">
+        graph TD
+            A["Exception Caught"] --> B{{"Can Recover?"}}
+            
+            B -->|Yes| C{{"How?"}}
+            C -->|Retry| D["Retry with backoff"]
+            C -->|Default Value| E["Use sensible default"]
+            C -->|Partial Success| F["Return partial result"]
+            
+            B -->|No| G{{"Log & Notify?"}}
+            G -->|Yes| H["Log with context<br/>Include correlation ID<br/>Send error response"]
+            G -->|No| I["Just re-throw<br/>Let caller handle"]
+            
+            D --> J["Return Result"]
+            E --> J
+            F --> J
+            H --> J
+            I --> K["Exception Propagates"]
+        </div>
+        <hr />
+        <h2 id="exception-handling-workflow">Exception Handling
+        Workflow</h2>
+        <pre><code>Request → Controller
+    ↓
+[Input Validation]
+    ├→ Invalid → Throw InvalidRequestException (400)
+    └→ Valid → Service Layer
+        ↓
+    [Business Logic]
+        ├→ Duplicate → Throw DuplicateResourceException (409)
+        ├→ Not Found → Throw NoSuchElementException (404)
+        ├→ State Violation → Throw IllegalStateException (409)
+        └→ Success → Return Result
+            ↓
+        [Exception Handler]
+            ├→ BusinessExceptionHandler (first)
+            └→ GlobalExceptionHandler (second)
+                ↓
+        [ErrorResponse Built]
+            ├→ Error token (lowercase status)
+            ├→ Human-readable message
+            ├→ Timestamp (ISO-8601)
+            └→ Correlation ID (tracking)
+                ↓
+        HTTP Response (4xx/5xx)</code></pre>
+        <hr />
+        <h2 id="example-complete-exception-handling">Example: Complete
+        Exception Handling</h2>
+        <p>Here’s a complete example following all guidelines:</p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Validated</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierController <span class="op">{</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Creates a new supplier<span class="co">.</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>param request supplier creation request</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>return created supplier DTO</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>throws InvalidRequestException if validation fails</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>throws DuplicateResourceException if supplier name exists</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@PostMapping</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">createSupplier</span><span class="op">(</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierRequest request<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        SupplierDTO created <span class="op">=</span> supplierService<span class="op">.</span><span class="fu">createSupplier</span><span class="op">(</span>request<span class="op">);</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CREATED</span><span class="op">).</span><span class="fu">body</span><span class="op">(</span>created<span class="op">);</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a><span class="at">@Slf4j</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Creates a new supplier with validation and duplicate checking<span class="co">.</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>param request creation request</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>return created supplier</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>throws InvalidRequestException if business validation fails</span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> <span class="co">@</span>throws DuplicateResourceException if name already exists</span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span>CreateSupplierRequest request<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 1. Validate business constraints</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">validateSupplierRequest</span><span class="op">(</span>request<span class="op">);</span></span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 2. Check uniqueness</span></span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">supplierName</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 3. Create and persist</span></span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">name</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getName</span><span class="op">())</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">email</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getEmail</span><span class="op">())</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>        Supplier saved <span class="op">=</span> supplierRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> SupplierDTO<span class="op">.</span><span class="fu">from</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">void</span> <span class="fu">validateSupplierRequest</span><span class="op">(</span>CreateSupplierRequest request<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> errors <span class="op">=</span> <span class="kw">new</span> <span class="bu">HashMap</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>request<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> request<span class="op">.</span><span class="fu">getName</span><span class="op">().</span><span class="fu">isBlank</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a>            errors<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">,</span> <span class="st">&quot;Name is required&quot;</span><span class="op">);</span></span>
+<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span><span class="fu">isValidEmail</span><span class="op">(</span>request<span class="op">.</span><span class="fu">getEmail</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a>            errors<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">,</span> <span class="st">&quot;Valid email required&quot;</span><span class="op">);</span></span>
+<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-63"><a href="#cb29-63" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-64"><a href="#cb29-64" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span>errors<span class="op">.</span><span class="fu">isEmpty</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span></span>
+<span id="cb29-66"><a href="#cb29-66" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Validation failed: &quot;</span> <span class="op">+</span> errors<span class="op">.</span><span class="fu">size</span><span class="op">()</span> <span class="op">+</span> <span class="st">&quot; error(s)&quot;</span><span class="op">,</span></span>
+<span id="cb29-67"><a href="#cb29-67" aria-hidden="true" tabindex="-1"></a>                errors</span>
+<span id="cb29-68"><a href="#cb29-68" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb29-69"><a href="#cb29-69" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-70"><a href="#cb29-70" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-71"><a href="#cb29-71" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb29-72"><a href="#cb29-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-73"><a href="#cb29-73" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb29-74"><a href="#cb29-74" aria-hidden="true" tabindex="-1"></a><span class="at">@Order</span><span class="op">(</span>Ordered<span class="op">.</span><span class="fu">HIGHEST_PRECEDENCE</span><span class="op">)</span></span>
+<span id="cb29-75"><a href="#cb29-75" aria-hidden="true" tabindex="-1"></a><span class="at">@Slf4j</span></span>
+<span id="cb29-76"><a href="#cb29-76" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> BusinessExceptionHandler <span class="op">{</span></span>
+<span id="cb29-77"><a href="#cb29-77" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-78"><a href="#cb29-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>InvalidRequestException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb29-79"><a href="#cb29-79" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleValidation</span><span class="op">(</span>InvalidRequestException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-80"><a href="#cb29-80" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Log with context</span></span>
+<span id="cb29-81"><a href="#cb29-81" aria-hidden="true" tabindex="-1"></a>        log<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Validation failed: {}&quot;</span><span class="op">,</span> ex<span class="op">.</span><span class="fu">getValidationDetails</span><span class="op">());</span></span>
+<span id="cb29-82"><a href="#cb29-82" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-83"><a href="#cb29-83" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb29-84"><a href="#cb29-84" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span><span class="op">)</span></span>
+<span id="cb29-85"><a href="#cb29-85" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">message</span><span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb29-86"><a href="#cb29-86" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb29-87"><a href="#cb29-87" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-88"><a href="#cb29-88" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-89"><a href="#cb29-89" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb29-90"><a href="#cb29-90" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDuplicate</span><span class="op">(</span>DuplicateResourceException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-91"><a href="#cb29-91" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Log with details</span></span>
+<span id="cb29-92"><a href="#cb29-92" aria-hidden="true" tabindex="-1"></a>        log<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Duplicate resource: type={}, field={}, value={}&quot;</span><span class="op">,</span></span>
+<span id="cb29-93"><a href="#cb29-93" aria-hidden="true" tabindex="-1"></a>                ex<span class="op">.</span><span class="fu">getResourceType</span><span class="op">(),</span> ex<span class="op">.</span><span class="fu">getConflictField</span><span class="op">(),</span> ex<span class="op">.</span><span class="fu">getDuplicateValue</span><span class="op">());</span></span>
+<span id="cb29-94"><a href="#cb29-94" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-95"><a href="#cb29-95" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb29-96"><a href="#cb29-96" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb29-97"><a href="#cb29-97" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">message</span><span class="op">(</span>ex<span class="op">.</span><span class="fu">getClientMessage</span><span class="op">())</span></span>
+<span id="cb29-98"><a href="#cb29-98" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb29-99"><a href="#cb29-99" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-100"><a href="#cb29-100" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Exception Architecture
+        Overview</a></strong> – Exception types and hierarchy</li>
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – Implementation details</li>
+        <li><strong><a href="./domain-exceptions.html">Domain
+        Exceptions</a></strong> – Custom exception classes</li>
+        <li><strong><a href="./error-response-structure.html">Error
+        Response Structure</a></strong> – JSON format</li>
+        <li><strong><a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a></strong> – Status code mapping</li>
+        </ul>
+        <hr />
+        <h2 id="version-history">Version History</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Version</th>
+        <th>Date</th>
+        <th>Changes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>1.0.0</td>
+        <td>2025-11-20</td>
+        <td>Initial comprehensive best practices</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="quick-checklist">Quick Checklist</h2>
+        <p>When handling exceptions:</p>
+        <pre><code>□ Use specific exception type
+□ Include meaningful message
+□ No sensitive data exposed
+□ Exception logged server-side
+□ Correlation ID in response
+□ Correct HTTP status code
+□ Frontend message is actionable
+□ Exception documented in Javadoc
+□ Root cause preserved
+□ Unit tests verify behavior</code></pre>
+        <h2 id="one-page-reference">One-Page Reference</h2>
+        <table>
+        <colgroup>
+        <col style="width: 37%" />
+        <col style="width: 62%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Do This</th>
+        <th>Don’t Do This</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Throw InvalidRequestException for invalid input</td>
+        <td>Silently fix or ignore invalid input</td>
+        </tr>
+        <tr class="even">
+        <td>Throw DuplicateResourceException for unique violations</td>
+        <td>Return null/empty for error conditions</td>
+        </tr>
+        <tr class="odd">
+        <td>Use generic auth messages</td>
+        <td>Reveal whether username/password was wrong</td>
+        </tr>
+        <tr class="even">
+        <td>Log full exception server-side</td>
+        <td>Expose stack traces to client</td>
+        </tr>
+        <tr class="odd">
+        <td>Include correlation ID in response</td>
+        <td>Make errors hard to trace</td>
+        </tr>
+        <tr class="even">
+        <td>Document exceptions in Javadoc</td>
+        <td>Leave exception usage unclear</td>
+        </tr>
+        <tr class="odd">
+        <td>Catch specific exceptions</td>
+        <td>Catch broad Exception class</td>
+        </tr>
+        <tr class="even">
+        <td>Preserve cause chain</td>
+        <td>Lose original error context</td>
+        </tr>
+        <tr class="odd">
+        <td>Test exception throwing</td>
+        <td>Assume errors won’t happen</td>
+        </tr>
+        <tr class="even">
+        <td>Return empty collections</td>
+        <td>Throw exception for no results</td>
+        </tr>
+        </tbody>
+        </table>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

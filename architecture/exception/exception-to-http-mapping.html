@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+exception/exception-to-http-mapping · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#exception-to-http-mapping"
+        id="toc-exception-to-http-mapping">Exception-to-HTTP Mapping</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#quick-lookup-table"
+        id="toc-quick-lookup-table">Quick Lookup Table</a></li>
+        <li><a href="#status-code-400-bad-request"
+        id="toc-status-code-400-bad-request">Status Code 400: Bad
+        Request</a>
+        <ul>
+        <li><a href="#when-to-use-400" id="toc-when-to-use-400">When to
+        Use 400</a></li>
+        <li><a href="#exceptions-mapped-to-400"
+        id="toc-exceptions-mapped-to-400">Exceptions Mapped to
+        400</a></li>
+        </ul></li>
+        <li><a href="#status-code-401-unauthorized"
+        id="toc-status-code-401-unauthorized">Status Code 401:
+        Unauthorized</a>
+        <ul>
+        <li><a href="#when-to-use-401" id="toc-when-to-use-401">When to
+        Use 401</a></li>
+        <li><a href="#exceptions-mapped-to-401"
+        id="toc-exceptions-mapped-to-401">Exceptions Mapped to
+        401</a></li>
+        </ul></li>
+        <li><a href="#status-code-403-forbidden"
+        id="toc-status-code-403-forbidden">Status Code 403:
+        Forbidden</a>
+        <ul>
+        <li><a href="#when-to-use-403" id="toc-when-to-use-403">When to
+        Use 403</a></li>
+        <li><a href="#exceptions-mapped-to-403"
+        id="toc-exceptions-mapped-to-403">Exceptions Mapped to
+        403</a></li>
+        </ul></li>
+        <li><a href="#status-code-404-not-found"
+        id="toc-status-code-404-not-found">Status Code 404: Not
+        Found</a>
+        <ul>
+        <li><a href="#when-to-use-404" id="toc-when-to-use-404">When to
+        Use 404</a></li>
+        <li><a href="#exceptions-mapped-to-404"
+        id="toc-exceptions-mapped-to-404">Exceptions Mapped to
+        404</a></li>
+        </ul></li>
+        <li><a href="#status-code-409-conflict"
+        id="toc-status-code-409-conflict">Status Code 409: Conflict</a>
+        <ul>
+        <li><a href="#when-to-use-409" id="toc-when-to-use-409">When to
+        Use 409</a></li>
+        <li><a href="#exceptions-mapped-to-409"
+        id="toc-exceptions-mapped-to-409">Exceptions Mapped to
+        409</a></li>
+        </ul></li>
+        <li><a href="#status-code-500-internal-server-error"
+        id="toc-status-code-500-internal-server-error">Status Code 500:
+        Internal Server Error</a>
+        <ul>
+        <li><a href="#when-to-use-500" id="toc-when-to-use-500">When to
+        Use 500</a></li>
+        <li><a href="#exceptions-mapped-to-500"
+        id="toc-exceptions-mapped-to-500">Exceptions Mapped to
+        500</a></li>
+        </ul></li>
+        <li><a href="#decision-tree" id="toc-decision-tree">Decision
+        Tree</a></li>
+        <li><a href="#frontend-error-handling-pattern"
+        id="toc-frontend-error-handling-pattern">Frontend Error Handling
+        Pattern</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        <li><a href="#version-history" id="toc-version-history">Version
+        History</a></li>
+        <li><a href="#quick-reference-card"
+        id="toc-quick-reference-card">Quick Reference Card</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="exception-to-http-mapping">Exception-to-HTTP
+        Mapping</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <h2 id="overview">Overview</h2>
+        <p>This document provides a <strong>complete reference</strong>
+        for how each exception type in Smart Supply Pro is mapped to
+        HTTP status codes. It serves as both a <strong>decision tree for
+        developers</strong> (when to throw which exception) and a
+        <strong>reference guide for API consumers</strong> (what status
+        codes to expect).</p>
+        <hr />
+        <h2 id="quick-lookup-table">Quick Lookup Table</h2>
+        <table>
+        <colgroup>
+        <col style="width: 21%" />
+        <col style="width: 18%" />
+        <col style="width: 21%" />
+        <col style="width: 24%" />
+        <col style="width: 14%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>HTTP Status</th>
+        <th>Exception</th>
+        <th>Error Token</th>
+        <th>Common Causes</th>
+        <th>Handler</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>400</strong></td>
+        <td>MethodArgumentNotValidException</td>
+        <td><code>bad_request</code></td>
+        <td><span class="citation" data-cites="Valid">@Valid</span>
+        annotation failed on request body</td>
+        <td>Global</td>
+        </tr>
+        <tr class="even">
+        <td><strong>400</strong></td>
+        <td>ConstraintViolationException</td>
+        <td><code>bad_request</code></td>
+        <td>JSR-380 constraint failed on parameter</td>
+        <td>Global</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>400</strong></td>
+        <td>HttpMessageNotReadableException</td>
+        <td><code>bad_request</code></td>
+        <td>Malformed JSON in request body</td>
+        <td>Global</td>
+        </tr>
+        <tr class="even">
+        <td><strong>400</strong></td>
+        <td>MissingServletRequestParameterException</td>
+        <td><code>bad_request</code></td>
+        <td>Required query parameter missing</td>
+        <td>Global</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>400</strong></td>
+        <td>MethodArgumentTypeMismatchException</td>
+        <td><code>bad_request</code></td>
+        <td>Path/query param type conversion failed</td>
+        <td>Global</td>
+        </tr>
+        <tr class="even">
+        <td><strong>400</strong></td>
+        <td>InvalidRequestException</td>
+        <td><code>bad_request</code></td>
+        <td>Business validation failed (custom domain)</td>
+        <td>Business</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>401</strong></td>
+        <td>AuthenticationException</td>
+        <td><code>unauthorized</code></td>
+        <td>User not authenticated or credentials invalid</td>
+        <td>Global</td>
+        </tr>
+        <tr class="even">
+        <td><strong>403</strong></td>
+        <td>AccessDeniedException</td>
+        <td><code>forbidden</code></td>
+        <td>User lacks required permissions/role</td>
+        <td>Global</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>404</strong></td>
+        <td>NoSuchElementException</td>
+        <td><code>not_found</code></td>
+        <td>Resource lookup returned empty</td>
+        <td>Global</td>
+        </tr>
+        <tr class="even">
+        <td><strong>404</strong></td>
+        <td>IllegalArgumentException</td>
+        <td><code>not_found</code></td>
+        <td>Invalid argument caused lookup failure</td>
+        <td>Global</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>409</strong></td>
+        <td>DuplicateResourceException</td>
+        <td><code>conflict</code></td>
+        <td>Uniqueness constraint violation (custom)</td>
+        <td>Business</td>
+        </tr>
+        <tr class="even">
+        <td><strong>409</strong></td>
+        <td>DataIntegrityViolationException</td>
+        <td><code>conflict</code></td>
+        <td>Database constraint violation (FK, UNIQUE, CHECK)</td>
+        <td>Global</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>409</strong></td>
+        <td>ObjectOptimisticLockingFailureException</td>
+        <td><code>conflict</code></td>
+        <td>Concurrent update (version field mismatch)</td>
+        <td>Global</td>
+        </tr>
+        <tr class="even">
+        <td><strong>409</strong></td>
+        <td>IllegalStateException</td>
+        <td><code>conflict</code></td>
+        <td>Business state rule violation (custom)</td>
+        <td>Business</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>500</strong></td>
+        <td>Exception (unhandled)</td>
+        <td><code>internal_server_error</code></td>
+        <td>Any unhandled exception</td>
+        <td>Global</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="status-code-400-bad-request">Status Code 400: Bad
+        Request</h2>
+        <h3 id="when-to-use-400">When to Use 400</h3>
+        <p>Use <strong>400 Bad Request</strong> when the request itself
+        is <strong>malformed, invalid, or doesn’t meet
+        requirements</strong>: - ✅ Client sent invalid/missing data -
+        ✅ Request body JSON is malformed - ✅ Query parameters have
+        wrong type - ✅ Required fields are missing - ✅ Business
+        validation rules failed - ❌ Resource doesn’t exist (use 404) -
+        ❌ User not authenticated (use 401) - ❌ User lacks permission
+        (use 403)</p>
+        <h3 id="exceptions-mapped-to-400">Exceptions Mapped to 400</h3>
+        <h4 id="methodargumentnotvalidexception">1.
+        MethodArgumentNotValidException</h4>
+        <p><strong>Trigger</strong>: <span class="citation"
+        data-cites="Valid">@Valid</span> annotation validation fails on
+        request body</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span><span class="op">(</span><span class="st">&quot;/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span><span class="at">@Valid</span> <span class="at">@RequestBody</span> CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If req violates @Valid constraints → MethodArgumentNotValidException</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: name is required; email must be valid format; quantity must be greater than 0&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:45.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>What Client Should Do</strong>:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (error<span class="op">.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">400</span> <span class="op">&amp;&amp;</span> error<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">error</span> <span class="op">===</span> <span class="st">&#39;bad_request&#39;</span>) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Extract field errors from message</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> messages <span class="op">=</span> error<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">message</span><span class="op">.</span><span class="fu">split</span>(<span class="st">&#39;;&#39;</span>)<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">.</span><span class="fu">forEach</span>(msg <span class="kw">=&gt;</span> {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> [field<span class="op">,</span> description] <span class="op">=</span> msg<span class="op">.</span><span class="fu">trim</span>()<span class="op">.</span><span class="fu">split</span>(<span class="st">&#39;:&#39;</span>)<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">displayFieldError</span>(field<span class="op">,</span> description)<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h4 id="constraintviolationexception">2.
+        ConstraintViolationException</h4>
+        <p><strong>Trigger</strong>: JSR-380 constraint validation fails
+        on method parameters</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">get</span><span class="op">(</span><span class="at">@NotNull</span> <span class="at">@Min</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If id is null or &lt; 1 → ConstraintViolationException</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Constraint violation: id: must be greater than or equal to 1&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:46.234Z&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551446234-5902&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Common Annotations</strong>:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@NotNull</span>           <span class="co">// Value must not be null</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@NotEmpty</span>          <span class="co">// String must not be empty</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span>          <span class="co">// String must not be blank (spaces don&#39;t count)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Min</span><span class="op">(</span>n<span class="op">)</span>            <span class="co">// Number must be &gt;= n</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">@Max</span><span class="op">(</span>n<span class="op">)</span>            <span class="co">// Number must be &lt;= n</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Pattern</span><span class="op">(</span>regex<span class="op">)</span>    <span class="co">// String must match regex</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Email</span>             <span class="co">// Must be valid email format</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">@Size</span><span class="op">(</span>min<span class="op">,</span>max<span class="op">)</span>     <span class="co">// Collection size must be between min and max</span></span></code></pre></div>
+        <hr />
+        <h4 id="httpmessagenotreadableexception">3.
+        HttpMessageNotReadableException</h4>
+        <p><strong>Trigger</strong>: Request body JSON parsing fails
+        (malformed JSON)</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span><span class="at">@RequestBody</span> CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// POST /suppliers</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Body: {&quot;name&quot;: invalid json} → HttpMessageNotReadableException</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Invalid request format: malformed JSON or missing required fields&quot;</span><span class="fu">,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:47.345Z&quot;</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551447345-6013&quot;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Common Causes</strong>: - Missing quotes around
+        string values - Trailing commas in JSON - Missing closing braces
+        - Invalid characters - Non-numeric value for numeric field</p>
+        <p><strong>Example Bad Request</strong>:</p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Bad:</span> <span class="er">Missing</span> <span class="er">quotes,</span> <span class="er">trailing</span> <span class="er">comma</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span><span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME&quot;</span><span class="fu">,</span> <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="er">john@example.com</span><span class="fu">,}</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="er">//</span> <span class="er">Good</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span><span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ACME&quot;</span><span class="fu">,</span> <span class="dt">&quot;email&quot;</span><span class="fu">:</span> <span class="st">&quot;john@example.com&quot;</span><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4 id="missingservletrequestparameterexception">4.
+        MissingServletRequestParameterException</h4>
+        <p><strong>Trigger</strong>: Required query/form parameter is
+        missing</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">search</span><span class="op">(</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@RequestParam</span><span class="op">(</span>required <span class="op">=</span> <span class="kw">true</span><span class="op">)</span> <span class="bu">String</span> category<span class="op">,</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@RequestParam</span><span class="op">(</span>required <span class="op">=</span> <span class="kw">false</span><span class="op">)</span> <span class="bu">String</span> region</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// GET /suppliers (no category param) → MissingServletRequestParameterException</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Missing required parameter: category (String)&quot;</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:48.456Z&quot;</span><span class="fu">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551448456-7124&quot;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Correct Request</strong>:</p>
+        <pre><code>GET /suppliers?category=FOOD</code></pre>
+        <hr />
+        <h4 id="methodargumenttypemismatchexception">5.
+        MethodArgumentTypeMismatchException</h4>
+        <p><strong>Trigger</strong>: Path/query parameter type
+        conversion fails</p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">get</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// GET /suppliers/abc (abc is not a number) → MethodArgumentTypeMismatchException</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Invalid Long for parameter &#39;id&#39;: received &#39;abc&#39;&quot;</span><span class="fu">,</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:49.567Z&quot;</span><span class="fu">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551449567-8235&quot;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Valid Request</strong>:</p>
+        <pre><code>GET /suppliers/123</code></pre>
+        <hr />
+        <h4 id="invalidrequestexception-domain">6.
+        InvalidRequestException (Domain)</h4>
+        <p><strong>Trigger</strong>: Custom domain validation failure
+        thrown explicitly</p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// In service layer</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>request<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">&lt;</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">valueOutOfRange</span><span class="op">(</span><span class="st">&quot;quantity&quot;</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">999999</span><span class="op">);</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Validation failed: quantity value must be between 1 and 999999&quot;</span><span class="fu">,</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:50.678Z&quot;</span><span class="fu">,</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551450678-9346&quot;</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Factory Methods</strong>:</p>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>InvalidRequestException<span class="op">.</span><span class="fu">requiredField</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>InvalidRequestException<span class="op">.</span><span class="fu">invalidFormat</span><span class="op">(</span><span class="st">&quot;sku&quot;</span><span class="op">,</span> <span class="st">&quot;XXX-YYYY-ZZZZ&quot;</span><span class="op">)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>InvalidRequestException<span class="op">.</span><span class="fu">valueOutOfRange</span><span class="op">(</span><span class="st">&quot;quantity&quot;</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">999</span><span class="op">)</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>InvalidRequestException<span class="op">.</span><span class="fu">businessRuleViolation</span><span class="op">(</span><span class="st">&quot;Cannot order zero quantity&quot;</span><span class="op">)</span></span></code></pre></div>
+        <hr />
+        <h2 id="status-code-401-unauthorized">Status Code 401:
+        Unauthorized</h2>
+        <h3 id="when-to-use-401">When to Use 401</h3>
+        <p>Use <strong>401 Unauthorized</strong> when
+        <strong>authentication is missing or invalid</strong>: - ✅ User
+        hasn’t logged in (no token) - ✅ Token is expired - ✅ Token is
+        invalid (tampered with) - ✅ Credentials (username/password)
+        don’t match - ❌ User is authenticated but lacks permission (use
+        403)</p>
+        <h3 id="exceptions-mapped-to-401">Exceptions Mapped to 401</h3>
+        <h4 id="authenticationexception">AuthenticationException</h4>
+        <p><strong>Trigger</strong>: Authentication fails (credentials
+        invalid, no token, expired token)</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/profile&quot;</span><span class="op">)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated()&quot;</span><span class="op">)</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ProfileDTO <span class="fu">getProfile</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If user not authenticated → AuthenticationException</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;unauthorized&quot;</span><span class="fu">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Authentication failed: invalid credentials or expired session&quot;</span><span class="fu">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:51.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551451789-0457&quot;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Security Note</strong>: Message is generic to prevent
+        user enumeration (doesn’t reveal if username exists or password
+        is wrong).</p>
+        <p><strong>Frontend Handling</strong>:</p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (error<span class="op">.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">401</span>) {</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Redirect to login page</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">href</span> <span class="op">=</span> <span class="st">&#39;/login&#39;</span><span class="op">;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Optional: show login-required message</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">showMessage</span>(<span class="st">&#39;Your session has expired. Please log in again.&#39;</span>)<span class="op">;</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="status-code-403-forbidden">Status Code 403:
+        Forbidden</h2>
+        <h3 id="when-to-use-403">When to Use 403</h3>
+        <p>Use <strong>403 Forbidden</strong> when <strong>user is
+        authenticated but lacks permission</strong> for the operation: -
+        ✅ User doesn’t have required role (ADMIN, MANAGER, etc.) - ✅
+        User lacks specific permission - ✅ User is not the owner of the
+        resource - ✅ Operation is disabled for this user’s account
+        status - ❌ User isn’t logged in (use 401) - ❌ Resource doesn’t
+        exist (use 404)</p>
+        <h3 id="exceptions-mapped-to-403">Exceptions Mapped to 403</h3>
+        <h4 id="accessdeniedexception">AccessDeniedException</h4>
+        <p><strong>Trigger</strong>: User lacks required
+        permissions/role</p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="op">)</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If user is not ADMIN → AccessDeniedException</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;forbidden&quot;</span><span class="fu">,</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Access denied: insufficient permissions for this operation&quot;</span><span class="fu">,</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:52.890Z&quot;</span><span class="fu">,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551452890-1568&quot;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Security Note</strong>: Message is generic (doesn’t
+        reveal which role/permission is required).</p>
+        <p><strong>Frontend Handling</strong>:</p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (error<span class="op">.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">403</span>) {</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Show &quot;unauthorized&quot; message</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">showMessage</span>(<span class="st">&#39;You do not have permission to perform this action&#39;</span>)<span class="op">;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Disable the UI element that triggered the request</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">disableButton</span>()<span class="op">;</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Optional: show &quot;contact admin&quot; message</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">showContactAdminMessage</span>()<span class="op">;</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="status-code-404-not-found">Status Code 404: Not
+        Found</h2>
+        <h3 id="when-to-use-404">When to Use 404</h3>
+        <p>Use <strong>404 Not Found</strong> when <strong>resource
+        doesn’t exist</strong>: - ✅ User requests a supplier that
+        doesn’t exist - ✅ Resource was deleted - ✅ Wrong resource ID
+        provided - ❌ Parameter is wrong type (use 400) - ❌ Required
+        field is missing (use 400) - ❌ User not authenticated (use
+        401)</p>
+        <h3 id="exceptions-mapped-to-404">Exceptions Mapped to 404</h3>
+        <h4 id="nosuchelementexception">NoSuchElementException</h4>
+        <p><strong>Trigger</strong>: Resource lookup returns empty
+        (Optional.empty())</p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">get</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Supplier not found&quot;</span><span class="op">));</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;not_found&quot;</span><span class="fu">,</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier not found&quot;</span><span class="fu">,</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:53.901Z&quot;</span><span class="fu">,</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551453901-2679&quot;</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4 id="illegalargumentexception">IllegalArgumentException</h4>
+        <p><strong>Trigger</strong>: Invalid argument in lookup
+        operation</p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/by-status/{status}&quot;</span><span class="op">)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>SupplierDTO<span class="op">&gt;</span> <span class="fu">getByStatus</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> status<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    SupplierStatus enumStatus <span class="op">=</span> SupplierStatus<span class="op">.</span><span class="fu">valueOf</span><span class="op">(</span>status<span class="op">);</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If status = &quot;UNKNOWN&quot; → IllegalArgumentException</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">findByStatus</span><span class="op">(</span>enumStatus<span class="op">);</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;not_found&quot;</span><span class="fu">,</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;No enum constant com.smartsupplypro.SupplierStatus.UNKNOWN&quot;</span><span class="fu">,</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:54.012Z&quot;</span><span class="fu">,</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551454012-3780&quot;</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="status-code-409-conflict">Status Code 409: Conflict</h2>
+        <h3 id="when-to-use-409">When to Use 409</h3>
+        <p>Use <strong>409 Conflict</strong> when <strong>request
+        conflicts with current state</strong>: - ✅ Resource already
+        exists (duplicate unique field) - ✅ Concurrent update conflict
+        (someone else modified resource) - ✅ Business state rule
+        violation (e.g., can’t delete supplier with active items) - ❌
+        Resource doesn’t exist (use 404) - ❌ User not authenticated
+        (use 401) - ❌ User lacks permission (use 403)</p>
+        <h3 id="exceptions-mapped-to-409">Exceptions Mapped to 409</h3>
+        <h4
+        id="duplicateresourceexception-domain">DuplicateResourceException
+        (Domain)</h4>
+        <p><strong>Trigger</strong>: Uniqueness constraint violation
+        (custom)</p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByName</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">supplierName</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier with name &#39;ACME Inc&#39; already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:55.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551455123-4891&quot;</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>With Field Error Details</strong>:</p>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Parse context from exception</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;error&quot;</span><span class="op">:</span> <span class="st">&quot;conflict&quot;</span><span class="op">,</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;message&quot;</span><span class="op">:</span> <span class="st">&quot;Supplier with name &#39;ACME Inc&#39; already exists&quot;</span><span class="op">,</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;resourceType&quot;</span><span class="op">:</span> <span class="st">&quot;Supplier&quot;</span><span class="op">,</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;conflictField&quot;</span><span class="op">:</span> <span class="st">&quot;name&quot;</span><span class="op">,</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;duplicateValue&quot;</span><span class="op">:</span> <span class="st">&quot;ACME Inc&quot;</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h4
+        id="dataintegrityviolationexception">DataIntegrityViolationException</h4>
+        <p><strong>Trigger</strong>: Database constraint violation
+        (UNIQUE, FOREIGN KEY, CHECK)</p>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">create</span><span class="op">(</span>CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If database has UNIQUE constraint on email → DataIntegrityViolationException</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb33"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Resource with this value already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:56.234Z&quot;</span><span class="fu">,</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551456234-5902&quot;</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Sanitization</strong>: - ❌ Raw error: “UNIQUE
+        constraint failed: SUPPLIERS.EMAIL” - ✅ Sanitized: “Resource
+        with this value already exists”</p>
+        <hr />
+        <h4
+        id="objectoptimisticlockingfailureexception">ObjectOptimisticLockingFailureException</h4>
+        <p><strong>Trigger</strong>: Concurrent update conflict
+        (optimistic locking version mismatch)</p>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PutMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">update</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">,</span> <span class="at">@RequestBody</span> UpdateRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    Supplier supplier <span class="op">=</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">).</span><span class="fu">orElseThrow</span><span class="op">();</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    supplier<span class="op">.</span><span class="fu">setVersion</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getVersion</span><span class="op">());</span> <span class="co">// Version must match current DB version</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// If another user modified supplier since fetch → ObjectOptimisticLockingFailureException</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Resource was modified by another user. Please refresh and try again.&quot;</span><span class="fu">,</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:57.345Z&quot;</span><span class="fu">,</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551457345-6013&quot;</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Frontend Handling</strong>:</p>
+        <div class="sourceCode" id="cb36"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> {</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> api<span class="op">.</span><span class="fu">put</span>(<span class="vs">`/suppliers/</span><span class="sc">${</span>id<span class="sc">}</span><span class="vs">`</span><span class="op">,</span> { <span class="op">...</span>data<span class="op">,</span> <span class="dt">version</span><span class="op">:</span> <span class="dv">5</span> })<span class="op">;</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">catch</span> (error) {</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error<span class="op">.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">409</span> <span class="op">&amp;&amp;</span> error<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">error</span> <span class="op">===</span> <span class="st">&#39;conflict&#39;</span>) {</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Refresh from server and retry</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> latest <span class="op">=</span> <span class="cf">await</span> api<span class="op">.</span><span class="fu">get</span>(<span class="vs">`/suppliers/</span><span class="sc">${</span>id<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">showRetryDialog</span>(latest)<span class="op">;</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h4 id="illegalstateexception-domain">IllegalStateException
+        (Domain)</h4>
+        <p><strong>Trigger</strong>: Business state rule violation</p>
+        <div class="sourceCode" id="cb37"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DeleteMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    Supplier supplier <span class="op">=</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">).</span><span class="fu">orElseThrow</span><span class="op">();</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>supplier<span class="op">.</span><span class="fu">getStatus</span><span class="op">()</span> <span class="op">==</span> DELETED<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot modify already-deleted supplier&quot;</span><span class="op">);</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>inventoryRepository<span class="op">.</span><span class="fu">existsBySupplier</span><span class="op">(</span>supplier<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot delete supplier with active inventory&quot;</span><span class="op">);</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb38"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Cannot delete supplier with active inventory&quot;</span><span class="fu">,</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:58.456Z&quot;</span><span class="fu">,</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551458456-7124&quot;</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="status-code-500-internal-server-error">Status Code 500:
+        Internal Server Error</h2>
+        <h3 id="when-to-use-500">When to Use 500</h3>
+        <p>Use <strong>500 Internal Server Error</strong> for
+        <strong>unhandled exceptions</strong> that don’t fit other
+        categories: - ✅ NullPointerException - ✅ Database connection
+        timeout - ✅ File system access error - ✅ Third-party API
+        failure - ✅ Any exception not explicitly handled - ❌ Use
+        400-409 for client/request errors - ❌ Use 401/403 for auth
+        errors</p>
+        <h3 id="exceptions-mapped-to-500">Exceptions Mapped to 500</h3>
+        <h4 id="generic-exception-catch-all">Generic Exception
+        (Catch-All)</h4>
+        <p><strong>Trigger</strong>: Any unhandled exception</p>
+        <div class="sourceCode" id="cb39"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">Exception</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleUnexpected</span><span class="op">(</span><span class="bu">Exception</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;Unhandled exception&quot;</span><span class="op">,</span> ex<span class="op">);</span> <span class="co">// Full stack trace logged</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">INTERNAL_SERVER_ERROR</span><span class="op">)</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">message</span><span class="op">(</span><span class="st">&quot;An unexpected error occurred. Please contact support.&quot;</span><span class="op">)</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Example Response</strong>:</p>
+        <div class="sourceCode" id="cb40"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;internal_server_error&quot;</span><span class="fu">,</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;An unexpected error occurred. Please contact support.&quot;</span><span class="fu">,</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:59.567Z&quot;</span><span class="fu">,</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551459567-8235&quot;</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Security Note</strong>: No stack trace, no exception
+        details exposed to client (prevent information disclosure).</p>
+        <p><strong>Frontend Handling</strong>:</p>
+        <div class="sourceCode" id="cb41"><pre
+        class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (error<span class="op">.</span><span class="at">status</span> <span class="op">===</span> <span class="dv">500</span>) {</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> correlationId <span class="op">=</span> error<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">correlationId</span><span class="op">;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">showErrorMessage</span>(<span class="vs">`Error: </span><span class="sc">${</span>error<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">message</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">showSupportContact</span>(<span class="vs">`Please report error ID: </span><span class="sc">${</span>correlationId<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Log for telemetry/analytics</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    analytics<span class="op">.</span><span class="fu">error</span>({</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">status</span><span class="op">:</span> error<span class="op">.</span><span class="at">status</span><span class="op">,</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">correlationId</span><span class="op">:</span> correlationId<span class="op">,</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">timestamp</span><span class="op">:</span> error<span class="op">.</span><span class="at">data</span><span class="op">.</span><span class="at">timestamp</span><span class="op">,</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">url</span><span class="op">:</span> <span class="bu">window</span><span class="op">.</span><span class="at">location</span><span class="op">.</span><span class="at">href</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="decision-tree">Decision Tree</h2>
+        <p>Use this flowchart to determine the appropriate HTTP status
+        code:</p>
+        <div class="mermaid">
+        graph TD
+            A["Exception Thrown"] --> B{{"Exception Type?"}}
+            
+            B -->|Request Format Invalid| C{{"Which Kind?"}}
+            B -->|Authentication Missing| D["401<br/>Unauthorized<br/>AuthenticationException"]
+            B -->|Insufficient Permission| E["403<br/>Forbidden<br/>AccessDeniedException"]
+            B -->|Resource Not Found| F{{"Which Kind?"}}
+            B -->|State Conflict| G{{"Which Kind?"}}
+            B -->|Unhandled| H["500<br/>Internal Server Error"]
+            
+            C -->|Malformed JSON| C1["400<br/>Bad Request<br/>HttpMessageNotReadableException"]
+            C -->|Missing Parameter| C2["400<br/>Bad Request<br/>MissingServletRequestParameterException"]
+            C -->|Type Mismatch| C3["400<br/>Bad Request<br/>MethodArgumentTypeMismatchException"]
+            C -->|Validation Failed| C4["400<br/>Bad Request<br/>MethodArgumentNotValidException"]
+            C -->|Business Rule Violated| C5["400<br/>Bad Request<br/>InvalidRequestException"]
+            
+            F -->|Not Found in Optional| F1["404<br/>Not Found<br/>NoSuchElementException"]
+            F -->|Invalid Enum Value| F2["404<br/>Not Found<br/>IllegalArgumentException"]
+            
+            G -->|Duplicate Key| G1["409<br/>Conflict<br/>DuplicateResourceException"]
+            G -->|DB Constraint Violated| G2["409<br/>Conflict<br/>DataIntegrityViolationException"]
+            G -->|Concurrent Update| G3["409<br/>Conflict<br/>ObjectOptimisticLockingFailureException"]
+            G -->|Business State Violated| G4["409<br/>Conflict<br/>IllegalStateException"]
+        </div>
+        <hr />
+        <h2 id="frontend-error-handling-pattern">Frontend Error Handling
+        Pattern</h2>
+        <p>Implement this pattern to handle all status codes
+        consistently:</p>
+        <div class="sourceCode" id="cb42"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">makeRequest</span>(method<span class="op">,</span> url<span class="op">,</span> data <span class="op">=</span> <span class="kw">null</span>) {</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> {</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(url<span class="op">,</span> {</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>            method<span class="op">,</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>            headers<span class="op">:</span> { <span class="st">&#39;Content-Type&#39;</span><span class="op">:</span> <span class="st">&#39;application/json&#39;</span> }<span class="op">,</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>            body<span class="op">:</span> data <span class="op">?</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(data) <span class="op">:</span> <span class="dt">null</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>        })<span class="op">;</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="op">!</span>response<span class="op">.</span><span class="at">ok</span>) {</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> error <span class="op">=</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">handleHttpError</span>(response<span class="op">.</span><span class="at">status</span><span class="op">,</span> error)<span class="op">;</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">catch</span> (error) {</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">handleNetworkError</span>(error)<span class="op">;</span></span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">handleHttpError</span>(status<span class="op">,</span> errorData) {</span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { error<span class="op">,</span> message<span class="op">,</span> correlationId } <span class="op">=</span> errorData<span class="op">;</span></span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">switch</span> (status) {</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> <span class="dv">400</span><span class="op">:</span></span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a>            <span class="co">// User error - show validation message</span></span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showValidationError</span>(message)<span class="op">;</span></span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> <span class="dv">401</span><span class="op">:</span></span>
+<span id="cb42-31"><a href="#cb42-31" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Authentication error - redirect to login</span></span>
+<span id="cb42-32"><a href="#cb42-32" aria-hidden="true" tabindex="-1"></a>            <span class="fu">redirectToLogin</span>()<span class="op">;</span></span>
+<span id="cb42-33"><a href="#cb42-33" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb42-34"><a href="#cb42-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> <span class="dv">403</span><span class="op">:</span></span>
+<span id="cb42-35"><a href="#cb42-35" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Permission error - show access denied</span></span>
+<span id="cb42-36"><a href="#cb42-36" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showAccessDenied</span>()<span class="op">;</span></span>
+<span id="cb42-37"><a href="#cb42-37" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb42-38"><a href="#cb42-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> <span class="dv">404</span><span class="op">:</span></span>
+<span id="cb42-39"><a href="#cb42-39" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Not found - show resource doesn&#39;t exist</span></span>
+<span id="cb42-40"><a href="#cb42-40" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showNotFound</span>(message)<span class="op">;</span></span>
+<span id="cb42-41"><a href="#cb42-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb42-42"><a href="#cb42-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> <span class="dv">409</span><span class="op">:</span></span>
+<span id="cb42-43"><a href="#cb42-43" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Conflict - handle retry or conflict resolution</span></span>
+<span id="cb42-44"><a href="#cb42-44" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (error <span class="op">===</span> <span class="st">&#39;conflict&#39;</span>) {</span>
+<span id="cb42-45"><a href="#cb42-45" aria-hidden="true" tabindex="-1"></a>                <span class="fu">showConflictDialog</span>(message)<span class="op">;</span></span>
+<span id="cb42-46"><a href="#cb42-46" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb42-47"><a href="#cb42-47" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb42-48"><a href="#cb42-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">case</span> <span class="dv">500</span><span class="op">:</span></span>
+<span id="cb42-49"><a href="#cb42-49" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Server error - show generic message with correlation ID</span></span>
+<span id="cb42-50"><a href="#cb42-50" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showServerError</span>(correlationId)<span class="op">;</span></span>
+<span id="cb42-51"><a href="#cb42-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb42-52"><a href="#cb42-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb42-53"><a href="#cb42-53" aria-hidden="true" tabindex="-1"></a>            <span class="fu">showUnknownError</span>()<span class="op">;</span></span>
+<span id="cb42-54"><a href="#cb42-54" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb42-55"><a href="#cb42-55" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Exception Architecture
+        Overview</a></strong> – Exception types, handler ordering</li>
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – Implementation details</li>
+        <li><strong><a href="./domain-exceptions.html">Domain
+        Exceptions</a></strong> – Custom exception classes</li>
+        <li><strong><a href="./error-response-structure.html">Error
+        Response Structure</a></strong> – JSON format and fields</li>
+        <li><strong><a
+        href="./guidelines-and-best-practices.html">Guidelines &amp;
+        Best Practices</a></strong> – Best practices</li>
+        </ul>
+        <hr />
+        <h2 id="version-history">Version History</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Version</th>
+        <th>Date</th>
+        <th>Changes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>1.0.0</td>
+        <td>2025-11-20</td>
+        <td>Initial comprehensive mapping documentation</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="quick-reference-card">Quick Reference Card</h2>
+        <p><strong>Print this for quick reference:</strong></p>
+        <pre><code>┌─────────┬────────────────────────┬──────────────────────────┐
+│ Status  │ Error Token            │ When to Use              │
+├─────────┼────────────────────────┼──────────────────────────┤
+│ 400     │ bad_request            │ Invalid request data     │
+│ 401     │ unauthorized           │ Not authenticated        │
+│ 403     │ forbidden              │ Insufficient permission  │
+│ 404     │ not_found              │ Resource doesn&#39;t exist   │
+│ 409     │ conflict               │ State/duplicate conflict │
+│ 500     │ internal_server_error  │ Unhandled exception      │
+└─────────┴────────────────────────┴──────────────────────────┘</code></pre>
+        <pre><code>HOW TO DETERMINE STATUS CODE:
+
+1. Is request malformed?              → 400
+2. Is user not authenticated?         → 401
+3. Does user lack permission?         → 403
+4. Does resource not exist?           → 404
+5. Does state/duplicate conflict?     → 409
+6. Is it an unhandled error?          → 500</code></pre>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

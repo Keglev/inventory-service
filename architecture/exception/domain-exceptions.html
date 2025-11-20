@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+exception/domain-exceptions · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#domain-exceptions"
+        id="toc-domain-exceptions">Domain Exceptions</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#exception-hierarchy"
+        id="toc-exception-hierarchy">Exception Hierarchy</a></li>
+        <li><a href="#exception-1-invalidrequestexception"
+        id="toc-exception-1-invalidrequestexception">Exception 1:
+        InvalidRequestException</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">Purpose</a></li>
+        <li><a href="#class-implementation"
+        id="toc-class-implementation">Class Implementation</a></li>
+        <li><a href="#factory-methods" id="toc-factory-methods">Factory
+        Methods</a></li>
+        </ul></li>
+        <li><a href="#exception-2-duplicateresourceexception"
+        id="toc-exception-2-duplicateresourceexception">Exception 2:
+        DuplicateResourceException</a>
+        <ul>
+        <li><a href="#purpose-1" id="toc-purpose-1">Purpose</a></li>
+        <li><a href="#class-implementation-1"
+        id="toc-class-implementation-1">Class Implementation</a></li>
+        <li><a href="#factory-methods-1"
+        id="toc-factory-methods-1">Factory Methods</a></li>
+        </ul></li>
+        <li><a href="#exception-3-illegalstateexception"
+        id="toc-exception-3-illegalstateexception">Exception 3:
+        IllegalStateException</a>
+        <ul>
+        <li><a href="#purpose-2" id="toc-purpose-2">Purpose</a></li>
+        <li><a href="#usage-examples" id="toc-usage-examples">Usage
+        Examples</a></li>
+        </ul></li>
+        <li><a href="#businessexceptionhandler-integration"
+        id="toc-businessexceptionhandler-integration">BusinessExceptionHandler
+        Integration</a></li>
+        <li><a href="#best-practices" id="toc-best-practices">Best
+        Practices</a>
+        <ul>
+        <li><a href="#do" id="toc-do">DO:</a></li>
+        <li><a href="#dont" id="toc-dont">DON’T:</a></li>
+        </ul></li>
+        <li><a href="#testing-domain-exceptions"
+        id="toc-testing-domain-exceptions">Testing Domain Exceptions</a>
+        <ul>
+        <li><a href="#unit-test-example" id="toc-unit-test-example">Unit
+        Test Example</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        <li><a href="#version-history" id="toc-version-history">Version
+        History</a></li>
+        <li><a href="#quick-reference" id="toc-quick-reference">Quick
+        Reference</a>
+        <ul>
+        <li><a href="#creating-invalidrequestexception"
+        id="toc-creating-invalidrequestexception">Creating
+        InvalidRequestException</a></li>
+        <li><a href="#creating-duplicateresourceexception"
+        id="toc-creating-duplicateresourceexception">Creating
+        DuplicateResourceException</a></li>
+        <li><a href="#creating-illegalstateexception"
+        id="toc-creating-illegalstateexception">Creating
+        IllegalStateException</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="domain-exceptions">Domain Exceptions</h1>
+        <p><strong>Status</strong>: Complete | <strong>Last
+        Updated</strong>: 2025-11-20 | <strong>Version</strong>:
+        1.0.0</p>
+        <p><strong>Back to</strong>: <a href="./index.html">Exception
+        Architecture Index</a> | <a href="../index.html">Architecture
+        Overview</a></p>
+        <hr />
+        <h2 id="overview">Overview</h2>
+        <p>Domain exceptions are <strong>custom, application-specific
+        exceptions</strong> that represent business logic violations and
+        domain-level errors. Unlike framework exceptions (handled by
+        Spring automatically), domain exceptions are <strong>thrown
+        explicitly by service layer code</strong> to enforce business
+        rules and maintain application invariants.</p>
+        <p><strong>Key Characteristics</strong>: - ✅ Extend
+        RuntimeException (unchecked) - ✅ Thrown explicitly from
+        service/business logic - ✅ Carry contextual information
+        (resource type, conflict details, etc.) - ✅ Handled by
+        BusinessExceptionHandler (priority over framework) - ✅ Support
+        factory methods for common scenarios - ✅ Include structured
+        error details for API responses</p>
+        <hr />
+        <h2 id="exception-hierarchy">Exception Hierarchy</h2>
+        <pre><code>RuntimeException
+├── InvalidRequestException
+│   ├── requiredField(fieldName)
+│   ├── invalidFormat(fieldName, format)
+│   ├── valueOutOfRange(fieldName, min, max)
+│   ├── businessRuleViolation(rule)
+│   └── securityViolation(issue)
+│
+├── DuplicateResourceException
+│   ├── supplierName(name)
+│   ├── inventoryItemSku(sku)
+│   └── inventoryItemName(name)
+│
+└── IllegalStateException
+    └── Standard Java exception (not custom)
+    └── Thrown for business state violations</code></pre>
+        <hr />
+        <h2 id="exception-1-invalidrequestexception">Exception 1:
+        InvalidRequestException</h2>
+        <h3 id="purpose">Purpose</h3>
+        <p><strong>InvalidRequestException</strong> represents
+        <strong>business validation failures</strong> at the application
+        level. It’s thrown when user input or business data violates
+        domain constraints, business rules, or security policies.</p>
+        <p><strong>Use Cases</strong>: - Required field is missing -
+        Value is outside acceptable range - Business rule is violated -
+        Security policy is violated - Input format is invalid</p>
+        <h3 id="class-implementation">Class Implementation</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> InvalidRequestException <span class="kw">extends</span> <span class="bu">RuntimeException</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> ValidationSeverity severity<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> validationCode<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> fieldErrors<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> generalErrors<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Simple constructor with message only<span class="co">.</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">InvalidRequestException</span><span class="op">(</span><span class="bu">String</span> message<span class="op">)</span> <span class="op">{</span> </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>message<span class="op">);</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">severity</span> <span class="op">=</span> ValidationSeverity<span class="op">.</span><span class="fu">MEDIUM</span><span class="op">;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">validationCode</span> <span class="op">=</span> <span class="st">&quot;INVALID_REQUEST&quot;</span><span class="op">;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">fieldErrors</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">HashMap</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">generalErrors</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">ArrayList</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Constructor with severity and validation code<span class="co">.</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">InvalidRequestException</span><span class="op">(</span><span class="bu">String</span> message<span class="op">,</span> </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>                                   ValidationSeverity severity<span class="op">,</span> </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>                                   <span class="bu">String</span> validationCode<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>message<span class="op">);</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">severity</span> <span class="op">=</span> severity<span class="op">;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">validationCode</span> <span class="op">=</span> validationCode<span class="op">;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">fieldErrors</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">HashMap</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">generalErrors</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">ArrayList</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Constructor with field<span class="co">-</span>specific errors<span class="co">.</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">InvalidRequestException</span><span class="op">(</span><span class="bu">String</span> message<span class="op">,</span> </span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>                                   <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> fieldErrors<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>message<span class="op">);</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">severity</span> <span class="op">=</span> ValidationSeverity<span class="op">.</span><span class="fu">MEDIUM</span><span class="op">;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">validationCode</span> <span class="op">=</span> <span class="st">&quot;FIELD_VALIDATION_FAILED&quot;</span><span class="op">;</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">fieldErrors</span> <span class="op">=</span> fieldErrors <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> <span class="kw">new</span> <span class="bu">HashMap</span><span class="op">&lt;&gt;(</span>fieldErrors<span class="op">)</span> <span class="op">:</span> <span class="kw">new</span> <span class="bu">HashMap</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">generalErrors</span> <span class="op">=</span> <span class="kw">new</span> <span class="bu">ArrayList</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Query methods</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ValidationSeverity <span class="fu">getSeverity</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> severity<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getValidationCode</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> validationCode<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="fu">getFieldErrors</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> <span class="bu">Map</span><span class="op">.</span><span class="fu">copyOf</span><span class="op">(</span>fieldErrors<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> <span class="fu">getGeneralErrors</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> <span class="bu">List</span><span class="op">.</span><span class="fu">copyOf</span><span class="op">(</span>generalErrors<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">hasFieldErrors</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> <span class="op">!</span>fieldErrors<span class="op">.</span><span class="fu">isEmpty</span><span class="op">();</span> <span class="op">}</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">hasGeneralErrors</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> <span class="op">!</span>generalErrors<span class="op">.</span><span class="fu">isEmpty</span><span class="op">();</span> <span class="op">}</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">int</span> <span class="fu">getErrorCount</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> fieldErrors<span class="op">.</span><span class="fu">size</span><span class="op">()</span> <span class="op">+</span> generalErrors<span class="op">.</span><span class="fu">size</span><span class="op">();</span> <span class="op">}</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">isCritical</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> severity <span class="op">==</span> ValidationSeverity<span class="op">.</span><span class="fu">CRITICAL</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Error details for API responses</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">Object</span><span class="op">&gt;</span> <span class="fu">getValidationDetails</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">Object</span><span class="op">&gt;</span> details <span class="op">=</span> <span class="kw">new</span> <span class="bu">HashMap</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>        details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;validationCode&quot;</span><span class="op">,</span> validationCode<span class="op">);</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>        details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;severity&quot;</span><span class="op">,</span> severity<span class="op">.</span><span class="fu">name</span><span class="op">());</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;message&quot;</span><span class="op">,</span> <span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="fu">hasFieldErrors</span><span class="op">())</span> details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;fieldErrors&quot;</span><span class="op">,</span> fieldErrors<span class="op">);</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="fu">hasGeneralErrors</span><span class="op">())</span> details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;generalErrors&quot;</span><span class="op">,</span> generalErrors<span class="op">);</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>        details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;errorCount&quot;</span><span class="op">,</span> <span class="fu">getErrorCount</span><span class="op">());</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> details<span class="op">;</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Severity enum</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">enum</span> ValidationSeverity <span class="op">{</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>        LOW<span class="op">,</span>      <span class="co">// Minor validation issues, warnings</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>        MEDIUM<span class="op">,</span>   <span class="co">// Standard validation failures (default)</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>        HIGH<span class="op">,</span>     <span class="co">// Business rule violations</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>        CRITICAL  <span class="co">// Security or data integrity issues</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="factory-methods">Factory Methods</h3>
+        <p>Factory methods provide convenient shortcuts for common
+        validation scenarios:</p>
+        <h4 id="requiredfieldfieldname">requiredField(fieldName)</h4>
+        <p>Throws when a required field is missing:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> InvalidRequestException <span class="fu">requiredField</span><span class="op">(</span><span class="bu">String</span> fieldName<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> fieldErrors <span class="op">=</span> <span class="bu">Map</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span>fieldName<span class="op">,</span> <span class="st">&quot;This field is required&quot;</span><span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Required field missing: &quot;</span> <span class="op">+</span> fieldName<span class="op">,</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        fieldErrors</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage Example</strong>:</p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span>CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> req<span class="op">.</span><span class="fu">getName</span><span class="op">().</span><span class="fu">isBlank</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">requiredField</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">);</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Required field missing: name&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:45.123Z&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551445123-4891&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4
+        id="invalidformatfieldname-expectedformat">invalidFormat(fieldName,
+        expectedFormat)</h4>
+        <p>Throws when field value has invalid format:</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> InvalidRequestException <span class="fu">invalidFormat</span><span class="op">(</span><span class="bu">String</span> fieldName<span class="op">,</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                                                    <span class="bu">String</span> expectedFormat<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> fieldErrors <span class="op">=</span> <span class="bu">Map</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span>fieldName<span class="op">,</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Invalid format. Expected: &quot;</span> <span class="op">+</span> expectedFormat<span class="op">);</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Invalid format for field: &quot;</span> <span class="op">+</span> fieldName<span class="op">,</span> </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        fieldErrors</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage Example</strong>:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span>CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span><span class="fu">isValidSkuFormat</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getSku</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">invalidFormat</span><span class="op">(</span><span class="st">&quot;sku&quot;</span><span class="op">,</span> <span class="st">&quot;XXX-YYYY-ZZZZ&quot;</span><span class="op">);</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="dt">boolean</span> <span class="fu">isValidSkuFormat</span><span class="op">(</span><span class="bu">String</span> sku<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sku <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> sku<span class="op">.</span><span class="fu">matches</span><span class="op">(</span><span class="st">&quot;^[A-Z]{3}-[A-Z]{4}-[A-Z]{4}$&quot;</span><span class="op">);</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Invalid format for field: sku&quot;</span><span class="fu">,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:46.234Z&quot;</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551446234-5902&quot;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4
+        id="valueoutofrangefieldname-minvalue-maxvalue">valueOutOfRange(fieldName,
+        minValue, maxValue)</h4>
+        <p>Throws when numeric value is outside acceptable range:</p>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> InvalidRequestException <span class="fu">valueOutOfRange</span><span class="op">(</span><span class="bu">String</span> fieldName<span class="op">,</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                                                      <span class="bu">Object</span> minValue<span class="op">,</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                                                      <span class="bu">Object</span> maxValue<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> fieldErrors <span class="op">=</span> <span class="bu">Map</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span>fieldName<span class="op">,</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span><span class="op">.</span><span class="fu">format</span><span class="op">(</span><span class="st">&quot;Value must be between </span><span class="sc">%s</span><span class="st"> and </span><span class="sc">%s</span><span class="st">&quot;</span><span class="op">,</span> minValue<span class="op">,</span> maxValue<span class="op">));</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Value out of range for field: &quot;</span> <span class="op">+</span> fieldName<span class="op">,</span> </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        fieldErrors</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage Example</strong>:</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> InventoryDTO <span class="fu">createInventory</span><span class="op">(</span>CreateInventoryRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">final</span> <span class="dt">int</span> MIN_QUANTITY <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">final</span> <span class="dt">int</span> MAX_QUANTITY <span class="op">=</span> <span class="dv">999999</span><span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>req<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">&lt;</span> MIN_QUANTITY <span class="op">||</span> req<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">&gt;</span> MAX_QUANTITY<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">valueOutOfRange</span><span class="op">(</span><span class="st">&quot;quantity&quot;</span><span class="op">,</span> </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                                                      MIN_QUANTITY<span class="op">,</span> </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                                                      MAX_QUANTITY<span class="op">);</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Value out of range for field: quantity&quot;</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:47.345Z&quot;</span><span class="fu">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551447345-6013&quot;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4
+        id="businessruleviolationbusinessrule">businessRuleViolation(businessRule)</h4>
+        <p>Throws when a business rule is violated:</p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> InvalidRequestException <span class="fu">businessRuleViolation</span><span class="op">(</span><span class="bu">String</span> businessRule<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Business rule violation: &quot;</span> <span class="op">+</span> businessRule<span class="op">,</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        ValidationSeverity<span class="op">.</span><span class="fu">HIGH</span><span class="op">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;BUSINESS_RULE_VIOLATION&quot;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage Example</strong>:</p>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> InventoryDTO <span class="fu">transferInventory</span><span class="op">(</span><span class="bu">Long</span> fromSupplierId<span class="op">,</span> <span class="bu">Long</span> toSupplierId<span class="op">,</span> <span class="dt">int</span> quantity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>fromSupplierId<span class="op">.</span><span class="fu">equals</span><span class="op">(</span>toSupplierId<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">businessRuleViolation</span><span class="op">(</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Cannot transfer inventory from supplier to itself&quot;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> availableQuantity <span class="op">=</span> <span class="fu">getAvailableQuantity</span><span class="op">(</span>fromSupplierId<span class="op">);</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>quantity <span class="op">&gt;</span> availableQuantity<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">businessRuleViolation</span><span class="op">(</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span><span class="op">.</span><span class="fu">format</span><span class="op">(</span><span class="st">&quot;Cannot transfer </span><span class="sc">%d</span><span class="st"> units when only </span><span class="sc">%d</span><span class="st"> are available&quot;</span><span class="op">,</span> </span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>                         quantity<span class="op">,</span> availableQuantity<span class="op">)</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Business rule violation: Cannot transfer inventory from supplier to itself&quot;</span><span class="fu">,</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:48.456Z&quot;</span><span class="fu">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551448456-7124&quot;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4
+        id="securityviolationsecurityissue">securityViolation(securityIssue)</h4>
+        <p>Throws when a security policy is violated (CRITICAL
+        severity):</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> InvalidRequestException <span class="fu">securityViolation</span><span class="op">(</span><span class="bu">String</span> securityIssue<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Security validation failed: &quot;</span> <span class="op">+</span> securityIssue<span class="op">,</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        ValidationSeverity<span class="op">.</span><span class="fu">CRITICAL</span><span class="op">,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;SECURITY_VIOLATION&quot;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage Example</strong>:</p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> UserDTO <span class="fu">registerUser</span><span class="op">(</span>RegisterUserRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span><span class="fu">isBlacklisted</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getEmail</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">securityViolation</span><span class="op">(</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Email address is blacklisted for security reasons&quot;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span><span class="fu">containsProhibitedContent</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getPassword</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">securityViolation</span><span class="op">(</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Password contains prohibited content&quot;</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;bad_request&quot;</span><span class="fu">,</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Security validation failed: Email address is blacklisted for security reasons&quot;</span><span class="fu">,</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:49.567Z&quot;</span><span class="fu">,</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551449567-8235&quot;</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="exception-2-duplicateresourceexception">Exception 2:
+        DuplicateResourceException</h2>
+        <h3 id="purpose-1">Purpose</h3>
+        <p><strong>DuplicateResourceException</strong> represents
+        <strong>uniqueness constraint violations</strong> when
+        attempting to create a resource that already exists (duplicate
+        email, SKU, supplier name, etc.).</p>
+        <p><strong>Use Cases</strong>: - Email/username already
+        registered - Product SKU already exists - Supplier name already
+        exists - Unique identifier is not unique</p>
+        <h3 id="class-implementation-1">Class Implementation</h3>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> DuplicateResourceException <span class="kw">extends</span> <span class="bu">RuntimeException</span> <span class="op">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> resourceType<span class="op">;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> duplicateValue<span class="op">;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> <span class="bu">String</span> conflictField<span class="op">;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Simple constructor with message only<span class="co">.</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span><span class="bu">String</span> message<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>message<span class="op">);</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">resourceType</span> <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">duplicateValue</span> <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">conflictField</span> <span class="op">=</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Constructor with full context information<span class="co">.</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span><span class="bu">String</span> message<span class="op">,</span> </span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>                                      <span class="bu">String</span> resourceType<span class="op">,</span> </span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>                                      <span class="bu">String</span> conflictField<span class="op">,</span> </span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>                                      <span class="bu">String</span> duplicateValue<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>message<span class="op">);</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">resourceType</span> <span class="op">=</span> resourceType<span class="op">;</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">conflictField</span> <span class="op">=</span> conflictField<span class="op">;</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">duplicateValue</span> <span class="op">=</span> duplicateValue<span class="op">;</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Query methods</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getResourceType</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> resourceType<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getConflictField</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> conflictField<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getDuplicateValue</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> duplicateValue<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">hasDetailedContext</span><span class="op">()</span> <span class="op">{</span> </span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> resourceType <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> conflictField <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> duplicateValue <span class="op">!=</span> <span class="kw">null</span><span class="op">;</span> </span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">// User-friendly error message</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">getClientMessage</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="fu">hasDetailedContext</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">String</span><span class="op">.</span><span class="fu">format</span><span class="op">(</span><span class="st">&quot;</span><span class="sc">%s</span><span class="st"> with </span><span class="sc">%s</span><span class="st"> &#39;</span><span class="sc">%s</span><span class="st">&#39; already exists&quot;</span><span class="op">,</span> </span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>                resourceType<span class="op">,</span> conflictField<span class="op">,</span> duplicateValue<span class="op">);</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">getMessage</span><span class="op">()</span> <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> <span class="fu">getMessage</span><span class="op">()</span> <span class="op">:</span> <span class="st">&quot;Resource already exists&quot;</span><span class="op">;</span></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Structured error details</span></span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">Object</span><span class="op">&gt;</span> <span class="fu">getErrorDetails</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">Object</span><span class="op">&gt;</span> details <span class="op">=</span> <span class="kw">new</span> <span class="bu">HashMap</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>        details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;errorType&quot;</span><span class="op">,</span> <span class="st">&quot;DUPLICATE_RESOURCE&quot;</span><span class="op">);</span></span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="fu">hasDetailedContext</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>            details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;resourceType&quot;</span><span class="op">,</span> resourceType<span class="op">);</span></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>            details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;conflictField&quot;</span><span class="op">,</span> conflictField<span class="op">);</span></span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>            details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;duplicateValue&quot;</span><span class="op">,</span> duplicateValue<span class="op">);</span></span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>        details<span class="op">.</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;message&quot;</span><span class="op">,</span> <span class="fu">getClientMessage</span><span class="op">());</span></span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> details<span class="op">;</span></span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="factory-methods-1">Factory Methods</h3>
+        <h4
+        id="suppliernamesuppliername">supplierName(supplierName)</h4>
+        <p>Throws when supplier name already exists:</p>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> DuplicateResourceException <span class="fu">supplierName</span><span class="op">(</span><span class="bu">String</span> supplierName<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Supplier name already exists: &quot;</span> <span class="op">+</span> supplierName<span class="op">,</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Supplier&quot;</span><span class="op">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;name&quot;</span><span class="op">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        supplierName</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage Example</strong>:</p>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> SupplierDTO <span class="fu">createSupplier</span><span class="op">(</span>CreateSupplierRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">supplierName</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="kw">new</span> <span class="fu">Supplier</span><span class="op">(</span>req<span class="op">));</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Supplier with name &#39;ACME Inc&#39; already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:50.678Z&quot;</span><span class="fu">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551450678-9346&quot;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4 id="inventoryitemskusku">inventoryItemSku(sku)</h4>
+        <p>Throws when inventory item SKU already exists:</p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> DuplicateResourceException <span class="fu">inventoryItemSku</span><span class="op">(</span><span class="bu">String</span> sku<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Inventory item SKU already exists: &quot;</span> <span class="op">+</span> sku<span class="op">,</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;InventoryItem&quot;</span><span class="op">,</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;sku&quot;</span><span class="op">,</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        sku</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage Example</strong>:</p>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> InventoryItemDTO <span class="fu">createInventoryItem</span><span class="op">(</span>CreateInventoryItemRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>inventoryRepository<span class="op">.</span><span class="fu">existsBySkuIgnoreCase</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getSku</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">inventoryItemSku</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getSku</span><span class="op">());</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> inventoryRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="kw">new</span> <span class="fu">InventoryItem</span><span class="op">(</span>req<span class="op">));</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;InventoryItem with sku &#39;SKU-12345&#39; already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:51.789Z&quot;</span><span class="fu">,</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551451789-0457&quot;</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h4
+        id="inventoryitemnameitemname">inventoryItemName(itemName)</h4>
+        <p>Throws when inventory item name already exists:</p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> DuplicateResourceException <span class="fu">inventoryItemName</span><span class="op">(</span><span class="bu">String</span> itemName<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Inventory item name already exists: &quot;</span> <span class="op">+</span> itemName<span class="op">,</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;InventoryItem&quot;</span><span class="op">,</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;name&quot;</span><span class="op">,</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        itemName</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Usage Example</strong>:</p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> InventoryItemDTO <span class="fu">createInventoryItem</span><span class="op">(</span>CreateInventoryItemRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>inventoryRepository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">inventoryItemName</span><span class="op">(</span>req<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> inventoryRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="kw">new</span> <span class="fu">InventoryItem</span><span class="op">(</span>req<span class="op">));</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb27"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;InventoryItem with name &#39;Widget A&#39; already exists&quot;</span><span class="fu">,</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:52.890Z&quot;</span><span class="fu">,</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551452890-1568&quot;</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="exception-3-illegalstateexception">Exception 3:
+        IllegalStateException</h2>
+        <h3 id="purpose-2">Purpose</h3>
+        <p><strong>IllegalStateException</strong> is a standard Java
+        exception that represents <strong>business state rule
+        violations</strong>. It’s thrown when an operation is attempted
+        in an invalid state (e.g., deleting a supplier that has active
+        inventory, canceling a shipped order).</p>
+        <p><strong>Use Cases</strong>: - Deleting resource with
+        dependencies - Transitioning to invalid state - Modifying
+        locked/finalized resource - Operation not allowed in current
+        state</p>
+        <h3 id="usage-examples">Usage Examples</h3>
+        <p><strong>Example 1: Delete with Dependencies</strong></p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SupplierService <span class="op">{</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">deleteSupplier</span><span class="op">(</span><span class="bu">Long</span> supplierId<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>supplierId<span class="op">)</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Supplier not found&quot;</span><span class="op">));</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Business rule: Cannot delete supplier with active inventory</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>inventoryRepository<span class="op">.</span><span class="fu">existsBySupplier</span><span class="op">(</span>supplier<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Cannot delete supplier: active inventory items exist. &quot;</span> <span class="op">+</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Please delete all inventory items first.&quot;</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>        supplierRepository<span class="op">.</span><span class="fu">delete</span><span class="op">(</span>supplier<span class="op">);</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>HTTP Response</strong>:</p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;error&quot;</span><span class="fu">:</span> <span class="st">&quot;conflict&quot;</span><span class="fu">,</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Cannot delete supplier: active inventory items exist. Please delete all inventory items first.&quot;</span><span class="fu">,</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2025-11-20T14:30:53.901Z&quot;</span><span class="fu">,</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;correlationId&quot;</span><span class="fu">:</span> <span class="st">&quot;SSP-1700551453901-2679&quot;</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <hr />
+        <p><strong>Example 2: Invalid State Transition</strong></p>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OrderService <span class="op">{</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> OrderDTO <span class="fu">cancelOrder</span><span class="op">(</span><span class="bu">Long</span> orderId<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>        Order order <span class="op">=</span> orderRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>orderId<span class="op">)</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="bu">NoSuchElementException</span><span class="op">(</span><span class="st">&quot;Order not found&quot;</span><span class="op">));</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Business rule: Cannot cancel shipped orders</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>order<span class="op">.</span><span class="fu">getStatus</span><span class="op">()</span> <span class="op">==</span> OrderStatus<span class="op">.</span><span class="fu">SHIPPED</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Cannot cancel order: already shipped. &quot;</span> <span class="op">+</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Please contact shipping department for return options.&quot;</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>order<span class="op">.</span><span class="fu">getStatus</span><span class="op">()</span> <span class="op">==</span> OrderStatus<span class="op">.</span><span class="fu">DELIVERED</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Cannot cancel order: already delivered&quot;</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>        order<span class="op">.</span><span class="fu">setStatus</span><span class="op">(</span>OrderStatus<span class="op">.</span><span class="fu">CANCELLED</span><span class="op">);</span></span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> orderRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>order<span class="op">);</span></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <p><strong>Example 3: Modifying Locked Resource</strong></p>
+        <div class="sourceCode" id="cb31"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> FinanceService <span class="op">{</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> FinancialRecordDTO <span class="fu">updateFinancialRecord</span><span class="op">(</span><span class="bu">Long</span> recordId<span class="op">,</span> UpdateRequest req<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>        FinancialRecord <span class="kw">record</span> <span class="op">=</span> recordRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>recordId<span class="op">).</span><span class="fu">orElseThrow</span><span class="op">();</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Business rule: Cannot modify locked/finalized records</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="kw">record</span><span class="op">.</span><span class="fu">isLocked</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Cannot modify financial record: locked for audit trail preservation. &quot;</span> <span class="op">+</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Contact finance department to unlock.&quot;</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">);</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">record</span><span class="op">.</span><span class="fu">update</span><span class="op">(</span>req<span class="op">);</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> recordRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="kw">record</span><span class="op">);</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2
+        id="businessexceptionhandler-integration">BusinessExceptionHandler
+        Integration</h2>
+        <p>All domain exceptions are handled by
+        <strong>BusinessExceptionHandler</strong> with high
+        priority:</p>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Order</span><span class="op">(</span>Ordered<span class="op">.</span><span class="fu">HIGHEST_PRECEDENCE</span><span class="op">)</span>  <span class="co">// Runs first, before GlobalExceptionHandler</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> BusinessExceptionHandler <span class="op">{</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>InvalidRequestException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleInvalidRequest</span><span class="op">(</span>InvalidRequestException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> message <span class="op">=</span> ex<span class="op">.</span><span class="fu">hasFieldErrors</span><span class="op">()</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">?</span> <span class="st">&quot;Validation failed: &quot;</span> <span class="op">+</span> ex<span class="op">.</span><span class="fu">getFieldErrors</span><span class="op">().</span><span class="fu">size</span><span class="op">()</span> <span class="op">+</span> <span class="st">&quot; field error(s)&quot;</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> <span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()</span> <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()</span> <span class="op">:</span> <span class="st">&quot;Invalid request&quot;</span><span class="op">);</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">BAD_REQUEST</span><span class="op">)</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">message</span><span class="op">(</span>message<span class="op">)</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDuplicateResource</span><span class="op">(</span>DuplicateResourceException ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> message <span class="op">=</span> ex<span class="op">.</span><span class="fu">hasDetailedContext</span><span class="op">()</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">?</span> ex<span class="op">.</span><span class="fu">getClientMessage</span><span class="op">()</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> <span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()</span> <span class="op">!=</span> <span class="kw">null</span> <span class="op">?</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()</span> <span class="op">:</span> <span class="st">&quot;Duplicate resource&quot;</span><span class="op">);</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">message</span><span class="op">(</span>message<span class="op">)</span></span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">@ExceptionHandler</span><span class="op">(</span><span class="bu">IllegalStateException</span><span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleBusinessStateConflict</span><span class="op">(</span><span class="bu">IllegalStateException</span> ex<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> message <span class="op">=</span> <span class="op">(</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()</span> <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">().</span><span class="fu">isBlank</span><span class="op">())</span></span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">?</span> ex<span class="op">.</span><span class="fu">getMessage</span><span class="op">()</span></span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> <span class="st">&quot;Business rule conflict&quot;</span><span class="op">;</span></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ErrorResponse<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">CONFLICT</span><span class="op">)</span></span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">message</span><span class="op">(</span>message<span class="op">)</span></span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices">Best Practices</h2>
+        <h3 id="do">DO:</h3>
+        <ul>
+        <li>✅ Use factory methods for common scenarios</li>
+        <li>✅ Provide descriptive error messages</li>
+        <li>✅ Include context (field names, resource types,
+        values)</li>
+        <li>✅ Use appropriate severity levels
+        (InvalidRequestException)</li>
+        <li>✅ Throw early when validation fails</li>
+        <li>✅ Keep messages user-friendly and actionable</li>
+        </ul>
+        <h3 id="dont">DON’T:</h3>
+        <ul>
+        <li>❌ Use domain exceptions for framework-level errors (let
+        GlobalExceptionHandler catch them)</li>
+        <li>❌ Catch exceptions silently (always re-throw or handle
+        explicitly)</li>
+        <li>❌ Include sensitive data in error messages (passwords,
+        credit cards, etc.)</li>
+        <li>❌ Throw with full stack trace in message (too verbose)</li>
+        <li>❌ Use checked exceptions (extend RuntimeException for
+        domain exceptions)</li>
+        </ul>
+        <hr />
+        <h2 id="testing-domain-exceptions">Testing Domain
+        Exceptions</h2>
+        <h3 id="unit-test-example">Unit Test Example</h3>
+        <div class="sourceCode" id="cb33"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExtendWith</span><span class="op">(</span>MockitoExtension<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SupplierServiceTest <span class="op">{</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@InjectMocks</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierService supplierService<span class="op">;</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierRepository supplierRepository<span class="op">;</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testCreateSupplier_DuplicateName</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Arrange</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>        CreateSupplierRequest req <span class="op">=</span> CreateSupplierRequest<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;ACME Inc&quot;</span><span class="op">)</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;acme@example.com&quot;</span><span class="op">)</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;ACME Inc&quot;</span><span class="op">))</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Act &amp; Assert</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>            supplierService<span class="op">.</span><span class="fu">createSupplier</span><span class="op">(</span>req<span class="op">);</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>        <span class="op">});</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">testDeleteSupplier_WithActiveInventory</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Arrange</span></span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Long</span> supplierId <span class="op">=</span> <span class="dv">1L</span><span class="op">;</span></span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>        Supplier supplier <span class="op">=</span> <span class="kw">new</span> <span class="fu">Supplier</span><span class="op">();</span></span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setId</span><span class="op">(</span>supplierId<span class="op">);</span></span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>        supplier<span class="op">.</span><span class="fu">setName</span><span class="op">(</span><span class="st">&quot;ACME Inc&quot;</span><span class="op">);</span></span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>supplierId<span class="op">))</span></span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>Optional<span class="op">.</span><span class="fu">of</span><span class="op">(</span>supplier<span class="op">));</span></span>
+<span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>inventoryRepository<span class="op">.</span><span class="fu">existsBySupplier</span><span class="op">(</span>supplier<span class="op">))</span></span>
+<span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb33-40"><a href="#cb33-40" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Act &amp; Assert</span></span>
+<span id="cb33-41"><a href="#cb33-41" aria-hidden="true" tabindex="-1"></a>        <span class="bu">IllegalStateException</span> exception <span class="op">=</span> <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalStateException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb33-42"><a href="#cb33-42" aria-hidden="true" tabindex="-1"></a>            supplierService<span class="op">.</span><span class="fu">deleteSupplier</span><span class="op">(</span>supplierId<span class="op">);</span></span>
+<span id="cb33-43"><a href="#cb33-43" aria-hidden="true" tabindex="-1"></a>        <span class="op">});</span></span>
+<span id="cb33-44"><a href="#cb33-44" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb33-45"><a href="#cb33-45" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>exception<span class="op">.</span><span class="fu">getMessage</span><span class="op">())</span></span>
+<span id="cb33-46"><a href="#cb33-46" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">contains</span><span class="op">(</span><span class="st">&quot;Cannot delete supplier&quot;</span><span class="op">);</span></span>
+<span id="cb33-47"><a href="#cb33-47" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb33-48"><a href="#cb33-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Exception Architecture
+        Overview</a></strong> – Exception types and hierarchy</li>
+        <li><strong><a href="./global-exception-handler.html">Global
+        Exception Handler</a></strong> – Framework exception
+        handling</li>
+        <li><strong><a
+        href="./global-exception-handler.html">BusinessExceptionHandler</a></strong>
+        – Domain exception handler</li>
+        <li><strong><a href="./error-response-structure.html">Error
+        Response Structure</a></strong> – JSON response format</li>
+        <li><strong><a
+        href="./exception-to-http-mapping.html">Exception-to-HTTP
+        Mapping</a></strong> – Status code mapping</li>
+        <li><strong><a
+        href="./guidelines-and-best-practices.html">Guidelines &amp;
+        Best Practices</a></strong> – Exception handling best
+        practices</li>
+        </ul>
+        <hr />
+        <h2 id="version-history">Version History</h2>
+        <table>
+        <thead>
+        <tr class="header">
+        <th>Version</th>
+        <th>Date</th>
+        <th>Changes</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>1.0.0</td>
+        <td>2025-11-20</td>
+        <td>Initial comprehensive documentation</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="quick-reference">Quick Reference</h2>
+        <h3 id="creating-invalidrequestexception">Creating
+        InvalidRequestException</h3>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Required field missing</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">requiredField</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">);</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Invalid format</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">invalidFormat</span><span class="op">(</span><span class="st">&quot;sku&quot;</span><span class="op">,</span> <span class="st">&quot;XXX-YYYY&quot;</span><span class="op">);</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Value out of range</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">valueOutOfRange</span><span class="op">(</span><span class="st">&quot;quantity&quot;</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">999</span><span class="op">);</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Business rule violation</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">businessRuleViolation</span><span class="op">(</span><span class="st">&quot;Cannot order zero quantity&quot;</span><span class="op">);</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Security violation</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> InvalidRequestException<span class="op">.</span><span class="fu">securityViolation</span><span class="op">(</span><span class="st">&quot;Email is blacklisted&quot;</span><span class="op">);</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="co">// Custom message</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">InvalidRequestException</span><span class="op">(</span><span class="st">&quot;Custom validation error&quot;</span><span class="op">);</span></span></code></pre></div>
+        <h3 id="creating-duplicateresourceexception">Creating
+        DuplicateResourceException</h3>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Supplier duplicate</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">supplierName</span><span class="op">(</span><span class="st">&quot;ACME Inc&quot;</span><span class="op">);</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Inventory item SKU duplicate</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">inventoryItemSku</span><span class="op">(</span><span class="st">&quot;SKU-12345&quot;</span><span class="op">);</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Inventory item name duplicate</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> DuplicateResourceException<span class="op">.</span><span class="fu">inventoryItemName</span><span class="op">(</span><span class="st">&quot;Widget A&quot;</span><span class="op">);</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Custom message</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span><span class="st">&quot;Custom duplicate message&quot;</span><span class="op">);</span></span></code></pre></div>
+        <h3 id="creating-illegalstateexception">Creating
+        IllegalStateException</h3>
+        <div class="sourceCode" id="cb36"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Business state violation</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot delete supplier with active inventory&quot;</span><span class="op">);</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot cancel shipped order&quot;</span><span class="op">);</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="cf">throw</span> <span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot modify locked financial record&quot;</span><span class="op">);</span></span></code></pre></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
