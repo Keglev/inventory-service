@@ -194,5 +194,34 @@ public class InventoryItemController {
 <span class="fc" id="L194">        return inventoryItemService.updatePrice(id, price);</span>
     }
 
+    /**
+     * Renames an inventory item (changes the item name).
+     * Only ADMIN users can rename items.
+     *
+     * @param id   item identifier
+     * @param name new item name (must not be empty)
+     * @return updated inventory item
+     * @throws ResponseStatusException 400 if name is empty
+     * @throws ResponseStatusException 404 if item not found
+     * @throws ResponseStatusException 409 if name already exists for the same supplier
+     */
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @PatchMapping(&quot;/{id}/name&quot;)
+    public InventoryItemDTO renameItem(@PathVariable String id,
+                                       @RequestParam String name) {
+        try {
+<span class="fc" id="L213">            return inventoryItemService.renameItem(id, name);</span>
+<span class="fc" id="L214">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L215">            String message = e.getMessage();</span>
+<span class="pc bpc" id="L216" title="1 of 4 branches missed.">            if (message != null &amp;&amp; message.contains(&quot;empty&quot;)) {</span>
+<span class="fc" id="L217">                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);</span>
+<span class="pc bpc" id="L218" title="1 of 4 branches missed.">            } else if (message != null &amp;&amp; message.contains(&quot;already exists&quot;)) {</span>
+<span class="fc" id="L219">                throw new ResponseStatusException(HttpStatus.CONFLICT, message);</span>
+            } else {
+<span class="fc" id="L221">                throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);</span>
+            }
+        }
+    }
+
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -266,5 +266,46 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         
 <span class="nc" id="L267">        return InventoryItemMapper.toDTO(saved);</span>
     }
+
+    /**
+     * Renames an inventory item (changes the item name).
+     * Validates that the new name is not a duplicate for the same supplier.
+     *
+     * @param id the unique identifier of the item
+     * @param newName the new item name (must not be empty)
+     * @return the updated inventory item as DTO
+     * @throws IllegalArgumentException if name is empty or already exists for this supplier
+     * @throws IllegalArgumentException if item not found
+     */
+    @Override
+    @Transactional
+    public InventoryItemDTO renameItem(String id, String newName) {
+        // Validate new name is not empty
+<span class="nc bnc" id="L284" title="All 4 branches missed.">        if (newName == null || newName.trim().isEmpty()) {</span>
+<span class="nc" id="L285">            throw new IllegalArgumentException(&quot;Item name cannot be empty&quot;);</span>
+        }
+
+        // Verify item exists and get existing data
+<span class="nc" id="L289">        InventoryItem existing = validationHelper.validateExists(id);</span>
+
+        // Check if new name already exists for the same supplier (case-insensitive)
+<span class="nc" id="L292">        List&lt;InventoryItem&gt; duplicates = repository.findByNameIgnoreCase(newName.trim());</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">        for (InventoryItem dup : duplicates) {</span>
+            // If we find an item with the same name and supplier (but different id), it's a conflict
+<span class="nc bnc" id="L295" title="All 2 branches missed.">            if (!dup.getId().equals(id) &amp;&amp; </span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">                dup.getSupplierId().equals(existing.getSupplierId())) {</span>
+<span class="nc" id="L297">                throw new IllegalArgumentException(&quot;An item with this name already exists for this supplier&quot;);</span>
+            }
+<span class="nc" id="L299">        }</span>
+
+        // Update item name
+<span class="nc" id="L302">        existing.setName(newName.trim());</span>
+        
+        // Persist to database
+<span class="nc" id="L305">        InventoryItem saved = repository.save(existing);</span>
+        
+<span class="nc" id="L307">        return InventoryItemMapper.toDTO(saved);</span>
+    }
 }
+
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
