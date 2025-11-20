@@ -258,7 +258,9 @@ const Inventory: React.FC = () => {
 
   // -----------------------------
   // Render
-  // -----------------------------
+  // Note: Edit button is ALWAYS enabled to match Adjust Quantity and Change Price behavior
+  // Once clicked, it opens EditItemDialog where user selects supplier and item name to change
+  // -------- -------
   return (
     <Box sx={{ display: 'grid', gap: 1 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
