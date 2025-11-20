@@ -198,7 +198,78 @@ Each request is authenticated using Spring Security:
 
 ## Exception Handling
 
-Consistent exception handling throughout the application:
+Consistent, comprehensive exception handling throughout the application:
+
+**Complete Exception Architecture Documentation:**
+
+- **[Exception Architecture Index](./exception/index.md)** - Hub for all exception handling documentation
+  - Exception types and classifications (framework vs. domain)
+  - Handler execution flow and ordering
+  - HTTP status code reference table
+  - Error response structure and correlation IDs
+
+- **[Global Exception Handler](./exception/global-exception-handler.md)** - Framework-level exception handling
+  - 14 exception handler methods with implementation
+  - Handler ordering strategy (HIGHEST_PRECEDENCE)
+  - Validation errors (MethodArgumentNotValidException, ConstraintViolationException)
+  - Parameter and format errors (HttpMessageNotReadableException, MissingServletRequestParameterException)
+  - Authentication & authorization (AuthenticationException, AccessDeniedException)
+  - Resource not found (NoSuchElementException)
+  - Conflicts & concurrent updates (DataIntegrityViolationException, ObjectOptimisticLockingFailureException)
+  - Sensitive data sanitization patterns
+  - Testing strategies and examples
+
+- **[Error Response Structure](./exception/error-response-structure.md)** - Standardized error DTO
+  - JSON structure with machine-readable error tokens
+  - Timestamp and correlation ID generation
+  - Builder pattern implementation
+  - Frontend integration patterns
+  - Security considerations (no stack traces exposed)
+
+- **[Exception to HTTP Mapping](./exception/exception-to-http-mapping.md)** - Complete reference guide
+  - 400 Bad Request (validation, parameters, malformed JSON)
+  - 401 Unauthorized (authentication failures)
+  - 403 Forbidden (authorization failures)
+  - 404 Not Found (missing resources)
+  - 409 Conflict (duplicates, concurrent updates, state violations)
+  - 500 Internal Server Error (unhandled exceptions)
+  - Decision tree for status code selection
+  - Frontend error handling patterns
+
+- **[Domain Exceptions](./exception/domain-exceptions.md)** - Custom business exceptions
+  - InvalidRequestException with validation severity levels
+  - DuplicateResourceException with resource context
+  - IllegalStateException for state violations
+  - Factory methods for common scenarios
+  - BusinessExceptionHandler integration
+  - Testing and usage examples
+
+- **[Validation Exceptions](./exception/validation-exceptions.md)** - Field-level validation errors
+  - MethodArgumentNotValidException (request body validation)
+  - ConstraintViolationException (constraint violations)
+  - 14 JSR-380 validation annotations documented
+  - Common validation scenarios (email, numeric, pattern, collection)
+  - Spring validation integration
+  - Custom validator implementation
+  - Frontend error parsing patterns
+
+- **[Security Exceptions](./exception/security-exceptions.md)** - Authentication & authorization
+  - AuthenticationException (401) with security best practices
+  - AccessDeniedException (403) handling
+  - Generic error messaging (prevents user enumeration)
+  - Server-side logging and correlation tracking
+  - JWT validation patterns
+  - Production logging checklist
+
+- **[Guidelines & Best Practices](./exception/guidelines-and-best-practices.md)** - Developer guidelines
+  - Decision tree: When to throw vs. return values
+  - Choosing the right exception type
+  - Writing effective error messages
+  - 5 common anti-patterns to avoid
+  - 4 recovery strategies (retry, graceful degradation, fail-fast, fallback)
+  - Testing exception handling
+  - Logging guidelines and standards
+  - Complete developer checklist
 
 ```mermaid
 graph LR
@@ -213,23 +284,6 @@ graph LR
     BusinessEx --> ControllerAdv
     DataEx --> ControllerAdv
     ControllerAdv --> ErrorResponse
-```
-
-**Exception Hierarchy:**
-- `IllegalArgumentException` → HTTP 400 Bad Request
-- `IllegalStateException` → HTTP 409 Conflict
-- `DataIntegrityViolationException` → HTTP 409 Conflict
-- `EntityNotFoundException` → HTTP 404 Not Found
-- `AccessDeniedException` → HTTP 403 Forbidden
-- `Exception` → HTTP 500 Internal Server Error
-
-**Example:**
-```java
-@ExceptionHandler(IllegalStateException.class)
-public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(new ErrorResponse("CONFLICT", ex.getMessage()));
-}
 ```
 
 ## Data Flow Example: Creating an Inventory Item

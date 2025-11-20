@@ -198,7 +198,78 @@ Jede Anfrage wird über Spring Security authentifiziert:
 
 ## Exception-Handling
 
-Konsistentes Exception-Handling in der gesamten Anwendung:
+Umfassende, konsistente Fehlerbehandlung in der gesamten Anwendung:
+
+**Vollständige Exception-Architektur-Dokumentation:**
+
+- **[Exception-Architektur-Index](./exception/index.md)** - Zentrale Dokumentation für Fehlerbehandlung
+  - Exception-Typen und Klassifizierung (Framework vs. Domain)
+  - Handler-Ausführungsfluss und Reihenfolge
+  - HTTP-Status-Code-Referenztabelle
+  - Error-Response-Struktur und Korrelations-IDs
+
+- **[Global Exception Handler](./exception/global-exception-handler.md)** - Framework-Level Fehlerbehandlung
+  - 14 Exception-Handler-Methoden mit Implementierung
+  - Handler-Reihenfolgestrategie (HIGHEST_PRECEDENCE)
+  - Validierungsfehler (MethodArgumentNotValidException, ConstraintViolationException)
+  - Parameter- und Formatfehler (HttpMessageNotReadableException, MissingServletRequestParameterException)
+  - Authentifizierung & Autorisierung (AuthenticationException, AccessDeniedException)
+  - Ressource nicht gefunden (NoSuchElementException)
+  - Konflikte & gleichzeitige Updates (DataIntegrityViolationException, ObjectOptimisticLockingFailureException)
+  - Muster für Sanitization von sensiblen Daten
+  - Test-Strategien und Beispiele
+
+- **[Error-Response-Struktur](./exception/error-response-structure.md)** - Standardisierte Error-DTO
+  - JSON-Struktur mit maschinenlesbaren Error-Token
+  - Timestamp- und Korrelations-ID-Generierung
+  - Builder-Pattern-Implementierung
+  - Frontend-Integrationsmuster
+  - Sicherheitsaspekte (keine Stack-Traces exponiert)
+
+- **[Exception-zu-HTTP-Mapping](./exception/exception-to-http-mapping.md)** - Vollständige Referenzanleitung
+  - 400 Bad Request (Validierung, Parameter, fehlerhafte JSON)
+  - 401 Unauthorized (Authentifizierungsfehler)
+  - 403 Forbidden (Autorisierungsfehler)
+  - 404 Not Found (fehlende Ressourcen)
+  - 409 Conflict (Duplikate, gleichzeitige Updates, State-Verletzungen)
+  - 500 Internal Server Error (unbehandelte Exceptions)
+  - Entscheidungsbaum für Status-Code-Auswahl
+  - Frontend-Fehlerbehandlungsmuster
+
+- **[Domain-Exceptions](./exception/domain-exceptions.md)** - Benutzerdefinierte Geschäfts-Exceptions
+  - InvalidRequestException mit Validierungs-Schweregrad-Level
+  - DuplicateResourceException mit Ressourcen-Kontext
+  - IllegalStateException für State-Verletzungen
+  - Factory-Methoden für häufige Szenarien
+  - BusinessExceptionHandler-Integration
+  - Test- und Verwendungsbeispiele
+
+- **[Validierungs-Exceptions](./exception/validation-exceptions.md)** - Field-Level Validierungsfehler
+  - MethodArgumentNotValidException (Request-Body-Validierung)
+  - ConstraintViolationException (Constraint-Verletzungen)
+  - 14 JSR-380 Validierungs-Annotationen dokumentiert
+  - Häufige Validierungs-Szenarien (E-Mail, numerisch, Pattern, Collection)
+  - Spring-Validierungs-Integration
+  - Benutzerdefinierte Validator-Implementierung
+  - Frontend-Fehlerverarbeitungsmuster
+
+- **[Sicherheits-Exceptions](./exception/security-exceptions.md)** - Authentifizierung & Autorisierung
+  - AuthenticationException (401) mit Best Practices für Sicherheit
+  - AccessDeniedException (403) Handling
+  - Generische Fehlermeldungen (verhindert User-Enumeration)
+  - Server-seitiges Logging und Korrelations-Tracking
+  - JWT-Validierungsmuster
+  - Production-Logging-Checkliste
+
+- **[Richtlinien & Best Practices](./exception/guidelines-and-best-practices.md)** - Entwickler-Richtlinien
+  - Entscheidungsbaum: Wann Exception werfen vs. Werte zurückgeben
+  - Auswahl des richtigen Exception-Typs
+  - Schreiben effektiver Fehlermeldungen
+  - 5 häufige Anti-Patterns zu vermeiden
+  - 4 Recovery-Strategien (Retry, Graceful Degradation, Fail-Fast, Fallback)
+  - Testen von Exception-Handling
+  - Logging-Richtlinien und Standards
+  - Vollständige Entwickler-Checkliste
 
 ```mermaid
 graph LR
@@ -213,23 +284,6 @@ graph LR
     BusinessEx --> ControllerAdv
     DataEx --> ControllerAdv
     ControllerAdv --> ErrorResponse
-```
-
-**Exception-Hierarchie:**
-- `IllegalArgumentException` → HTTP 400 Bad Request
-- `IllegalStateException` → HTTP 409 Conflict
-- `DataIntegrityViolationException` → HTTP 409 Conflict
-- `EntityNotFoundException` → HTTP 404 Not Found
-- `AccessDeniedException` → HTTP 403 Forbidden
-- `Exception` → HTTP 500 Internal Server Error
-
-**Beispiel:**
-```java
-@ExceptionHandler(IllegalStateException.class)
-public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(new ErrorResponse("CONFLICT", ex.getMessage()));
-}
 ```
 
 ## Datenfluss-Beispiel: Erstellen eines Bestandsitems

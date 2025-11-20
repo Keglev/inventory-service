@@ -22,7 +22,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 - **[Data Models & Entities](./model/index.html)** - Comprehensive entity documentation including Supplier, InventoryItem, StockHistory, and AppUser with relationships, lifecycle, usage examples, and testing
 - **[Enums Reference](./enums/index.html)** - Type-safe enumerations (Role, StockChangeReason, AuditSeverity) with business logic and validation
 - **[DTOs & Data Transfer Objects](./dto/index.html)** - Comprehensive DTO documentation with conventions, patterns, validation, authentication, pagination, and response shapes
-- **[Exceptions & Error Handling](./exceptions.html)** - Exception hierarchy and error response patterns
+- **[Exception Architecture](./exception/index.html)** - Comprehensive exception handling with global handlers, domain exceptions, error response structure, HTTP mapping, security considerations, and best practices
 - **[Validation Framework](./validation/index.html)** - Multi-layer validation with JSR-380, custom validators, exception handling, and patterns
 - **[Testing Strategy](./testing/index.html)** - Unit testing, integration testing, security testing, and test patterns
 
@@ -36,7 +36,8 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 3. Review [Layers Architecture](./layers/overview.html)
 4. Explore relevant layer documentation (e.g., [Data Models](./model/index.html), [Enums](./enums/index.html), [DTOs](./dto/index.html))
 5. Check [Validation Framework](./validation.html) for input handling
-6. Review [Testing Strategy](./testing.html) for test patterns
+6. Review [Exception Architecture](./exception/index.html) for error handling patterns
+7. Review [Testing Strategy](./testing.html) for test patterns
 
 **Frontend developers:**
 1. Start with [Integration Architecture](./integration/index.html)
@@ -54,7 +55,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 
 **Security reviewers:**
 1. Start with [Security Architecture](./security.html)
-2. Review [Exceptions & Error Handling](./exceptions.html)
+2. Review [Exception Architecture](./exception/index.html) - especially security exceptions and generic error messaging
 3. Check [Validation Framework](./validation.html)
 
 **New team members:**
