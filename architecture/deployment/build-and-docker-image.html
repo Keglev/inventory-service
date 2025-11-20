@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+deployment/build-and-docker-image · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#build-docker-image"
+        id="toc-build-docker-image">Build &amp; Docker Image</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#maven-build-pipeline"
+        id="toc-maven-build-pipeline">Maven Build Pipeline</a>
+        <ul>
+        <li><a href="#project-configuration-pom.xml"
+        id="toc-project-configuration-pom.xml">Project Configuration:
+        <code>pom.xml</code></a></li>
+        <li><a href="#build-lifecycle-stages"
+        id="toc-build-lifecycle-stages">Build Lifecycle Stages</a></li>
+        <li><a href="#maven-profiles" id="toc-maven-profiles">Maven
+        Profiles</a></li>
+        <li><a href="#dependency-management"
+        id="toc-dependency-management">Dependency Management</a></li>
+        </ul></li>
+        <li><a href="#docker-build-multi-stage-approach"
+        id="toc-docker-build-multi-stage-approach">Docker Build:
+        Multi-Stage Approach</a>
+        <ul>
+        <li><a href="#dockerfile-structure"
+        id="toc-dockerfile-structure">Dockerfile Structure</a></li>
+        <li><a href="#why-multi-stage" id="toc-why-multi-stage">Why
+        Multi-Stage?</a></li>
+        <li><a href="#build-arguments" id="toc-build-arguments">Build
+        Arguments</a></li>
+        </ul></li>
+        <li><a href="#container-entrypoint-start.sh"
+        id="toc-container-entrypoint-start.sh">Container Entrypoint:
+        <code>start.sh</code></a></li>
+        <li><a href="#image-contents-verification"
+        id="toc-image-contents-verification">Image Contents
+        Verification</a></li>
+        <li><a href="#docker-build-in-ci-pipeline"
+        id="toc-docker-build-in-ci-pipeline">Docker Build in CI
+        Pipeline</a></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#build-fails-maven-command-not-found"
+        id="toc-build-fails-maven-command-not-found">Build Fails: “Maven
+        command not found”</a></li>
+        <li><a href="#docker-build-fails-dockerfile-not-found"
+        id="toc-docker-build-fails-dockerfile-not-found">Docker Build
+        Fails: “Dockerfile not found”</a></li>
+        <li><a href="#image-push-fails-unauthorized"
+        id="toc-image-push-fails-unauthorized">Image Push Fails:
+        “Unauthorized”</a></li>
+        <li><a href="#image-size-too-large"
+        id="toc-image-size-too-large">Image Size Too Large</a></li>
+        <li><a href="#trivy-scan-blocks-deployment"
+        id="toc-trivy-scan-blocks-deployment">Trivy Scan Blocks
+        Deployment</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Deployment Index</a></p>
+        <h1 id="build-docker-image">Build &amp; Docker Image</h1>
+        <h2 id="overview">Overview</h2>
+        <p>The backend is compiled using <strong>Maven</strong>,
+        packaged as a <strong>Spring Boot JAR</strong>, and then
+        containerized using a <strong>multi-stage Docker build</strong>
+        for optimization and security.</p>
+        <pre><code>Source Code → Maven Compile → Tests → JAR Package → Docker Image → Registry</code></pre>
+        <p>This document covers: - Maven build pipeline configuration -
+        Dockerfile structure and multi-stage strategy - Container
+        entrypoint and startup - Docker image validation</p>
+        <h2 id="maven-build-pipeline">Maven Build Pipeline</h2>
+        <h3 id="project-configuration-pom.xml">Project Configuration:
+        <code>pom.xml</code></h3>
+        <p>The <code>pom.xml</code> defines the complete build
+        process:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode xml"><code class="sourceCode xml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">project</span>&gt;</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">modelVersion</span>&gt;4.0.0&lt;/<span class="kw">modelVersion</span>&gt;</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">groupId</span>&gt;com.example&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">artifactId</span>&gt;inventory-service&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">version</span>&gt;0.0.1-SNAPSHOT&lt;/<span class="kw">version</span>&gt;</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Spring Boot parent: includes plugins for build, test, Docker --&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">parent</span>&gt;</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">groupId</span>&gt;org.springframework.boot&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">artifactId</span>&gt;spring-boot-starter-parent&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">version</span>&gt;3.2.0&lt;/<span class="kw">version</span>&gt;</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">parent</span>&gt;</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Dependencies: Spring, OAuth2, Oracle, TestContainers, etc. --&gt;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">dependencies</span>&gt;</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">groupId</span>&gt;org.springframework.boot&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">artifactId</span>&gt;spring-boot-starter-web&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">dependency</span>&gt;</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">&lt;!-- Oracle JDBC --&gt;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">groupId</span>&gt;com.oracle.database.jdbc&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">artifactId</span>&gt;ojdbc11&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">dependency</span>&gt;</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">&lt;!-- Test dependencies --&gt;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">dependencies</span>&gt;</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Build plugins --&gt;</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">build</span>&gt;</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">plugins</span>&gt;</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      <span class="co">&lt;!-- Spring Boot Maven Plugin: builds fat JAR with embedded Tomcat --&gt;</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">plugin</span>&gt;</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">groupId</span>&gt;org.springframework.boot&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">artifactId</span>&gt;spring-boot-maven-plugin&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>      &lt;/<span class="kw">plugin</span>&gt;</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>      <span class="co">&lt;!-- JaCoCo: test coverage instrumentation --&gt;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">plugin</span>&gt;</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">groupId</span>&gt;org.jacoco&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">artifactId</span>&gt;jacoco-maven-plugin&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>      &lt;/<span class="kw">plugin</span>&gt;</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">plugins</span>&gt;</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">build</span>&gt;</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">project</span>&gt;</span></code></pre></div>
+        <h3 id="build-lifecycle-stages">Build Lifecycle Stages</h3>
+        <p>When you run <code>mvn clean verify</code>:</p>
+        <table>
+        <colgroup>
+        <col style="width: 18%" />
+        <col style="width: 23%" />
+        <col style="width: 36%" />
+        <col style="width: 21%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Stage</th>
+        <th>Command</th>
+        <th>What Happens</th>
+        <th>Output</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Clean</strong></td>
+        <td><code>clean</code></td>
+        <td>Deletes previous build artifacts from
+        <code>/target</code></td>
+        <td>Clean slate</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Compile</strong></td>
+        <td><code>compile</code></td>
+        <td>Compiles source code to bytecode</td>
+        <td><code>.class</code> files in
+        <code>/target/classes</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Test Compile</strong></td>
+        <td><code>test-compile</code></td>
+        <td>Compiles test code</td>
+        <td>Test <code>.class</code> files in
+        <code>/target/test-classes</code></td>
+        </tr>
+        <tr class="even">
+        <td><strong>Test</strong></td>
+        <td><code>test</code></td>
+        <td>Runs unit tests (JUnit, Mockito)</td>
+        <td>Test results, code coverage (JaCoCo)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Integration Test</strong></td>
+        <td><code>integration-test</code></td>
+        <td>Runs integration tests (TestContainers, <span
+        class="citation"
+        data-cites="SpringBootTest">@SpringBootTest</span>)</td>
+        <td>Live database tests</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Package</strong></td>
+        <td><code>package</code></td>
+        <td>Builds JAR file with all dependencies</td>
+        <td><code>/target/inventory-service-0.0.1-SNAPSHOT.jar</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Verify</strong></td>
+        <td><code>verify</code></td>
+        <td>Runs post-integration-test checks (coverage thresholds,
+        etc.)</td>
+        <td>Build success/failure</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="maven-profiles">Maven Profiles</h3>
+        <p>Spring profiles control which
+        <code>application-{profile}.yml</code> gets activated:</p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode xml"><code class="sourceCode xml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">profiles</span>&gt;</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Local development (default, no profile specified) --&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">profile</span>&gt;</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">id</span>&gt;dev&lt;/<span class="kw">id</span>&gt;</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">activation</span>&gt;</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">activeByDefault</span>&gt;true&lt;/<span class="kw">activeByDefault</span>&gt;</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">activation</span>&gt;</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">profile</span>&gt;</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Testing profile: H2 in-memory, debug logging --&gt;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">profile</span>&gt;</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">id</span>&gt;test&lt;/<span class="kw">id</span>&gt;</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">properties</span>&gt;</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">maven.test.skip</span>&gt;false&lt;/<span class="kw">maven.test.skip</span>&gt;</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">properties</span>&gt;</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">profile</span>&gt;</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Production profile: Oracle, INFO logging --&gt;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">profile</span>&gt;</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">id</span>&gt;prod&lt;/<span class="kw">id</span>&gt;</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">profile</span>&gt;</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">profiles</span>&gt;</span></code></pre></div>
+        <p>Activate via: <code>-Dspring.profiles.active=prod</code> or
+        <code>SPRING_PROFILES_ACTIVE</code> environment variable.</p>
+        <h3 id="dependency-management">Dependency Management</h3>
+        <p>Key dependencies controlled in <code>pom.xml</code>:</p>
+        <pre><code>Spring Framework (Web, Data, Security)
+  ├── spring-boot-starter-web (REST APIs, Tomcat)
+  ├── spring-boot-starter-data-jpa (Entity management)
+  ├── spring-boot-starter-security (Authentication/authorization)
+  └── spring-security-oauth2-client (Google SSO)
+
+Data &amp; Persistence
+  ├── spring-boot-starter-data-jpa (ORM layer)
+  ├── org.hibernate (JPA implementation)
+  └── oracle.database.jdbc (JDBC driver)
+
+Testing
+  ├── spring-boot-starter-test (JUnit, Mockito, AssertJ)
+  ├── testcontainers (Docker-based integration tests)
+  └── com.h2database (In-memory testing database)
+
+Build Tools
+  ├── spring-boot-maven-plugin (Fat JAR, Docker support)
+  ├── jacoco-maven-plugin (Code coverage)
+  └── maven-shade-plugin (Optional: fat JAR creation)</code></pre>
+        <p><strong>Note:</strong> Oracle JDBC driver
+        (<code>ojdbc11.jar</code>) is bundled in the Docker image and
+        also available at <code>/lib/ojdbc11.jar</code> in the
+        repository.</p>
+        <h2 id="docker-build-multi-stage-approach">Docker Build:
+        Multi-Stage Approach</h2>
+        <h3 id="dockerfile-structure">Dockerfile Structure</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># STAGE 1: BUILD (Compile Maven project)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> eclipse-temurin:17-jdk-jammy as builder</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy Maven wrapper and pom.xml</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> mvnw .</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> mvnw.cmd .</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> .mvn .mvn</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> pom.xml .</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Build the application</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ARG PROFILE=prod allows override: docker build --build-arg PROFILE=dev</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="kw">ARG</span> PROFILE=prod</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chmod</span> +x mvnw <span class="kw">&amp;&amp;</span> <span class="dt">\</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="ex">./mvnw</span> clean package <span class="at">-DskipTests</span> <span class="at">-Dspring.profiles.active</span><span class="op">=</span><span class="va">${PROFILE}</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># STAGE 2: RUNTIME (Minimal image with JAR only)</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================================</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> eclipse-temurin:17-jre-jammy</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy compiled JAR from builder stage (not entire /target directory)</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=builder</span> /app/target/inventory-service-*.jar app.jar</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy start script and scripts</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> start.sh .</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="fu">chmod</span> +x start.sh</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy Oracle Wallet (mounted at runtime via volumes/env)</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> oracle_wallet oracle_wallet</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Expose port (8080 or 8081 depending on config)</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="kw">EXPOSE</span> 8080</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Health check: curl /health endpoint every 30 seconds</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="kw">HEALTHCHECK</span> <span class="op">--interval=30s</span> <span class="op">--timeout=3s</span> <span class="op">--start-period=5s</span> <span class="op">--retries=3</span> \</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">CMD</span> <span class="ex">curl</span> <span class="at">-f</span> http://localhost:8080/health <span class="kw">||</span> <span class="bu">exit</span> 1</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Entrypoint: Start the application</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="kw">ENTRYPOINT</span> [<span class="st">&quot;./start.sh&quot;</span>]</span></code></pre></div>
+        <h3 id="why-multi-stage">Why Multi-Stage?</h3>
+        <p><strong>Stage 1 (Builder):</strong> - Contains Maven, source
+        code, test dependencies - Compiles code, runs tests, produces
+        JAR - Size: ~1.2 GB (Java SDK + Maven + dependencies) -
+        <strong>Discarded after build</strong> – not in final image</p>
+        <p><strong>Stage 2 (Runtime):</strong> - Contains only Java
+        Runtime (JRE, not JDK) - Copies JAR from Stage 1 - Size: ~400 MB
+        (JRE + JAR only) - <strong>This is deployed to
+        production</strong></p>
+        <p><strong>Benefit:</strong> Final image is <strong>~70%
+        smaller</strong>, reducing deployment time and storage.</p>
+        <h3 id="build-arguments">Build Arguments</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build with prod profile (default)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> inventory-service:latest .</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Build with dev profile (for local testing)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">--build-arg</span> PROFILE=dev <span class="at">-t</span> inventory-service:dev .</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Build with custom tag</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">--build-arg</span> PROFILE=prod <span class="at">-t</span> ckbuzin/inventory-service:a1b2c3d4 .</span></code></pre></div>
+        <h2 id="container-entrypoint-start.sh">Container Entrypoint:
+        <code>start.sh</code></h2>
+        <p>The <code>start.sh</code> script launches the Spring Boot
+        application with environment variables:</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-e</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Starting Smart Supply Pro Inventory Service...&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Profile: </span><span class="va">${SPRING_PROFILES_ACTIVE</span><span class="op">:-</span>prod<span class="va">}</span><span class="st">&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Database: </span><span class="va">${DB_URL</span><span class="op">:-</span>oracle<span class="va">}</span><span class="st">&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Export environment variables for Spring Boot</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span><span class="va">${SPRING_PROFILES_ACTIVE</span><span class="op">:-</span>prod<span class="va">}</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TNS_ADMIN</span><span class="op">=</span><span class="va">${TNS_ADMIN</span><span class="op">:-</span>/app/oracle_wallet<span class="va">}</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">JAVA_OPTS</span><span class="op">=</span><span class="st">&quot;-Dspring.profiles.active=</span><span class="va">${SPRING_PROFILES_ACTIVE}</span><span class="st"> -Xmx512m -Xms256m&quot;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Start the application</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">exec</span> java <span class="at">-jar</span> app.jar</span></code></pre></div>
+        <p>Key aspects:</p>
+        <ul>
+        <li><strong>Profile selection:</strong> Defaults to
+        <code>prod</code> if <code>SPRING_PROFILES_ACTIVE</code> not
+        set</li>
+        <li><strong>Oracle Wallet path:</strong> Set to
+        <code>/app/oracle_wallet</code> (mounted from Fly.io
+        secrets)</li>
+        <li><strong>JVM memory:</strong> Tuned for container constraints
+        (256-512 MB heap)</li>
+        <li><strong>exec</strong> keyword: Replace shell process with
+        Java (proper signal handling)</li>
+        </ul>
+        <h2 id="image-contents-verification">Image Contents
+        Verification</h2>
+        <p>After Docker build, verify the image contains what we
+        expect:</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect image layers and size</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> history ckbuzin/inventory-service:latest</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check what&#39;s inside</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> ckbuzin/inventory-service:latest sh <span class="at">-c</span> <span class="st">&quot;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="st">  echo &#39;=== App JAR ===&#39; &amp;&amp; ls -lh /app/app.jar</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="st">  echo &#39;=== Start Script ===&#39; &amp;&amp; ls -lh /app/start.sh</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="st">  echo &#39;=== Oracle Wallet ===&#39; &amp;&amp; ls /app/oracle_wallet</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="st">  echo &#39;=== No Source Code ===&#39; &amp;&amp; ls /app/src 2&gt;&amp;1 || echo &#39;Confirmed: src/ not in image&#39;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="st">  echo &#39;=== No Test Files ===&#39; &amp;&amp; ls /app/target 2&gt;&amp;1 || echo &#39;Confirmed: target/ not in image&#39;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span></span></code></pre></div>
+        <p>Expected output:</p>
+        <pre><code>=== App JAR ===
+-rw-r--r--  1 root root  82M Nov 20 10:30 /app/app.jar
+
+=== Start Script ===
+-rwxr-xr-x  1 root root 612B Nov 20 10:30 /app/start.sh
+
+=== No Source Code ===
+Confirmed: src/ not in image
+
+=== No Test Files ===
+Confirmed: target/ not in image</code></pre>
+        <p>This proves the image is
+        <strong>production-optimized</strong> and doesn’t contain
+        unnecessary files.</p>
+        <h2 id="docker-build-in-ci-pipeline">Docker Build in CI
+        Pipeline</h2>
+        <p>In <code>1-ci-test.yml</code>, the Docker build step:</p>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Build Docker image</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">  run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    docker build --no-cache \</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>      --build-arg PROFILE=prod \</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>      -t $IMAGE_REPO:latest \</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>      -t $IMAGE_REPO:${IMAGE_TAG_SHA} \</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>      .</span></code></pre></div>
+        <p>Key flags:</p>
+        <ul>
+        <li><strong><code>--no-cache</code></strong> – Rebuild all
+        layers (ensures fresh build, no stale cache)</li>
+        <li><strong><code>--build-arg PROFILE=prod</code></strong> –
+        Pass prod profile to Dockerfile</li>
+        <li><strong><code>-t TAG1 -t TAG2</code></strong> – Tag with
+        both <code>latest</code> and commit SHA</li>
+        </ul>
+        <p>After build, the image is: 1. Inspected for contents 2.
+        Pushed to Docker Hub 3. Scanned by Trivy for vulnerabilities</p>
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="build-fails-maven-command-not-found">Build Fails: “Maven
+        command not found”</h3>
+        <ul>
+        <li>Ensure <code>mvnw</code> (Maven wrapper) is executable and
+        in repo root</li>
+        <li>Check <code>pom.xml</code> syntax (XML well-formed)</li>
+        <li>Review dependency resolution:
+        <code>mvn dependency:tree</code></li>
+        </ul>
+        <h3 id="docker-build-fails-dockerfile-not-found">Docker Build
+        Fails: “Dockerfile not found”</h3>
+        <ul>
+        <li>Verify <code>Dockerfile</code> exists in repo root or
+        BACKEND_DIR</li>
+        <li>Check file is named exactly <code>Dockerfile</code>
+        (case-sensitive on Linux)</li>
+        <li>Ensure it’s not in <code>.dockerignore</code></li>
+        </ul>
+        <h3 id="image-push-fails-unauthorized">Image Push Fails:
+        “Unauthorized”</h3>
+        <ul>
+        <li>Verify Docker Hub credentials in
+        <code>DOCKER_USERNAME</code>, <code>DOCKER_PASSWORD</code>
+        secrets</li>
+        <li>Check user has push permissions to repository</li>
+        <li>Ensure image tag matches format:
+        <code>username/repo:tag</code></li>
+        </ul>
+        <h3 id="image-size-too-large">Image Size Too Large</h3>
+        <ul>
+        <li>Check <code>docker history</code> to find bloated
+        layers</li>
+        <li>Ensure multi-stage build is working (Stage 1 should be
+        discarded)</li>
+        <li>Remove unnecessary dependencies from
+        <code>pom.xml</code></li>
+        <li>Clean up cached Maven dependencies:
+        <code>.dockerignore</code> should include <code>.m2</code></li>
+        </ul>
+        <h3 id="trivy-scan-blocks-deployment">Trivy Scan Blocks
+        Deployment</h3>
+        <ul>
+        <li>Review scan report for HIGH/CRITICAL CVEs</li>
+        <li>Update vulnerable dependencies in <code>pom.xml</code></li>
+        <li>Run locally:
+        <code>trivy image ckbuzin/inventory-service:latest</code></li>
+        <li>See <a
+        href="./ci-cd-and-docs-pipeline.html#security-gates">CI/CD &amp;
+        Docs Pipeline</a></li>
+        </ul>
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Deployment Index</a></strong>
+        – Overview of entire deployment pipeline</li>
+        <li><strong><a href="./flyio-infrastructure.html">Fly.io
+        Infrastructure</a></strong> – How image is used in
+        production</li>
+        <li><strong><a href="./ci-cd-and-docs-pipeline.html">CI/CD &amp;
+        Docs Pipeline</a></strong> – GitHub Actions build
+        automation</li>
+        <li><strong><a href="../resources/index.html">Resources &amp;
+        Configuration</a></strong> – Spring Boot configuration
+        files</li>
+        </ul>
+        <hr />
+        <p><strong>Last Updated:</strong> November 2025<br />
+        <strong>Audience:</strong> Backend developers, DevOps engineers,
+        build system maintainers</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

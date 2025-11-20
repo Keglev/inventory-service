@@ -125,6 +125,9 @@
         <li><a href="#configuration-resources"
         id="toc-configuration-resources">Configuration &amp;
         Resources</a></li>
+        <li><a href="#deployment-operations"
+        id="toc-deployment-operations">Deployment &amp;
+        Operations</a></li>
         <li><a href="#next-steps" id="toc-next-steps">Next
         Steps</a></li>
         </ul></li>
@@ -533,6 +536,90 @@
         files</li>
         </ul></li>
         </ul>
+        <h2 id="deployment-operations">Deployment &amp; Operations</h2>
+        <p>Smart Supply Pro uses a <strong>fully automated deployment
+        pipeline</strong> from source code to production cloud
+        infrastructure:</p>
+        <p><strong>Complete Deployment Documentation:</strong></p>
+        <ul>
+        <li><strong><a href="./deployment/index.html">Deployment
+        Index</a></strong> - Hub for all deployment and infrastructure
+        documentation
+        <ul>
+        <li>End-to-end deployment flow: Source → Maven → Docker →
+        Fly.io</li>
+        <li>Involved files, folders, and cross-references</li>
+        <li>Quick troubleshooting guide</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/build-and-docker-image.html">Build &amp;
+        Docker Image</a></strong> - How backend is compiled and packaged
+        <ul>
+        <li>Maven build pipeline (compile, test, package stages)</li>
+        <li>Multi-stage Dockerfile (builder stage, runtime stage)</li>
+        <li>Docker image validation and contents verification</li>
+        <li>Build arguments and environment-specific images</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/ci-cd-and-docs-pipeline.html">CI/CD &amp;
+        Documentation Pipeline</a></strong> - GitHub Actions automation
+        <ul>
+        <li>1-ci-test.yml: Build, test, Docker image, security
+        scanning</li>
+        <li>docs-pipeline.yml: Generate OpenAPI and architecture
+        documentation</li>
+        <li>2-deploy-ghpages.yml: Publish docs to GitHub Pages</li>
+        <li>Tools: Redocly, Pandoc, Lua filters for Mermaid
+        diagrams</li>
+        <li>Artifact flow and GitHub Actions secrets</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/flyio-infrastructure.html">Fly.io
+        Infrastructure</a></strong> - Cloud hosting configuration
+        <ul>
+        <li>fly.toml: App name, regions, machine resources, environment
+        variables, secrets</li>
+        <li>Health checks and deployment strategies (immediate, canary,
+        rolling)</li>
+        <li>Scaling and instance management</li>
+        <li>TLS/HTTPS configuration and domain setup</li>
+        <li>Troubleshooting common deployment issues</li>
+        </ul></li>
+        <li><strong><a href="./deployment/nginx-and-routing.html">Nginx
+        &amp; Routing</a></strong> - Reverse proxy and request routing
+        <ul>
+        <li>Nginx configuration structure and purpose</li>
+        <li>Reverse proxy to backend, frontend static file serving</li>
+        <li>SPA routing, GZIP compression, header forwarding</li>
+        <li>Multi-process container setup with start.sh</li>
+        <li>Performance tuning and connection pooling</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/environments-and-secrets.html">Environments
+        &amp; Secrets</a></strong> - Configuration management across
+        environments
+        <ul>
+        <li>Local development (.env file, local database setup)</li>
+        <li>GitHub Actions CI (secrets vault, environment
+        variables)</li>
+        <li>Fly.io production (encrypted secrets, environment
+        configuration)</li>
+        <li>Secret mapping: ENV VAR → Spring property convention</li>
+        <li>Sensitive values checklist and protection strategies</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/logs-and-observability.html">Logs &amp;
+        Observability</a></strong> - Logging and debugging in production
+        <ul>
+        <li>SLF4J + Logback architecture</li>
+        <li>Log levels by environment (DEBUG dev, INFO prod)</li>
+        <li>Where logs go (console, files, Fly.io)</li>
+        <li>Viewing logs with flyctl CLI</li>
+        <li>Common logging patterns and troubleshooting</li>
+        <li>Future monitoring hooks (Micrometer, Sleuth, health
+        checks)</li>
+        </ul></li>
+        </ul>
         <h2 id="next-steps">Next Steps</h2>
         <ol type="1">
         <li><strong>Explore <a href="./layers/overview.html">Layers
@@ -570,6 +657,9 @@
         patterns</li>
         <li>Study <a href="./testing.html">Testing Strategy</a> -
         Testing patterns and best practices</li>
+        <li><strong>Review <a href="./deployment/index.html">Deployment
+        &amp; Operations</a></strong> - Complete deployment pipeline and
+        infrastructure</li>
         <li>Examine the source code - Navigate
         <code>/src/main/java/com/smartsupplypro/inventory/</code></li>
         </ol>

@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+deployment/ci-cd-and-docs-pipeline · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#cicd-documentation-pipeline"
+        id="toc-cicd-documentation-pipeline">CI/CD &amp; Documentation
+        Pipeline</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#workflow-architecture"
+        id="toc-workflow-architecture">Workflow Architecture</a></li>
+        <li><a href="#workflow-1-ci-build-test-1-ci-test.yml"
+        id="toc-workflow-1-ci-build-test-1-ci-test.yml">Workflow 1️⃣: CI
+        Build &amp; Test (<code>1-ci-test.yml</code>)</a>
+        <ul>
+        <li><a href="#trigger" id="toc-trigger">Trigger</a></li>
+        <li><a href="#pipeline-steps" id="toc-pipeline-steps">Pipeline
+        Steps</a></li>
+        <li><a href="#example-build-test-step"
+        id="toc-example-build-test-step">Example: Build &amp; Test
+        Step</a></li>
+        <li><a href="#security-gate-trivy-vulnerability-scan"
+        id="toc-security-gate-trivy-vulnerability-scan">Security Gate:
+        Trivy Vulnerability Scan</a></li>
+        <li><a href="#artifacts-produced"
+        id="toc-artifacts-produced">Artifacts Produced</a></li>
+        </ul></li>
+        <li><a
+        href="#workflow-2-documentation-pipeline-docs-pipeline.yml-2-deploy-ghpages.yml"
+        id="toc-workflow-2-documentation-pipeline-docs-pipeline.yml-2-deploy-ghpages.yml">Workflow
+        2️⃣: Documentation Pipeline (<code>docs-pipeline.yml</code> +
+        <code>2-deploy-ghpages.yml</code>)</a>
+        <ul>
+        <li><a href="#trigger-1" id="toc-trigger-1">Trigger</a></li>
+        <li><a href="#key-insight-dual-trigger-design"
+        id="toc-key-insight-dual-trigger-design">Key Insight:
+        Dual-Trigger Design</a></li>
+        <li><a href="#step-1-build-documentation-docs-pipeline.yml"
+        id="toc-step-1-build-documentation-docs-pipeline.yml">Step 1:
+        Build Documentation (<code>docs-pipeline.yml</code>)</a></li>
+        <li><a
+        href="#step-2-publish-to-github-pages-2-deploy-ghpages.yml"
+        id="toc-step-2-publish-to-github-pages-2-deploy-ghpages.yml">Step
+        2: Publish to GitHub Pages
+        (<code>2-deploy-ghpages.yml</code>)</a></li>
+        <li><a href="#output-live-documentation"
+        id="toc-output-live-documentation">Output: Live
+        Documentation</a></li>
+        </ul></li>
+        <li><a href="#workflow-3-deploy-to-fly.io-3-deploy-fly.yml"
+        id="toc-workflow-3-deploy-to-fly.io-3-deploy-fly.yml">Workflow
+        3️⃣: Deploy to Fly.io (<code>3-deploy-fly.yml</code>)</a>
+        <ul>
+        <li><a href="#quick-summary" id="toc-quick-summary">Quick
+        Summary</a></li>
+        </ul></li>
+        <li><a href="#artifact-flow-diagram"
+        id="toc-artifact-flow-diagram">Artifact Flow Diagram</a></li>
+        <li><a href="#scripts-organization"
+        id="toc-scripts-organization">Scripts Organization</a>
+        <ul>
+        <li><a href="#scripts-directory"
+        id="toc-scripts-directory"><code>/scripts/</code>
+        Directory</a></li>
+        </ul></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#docs-build-fails-redocly-cli-not-found"
+        id="toc-docs-build-fails-redocly-cli-not-found">Docs Build
+        Fails: “Redocly CLI not found”</a></li>
+        <li><a href="#pandoc-conversion-fails-command-not-found"
+        id="toc-pandoc-conversion-fails-command-not-found">Pandoc
+        Conversion Fails: “Command not found”</a></li>
+        <li><a href="#mermaid-diagrams-not-rendering"
+        id="toc-mermaid-diagrams-not-rendering">Mermaid Diagrams Not
+        Rendering</a></li>
+        <li><a href="#jacoco-coverage-missing-from-docs"
+        id="toc-jacoco-coverage-missing-from-docs">JaCoCo Coverage
+        Missing from Docs</a></li>
+        <li><a href="#gh-pages-push-fails-permission-denied"
+        id="toc-gh-pages-push-fails-permission-denied">gh-pages Push
+        Fails: “Permission denied”</a></li>
+        <li><a href="#docs-artifacts-too-large"
+        id="toc-docs-artifacts-too-large">Docs Artifacts Too
+        Large</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Deployment Index</a></p>
+        <h1 id="cicd-documentation-pipeline">CI/CD &amp; Documentation
+        Pipeline</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro uses <strong>GitHub Actions</strong> for
+        fully automated continuous integration and continuous
+        deployment. Three coordinated workflows ensure code is tested,
+        documented, and deployed:</p>
+        <ol type="1">
+        <li><strong>1️⃣ Backend CI – Build &amp; Test</strong>
+        (<code>1-ci-test.yml</code>) – Compile, test, build Docker
+        image, scan for CVEs</li>
+        <li><strong>2️⃣ Documentation Pipeline</strong>
+        (<code>docs-pipeline.yml</code> +
+        <code>2-deploy-ghpages.yml</code>) – Generate API/architecture
+        docs, publish to GitHub Pages</li>
+        <li><strong>3️⃣ Deployment to Fly.io</strong>
+        (<code>3-deploy-fly.yml</code>) – Deploy to production
+        (automatic after CI passes)</li>
+        </ol>
+        <p>This document explains the workflow coordination, key steps,
+        and how documentation is generated and published.</p>
+        <h2 id="workflow-architecture">Workflow Architecture</h2>
+        <div class="mermaid">
+        graph TD
+            A["📝 Commit to main"] -->|Push| B["1️⃣ CI Build & Test<br/>(1-ci-test.yml)"]
+            
+            B -->|Stage 1: Compile| C["Maven: compile + test"]
+            C -->|Stage 2: Package| D["Generate JaCoCo coverage<br/>Build Docker image<br/>Push to registry"]
+            D -->|Stage 3: Security| E["Trivy scan<br/>Block on HIGH/CRITICAL"]
+            
+            E -->|✅ Pass| F["Artifacts ready"]
+            E -->|❌ Fail| G["🚫 Deployment blocked"]
+            
+            F -->|Trigger| H["docs-pipeline.yml<br/>Build documentation"]
+            F -->|Trigger| I["3-deploy-fly.yml<br/>Deploy to production"]
+            
+            H -->|Generate| J["OpenAPI docs<br/>Architecture HTML<br/>JaCoCo coverage"]
+            J -->|Output| K["docs-site artifact"]
+            
+            K -->|Trigger| L["2-deploy-ghpages.yml<br/>Publish to gh-pages"]
+            L -->|Git push| M["📚 GitHub Pages<br/>(Live docs)"]
+            
+            I -->|Validate| N["Health check<br/>Smoke tests"]
+            N -->|✅ Healthy| O["🚀 Live App<br/>(https://inventoryservice.fly.dev)"]
+            
+            style B fill:#fff3e0
+            style C fill:#f3e5f5
+            style D fill:#f3e5f5
+            style E fill:#fce4ec
+            style H fill:#e3f2fd
+            style J fill:#e1f5fe
+            style M fill:#c8e6c9
+            style O fill:#a5d6a7
+        </div>
+        <h2 id="workflow-1-ci-build-test-1-ci-test.yml">Workflow 1️⃣: CI
+        Build &amp; Test (<code>1-ci-test.yml</code>)</h2>
+        <h3 id="trigger">Trigger</h3>
+        <ul>
+        <li>Push to <code>main</code> or <code>develop</code>
+        branch</li>
+        <li>Changes in: backend source, <code>pom.xml</code>,
+        Dockerfile, CI workflow itself</li>
+        <li>Manual trigger: <code>workflow_dispatch</code></li>
+        </ul>
+        <h3 id="pipeline-steps">Pipeline Steps</h3>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 15%" />
+        <col style="width: 21%" />
+        <col style="width: 18%" />
+        <col style="width: 21%" />
+        <col style="width: 23%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Step</th>
+        <th>Action</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>1</td>
+        <td>Checkout code</td>
+        <td>Git commit</td>
+        <td>Source tree</td>
+        <td>Prepare build environment</td>
+        </tr>
+        <tr class="even">
+        <td>2</td>
+        <td>Resolve backend path</td>
+        <td><code>pom.xml</code> location</td>
+        <td><code>$BACKEND_DIR</code> env var</td>
+        <td>Support repo-root or subdir layout</td>
+        </tr>
+        <tr class="odd">
+        <td>3</td>
+        <td>Set up JDK 17</td>
+        <td>Temurin distribution</td>
+        <td>Java compiler</td>
+        <td>Compile with Java 17</td>
+        </tr>
+        <tr class="even">
+        <td>4</td>
+        <td>Cache Maven deps</td>
+        <td><code>.m2</code> directory</td>
+        <td>Warm cache</td>
+        <td>Speed up dependency resolution</td>
+        </tr>
+        <tr class="odd">
+        <td>5</td>
+        <td>Build &amp; Test</td>
+        <td><code>mvn clean verify</code></td>
+        <td>Tests, JaCoCo report</td>
+        <td>Compile, unit tests, integration tests</td>
+        </tr>
+        <tr class="even">
+        <td>6</td>
+        <td>Display Spring versions</td>
+        <td><code>mvn dependency:list</code></td>
+        <td>Version report</td>
+        <td>Verify Spring Core &amp; Security versions</td>
+        </tr>
+        <tr class="odd">
+        <td>7</td>
+        <td>Generate JaCoCo</td>
+        <td><code>target/site/jacoco/</code></td>
+        <td>HTML report</td>
+        <td>Code coverage metrics</td>
+        </tr>
+        <tr class="even">
+        <td>8</td>
+        <td>Upload JaCoCo artifact</td>
+        <td>HTML files</td>
+        <td><code>jacoco-html-{SHA}</code> artifact</td>
+        <td>Make available for docs pipeline</td>
+        </tr>
+        <tr class="odd">
+        <td>9</td>
+        <td>Docker login</td>
+        <td>Docker Hub credentials</td>
+        <td>Auth token</td>
+        <td>Prepare for image push</td>
+        </tr>
+        <tr class="even">
+        <td>10</td>
+        <td>Build Docker image</td>
+        <td>Dockerfile, JAR, deps</td>
+        <td><code>inventory-service:SHA</code> +
+        <code>:latest</code></td>
+        <td>Package for deployment</td>
+        </tr>
+        <tr class="odd">
+        <td>11</td>
+        <td>Inspect image</td>
+        <td>Run container, check contents</td>
+        <td>Verification output</td>
+        <td>Ensure prod image quality</td>
+        </tr>
+        <tr class="even">
+        <td>12</td>
+        <td>Push Docker image</td>
+        <td>Auth + image</td>
+        <td>Registry entry</td>
+        <td>Store immutable artifact</td>
+        </tr>
+        <tr class="odd">
+        <td>13</td>
+        <td>Trivy scan</td>
+        <td>Docker image</td>
+        <td>CVE report</td>
+        <td>Block deployment if HIGH/CRITICAL</td>
+        </tr>
+        <tr class="even">
+        <td>14</td>
+        <td>Job summary</td>
+        <td>Status, image tags</td>
+        <td>GitHub summary</td>
+        <td>Report results to developer</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="example-build-test-step">Example: Build &amp; Test
+        Step</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> <span class="at">-U</span> clean verify <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-Dspring.profiles.active</span><span class="op">=</span>test <span class="dt">\</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-Dtestcontainers.enabled</span><span class="op">=</span>false</span></code></pre></div>
+        <p>Flags: - <code>-U</code> – Update snapshots (fresh
+        dependencies) - <code>clean verify</code> – Full lifecycle
+        (compile → test → package → verify) -
+        <code>-Dspring.profiles.active=test</code> – Use H2 database,
+        test config - <code>-Dtestcontainers.enabled=false</code> – Skip
+        Docker-based integration tests in CI</p>
+        <h3 id="security-gate-trivy-vulnerability-scan">Security Gate:
+        Trivy Vulnerability Scan</h3>
+        <p>After image is built and pushed:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">trivy</span> image ckbuzin/inventory-service:<span class="va">${IMAGE_TAG_SHA}</span> <span class="dt">\</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--severity</span> CRITICAL,HIGH <span class="dt">\</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--exit-code</span> 1</span></code></pre></div>
+        <p><strong>Behavior:</strong> - Scans image for known CVEs in OS
+        packages and libraries - Reports only <code>CRITICAL</code> and
+        <code>HIGH</code> severity - <strong>Blocks deployment</strong>
+        if vulnerabilities found (<code>exit-code: 1</code>) -
+        <strong>Allows deployment</strong> if no HIGH/CRITICAL
+        (LOW/MEDIUM/unknown are logged)</p>
+        <p><strong>Example failure:</strong></p>
+        <pre><code>CRITICAL   3 vulnerabilities found in base image
+  - openssl 3.0.0 → Use 3.0.5 or later
+  - glibc 2.31 → Use 2.34 or later
+Exit code: 1 → Deployment blocked</code></pre>
+        <p><strong>Resolution:</strong> 1. Update base image in
+        Dockerfile (e.g., newer <code>eclipse-temurin:17-jre</code>) 2.
+        Or update vulnerable library in <code>pom.xml</code> 3. Push new
+        commit → Re-run CI → Retry scan</p>
+        <h3 id="artifacts-produced">Artifacts Produced</h3>
+        <table>
+        <colgroup>
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+        <col style="width: 12%" />
+        <col style="width: 18%" />
+        <col style="width: 27%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Artifact</th>
+        <th>Location</th>
+        <th>Size</th>
+        <th>Purpose</th>
+        <th>Consumed By</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>jacoco-html-{SHA}</code></td>
+        <td>GitHub Actions artifact store</td>
+        <td>~5 MB</td>
+        <td>Code coverage report</td>
+        <td>docs-pipeline.yml</td>
+        </tr>
+        <tr class="even">
+        <td>Docker image</td>
+        <td>Docker Hub (<code>ckbuzin/inventory-service</code>)</td>
+        <td>~400 MB</td>
+        <td>Packaged app</td>
+        <td>3-deploy-fly.yml, docker pull</td>
+        </tr>
+        <tr class="odd">
+        <td>Test results</td>
+        <td>CI logs</td>
+        <td>(inline)</td>
+        <td>JUnit report</td>
+        <td>GitHub, developer review</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2
+        id="workflow-2-documentation-pipeline-docs-pipeline.yml-2-deploy-ghpages.yml">Workflow
+        2️⃣: Documentation Pipeline (<code>docs-pipeline.yml</code> +
+        <code>2-deploy-ghpages.yml</code>)</h2>
+        <h3 id="trigger-1">Trigger</h3>
+        <ul>
+        <li>Automatic: After <code>1-ci-test.yml</code> succeeds (via
+        <code>workflow_run</code>)</li>
+        <li>Manual: Direct push to <code>main</code> if docs/ or
+        scripts/ changed</li>
+        </ul>
+        <h3 id="key-insight-dual-trigger-design">Key Insight:
+        Dual-Trigger Design</h3>
+        <p><strong>Why two triggers?</strong></p>
+        <ol type="1">
+        <li><strong>After CI (workflow_run):</strong> Rebuild docs
+        whenever code changes
+        <ul>
+        <li>Ensures OpenAPI, coverage, architecture stay fresh</li>
+        <li>Consumes JaCoCo artifact from CI</li>
+        </ul></li>
+        <li><strong>Direct push (direct trigger):</strong> Rapid
+        docs-only updates
+        <ul>
+        <li>Allows emergency doc fixes without rebuilding code</li>
+        <li>Skips JaCoCo (optional, not always available)</li>
+        </ul></li>
+        </ol>
+        <h3 id="step-1-build-documentation-docs-pipeline.yml">Step 1:
+        Build Documentation (<code>docs-pipeline.yml</code>)</h3>
+        <h4 id="tools-used">Tools Used</h4>
+        <table>
+        <colgroup>
+        <col style="width: 20%" />
+        <col style="width: 30%" />
+        <col style="width: 23%" />
+        <col style="width: 26%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Tool</th>
+        <th>Purpose</th>
+        <th>Input</th>
+        <th>Output</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Redocly CLI</strong></td>
+        <td>OpenAPI → interactive HTML docs</td>
+        <td><code>docs/api/openapi/openapi.yaml</code></td>
+        <td>ReDoc HTML site</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Pandoc</strong></td>
+        <td>Markdown → HTML conversion</td>
+        <td><code>.md</code> architecture files</td>
+        <td>Static HTML pages</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Lua filter</strong></td>
+        <td>Mermaid diagram rendering in HTML</td>
+        <td><code>mermaid</code> code blocks</td>
+        <td>Rendered diagrams</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Bash scripts</strong></td>
+        <td>Orchestrate build + artifact assembly</td>
+        <td>Source markdown + images</td>
+        <td><code>docs-site/</code> directory</td>
+        </tr>
+        </tbody>
+        </table>
+        <h4 id="documentation-structure">Documentation Structure</h4>
+        <pre><code>docs-site/
+├── index.html                    # Portal entry point
+├── api/
+│   ├── openapi.html             # Swagger/ReDoc interactive
+│   └── index.html               # API overview
+├── architecture/
+│   ├── overview.html
+│   ├── layers/
+│   ├── resources/
+│   ├── deployment/
+│   └── ...                       # All architecture guides as HTML
+├── backend/
+│   ├── coverage/                # JaCoCo HTML report (from CI)
+│   │   ├── index.html
+│   │   ├── inventory-service/
+│   │   └── ... (line-by-line coverage)
+│   └── api/
+└── ...</code></pre>
+        <h4 id="build-scripts">Build Scripts</h4>
+        <p><strong><code>scripts/build-openapi-docs.sh</code></strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="va">PROJECT_DIR</span><span class="op">=</span><span class="va">$1</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Install Redocly CLI (or use pre-installed)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install <span class="at">-g</span> @redocly/cli</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert OpenAPI YAML → ReDoc HTML</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">redocly</span> build-docs <span class="dt">\</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">$PROJECT_DIR</span>/docs/api/openapi/openapi.yaml <span class="dt">\</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">-o</span> <span class="va">$PROJECT_DIR</span>/target/docs/api/openapi.html</span></code></pre></div>
+        <p><strong><code>scripts/build-architecture-docs.sh</code></strong></p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="va">PROJECT_DIR</span><span class="op">=</span><span class="va">$1</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Install Pandoc</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">apt-get</span> install pandoc</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert each markdown file to HTML with Lua filter for mermaid</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> file <span class="kw">in</span> <span class="va">$PROJECT_DIR</span>/docs/architecture/<span class="pp">**</span>/<span class="pp">*</span>.md<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">output_file</span><span class="op">=</span><span class="st">&quot;</span><span class="va">${file</span><span class="op">%</span>.md<span class="va">}</span><span class="st">.html&quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">pandoc</span> <span class="st">&quot;</span><span class="va">$file</span><span class="st">&quot;</span> <span class="dt">\</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">--filter</span> /path/to/mermaid-filter.lua <span class="dt">\</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">--template</span> template.html <span class="dt">\</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> <span class="st">&quot;</span><span class="va">$output_file</span><span class="st">&quot;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div>
+        <p><strong>Lua Filter for Mermaid
+        (<code>mermaid-filter.lua</code>)</strong></p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode lua"><code class="sourceCode lua"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> CodeBlock<span class="op">(</span><span class="va">el</span><span class="op">)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="va">el</span><span class="op">.</span><span class="va">classes</span><span class="op">:</span>includes<span class="op">(</span><span class="st">&quot;mermaid&quot;</span><span class="op">)</span> <span class="cf">then</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Wrap in &lt;div class=&quot;mermaid&quot;&gt; for mermaid.js to render</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">pandoc</span><span class="op">.</span>RawBlock<span class="op">(</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;html&#39;</span><span class="op">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;&lt;div class=&quot;mermaid&quot;&gt;&#39;</span> <span class="op">..</span> <span class="va">el</span><span class="op">.</span><span class="va">text</span> <span class="op">..</span> <span class="st">&#39;&lt;/div&gt;&#39;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div>
+        <p>When HTML is served, mermaid.js renders the diagrams
+        client-side.</p>
+        <h3
+        id="step-2-publish-to-github-pages-2-deploy-ghpages.yml">Step 2:
+        Publish to GitHub Pages (<code>2-deploy-ghpages.yml</code>)</h3>
+        <h4 id="why-separate-workflow">Why Separate Workflow?</h4>
+        <ul>
+        <li><strong>Separation of concerns:</strong> Build docs ≠
+        publish docs</li>
+        <li><strong>Artifact staging:</strong> docs-site is intermediate
+        artifact</li>
+        <li><strong>Coverage preservation:</strong> If current build
+        skips coverage, old coverage is retained</li>
+        <li><strong>Deployment safety:</strong> Can republish without
+        rebuilding</li>
+        </ul>
+        <h4 id="steps">Steps</h4>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Checkout gh-pages branch</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v4</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ref</span><span class="kw">:</span><span class="at"> gh-pages</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">fetch-depth</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Download docs-site artifact</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/download-artifact@v4</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> docs-site</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Preserve JaCoCo coverage if missing</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">  run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    if [ ! -d &quot;docs-site/backend/coverage&quot; ] &amp;&amp; [ -d &quot;backend/coverage&quot; ]; then</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>      # Current build doesn&#39;t have coverage, but old one does</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      mkdir -p /tmp/coverage-backup</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>      cp -R backend/coverage /tmp/coverage-backup/</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>      # ... (later restore)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    fi</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Sync docs-site to gh-pages root</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="fu">  run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    # Remove everything except .git and docs-site</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    find . -mindepth 1 -maxdepth 1 ! -name &#39;.git&#39; ! -name &#39;docs-site&#39; -exec rm -rf {} +</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    # Copy docs-site contents to root</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    cp -R docs-site/* .</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    # Restore coverage if preserved</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    # ...</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Commit and push to gh-pages</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="fu">  run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    git config user.name &quot;github-actions[bot]&quot;</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    git config user.email &quot;github-actions[bot]@users.noreply.github.com&quot;</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    if git status --porcelain | grep .; then</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      git add .</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      git commit -m &quot;docs: publish docs-site&quot;</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      git push origin gh-pages</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    else</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>      echo &quot;No changes to publish&quot;</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    fi</span></code></pre></div>
+        <h3 id="output-live-documentation">Output: Live
+        Documentation</h3>
+        <p>After push to <code>gh-pages</code>, documentation is live
+        at:</p>
+        <pre><code>https://keglev.github.io/inventory-service/</code></pre>
+        <p>Site structure: - <code>/</code> → <code>index.html</code>
+        (portal) - <code>/api/</code> → OpenAPI/ReDoc documentation -
+        <code>/architecture/</code> → Architecture guides (deployment,
+        resources, etc.) - <code>/backend/coverage/</code> → JaCoCo test
+        coverage report</p>
+        <h2 id="workflow-3-deploy-to-fly.io-3-deploy-fly.yml">Workflow
+        3️⃣: Deploy to Fly.io (<code>3-deploy-fly.yml</code>)</h2>
+        <p>See <a href="./flyio-infrastructure.html">Fly.io
+        Infrastructure</a> for detailed deployment steps.</p>
+        <h3 id="quick-summary">Quick Summary</h3>
+        <ul>
+        <li><strong>Trigger:</strong> Automatic after CI success, OR
+        manual via <code>workflow_dispatch</code></li>
+        <li><strong>Steps:</strong>
+        <ol type="1">
+        <li>Validate Docker image exists in registry</li>
+        <li>Verify Fly.io app exists</li>
+        <li>Deploy:
+        <code>flyctl deploy --image {SHA} --strategy immediate</code></li>
+        <li>Health check: Poll <code>/health</code> until HEALTHY (5-min
+        timeout)</li>
+        <li>Smoke tests: Validate API endpoints</li>
+        <li>Report status</li>
+        </ol></li>
+        </ul>
+        <h2 id="artifact-flow-diagram">Artifact Flow Diagram</h2>
+        <div class="mermaid">
+        graph LR
+            A["JaCoCo Report<br/>(from CI)"] -->|artifact upload| B["jacoco-html-{SHA}<br/>(GitHub Actions)"]
+            B -->|download| C["docs-pipeline.yml"]
+            C -->|include| D["docs-site artifact"]
+            
+            E["OpenAPI YAML<br/>(code annotations)"] -->|build| C
+            F["Architecture .md<br/>(git repo)"] -->|build| C
+            
+            D -->|download| G["2-deploy-ghpages.yml"]
+            G -->|git push| H["gh-pages branch"]
+            H -->|GitHub Pages| I["📚 Live Docs<br/>(https://...)"]
+            
+            style B fill:#e1f5fe
+            style D fill:#e1f5fe
+            style I fill:#c8e6c9
+        </div>
+        <h2 id="scripts-organization">Scripts Organization</h2>
+        <h3 id="scripts-directory"><code>/scripts/</code> Directory</h3>
+        <pre><code>scripts/
+├── build-openapi-docs.sh      # Redocly: OpenAPI YAML → HTML
+├── build-architecture-docs.sh # Pandoc: Markdown → HTML
+├── mermaid-filter.lua         # Pandoc filter for mermaid diagrams
+├── deploy-docs-scripts/       # (Optional) local deployment helpers
+└── ...</code></pre>
+        <p>These scripts are invoked by <code>docs-pipeline.yml</code>
+        in CI environment.</p>
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="docs-build-fails-redocly-cli-not-found">Docs Build
+        Fails: “Redocly CLI not found”</h3>
+        <ul>
+        <li>Ensure <code>npm install -g @redocly/cli</code> in workflow
+        step</li>
+        <li>Check npm version compatibility (Node.js 20+)</li>
+        <li>Review Redocly syntax:
+        <code>redocly lint docs/api/openapi.yaml</code></li>
+        </ul>
+        <h3 id="pandoc-conversion-fails-command-not-found">Pandoc
+        Conversion Fails: “Command not found”</h3>
+        <ul>
+        <li>Install Pandoc: <code>apt-get install pandoc</code></li>
+        <li>Verify Lua filter path is correct</li>
+        <li>Check Markdown syntax (review .md file)</li>
+        </ul>
+        <h3 id="mermaid-diagrams-not-rendering">Mermaid Diagrams Not
+        Rendering</h3>
+        <ul>
+        <li>Verify Lua filter is wrapping code block in
+        <code>&lt;div class="mermaid"&gt;</code></li>
+        <li>Ensure HTML includes:
+        <code>&lt;script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"&gt;&lt;/script&gt;</code></li>
+        <li>Check diagram syntax:
+        <code>mmdc -i diagram.md -o diagram.html</code></li>
+        </ul>
+        <h3 id="jacoco-coverage-missing-from-docs">JaCoCo Coverage
+        Missing from Docs</h3>
+        <ul>
+        <li>Normal for docs-only pushes (JaCoCo only generated by
+        CI)</li>
+        <li>2-deploy-ghpages.yml preserves old coverage if current build
+        skips it</li>
+        <li>To refresh coverage: Re-run <code>1-ci-test.yml</code></li>
+        </ul>
+        <h3 id="gh-pages-push-fails-permission-denied">gh-pages Push
+        Fails: “Permission denied”</h3>
+        <ul>
+        <li>Verify GitHub token has <code>contents: write</code>
+        permission</li>
+        <li>Check branch is <code>gh-pages</code> (case-sensitive)</li>
+        <li>Ensure git user is configured:
+        <code>git config user.name/email</code></li>
+        </ul>
+        <h3 id="docs-artifacts-too-large">Docs Artifacts Too Large</h3>
+        <ul>
+        <li>Review what’s in <code>docs-site/</code> artifact</li>
+        <li>Remove unnecessary images, large generated files</li>
+        <li>Compress coverage HTML if needed</li>
+        <li>Consider cleanup:
+        <code>find . -name "*.tmp" -delete</code></li>
+        </ul>
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Deployment Index</a></strong>
+        – Overview of entire pipeline</li>
+        <li><strong><a href="./build-and-docker-image.html">Build &amp;
+        Docker Image</a></strong> – Maven and Docker build details</li>
+        <li><strong><a href="./flyio-infrastructure.html">Fly.io
+        Infrastructure</a></strong> – Production deployment</li>
+        <li><strong><a href="../overview.html">Architecture
+        Overview</a></strong> – System design</li>
+        </ul>
+        <hr />
+        <p><strong>Last Updated:</strong> November 2025<br />
+        <strong>Audience:</strong> DevOps engineers, documentation
+        maintainers, CI/CD administrators</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

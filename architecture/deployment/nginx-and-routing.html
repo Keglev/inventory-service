@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+deployment/nginx-and-routing · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#nginx-routing" id="toc-nginx-routing">Nginx &amp;
+        Routing</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#architecture-where-is-nginx-used"
+        id="toc-architecture-where-is-nginx-used">Architecture: Where is
+        Nginx Used?</a>
+        <ul>
+        <li><a href="#in-production-fly.io"
+        id="toc-in-production-fly.io">In Production (Fly.io)</a></li>
+        <li><a href="#in-local-development"
+        id="toc-in-local-development">In Local Development</a></li>
+        </ul></li>
+        <li><a href="#nginx-configuration-opsnginx"
+        id="toc-nginx-configuration-opsnginx">Nginx Configuration:
+        <code>/ops/nginx/</code></a>
+        <ul>
+        <li><a href="#directory-structure"
+        id="toc-directory-structure">Directory Structure</a></li>
+        <li><a href="#main-configuration-nginx.conf"
+        id="toc-main-configuration-nginx.conf">Main Configuration:
+        <code>nginx.conf</code></a></li>
+        <li><a href="#backend-proxy-conf.dbackend-proxy.conf"
+        id="toc-backend-proxy-conf.dbackend-proxy.conf">Backend Proxy:
+        <code>conf.d/backend-proxy.conf</code></a></li>
+        <li><a href="#key-features-explained"
+        id="toc-key-features-explained">Key Features Explained</a></li>
+        </ul></li>
+        <li><a href="#routing-strategy"
+        id="toc-routing-strategy">Routing Strategy</a>
+        <ul>
+        <li><a href="#api-routes" id="toc-api-routes">API
+        Routes</a></li>
+        <li><a href="#frontend-routes" id="toc-frontend-routes">Frontend
+        Routes</a></li>
+        <li><a href="#health-status" id="toc-health-status">Health &amp;
+        Status</a></li>
+        </ul></li>
+        <li><a href="#docker-integration-multi-process-container"
+        id="toc-docker-integration-multi-process-container">Docker
+        Integration: Multi-Process Container</a>
+        <ul>
+        <li><a href="#start.sh-start-both-nginx-and-java"
+        id="toc-start.sh-start-both-nginx-and-java"><code>start.sh</code>:
+        Start Both Nginx and Java</a></li>
+        </ul></li>
+        <li><a href="#performance-considerations"
+        id="toc-performance-considerations">Performance
+        Considerations</a>
+        <ul>
+        <li><a href="#connection-pooling"
+        id="toc-connection-pooling">Connection Pooling</a></li>
+        <li><a href="#caching" id="toc-caching">Caching</a></li>
+        <li><a href="#load-balancing-multiple-backends"
+        id="toc-load-balancing-multiple-backends">Load Balancing
+        (Multiple Backends)</a></li>
+        </ul></li>
+        <li><a href="#tlshttps-configuration"
+        id="toc-tlshttps-configuration">TLS/HTTPS Configuration</a></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#nginx-wont-start-port-already-in-use"
+        id="toc-nginx-wont-start-port-already-in-use">Nginx Won’t Start:
+        “Port already in use”</a></li>
+        <li><a href="#backend-requests-502-bad-gateway"
+        id="toc-backend-requests-502-bad-gateway">Backend Requests 502
+        Bad Gateway</a></li>
+        <li><a href="#frontend-routes-return-404"
+        id="toc-frontend-routes-return-404">Frontend Routes Return
+        404</a></li>
+        <li><a href="#cors-errors-access-control-allow-origin"
+        id="toc-cors-errors-access-control-allow-origin">CORS Errors:
+        “Access-Control-Allow-Origin”</a></li>
+        <li><a href="#large-uploads-fail-request-entity-too-large"
+        id="toc-large-uploads-fail-request-entity-too-large">Large
+        Uploads Fail: “Request Entity Too Large”</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Deployment Index</a></p>
+        <h1 id="nginx-routing">Nginx &amp; Routing</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Nginx is a high-performance reverse proxy and web server. In
+        Smart Supply Pro, Nginx handles:</p>
+        <ul>
+        <li><strong>Reverse proxying</strong> – Routes HTTP requests to
+        backend service</li>
+        <li><strong>TLS termination</strong> – Manages HTTPS (though
+        Fly.io also does this)</li>
+        <li><strong>Static file serving</strong> – Serves frontend
+        assets with efficient caching</li>
+        <li><strong>Routing rules</strong> – Directs requests to
+        appropriate backend/frontend endpoints</li>
+        <li><strong>Compression</strong> – GZIP compression for
+        responses</li>
+        </ul>
+        <p>This document explains the Nginx configuration, when it’s
+        used, and how it fits into the deployment architecture.</p>
+        <h2 id="architecture-where-is-nginx-used">Architecture: Where is
+        Nginx Used?</h2>
+        <div class="mermaid">
+        graph LR
+            A["🌐 Client<br/>(Browser, Mobile)"] -->|HTTPS| B["☁️ Fly.io LB<br/>(Load Balancer)"]
+            B -->|HTTP| C["📦 Container<br/>(Nginx Port 80)"]
+            C -->|Proxy| D["🔧 Backend App<br/>(Spring Boot 8080)"]
+            C -->|Static| E["📄 Frontend Assets<br/>(/app/frontend)"]
+            
+            B -->|TLS| F["🔐 Certificate<br/>(Fly.io Managed)"]
+            
+            style B fill:#e3f2fd
+            style C fill:#fff3e0
+            style D fill:#f3e5f5
+            style E fill:#e1f5fe
+        </div>
+        <h3 id="in-production-fly.io">In Production (Fly.io)</h3>
+        <p>Nginx runs <strong>inside the same Docker container</strong>
+        as the backend:</p>
+        <ol type="1">
+        <li><strong>Entrypoint:</strong> <code>start.sh</code> starts
+        both Nginx and Java process</li>
+        <li><strong>Port 80:</strong> Nginx listens (exposed to Fly.io
+        load balancer)</li>
+        <li><strong>Port 8080:</strong> Backend Java app listens
+        (localhost only)</li>
+        <li><strong>Request flow:</strong>
+        <ul>
+        <li>Client → Fly.io LB (TLS termination)</li>
+        <li>Fly.io LB → Nginx (port 80, plain HTTP inside
+        container)</li>
+        <li>Nginx → Backend (port 8080, localhost proxy)</li>
+        </ul></li>
+        </ol>
+        <h3 id="in-local-development">In Local Development</h3>
+        <p><strong>Option 1: Nginx locally (docker-compose)</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nginx</span><span class="kw">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> nginx:latest</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;80:80&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;443:443&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> ./ops/nginx/conf.d:/etc/nginx/conf.d</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">backend</span><span class="kw">:</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">build</span><span class="kw">:</span><span class="at"> .</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">&quot;8080:8080&quot;</span></span></code></pre></div>
+        <p><strong>Option 2: Direct backend (skip Nginx)</strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Access backend directly</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">http://localhost:8080/api/items</span></span></code></pre></div>
+        <h2 id="nginx-configuration-opsnginx">Nginx Configuration:
+        <code>/ops/nginx/</code></h2>
+        <h3 id="directory-structure">Directory Structure</h3>
+        <pre><code>ops/nginx/
+├── nginx.conf              # Main Nginx configuration
+├── conf.d/
+│   ├── default.conf        # Default server block
+│   ├── backend-proxy.conf  # Backend reverse proxy
+│   ├── gzip.conf          # Compression settings
+│   └── ssl.conf           # TLS settings (if applicable)
+└── ssl/
+    ├── server.crt         # Certificate (optional, Fly.io manages)
+    └── server.key         # Private key (optional)</code></pre>
+        <h3 id="main-configuration-nginx.conf">Main Configuration:
+        <code>nginx.conf</code></h3>
+        <pre class="nginx"><code># Main context
+user nginx;
+worker_processes auto;  # Use all available CPU cores
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
+
+events {
+  worker_connections 1024;  # Connections per worker process
+}
+
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  # Logging format
+  log_format main &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;
+                  &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;
+                  &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;;
+
+  access_log /var/log/nginx/access.log main;
+
+  # Performance tuning
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  keepalive_timeout 65;
+  types_hash_max_size 2048;
+  client_max_body_size 100M;  # Allow 100 MB uploads
+
+  # Compression
+  gzip on;
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_comp_level 6;
+  gzip_types text/plain text/css text/xml text/javascript 
+             application/json application/javascript application/xml+rss 
+             application/rss+xml font/truetype font/opentype 
+             application/vnd.ms-fontobject image/svg+xml;
+
+  # Upstream: backend service
+  upstream backend {
+    server localhost:8080;  # Java app on port 8080
+  }
+
+  # Include per-domain configs
+  include /etc/nginx/conf.d/*.conf;
+}</code></pre>
+        <h3 id="backend-proxy-conf.dbackend-proxy.conf">Backend Proxy:
+        <code>conf.d/backend-proxy.conf</code></h3>
+        <pre class="nginx"><code>server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  
+  server_name _;  # Match any domain
+
+  # Forward headers for reverse proxy
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+
+  # Backend API routes
+  location /api/ {
+    # Proxy all /api/* requests to backend
+    proxy_pass http://backend;
+    proxy_redirect off;
+  }
+
+  # Health check endpoint (for Fly.io)
+  location /health {
+    proxy_pass http://backend;
+    proxy_connect_timeout 2s;
+    proxy_read_timeout 2s;
+  }
+
+  # Frontend static files (if served from Nginx)
+  location / {
+    # Serve frontend assets from container
+    root /app/frontend;
+    try_files $uri /index.html;  # SPA fallback: all routes → index.html
+  }
+
+  # Deny access to sensitive files
+  location ~ /\. {
+    deny all;
+  }
+}</code></pre>
+        <h3 id="key-features-explained">Key Features Explained</h3>
+        <h4 id="reverse-proxy-proxy_pass">Reverse Proxy
+        (<code>proxy_pass</code>)</h4>
+        <pre class="nginx"><code>location /api/ {
+  proxy_pass http://backend;  # Route /api/* → localhost:8080/api/*
+}</code></pre>
+        <ul>
+        <li><strong>What happens:</strong>
+        <ul>
+        <li>Client requests: <code>GET /api/items</code></li>
+        <li>Nginx forwards to:
+        <code>GET http://localhost:8080/api/items</code></li>
+        <li>Backend responds with JSON</li>
+        <li>Nginx returns response to client</li>
+        </ul></li>
+        </ul>
+        <h4 id="header-forwarding">Header Forwarding</h4>
+        <pre class="nginx"><code>proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;</code></pre>
+        <ul>
+        <li><strong>Why needed:</strong> Backend needs to know real
+        client IP and protocol</li>
+        <li><strong>Without headers:</strong> Backend sees all requests
+        coming from Nginx (127.0.0.1)</li>
+        <li><strong>With headers:</strong>
+        <ul>
+        <li><code>X-Real-IP: 203.0.113.45</code> – Client’s actual
+        IP</li>
+        <li><code>X-Forwarded-For: 203.0.113.45, 192.168.1.1</code> –
+        Proxy chain</li>
+        <li><code>X-Forwarded-Proto: https</code> – Original protocol
+        (Fly.io → Nginx is HTTP, but Fly.io → Client is HTTPS)</li>
+        </ul></li>
+        </ul>
+        <h4 id="spa-fallback-try_files">SPA Fallback
+        (<code>try_files</code>)</h4>
+        <pre class="nginx"><code>location / {
+  root /app/frontend;
+  try_files $uri /index.html;  # If file not found, serve index.html
+}</code></pre>
+        <ul>
+        <li><strong>Problem:</strong> Single-Page Apps (React, Vue) have
+        all routes in index.html</li>
+        <li><strong>Solution:</strong> Nginx tries to serve file; if not
+        found, serves index.html</li>
+        <li><strong>Result:</strong> All routes (/, /about, /products,
+        etc.) are handled by frontend JavaScript router</li>
+        </ul>
+        <h4 id="gzip-compression">GZIP Compression</h4>
+        <pre class="nginx"><code>gzip on;
+gzip_types text/plain text/css application/json;</code></pre>
+        <ul>
+        <li><strong>Benefit:</strong> Reduces response size by ~70%
+        (JSON, HTML, CSS)</li>
+        <li><strong>Tradeoff:</strong> Minimal CPU overhead; significant
+        bandwidth savings</li>
+        <li><strong>Example:</strong>
+        <ul>
+        <li>Uncompressed JSON: 100 KB</li>
+        <li>GZIP compressed: 25 KB (75% smaller)</li>
+        </ul></li>
+        </ul>
+        <h4 id="client-max-body-size">Client Max Body Size</h4>
+        <pre class="nginx"><code>client_max_body_size 100M;</code></pre>
+        <ul>
+        <li><strong>Limits:</strong> File uploads, bulk API
+        requests</li>
+        <li><strong>Default:</strong> 1 MB (too small for most use
+        cases)</li>
+        <li><strong>Our setting:</strong> 100 MB (allows large inventory
+        imports)</li>
+        </ul>
+        <h2 id="routing-strategy">Routing Strategy</h2>
+        <h3 id="api-routes">API Routes</h3>
+        <pre><code>GET    /api/items              → Backend ItemController
+POST   /api/items              → Create item
+PUT    /api/items/{id}         → Update item
+DELETE /api/items/{id}         → Delete item
+GET    /api/suppliers          → Backend SupplierController
+GET    /api/analytics          → Backend AnalyticsController</code></pre>
+        <p>All <code>/api/*</code> requests are proxied to backend (port
+        8080).</p>
+        <h3 id="frontend-routes">Frontend Routes</h3>
+        <pre><code>/                   → Serve frontend/index.html
+/about              → Handled by React Router (returns index.html)
+/products           → Handled by React Router
+/products/{id}      → Handled by React Router
+/api/*              → Proxied to backend</code></pre>
+        <h3 id="health-status">Health &amp; Status</h3>
+        <pre><code>GET /health         → Backend health check (Fly.io uses this)
+GET /status         → Backend application status
+GET /metrics        → Spring Boot Actuator metrics (if enabled)</code></pre>
+        <h2 id="docker-integration-multi-process-container">Docker
+        Integration: Multi-Process Container</h2>
+        <p>The Dockerfile includes Nginx:</p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> eclipse-temurin:17-jre-jammy</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Install Nginx</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="ex">apt-get</span> install <span class="at">-y</span> nginx <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy Nginx config</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> ops/nginx /etc/nginx</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy backend JAR</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> <span class="op">--from=builder</span> /app/target/*.jar app.jar</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy frontend (built)</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> frontend/dist frontend</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Start both services</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> start.sh .</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="kw">ENTRYPOINT</span> [<span class="st">&quot;./start.sh&quot;</span>]</span></code></pre></div>
+        <h3
+        id="start.sh-start-both-nginx-and-java"><code>start.sh</code>:
+        Start Both Nginx and Java</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-e</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Starting Nginx and backend...&quot;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Start Nginx in background</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="ex">nginx</span> <span class="at">-g</span> <span class="st">&#39;daemon off;&#39;</span> <span class="kw">&amp;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Start Java app in foreground</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="bu">exec</span> java <span class="at">-jar</span> app.jar</span></code></pre></div>
+        <p><strong>Why this approach?</strong></p>
+        <ul>
+        <li><strong>Single container:</strong> Simpler deployment (one
+        image, one process definition)</li>
+        <li><strong>Both services:</strong>
+        <ul>
+        <li>Nginx (port 80) – Public-facing reverse proxy</li>
+        <li>Java (port 8080) – Backend service (localhost only)</li>
+        </ul></li>
+        <li><strong>Process management:</strong> Both can be
+        stopped/started together</li>
+        </ul>
+        <p><strong>Alternative:</strong> Use <code>supervisor</code> or
+        <code>docker-compose</code> for better process management:</p>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In start.sh</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">exec</span> /usr/bin/supervisord <span class="at">-c</span> /etc/supervisor/supervisord.conf</span></code></pre></div>
+        <p>Then supervisord manages both Nginx and Java.</p>
+        <h2 id="performance-considerations">Performance
+        Considerations</h2>
+        <h3 id="connection-pooling">Connection Pooling</h3>
+        <pre class="nginx"><code>upstream backend {
+  server localhost:8080;
+  keepalive 32;  # Keep up to 32 connections open to backend
+}
+
+# In proxy block
+proxy_http_version 1.1;
+proxy_set_header Connection &quot;&quot;;</code></pre>
+        <ul>
+        <li><strong>Benefit:</strong> Reuse connections (avoid TCP
+        handshake overhead)</li>
+        <li><strong>Result:</strong> ~20% faster response times</li>
+        </ul>
+        <h3 id="caching">Caching</h3>
+        <pre class="nginx"><code>location /api/items {
+  proxy_pass http://backend;
+  
+  # Cache GET requests for 5 minutes
+  proxy_cache_valid 200 5m;
+  proxy_cache_methods GET HEAD;
+}</code></pre>
+        <ul>
+        <li><strong>Caching static resources</strong> (frontend
+        assets)</li>
+        <li><strong>Careful with API responses</strong> (might be
+        stale)</li>
+        </ul>
+        <h3 id="load-balancing-multiple-backends">Load Balancing
+        (Multiple Backends)</h3>
+        <pre class="nginx"><code>upstream backend {
+  server backend1:8080;
+  server backend2:8080;
+  server backend3:8080;
+  
+  least_conn;  # Balance by connection count
+}</code></pre>
+        <p>For now, single backend instance; scale to multiple if
+        needed.</p>
+        <h2 id="tlshttps-configuration">TLS/HTTPS Configuration</h2>
+        <p>In production, <strong>Fly.io manages TLS</strong> (no
+        Nginx-level SSL config needed).</p>
+        <p>If you need TLS at Nginx level (e.g., on-premise
+        deployment):</p>
+        <pre class="nginx"><code>server {
+  listen 443 ssl http2;
+  ssl_certificate /etc/nginx/ssl/server.crt;
+  ssl_certificate_key /etc/nginx/ssl/server.key;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+  ssl_prefer_server_ciphers on;
+  
+  location /api/ {
+    proxy_pass http://backend;
+  }
+}
+
+# Redirect HTTP → HTTPS
+server {
+  listen 80;
+  return 301 https://$server_name$request_uri;
+}</code></pre>
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="nginx-wont-start-port-already-in-use">Nginx Won’t Start:
+        “Port already in use”</h3>
+        <p><strong>Symptom:</strong></p>
+        <pre><code>nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)</code></pre>
+        <p><strong>Causes:</strong> - Another Nginx instance running -
+        Another service on port 80 (Apache, etc.)</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find process on port 80</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lsof</span> <span class="at">-i</span> :80</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Kill it</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="bu">kill</span> <span class="at">-9</span> <span class="op">&lt;</span>PID<span class="op">&gt;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Or change port in nginx.conf</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="ex">listen</span> 8000<span class="kw">;</span>  <span class="co"># Use 8000 instead of 80</span></span></code></pre></div>
+        <h3 id="backend-requests-502-bad-gateway">Backend Requests 502
+        Bad Gateway</h3>
+        <p><strong>Symptom:</strong></p>
+        <pre><code>502 Bad Gateway</code></pre>
+        <p><strong>Causes:</strong> - Backend (Java app) not running or
+        crashed - Backend not listening on port 8080 - Connection
+        timeout (backend slow)</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if backend is listening</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">lsof</span> <span class="at">-i</span> :8080</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check Nginx logs</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-f</span> /var/log/nginx/error.log</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Increase timeout</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="ex">proxy_connect_timeout</span> 10s<span class="kw">;</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="ex">proxy_read_timeout</span> 30s<span class="kw">;</span></span></code></pre></div>
+        <h3 id="frontend-routes-return-404">Frontend Routes Return
+        404</h3>
+        <p><strong>Symptom:</strong></p>
+        <pre><code>404 Not Found (refreshing a deep link returns 404)</code></pre>
+        <p><strong>Cause:</strong> - Missing <code>try_files</code>
+        directive for SPA fallback</p>
+        <p><strong>Resolution:</strong></p>
+        <pre class="nginx"><code>location / {
+  try_files $uri /index.html;
+}</code></pre>
+        <h3 id="cors-errors-access-control-allow-origin">CORS Errors:
+        “Access-Control-Allow-Origin”</h3>
+        <p><strong>Symptom:</strong></p>
+        <pre><code>CORS policy: No &#39;Access-Control-Allow-Origin&#39; header</code></pre>
+        <p><strong>Causes:</strong> - Frontend domain ≠ Backend domain -
+        Backend doesn’t allow CORS</p>
+        <p><strong>Resolution:</strong> In backend
+        <code>SecurityConfig</code>:</p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> CorsConfig <span class="op">{</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">@Bean</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> WebMvcConfigurer <span class="fu">corsConfigurer</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> <span class="fu">WebMvcConfigurer</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">@Override</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">public</span> <span class="dt">void</span> <span class="fu">addCorsMappings</span><span class="op">(</span>CorsRegistry registry<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        registry<span class="op">.</span><span class="fu">addMapping</span><span class="op">(</span><span class="st">&quot;/api/**&quot;</span><span class="op">)</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>          <span class="op">.</span><span class="fu">allowedOrigins</span><span class="op">(</span><span class="st">&quot;https://inventory-service.koyeb.app&quot;</span><span class="op">)</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>          <span class="op">.</span><span class="fu">allowedMethods</span><span class="op">(</span><span class="st">&quot;GET&quot;</span><span class="op">,</span> <span class="st">&quot;POST&quot;</span><span class="op">,</span> <span class="st">&quot;PUT&quot;</span><span class="op">,</span> <span class="st">&quot;DELETE&quot;</span><span class="op">)</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>          <span class="op">.</span><span class="fu">allowCredentials</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p>Or in Nginx:</p>
+        <pre class="nginx"><code>location /api/ {
+  proxy_pass http://backend;
+  add_header &#39;Access-Control-Allow-Origin&#39; &#39;*&#39; always;
+  add_header &#39;Access-Control-Allow-Methods&#39; &#39;GET, POST, PUT, DELETE&#39; always;
+}</code></pre>
+        <h3 id="large-uploads-fail-request-entity-too-large">Large
+        Uploads Fail: “Request Entity Too Large”</h3>
+        <p><strong>Symptom:</strong></p>
+        <pre><code>413 Request Entity Too Large</code></pre>
+        <p><strong>Cause:</strong> - <code>client_max_body_size</code>
+        too small</p>
+        <p><strong>Resolution:</strong></p>
+        <pre class="nginx"><code>client_max_body_size 500M;  # Allow 500 MB uploads</code></pre>
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Deployment Index</a></strong>
+        – Deployment pipeline overview</li>
+        <li><strong><a href="./flyio-infrastructure.html">Fly.io
+        Infrastructure</a></strong> – Cloud hosting configuration</li>
+        <li><strong><a
+        href="./environments-and-secrets.html">Environments &amp;
+        Secrets</a></strong> – Configuration management</li>
+        <li><strong><a href="../overview.html">Architecture
+        Overview</a></strong> – System design</li>
+        </ul>
+        <hr />
+        <p><strong>Last Updated:</strong> November 2025<br />
+        <strong>Audience:</strong> DevOps engineers, backend developers,
+        infrastructure team</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

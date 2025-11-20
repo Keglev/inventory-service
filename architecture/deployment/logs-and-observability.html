@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+deployment/logs-and-observability · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#logs-observability"
+        id="toc-logs-observability">Logs &amp; Observability</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#logging-architecture"
+        id="toc-logging-architecture">Logging Architecture</a>
+        <ul>
+        <li><a href="#slf4j-logback" id="toc-slf4j-logback">SLF4J +
+        Logback</a></li>
+        </ul></li>
+        <li><a href="#logging-configuration"
+        id="toc-logging-configuration">Logging Configuration</a>
+        <ul>
+        <li><a href="#by-environment" id="toc-by-environment">By
+        Environment</a></li>
+        <li><a href="#configuration-files"
+        id="toc-configuration-files">Configuration Files</a></li>
+        <li><a href="#log-level-explanation"
+        id="toc-log-level-explanation">Log Level Explanation</a></li>
+        </ul></li>
+        <li><a href="#where-logs-go" id="toc-where-logs-go">Where Logs
+        Go</a>
+        <ul>
+        <li><a href="#local-development"
+        id="toc-local-development">Local Development</a></li>
+        <li><a href="#testing-ci" id="toc-testing-ci">Testing
+        (CI)</a></li>
+        <li><a href="#production-fly.io"
+        id="toc-production-fly.io">Production (Fly.io)</a></li>
+        </ul></li>
+        <li><a href="#viewing-logs" id="toc-viewing-logs">Viewing
+        Logs</a>
+        <ul>
+        <li><a href="#local-development-1"
+        id="toc-local-development-1">Local Development</a></li>
+        <li><a href="#fly.io-production"
+        id="toc-fly.io-production">Fly.io Production</a></li>
+        </ul></li>
+        <li><a href="#common-logging-patterns"
+        id="toc-common-logging-patterns">Common Logging Patterns</a>
+        <ul>
+        <li><a href="#api-requestresponse-logging"
+        id="toc-api-requestresponse-logging">API Request/Response
+        Logging</a></li>
+        <li><a href="#exception-logging"
+        id="toc-exception-logging">Exception Logging</a></li>
+        <li><a href="#performanceslow-query-logging"
+        id="toc-performanceslow-query-logging">Performance/Slow Query
+        Logging</a></li>
+        <li><a href="#security-events" id="toc-security-events">Security
+        Events</a></li>
+        </ul></li>
+        <li><a href="#error-handling-logging"
+        id="toc-error-handling-logging">Error Handling &amp; Logging</a>
+        <ul>
+        <li><a href="#globalexceptionhandler-integration"
+        id="toc-globalexceptionhandler-integration">GlobalExceptionHandler
+        Integration</a></li>
+        </ul></li>
+        <li><a href="#structured-logging-future-enhancement"
+        id="toc-structured-logging-future-enhancement">Structured
+        Logging (Future Enhancement)</a></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#logs-not-showing-up"
+        id="toc-logs-not-showing-up">Logs Not Showing Up</a></li>
+        <li><a href="#logs-too-verbose" id="toc-logs-too-verbose">Logs
+        Too Verbose</a></li>
+        <li><a href="#logs-not-found-after-deploy"
+        id="toc-logs-not-found-after-deploy">Logs Not Found After
+        Deploy</a></li>
+        <li><a href="#performance-too-much-logging"
+        id="toc-performance-too-much-logging">Performance: Too Much
+        Logging</a></li>
+        </ul></li>
+        <li><a href="#observability-beyond-logs"
+        id="toc-observability-beyond-logs">Observability Beyond Logs</a>
+        <ul>
+        <li><a href="#future-monitoring-points"
+        id="toc-future-monitoring-points">Future Monitoring
+        Points</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Deployment Index</a></p>
+        <h1 id="logs-observability">Logs &amp; Observability</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Logging is critical for debugging, monitoring, and
+        understanding application behavior in production. This document
+        covers:</p>
+        <ul>
+        <li>Logging architecture (SLF4J, Logback)</li>
+        <li>Log levels and configuration by environment</li>
+        <li>Where logs go (stdout, files, Fly.io)</li>
+        <li>How to view and search logs</li>
+        <li>Common issues and debugging patterns</li>
+        </ul>
+        <h2 id="logging-architecture">Logging Architecture</h2>
+        <div class="mermaid">
+        graph LR
+            A["Java Code<br/>(logger.info, logger.error)"] -->|SLF4J API| B["Logback<br/>(Implementation)"]
+            B -->|stdout| C["Console"]
+            B -->|File| D["/logs/app.log"]
+            C -->|Docker| E["🐋 Container stdout"]
+            D -->|Fly.io| F["☁️ Log Storage"]
+            E -->|Captured by| F
+            
+            style A fill:#e3f2fd
+            style B fill:#fff3e0
+            style C fill:#f3e5f5
+            style D fill:#e1f5fe
+            style F fill:#c8e6c9
+        </div>
+        <h3 id="slf4j-logback">SLF4J + Logback</h3>
+        <ul>
+        <li><strong>SLF4J:</strong> Simple Logging Facade for Java
+        (standard interface)</li>
+        <li><strong>Logback:</strong> Implementation of SLF4J (produces
+        actual log output)</li>
+        <li><strong>Spring Boot:</strong> Auto-configures Logback with
+        sensible defaults</li>
+        </ul>
+        <p><strong>Code usage:</strong></p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">slf4j</span><span class="op">.</span><span class="im">Logger</span><span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">slf4j</span><span class="op">.</span><span class="im">LoggerFactory</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ItemService <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">Logger</span> logger <span class="op">=</span> LoggerFactory<span class="op">.</span><span class="fu">getLogger</span><span class="op">(</span>ItemService<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> Item <span class="fu">getItem</span><span class="op">(</span><span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;Fetching item with ID: {}&quot;</span><span class="op">,</span> id<span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      Item item <span class="op">=</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      logger<span class="op">.</span><span class="fu">debug</span><span class="op">(</span><span class="st">&quot;Found item: {}&quot;</span><span class="op">,</span> item<span class="op">.</span><span class="fu">getName</span><span class="op">());</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> item<span class="op">;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;Error fetching item&quot;</span><span class="op">,</span> e<span class="op">);</span>  <span class="co">// Logs stack trace</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">throw</span> e<span class="op">;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h2 id="logging-configuration">Logging Configuration</h2>
+        <h3 id="by-environment">By Environment</h3>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 18%" />
+        <col style="width: 22%" />
+        <col style="width: 16%" />
+        <col style="width: 18%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Environment</th>
+        <th>Profile</th>
+        <th>Log Level</th>
+        <th>Output</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Local Dev</strong></td>
+        <td>dev</td>
+        <td>DEBUG</td>
+        <td>Console (stdout)</td>
+        <td>Development debugging</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Testing</strong></td>
+        <td>test</td>
+        <td>DEBUG/TRACE</td>
+        <td>Console + file (<code>/logs/test-app.log</code>)</td>
+        <td>Test debugging + coverage</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Production</strong></td>
+        <td>prod</td>
+        <td>INFO</td>
+        <td>Console (Fly.io captures)</td>
+        <td>Minimal noise, critical events</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="configuration-files">Configuration Files</h3>
+        <p><strong>Base Configuration:
+        <code>application.yml</code></strong></p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">com.example.inventory</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.springframework.security</span><span class="kw">:</span><span class="at"> INFO</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">pattern</span><span class="kw">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">console</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;%d{yyyy-MM-dd HH:mm:ss} [%-5level] %logger{36} - %msg%n&quot;</span></span></code></pre></div>
+        <p><strong>Development:
+        <code>application-dev.yml</code></strong></p>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">com.example.inventory</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.springframework</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.springframework.web</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.springframework.security</span><span class="kw">:</span><span class="at"> DEBUG</span></span></code></pre></div>
+        <p><strong>Testing:
+        <code>application-test.yml</code></strong></p>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">com.example.inventory</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.hibernate.SQL</span><span class="kw">:</span><span class="at"> DEBUG</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.hibernate.type.descriptor.sql.BasicBinder</span><span class="kw">:</span><span class="at"> TRACE</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">file</span><span class="kw">:</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> logs/test-application.log</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">pattern</span><span class="kw">:</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">file</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;%d{yyyy-MM-dd HH:mm:ss} [%-5level] %logger{36} - %msg%n&quot;</span></span></code></pre></div>
+        <p><strong>Production:
+        <code>application-prod.yml</code></strong></p>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">com.example.inventory</span><span class="kw">:</span><span class="at"> INFO</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.springframework.security</span><span class="kw">:</span><span class="at"> INFO</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">pattern</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">console</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;%d{ISO8601} [%-5level] %logger{36} - %msg%n&quot;</span></span></code></pre></div>
+        <h3 id="log-level-explanation">Log Level Explanation</h3>
+        <table style="width:100%;">
+        <colgroup>
+        <col style="width: 18%" />
+        <col style="width: 26%" />
+        <col style="width: 31%" />
+        <col style="width: 23%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Level</th>
+        <th>Severity</th>
+        <th>When to Use</th>
+        <th>Example</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>TRACE</strong></td>
+        <td>Lowest</td>
+        <td>Extremely detailed debugging</td>
+        <td>Parameter bindings, query traces</td>
+        </tr>
+        <tr class="even">
+        <td><strong>DEBUG</strong></td>
+        <td>Low</td>
+        <td>Development, diagnosing issues</td>
+        <td>Method entry/exit, local variables</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>INFO</strong></td>
+        <td>Medium</td>
+        <td>Important events, lifecycle</td>
+        <td>Application startup, user actions</td>
+        </tr>
+        <tr class="even">
+        <td><strong>WARN</strong></td>
+        <td>High</td>
+        <td>Potential problems</td>
+        <td>Deprecated API usage, slow queries</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>ERROR</strong></td>
+        <td>Critical</td>
+        <td>Errors, exceptions</td>
+        <td>Failed requests, database errors</td>
+        </tr>
+        <tr class="even">
+        <td><strong>FATAL</strong></td>
+        <td>Highest</td>
+        <td>Unrecoverable failures</td>
+        <td>Application won’t start</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="where-logs-go">Where Logs Go</h2>
+        <h3 id="local-development">Local Development</h3>
+        <p><strong>Destination:</strong> Console (stdout)</p>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">2024-11-20</span> 10:30:45 <span class="pp">[</span><span class="ss">INFO</span><span class="pp">]</span> Application started in 2.345s</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">2024-11-20</span> 10:30:46 <span class="pp">[</span><span class="ss">DEBUG</span><span class="pp">]</span> ItemService.getItem<span class="er">(</span><span class="ex">123</span><span class="kw">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">2024-11-20</span> 10:30:46 <span class="pp">[</span><span class="ss">INFO</span><span class="pp">]</span> GET /api/items/123 returned 200 OK</span></code></pre></div>
+        <h3 id="testing-ci">Testing (CI)</h3>
+        <p><strong>Destination:</strong> Console + File
+        (<code>/logs/test-application.log</code>)</p>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GitHub Actions captures stdout</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># File logs are archived as artifacts (if needed)</span></span></code></pre></div>
+        <h3 id="production-fly.io">Production (Fly.io)</h3>
+        <p><strong>Destination:</strong> stdout (captured by Fly.io)</p>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># App writes to stdout</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fly.io captures and stores logs</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Access via: flyctl logs --app inventoryservice</span></span></code></pre></div>
+        <h2 id="viewing-logs">Viewing Logs</h2>
+        <h3 id="local-development-1">Local Development</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Watch logs in real-time</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./mvnw</span> spring-boot:run</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Search logs</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&quot;ERROR&quot;</span> logs/app.log</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&quot;ItemService&quot;</span> logs/app.log</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Last 100 lines</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-100</span> logs/app.log</span></code></pre></div>
+        <h3 id="fly.io-production">Fly.io Production</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install flyctl</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-L</span> https://fly.io/install.sh <span class="kw">|</span> <span class="fu">sh</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># View latest logs (50 lines)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="at">-n</span> 50</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Follow logs in real-time</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="at">--follow</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter by log level</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="kw">|</span> <span class="fu">grep</span> ERROR</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="kw">|</span> <span class="fu">grep</span> WARN</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Search by date</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="at">--since</span> 1h</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Full output (all available logs)</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="kw">|</span> <span class="fu">less</span></span></code></pre></div>
+        <h2 id="common-logging-patterns">Common Logging Patterns</h2>
+        <h3 id="api-requestresponse-logging">API Request/Response
+        Logging</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="at">@RequestMapping</span><span class="op">(</span><span class="st">&quot;/api/items&quot;</span><span class="op">)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ItemController <span class="op">{</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">Logger</span> logger <span class="op">=</span> LoggerFactory<span class="op">.</span><span class="fu">getLogger</span><span class="op">(</span>ItemController<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/{id}&quot;</span><span class="op">)</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> ItemDTO <span class="fu">getItem</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;GET /api/items/{} - Request received&quot;</span><span class="op">,</span> id<span class="op">);</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    ItemDTO item <span class="op">=</span> itemService<span class="op">.</span><span class="fu">getItem</span><span class="op">(</span>id<span class="op">);</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;GET /api/items/{} - Returning 200 OK&quot;</span><span class="op">,</span> id<span class="op">);</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> item<span class="op">;</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Output:</strong></p>
+        <pre><code>2024-11-20 10:30:46 [INFO] ItemController - GET /api/items/123 - Request received
+2024-11-20 10:30:46 [DEBUG] ItemService - ItemRepository.findById(123)
+2024-11-20 10:30:46 [INFO] ItemController - GET /api/items/123 - Returning 200 OK</code></pre>
+        <h3 id="exception-logging">Exception Logging</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ItemService <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">Logger</span> logger <span class="op">=</span> LoggerFactory<span class="op">.</span><span class="fu">getLogger</span><span class="op">(</span>ItemService<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> Item <span class="fu">getItem</span><span class="op">(</span><span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> repository<span class="op">.</span><span class="fu">findById</span><span class="op">(</span>id<span class="op">)</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">orElseThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> <span class="kw">new</span> <span class="fu">ItemNotFoundException</span><span class="op">(</span>id<span class="op">));</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>ItemNotFoundException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>      logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Item not found: {}&quot;</span><span class="op">,</span> id<span class="op">);</span>  <span class="co">// Expected error</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>      <span class="cf">throw</span> e<span class="op">;</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>DatabaseException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;Database error while fetching item&quot;</span><span class="op">,</span> e<span class="op">);</span>  <span class="co">// Unexpected</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>      <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">RuntimeException</span><span class="op">(</span><span class="st">&quot;Failed to fetch item&quot;</span><span class="op">,</span> e<span class="op">);</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Output:</strong></p>
+        <pre><code>2024-11-20 10:30:46 [WARN] ItemService - Item not found: 999
+2024-11-20 10:30:47 [ERROR] ItemService - Database error while fetching item
+java.sql.SQLException: ORA-00917: missing comma
+  at com.oracle.jdbc.OracleDriver.processSQL(OracleDriver.java:...)
+  at com.example.inventory.repository.ItemRepository.findById(...)</code></pre>
+        <h3 id="performanceslow-query-logging">Performance/Slow Query
+        Logging</h3>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ItemService <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">Logger</span> logger <span class="op">=</span> LoggerFactory<span class="op">.</span><span class="fu">getLogger</span><span class="op">(</span>ItemService<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>Item<span class="op">&gt;</span> <span class="fu">getAllItems</span><span class="op">(</span><span class="dt">int</span> pageSize<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> startTime <span class="op">=</span> <span class="bu">System</span><span class="op">.</span><span class="fu">currentTimeMillis</span><span class="op">();</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span>Item<span class="op">&gt;</span> items <span class="op">=</span> repository<span class="op">.</span><span class="fu">findAll</span><span class="op">(</span>pageSize<span class="op">);</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> duration <span class="op">=</span> <span class="bu">System</span><span class="op">.</span><span class="fu">currentTimeMillis</span><span class="op">()</span> <span class="op">-</span> startTime<span class="op">;</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>duration <span class="op">&gt;</span> <span class="dv">1000</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>      logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Slow query: getAllItems took {}ms&quot;</span><span class="op">,</span> duration<span class="op">);</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      logger<span class="op">.</span><span class="fu">debug</span><span class="op">(</span><span class="st">&quot;Query: getAllItems took {}ms&quot;</span><span class="op">,</span> duration<span class="op">);</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> items<span class="op">;</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Output:</strong></p>
+        <pre><code>2024-11-20 10:30:46 [DEBUG] ItemService - Query: getAllItems took 234ms
+2024-11-20 10:30:47 [WARN] ItemService - Slow query: getAllItems took 1523ms</code></pre>
+        <h3 id="security-events">Security Events</h3>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> SecurityEventLogger <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">Logger</span> logger <span class="op">=</span> LoggerFactory<span class="op">.</span><span class="fu">getLogger</span><span class="op">(</span>SecurityEventLogger<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">@EventListener</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="dt">void</span> <span class="fu">onAuthenticationSuccess</span><span class="op">(</span>AuthenticationSuccessEvent event<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> username <span class="op">=</span> event<span class="op">.</span><span class="fu">getAuthentication</span><span class="op">().</span><span class="fu">getName</span><span class="op">();</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;User login successful: {}&quot;</span><span class="op">,</span> username<span class="op">);</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">@EventListener</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="dt">void</span> <span class="fu">onAuthenticationFailure</span><span class="op">(</span>AbstractAuthenticationFailureEvent event<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> username <span class="op">=</span> event<span class="op">.</span><span class="fu">getAuthentication</span><span class="op">().</span><span class="fu">getName</span><span class="op">();</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">warn</span><span class="op">(</span><span class="st">&quot;Failed login attempt for user: {}&quot;</span><span class="op">,</span> username<span class="op">);</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Output:</strong></p>
+        <pre><code>2024-11-20 10:30:46 [INFO] SecurityEventLogger - User login successful: john@example.com
+2024-11-20 10:30:47 [WARN] SecurityEventLogger - Failed login attempt for user: hacker@example.com</code></pre>
+        <h2 id="error-handling-logging">Error Handling &amp;
+        Logging</h2>
+        <h3
+        id="globalexceptionhandler-integration">GlobalExceptionHandler
+        Integration</h3>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestControllerAdvice</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> GlobalExceptionHandler <span class="op">{</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="bu">Logger</span> logger <span class="op">=</span> LoggerFactory<span class="op">.</span><span class="fu">getLogger</span><span class="op">(</span>GlobalExceptionHandler<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">@ExceptionHandler</span><span class="op">(</span>ItemNotFoundException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleItemNotFound</span><span class="op">(</span>ItemNotFoundException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;ItemNotFoundException: {}&quot;</span><span class="op">,</span> e<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">NOT_FOUND</span><span class="op">)</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">body</span><span class="op">(</span><span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="st">&quot;ITEM_NOT_FOUND&quot;</span><span class="op">,</span> e<span class="op">.</span><span class="fu">getMessage</span><span class="op">()));</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">@ExceptionHandler</span><span class="op">(</span>DatabaseException<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>ErrorResponse<span class="op">&gt;</span> <span class="fu">handleDatabaseException</span><span class="op">(</span>DatabaseException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">error</span><span class="op">(</span><span class="st">&quot;DatabaseException: {} - Stack trace:&quot;</span><span class="op">,</span> e<span class="op">.</span><span class="fu">getMessage</span><span class="op">(),</span> e<span class="op">);</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ResponseEntity<span class="op">.</span><span class="fu">status</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">INTERNAL_SERVER_ERROR</span><span class="op">)</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">body</span><span class="op">(</span><span class="kw">new</span> <span class="fu">ErrorResponse</span><span class="op">(</span><span class="st">&quot;DB_ERROR&quot;</span><span class="op">,</span> <span class="st">&quot;Server error&quot;</span><span class="op">));</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Log mapping:</strong> -
+        <code>ItemNotFoundException</code> → <strong>INFO</strong>
+        (expected, client error) - <code>DatabaseException</code> →
+        <strong>ERROR</strong> (unexpected, server error)</p>
+        <h2 id="structured-logging-future-enhancement">Structured
+        Logging (Future Enhancement)</h2>
+        <p>Currently: Unstructured text logs</p>
+        <pre><code>2024-11-20 10:30:46 [INFO] ItemService - Fetching item with ID: 123</code></pre>
+        <p>Future: Structured logging (JSON) for easier parsing:</p>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode json"><code class="sourceCode json"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;timestamp&quot;</span><span class="fu">:</span> <span class="st">&quot;2024-11-20T10:30:46Z&quot;</span><span class="fu">,</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;level&quot;</span><span class="fu">:</span> <span class="st">&quot;INFO&quot;</span><span class="fu">,</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;logger&quot;</span><span class="fu">:</span> <span class="st">&quot;com.example.inventory.ItemService&quot;</span><span class="fu">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;message&quot;</span><span class="fu">:</span> <span class="st">&quot;Fetching item&quot;</span><span class="fu">,</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;itemId&quot;</span><span class="fu">:</span> <span class="dv">123</span><span class="fu">,</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;userId&quot;</span><span class="fu">:</span> <span class="st">&quot;john@example.com&quot;</span><span class="fu">,</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;duration_ms&quot;</span><span class="fu">:</span> <span class="dv">45</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+        <p><strong>Benefits:</strong> - Searchable fields (itemId,
+        userId, duration) - Filterable in log aggregation (Splunk,
+        Datadog, ELK) - Correlation tracking (trace IDs)</p>
+        <p><strong>Implementation:</strong> Add
+        <code>logstash-logback-encoder</code> dependency when
+        needed.</p>
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="logs-not-showing-up">Logs Not Showing Up</h3>
+        <p><strong>Symptom:</strong> No output in console or logs/</p>
+        <p><strong>Causes:</strong> 1. Log level too high (INFO set, but
+        trying to log DEBUG) 2. Logger name wrong (logged from
+        <code>ItemService</code> but looking for
+        <code>ItemController</code>) 3. Logback configuration syntax
+        error</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb22"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check log level</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&quot;logging.level&quot;</span> application-dev.yml</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify logger name matches</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">logger.debug</span><span class="er">(</span><span class="st">&quot;message&quot;</span><span class="kw">);</span>  <span class="ex">//</span> Logger name = class name</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check Logback config syntax</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> spring-boot:run  <span class="co"># Look for Logback initialization errors</span></span></code></pre></div>
+        <h3 id="logs-too-verbose">Logs Too Verbose</h3>
+        <p><strong>Symptom:</strong> INFO level has too much output</p>
+        <pre><code>[INFO] JpaBaseConfiguration - Bootstrapping Spring Data JPA
+[INFO] JpaBaseConfiguration - Eagerly initializing Spring Data repositories
+[INFO] Version: 5.2.0.Final
+... (hundreds of lines)</code></pre>
+        <p><strong>Cause:</strong> Third-party library logging at INFO
+        level</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb24"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> WARN</span><span class="co">          # Raise root level to WARN</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">com.example</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">   # Keep app logs at INFO</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.springframework</span><span class="kw">:</span><span class="at"> WARN</span></span></code></pre></div>
+        <h3 id="logs-not-found-after-deploy">Logs Not Found After
+        Deploy</h3>
+        <p><strong>Symptom:</strong> App running, but logs don’t show
+        errors</p>
+        <pre><code>flyctl logs --app inventoryservice
+# (empty or no recent output)</code></pre>
+        <p><strong>Causes:</strong> 1. App crashed before logging setup
+        2. Fly.io log storage full 3. Wrong app name</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify app name</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> status <span class="at">--app</span> inventoryservice</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check recent deployment</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> status <span class="at">--app</span> inventoryservice</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># View logs with longer timespan</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="at">--since</span> 1h</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Restart app</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> restart <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <h3 id="performance-too-much-logging">Performance: Too Much
+        Logging</h3>
+        <p><strong>Symptom:</strong> High CPU/memory usage, slow
+        requests</p>
+        <pre><code>[DEBUG] SELECT * FROM items WHERE id = 123
+[DEBUG] Parameter values: [123]
+[DEBUG] Column names: [ID, NAME, ...]</code></pre>
+        <p><strong>Cause:</strong> DEBUG/TRACE logging in production
+        wastes CPU, I/O</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># production (application-prod.yml)</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span><span class="co">  # Never DEBUG in prod</span></span></code></pre></div>
+        <p>Or disable very verbose loggers:</p>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">logging</span><span class="kw">:</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">level</span><span class="kw">:</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">root</span><span class="kw">:</span><span class="at"> INFO</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.hibernate.SQL</span><span class="kw">:</span><span class="at"> </span><span class="ch">OFF</span><span class="co">        # Disable SQL logging</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">org.springframework</span><span class="kw">:</span><span class="at"> WARN</span><span class="co">      # Reduce Spring noise</span></span></code></pre></div>
+        <h2 id="observability-beyond-logs">Observability Beyond
+        Logs</h2>
+        <h3 id="future-monitoring-points">Future Monitoring Points</h3>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Metrics (Micrometer)</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Timed</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> Item <span class="fu">getItem</span><span class="op">(</span><span class="bu">Long</span> id<span class="op">)</span> <span class="op">{</span> <span class="op">}</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Traces (Spring Cloud Sleuth)</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Traced</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>Item<span class="op">&gt;</span> <span class="fu">getAllItems</span><span class="op">()</span> <span class="op">{</span> <span class="op">}</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Health indicators (Spring Boot Actuator)</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ItemServiceHealth <span class="kw">extends</span> AbstractHealthIndicator <span class="op">{</span> <span class="op">}</span></span></code></pre></div>
+        <p><strong>When to implement:</strong> Scale to hundreds of
+        requests/second, multiple services.</p>
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Deployment Index</a></strong>
+        – Deployment overview</li>
+        <li><strong><a href="./flyio-infrastructure.html">Fly.io
+        Infrastructure</a></strong> – Production monitoring</li>
+        <li><strong><a href="../resources/logging-config.html">Resources
+        &amp; Configuration</a></strong> – Detailed logging
+        configuration</li>
+        <li><strong><a href="./ci-cd-and-docs-pipeline.html">CI/CD &amp;
+        Docs Pipeline</a></strong> – Test logs and JaCoCo coverage</li>
+        </ul>
+        <hr />
+        <p><strong>Last Updated:</strong> November 2025<br />
+        <strong>Audience:</strong> Backend developers, DevOps engineers,
+        SRE, on-call engineers</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

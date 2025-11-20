@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · deployment/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#deployment-architecture-operations"
+        id="toc-deployment-architecture-operations">Deployment
+        Architecture &amp; Operations</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#deployment-flow-diagram"
+        id="toc-deployment-flow-diagram">Deployment Flow
+        Diagram</a></li>
+        <li><a href="#key-files-folders" id="toc-key-files-folders">Key
+        Files &amp; Folders</a>
+        <ul>
+        <li><a href="#build-packaging" id="toc-build-packaging">Build
+        &amp; Packaging</a></li>
+        <li><a href="#infrastructure-as-code"
+        id="toc-infrastructure-as-code">Infrastructure as Code</a></li>
+        <li><a href="#configuration-secrets"
+        id="toc-configuration-secrets">Configuration &amp;
+        Secrets</a></li>
+        <li><a href="#scripts-utilities"
+        id="toc-scripts-utilities">Scripts &amp; Utilities</a></li>
+        </ul></li>
+        <li><a href="#deployment-architecture-at-a-glance"
+        id="toc-deployment-architecture-at-a-glance">Deployment
+        Architecture at a Glance</a></li>
+        <li><a href="#pipeline-stages" id="toc-pipeline-stages">Pipeline
+        Stages</a>
+        <ul>
+        <li><a href="#ci-build-test-1-ci-test.yml"
+        id="toc-ci-build-test-1-ci-test.yml">1️⃣ CI Build &amp; Test
+        (<code>1-ci-test.yml</code>)</a></li>
+        <li><a href="#documentation-pipeline-docs-pipeline.yml"
+        id="toc-documentation-pipeline-docs-pipeline.yml">2️⃣
+        Documentation Pipeline (<code>docs-pipeline.yml</code>)</a></li>
+        <li><a href="#publish-docs-to-github-pages-2-deploy-ghpages.yml"
+        id="toc-publish-docs-to-github-pages-2-deploy-ghpages.yml">2️⃣
+        Publish Docs to GitHub Pages
+        (<code>2-deploy-ghpages.yml</code>)</a></li>
+        <li><a href="#deploy-to-fly.io-3-deploy-fly.yml"
+        id="toc-deploy-to-fly.io-3-deploy-fly.yml">3️⃣ Deploy to Fly.io
+        (<code>3-deploy-fly.yml</code>)</a></li>
+        </ul></li>
+        <li><a href="#immutable-deployment-strategy"
+        id="toc-immutable-deployment-strategy">Immutable Deployment
+        Strategy</a></li>
+        <li><a href="#environment-configuration"
+        id="toc-environment-configuration">Environment
+        Configuration</a></li>
+        <li><a href="#key-documentation-files"
+        id="toc-key-documentation-files">Key Documentation Files</a>
+        <ul>
+        <li><a href="#core-deployment-guides"
+        id="toc-core-deployment-guides">Core Deployment Guides</a></li>
+        <li><a href="#configuration-networking"
+        id="toc-configuration-networking">Configuration &amp;
+        Networking</a></li>
+        </ul></li>
+        <li><a href="#quick-reference-from-commit-to-production"
+        id="toc-quick-reference-from-commit-to-production">Quick
+        Reference: From Commit to Production</a></li>
+        <li><a href="#troubleshooting-quick-links"
+        id="toc-troubleshooting-quick-links">Troubleshooting Quick
+        Links</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="deployment-architecture-operations">Deployment
+        Architecture &amp; Operations</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro backend deployment follows a <strong>fully
+        automated, immutable infrastructure</strong> approach:</p>
+        <pre><code>Source Code → Maven Build → Docker Image → Fly.io Production</code></pre>
+        <p>Every commit to <code>main</code> triggers a streamlined
+        pipeline that builds, tests, packages, and deploys the backend
+        service automatically. This documentation explains each stage
+        and the files involved.</p>
+        <h2 id="deployment-flow-diagram">Deployment Flow Diagram</h2>
+        <div class="mermaid">
+        graph LR
+            A["📝 Source Code<br/>(main branch)"] -->|Git Push| B["1️⃣ CI Build<br/>(1-ci-test.yml)"]
+            B -->|Maven + Tests| C["📦 Docker Image<br/>(Dockerfile)"]
+            C -->|Trivy Scan| D["🔐 Security Gate<br/>(HIGH/CRITICAL)"]
+            D -->|Pass| E["☁️ Docker Hub<br/>(ckbuzin/inventory-service)"]
+            E -->|Manifest Ready| F["3️⃣ Deploy<br/>(3-deploy-fly.yml)"]
+            F -->|flyctl deploy| G["🚀 Fly.io App<br/>(inventoryservice)"]
+            G -->|Health Check| H["✅ Live<br/>(https://...)"]
+            
+            B -->|Also Triggers| I["2️⃣ Docs Pipeline<br/>(docs-pipeline.yml)"]
+            I -->|Generates| J["📚 Documentation<br/>(OpenAPI, Architecture)"]
+            J -->|Publishes| K["📖 GitHub Pages<br/>(gh-pages branch)"]
+            
+            style A fill:#e3f2fd
+            style B fill:#fff3e0
+            style C fill:#f3e5f5
+            style D fill:#fce4ec
+            style E fill:#e0f2f1
+            style F fill:#fff9c4
+            style G fill:#c8e6c9
+            style H fill:#a5d6a7
+            style I fill:#fff3e0
+            style J fill:#e1f5fe
+            style K fill:#b3e5fc
+        </div>
+        <h2 id="key-files-folders">Key Files &amp; Folders</h2>
+        <h3 id="build-packaging">Build &amp; Packaging</h3>
+        <ul>
+        <li><strong><code>pom.xml</code></strong> – Maven project
+        configuration; defines dependencies, plugins, build steps</li>
+        <li><strong><code>Dockerfile</code></strong> – Multi-stage
+        Docker build: compile stage → runtime stage</li>
+        <li><strong><code>start.sh</code></strong> – Container
+        entrypoint script; launches Spring Boot app with environment
+        variables</li>
+        </ul>
+        <h3 id="infrastructure-as-code">Infrastructure as Code</h3>
+        <ul>
+        <li><strong><code>fly.toml</code></strong> – Fly.io app
+        configuration: machine size, regions, environment variables,
+        secrets</li>
+        <li><strong><code>.github/workflows/</code></strong> – GitHub
+        Actions workflow files for CI/CD automation
+        <ul>
+        <li><code>1-ci-test.yml</code> – Build, test, Docker image,
+        Trivy scan</li>
+        <li><code>3-deploy-fly.yml</code> – Deploy to Fly.io (automatic
+        + manual options)</li>
+        <li><code>docs-pipeline.yml</code> – Build API/architecture
+        documentation</li>
+        </ul></li>
+        </ul>
+        <h3 id="configuration-secrets">Configuration &amp; Secrets</h3>
+        <ul>
+        <li><strong><code>.env.example</code></strong> – Template for
+        local development environment variables</li>
+        <li><strong><code>/ops/nginx/</code></strong> – Nginx
+        configuration (reverse proxy, routing, TLS if applicable)</li>
+        <li><strong><code>/oracle_wallet/</code></strong> – Oracle
+        Wallet encrypted credentials (mounted at runtime)</li>
+        <li><strong><code>/lib/ojdbc11.jar</code></strong> – Oracle JDBC
+        driver (included in Docker image)</li>
+        </ul>
+        <h3 id="scripts-utilities">Scripts &amp; Utilities</h3>
+        <ul>
+        <li><strong><code>/scripts/</code></strong> – Automation
+        scripts:
+        <ul>
+        <li><code>build-openapi-docs.sh</code> – Generate OpenAPI
+        documentation from code</li>
+        <li><code>build-architecture-docs.sh</code> – Convert
+        architecture markdown to HTML</li>
+        <li>Various utility scripts for deployment and CI/CD</li>
+        </ul></li>
+        </ul>
+        <h2 id="deployment-architecture-at-a-glance">Deployment
+        Architecture at a Glance</h2>
+        <table>
+        <colgroup>
+        <col style="width: 15%" />
+        <col style="width: 31%" />
+        <col style="width: 15%" />
+        <col style="width: 17%" />
+        <col style="width: 20%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Stage</th>
+        <th>Tool/Service</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Build</strong></td>
+        <td>Maven</td>
+        <td>Source code, pom.xml</td>
+        <td>Compiled JAR</td>
+        <td>Compile, test, package</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Package</strong></td>
+        <td>Docker</td>
+        <td>JAR, Dockerfile, dependencies</td>
+        <td>Docker image</td>
+        <td>Create immutable artifact</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Security</strong></td>
+        <td>Trivy</td>
+        <td>Docker image</td>
+        <td>Scan report</td>
+        <td>Detect CVEs (blocks HIGH/CRITICAL)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Registry</strong></td>
+        <td>Docker Hub</td>
+        <td>Docker image</td>
+        <td>Tagged image (SHA, latest)</td>
+        <td>Store immutable artifact</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Deploy</strong></td>
+        <td>Fly.io CLI</td>
+        <td>Image reference, fly.toml</td>
+        <td>Running container</td>
+        <td>Launch app in production</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Validation</strong></td>
+        <td>Health checks</td>
+        <td>Running app</td>
+        <td>Status response</td>
+        <td>Ensure app healthy</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Docs</strong></td>
+        <td>Redocly + Pandoc</td>
+        <td>Source code, markdown</td>
+        <td>HTML docs</td>
+        <td>Generate API/architecture documentation</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Publishing</strong></td>
+        <td>Git</td>
+        <td>HTML docs</td>
+        <td>gh-pages branch</td>
+        <td>Publish to GitHub Pages</td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="pipeline-stages">Pipeline Stages</h2>
+        <h3 id="ci-build-test-1-ci-test.yml">1️⃣ CI Build &amp; Test
+        (<code>1-ci-test.yml</code>)</h3>
+        <ul>
+        <li><strong>Trigger:</strong> Push to main/develop</li>
+        <li><strong>Steps:</strong>
+        <ol type="1">
+        <li>Checkout code</li>
+        <li>Set up JDK 17 + Maven cache</li>
+        <li>Run <code>mvn clean verify</code> (compile, tests,
+        integration tests)</li>
+        <li>Generate JaCoCo coverage report</li>
+        <li>Build Docker image (prod profile)</li>
+        <li>Push to Docker Hub (tags: <code>SHA</code> +
+        <code>latest</code>)</li>
+        <li>Trivy security scan (blocks on HIGH/CRITICAL)</li>
+        </ol></li>
+        <li><strong>Output:</strong> Immutable Docker image in registry,
+        JaCoCo report artifact</li>
+        </ul>
+        <h3 id="documentation-pipeline-docs-pipeline.yml">2️⃣
+        Documentation Pipeline (<code>docs-pipeline.yml</code>)</h3>
+        <ul>
+        <li><strong>Trigger:</strong> After CI success OR docs-only
+        push</li>
+        <li><strong>Steps:</strong>
+        <ol type="1">
+        <li>Download JaCoCo artifact from CI</li>
+        <li>Generate OpenAPI docs (Swagger/ReDoc)</li>
+        <li>Convert architecture markdown to HTML (Pandoc + Lua
+        filter)</li>
+        <li>Assemble docs-site artifact</li>
+        </ol></li>
+        <li><strong>Output:</strong> docs-site artifact (consumed by
+        2-deploy-ghpages.yml)</li>
+        </ul>
+        <h3 id="publish-docs-to-github-pages-2-deploy-ghpages.yml">2️⃣
+        Publish Docs to GitHub Pages
+        (<code>2-deploy-ghpages.yml</code>)</h3>
+        <ul>
+        <li><strong>Trigger:</strong> After docs-pipeline success</li>
+        <li><strong>Steps:</strong>
+        <ol type="1">
+        <li>Checkout gh-pages branch</li>
+        <li>Download docs-site artifact</li>
+        <li>Preserve existing JaCoCo coverage (if not in current
+        build)</li>
+        <li>Commit and push to gh-pages</li>
+        </ol></li>
+        <li><strong>Output:</strong> Live documentation at GitHub
+        Pages</li>
+        </ul>
+        <h3 id="deploy-to-fly.io-3-deploy-fly.yml">3️⃣ Deploy to Fly.io
+        (<code>3-deploy-fly.yml</code>)</h3>
+        <ul>
+        <li><strong>Trigger:</strong> After CI success on main
+        (automatic) OR manual via workflow_dispatch</li>
+        <li><strong>Steps:</strong>
+        <ol type="1">
+        <li>Validate Docker image exists in registry</li>
+        <li>Verify Fly.io app exists</li>
+        <li>Deploy using
+        <code>flyctl deploy --image &lt;SHA&gt;</code></li>
+        <li>Poll <code>/health</code> endpoint (5-minute timeout)</li>
+        <li>Run smoke tests (validate <code>/health</code> and
+        <code>/</code> endpoints)</li>
+        <li>Capture logs if health check fails</li>
+        </ol></li>
+        <li><strong>Output:</strong> Running backend service at
+        https://inventoryservice.fly.dev</li>
+        </ul>
+        <h2 id="immutable-deployment-strategy">Immutable Deployment
+        Strategy</h2>
+        <p>Every Docker image is tagged by <strong>commit SHA</strong>
+        (e.g., <code>ckbuzin/inventory-service:a1b2c3d4</code>),
+        enabling:</p>
+        <ul>
+        <li><strong>Reproducible deployments</strong> – Same code always
+        produces same image</li>
+        <li><strong>Easy rollback</strong> – Deploy previous commit SHA
+        anytime</li>
+        <li><strong>Audit trail</strong> – Git history = deployment
+        history</li>
+        <li><strong>No “latest” fragility</strong> – “latest” tag is
+        convenience reference only</li>
+        </ul>
+        <h2 id="environment-configuration">Environment
+        Configuration</h2>
+        <table>
+        <colgroup>
+        <col style="width: 26%" />
+        <col style="width: 18%" />
+        <col style="width: 20%" />
+        <col style="width: 18%" />
+        <col style="width: 18%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Environment</th>
+        <th>Profile</th>
+        <th>Database</th>
+        <th>Logging</th>
+        <th>Secrets</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Local Dev</strong></td>
+        <td>(none)</td>
+        <td>H2 or Oracle (local)</td>
+        <td>DEBUG/TRACE</td>
+        <td><code>.env</code> file</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Testing</strong></td>
+        <td><code>test</code></td>
+        <td>H2 in-memory</td>
+        <td>DEBUG/TRACE file output</td>
+        <td><code>application-test.yml</code></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Production</strong></td>
+        <td><code>prod</code></td>
+        <td>Oracle Autonomous DB</td>
+        <td>INFO only</td>
+        <td>Fly.io secrets vault</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Spring Boot selects profile via
+        <code>SPRING_PROFILES_ACTIVE</code> environment variable (set in
+        fly.toml).</p>
+        <h2 id="key-documentation-files">Key Documentation Files</h2>
+        <p>This deployment documentation is organized as follows:</p>
+        <h3 id="core-deployment-guides">Core Deployment Guides</h3>
+        <ul>
+        <li><strong><a href="./build-and-docker-image.html">Build &amp;
+        Docker Image</a></strong> – How backend is compiled and
+        packaged</li>
+        <li><strong><a href="./ci-cd-and-docs-pipeline.html">CI/CD &amp;
+        Docs Pipeline</a></strong> – GitHub Actions automation and
+        documentation generation</li>
+        <li><strong><a href="./flyio-infrastructure.html">Fly.io
+        Infrastructure</a></strong> – Cloud hosting, regions, machine
+        resources, scaling</li>
+        </ul>
+        <h3 id="configuration-networking">Configuration &amp;
+        Networking</h3>
+        <ul>
+        <li><strong><a href="./nginx-and-routing.html">Nginx &amp;
+        Routing</a></strong> – Reverse proxy configuration and request
+        routing</li>
+        <li><strong><a
+        href="./environments-and-secrets.html">Environments &amp;
+        Secrets</a></strong> – Configuration management across
+        environments</li>
+        <li><strong><a href="./logs-and-observability.html">Logs &amp;
+        Observability</a></strong> – Logging architecture and
+        debugging</li>
+        </ul>
+        <h2 id="quick-reference-from-commit-to-production">Quick
+        Reference: From Commit to Production</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            participant Dev as Developer
+            participant Git as GitHub
+            participant CI as GitHub Actions
+            participant Docker as Docker Hub
+            participant Fly as Fly.io
+            participant App as Live App
+            
+            Dev->>Git: git push origin main
+            Git->>CI: Trigger 1-ci-test.yml
+            CI->>CI: mvn clean verify (build + test)
+            CI->>CI: docker build (prod profile)
+            CI->>CI: Trivy scan (security)
+            CI->>Docker: docker push (SHA + latest)
+            CI->>CI: Generate JaCoCo report
+            Docker->>Fly: Trigger 3-deploy-fly.yml
+            Fly->>Fly: flyctl deploy --image SHA
+            Fly->>App: Deploy to production
+            App->>App: Health check /health
+            App->>Dev: ✅ Deployment successful
+        </div>
+        <h2 id="troubleshooting-quick-links">Troubleshooting Quick
+        Links</h2>
+        <table>
+        <colgroup>
+        <col style="width: 41%" />
+        <col style="width: 58%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Issue</th>
+        <th>Location</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td>Build fails</td>
+        <td>See <a
+        href="./build-and-docker-image.html#troubleshooting">Build &amp;
+        Docker Image</a></td>
+        </tr>
+        <tr class="even">
+        <td>Docker image won’t push</td>
+        <td>See <a
+        href="./build-and-docker-image.html#docker-registry">Build &amp;
+        Docker Image</a></td>
+        </tr>
+        <tr class="odd">
+        <td>Trivy scan blocks deployment</td>
+        <td>See <a
+        href="./ci-cd-and-docs-pipeline.html#security-gates">CI/CD &amp;
+        Docs Pipeline</a></td>
+        </tr>
+        <tr class="even">
+        <td>App unhealthy after deploy</td>
+        <td>See <a
+        href="./flyio-infrastructure.html#health-checks">Fly.io
+        Infrastructure</a></td>
+        </tr>
+        <tr class="odd">
+        <td>Logs not visible</td>
+        <td>See <a href="./logs-and-observability.html">Logs &amp;
+        Observability</a></td>
+        </tr>
+        <tr class="even">
+        <td>Configuration not applied</td>
+        <td>See <a href="./environments-and-secrets.html">Environments
+        &amp; Secrets</a></td>
+        </tr>
+        </tbody>
+        </table>
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="../overview.html">Architecture
+        Overview</a></strong> – High-level system design and
+        components</li>
+        <li><strong><a href="../resources/index.html">Resources &amp;
+        Configuration</a></strong> – Application properties, Spring
+        profiles, database config</li>
+        <li><strong><a href="../layers/overview.html">Backend
+        Layers</a></strong> – Controller, Service, Repository
+        architecture</li>
+        <li><strong><a href="../devops/">DevOps &amp;
+        Infrastructure</a></strong> – Container orchestration, CI/CD
+        best practices</li>
+        </ul>
+        <hr />
+        <p><strong>Last Updated:</strong> November 2025<br />
+        <strong>Audience:</strong> DevOps engineers, backend developers,
+        SRE, deployment operators</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

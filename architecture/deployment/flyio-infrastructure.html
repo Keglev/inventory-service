@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+deployment/flyio-infrastructure · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#fly.io-infrastructure"
+        id="toc-fly.io-infrastructure">Fly.io Infrastructure</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#what-is-fly.io" id="toc-what-is-fly.io">What is
+        Fly.io?</a></li>
+        <li><a href="#configuration-fly.toml"
+        id="toc-configuration-fly.toml">Configuration:
+        <code>fly.toml</code></a>
+        <ul>
+        <li><a href="#file-location-purpose"
+        id="toc-file-location-purpose">File Location &amp;
+        Purpose</a></li>
+        <li><a href="#complete-example-configuration"
+        id="toc-complete-example-configuration">Complete Example
+        Configuration</a></li>
+        <li><a href="#key-sections" id="toc-key-sections">Key
+        Sections</a></li>
+        </ul></li>
+        <li><a href="#environment-specific-configuration"
+        id="toc-environment-specific-configuration">Environment-Specific
+        Configuration</a>
+        <ul>
+        <li><a href="#local-development"
+        id="toc-local-development">Local Development</a></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#production-fly.io"
+        id="toc-production-fly.io">Production (Fly.io)</a></li>
+        </ul></li>
+        <li><a href="#secrets-management"
+        id="toc-secrets-management">Secrets Management</a>
+        <ul>
+        <li><a href="#setting-secrets" id="toc-setting-secrets">Setting
+        Secrets</a></li>
+        <li><a href="#secret-mapping-to-java-properties"
+        id="toc-secret-mapping-to-java-properties">Secret Mapping to
+        Java Properties</a></li>
+        <li><a href="#oracle-wallet-secret"
+        id="toc-oracle-wallet-secret">Oracle Wallet Secret</a></li>
+        </ul></li>
+        <li><a href="#deployment-methods"
+        id="toc-deployment-methods">Deployment Methods</a>
+        <ul>
+        <li><a href="#method-1-automatic-recommended"
+        id="toc-method-1-automatic-recommended">Method 1: Automatic
+        (Recommended)</a></li>
+        <li><a href="#method-2-manual-from-local-machine"
+        id="toc-method-2-manual-from-local-machine">Method 2: Manual
+        from Local Machine</a></li>
+        <li><a href="#method-3-manual-via-workflow_dispatch"
+        id="toc-method-3-manual-via-workflow_dispatch">Method 3: Manual
+        via Workflow_Dispatch</a></li>
+        </ul></li>
+        <li><a href="#deployment-strategies"
+        id="toc-deployment-strategies">Deployment Strategies</a>
+        <ul>
+        <li><a href="#immediate-default"
+        id="toc-immediate-default">Immediate (Default)</a></li>
+        <li><a href="#canary" id="toc-canary">Canary</a></li>
+        <li><a href="#rolling" id="toc-rolling">Rolling</a></li>
+        </ul></li>
+        <li><a href="#scaling-instances"
+        id="toc-scaling-instances">Scaling &amp; Instances</a>
+        <ul>
+        <li><a href="#single-instance-default"
+        id="toc-single-instance-default">Single Instance
+        (Default)</a></li>
+        <li><a href="#multiple-instances"
+        id="toc-multiple-instances">Multiple Instances</a></li>
+        </ul></li>
+        <li><a href="#networking-tls" id="toc-networking-tls">Networking
+        &amp; TLS</a>
+        <ul>
+        <li><a href="#public-domain" id="toc-public-domain">Public
+        Domain</a></li>
+        <li><a href="#tls-certificates" id="toc-tls-certificates">TLS
+        Certificates</a></li>
+        <li><a href="#ip-address" id="toc-ip-address">IP
+        Address</a></li>
+        </ul></li>
+        <li><a href="#logs-monitoring" id="toc-logs-monitoring">Logs
+        &amp; Monitoring</a>
+        <ul>
+        <li><a href="#view-real-time-logs"
+        id="toc-view-real-time-logs">View Real-Time Logs</a></li>
+        <li><a href="#view-app-status" id="toc-view-app-status">View App
+        Status</a></li>
+        <li><a href="#metrics-monitoring"
+        id="toc-metrics-monitoring">Metrics &amp; Monitoring</a></li>
+        </ul></li>
+        <li><a href="#troubleshooting"
+        id="toc-troubleshooting">Troubleshooting</a>
+        <ul>
+        <li><a href="#app-wont-start-health-check-failed"
+        id="toc-app-wont-start-health-check-failed">App Won’t Start:
+        “Health check failed”</a></li>
+        <li><a href="#out-of-memory-java-heap-space"
+        id="toc-out-of-memory-java-heap-space">Out of Memory: “Java heap
+        space”</a></li>
+        <li><a
+        href="#deployment-stuck-waiting-for-deployment-to-be-healthy"
+        id="toc-deployment-stuck-waiting-for-deployment-to-be-healthy">Deployment
+        Stuck: “Waiting for deployment to be healthy”</a></li>
+        <li><a href="#cant-connect-to-database"
+        id="toc-cant-connect-to-database">Can’t Connect to
+        Database</a></li>
+        <li><a href="#need-to-rollback" id="toc-need-to-rollback">Need
+        to Rollback</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Deployment Index</a></p>
+        <h1 id="fly.io-infrastructure">Fly.io Infrastructure</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro backend runs on <strong>Fly.io</strong>, a
+        Docker-native hosting platform. The <code>fly.toml</code>
+        configuration file defines the app, machine resources, regions,
+        environment variables, and secrets.</p>
+        <p>This document explains: - App configuration and deployment
+        strategy - Machine resources (CPU, memory, storage) - Networking
+        (ports, health checks, TLS) - Secrets and environment variable
+        management - Scaling and instance configuration</p>
+        <h2 id="what-is-fly.io">What is Fly.io?</h2>
+        <p>Fly.io is a <strong>container-native PaaS</strong> that: -
+        Deploys Docker images to global infrastructure - Handles load
+        balancing, TLS, and routing - Provides secret management
+        (encrypted vault) - Supports horizontal scaling (multiple
+        instances per region) - Offers simple CLI-based deployment
+        (<code>flyctl deploy</code>)</p>
+        <p><strong>Alternative platforms:</strong> AWS ECS, Azure
+        Container Instances, Google Cloud Run, Heroku, DigitalOcean App
+        Platform.</p>
+        <h2 id="configuration-fly.toml">Configuration:
+        <code>fly.toml</code></h2>
+        <h3 id="file-location-purpose">File Location &amp; Purpose</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">app</span> <span class="op">=</span> <span class="st">&quot;inventoryservice&quot;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_region</span> <span class="op">=</span> <span class="st">&quot;iad&quot;</span>  <span class="co"># IAD = Washington, DC</span></span></code></pre></div>
+        <p><code>fly.toml</code> is the single source of truth for
+        Fly.io app configuration. It lives in repo root and is
+        version-controlled.</p>
+        <h3 id="complete-example-configuration">Complete Example
+        Configuration</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># =============================================================================</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fly.io App Configuration for Smart Supply Pro Backend</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># =============================================================================</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">app</span> <span class="op">=</span> <span class="st">&quot;inventoryservice&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_region</span> <span class="op">=</span> <span class="st">&quot;iad&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Build configuration (not used if deploying pre-built image)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[build]</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">image</span> <span class="op">=</span> <span class="st">&quot;ckbuzin/inventory-service:latest&quot;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># App machine resources</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Spring Boot profile: prod for production</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># App configuration</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">APP_DEMO_READONLY</span> <span class="op">=</span> <span class="st">&quot;false&quot;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">APP_FRONTEND_BASE_URL</span> <span class="op">=</span> <span class="st">&quot;https://inventory-service.koyeb.app&quot;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Logging</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">LOGGING_LEVEL_ROOT</span> <span class="op">=</span> <span class="st">&quot;INFO&quot;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">LOGGING_LEVEL_COM_EXAMPLE</span> <span class="op">=</span> <span class="st">&quot;INFO&quot;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Secrets (encrypted, not visible in logs)</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Database credentials (stored in Fly secrets vault)</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set via: flyctl secrets set DB_URL=jdbc:oracle:thin:@...</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Retrieved: &#39;flyctl secrets list&#39; (encrypted in logs)</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># OAuth2 secrets</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set via: flyctl secrets set GOOGLE_CLIENT_ID=...</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set via: flyctl secrets set GOOGLE_CLIENT_SECRET=...</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Oracle Wallet</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set via: flyctl secrets set ORACLE_WALLET_B64=...</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (base64-encoded wallet, extracted to /app/oracle_wallet at runtime)</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co"># HTTP/HTTPS service definition</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="kw">[[services]]</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="dt">internal_port</span> <span class="op">=</span> <span class="dv">8080</span>  <span class="co"># Port app listens on</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">protocol</span> <span class="op">=</span> <span class="st">&quot;tcp&quot;</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Auto TLS: Fly.io manages HTTPS certificate</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[[services.ports]]</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">port</span> <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">handlers</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;http&quot;</span><span class="op">]</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[[services.ports]]</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="dt">port</span> <span class="op">=</span> <span class="dv">443</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">handlers</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;tls&quot;</span><span class="op">,</span> <span class="st">&quot;http&quot;</span><span class="op">]</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="dt">alpn</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;h2&quot;</span><span class="op">,</span> <span class="st">&quot;http/1.1&quot;</span><span class="op">]</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Health check: Fly.io polls this endpoint to determine if app is healthy</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="kw">[[services.http_checks]]</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uri</span> <span class="op">=</span> <span class="st">&quot;/health&quot;</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  <span class="dt">interval</span> <span class="op">=</span> <span class="st">&quot;10s&quot;</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  <span class="dt">timeout</span> <span class="op">=</span> <span class="st">&quot;3s&quot;</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grace_period</span> <span class="op">=</span> <span class="st">&quot;30s&quot;</span>  <span class="co"># Wait 30s before starting health checks (app startup)</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>  <span class="dt">method</span> <span class="op">=</span> <span class="st">&quot;GET&quot;</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="co"># TCP health check: More robust than HTTP (works if HTTP fails)</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="kw">[[services.tcp_checks]]</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>  <span class="dt">interval</span> <span class="op">=</span> <span class="st">&quot;10s&quot;</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  <span class="dt">timeout</span> <span class="op">=</span> <span class="st">&quot;3s&quot;</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grace_period</span> <span class="op">=</span> <span class="st">&quot;30s&quot;</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Machine resources (VM size)</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="kw">[[vm]]</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="dt">cpu_kind</span> <span class="op">=</span> <span class="st">&quot;shared&quot;</span>  <span class="co"># Shared CPU (cost-effective)</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  <span class="dt">cpus</span> <span class="op">=</span> <span class="dv">1</span>             <span class="co"># 1 vCPU</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>  <span class="dt">memory_mb</span> <span class="op">=</span> <span class="dv">256</span>      <span class="co"># 256 MB RAM</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="co"># Volumes (persistent storage)</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Fly.io ephemeral storage is temporary; use volumes for persistence</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="co"># [[mounts]]</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a><span class="co">#   source = &quot;logs&quot;</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="co">#   destination = &quot;/app/logs&quot;</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="co">#   size_gb = 1</span></span></code></pre></div>
+        <h3 id="key-sections">Key Sections</h3>
+        <h4 id="app-name-region">App Name &amp; Region</h4>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">app</span> <span class="op">=</span> <span class="st">&quot;inventoryservice&quot;</span>                <span class="co"># Unique app name in Fly.io</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">primary_region</span> <span class="op">=</span> <span class="st">&quot;iad&quot;</span>                  <span class="co"># Washington, DC (low-latency for US East)</span></span></code></pre></div>
+        <p>Available regions: <code>iad</code> (DC), <code>ord</code>
+        (Chicago), <code>sfo</code> (San Francisco), <code>lhr</code>
+        (London), <code>sin</code> (Singapore), etc.</p>
+        <h4 id="environment-variables">Environment Variables</h4>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">APP_DEMO_READONLY</span> <span class="op">=</span> <span class="st">&quot;false&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">LOGGING_LEVEL_ROOT</span> <span class="op">=</span> <span class="st">&quot;INFO&quot;</span></span></code></pre></div>
+        <ul>
+        <li><strong>Non-sensitive config</strong> goes in
+        <code>[env]</code> section (visible in logs, git-safe)</li>
+        <li><strong>Sensitive data</strong> (passwords, API keys) goes
+        in <code>flyctl secrets</code> (encrypted vault)</li>
+        </ul>
+        <h4 id="services-httphttps">Services: HTTP/HTTPS</h4>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[services]]</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">internal_port</span> <span class="op">=</span> <span class="dv">8080</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[[services.ports]]</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">port</span> <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">handlers</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;http&quot;</span><span class="op">]</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">[[services.ports]]</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">port</span> <span class="op">=</span> <span class="dv">443</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">handlers</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;tls&quot;</span><span class="op">,</span> <span class="st">&quot;http&quot;</span><span class="op">]</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">alpn</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;h2&quot;</span><span class="op">,</span> <span class="st">&quot;http/1.1&quot;</span><span class="op">]</span></span></code></pre></div>
+        <ul>
+        <li><code>internal_port = 8080</code> – Backend listens on port
+        8080 (inside container)</li>
+        <li><code>port = 80/443</code> – Fly.io exposes these
+        publicly</li>
+        <li>Fly.io <strong>automatically manages TLS
+        certificates</strong> (HTTPS)</li>
+        <li>Requests are automatically redirected: <code>http://</code>
+        → <code>https://</code></li>
+        </ul>
+        <h4 id="health-checks">Health Checks</h4>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[services.http_checks]]</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uri</span> <span class="op">=</span> <span class="st">&quot;/health&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">interval</span> <span class="op">=</span> <span class="st">&quot;10s&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">timeout</span> <span class="op">=</span> <span class="st">&quot;3s&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grace_period</span> <span class="op">=</span> <span class="st">&quot;30s&quot;</span></span></code></pre></div>
+        <ul>
+        <li>Flies.io polls <code>/health</code> every 10 seconds</li>
+        <li>Expects HTTP 200 response within 3 seconds</li>
+        <li>Doesn’t start health checks until 30 seconds after boot (app
+        startup time)</li>
+        <li>If health check fails 3 times, instance is marked unhealthy
+        and restarted</li>
+        </ul>
+        <p><strong>Your <code>/health</code> endpoint</strong> (Spring
+        Boot Actuator):</p>
+        <pre><code>GET /health
+Response: { &quot;status&quot;: &quot;UP&quot; }</code></pre>
+        <h4 id="machine-resources">Machine Resources</h4>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[vm]]</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">cpu_kind</span> <span class="op">=</span> <span class="st">&quot;shared&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">cpus</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">memory_mb</span> <span class="op">=</span> <span class="dv">256</span></span></code></pre></div>
+        <ul>
+        <li><code>cpu_kind = "shared"</code> – CPU is time-sliced with
+        other apps (cost-effective)</li>
+        <li><code>cpus = 1</code> – 1 vCPU core (adequate for moderate
+        traffic)</li>
+        <li><code>memory_mb = 256</code> – 256 MB RAM (tight; see
+        Troubleshooting)</li>
+        </ul>
+        <h2 id="environment-specific-configuration">Environment-Specific
+        Configuration</h2>
+        <h3 id="local-development">Local Development</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env file (not in repo)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="va">DB_URL</span><span class="op">=</span>jdbc:oracle:thin:@localhost:1521/orcl</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="va">DB_USER</span><span class="op">=</span>inventoryuser</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="va">DB_PASS</span><span class="op">=</span>password123</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="va">SPRING_PROFILES_ACTIVE</span><span class="op">=</span>dev</span></code></pre></div>
+        <p>No Fly.io involved; app runs locally or in
+        docker-compose.</p>
+        <h3 id="testing">Testing</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># application-test.yml in repo</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">spring:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">datasource:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">url:</span> jdbc:h2:mem:ssp<span class="kw">;</span><span class="va">MODE</span><span class="op">=</span>Oracle<span class="kw">;</span><span class="ex">...</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">username:</span> sa</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">password:</span> </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">profiles:</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">active:</span> test</span></code></pre></div>
+        <p>H2 in-memory database; tests run locally.</p>
+        <h3 id="production-fly.io">Production (Fly.io)</h3>
+        <p><strong>fly.toml:</strong></p>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">SPRING_PROFILES_ACTIVE</span> <span class="op">=</span> <span class="st">&quot;prod&quot;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Secrets (set via CLI):</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># flyctl secrets set DB_URL=jdbc:oracle:thin:@...</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># flyctl secrets set DB_USER=inventoryuser</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># flyctl secrets set DB_PASS=encrypted_password</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># flyctl secrets set GOOGLE_CLIENT_ID=...</span></span></code></pre></div>
+        <p><strong>Result:</strong> App runs with prod profile, using
+        Oracle database, info-level logging.</p>
+        <h2 id="secrets-management">Secrets Management</h2>
+        <h3 id="setting-secrets">Setting Secrets</h3>
+        <p>Secrets are stored in Fly.io’s encrypted vault and injected
+        as environment variables:</p>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a secret</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set DB_URL=<span class="st">&quot;jdbc:oracle:thin:@db.example.com:1521/service&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set DB_USER=<span class="st">&quot;inventoryuser&quot;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set DB_PASS=<span class="st">&quot;encrypted_password_here&quot;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Set multiple at once</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set DB_URL=... DB_USER=... DB_PASS=...</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># List secrets (encrypted in output)</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets list</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove a secret</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets unset DB_URL</span></code></pre></div>
+        <h3 id="secret-mapping-to-java-properties">Secret Mapping to
+        Java Properties</h3>
+        <p>Fly.io injects secrets as environment variables; Spring Boot
+        maps them to properties:</p>
+        <pre><code>ENV VARIABLE          →  SPRING PROPERTY
+─────────────────────────────────────────────────────
+DB_URL                →  spring.datasource.url
+DB_USER               →  spring.datasource.username
+DB_PASS               →  spring.datasource.password
+GOOGLE_CLIENT_ID      →  spring.security.oauth2.client.registration.google.client-id
+GOOGLE_CLIENT_SECRET  →  spring.security.oauth2.client.registration.google.client-secret
+ORACLE_WALLET_B64     →  (extracted by start.sh to /app/oracle_wallet)
+TNS_ADMIN             →  (set by start.sh to /app/oracle_wallet)</code></pre>
+        <h3 id="oracle-wallet-secret">Oracle Wallet Secret</h3>
+        <p>The Oracle Wallet (encrypted credentials) is stored as a
+        base64-encoded secret:</p>
+        <div class="sourceCode" id="cb14"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Locally: create wallet (Oracle Client steps)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Encode wallet as base64</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-czf</span> wallet.tar.gz oracle_wallet/</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">base64</span> wallet.tar.gz <span class="kw">|</span> <span class="fu">tr</span> <span class="at">-d</span> <span class="st">&#39;\n&#39;</span> <span class="op">&gt;</span> wallet_b64.txt</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Set as Fly.io secret</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set ORACLE_WALLET_B64=<span class="st">&quot;</span><span class="va">$(</span><span class="fu">cat</span> wallet_b64.txt<span class="va">)</span><span class="st">&quot;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># In start.sh (at runtime):</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;</span><span class="va">${ORACLE_WALLET_B64}</span><span class="st">&quot;</span> <span class="kw">|</span> <span class="fu">base64</span> <span class="at">-d</span> <span class="kw">|</span> <span class="fu">tar</span> <span class="at">-xzf</span> <span class="at">-</span> <span class="at">-C</span> /app/</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">TNS_ADMIN</span><span class="op">=</span>/app/oracle_wallet</span></code></pre></div>
+        <h2 id="deployment-methods">Deployment Methods</h2>
+        <h3 id="method-1-automatic-recommended">Method 1: Automatic
+        (Recommended)</h3>
+        <p>GitHub Actions <code>3-deploy-fly.yml</code> deploys
+        automatically after CI success:</p>
+        <div class="sourceCode" id="cb15"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> deploy <span class="at">--image</span> ckbuzin/inventory-service:<span class="va">${COMMIT_SHA}</span> <span class="dt">\</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--strategy</span> immediate <span class="dt">\</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--remote-only</span></span></code></pre></div>
+        <ul>
+        <li>Image is pre-built, pre-tested, pre-scanned</li>
+        <li>Deployment is atomic (all or nothing)</li>
+        <li>No local setup required</li>
+        </ul>
+        <h3 id="method-2-manual-from-local-machine">Method 2: Manual
+        from Local Machine</h3>
+        <div class="sourceCode" id="cb16"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install flyctl</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-L</span> https://fly.io/install.sh <span class="kw">|</span> <span class="fu">sh</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Authenticate</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> auth login</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Deploy pre-built image</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> deploy <span class="at">--image</span> ckbuzin/inventory-service:latest <span class="at">--app</span> inventoryservice</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Or build and deploy from source</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> deploy <span class="at">--build-only</span> <span class="at">--app</span> inventoryservice</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> deploy <span class="at">--image</span> ckbuzin/inventory-service:latest <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <h3 id="method-3-manual-via-workflow_dispatch">Method 3: Manual
+        via Workflow_Dispatch</h3>
+        <div class="sourceCode" id="cb17"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In GitHub UI: Actions → 3-deploy-fly.yml → Run workflow</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Fill in:</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   - image_tag: latest (or commit SHA)</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   - deployment_strategy: immediate (or canary/rolling)</span></span></code></pre></div>
+        <h2 id="deployment-strategies">Deployment Strategies</h2>
+        <h3 id="immediate-default">Immediate (Default)</h3>
+        <div class="sourceCode" id="cb18"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="at">--strategy immediate</span></span></code></pre></div>
+        <ul>
+        <li>All instances replaced simultaneously</li>
+        <li><strong>Downtime:</strong> Brief (seconds to minutes)</li>
+        <li><strong>Risk:</strong> Higher (all instances new at
+        once)</li>
+        <li><strong>Speed:</strong> Fastest</li>
+        <li><strong>Use case:</strong> Non-critical updates, demos,
+        testing</li>
+        </ul>
+        <h3 id="canary">Canary</h3>
+        <div class="sourceCode" id="cb19"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">--strategy canary</span></span></code></pre></div>
+        <ul>
+        <li>New version deployed to 1 instance</li>
+        <li>Health checks run on canary instance</li>
+        <li>If healthy, remaining instances updated</li>
+        <li>If unhealthy, rollback (old version stays)</li>
+        <li><strong>Downtime:</strong> Zero (old instances still
+        running)</li>
+        <li><strong>Risk:</strong> Lower (canary validates first)</li>
+        <li><strong>Speed:</strong> Slower (staged rollout)</li>
+        <li><strong>Use case:</strong> Critical updates, production
+        safety</li>
+        </ul>
+        <h3 id="rolling">Rolling</h3>
+        <div class="sourceCode" id="cb20"><pre
+        class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="at">--strategy rolling</span></span></code></pre></div>
+        <ul>
+        <li>Instances updated one at a time</li>
+        <li>At least one instance always running old version
+        initially</li>
+        <li>Health checks run after each instance update</li>
+        <li><strong>Downtime:</strong> Zero (rolling replacement)</li>
+        <li><strong>Risk:</strong> Low (gradual, validated rollout)</li>
+        <li><strong>Speed:</strong> Slowest (sequential updates)</li>
+        <li><strong>Use case:</strong> Long-running sessions,
+        zero-downtime requirement</li>
+        </ul>
+        <h2 id="scaling-instances">Scaling &amp; Instances</h2>
+        <h3 id="single-instance-default">Single Instance (Default)</h3>
+        <div class="sourceCode" id="cb21"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Current config: 1 instance in primary_region</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> instances list <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <p>Output:</p>
+        <pre><code>ID              NAME                    STATE   REGION  CPU  MEMORY  
+4d8900b1d9  inventory-service-app-1 RUNNING iad     1    256MB</code></pre>
+        <h3 id="multiple-instances">Multiple Instances</h3>
+        <div class="sourceCode" id="cb23"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale to 2 instances</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> scale count 2 <span class="at">--app</span> inventoryservice</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Or scale to 0 (stop app)</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> scale count 0 <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <p>Benefits: - <strong>Load balancing:</strong> Traffic
+        distributed across instances - <strong>Availability:</strong> If
+        one instance fails, others handle requests -
+        <strong>Zero-downtime deploys:</strong> Old instances can serve
+        while new ones boot</p>
+        <h2 id="networking-tls">Networking &amp; TLS</h2>
+        <h3 id="public-domain">Public Domain</h3>
+        <pre><code>inventoryservice.fly.dev  (Fly.io provided)</code></pre>
+        <p>Your custom domain:</p>
+        <div class="sourceCode" id="cb25"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> certs create inventoryservice.example.com <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <h3 id="tls-certificates">TLS Certificates</h3>
+        <p>Fly.io <strong>automatically manages TLS</strong> (Let’s
+        Encrypt): - Certificates are obtained automatically -
+        Auto-renewal before expiry - HTTPS enforced (HTTP redirects to
+        HTTPS) - HTTP/2 support</p>
+        <h3 id="ip-address">IP Address</h3>
+        <div class="sourceCode" id="cb26"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get app&#39;s public IP</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> ips list <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <p>Output:</p>
+        <pre><code>TYPE ADDRESS                                 REGION
+v4   203.0.113.45                             iad
+v6   2604:1380:0:1::1                        iad</code></pre>
+        <p>This IP is used for: - DNS records (A/AAAA) - Firewall rules
+        (allow specific IPs) - IP whitelisting at database (Oracle)</p>
+        <h2 id="logs-monitoring">Logs &amp; Monitoring</h2>
+        <h3 id="view-real-time-logs">View Real-Time Logs</h3>
+        <div class="sourceCode" id="cb28"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Last 50 lines</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="at">-n</span> 50</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Follow in real-time</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="at">--follow</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter by log level</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="kw">|</span> <span class="fu">grep</span> ERROR</span></code></pre></div>
+        <h3 id="view-app-status">View App Status</h3>
+        <div class="sourceCode" id="cb29"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> status <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <p>Output shows: - Instances (running/crashed) - Recent
+        deployments - Health check status - Resource usage (CPU,
+        memory)</p>
+        <h3 id="metrics-monitoring">Metrics &amp; Monitoring</h3>
+        <div class="sourceCode" id="cb30"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show current resource usage</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> status <span class="at">--detailed</span> <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <ul>
+        <li>CPU usage (%)</li>
+        <li>Memory usage (MB)</li>
+        <li>Requests per second (if enabled)</li>
+        <li>Error rate (if enabled)</li>
+        </ul>
+        <p>Future: Integration with Prometheus, Grafana, Datadog.</p>
+        <h2 id="troubleshooting">Troubleshooting</h2>
+        <h3 id="app-wont-start-health-check-failed">App Won’t Start:
+        “Health check failed”</h3>
+        <p><strong>Symptom:</strong> App crashes immediately after
+        deploy</p>
+        <pre><code>Error: Service started but not responding. Restarting...</code></pre>
+        <p><strong>Causes:</strong> 1. Database not reachable (Oracle
+        down, IP not whitelisted) 2. Secrets not set (DB_URL,
+        credentials missing) 3. Port mismatch (app listens on 8081, Fly
+        expects 8080) 4. Java heap too small for JVM startup</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb32"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check logs for error message</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> logs <span class="at">--app</span> inventoryservice <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-50</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify secrets are set</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets list <span class="at">--app</span> inventoryservice</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale down to stop repeated restarts</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> scale count 0 <span class="at">--app</span> inventoryservice</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix the issue, then redeploy</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> deploy <span class="at">--image</span> ckbuzin/inventory-service:fixed-sha <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <h3 id="out-of-memory-java-heap-space">Out of Memory: “Java heap
+        space”</h3>
+        <p><strong>Symptom:</strong> Requests fail with
+        <code>OutOfMemoryError</code></p>
+        <pre><code>java.lang.OutOfMemoryError: Java heap space</code></pre>
+        <p><strong>Cause:</strong> 256 MB machine too small; JVM heap
+        exhausted</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb34"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[vm]]</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">cpu_kind</span> <span class="op">=</span> <span class="st">&quot;shared&quot;</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">cpus</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">memory_mb</span> <span class="op">=</span> <span class="dv">512</span>  <span class="co"># Increase from 256 to 512 MB</span></span></code></pre></div>
+        <p>In <code>start.sh</code>, adjust JVM heap:</p>
+        <div class="sourceCode" id="cb35"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">JAVA_OPTS</span><span class="op">=</span><span class="st">&quot;-Xmx384m -Xms192m&quot;</span>  <span class="co"># Heap: 192-384 MB (from 256-512 MB RAM)</span></span></code></pre></div>
+        <p>Redeploy and monitor.</p>
+        <h3
+        id="deployment-stuck-waiting-for-deployment-to-be-healthy">Deployment
+        Stuck: “Waiting for deployment to be healthy”</h3>
+        <p><strong>Symptom:</strong> Deploy doesn’t complete; health
+        check times out</p>
+        <pre><code>Error: Deployment failed. Instance 4d8900b1d9 failed to start.
+Timeout waiting for health check to pass.</code></pre>
+        <p><strong>Causes:</strong> 1. App startup takes &gt; 30 seconds
+        (grace_period too short) 2. Health check endpoint
+        <code>/health</code> not implemented 3. Database connectivity
+        issue during startup</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb37"><pre
+        class="sourceCode toml"><code class="sourceCode toml"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[services.http_checks]]</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grace_period</span> <span class="op">=</span> <span class="st">&quot;60s&quot;</span>  <span class="co"># Increase from 30s to 60s (for slow startup)</span></span></code></pre></div>
+        <p>Or implement <code>/health</code> endpoint:</p>
+        <div class="sourceCode" id="cb38"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="at">@RestController</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> HealthController <span class="op">{</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">@GetMapping</span><span class="op">(</span><span class="st">&quot;/health&quot;</span><span class="op">)</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span> <span class="bu">Map</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">,</span> <span class="bu">String</span><span class="op">&gt;</span> <span class="fu">health</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">Map</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="st">&quot;status&quot;</span><span class="op">,</span> <span class="st">&quot;UP&quot;</span><span class="op">);</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p>Redeploy.</p>
+        <h3 id="cant-connect-to-database">Can’t Connect to Database</h3>
+        <p><strong>Symptom:</strong> Connection errors in logs</p>
+        <pre><code>ORA-17008: Connection refused
+jdbc.SQLRecoverableException: IO Error: Connection refused</code></pre>
+        <p><strong>Causes:</strong> 1. Oracle IP not whitelisted (Fly.io
+        IP not allowed) 2. Database credentials wrong (DB_PASS, DB_USER)
+        3. Database down</p>
+        <p><strong>Resolution:</strong></p>
+        <div class="sourceCode" id="cb40"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get your Fly.io IP</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> ips list <span class="at">--app</span> inventoryservice</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add to Oracle whitelist (via Oracle Cloud console or SQL*Net)</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="ex">ALTER</span> SESSION SET EVENTS <span class="st">&#39;10046 trace name context forever, level 12&#39;</span><span class="kw">;</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="ex">--</span> <span class="er">(</span><span class="ex">Contact</span> DBA to whitelist IP<span class="kw">)</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify secrets</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets list <span class="at">--app</span> inventoryservice</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Re-set if wrong</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set DB_URL=jdbc:oracle:thin:@prod-db.example.com:1521/service</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> secrets set DB_PASS=correct_password</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Redeploy</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> deploy <span class="at">--image</span> ... <span class="at">--app</span> inventoryservice</span></code></pre></div>
+        <h3 id="need-to-rollback">Need to Rollback</h3>
+        <p><strong>Symptom:</strong> Latest deployment introduced a
+        bug</p>
+        <pre><code>ERROR: [Service 4d8900b1d9] endpoint returned HTTP 500</code></pre>
+        <p><strong>Solution:</strong></p>
+        <div class="sourceCode" id="cb42"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Deploy previous version</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="ex">flyctl</span> deploy <span class="at">--image</span> ckbuzin/inventory-service:previous-commit-sha <span class="dt">\</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--app</span> inventoryservice</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Or via GitHub Actions: Manually run 3-deploy-fly.yml with old image_tag</span></span></code></pre></div>
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Deployment Index</a></strong>
+        – Overview of deployment pipeline</li>
+        <li><strong><a href="./build-and-docker-image.html">Build &amp;
+        Docker Image</a></strong> – How image is created</li>
+        <li><strong><a href="./ci-cd-and-docs-pipeline.html">CI/CD &amp;
+        Docs Pipeline</a></strong> – Automated deployment trigger</li>
+        <li><strong><a href="./logs-and-observability.html">Logs &amp;
+        Observability</a></strong> – Debugging in production</li>
+        </ul>
+        <hr />
+        <p><strong>Last Updated:</strong> November 2025<br />
+        <strong>Audience:</strong> DevOps engineers, SRE, deployment
+        operators, cloud infrastructure team</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -125,6 +125,9 @@
         <li><a href="#konfiguration-ressourcen"
         id="toc-konfiguration-ressourcen">Konfiguration &amp;
         Ressourcen</a></li>
+        <li><a href="#bereitstellung-operationen"
+        id="toc-bereitstellung-operationen">Bereitstellung &amp;
+        Operationen</a></li>
         <li><a href="#nächste-schritte"
         id="toc-nächste-schritte">Nächste Schritte</a></li>
         </ul></li>
@@ -554,6 +557,96 @@
         Message-Properties-Dateien</li>
         </ul></li>
         </ul>
+        <h2 id="bereitstellung-operationen">Bereitstellung &amp;
+        Operationen</h2>
+        <p>Smart Supply Pro verwendet eine <strong>vollständig
+        automatisierte Bereitstellungs-Pipeline</strong> vom Quellcode
+        zur Produktions-Cloud-Infrastruktur:</p>
+        <p><strong>Umfassende Bereitstellungsdokumentation:</strong></p>
+        <ul>
+        <li><strong><a
+        href="./deployment/index.html">Bereitstellungsindex</a></strong>
+        - Hub für alle Bereitstellungs- und Infrastrukturdokumentation
+        <ul>
+        <li>End-to-End-Bereitstellungsfluss: Quellcode → Maven → Docker
+        → Fly.io</li>
+        <li>Beteiligte Dateien, Ordner und Querverweise</li>
+        <li>Schnellgarde für die Fehlerbehebung</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/build-and-docker-image.html">Build &amp;
+        Docker-Image</a></strong> - Wie das Backend kompiliert und
+        verpackt wird
+        <ul>
+        <li>Maven-Build-Pipeline (Compile-, Test-, Package-Phasen)</li>
+        <li>Multi-Stage-Dockerfile (Builder-Phase, Runtime-Phase)</li>
+        <li>Docker-Image-Validierung und Inhaltsverifikation</li>
+        <li>Build-Argumente und umgebungsspezifische Images</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/ci-cd-and-docs-pipeline.html">CI/CD &amp;
+        Dokumentations-Pipeline</a></strong> - GitHub
+        Actions-Automatisierung
+        <ul>
+        <li>1-ci-test.yml: Build, Test, Docker-Image,
+        Sicherheitsscan</li>
+        <li>docs-pipeline.yml: Generieren Sie OpenAPI- und
+        Architektur-Dokumentation</li>
+        <li>2-deploy-ghpages.yml: Veröffentlichen Sie Docs auf GitHub
+        Pages</li>
+        <li>Tools: Redocly, Pandoc, Lua-Filter für
+        Mermaid-Diagramme</li>
+        <li>Artefakt-Fluss und GitHub Actions-Secrets</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/flyio-infrastructure.html">Fly.io-Infrastruktur</a></strong>
+        - Cloud-Hosting-Konfiguration
+        <ul>
+        <li>fly.toml: App-Name, Regionen, Maschinen-Ressourcen,
+        Umgebungsvariablen, Secrets</li>
+        <li>Integritätsprüfungen und Bereitstellungsstrategien
+        (unmittelbar, Canary, Rolling)</li>
+        <li>Skalierung und Instanz-Management</li>
+        <li>TLS/HTTPS-Konfiguration und Domain-Setup</li>
+        <li>Fehlerbehebung bei häufigen Bereitstellungsproblemen</li>
+        </ul></li>
+        <li><strong><a href="./deployment/nginx-and-routing.html">Nginx
+        &amp; Routing</a></strong> - Umgekehrter Proxy und
+        Request-Routing
+        <ul>
+        <li>Nginx-Konfigurationsstruktur und Zweck</li>
+        <li>Umgekehrter Proxy zum Backend, Frontend-Dateiservering</li>
+        <li>SPA-Routing, GZIP-Komprimierung, Header-Weiteleitung</li>
+        <li>Multi-Process-Container-Setup mit start.sh</li>
+        <li>Performance-Optimierung und Connection Pooling</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/environments-and-secrets.html">Umgebungen
+        &amp; Secrets</a></strong> - Konfigurationsverwaltung über
+        Umgebungen
+        <ul>
+        <li>Lokale Entwicklung (.env-Datei, lokales
+        Datenbank-Setup)</li>
+        <li>GitHub Actions CI (Secrets-Vault, Umgebungsvariablen)</li>
+        <li>Fly.io Produktion (verschlüsselte Secrets,
+        Umgebungskonfiguration)</li>
+        <li>Secret-Mapping: ENV VAR → Spring-Property-Konvention</li>
+        <li>Sensitive Values Checklist und Schutzstrategien</li>
+        </ul></li>
+        <li><strong><a
+        href="./deployment/logs-and-observability.html">Protokolle &amp;
+        Observability</a></strong> - Protokollierung und Debugging in
+        der Produktion
+        <ul>
+        <li>SLF4J + Logback-Architektur</li>
+        <li>Log-Ebenen nach Umgebung (DEBUG dev, INFO prod)</li>
+        <li>Wohin Logs gehen (Konsole, Dateien, Fly.io)</li>
+        <li>Logs mit flyctl CLI anzeigen</li>
+        <li>Häufige Protokollierungsmuster und Fehlerbehebung</li>
+        <li>Zukünftige Monitoring-Hooks (Micrometer, Sleuth, Health
+        Checks)</li>
+        </ul></li>
+        </ul>
         <h2 id="nächste-schritte">Nächste Schritte</h2>
         <ol type="1">
         <li><strong>Erkunden Sie <a
@@ -599,6 +692,10 @@
         <li><strong>Studieren Sie <a
         href="./testing.html">Test-Strategie</a></strong> - Test-Muster
         und Best Practices</li>
+        <li><strong>Überprüfen Sie <a
+        href="./deployment/index.html">Bereitstellung &amp;
+        Operationen</a></strong> - Vollständige Bereitstellungs-Pipeline
+        und Infrastruktur</li>
         <li><strong>Untersuchen Sie den Quellcode</strong> - Navigieren
         Sie zu
         <code>/src/main/java/com/smartsupplypro/inventory/</code></li>
