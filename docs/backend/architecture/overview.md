@@ -324,11 +324,12 @@ graph TB
 3. **Study [Repository Layer](./repository/index.html)** - Data access abstraction with 7 repositories (SupplierRepository, InventoryItemRepository, StockHistoryRepository, AppUserRepository, plus 3 custom analytics mixins using JPQL and native SQL)
 4. **Check [Configuration Management](./config/index.html)** - Application properties, profiles, environment setup
 5. **Review [Security Architecture](./security/index.html)** - OAuth2 authentication, role-based access control, database encryption, Docker security, and demo mode
-6. Check [Data Models](./model/index.html) - Comprehensive entity documentation (Supplier, InventoryItem, StockHistory, AppUser) with relationships, lifecycle, usage examples, and testing
-7. Study [Enums Reference](./enums/index.html) - Type-safe enumerations and their business logic (Role, StockChangeReason, AuditSeverity)
-8. Study [DTOs & Data Transfer Objects](./dto/index.html) - Comprehensive documentation of all DTOs with conventions, validation, mappers, pagination, and response patterns
-9. Study [Testing Strategy](./testing.html) - Testing patterns and best practices
-10. Examine the source code - Navigate `/src/main/java/com/smartsupplypro/inventory/`
+6. **Explore [Validation Framework](./validation/index.html)** - Multi-layer validation with JSR-380 constraints, custom validators, exception handling, and validation patterns
+7. Check [Data Models](./model/index.html) - Comprehensive entity documentation (Supplier, InventoryItem, StockHistory, AppUser) with relationships, lifecycle, usage examples, and testing
+8. Study [Enums Reference](./enums/index.html) - Type-safe enumerations and their business logic (Role, StockChangeReason, AuditSeverity)
+9. Study [DTOs & Data Transfer Objects](./dto/index.html) - Comprehensive documentation of all DTOs with conventions, validation, mappers, pagination, and response patterns
+10. Study [Testing Strategy](./testing.html) - Testing patterns and best practices
+11. Examine the source code - Navigate `/src/main/java/com/smartsupplypro/inventory/`
 
 ---
 
