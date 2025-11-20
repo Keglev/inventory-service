@@ -36,6 +36,7 @@ import type { InventoryListResponse, InventoryRow } from '../../api/inventory';
 import { InventoryFilters } from './InventoryFilters';
 
 import { ItemFormDialog } from './ItemFormDialog';
+import { EditItemDialog } from './EditItemDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
 import { useToast } from '../../app/ToastContext';
@@ -131,6 +132,7 @@ const Inventory: React.FC = () => {
   // -----------------------------
   const [openNew, setOpenNew] = React.useState(false);
   const [openEdit, setOpenEdit] = React.useState(false);
+  const [openEditName, setOpenEditName] = React.useState(false);
   const [openAdjust, setOpenAdjust] = React.useState(false);
   const [openPrice, setOpenPrice] = React.useState(false);
 
@@ -267,7 +269,7 @@ const Inventory: React.FC = () => {
           <Button variant="contained" onClick={() => setOpenNew(true)}>
             {t('inventory:newItem', 'Add new item')}
           </Button>
-          <Button disabled={!selectedRow} onClick={() => setOpenEdit(true)}>
+          <Button disabled={!selectedRow} onClick={() => setOpenEditName(true)}>
             {t('actions.edit', 'Edit')}
           </Button>
           <Button onClick={() => setOpenAdjust(true)}>
@@ -396,6 +398,12 @@ const Inventory: React.FC = () => {
         open={openNew}
         onClose={() => setOpenNew(false)}
         onSaved={handleItemSaved}
+      />
+
+      <EditItemDialog
+        open={openEditName}
+        onClose={() => setOpenEditName(false)}
+        onItemRenamed={load}
       />
 
       {selectedRow && (

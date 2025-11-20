@@ -39,6 +39,7 @@
   "step2SelectItem": "Schritt 2: Artikel auswählen",
   "step3AdjustQuantity": "Schritt 3: Menge anpassen",
   "step3ChangePrice": "Schritt 3: Preis ändern",
+  "step3EditName": "Schritt 3: Artikelname ändern",
   "selectSupplierPlaceholder": "Lieferant auswählen...",
   "item": "Artikel",
   "currentStock": "Aktuell: {{quantity}}",
@@ -62,6 +63,9 @@
   "setQuantityHint": "Menge wird auf {{quantity}} gesetzt",
   "priceNotAvailable": "Preis: N/V",
   "qtyNotAvailable": "Menge: N/V",
+  "change": "Ändern",
+  "itemRenamed": "Artikelname erfolgreich geändert!",
+  "renameItemFailed": "Fehler beim Ändern des Artikelnamens. Bitte versuchen Sie es erneut.",
   "reasons": {
     "initial_stock": "Anfangsbestand",
     "manual_update": "Manuelle Anpassung",

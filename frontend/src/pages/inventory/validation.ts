@@ -60,3 +60,21 @@ export const priceChangeSchema = z.object({
 });
 
 export type PriceChangeForm = z.infer<typeof priceChangeSchema>;
+
+/**
+ * Schema for editing item names.
+ * Used in edit item dialogs.
+ * 
+ * @validation
+ * - itemId: Required, identifies which item to update
+ * - newName: Must not be empty, should be different from current name
+ * 
+ * @note Backend validates that the new name is not a duplicate for the same supplier
+ * @note Only ADMIN users can change item names
+ */
+export const editItemSchema = z.object({
+  itemId: z.string().min(1, 'Item selection is required'),
+  newName: z.string().min(1, 'Item name is required'),
+});
+
+export type EditItemForm = z.infer<typeof editItemSchema>;

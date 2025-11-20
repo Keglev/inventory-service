@@ -194,4 +194,33 @@ public class InventoryItemController {
         return inventoryItemService.updatePrice(id, price);
     }
 
+    /**
+     * Renames an inventory item (changes the item name).
+     * Only ADMIN users can rename items.
+     *
+     * @param id   item identifier
+     * @param name new item name (must not be empty)
+     * @return updated inventory item
+     * @throws ResponseStatusException 400 if name is empty
+     * @throws ResponseStatusException 404 if item not found
+     * @throws ResponseStatusException 409 if name already exists for the same supplier
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/name")
+    public InventoryItemDTO renameItem(@PathVariable String id,
+                                       @RequestParam String name) {
+        try {
+            return inventoryItemService.renameItem(id, name);
+        } catch (IllegalArgumentException e) {
+            String message = e.getMessage();
+            if (message != null && message.contains("empty")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+            } else if (message != null && message.contains("already exists")) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, message);
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);
+            }
+        }
+    }
+
 }

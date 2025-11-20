@@ -225,6 +225,28 @@ export async function changePrice(req: ChangePriceRequest): Promise<boolean> {
 }
 
 /**
+ * Rename an inventory item (change item name).
+ * @enterprise Server commonly exposes: PATCH /{id}/name?name=
+ * @param req - Rename payload with item id and new name
+ * @returns Object with ok status and optional error message
+ * @note Only ADMIN users can rename items
+ * @note Backend validates that the new name is not a duplicate for the same supplier
+ */
+export async function renameItem(req: { id: string; newName: string }): Promise<UpsertItemResponse> {
+  try {
+    const res = await http.patch(
+      `${INVENTORY_BASE}/${encodeURIComponent(req.id)}/name`,
+      null,
+      { params: { name: req.newName } }
+    );
+    const row = toRow(res?.data as unknown);
+    return { ok: true, item: row ?? undefined };
+  } catch (e: unknown) {
+    return { ok: false, error: errorMessage(e) };
+  }
+}
+
+/**
  * Supplier list for pickers (tolerant).
  * Accepts: raw array OR envelopes { items: [...] } / { content: [...] }.
  */

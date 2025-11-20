@@ -266,4 +266,45 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         
         return InventoryItemMapper.toDTO(saved);
     }
+
+    /**
+     * Renames an inventory item (changes the item name).
+     * Validates that the new name is not a duplicate for the same supplier.
+     *
+     * @param id the unique identifier of the item
+     * @param newName the new item name (must not be empty)
+     * @return the updated inventory item as DTO
+     * @throws IllegalArgumentException if name is empty or already exists for this supplier
+     * @throws IllegalArgumentException if item not found
+     */
+    @Override
+    @Transactional
+    public InventoryItemDTO renameItem(String id, String newName) {
+        // Validate new name is not empty
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Item name cannot be empty");
+        }
+
+        // Verify item exists and get existing data
+        InventoryItem existing = validationHelper.validateExists(id);
+
+        // Check if new name already exists for the same supplier (case-insensitive)
+        List<InventoryItem> duplicates = repository.findByNameIgnoreCase(newName.trim());
+        for (InventoryItem dup : duplicates) {
+            // If we find an item with the same name and supplier (but different id), it's a conflict
+            if (!dup.getId().equals(id) && 
+                dup.getSupplierId().equals(existing.getSupplierId())) {
+                throw new IllegalArgumentException("An item with this name already exists for this supplier");
+            }
+        }
+
+        // Update item name
+        existing.setName(newName.trim());
+        
+        // Persist to database
+        InventoryItem saved = repository.save(existing);
+        
+        return InventoryItemMapper.toDTO(saved);
+    }
 }
+

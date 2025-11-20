@@ -103,6 +103,19 @@ public interface InventoryItemService {
     InventoryItemDTO updatePrice(String id, BigDecimal newPrice);
 
     /**
+     * Renames an inventory item (changes the item name).
+     * Only ADMIN users can rename items.
+     * Validates that the new name is not a duplicate for the same supplier.
+     *
+     * @param id inventory item ID
+     * @param newName new item name (must not be empty)
+     * @return updated item with new name
+     * @throws IllegalArgumentException if name is empty or already exists for this supplier
+     * @throws IllegalArgumentException if item not found
+     */
+    InventoryItemDTO renameItem(String id, String newName);
+
+    /**
      * Counts total inventory items across all suppliers (KPI).
      *
      * @return total item count

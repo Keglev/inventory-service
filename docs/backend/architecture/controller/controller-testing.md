@@ -259,16 +259,31 @@ SupplierControllerSecurityTest
 **Location:** `src/test/java/.../controller/inventoryitem/`
 
 ```
-InventoryItemControllerTest
+InventoryItemControllerCreateReadTest
 ├── testGetItems_WithDefaultPagination_Returns20Items
 ├── testGetItems_WithSortByPrice_ReturnsSorted
 ├── testGetItem_WithValidId_Returns200
 ├── testCreateItem_WithValidData_Returns201
 ├── testUpdateItem_WithValidData_Returns200
-├── testDeleteItem_SoftDelete_Returns204
+└── testDeleteItem_SoftDelete_Returns204
+
+InventoryItemControllerPatchTest
 ├── testUpdateStock_IncreasesQuantity_UpdatesStockHistory
 ├── testUpdateStock_DecreasesQuantity_CreatesNegativeEntry
+├── testUpdatePrice_WithValidPrice_Returns200
 └── testSearchItem_ByName_ReturnsList
+
+InventoryItemControllerRenameTest
+├── testRenameItem_AdminSuccess_Returns200
+├── testRenameItem_UserRole_Forbidden_Returns403
+├── testRenameItem_Unauthenticated_Returns401
+├── testRenameItem_NotFound_Returns404
+├── testRenameItem_DuplicateName_Returns409
+├── testRenameItem_EmptyName_Returns400
+├── testRenameItem_WhitespaceOnlyName_Returns400
+├── testRenameItem_SpecialCharacters_Returns200
+├── testRenameItem_CaseInsensitiveDuplicate_Returns409
+└── testRenameItem_MissingNameParam_Returns400
 
 InventoryItemControllerSecurityTest
 ├── testUpdateStock_WithUserRole_Returns403
@@ -327,7 +342,151 @@ AnalyticsControllerSecurityTest
 
 ---
 
-## Response Shape Validation
+## Testing PATCH Endpoints: Update Price & Rename
+
+### PATCH /api/inventory/{id}/price Pattern
+
+For updating item price, test successful update and price validation:
+
+```java
+@WebMvcTest(InventoryItemController.class)
+class InventoryItemControllerPriceTest {
+    
+    @MockBean
+    private InventoryItemService service;
+    
+    @Test
+    @WithMockUser
+    void testUpdatePrice_WithValidPrice_Returns200() throws Exception {
+        InventoryItemDTO updated = new InventoryItemDTO(
+            "ITEM-001", "Widget", 100, new BigDecimal("24.99"), 50, "SUP-001", "ACTIVE"
+        );
+        when(service.updatePrice("ITEM-001", new BigDecimal("24.99")))
+            .thenReturn(updated);
+        
+        mockMvc.perform(
+            patch("/api/inventory/ITEM-001/price")
+                .param("price", "24.99")
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.price").value(24.99));
+    }
+}
+```
+
+### PATCH /api/inventory/{id}/name Pattern - Rename with Authorization
+
+Testing rename requires testing three critical aspects:
+
+1. **Authorization** - Only ADMIN can rename
+2. **Validation** - Name cannot be empty/duplicate
+3. **Error Mapping** - `IllegalArgumentException` → proper HTTP status
+
+```java
+@WebMvcTest(InventoryItemController.class)
+class InventoryItemControllerRenameTest {
+    
+    @Autowired
+    private MockMvc mockMvc;
+    
+    @MockBean
+    private InventoryItemService service;
+    
+    // Test 1: Admin success
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testRenameItem_AdminSuccess_Returns200() throws Exception {
+        InventoryItemDTO renamed = new InventoryItemDTO(
+            "ITEM-001", "Widget Pro", 100, new BigDecimal("19.99"), 50, "SUP-001", "ACTIVE"
+        );
+        when(service.renameItem("ITEM-001", "Widget Pro"))
+            .thenReturn(renamed);
+        
+        mockMvc.perform(
+            patch("/api/inventory/ITEM-001/name")
+                .param("name", "Widget Pro")
+                .with(csrf())  // CSRF token required for state-changing requests
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Widget Pro"));
+        
+        verify(service).renameItem("ITEM-001", "Widget Pro");
+    }
+    
+    // Test 2: User forbidden (non-admin)
+    @Test
+    @WithMockUser(roles = "USER")  // User role, not admin
+    void testRenameItem_UserRole_Forbidden_Returns403() throws Exception {
+        mockMvc.perform(
+            patch("/api/inventory/ITEM-001/name")
+                .param("name", "Widget Pro")
+                .with(csrf())
+        )
+        .andExpect(status().isForbidden());
+        
+        verify(service, never()).renameItem(any(), any());  // Service should not be called
+    }
+    
+    // Test 3: Duplicate name detection
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testRenameItem_DuplicateName_Returns409Conflict() throws Exception {
+        when(service.renameItem("ITEM-001", "Existing Item Name"))
+            .thenThrow(new IllegalArgumentException(
+                "An item with this name already exists for this supplier"
+            ));
+        
+        mockMvc.perform(
+            patch("/api/inventory/ITEM-001/name")
+                .param("name", "Existing Item Name")
+                .with(csrf())
+        )
+        .andExpect(status().isConflict());  // 409, not 404
+    }
+    
+    // Test 4: Empty name validation
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testRenameItem_EmptyName_Returns400BadRequest() throws Exception {
+        when(service.renameItem("ITEM-001", "   "))
+            .thenThrow(new IllegalArgumentException("Item name cannot be empty"));
+        
+        mockMvc.perform(
+            patch("/api/inventory/ITEM-001/name")
+                .param("name", "   ")  // Whitespace-only
+                .with(csrf())
+        )
+        .andExpect(status().isBadRequest());  // 400, not 404
+    }
+    
+    // Test 5: Item not found
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testRenameItem_NotFound_Returns404() throws Exception {
+        when(service.renameItem("INVALID-ID", "New Name"))
+            .thenThrow(new NoSuchElementException("Item not found"));
+        
+        mockMvc.perform(
+            patch("/api/inventory/INVALID-ID/name")
+                .param("name", "New Name")
+                .with(csrf())
+        )
+        .andExpect(status().isNotFound());  // 404
+    }
+}
+```
+
+**Key Points for Rename Testing:**
+
+| Aspect | Strategy |
+|--------|----------|
+| **Authorization** | Use `@WithMockUser(roles="ADMIN")` for success, `@WithMockUser(roles="USER")` for failure |
+| **Error Mapping** | Service throws `IllegalArgumentException`, controller maps to 400/404/409 based on message |
+| **CSRF Token** | Include `.with(csrf())` for state-changing PATCH requests |
+| **Validation** | Test empty name, whitespace, duplicates, not found separately |
+| **Verification** | Use `verify(service)` to ensure service is called only when authorized |
+
+
 
 ### Verify Paginated Responses
 

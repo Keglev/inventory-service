@@ -26,6 +26,8 @@ graph LR
     A --> F["POST /items"]
     A --> G["PUT /items/{id}"]
     A --> H["PATCH /items/{id}/update-stock"]
+    A --> H2["PATCH /items/{id}/price"]
+    A --> H3["PATCH /items/{id}/name"]
     A --> I["DELETE /items/{id}"]
     
     B --> B1["List all"]
@@ -35,6 +37,8 @@ graph LR
     F --> F1["Create"]
     G --> G1["Full update"]
     H --> H1["Adjust stock"]
+    H2 --> H2A["Update price"]
+    H3 --> H3A["Rename item"]
     I --> I1["Delete"]
     
     style A fill:#e8f5e9
@@ -43,6 +47,8 @@ graph LR
     style F fill:#fff9c4
     style G fill:#fff9c4
     style H fill:#fff9c4
+    style H2 fill:#fff9c4
+    style H3 fill:#fff9c4
     style I fill:#ffccbc
 ```
 
@@ -416,6 +422,118 @@ String notes;  // Optional audit notes
 
 ---
 
+## PATCH /api/inventory/items/{id}/price
+
+**Update item unit price**
+
+### Request
+
+```
+PATCH /api/inventory/items/ITEM-001/price?price=24.99
+Authorization: Bearer <token>
+```
+
+### Authorization
+
+`@PreAuthorize("isAuthenticated()")`
+
+### Path Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `id` | String | Item unique identifier |
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `price` | BigDecimal | Yes | New unit price (must be > 0) |
+
+### Response (200 OK)
+
+```json
+{
+  "id": "ITEM-001",
+  "name": "Widget A",
+  "quantity": 150,
+  "price": 24.99,
+  "reorderLevel": 50,
+  "supplierId": "SUP-001",
+  "status": "ACTIVE"
+}
+```
+
+### Error Responses
+
+| Code | Message | Reason |
+|------|---------|--------|
+| 400 | Price must be > 0 | Invalid price value |
+| 404 | Item not found | Item ID does not exist |
+
+---
+
+## PATCH /api/inventory/items/{id}/name
+
+**Rename inventory item (ADMIN only)**
+
+### Request
+
+```
+PATCH /api/inventory/items/ITEM-001/name?name=Widget%20A%20Pro
+Authorization: Bearer <token>
+```
+
+### Authorization
+
+`@PreAuthorize("hasRole('ADMIN')")`
+
+Only ADMIN users can rename inventory items. Users with other roles will receive 403 Forbidden.
+
+### Path Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `id` | String | Item unique identifier |
+
+### Query Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `name` | String | Yes | New item name (must not be empty) |
+
+### Response (200 OK)
+
+```json
+{
+  "id": "ITEM-001",
+  "name": "Widget A Pro",
+  "quantity": 150,
+  "price": 19.99,
+  "reorderLevel": 50,
+  "supplierId": "SUP-001",
+  "status": "ACTIVE"
+}
+```
+
+### Error Responses
+
+| Code | Message | Reason |
+|------|---------|--------|
+| 400 | Item name cannot be empty | Name parameter is empty or whitespace-only |
+| 401 | Authentication required | No valid authentication token |
+| 403 | Access denied | User does not have ADMIN role |
+| 404 | Item not found | Item ID does not exist |
+| 409 | An item with this name already exists for this supplier | Duplicate name within same supplier |
+
+### Validation Rules
+
+- **Name cannot be empty** - Must contain at least one non-whitespace character
+- **Unique per supplier** - Case-insensitive duplicate detection within same supplier
+- **Admin-only** - Only ADMIN users can perform rename operations
+- **Item must exist** - Returns 404 if item ID not found
+
+---
+
 ## DELETE /api/inventory/items/{id}
 
 **Delete inventory item**
@@ -489,9 +607,18 @@ public record StockUpdateRequest(
 - ✅ CRUD operations (happy path)
 - ✅ Pagination and sorting
 - ✅ Stock update with audit
+- ✅ Price update validation
+- ✅ Rename (ADMIN-only, duplicate detection, validation)
 - ✅ Not found (404)
 - ✅ Unauthorized (401)
+- ✅ Forbidden (403)
+- ✅ Conflict (409 - duplicates)
 - ✅ Validation errors (400)
+
+**Test Files:**
+- `InventoryItemControllerCreateReadTest.java` - CRUD operations
+- `InventoryItemControllerPatchTest.java` - Stock and price updates
+- `InventoryItemControllerRenameTest.java` - Rename functionality
 
 ---
 
@@ -500,8 +627,8 @@ public record StockUpdateRequest(
 | Aspect | Detail |
 |--------|--------|
 | **Base path** | `/api/inventory/items` |
-| **Operations** | List, Get, Create, Update, Delete, Search, Stock adjustment |
-| **Authorization** | USER (read), ADMIN (write, stock update) |
+| **Operations** | List, Get, Create, Update, Delete, Search, Stock adjustment, Price update, Rename |
+| **Authorization** | USER (read), ADMIN (write, stock update, price update, rename) |
 | **Demo mode** | Read-only access allowed |
 | **Pagination** | Default 20 items/page, max 500 |
 | **Sorting** | By price, name, quantity, reorder level, created date |
