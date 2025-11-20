@@ -14,6 +14,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 
 ### Detailed Sections
 - **[Layers Architecture](./layers/overview.html)** - Detailed breakdown of controller, service, repository, and data layers
+- **[Integration Architecture](./integration/index.html)** - Frontend-backend integration, API contracts, authentication flows, error handling, CORS configuration, and testing strategies
 - **[Repository Layer](./repository/index.html)** - Data access abstraction with 7 repositories (JpaRepository, custom analytics mixins, JPQL, native SQL)
 - **[Security Architecture](./security/index.html)** - Authentication, authorization, OAuth2 integration, Docker security, and demo mode
 - **[Deployment & Infrastructure](./deployment/index.html)** - Complete deployment pipeline from source to Fly.io, CI/CD automation, Docker image building, and operational procedures
@@ -31,15 +32,25 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 
 **Developers implementing features:**
 1. Start with [High-level Overview](./overview.html)
-2. Review [Layers Architecture](./layers/overview.html)
-3. Explore relevant layer documentation (e.g., [Data Models](./model/index.html), [Enums](./enums/index.html), [DTOs](./dto/index.html))
-4. Check [Validation Framework](./validation.html) for input handling
-5. Review [Testing Strategy](./testing.html) for test patterns
+2. Review [Integration Architecture](./integration/index.html) to understand frontend-backend communication
+3. Review [Layers Architecture](./layers/overview.html)
+4. Explore relevant layer documentation (e.g., [Data Models](./model/index.html), [Enums](./enums/index.html), [DTOs](./dto/index.html))
+5. Check [Validation Framework](./validation.html) for input handling
+6. Review [Testing Strategy](./testing.html) for test patterns
+
+**Frontend developers:**
+1. Start with [Integration Architecture](./integration/index.html)
+2. Review [API Contract & Endpoints](./integration/api-contract-and-endpoints.html)
+3. Study [Error Handling Contract](./integration/error-handling-contract.html)
+4. Check [Authentication Flow](./integration/auth-flow-frontend.html)
+5. Review [CORS & Network](./integration/cors-and-network.html)
+6. Setup [Environments & URLs](./integration/environments-and-urls.html)
 
 **DevOps / Infrastructure teams:**
 1. Review [Deployment & Infrastructure](./deployment.html)
 2. Check [Resources & Configuration](./resources/index.html) for environment setup
 3. Review [Security Architecture](./security.html) for OAuth2 and security configuration
+4. Study [Integration Architecture](./integration/index.html) for network/CORS configuration
 
 **Security reviewers:**
 1. Start with [Security Architecture](./security.html)
