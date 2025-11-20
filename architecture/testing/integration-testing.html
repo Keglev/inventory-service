@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+testing/integration-testing · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#integration-testing"
+        id="toc-integration-testing">Integration Testing</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#integration-testing-characteristics"
+        id="toc-integration-testing-characteristics">Integration Testing
+        Characteristics</a></li>
+        <li><a href="#datajpatest---repository-testing"
+        id="toc-datajpatest---repository-testing"><span class="citation"
+        data-cites="DataJpaTest">@DataJpaTest</span> - Repository
+        Testing</a>
+        <ul>
+        <li><a href="#what-it-does" id="toc-what-it-does">What It
+        Does</a></li>
+        <li><a href="#example-supplierrepositorytest"
+        id="toc-example-supplierrepositorytest">Example:
+        SupplierRepositoryTest</a></li>
+        </ul></li>
+        <li><a href="#webmvctest---controller-testing"
+        id="toc-webmvctest---controller-testing"><span class="citation"
+        data-cites="WebMvcTest">@WebMvcTest</span> - Controller
+        Testing</a>
+        <ul>
+        <li><a href="#what-it-does-1" id="toc-what-it-does-1">What It
+        Does</a></li>
+        <li><a href="#example-suppliercontrollertest"
+        id="toc-example-suppliercontrollertest">Example:
+        SupplierControllerTest</a></li>
+        </ul></li>
+        <li><a href="#mockmvc-testing-patterns"
+        id="toc-mockmvc-testing-patterns">MockMvc Testing Patterns</a>
+        <ul>
+        <li><a href="#http-request-building"
+        id="toc-http-request-building">HTTP Request Building</a></li>
+        <li><a href="#response-assertions"
+        id="toc-response-assertions">Response Assertions</a></li>
+        </ul></li>
+        <li><a href="#springboottest---full-integration-tests"
+        id="toc-springboottest---full-integration-tests"><span
+        class="citation"
+        data-cites="SpringBootTest">@SpringBootTest</span> - Full
+        Integration Tests</a>
+        <ul>
+        <li><a href="#what-it-does-2" id="toc-what-it-does-2">What It
+        Does</a></li>
+        <li><a href="#example-security-smoke-test"
+        id="toc-example-security-smoke-test">Example: Security Smoke
+        Test</a></li>
+        </ul></li>
+        <li><a href="#test-database-configuration"
+        id="toc-test-database-configuration">Test Database
+        Configuration</a>
+        <ul>
+        <li><a href="#h2-configuration-application-test.properties"
+        id="toc-h2-configuration-application-test.properties">H2
+        Configuration (application-test.properties)</a></li>
+        <li><a href="#testcontainers-configuration-optional"
+        id="toc-testcontainers-configuration-optional">TestContainers
+        Configuration (Optional)</a></li>
+        </ul></li>
+        <li><a href="#testing-transactional-behavior"
+        id="toc-testing-transactional-behavior">Testing Transactional
+        Behavior</a>
+        <ul>
+        <li><a href="#transactional-in-tests"
+        id="toc-transactional-in-tests"><span class="citation"
+        data-cites="Transactional">@Transactional</span> in
+        Tests</a></li>
+        </ul></li>
+        <li><a href="#best-practices-for-integration-tests"
+        id="toc-best-practices-for-integration-tests">Best Practices for
+        Integration Tests</a>
+        <ul>
+        <li><a href="#do" id="toc-do">✅ DO</a></li>
+        <li><a href="#dont" id="toc-dont">❌ DON’T</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+        <h1 id="integration-testing">Integration Testing</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Integration tests verify <strong>component
+        interactions</strong> with real infrastructure (databases,
+        frameworks). They’re slower than unit tests but provide higher
+        confidence by testing realistic scenarios.</p>
+        <hr />
+        <h2 id="integration-testing-characteristics">Integration Testing
+        Characteristics</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Scope</strong></td>
+        <td>Multiple components working together</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Dependencies</strong></td>
+        <td>Mix of real and mocked (DB real, external APIs mocked)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Speed</strong></td>
+        <td>100ms - 1s per test</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Framework</strong></td>
+        <td><span class="citation"
+        data-cites="DataJpaTest">@DataJpaTest</span>, <span
+        class="citation" data-cites="WebMvcTest">@WebMvcTest</span>,
+        <span class="citation"
+        data-cites="SpringBootTest">@SpringBootTest</span></td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Database</strong></td>
+        <td>H2 (fast) or TestContainers (realistic)</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Benefits</strong></td>
+        <td>Validates persistence, HTTP contracts, component wiring</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="datajpatest---repository-testing"><span class="citation"
+        data-cites="DataJpaTest">@DataJpaTest</span> - Repository
+        Testing</h2>
+        <h3 id="what-it-does">What It Does</h3>
+        <ul>
+        <li>Loads only JPA/database components (no web, security,
+        services)</li>
+        <li>Provides <code>@Autowired</code> EntityManager and
+        Repositories</li>
+        <li>Auto-configures H2 in-memory database</li>
+        <li>Rolls back transaction after each test</li>
+        </ul>
+        <h3 id="example-supplierrepositorytest">Example:
+        SupplierRepositoryTest</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DataJpaTest</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@AutoConfigureTestDatabase</span><span class="op">(</span>replace <span class="op">=</span> AutoConfigureTestDatabase<span class="op">.</span><span class="fu">Replace</span><span class="op">.</span><span class="fu">ANY</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">@ActiveProfiles</span><span class="op">(</span><span class="st">&quot;test&quot;</span><span class="op">)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Import</span><span class="op">(</span>DatabaseDialectDetector<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SupplierRepositoryTest <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> SupplierRepository supplierRepository<span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>     <span class="co">*</span> Helper<span class="co">:</span> Create and persist a supplier<span class="co">.</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>     <span class="co">*/</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> Supplier <span class="fu">save</span><span class="op">(</span><span class="bu">String</span> name<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        Supplier s <span class="op">=</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;sup-&quot;</span> <span class="op">+</span> <span class="bu">UUID</span><span class="op">.</span><span class="fu">randomUUID</span><span class="op">())</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span>name<span class="op">)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contactName</span><span class="op">(</span><span class="st">&quot;John Doe&quot;</span><span class="op">)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;contact@example.com&quot;</span><span class="op">)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">phone</span><span class="op">(</span><span class="st">&quot;+49 123 456&quot;</span><span class="op">)</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">)</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> supplierRepository<span class="op">.</span><span class="fu">save</span><span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== findByNameIgnoreCase() tests ==========</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;findByNameIgnoreCase → exact match only (case-insensitive)&quot;</span><span class="op">)</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">findByNameIgnoreCase_exact_caseInsensitive</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="fu">save</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">);</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Should match various cases</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">).</span><span class="fu">isPresent</span><span class="op">());</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;acme gmbh&quot;</span><span class="op">).</span><span class="fu">isPresent</span><span class="op">());</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;ACME GMBH&quot;</span><span class="op">).</span><span class="fu">isPresent</span><span class="op">());</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Should NOT match partials</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">isEmpty</span><span class="op">());</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;GmbH&quot;</span><span class="op">).</span><span class="fu">isEmpty</span><span class="op">());</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;findByNameIgnoreCase → empty when not found&quot;</span><span class="op">)</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">findByNameIgnoreCase_notFound_returnsEmpty</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>        <span class="fu">save</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">);</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Unknown Corp&quot;</span><span class="op">).</span><span class="fu">isEmpty</span><span class="op">());</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== findByNameContainingIgnoreCase() tests ==========</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;findByNameContainingIgnoreCase → substring search (case-insensitive)&quot;</span><span class="op">)</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">findByNameContaining_substringSearch</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>        <span class="fu">save</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">);</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>        <span class="fu">save</span><span class="op">(</span><span class="st">&quot;Acme Trading&quot;</span><span class="op">);</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>        <span class="fu">save</span><span class="op">(</span><span class="st">&quot;Beta Corp&quot;</span><span class="op">);</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>        <span class="bu">List</span><span class="op">&lt;</span>Supplier<span class="op">&gt;</span> results <span class="op">=</span> supplierRepository</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">findByNameContainingIgnoreCase</span><span class="op">(</span><span class="st">&quot;acme&quot;</span><span class="op">);</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">2</span><span class="op">,</span> results<span class="op">.</span><span class="fu">size</span><span class="op">());</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>results<span class="op">.</span><span class="fu">stream</span><span class="op">().</span><span class="fu">anyMatch</span><span class="op">(</span>s <span class="op">-&gt;</span> s<span class="op">.</span><span class="fu">getName</span><span class="op">().</span><span class="fu">equals</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">)));</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>results<span class="op">.</span><span class="fu">stream</span><span class="op">().</span><span class="fu">anyMatch</span><span class="op">(</span>s <span class="op">-&gt;</span> s<span class="op">.</span><span class="fu">getName</span><span class="op">().</span><span class="fu">equals</span><span class="op">(</span><span class="st">&quot;Acme Trading&quot;</span><span class="op">)));</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== existsByNameIgnoreCase() tests ==========</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;existsByNameIgnoreCase → true when exists (case-insensitive)&quot;</span><span class="op">)</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">existsByNameIgnoreCase_found_returnsTrue</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>        <span class="fu">save</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">);</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;acme gmbh&quot;</span><span class="op">));</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;ACME GMBH&quot;</span><span class="op">));</span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;existsByNameIgnoreCase → false when not exists&quot;</span><span class="op">)</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">existsByNameIgnoreCase_notFound_returnsFalse</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>        <span class="fu">save</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">);</span></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertFalse</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Unknown Corp&quot;</span><span class="op">));</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="webmvctest---controller-testing"><span class="citation"
+        data-cites="WebMvcTest">@WebMvcTest</span> - Controller
+        Testing</h2>
+        <h3 id="what-it-does-1">What It Does</h3>
+        <ul>
+        <li>Loads only web layer (controllers, security, MockMvc)</li>
+        <li>Mocks services via <code>@MockitoBean</code></li>
+        <li>No database or full context initialization</li>
+        <li>Provides <code>MockMvc</code> for HTTP testing</li>
+        </ul>
+        <h3 id="example-suppliercontrollertest">Example:
+        SupplierControllerTest</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@WebMvcTest</span><span class="op">(</span>SupplierController<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Import</span><span class="op">({</span> TestSecurityConfig<span class="op">.</span><span class="fu">class</span><span class="op">,</span> GlobalExceptionHandler<span class="op">.</span><span class="fu">class</span> <span class="op">})</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">@ActiveProfiles</span><span class="op">(</span><span class="st">&quot;test&quot;</span><span class="op">)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SupplierControllerTest <span class="op">{</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> MockMvc mockMvc<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> ObjectMapper objectMapper<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@MockitoBean</span> SupplierService supplierService<span class="op">;</span>  <span class="co">// Mocked</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    SupplierDTO dto<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">@BeforeEach</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">setUp</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        dto <span class="op">=</span> SupplierDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">)</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contactName</span><span class="op">(</span><span class="st">&quot;Alice&quot;</span><span class="op">)</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;alice@acme.test&quot;</span><span class="op">)</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">)</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== GET /api/suppliers/{id} ==========</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;GET /api/suppliers/{id}: with ADMIN role returns 200&quot;</span><span class="op">)</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">getById_adminRole_returns200</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">))</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">())</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.id&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.name&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">));</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;GET /api/suppliers/{id}: without auth returns 401&quot;</span><span class="op">)</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">getById_noAuth_returns401</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isUnauthorized</span><span class="op">());</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;GET /api/suppliers/{id}: not found returns 404&quot;</span><span class="op">)</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">getById_notFound_returns404</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;nonexistent&quot;</span><span class="op">))</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenThrow</span><span class="op">(</span><span class="kw">new</span> <span class="fu">ResponseStatusException</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">NOT_FOUND</span><span class="op">));</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers/nonexistent&quot;</span><span class="op">))</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isNotFound</span><span class="op">());</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== POST /api/suppliers ==========</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;POST /api/suppliers: with valid data returns 201 CREATED&quot;</span><span class="op">)</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">create_validData_returns201</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>        SupplierDTO saved <span class="op">=</span> SupplierDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;sup-new-1&quot;</span><span class="op">)</span></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">)</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contactName</span><span class="op">(</span><span class="st">&quot;Alice&quot;</span><span class="op">)</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;alice@acme.test&quot;</span><span class="op">)</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">)</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span>SupplierDTO<span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isCreated</span><span class="op">())</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">exists</span><span class="op">(</span><span class="st">&quot;Location&quot;</span><span class="op">))</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.id&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;sup-new-1&quot;</span><span class="op">));</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;POST /api/suppliers: duplicate name returns 409 CONFLICT&quot;</span><span class="op">)</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">create_duplicateName_returns409</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span>SupplierDTO<span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenThrow</span><span class="op">(</span><span class="kw">new</span> <span class="fu">DuplicateResourceException</span><span class="op">(</span><span class="st">&quot;Already exists&quot;</span><span class="op">));</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isConflict</span><span class="op">())</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.message&quot;</span><span class="op">).</span><span class="fu">exists</span><span class="op">());</span></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;POST /api/suppliers: USER role returns 403 FORBIDDEN&quot;</span><span class="op">)</span></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">create_userRole_returns403</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;POST /api/suppliers: blank name returns 400 BAD_REQUEST&quot;</span><span class="op">)</span></span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">create_blankName_returns400</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>        SupplierDTO invalid <span class="op">=</span> SupplierDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;&quot;</span><span class="op">)</span>  <span class="co">// blank</span></span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contactName</span><span class="op">(</span><span class="st">&quot;Alice&quot;</span><span class="op">)</span></span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;alice@acme.test&quot;</span><span class="op">)</span></span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">)</span></span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>invalid<span class="op">))</span></span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isBadRequest</span><span class="op">());</span></span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== PUT /api/suppliers/{id} ==========</span></span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;PUT /api/suppliers/{id}: with valid data returns 200 OK&quot;</span><span class="op">)</span></span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">update_validData_returns200</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>        SupplierDTO updated <span class="op">=</span> SupplierDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme GmbH Updated&quot;</span><span class="op">)</span></span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contactName</span><span class="op">(</span><span class="st">&quot;Bob&quot;</span><span class="op">)</span></span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;bob@acme.test&quot;</span><span class="op">)</span></span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">createdBy</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">)</span></span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">update</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">,</span> dto<span class="op">))</span></span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>updated<span class="op">);</span></span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">())</span></span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.name&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;Acme GmbH Updated&quot;</span><span class="op">));</span></span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== DELETE /api/suppliers/{id} ==========</span></span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;DELETE /api/suppliers/{id}: success returns 204 NO_CONTENT&quot;</span><span class="op">)</span></span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">delete_success_returns204</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">).</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isNoContent</span><span class="op">());</span></span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>        <span class="fu">verify</span><span class="op">(</span>supplierService<span class="op">).</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">);</span></span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;DELETE /api/suppliers/{id}: with linked items returns 409 CONFLICT&quot;</span><span class="op">)</span></span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">delete_linkedItems_returns409</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a>        <span class="fu">doThrow</span><span class="op">(</span><span class="kw">new</span> <span class="bu">IllegalStateException</span><span class="op">(</span><span class="st">&quot;Cannot delete supplier with linked items&quot;</span><span class="op">))</span></span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">when</span><span class="op">(</span>supplierService<span class="op">).</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">);</span></span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>        mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">).</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isConflict</span><span class="op">());</span></span>
+<span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="mockmvc-testing-patterns">MockMvc Testing Patterns</h2>
+        <h3 id="http-request-building">HTTP Request Building</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// GET request</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers/123&quot;</span><span class="op">)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">header</span><span class="op">(</span><span class="st">&quot;Accept&quot;</span><span class="op">,</span> <span class="st">&quot;application/json&quot;</span><span class="op">))</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">// POST with request body</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span>  <span class="co">// ← Required for POST/PUT/DELETE</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">// PUT with path parameter</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/suppliers/{id}&quot;</span><span class="op">,</span> <span class="st">&quot;sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">content</span><span class="op">(</span>json<span class="op">)</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">// DELETE with role</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">user</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">).</span><span class="fu">roles</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">))</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span></code></pre></div>
+        <h3 id="response-assertions">Response Assertions</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Status codes</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">())</span>                    <span class="co">// 200</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isCreated</span><span class="op">())</span>               <span class="co">// 201</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isNoContent</span><span class="op">())</span>             <span class="co">// 204</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isBadRequest</span><span class="op">())</span>            <span class="co">// 400</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isUnauthorized</span><span class="op">())</span>          <span class="co">// 401</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">())</span>             <span class="co">// 403</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isNotFound</span><span class="op">())</span>              <span class="co">// 404</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isConflict</span><span class="op">())</span>              <span class="co">// 409</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">// JSON path assertions</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.id&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.name&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">))</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.items[0].name&quot;</span><span class="op">).</span><span class="fu">exists</span><span class="op">())</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.items.length()&quot;</span><span class="op">).</span><span class="fu">value</span><span class="op">(</span><span class="dv">2</span><span class="op">))</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Header assertions</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">exists</span><span class="op">(</span><span class="st">&quot;Location&quot;</span><span class="op">))</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">string</span><span class="op">(</span><span class="st">&quot;Content-Type&quot;</span><span class="op">,</span> <span class="st">&quot;application/json&quot;</span><span class="op">))</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">// Content assertions</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">content</span><span class="op">().</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">))</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">content</span><span class="op">().</span><span class="fu">string</span><span class="op">(</span><span class="fu">containsString</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">)))</span></span></code></pre></div>
+        <hr />
+        <h2 id="springboottest---full-integration-tests"><span
+        class="citation"
+        data-cites="SpringBootTest">@SpringBootTest</span> - Full
+        Integration Tests</h2>
+        <h3 id="what-it-does-2">What It Does</h3>
+        <ul>
+        <li>Loads entire application context (all beans, profiles)</li>
+        <li>Provides real database (TestContainers or H2)</li>
+        <li>Allows testing end-to-end workflows</li>
+        <li>Slower but highest confidence</li>
+        </ul>
+        <h3 id="example-security-smoke-test">Example: Security Smoke
+        Test</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@AutoConfigureMockMvc</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SecuritySmokeTest <span class="op">{</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> MockMvc mvc<span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> AppProperties appProperties<span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;Security context loads successfully&quot;</span><span class="op">)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">contextLoads</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThat</span><span class="op">(</span>appProperties<span class="op">).</span><span class="fu">isNotNull</span><span class="op">();</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;ADMIN role can access admin endpoints&quot;</span><span class="op">)</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">adminCanAccessAdmin</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/admin/ping&quot;</span><span class="op">))</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">())</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">content</span><span class="op">().</span><span class="fu">string</span><span class="op">(</span><span class="st">&quot;admin ok&quot;</span><span class="op">));</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;OAuth2 endpoints are configured&quot;</span><span class="op">)</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">oauth2EndpointsReachable</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/oauth2/authorization/google&quot;</span><span class="op">))</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">is3xxRedirection</span><span class="op">());</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="test-database-configuration">Test Database
+        Configuration</h2>
+        <h3 id="h2-configuration-application-test.properties">H2
+        Configuration (application-test.properties)</h3>
+        <pre class="properties"><code># Use H2 in Oracle compatibility mode for fast tests
+spring.datasource.url=jdbc:h2:mem:testdb;MODE=Oracle
+spring.datasource.driverClassName=org.h2.Driver
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+# Disable H2 console
+spring.h2.console.enabled=false
+
+# Show SQL for debugging (optional)
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=false</code></pre>
+        <h3 id="testcontainers-configuration-optional">TestContainers
+        Configuration (Optional)</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Testcontainers</span>  <span class="co">// Enable TestContainers</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IntegrationTestWithOracleTest <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Container</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">static</span> OracleContainer oracle <span class="op">=</span> <span class="kw">new</span> <span class="fu">OracleContainer</span><span class="op">(</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;gvenzl/oracle-free:latest&quot;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">static</span> <span class="op">{</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        Testcontainers<span class="op">.</span><span class="fu">exposeHostPorts</span><span class="op">(</span><span class="dv">1521</span><span class="op">);</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="testing-transactional-behavior">Testing Transactional
+        Behavior</h2>
+        <h3 id="transactional-in-tests"><span class="citation"
+        data-cites="Transactional">@Transactional</span> in Tests</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DataJpaTest</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RepositoryTransactionTest <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> <span class="kw">private</span> SupplierRepository repo<span class="op">;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Transactional</span>  <span class="co">// This test runs in a transaction</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">createAndQuery_inTransaction</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        Supplier s <span class="op">=</span> Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">().</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> repo<span class="op">.</span><span class="fu">save</span><span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Can query immediately within transaction</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">isPresent</span><span class="op">());</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// No @Transactional = test runs without transaction</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Each test auto-rolls back after completion</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">createAndVerifyRollback</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Default behavior: test changes are rolled back</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices-for-integration-tests">Best Practices for
+        Integration Tests</h2>
+        <h3 id="do">✅ DO</h3>
+        <ul class="task-list">
+        <li><label><input type="checkbox" />Test realistic component
+        interactions</label></li>
+        <li><label><input type="checkbox" />Use
+        <code>@DataJpaTest</code> for repository tests (fast
+        slice)</label></li>
+        <li><label><input type="checkbox" />Use <code>@WebMvcTest</code>
+        for controller tests (isolated)</label></li>
+        <li><label><input type="checkbox" />Use
+        <code>@SpringBootTest</code> for end-to-end
+        workflows</label></li>
+        <li><label><input type="checkbox" />Mock services not needed for
+        the test</label></li>
+        <li><label><input type="checkbox" />Use
+        <code>@MockitoBean</code> for selective mocking</label></li>
+        <li><label><input type="checkbox" />Test happy path and error
+        scenarios</label></li>
+        <li><label><input type="checkbox" />Verify persistence side
+        effects</label></li>
+        <li><label><input type="checkbox" />Check HTTP status codes and
+        response format</label></li>
+        </ul>
+        <h3 id="dont">❌ DON’T</h3>
+        <ul class="task-list">
+        <li><label><input type="checkbox" />Start with
+        <code>@SpringBootTest</code> (slow down test suite)</label></li>
+        <li><label><input type="checkbox" />Test framework features
+        (JPA, Spring, etc.)</label></li>
+        <li><label><input type="checkbox" />Load unnecessary
+        beans/profiles</label></li>
+        <li><label><input type="checkbox" />Mock everything (defeats
+        purpose of integration tests)</label></li>
+        <li><label><input type="checkbox" />Leave database data between
+        tests</label></li>
+        <li><label><input type="checkbox" />Ignore HTTP status codes and
+        headers</label></li>
+        <li><label><input type="checkbox" />Assume JSON structure
+        without assertions</label></li>
+        <li><label><input type="checkbox" />Make tests depend on
+        external services</label></li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Testing Index</a></strong> -
+        Complete testing strategy</li>
+        <li><strong><a href="./unit-testing.html">Unit
+        Testing</a></strong> - Component isolation patterns</li>
+        <li><strong><a href="./security-testing.html">Security
+        Testing</a></strong> - Authentication and RBAC tests</li>
+        <li><strong><a href="../controller/index.html">Controller
+        Documentation</a></strong> - Endpoint contracts</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · testing/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#testing-strategy-patterns"
+        id="toc-testing-strategy-patterns">Testing Strategy &amp;
+        Patterns</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#testing-pyramid" id="toc-testing-pyramid">Testing
+        Pyramid</a></li>
+        <li><a href="#test-layers" id="toc-test-layers">Test Layers</a>
+        <ul>
+        <li><a href="#layer-1-unit-tests-65-of-suite"
+        id="toc-layer-1-unit-tests-65-of-suite">Layer 1: Unit Tests (65%
+        of suite)</a></li>
+        <li><a href="#layer-2-integration-tests-25-of-suite"
+        id="toc-layer-2-integration-tests-25-of-suite">Layer 2:
+        Integration Tests (25% of suite)</a></li>
+        <li><a href="#layer-3-end-to-end-tests-10-of-suite"
+        id="toc-layer-3-end-to-end-tests-10-of-suite">Layer 3:
+        End-to-End Tests (10% of suite)</a></li>
+        </ul></li>
+        <li><a href="#test-organization" id="toc-test-organization">Test
+        Organization</a>
+        <ul>
+        <li><a href="#directory-structure"
+        id="toc-directory-structure">Directory Structure</a></li>
+        </ul></li>
+        <li><a href="#test-coverage" id="toc-test-coverage">Test
+        Coverage</a>
+        <ul>
+        <li><a href="#coverage-summary"
+        id="toc-coverage-summary">Coverage Summary</a></li>
+        <li><a href="#jacoco-configuration"
+        id="toc-jacoco-configuration">JaCoCo Configuration</a></li>
+        </ul></li>
+        <li><a href="#test-dependencies" id="toc-test-dependencies">Test
+        Dependencies</a>
+        <ul>
+        <li><a href="#testing-stack-from-pom.xml"
+        id="toc-testing-stack-from-pom.xml">Testing Stack (from
+        pom.xml)</a></li>
+        </ul></li>
+        <li><a href="#running-tests" id="toc-running-tests">Running
+        Tests</a>
+        <ul>
+        <li><a href="#maven-commands" id="toc-maven-commands">Maven
+        Commands</a></li>
+        <li><a href="#ide-integration" id="toc-ide-integration">IDE
+        Integration</a></li>
+        </ul></li>
+        <li><a href="#test-profiles" id="toc-test-profiles">Test
+        Profiles</a>
+        <ul>
+        <li><a href="#test-profile-application-test.properties"
+        id="toc-test-profile-application-test.properties">test Profile
+        (application-test.properties)</a></li>
+        </ul></li>
+        <li><a href="#test-fixtures-helpers"
+        id="toc-test-fixtures-helpers">Test Fixtures &amp; Helpers</a>
+        <ul>
+        <li><a href="#test-helper-classes"
+        id="toc-test-helper-classes">Test Helper Classes</a></li>
+        <li><a href="#common-patterns" id="toc-common-patterns">Common
+        Patterns</a></li>
+        </ul></li>
+        <li><a href="#quick-navigation" id="toc-quick-navigation">Quick
+        Navigation</a></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="testing-strategy-patterns">Testing Strategy &amp;
+        Patterns</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Smart Supply Pro implements a <strong>comprehensive, layered
+        testing strategy</strong> using industry-standard tools and
+        patterns. The test suite covers:</p>
+        <ul>
+        <li><strong>Unit Tests</strong> - Individual components in
+        isolation (validators, services, repositories)</li>
+        <li><strong>Integration Tests</strong> - Component interaction
+        with databases and frameworks</li>
+        <li><strong>Security Tests</strong> - OAuth2, authorization,
+        RBAC, and API endpoints</li>
+        <li><strong>Analytics Tests</strong> - Complex queries,
+        converters, and reporting</li>
+        <li><strong>Contract Tests</strong> - REST API endpoints, HTTP
+        status codes, response formats</li>
+        </ul>
+        <p>The project uses: - <strong>JUnit 5</strong> - Test framework
+        with parameterized tests and display names -
+        <strong>Mockito</strong> - Mocking and behavior verification -
+        <strong>Spring Test</strong> - Integration testing with <span
+        class="citation"
+        data-cites="SpringBootTest">@SpringBootTest</span>, <span
+        class="citation" data-cites="DataJpaTest">@DataJpaTest</span>,
+        <span class="citation"
+        data-cites="WebMvcTest">@WebMvcTest</span> -
+        <strong>TestContainers</strong> - Database containerization for
+        realistic testing - <strong>H2 Database</strong> - In-memory
+        database for fast unit tests - <strong>JaCoCo</strong> - Code
+        coverage reporting</p>
+        <hr />
+        <h2 id="testing-pyramid">Testing Pyramid</h2>
+        <div class="mermaid">
+        graph TB
+            E2E["🏔️ E2E / Integration Tests<br/>(~10%)<br/>@SpringBootTest<br/>Full context, real DB/cache"]
+            
+            Integration["📊 Integration Tests<br/>(~25%)<br/>@DataJpaTest, @WebMvcTest<br/>Slice testing with mocks"]
+            
+            Unit["📝 Unit Tests<br/>(~65%)<br/>@ExtendWith(MockitoExtension)<br/>Fast, isolated components"]
+            
+            Unit --> Integration
+            Integration --> E2E
+            
+            style Unit fill:#c8e6c9
+            style Integration fill:#fff9c4
+            style E2E fill:#ffcdd2
+        </div>
+        <hr />
+        <h2 id="test-layers">Test Layers</h2>
+        <h3 id="layer-1-unit-tests-65-of-suite">Layer 1: Unit Tests (65%
+        of suite)</h3>
+        <p><strong>Scope:</strong> Test individual classes in isolation
+        with mocked dependencies</p>
+        <p><strong>Tools:</strong> - JUnit 5 with <code>@Test</code> and
+        <code>@ParameterizedTest</code> - Mockito with
+        <code>@ExtendWith(MockitoExtension.class)</code> -
+        <code>@Mock</code> for dependencies, <code>@InjectMocks</code>
+        for target class</p>
+        <p><strong>Examples:</strong> - Validator tests
+        (InventoryItemValidatorTest, SupplierValidatorTest) - Service
+        method tests with mocked repositories - Converter tests
+        (AnalyticsServiceImplConverterTest)</p>
+        <p><strong>Characteristics:</strong> - ✅ Fast (milliseconds per
+        test) - ✅ No database or Spring context needed - ✅ Easy to
+        understand and maintain - ✅ Fail quickly for logic errors</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExtendWith</span><span class="op">(</span>MockitoExtension<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InventoryItemValidatorTest <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span> <span class="kw">private</span> InventoryItemRepository repo<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateDuplicate_NameAndPriceExist_ThrowsConflict</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Widget&quot;</span><span class="op">))</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="bu">List</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span>existingItem<span class="op">));</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">()</span> <span class="op">-&gt;</span> InventoryItemValidator<span class="op">.</span><span class="fu">validateInventoryItemNotExists</span><span class="op">(</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Widget&quot;</span><span class="op">,</span> price<span class="op">,</span> repo<span class="op">));</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="layer-2-integration-tests-25-of-suite">Layer 2:
+        Integration Tests (25% of suite)</h3>
+        <p><strong>Scope:</strong> Test component interactions with real
+        infrastructure (DB, frameworks)</p>
+        <p><strong>Tools:</strong> - <code>@DataJpaTest</code> - JPA
+        repository testing with H2 - <code>@WebMvcTest</code> -
+        Controller testing without full context -
+        <code>@SpringBootTest</code> - Full application context for
+        complex scenarios - <code>MockMvc</code> for HTTP testing -
+        <code>@MockitoBean</code> for selective mocking</p>
+        <p><strong>Examples:</strong> - Repository tests
+        (SupplierRepositoryTest, InventoryItemRepositoryTest) -
+        Controller tests (SupplierControllerTest) - Service integration
+        tests</p>
+        <p><strong>Characteristics:</strong> - ⏱️ Slower (100ms - 1s per
+        test) - 📦 Uses real H2 database or TestContainers - 🔗 Tests
+        component interaction - 🛡️ Validates persistence and HTTP
+        contracts</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@DataJpaTest</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@AutoConfigureTestDatabase</span><span class="op">(</span>replace <span class="op">=</span> ANY<span class="op">)</span>  <span class="co">// force H2</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SupplierRepositoryTest <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> <span class="kw">private</span> SupplierRepository repo<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">findByNameIgnoreCase_caseInsensitive</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        repo<span class="op">.</span><span class="fu">save</span><span class="op">(</span>Supplier<span class="op">.</span><span class="fu">builder</span><span class="op">().</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme GmbH&quot;</span><span class="op">).</span><span class="fu">build</span><span class="op">());</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertTrue</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;acme gmbh&quot;</span><span class="op">).</span><span class="fu">isPresent</span><span class="op">());</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h3 id="layer-3-end-to-end-tests-10-of-suite">Layer 3:
+        End-to-End Tests (10% of suite)</h3>
+        <p><strong>Scope:</strong> Full application in realistic
+        conditions</p>
+        <p><strong>Tools:</strong> - <code>@SpringBootTest</code> with
+        real security - TestContainers for Oracle or real services -
+        <code>MockMvc</code> or <code>RestTemplate</code> for HTTP -
+        Full authentication/authorization</p>
+        <p><strong>Examples:</strong> - Security smoke tests
+        (SecuritySmokeTest) - Demo mode tests (DemoReadonlySecurityTest)
+        - Full workflow tests</p>
+        <p><strong>Characteristics:</strong> - 🐢 Slowest (seconds per
+        test) - 🔐 Tests with real security context - 🌍 Validates
+        end-to-end workflows - 🎯 High confidence, lower coverage</p>
+        <hr />
+        <h2 id="test-organization">Test Organization</h2>
+        <h3 id="directory-structure">Directory Structure</h3>
+        <pre><code>src/test/java/com/smartsupplypro/inventory/
+├── InventoryServiceApplicationTest.java          (Context load smoke test)
+│
+├── validation/
+│   ├── InventoryItemValidatorTest.java           (Unit: 159 lines)
+│   ├── SupplierValidatorTest.java                (Unit: ~100 lines)
+│   └── StockHistoryValidationTest.java           (Unit: ~100 lines)
+│
+├── service/
+│   ├── InventoryItemServiceSaveTest.java         (Unit: 120 lines)
+│   ├── SupplierServiceTest.java                  (Unit: ~150 lines)
+│   ├── StockHistoryServiceTest.java              (Unit: ~100 lines)
+│   └── impl/
+│       ├── InventoryItemServiceImplSaveTest.java (Unit: 120 lines)
+│       ├── InventoryItemServiceImplSearchTest.java
+│       ├── InventoryItemServiceImplUpdateDeleteTest.java
+│       ├── AnalyticsServiceImplConverterTest.java (Unit: 150 lines)
+│       ├── AnalyticsServiceImplQueryTest.java
+│       ├── AnalyticsServiceImplValidationTest.java
+│       ├── AnalyticsServiceImplWindowTest.java
+│       ├── AnalyticsServiceImplWacTest.java
+│       └── InventoryItemServiceImplTestHelper.java (Shared utilities)
+│
+├── repository/
+│   ├── SupplierRepositoryTest.java               (Integration: 126 lines)
+│   ├── InventoryItemRepositoryTest.java
+│   ├── AppUserRepositoryTest.java
+│   ├── StockHistoryRepositoryFilteringTest.java
+│   ├── StockHistoryRepositoryAnalyticsTest.java
+│   ├── InventoryItemRepositoryAnalyticsTest.java
+│   └── custom/
+│       └── StockHistoryCustomRepositoryImplTest.java
+│
+├── controller/
+│   ├── supplier/
+│   │   └── SupplierControllerTest.java           (Integration: 404 lines)
+│   ├── inventoryitem/
+│   ├── stockhistory/
+│   ├── analytics/
+│   ├── auth/
+│   └── security/
+│
+├── security/
+│   ├── SecuritySmokeTest.java                    (Integration: 297 lines)
+│   ├── OAuth2LoginSuccessHandlerTest.java
+│   ├── ApiEntryPointBehaviourTest.java
+│   ├── DemoReadonlySecurityTest.java
+│   ├── TestApiStubController.java                (Probe endpoints)
+│   └── AdminStubController.java
+│
+└── config/
+    └── (Test configuration and helpers)
+
+src/test/resources/
+└── testcontainers.properties                     (TestContainers config)</code></pre>
+        <hr />
+        <h2 id="test-coverage">Test Coverage</h2>
+        <h3 id="coverage-summary">Coverage Summary</h3>
+        <pre><code>┌─────────────────────────────────────────────────────┐
+│ Test Coverage (via JaCoCo Maven plugin)             │
+├─────────────────────────────────────────────────────┤
+│ Target: &gt;80% code coverage                          │
+│ Report: target/site/jacoco/index.html              │
+│ Execution: mvn clean verify                         │
+├─────────────────────────────────────────────────────┤
+│ Coverage by Layer:                                  │
+│ - Validation:    95%+ (critical business logic)    │
+│ - Service:       85%+ (core operations)            │
+│ - Repository:    80%+ (custom queries)             │
+│ - Controller:    75%+ (HTTP endpoints)             │
+│ - Security:      85%+ (auth flows)                 │
+│ - Config:        60%+ (framework wiring)           │
+└─────────────────────────────────────────────────────┘</code></pre>
+        <h3 id="jacoco-configuration">JaCoCo Configuration</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode xml"><code class="sourceCode xml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- pom.xml --&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">plugin</span>&gt;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">groupId</span>&gt;org.jacoco&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">artifactId</span>&gt;jacoco-maven-plugin&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">version</span>&gt;0.8.12&lt;/<span class="kw">version</span>&gt;</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">executions</span>&gt;</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">execution</span>&gt;</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            &lt;<span class="kw">goals</span>&gt;&lt;<span class="kw">goal</span>&gt;prepare-agent&lt;/<span class="kw">goal</span>&gt;&lt;/<span class="kw">goals</span>&gt;</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        &lt;/<span class="kw">execution</span>&gt;</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">execution</span>&gt;</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            &lt;<span class="kw">id</span>&gt;report&lt;/<span class="kw">id</span>&gt;</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            &lt;<span class="kw">phase</span>&gt;verify&lt;/<span class="kw">phase</span>&gt;</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>            &lt;<span class="kw">goals</span>&gt;&lt;<span class="kw">goal</span>&gt;report&lt;/<span class="kw">goal</span>&gt;&lt;/<span class="kw">goals</span>&gt;</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        &lt;/<span class="kw">execution</span>&gt;</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">executions</span>&gt;</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">plugin</span>&gt;</span></code></pre></div>
+        <hr />
+        <h2 id="test-dependencies">Test Dependencies</h2>
+        <h3 id="testing-stack-from-pom.xml">Testing Stack (from
+        pom.xml)</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode xml"><code class="sourceCode xml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- JUnit 5 &amp; Mockito (via spring-boot-starter-test) --&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">groupId</span>&gt;org.springframework.boot&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">artifactId</span>&gt;spring-boot-starter-test&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">scope</span>&gt;test&lt;/<span class="kw">scope</span>&gt;</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- Includes: JUnit 5, Mockito, AssertJ, Hamcrest, JSONassert --&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- Spring Test Utilities --&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">groupId</span>&gt;org.springframework.security&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">artifactId</span>&gt;spring-security-test&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">scope</span>&gt;test&lt;/<span class="kw">scope</span>&gt;</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- TestContainers for Database Isolation --&gt;</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">groupId</span>&gt;org.springframework.boot&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">artifactId</span>&gt;spring-boot-testcontainers&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">scope</span>&gt;test&lt;/<span class="kw">scope</span>&gt;</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">groupId</span>&gt;org.testcontainers&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">artifactId</span>&gt;oracle-free&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">scope</span>&gt;test&lt;/<span class="kw">scope</span>&gt;</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- H2 for Unit Tests (in-memory, fast) --&gt;</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">groupId</span>&gt;com.h2database&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">artifactId</span>&gt;h2&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">scope</span>&gt;test&lt;/<span class="kw">scope</span>&gt;</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">dependency</span>&gt;</span></code></pre></div>
+        <hr />
+        <h2 id="running-tests">Running Tests</h2>
+        <h3 id="maven-commands">Maven Commands</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run all tests</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run tests with coverage report</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> clean verify</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Run specific test class</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-Dtest</span><span class="op">=</span>SupplierRepositoryTest</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Run tests matching pattern</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-Dtest</span><span class="op">=</span><span class="pp">*</span>ValidatorTest</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with detailed output</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> test <span class="at">-X</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Skip tests during build</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="ex">mvn</span> clean package <span class="at">-DskipTests</span></span></code></pre></div>
+        <h3 id="ide-integration">IDE Integration</h3>
+        <p><strong>IntelliJ IDEA:</strong> - Right-click test class →
+        Run ‘TestClassName’ - Right-click test method → Run
+        ‘methodName()’ - Coverage: Run → Run with Coverage</p>
+        <p><strong>VS Code (with Extension Pack for Java):</strong> -
+        CodeLens link above test methods - Click “Run Test” or “Debug
+        Test”</p>
+        <hr />
+        <h2 id="test-profiles">Test Profiles</h2>
+        <h3 id="test-profile-application-test.properties">test Profile
+        (application-test.properties)</h3>
+        <ul>
+        <li>Uses <strong>H2 in-memory database</strong> (Oracle
+        compatibility mode)</li>
+        <li>Disables Testcontainers checks</li>
+        <li>Configures test-specific properties</li>
+        </ul>
+        <p><strong>Rationale:</strong> H2 is fast for unit tests;
+        TestContainers provide real Oracle for integration tests that
+        need it.</p>
+        <pre class="properties"><code># Spring profile for testing
+spring.profiles.active=test
+
+# H2 embedded database (Oracle mode)
+spring.datasource.url=jdbc:h2:mem:testdb;MODE=Oracle
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+# Disable unnecessary services
+spring.h2.console.enabled=false
+management.endpoints.web.exposure.exclude=*</code></pre>
+        <hr />
+        <h2 id="test-fixtures-helpers">Test Fixtures &amp; Helpers</h2>
+        <h3 id="test-helper-classes">Test Helper Classes</h3>
+        <table>
+        <colgroup>
+        <col style="width: 43%" />
+        <col style="width: 56%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Class</th>
+        <th>Purpose</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><code>InventoryItemServiceImplTestHelper</code></td>
+        <td>OAuth2 authentication setup, test data builders</td>
+        </tr>
+        <tr class="even">
+        <td><code>TestSecurityConfig</code></td>
+        <td>Mock OAuth2 config for <span class="citation"
+        data-cites="WebMvcTest">@WebMvcTest</span></td>
+        </tr>
+        <tr class="odd">
+        <td><code>TestApiStubController</code></td>
+        <td>Probe endpoints for security testing</td>
+        </tr>
+        <tr class="even">
+        <td><code>AdminStubController</code></td>
+        <td>Admin-protected endpoints for RBAC tests</td>
+        </tr>
+        </tbody>
+        </table>
+        <h3 id="common-patterns">Common Patterns</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. Authentication setup in service tests</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@BeforeEach</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">setup</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    InventoryItemServiceImplTestHelper<span class="op">.</span><span class="fu">authenticateAsOAuth2</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. Build test DTOs</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> InventoryItemDTO <span class="fu">validDTO</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Widget&quot;</span><span class="op">)</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">100</span><span class="op">)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">TEN</span><span class="op">)</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;SUPP-001&quot;</span><span class="op">)</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. Controller testing with MockMvc</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">user</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">).</span><span class="fu">roles</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">)))</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isCreated</span><span class="op">())</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.id&quot;</span><span class="op">).</span><span class="fu">exists</span><span class="op">());</span></span></code></pre></div>
+        <hr />
+        <h2 id="quick-navigation">Quick Navigation</h2>
+        <ul>
+        <li><strong><a href="./unit-testing.html">Unit Testing
+        Patterns</a></strong> - Component isolation, mocking, test
+        organization</li>
+        <li><strong><a href="./integration-testing.html">Integration
+        Testing</a></strong> - <span class="citation"
+        data-cites="DataJpaTest">@DataJpaTest</span>, <span
+        class="citation" data-cites="WebMvcTest">@WebMvcTest</span>,
+        database testing</li>
+        <li><strong><a href="./security-testing.html">Security
+        Testing</a></strong> - OAuth2, RBAC, API authentication
+        tests</li>
+        <li><strong><a href="./coverage.html">Test Coverage</a></strong>
+        - JaCoCo configuration, coverage metrics, improvement
+        strategies</li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="../validation/index.html">Validation
+        Framework</a></strong> - How validation is tested</li>
+        <li><strong><a
+        href="../validation/exception-handling.html">Exception
+        Handling</a></strong> - Error scenario testing</li>
+        <li><strong><a href="../overview.html">Architecture
+        Overview</a></strong> - System design context</li>
+        <li><strong><a
+        href="../validation/custom-validators.html">Custom
+        Validators</a></strong> - Validator test examples</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

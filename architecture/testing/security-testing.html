@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend ·
+testing/security-testing · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#security-testing"
+        id="toc-security-testing">Security Testing</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#security-testing-characteristics"
+        id="toc-security-testing-characteristics">Security Testing
+        Characteristics</a></li>
+        <li><a href="#spring-security-test-annotations"
+        id="toc-spring-security-test-annotations">Spring Security Test
+        Annotations</a>
+        <ul>
+        <li><a href="#withmockuser" id="toc-withmockuser"><span
+        class="citation"
+        data-cites="WithMockUser">@WithMockUser</span></a></li>
+        <li><a href="#request-mutators"
+        id="toc-request-mutators">Request Mutators</a></li>
+        </ul></li>
+        <li><a href="#authentication-testing"
+        id="toc-authentication-testing">Authentication Testing</a>
+        <ul>
+        <li><a href="#example-oauth2-authentication-flow"
+        id="toc-example-oauth2-authentication-flow">Example: OAuth2
+        Authentication Flow</a></li>
+        <li><a href="#custom-oauth2userservice-testing"
+        id="toc-custom-oauth2userservice-testing">Custom
+        OAuth2UserService Testing</a></li>
+        </ul></li>
+        <li><a href="#authorization-rbac-testing"
+        id="toc-authorization-rbac-testing">Authorization (RBAC)
+        Testing</a>
+        <ul>
+        <li><a href="#example-role-based-access-control"
+        id="toc-example-role-based-access-control">Example: Role-Based
+        Access Control</a></li>
+        </ul></li>
+        <li><a href="#csrf-protection-testing"
+        id="toc-csrf-protection-testing">CSRF Protection Testing</a>
+        <ul>
+        <li><a href="#csrf-token-handling"
+        id="toc-csrf-token-handling">CSRF Token Handling</a></li>
+        </ul></li>
+        <li><a href="#cors-testing" id="toc-cors-testing">CORS
+        Testing</a>
+        <ul>
+        <li><a href="#cross-origin-request-testing"
+        id="toc-cross-origin-request-testing">Cross-Origin Request
+        Testing</a></li>
+        </ul></li>
+        <li><a href="#demo-mode-security-testing"
+        id="toc-demo-mode-security-testing">Demo Mode Security
+        Testing</a>
+        <ul>
+        <li><a href="#read-only-security-in-demo"
+        id="toc-read-only-security-in-demo">Read-Only Security in
+        Demo</a></li>
+        </ul></li>
+        <li><a href="#field-level-authorization-testing"
+        id="toc-field-level-authorization-testing">Field-Level
+        Authorization Testing</a>
+        <ul>
+        <li><a href="#role-based-field-updates"
+        id="toc-role-based-field-updates">Role-Based Field
+        Updates</a></li>
+        </ul></li>
+        <li><a href="#best-practices-for-security-testing"
+        id="toc-best-practices-for-security-testing">Best Practices for
+        Security Testing</a>
+        <ul>
+        <li><a href="#do" id="toc-do">✅ DO</a></li>
+        <li><a href="#dont" id="toc-dont">❌ DON’T</a></li>
+        </ul></li>
+        <li><a href="#test-security-configuration"
+        id="toc-test-security-configuration">Test Security
+        Configuration</a>
+        <ul>
+        <li><a href="#testsecurityconfig"
+        id="toc-testsecurityconfig">TestSecurityConfig</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+        <h1 id="security-testing">Security Testing</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Security tests verify <strong>authentication, authorization,
+        and API access control</strong>. They ensure OAuth2 flows work
+        correctly and role-based access control (RBAC) properly
+        restricts operations.</p>
+        <hr />
+        <h2 id="security-testing-characteristics">Security Testing
+        Characteristics</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Scope</strong></td>
+        <td>Authentication flows, authorization rules, API access</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Framework</strong></td>
+        <td><span class="citation"
+        data-cites="WebMvcTest">@WebMvcTest</span> with SecurityConfig,
+        spring-security-test</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Dependencies</strong></td>
+        <td>Mock OAuth2 config, test security filters</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Key Classes</strong></td>
+        <td><span class="citation"
+        data-cites="WithMockUser">@WithMockUser</span>,
+        TestSecurityConfig, SecurityMockMvcRequestPostProcessors</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Focus</strong></td>
+        <td>Role validation, endpoint protection, CORS, CSRF</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="spring-security-test-annotations">Spring Security Test
+        Annotations</h2>
+        <h3 id="withmockuser"><span class="citation"
+        data-cites="WithMockUser">@WithMockUser</span></h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@WithMockUser</span><span class="op">(</span>username <span class="op">=</span> <span class="st">&quot;john&quot;</span><span class="op">,</span> roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">userCanAccessUserEndpoint</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test runs with mocked OAuth2 user &quot;john&quot; with role &quot;USER&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">@WithMockUser</span><span class="op">(</span>username <span class="op">=</span> <span class="st">&quot;admin&quot;</span><span class="op">,</span> roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">adminCanAccessAdminEndpoint</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Test runs with mocked OAuth2 user &quot;admin&quot; with role &quot;ADMIN&quot;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="op">{</span><span class="st">&quot;USER&quot;</span><span class="op">,</span> <span class="st">&quot;MODERATOR&quot;</span><span class="op">})</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">multipleRolesSupported</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// User has both USER and MODERATOR roles</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="request-mutators">Request Mutators</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Add CSRF token (required for POST/PUT/DELETE)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Add user with role</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/admin&quot;</span><span class="op">)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">user</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">).</span><span class="fu">roles</span><span class="op">(</span><span class="st">&quot;ADMIN&quot;</span><span class="op">)))</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">// OAuth2 token (for resource server testing)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>mockMvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/secure&quot;</span><span class="op">)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">oauth2Login</span><span class="op">().</span><span class="fu">attributes</span><span class="op">(</span>attrs<span class="op">)))</span></span></code></pre></div>
+        <hr />
+        <h2 id="authentication-testing">Authentication Testing</h2>
+        <h3 id="example-oauth2-authentication-flow">Example: OAuth2
+        Authentication Flow</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@WebMvcTest</span><span class="op">(</span>controllers <span class="op">=</span> AdminStubController<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Import</span><span class="op">({</span> SecurityConfig<span class="op">.</span><span class="fu">class</span><span class="op">,</span> TestSecurityConfig<span class="op">.</span><span class="fu">class</span> <span class="op">})</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> OAuth2AuthenticationTest <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> MockMvc mvc<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> OAuth2LoginSuccessHandler successHandler<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> ClientRegistrationRepository clientRegistrationRepository<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;OAuth2 client registration configured for Google&quot;</span><span class="op">)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">googleClientConfigured</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        ClientRegistration google <span class="op">=</span> </span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>            clientRegistrationRepository<span class="op">.</span><span class="fu">findByRegistrationId</span><span class="op">(</span><span class="st">&quot;google&quot;</span><span class="op">);</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertNotNull</span><span class="op">(</span>google<span class="op">);</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;google&quot;</span><span class="op">,</span> google<span class="op">.</span><span class="fu">getRegistrationId</span><span class="op">());</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;https://accounts.google.com/o/oauth2/v2/auth&quot;</span><span class="op">,</span> </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>            google<span class="op">.</span><span class="fu">getProviderDetails</span><span class="op">().</span><span class="fu">getAuthorizationUri</span><span class="op">());</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;OAuth2 authorization endpoint redirects to Google&quot;</span><span class="op">)</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">oauth2AuthorizationRedirectsToGoogle</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/oauth2/authorization/google&quot;</span><span class="op">))</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">is3xxRedirection</span><span class="op">())</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">string</span><span class="op">(</span><span class="st">&quot;Location&quot;</span><span class="op">,</span> </span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>                <span class="fu">containsString</span><span class="op">(</span><span class="st">&quot;accounts.google.com&quot;</span><span class="op">)));</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;Login success handler exists and is configured&quot;</span><span class="op">)</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">loginSuccessHandlerWired</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertNotNull</span><span class="op">(</span>successHandler<span class="op">);</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="custom-oauth2userservice-testing">Custom
+        OAuth2UserService Testing</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@WebMvcTest</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Import</span><span class="op">(</span>TestSecurityConfig<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> OAuth2UserServiceTest <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> MockMvc mvc<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@MockitoBean</span> CustomOAuth2UserService customUserService<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@MockitoBean</span> AppUserRepository appUserRepository<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;OAuth2 login creates AppUser if not exists&quot;</span><span class="op">)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">oauth2Login_newUser_createsAppUser</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Setup: Mock OAuth2 user from Google</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        OAuth2User oAuth2User <span class="op">=</span> <span class="fu">mock</span><span class="op">(</span>OAuth2User<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>oAuth2User<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">))</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;john@example.com&quot;</span><span class="op">);</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>oAuth2User<span class="op">.</span><span class="fu">getAttribute</span><span class="op">(</span><span class="st">&quot;name&quot;</span><span class="op">))</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="st">&quot;John Doe&quot;</span><span class="op">);</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Setup: Service creates AppUser</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        AppUser appUser <span class="op">=</span> AppUser<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;john@example.com&quot;</span><span class="op">)</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">username</span><span class="op">(</span><span class="st">&quot;john@example.com&quot;</span><span class="op">)</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">role</span><span class="op">(</span><span class="bu">Role</span><span class="op">.</span><span class="fu">USER</span><span class="op">)</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>customUserService<span class="op">.</span><span class="fu">loadUser</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span>OAuth2UserRequest<span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">new</span> <span class="fu">DefaultOAuth2User</span><span class="op">(</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>                AuthorityUtils<span class="op">.</span><span class="fu">createAuthorityList</span><span class="op">(</span><span class="st">&quot;ROLE_USER&quot;</span><span class="op">),</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                <span class="bu">Map</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">,</span> <span class="st">&quot;john@example.com&quot;</span><span class="op">,</span> <span class="st">&quot;name&quot;</span><span class="op">,</span> <span class="st">&quot;John Doe&quot;</span><span class="op">),</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;email&quot;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">));</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="co">// OAuth2 login should complete successfully</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="co">// (verified via actual OAuth2 callback flow)</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="authorization-rbac-testing">Authorization (RBAC)
+        Testing</h2>
+        <h3 id="example-role-based-access-control">Example: Role-Based
+        Access Control</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@WebMvcTest</span><span class="op">(</span>SupplierController<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Import</span><span class="op">({</span> TestSecurityConfig<span class="op">.</span><span class="fu">class</span><span class="op">,</span> GlobalExceptionHandler<span class="op">.</span><span class="fu">class</span> <span class="op">})</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RBACTest <span class="op">{</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> MockMvc mvc<span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@MockitoBean</span> SupplierService supplierService<span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    SupplierDTO dto <span class="op">=</span> SupplierDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">contactName</span><span class="op">(</span><span class="st">&quot;Alice&quot;</span><span class="op">).</span><span class="fu">email</span><span class="op">(</span><span class="st">&quot;alice@acme.com&quot;</span><span class="op">)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== READ operations: USER + ADMIN can access ==========</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;USER role can GET suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">userCanGetSupplier</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">());</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;ADMIN role can GET suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">adminCanGetSupplier</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">());</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== WRITE operations: ADMIN only ==========</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;ADMIN role can POST suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">adminCanCreateSupplier</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span><span class="fu">any</span><span class="op">()))</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>SupplierDTO<span class="op">.</span><span class="fu">builder</span><span class="op">().</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;new-id&quot;</span><span class="op">).</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Acme&quot;</span><span class="op">).</span><span class="fu">build</span><span class="op">());</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isCreated</span><span class="op">());</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;USER role CANNOT POST suppliers (403 FORBIDDEN)&quot;</span><span class="op">)</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">userCannotCreateSupplier</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;ADMIN role can PUT suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">adminCanUpdateSupplier</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">update</span><span class="op">(</span><span class="st">&quot;sup-1&quot;</span><span class="op">,</span> dto<span class="op">))</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">());</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;USER role CANNOT PUT suppliers (403 FORBIDDEN)&quot;</span><span class="op">)</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">userCannotUpdateSupplier</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;ADMIN role can DELETE suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">adminCanDeleteSupplier</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isNoContent</span><span class="op">());</span></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;USER role CANNOT DELETE suppliers (403 FORBIDDEN)&quot;</span><span class="op">)</span></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">userCannotDeleteSupplier</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== Unauthenticated access: 401 ==========</span></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;Unauthenticated GET returns 401 UNAUTHORIZED&quot;</span><span class="op">)</span></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">unauthenticatedCannotGet</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isUnauthorized</span><span class="op">());</span></span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;Unauthenticated POST returns 401 UNAUTHORIZED&quot;</span><span class="op">)</span></span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">unauthenticatedCannotCreate</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isUnauthorized</span><span class="op">());</span></span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="csrf-protection-testing">CSRF Protection Testing</h2>
+        <h3 id="csrf-token-handling">CSRF Token Handling</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;POST without CSRF token returns 403 FORBIDDEN&quot;</span><span class="op">)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">postWithoutCsrf_returns403</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Intentionally omit .with(csrf())</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">content</span><span class="op">(</span>json<span class="op">))</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ← Missing .with(csrf())</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;POST with CSRF token succeeds&quot;</span><span class="op">)</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">postWithCsrf_succeeds</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">when</span><span class="op">(</span>supplierService<span class="op">.</span><span class="fu">create</span><span class="op">(</span><span class="fu">any</span><span class="op">())).</span><span class="fu">thenReturn</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">content</span><span class="op">(</span>json<span class="op">)</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span>  <span class="co">// ← Include CSRF token</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isCreated</span><span class="op">());</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;GET does not require CSRF token&quot;</span><span class="op">)</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">getDoesNotRequireCsrf</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">))</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        <span class="co">// No .with(csrf()) needed for safe methods</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">());</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="cors-testing">CORS Testing</h2>
+        <h3 id="cross-origin-request-testing">Cross-Origin Request
+        Testing</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;CORS preflight request returns allowed headers&quot;</span><span class="op">)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">corsPreflight_returnsAllowedHeaders</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">options</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">header</span><span class="op">(</span><span class="st">&quot;Origin&quot;</span><span class="op">,</span> <span class="st">&quot;http://localhost:3000&quot;</span><span class="op">)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">header</span><span class="op">(</span><span class="st">&quot;Access-Control-Request-Method&quot;</span><span class="op">,</span> <span class="st">&quot;POST&quot;</span><span class="op">))</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">())</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">exists</span><span class="op">(</span><span class="st">&quot;Access-Control-Allow-Origin&quot;</span><span class="op">))</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">string</span><span class="op">(</span><span class="st">&quot;Access-Control-Allow-Methods&quot;</span><span class="op">,</span> </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">containsString</span><span class="op">(</span><span class="st">&quot;POST&quot;</span><span class="op">)));</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;CORS allows credentials for development origin&quot;</span><span class="op">)</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">corsAllowsCredentials_devOrigin</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">header</span><span class="op">(</span><span class="st">&quot;Origin&quot;</span><span class="op">,</span> <span class="st">&quot;http://localhost:3000&quot;</span><span class="op">))</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">())</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">header</span><span class="op">().</span><span class="fu">string</span><span class="op">(</span><span class="st">&quot;Access-Control-Allow-Credentials&quot;</span><span class="op">,</span> <span class="st">&quot;true&quot;</span><span class="op">));</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="demo-mode-security-testing">Demo Mode Security
+        Testing</h2>
+        <h3 id="read-only-security-in-demo">Read-Only Security in
+        Demo</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span><span class="op">(</span>properties <span class="op">=</span> <span class="st">&quot;app.demo.enabled=true&quot;</span><span class="op">)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@AutoConfigureMockMvc</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DemoReadonlySecurityTest <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> MockMvc mvc<span class="op">;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;Demo mode allows GET operations&quot;</span><span class="op">)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">demo_getSucceeds</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">get</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">))</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">());</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;Demo mode blocks POST operations (read-only)&quot;</span><span class="op">)</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">demo_postBlocked</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">post</span><span class="op">(</span><span class="st">&quot;/api/suppliers&quot;</span><span class="op">)</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span><span class="st">&quot;{}&quot;</span><span class="op">)</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">())</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">jsonPath</span><span class="op">(</span><span class="st">&quot;$.message&quot;</span><span class="op">)</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>                <span class="op">.</span><span class="fu">value</span><span class="op">(</span><span class="fu">containsString</span><span class="op">(</span><span class="st">&quot;demo mode&quot;</span><span class="op">)));</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;Demo mode blocks PUT operations (read-only)&quot;</span><span class="op">)</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">demo_putBlocked</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span><span class="st">&quot;{}&quot;</span><span class="op">)</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;Demo mode blocks DELETE operations (read-only)&quot;</span><span class="op">)</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">demo_deleteBlocked</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">delete</span><span class="op">(</span><span class="st">&quot;/api/suppliers/sup-1&quot;</span><span class="op">)</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="field-level-authorization-testing">Field-Level
+        Authorization Testing</h2>
+        <h3 id="role-based-field-updates">Role-Based Field Updates</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@WebMvcTest</span><span class="op">(</span>InventoryItemController<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Import</span><span class="op">({</span> TestSecurityConfig<span class="op">.</span><span class="fu">class</span><span class="op">,</span> GlobalExceptionHandler<span class="op">.</span><span class="fu">class</span> <span class="op">})</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FieldAuthorizationTest <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Autowired</span> MockMvc mvc<span class="op">;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@MockitoBean</span> InventoryItemService service<span class="op">;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;USER role can update quantity&quot;</span><span class="op">)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">userCanUpdateQuantity</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO dto <span class="op">=</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Widget&quot;</span><span class="op">)</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">150</span><span class="op">)</span>  <span class="co">// ← Updating quantity is allowed for USER</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;25.00&quot;</span><span class="op">))</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;supp-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>service<span class="op">.</span><span class="fu">update</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">,</span> dto<span class="op">)).</span><span class="fu">thenReturn</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/inventory/items/item-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">());</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;USER role CANNOT update price (403 FORBIDDEN)&quot;</span><span class="op">)</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;USER&quot;</span><span class="op">)</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">userCannotUpdatePrice</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO dto <span class="op">=</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Widget&quot;</span><span class="op">)</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">100</span><span class="op">)</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;99.99&quot;</span><span class="op">))</span>  <span class="co">// ← Price update blocked for USER</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;supp-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Service enforces field-level authorization</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>service<span class="op">.</span><span class="fu">update</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">,</span> dto<span class="op">))</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenThrow</span><span class="op">(</span><span class="kw">new</span> <span class="fu">AccessDeniedException</span><span class="op">(</span><span class="st">&quot;Price field restricted&quot;</span><span class="op">));</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/inventory/items/item-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isForbidden</span><span class="op">());</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;ADMIN role can update all fields including price&quot;</span><span class="op">)</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">@WithMockUser</span><span class="op">(</span>roles <span class="op">=</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">)</span></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">adminCanUpdateAllFields</span><span class="op">()</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO dto <span class="op">=</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Widget Updated&quot;</span><span class="op">)</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">200</span><span class="op">)</span></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;99.99&quot;</span><span class="op">))</span>  <span class="co">// ← Price update allowed for ADMIN</span></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;supp-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>service<span class="op">.</span><span class="fu">update</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">,</span> dto<span class="op">)).</span><span class="fu">thenReturn</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>        mvc<span class="op">.</span><span class="fu">perform</span><span class="op">(</span><span class="fu">put</span><span class="op">(</span><span class="st">&quot;/api/inventory/items/item-1&quot;</span><span class="op">)</span></span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">contentType</span><span class="op">(</span>MediaType<span class="op">.</span><span class="fu">APPLICATION_JSON</span><span class="op">)</span></span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">content</span><span class="op">(</span>objectMapper<span class="op">.</span><span class="fu">writeValueAsString</span><span class="op">(</span>dto<span class="op">))</span></span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">with</span><span class="op">(</span><span class="fu">csrf</span><span class="op">()))</span></span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">andExpect</span><span class="op">(</span><span class="fu">status</span><span class="op">().</span><span class="fu">isOk</span><span class="op">());</span></span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices-for-security-testing">Best Practices for
+        Security Testing</h2>
+        <h3 id="do">✅ DO</h3>
+        <ul class="task-list">
+        <li><label><input type="checkbox" />Test both happy path and
+        denial paths</label></li>
+        <li><label><input type="checkbox" />Verify all role combinations
+        for protected endpoints</label></li>
+        <li><label><input type="checkbox" />Include CSRF tokens in
+        mutation tests (POST/PUT/DELETE)</label></li>
+        <li><label><input type="checkbox" />Test unauthenticated access
+        (should be 401)</label></li>
+        <li><label><input type="checkbox" />Test insufficient role
+        access (should be 403)</label></li>
+        <li><label><input type="checkbox" />Verify CORS headers in
+        cross-origin scenarios</label></li>
+        <li><label><input type="checkbox" />Test demo mode restrictions
+        separately</label></li>
+        <li><label><input type="checkbox" />Verify field-level
+        authorization for sensitive fields</label></li>
+        <li><label><input type="checkbox" />Document role requirements
+        in test names</label></li>
+        </ul>
+        <h3 id="dont">❌ DON’T</h3>
+        <ul class="task-list">
+        <li><label><input type="checkbox" />Hardcode user credentials in
+        tests</label></li>
+        <li><label><input type="checkbox" />Skip CSRF testing for
+        mutations</label></li>
+        <li><label><input type="checkbox" />Assume all endpoints need
+        same authorization</label></li>
+        <li><label><input type="checkbox" />Mock SecurityContext
+        directly (use <span class="citation"
+        data-cites="WithMockUser">@WithMockUser</span>)</label></li>
+        <li><label><input type="checkbox" />Test Spring Security itself
+        (trust the framework)</label></li>
+        <li><label><input type="checkbox" />Leave OAuth2 config
+        undocumented</label></li>
+        <li><label><input type="checkbox" />Ignore CORS
+        requirements</label></li>
+        <li><label><input type="checkbox" />Test with real production
+        OAuth2 credentials</label></li>
+        </ul>
+        <hr />
+        <h2 id="test-security-configuration">Test Security
+        Configuration</h2>
+        <h3 id="testsecurityconfig">TestSecurityConfig</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@TestConfiguration</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> TestSecurityConfig <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ClientRegistrationRepository <span class="fu">clientRegistrationRepository</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        ClientRegistration google <span class="op">=</span> ClientRegistration<span class="op">.</span><span class="fu">withRegistrationId</span><span class="op">(</span><span class="st">&quot;google&quot;</span><span class="op">)</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">clientId</span><span class="op">(</span><span class="st">&quot;test-client-id&quot;</span><span class="op">)</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">clientSecret</span><span class="op">(</span><span class="st">&quot;test-client-secret&quot;</span><span class="op">)</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">authorizationGrantType</span><span class="op">(</span>AuthorizationGrantType<span class="op">.</span><span class="fu">AUTHORIZATION_CODE</span><span class="op">)</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">redirectUri</span><span class="op">(</span><span class="st">&quot;http://localhost:8080/login/oauth2/code/google&quot;</span><span class="op">)</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">authorizationUri</span><span class="op">(</span><span class="st">&quot;https://accounts.google.com/o/oauth2/v2/auth&quot;</span><span class="op">)</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">tokenUri</span><span class="op">(</span><span class="st">&quot;https://oauth2.googleapis.com/token&quot;</span><span class="op">)</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">userInfoUri</span><span class="op">(</span><span class="st">&quot;https://www.googleapis.com/oauth2/v2/userinfo&quot;</span><span class="op">)</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">userNameAttributeName</span><span class="op">(</span><span class="st">&quot;email&quot;</span><span class="op">)</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">InMemoryClientRegistrationRepository</span><span class="op">(</span>google<span class="op">);</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Testing Index</a></strong> -
+        Complete testing strategy</li>
+        <li><strong><a href="./integration-testing.html">Integration
+        Testing</a></strong> - Controller and repository testing</li>
+        <li><strong><a href="./unit-testing.html">Unit
+        Testing</a></strong> - Component isolation</li>
+        <li><strong><a href="../security/index.html">Security
+        Architecture</a></strong> - OAuth2 and RBAC design</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

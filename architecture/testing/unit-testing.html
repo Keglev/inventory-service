@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Backend · testing/unit-testing · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <!-- Future: <a href="/inventory-service/frontend/architecture/overview.html">Frontend</a> -->
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <!-- Future: <a href="/inventory-service/frontend/api/index.html">Frontend API</a> -->
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <!-- Future: <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment.html">Deployment</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#unit-testing-patterns"
+        id="toc-unit-testing-patterns">Unit Testing Patterns</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#unit-testing-characteristics"
+        id="toc-unit-testing-characteristics">Unit Testing
+        Characteristics</a></li>
+        <li><a href="#junit-5-mockito-setup"
+        id="toc-junit-5-mockito-setup">JUnit 5 &amp; Mockito Setup</a>
+        <ul>
+        <li><a href="#annotations"
+        id="toc-annotations">Annotations</a></li>
+        <li><a href="#basic-assertions" id="toc-basic-assertions">Basic
+        Assertions</a></li>
+        </ul></li>
+        <li><a href="#validator-unit-tests"
+        id="toc-validator-unit-tests">Validator Unit Tests</a>
+        <ul>
+        <li><a href="#example-inventoryitemvalidatortest"
+        id="toc-example-inventoryitemvalidatortest">Example:
+        InventoryItemValidatorTest</a></li>
+        </ul></li>
+        <li><a href="#service-unit-tests"
+        id="toc-service-unit-tests">Service Unit Tests</a>
+        <ul>
+        <li><a href="#example-inventoryitemserviceimplsavetest"
+        id="toc-example-inventoryitemserviceimplsavetest">Example:
+        InventoryItemServiceImplSaveTest</a></li>
+        </ul></li>
+        <li><a href="#parameterized-tests"
+        id="toc-parameterized-tests">Parameterized Tests</a>
+        <ul>
+        <li><a href="#testing-multiple-scenarios"
+        id="toc-testing-multiple-scenarios">Testing Multiple
+        Scenarios</a></li>
+        </ul></li>
+        <li><a href="#mocking-best-practices"
+        id="toc-mocking-best-practices">Mocking Best Practices</a>
+        <ul>
+        <li><a href="#when-to-use-mocks-vs-real-objects"
+        id="toc-when-to-use-mocks-vs-real-objects">When to Use Mocks vs
+        Real Objects</a></li>
+        <li><a href="#stubbing-vs-verification"
+        id="toc-stubbing-vs-verification">Stubbing vs
+        Verification</a></li>
+        </ul></li>
+        <li><a href="#test-organization-patterns"
+        id="toc-test-organization-patterns">Test Organization
+        Patterns</a>
+        <ul>
+        <li><a href="#given-when-then-gwt-pattern"
+        id="toc-given-when-then-gwt-pattern">1. Given-When-Then (GWT)
+        Pattern</a></li>
+        <li><a href="#arrange-act-assert-aaa-pattern"
+        id="toc-arrange-act-assert-aaa-pattern">2. Arrange-Act-Assert
+        (AAA) Pattern</a></li>
+        <li><a href="#test-method-naming" id="toc-test-method-naming">3.
+        Test Method Naming</a></li>
+        </ul></li>
+        <li><a href="#common-pitfalls" id="toc-common-pitfalls">Common
+        Pitfalls</a>
+        <ul>
+        <li><a href="#overly-complex-mocking"
+        id="toc-overly-complex-mocking">❌ Overly Complex
+        Mocking</a></li>
+        <li><a href="#testing-implementation-details"
+        id="toc-testing-implementation-details">❌ Testing
+        Implementation Details</a></li>
+        <li><a href="#test-interdependencies"
+        id="toc-test-interdependencies">❌ Test
+        Interdependencies</a></li>
+        </ul></li>
+        <li><a href="#best-practices-checklist"
+        id="toc-best-practices-checklist">Best Practices Checklist</a>
+        <ul>
+        <li><a href="#do" id="toc-do">✅ DO</a></li>
+        <li><a href="#dont" id="toc-dont">❌ DON’T</a></li>
+        </ul></li>
+        <li><a href="#related-documentation"
+        id="toc-related-documentation">Related Documentation</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+        <h1 id="unit-testing-patterns">Unit Testing Patterns</h1>
+        <h2 id="overview">Overview</h2>
+        <p>Unit tests verify individual components in
+        <strong>isolation</strong> with <strong>mocked
+        dependencies</strong>. They are the foundation of the testing
+        pyramid, providing fast feedback for logic errors.</p>
+        <hr />
+        <h2 id="unit-testing-characteristics">Unit Testing
+        Characteristics</h2>
+        <table>
+        <colgroup>
+        <col style="width: 50%" />
+        <col style="width: 50%" />
+        </colgroup>
+        <thead>
+        <tr class="header">
+        <th>Aspect</th>
+        <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="odd">
+        <td><strong>Scope</strong></td>
+        <td>Single class/method in isolation</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Dependencies</strong></td>
+        <td>All mocked (repositories, services, external APIs)</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Speed</strong></td>
+        <td>Milliseconds per test</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Framework</strong></td>
+        <td>JUnit 5 + Mockito, no Spring context</td>
+        </tr>
+        <tr class="odd">
+        <td><strong>Database</strong></td>
+        <td>None - all interactions mocked</td>
+        </tr>
+        <tr class="even">
+        <td><strong>Failure Cause</strong></td>
+        <td>Clearly pinpoints logic error</td>
+        </tr>
+        </tbody>
+        </table>
+        <hr />
+        <h2 id="junit-5-mockito-setup">JUnit 5 &amp; Mockito Setup</h2>
+        <h3 id="annotations">Annotations</h3>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExtendWith</span><span class="op">(</span>MockitoExtension<span class="op">.</span><span class="fu">class</span><span class="op">)</span>  <span class="co">// Enable Mockito for this test class</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">@MockitoSettings</span><span class="op">(</span>strictness <span class="op">=</span> Strictness<span class="op">.</span><span class="fu">LENIENT</span><span class="op">)</span>  <span class="co">// Optional: lenient stub checking</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MyServiceTest <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span>           <span class="co">// Create mock dependency</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> UserRepository userRepository<span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@InjectMocks</span>    <span class="co">// Inject mocks into service</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> UserService userService<span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span>           <span class="co">// This is a test method</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">someTest</span><span class="op">()</span> <span class="op">{</span> <span class="op">}</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@BeforeEach</span>     <span class="co">// Setup before each test</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">setup</span><span class="op">()</span> <span class="op">{</span> <span class="op">}</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="basic-assertions">Basic Assertions</h3>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Static imports</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">static</span><span class="im"> org</span><span class="op">.</span><span class="im">junit</span><span class="op">.</span><span class="im">jupiter</span><span class="op">.</span><span class="im">api</span><span class="op">.</span><span class="im">Assertions</span><span class="op">.*;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">static</span><span class="im"> org</span><span class="op">.</span><span class="im">mockito</span><span class="op">.</span><span class="im">Mockito</span><span class="op">.*;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Assertions</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">assertEquals</span><span class="op">(</span>expected<span class="op">,</span> actual<span class="op">);</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">assertNotNull</span><span class="op">(</span>value<span class="op">);</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">assertThrows</span><span class="op">(</span><span class="bu">Exception</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span> <span class="fu">method</span><span class="op">());</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">assertTrue</span><span class="op">(</span>condition<span class="op">);</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">assertFalse</span><span class="op">(</span>condition<span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h2 id="validator-unit-tests">Validator Unit Tests</h2>
+        <h3 id="example-inventoryitemvalidatortest">Example:
+        InventoryItemValidatorTest</h3>
+        <div class="sourceCode" id="cb3"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExtendWith</span><span class="op">(</span>MockitoExtension<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InventoryItemValidatorTest <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItemRepository repo<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItemDTO <span class="fu">validDTO</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Monitor&quot;</span><span class="op">)</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">quantity</span><span class="op">(</span><span class="dv">10</span><span class="op">)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;199.99&quot;</span><span class="op">))</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">supplierId</span><span class="op">(</span><span class="st">&quot;supplier-1&quot;</span><span class="op">)</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== validateBase() tests ==========</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateBase_validInput_passes</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertDoesNotThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span><span class="fu">validDTO</span><span class="op">())</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateBase_nullName_throwsException</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO dto <span class="op">=</span> <span class="fu">validDTO</span><span class="op">();</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        dto<span class="op">.</span><span class="fu">setName</span><span class="op">(</span><span class="kw">null</span><span class="op">);</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="bu">Exception</span> e <span class="op">=</span> <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span>dto<span class="op">)</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;Product name cannot be null or empty&quot;</span><span class="op">,</span> e<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateBase_negativeQuantity_throwsException</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO dto <span class="op">=</span> <span class="fu">validDTO</span><span class="op">();</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        dto<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span>dto<span class="op">)</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateBase_zeroPriceOrBelow_throwsException</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO dto <span class="op">=</span> <span class="fu">validDTO</span><span class="op">();</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>        dto<span class="op">.</span><span class="fu">setPrice</span><span class="op">(</span><span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">ZERO</span><span class="op">);</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span>dto<span class="op">)</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== validateInventoryItemNotExists() tests ==========</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateDuplicate_noExisting_passes</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Monitor&quot;</span><span class="op">))</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="bu">List</span><span class="op">.</span><span class="fu">of</span><span class="op">());</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertDoesNotThrow</span><span class="op">(()</span> <span class="op">-&gt;</span> </span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateInventoryItemNotExists</span><span class="op">(</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Monitor&quot;</span><span class="op">,</span> <span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;199.99&quot;</span><span class="op">),</span> repo<span class="op">)</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateDuplicate_existingWithSameName_Price_throwsConflict</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>        InventoryItem existing <span class="op">=</span> InventoryItem<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">)</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Monitor&quot;</span><span class="op">)</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;199.99&quot;</span><span class="op">))</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Monitor&quot;</span><span class="op">))</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="bu">List</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span>existing<span class="op">));</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateInventoryItemNotExists</span><span class="op">(</span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Monitor&quot;</span><span class="op">,</span> <span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;199.99&quot;</span><span class="op">),</span> repo<span class="op">)</span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateDuplicate_sameName_differentPrice_passes</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>        InventoryItem existing <span class="op">=</span> InventoryItem<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">)</span></span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Monitor&quot;</span><span class="op">)</span></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">price</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;199.99&quot;</span><span class="op">))</span></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findByNameIgnoreCase</span><span class="op">(</span><span class="st">&quot;Monitor&quot;</span><span class="op">))</span></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="bu">List</span><span class="op">.</span><span class="fu">of</span><span class="op">(</span>existing<span class="op">));</span></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Different price should NOT throw</span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertDoesNotThrow</span><span class="op">(()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateInventoryItemNotExists</span><span class="op">(</span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;Monitor&quot;</span><span class="op">,</span> <span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;249.99&quot;</span><span class="op">),</span> repo<span class="op">)</span>  <span class="co">// ← Different price</span></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== validateExists() tests ==========</span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateExists_itemExists_returnsItem</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>        InventoryItem item <span class="op">=</span> InventoryItem<span class="op">.</span><span class="fu">builder</span><span class="op">()</span></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">id</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">)</span></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">name</span><span class="op">(</span><span class="st">&quot;Monitor&quot;</span><span class="op">)</span></span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">build</span><span class="op">();</span></span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">))</span></span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>Optional<span class="op">.</span><span class="fu">of</span><span class="op">(</span>item<span class="op">));</span></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>        InventoryItem result <span class="op">=</span> InventoryItemValidator<span class="op">.</span><span class="fu">validateExists</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">,</span> repo<span class="op">);</span></span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">,</span> result<span class="op">.</span><span class="fu">getId</span><span class="op">());</span></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">validateExists_itemNotFound_throws404</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;nonexistent&quot;</span><span class="op">))</span></span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>Optional<span class="op">.</span><span class="fu">empty</span><span class="op">());</span></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span>ResponseStatusException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateExists</span><span class="op">(</span><span class="st">&quot;nonexistent&quot;</span><span class="op">,</span> repo<span class="op">)</span></span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ========== assertFinalQuantityNonNegative() tests ==========</span></span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">assertFinalQuantity_zeroAllowed</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertDoesNotThrow</span><span class="op">(()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">assertFinalQuantityNonNegative</span><span class="op">(</span><span class="dv">0</span><span class="op">)</span></span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">assertFinalQuantity_positive_passes</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertDoesNotThrow</span><span class="op">(()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">assertFinalQuantityNonNegative</span><span class="op">(</span><span class="dv">100</span><span class="op">)</span></span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">assertFinalQuantity_negative_throws422</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a>        ResponseStatusException e <span class="op">=</span> <span class="fu">assertThrows</span><span class="op">(</span>ResponseStatusException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">assertFinalQuantityNonNegative</span><span class="op">(-</span><span class="dv">50</span><span class="op">)</span></span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">UNPROCESSABLE_ENTITY</span><span class="op">,</span> e<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">());</span></span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="service-unit-tests">Service Unit Tests</h2>
+        <h3 id="example-inventoryitemserviceimplsavetest">Example:
+        InventoryItemServiceImplSaveTest</h3>
+        <div class="sourceCode" id="cb4"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ExtendWith</span><span class="op">(</span>MockitoExtension<span class="op">.</span><span class="fu">class</span><span class="op">)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@MockitoSettings</span><span class="op">(</span>strictness <span class="op">=</span> Strictness<span class="op">.</span><span class="fu">LENIENT</span><span class="op">)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InventoryItemServiceImplSaveTest <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span> <span class="kw">private</span> InventoryItemRepository repository<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span> <span class="kw">private</span> SupplierRepository supplierRepository<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span> <span class="kw">private</span> StockHistoryService stockHistoryService<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span> <span class="kw">private</span> InventoryItemValidationHelper validationHelper<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Mock</span> <span class="kw">private</span> InventoryItemAuditHelper auditHelper<span class="op">;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">@InjectMocks</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItemServiceImpl service<span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> InventoryItemDTO baseDto<span class="op">;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">@BeforeEach</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">setup</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Authenticate as OAuth2 user for service context</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        InventoryItemServiceImplTestHelper<span class="op">.</span><span class="fu">authenticateAsOAuth2</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        baseDto <span class="op">=</span> <span class="kw">new</span> <span class="fu">InventoryItemDTO</span><span class="op">();</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        baseDto<span class="op">.</span><span class="fu">setName</span><span class="op">(</span><span class="st">&quot;Widget&quot;</span><span class="op">);</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        baseDto<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(</span><span class="dv">100</span><span class="op">);</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        baseDto<span class="op">.</span><span class="fu">setPrice</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;10.00&quot;</span><span class="op">));</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        baseDto<span class="op">.</span><span class="fu">setSupplierId</span><span class="op">(</span><span class="st">&quot;S1&quot;</span><span class="op">);</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        baseDto<span class="op">.</span><span class="fu">setCreatedBy</span><span class="op">(</span><span class="st">&quot;admin&quot;</span><span class="op">);</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Lenient mocking - don&#39;t fail on unexpected calls</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">lenient</span><span class="op">().</span><span class="fu">when</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsById</span><span class="op">(</span><span class="fu">anyString</span><span class="op">()))</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">lenient</span><span class="op">().</span><span class="fu">when</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="fu">anyString</span><span class="op">()))</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">false</span><span class="op">);</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;save: returns saved item with generated ID and logs INITIAL_STOCK&quot;</span><span class="op">)</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">save_shouldReturnSavedItem</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Map DTO to entity</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        InventoryItem toPersist <span class="op">=</span> InventoryItemMapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>baseDto<span class="op">);</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Create saved entity with generated ID</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        InventoryItem saved <span class="op">=</span> <span class="fu">copyOf</span><span class="op">(</span>toPersist<span class="op">);</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        saved<span class="op">.</span><span class="fu">setId</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">);</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Mock repository to return saved entity</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span>InventoryItem<span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>saved<span class="op">);</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Execute</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        InventoryItemDTO result <span class="op">=</span> service<span class="op">.</span><span class="fu">save</span><span class="op">(</span>baseDto<span class="op">);</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Verify returned item has ID</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">,</span> result<span class="op">.</span><span class="fu">getId</span><span class="op">());</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertEquals</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;10.00&quot;</span><span class="op">),</span> result<span class="op">.</span><span class="fu">getPrice</span><span class="op">());</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Verify audit helper called (which logs INITIAL_STOCK)</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        <span class="fu">verify</span><span class="op">(</span>auditHelper<span class="op">).</span><span class="fu">logInitialStock</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span>InventoryItem<span class="op">.</span><span class="fu">class</span><span class="op">));</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;save: duplicate name throws 409 CONFLICT&quot;</span><span class="op">)</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">save_duplicateName_throwsConflict</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Mock repository to find duplicate</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">existsByNameIgnoreCase</span><span class="op">(</span><span class="fu">anyString</span><span class="op">()))</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Should throw before reaching repository.save()</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span>DuplicateResourceException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>            service<span class="op">.</span><span class="fu">save</span><span class="op">(</span>baseDto<span class="op">)</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;save: supplier not found throws 404 NOT_FOUND&quot;</span><span class="op">)</span></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">save_supplierNotFound_throws404</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Mock supplier not existing</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>        <span class="fu">when</span><span class="op">(</span>supplierRepository<span class="op">.</span><span class="fu">existsById</span><span class="op">(</span><span class="st">&quot;S1&quot;</span><span class="op">))</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">false</span><span class="op">);</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span>ResponseStatusException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>            service<span class="op">.</span><span class="fu">save</span><span class="op">(</span>baseDto<span class="op">)</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Test</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;save: missing supplier ID throws 400 BAD_REQUEST&quot;</span><span class="op">)</span></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">save_missingSupplierId_throwsBadRequest</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>        baseDto<span class="op">.</span><span class="fu">setSupplierId</span><span class="op">(</span><span class="kw">null</span><span class="op">);</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span>InvalidRequestException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>            service<span class="op">.</span><span class="fu">save</span><span class="op">(</span>baseDto<span class="op">)</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="parameterized-tests">Parameterized Tests</h2>
+        <h3 id="testing-multiple-scenarios">Testing Multiple
+        Scenarios</h3>
+        <div class="sourceCode" id="cb5"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@ParameterizedTest</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">@ValueSource</span><span class="op">(</span>strings <span class="op">=</span> <span class="op">{</span> <span class="st">&quot;&quot;</span><span class="op">,</span> <span class="st">&quot; &quot;</span><span class="op">,</span> <span class="st">&quot;  &quot;</span> <span class="op">})</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;validateBase: blank names rejected&quot;</span><span class="op">)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">validateBase_blankNames_throw</span><span class="op">(</span><span class="bu">String</span> blankName<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    InventoryItemDTO dto <span class="op">=</span> <span class="fu">validDTO</span><span class="op">();</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    dto<span class="op">.</span><span class="fu">setName</span><span class="op">(</span>blankName<span class="op">);</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span>dto<span class="op">)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">@ParameterizedTest</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">@ValueSource</span><span class="op">(</span>ints <span class="op">=</span> <span class="op">{</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="op">-</span><span class="dv">100</span><span class="op">,</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">MIN_VALUE</span> <span class="op">})</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;validateBase: negative quantities rejected&quot;</span><span class="op">)</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">validateBase_negativeQuantities_throw</span><span class="op">(</span><span class="dt">int</span> qty<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    InventoryItemDTO dto <span class="op">=</span> <span class="fu">validDTO</span><span class="op">();</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    dto<span class="op">.</span><span class="fu">setQuantity</span><span class="op">(</span>qty<span class="op">);</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span>dto<span class="op">)</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="at">@ParameterizedTest</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="at">@CsvSource</span><span class="op">({</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;0.00, true&quot;</span><span class="op">,</span>          <span class="co">// Zero - should throw</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;-1.50, true&quot;</span><span class="op">,</span>         <span class="co">// Negative - should throw</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;0.01, false&quot;</span><span class="op">,</span>         <span class="co">// Positive - should pass</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;999.99, false&quot;</span>        <span class="co">// Positive - should pass</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="op">})</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;validateBase: price validation&quot;</span><span class="op">)</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">validateBase_priceValidation</span><span class="op">(</span><span class="bu">String</span> priceStr<span class="op">,</span> <span class="dt">boolean</span> shouldThrow<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    InventoryItemDTO dto <span class="op">=</span> <span class="fu">validDTO</span><span class="op">();</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    dto<span class="op">.</span><span class="fu">setPrice</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span>priceStr<span class="op">));</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>shouldThrow<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertThrows</span><span class="op">(</span><span class="bu">IllegalArgumentException</span><span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span>dto<span class="op">)</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>        <span class="fu">assertDoesNotThrow</span><span class="op">(()</span> <span class="op">-&gt;</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>            InventoryItemValidator<span class="op">.</span><span class="fu">validateBase</span><span class="op">(</span>dto<span class="op">)</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="mocking-best-practices">Mocking Best Practices</h2>
+        <h3 id="when-to-use-mocks-vs-real-objects">When to Use Mocks vs
+        Real Objects</h3>
+        <div class="sourceCode" id="cb6"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ GOOD: Mock external dependencies</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Mock</span> <span class="kw">private</span> InventoryItemRepository repo<span class="op">;</span>  <span class="co">// External DB</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Mock</span> <span class="kw">private</span> StockHistoryService service<span class="op">;</span>   <span class="co">// External service</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Mock</span> <span class="kw">private</span> HttpClient httpClient<span class="op">;</span>         <span class="co">// External API</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">// ❌ AVOID: Mock the object being tested</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Mock</span> <span class="kw">private</span> InventoryItemValidator validator<span class="op">;</span>  <span class="co">// ← Don&#39;t do this</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">// ✅ GOOD: Use real objects for value types</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="bu">BigDecimal</span> price <span class="op">=</span> <span class="kw">new</span> <span class="bu">BigDecimal</span><span class="op">(</span><span class="st">&quot;25.99&quot;</span><span class="op">);</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> InventoryItemDTO dto <span class="op">=</span> InventoryItemDTO<span class="op">.</span><span class="fu">builder</span><span class="op">()</span><span class="kw">...</span><span class="fu">build</span><span class="op">();</span></span></code></pre></div>
+        <h3 id="stubbing-vs-verification">Stubbing vs Verification</h3>
+        <div class="sourceCode" id="cb7"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// STUBBING - Tell mock what to return</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">))</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>Optional<span class="op">.</span><span class="fu">of</span><span class="op">(</span>item<span class="op">));</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">// VERIFICATION - Verify mock was called correctly</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">verify</span><span class="op">(</span>repo<span class="op">).</span><span class="fu">save</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span>InventoryItem<span class="op">.</span><span class="fu">class</span><span class="op">));</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">verify</span><span class="op">(</span>repo<span class="op">,</span> <span class="fu">times</span><span class="op">(</span><span class="dv">2</span><span class="op">)).</span><span class="fu">findById</span><span class="op">(</span><span class="fu">anyString</span><span class="op">());</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">verify</span><span class="op">(</span>repo<span class="op">,</span> <span class="fu">never</span><span class="op">()).</span><span class="fu">delete</span><span class="op">(</span><span class="fu">any</span><span class="op">());</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">// LENIENT - Don&#39;t fail on unexpected calls</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">lenient</span><span class="op">().</span><span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">existsById</span><span class="op">(</span><span class="fu">anyString</span><span class="op">()))</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">true</span><span class="op">);</span></span></code></pre></div>
+        <hr />
+        <h2 id="test-organization-patterns">Test Organization
+        Patterns</h2>
+        <h3 id="given-when-then-gwt-pattern">1. Given-When-Then (GWT)
+        Pattern</h3>
+        <div class="sourceCode" id="cb8"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@DisplayName</span><span class="op">(</span><span class="st">&quot;create: valid data creates item and returns 201&quot;</span><span class="op">)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">create_validData_returns201</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// GIVEN - Setup initial state</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    InventoryItemDTO dto <span class="op">=</span> <span class="fu">validDTO</span><span class="op">();</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    InventoryItem savedItem <span class="op">=</span> InventoryItemMapper<span class="op">.</span><span class="fu">toEntity</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    savedItem<span class="op">.</span><span class="fu">setId</span><span class="op">(</span><span class="st">&quot;item-123&quot;</span><span class="op">);</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">when</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">any</span><span class="op">())).</span><span class="fu">thenReturn</span><span class="op">(</span>savedItem<span class="op">);</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// WHEN - Execute the action</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    InventoryItemDTO result <span class="op">=</span> service<span class="op">.</span><span class="fu">create</span><span class="op">(</span>dto<span class="op">);</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// THEN - Verify the result</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertNotNull</span><span class="op">(</span>result<span class="op">.</span><span class="fu">getId</span><span class="op">());</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span><span class="st">&quot;item-123&quot;</span><span class="op">,</span> result<span class="op">.</span><span class="fu">getId</span><span class="op">());</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">verify</span><span class="op">(</span>repository<span class="op">).</span><span class="fu">save</span><span class="op">(</span><span class="fu">any</span><span class="op">());</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="arrange-act-assert-aaa-pattern">2. Arrange-Act-Assert
+        (AAA) Pattern</h3>
+        <div class="sourceCode" id="cb9"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">validateExists_itemNotFound_throws404</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ARRANGE - Setup dependencies</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">when</span><span class="op">(</span>repo<span class="op">.</span><span class="fu">findById</span><span class="op">(</span><span class="st">&quot;nonexistent&quot;</span><span class="op">))</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>Optional<span class="op">.</span><span class="fu">empty</span><span class="op">());</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ACT - Execute the method</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    ResponseStatusException exception <span class="op">=</span> <span class="fu">assertThrows</span><span class="op">(</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        ResponseStatusException<span class="op">.</span><span class="fu">class</span><span class="op">,</span> <span class="op">()</span> <span class="op">-&gt;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        InventoryItemValidator<span class="op">.</span><span class="fu">validateExists</span><span class="op">(</span><span class="st">&quot;nonexistent&quot;</span><span class="op">,</span> repo<span class="op">)</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ASSERT - Verify outcomes</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assertEquals</span><span class="op">(</span>HttpStatus<span class="op">.</span><span class="fu">NOT_FOUND</span><span class="op">,</span> exception<span class="op">.</span><span class="fu">getStatusCode</span><span class="op">());</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <h3 id="test-method-naming">3. Test Method Naming</h3>
+        <div class="sourceCode" id="cb10"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Pattern: [methodName]_[scenario]_[expectedResult]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">validateBase_nullName_throwsException</span><span class="op">()</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">validateBase_validInput_passes</span><span class="op">()</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">validateDuplicate_sameNameAndPrice_throwsConflict</span><span class="op">()</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">validateDuplicate_sameName_differentPrice_passes</span><span class="op">()</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">assertFinalQuantity_negative_throws422</span><span class="op">()</span></span></code></pre></div>
+        <hr />
+        <h2 id="common-pitfalls">Common Pitfalls</h2>
+        <h3 id="overly-complex-mocking">❌ Overly Complex Mocking</h3>
+        <div class="sourceCode" id="cb11"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Complex setup obscures test purpose</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">when</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">argThat</span><span class="op">(</span>item <span class="op">-&gt;</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    item<span class="op">.</span><span class="fu">getName</span><span class="op">()</span> <span class="op">!=</span> <span class="kw">null</span> <span class="op">&amp;&amp;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    item<span class="op">.</span><span class="fu">getPrice</span><span class="op">().</span><span class="fu">compareTo</span><span class="op">(</span><span class="bu">BigDecimal</span><span class="op">.</span><span class="fu">ZERO</span><span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    item<span class="op">.</span><span class="fu">getQuantity</span><span class="op">()</span> <span class="op">&gt;=</span> <span class="dv">0</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="op">))).</span><span class="fu">thenReturn</span><span class="op">(</span><span class="kw">...</span><span class="op">);</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Simple, clear setup</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">when</span><span class="op">(</span>repository<span class="op">.</span><span class="fu">save</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span>InventoryItem<span class="op">.</span><span class="fu">class</span><span class="op">)))</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">thenReturn</span><span class="op">(</span>savedItem<span class="op">);</span></span></code></pre></div>
+        <h3 id="testing-implementation-details">❌ Testing
+        Implementation Details</h3>
+        <div class="sourceCode" id="cb12"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Overly specific verification</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">verify</span><span class="op">(</span>repository<span class="op">,</span> <span class="fu">times</span><span class="op">(</span><span class="dv">1</span><span class="op">)).</span><span class="fu">findById</span><span class="op">(</span><span class="fu">eq</span><span class="op">(</span><span class="st">&quot;item-1&quot;</span><span class="op">));</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">verify</span><span class="op">(</span>mapper<span class="op">,</span> <span class="fu">times</span><span class="op">(</span><span class="dv">1</span><span class="op">)).</span><span class="fu">toDTO</span><span class="op">(</span><span class="fu">any</span><span class="op">());</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Verify behavior, not implementation</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">verify</span><span class="op">(</span>repository<span class="op">).</span><span class="fu">save</span><span class="op">(</span><span class="fu">any</span><span class="op">(</span>InventoryItem<span class="op">.</span><span class="fu">class</span><span class="op">));</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">assertEquals</span><span class="op">(</span>expected<span class="op">,</span> result<span class="op">);</span></span></code></pre></div>
+        <h3 id="test-interdependencies">❌ Test Interdependencies</h3>
+        <div class="sourceCode" id="cb13"><pre
+        class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Bad: Tests depend on each other</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span> <span class="dt">void</span> <span class="fu">test1</span><span class="op">()</span> <span class="op">{</span> repo<span class="op">.</span><span class="fu">save</span><span class="op">(</span>item<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span> <span class="dt">void</span> <span class="fu">test2</span><span class="op">()</span> <span class="op">{</span> <span class="fu">assertEquals</span><span class="op">(</span><span class="dv">1</span><span class="op">,</span> repo<span class="op">.</span><span class="fu">count</span><span class="op">());</span> <span class="op">}</span>  <span class="co">// Depends on test1!</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Good: Each test is independent</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="at">@BeforeEach</span> <span class="dt">void</span> <span class="fu">setup</span><span class="op">()</span> <span class="op">{</span> <span class="co">/* Reset state */</span> <span class="op">}</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span> <span class="dt">void</span> <span class="fu">test1</span><span class="op">()</span> <span class="op">{</span> <span class="co">/* Complete setup */</span> <span class="op">}</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="at">@Test</span> <span class="dt">void</span> <span class="fu">test2</span><span class="op">()</span> <span class="op">{</span> <span class="co">/* Independent setup */</span> <span class="op">}</span></span></code></pre></div>
+        <hr />
+        <h2 id="best-practices-checklist">Best Practices Checklist</h2>
+        <h3 id="do">✅ DO</h3>
+        <ul class="task-list">
+        <li><label><input type="checkbox" />Test one thing per test
+        method</label></li>
+        <li><label><input type="checkbox" />Use descriptive test
+        names</label></li>
+        <li><label><input type="checkbox" />Mock external dependencies
+        only</label></li>
+        <li><label><input type="checkbox" />Use <code>@BeforeEach</code>
+        for common setup</label></li>
+        <li><label><input type="checkbox" />Use parameterized tests for
+        multiple scenarios</label></li>
+        <li><label><input type="checkbox" />Use
+        <code>@DisplayName</code> for human-readable names</label></li>
+        <li><label><input type="checkbox" />Verify behavior, not
+        implementation</label></li>
+        <li><label><input type="checkbox" />Keep tests simple and
+        readable</label></li>
+        <li><label><input type="checkbox" />Test both success and
+        failure paths</label></li>
+        </ul>
+        <h3 id="dont">❌ DON’T</h3>
+        <ul class="task-list">
+        <li><label><input type="checkbox" />Test the testing framework
+        (JUnit/Mockito)</label></li>
+        <li><label><input type="checkbox" />Make tests
+        interdependent</label></li>
+        <li><label><input type="checkbox" />Use sleep/wait in
+        tests</label></li>
+        <li><label><input type="checkbox" />Leave test data
+        inconsistent</label></li>
+        <li><label><input type="checkbox" />Mock the object being
+        tested</label></li>
+        <li><label><input type="checkbox" />Write tests for trivial code
+        (getters/setters)</label></li>
+        <li><label><input type="checkbox" />Suppress test warnings
+        without reason</label></li>
+        <li><label><input type="checkbox" />Use magic numbers or
+        strings</label></li>
+        <li><label><input type="checkbox" />Skip negative test
+        cases</label></li>
+        </ul>
+        <hr />
+        <h2 id="related-documentation">Related Documentation</h2>
+        <ul>
+        <li><strong><a href="./index.html">Testing Index</a></strong> -
+        Complete testing strategy overview</li>
+        <li><strong><a href="./integration-testing.html">Integration
+        Testing</a></strong> - Repository and database testing</li>
+        <li><strong><a href="./security-testing.html">Security
+        Testing</a></strong> - Authentication and authorization
+        tests</li>
+        <li><strong><a href="../validation/index.html">Validation
+        Framework</a></strong> - Validator examples and patterns</li>
+        </ul>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
