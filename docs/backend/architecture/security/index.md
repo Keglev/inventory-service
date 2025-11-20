@@ -20,6 +20,7 @@ The Smart Supply Pro inventory management system implements a **comprehensive se
 |-------|---------|---|
 | **OAuth2 Authentication** | Login flow, user provisioning, session management | [Read →](./oauth2-authentication.html) |
 | **Authorization & RBAC** | Role-based access control, API endpoint protection | [Read →](./authorization-rbac.html) |
+| **Field-Level Validation** | Role-based field update restrictions, USER vs ADMIN permissions | [Read →](./field-level-validation.html) |
 | **Oracle Wallet** | Database credential encryption, TNS_ADMIN setup | [Read →](./oracle-wallet.html) |
 | **Docker Security** | Container hardening, non-root user, secret management | [Read →](./docker-security.html) |
 | **Demo Mode** | Read-only public access, configuration, use cases | [Read →](./demo-mode.html) |
@@ -120,7 +121,26 @@ Two roles defined:
 
 ---
 
-### 3. **Request/Response Security**
+### 3. **Field-Level Validation**
+
+**Role-Based Field Restrictions**
+
+Restricts which user roles can modify specific inventory item fields:
+- **ADMIN** - Can modify all fields (name, supplier, quantity, price)
+- **USER** - Can only modify quantity and price
+
+**Validation Points:**
+- `InventoryItemSecurityValidator` enforces field-level permissions
+- Integrated into service layer before database commit
+- Returns HTTP 403 if unauthorized field change attempted
+
+**Use Case:**
+- Inventory coordinators (USER) can adjust stock levels without changing item metadata
+- Managers/admins (ADMIN) have full item control
+
+---
+
+### 4. **Request/Response Security**
 
 **CORS Configuration**
 - Allows cross-origin requests from frontend domains
@@ -138,7 +158,7 @@ Two roles defined:
 
 ---
 
-### 4. **Data Access Security**
+### 5. **Data Access Security**
 
 **Oracle Wallet (TLS/SSL for Database)**
 
@@ -158,7 +178,7 @@ DB_PASS=<db-password>
 
 ---
 
-### 5. **Container Security**
+### 6. **Container Security**
 
 **Docker Best Practices**
 
