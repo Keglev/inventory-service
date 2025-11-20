@@ -25,8 +25,7 @@ import lombok.RequiredArgsConstructor;
  * Analytics service facade delegating to specialized analytics implementations.
  *
  * &lt;p&gt;&lt;strong&gt;Purpose&lt;/strong&gt;:
- * Maintains backward compatibility by providing the original {@link AnalyticsService}
- * interface while internally delegating to focused, domain-specific service implementations.
+ * Provides analytics functionality by delegating to focused, domain-specific service implementations.
  *
  * &lt;p&gt;&lt;strong&gt;Delegation Strategy&lt;/strong&gt;:
  * &lt;ul&gt;
@@ -35,20 +34,20 @@ import lombok.RequiredArgsConstructor;
  * &lt;/ul&gt;
  *
  * &lt;p&gt;&lt;strong&gt;Design Rationale&lt;/strong&gt;:
- * The original 733-line service was split into specialized services (200-300 lines each)
- * for better maintainability while preserving the existing public API contract.
+ * The original monolithic analytics service (733 lines) was split into specialized services
+ * (200-300 lines each) for better maintainability, testability, and single responsibility.
+ * This facade provides the original {@link AnalyticsService} interface by delegating to
+ * these focused implementations.
  *
  * @author Smart Supply Pro Development Team
  * @version 2.0.0
  * @since 1.0.0
  * @see StockAnalyticsService
  * @see FinancialAnalyticsService
- * @deprecated Consider injecting specialized analytics services directly in new code
  */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Deprecated(since = &quot;2.0.0&quot;, forRemoval = false)
 public class AnalyticsServiceImpl implements AnalyticsService {
 
     private final StockAnalyticsService stockAnalytics;
@@ -58,50 +57,50 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     public List&lt;StockValueOverTimeDTO&gt; getTotalStockValueOverTime(LocalDate startDate,
                                                                   LocalDate endDate,
                                                                   String supplierId) {
-<span class="nc" id="L61">        return stockAnalytics.getTotalStockValueOverTime(startDate, endDate, supplierId);</span>
+<span class="nc" id="L60">        return stockAnalytics.getTotalStockValueOverTime(startDate, endDate, supplierId);</span>
     }
 
     @Override
     public List&lt;StockPerSupplierDTO&gt; getTotalStockPerSupplier() {
-<span class="nc" id="L66">        return stockAnalytics.getTotalStockPerSupplier();</span>
+<span class="nc" id="L65">        return stockAnalytics.getTotalStockPerSupplier();</span>
     }
 
     @Override
     public List&lt;ItemUpdateFrequencyDTO&gt; getItemUpdateFrequency(String supplierId) {
-<span class="nc" id="L71">        return stockAnalytics.getItemUpdateFrequency(supplierId);</span>
+<span class="nc" id="L70">        return stockAnalytics.getItemUpdateFrequency(supplierId);</span>
     }
 
     @Override
     public List&lt;LowStockItemDTO&gt; getItemsBelowMinimumStock(String supplierId) {
-<span class="nc" id="L76">        return stockAnalytics.getItemsBelowMinimumStock(supplierId);</span>
+<span class="nc" id="L75">        return stockAnalytics.getItemsBelowMinimumStock(supplierId);</span>
     }
 
     @Override
     public List&lt;MonthlyStockMovementDTO&gt; getMonthlyStockMovement(LocalDate startDate,
                                                                  LocalDate endDate,
                                                                  String supplierId) {
-<span class="nc" id="L83">        return stockAnalytics.getMonthlyStockMovement(startDate, endDate, supplierId);</span>
+<span class="nc" id="L82">        return stockAnalytics.getMonthlyStockMovement(startDate, endDate, supplierId);</span>
     }
 
     @Override
     @Transactional(readOnly = true)
     public long lowStockCount() {
-<span class="nc" id="L89">        return stockAnalytics.lowStockCount();</span>
+<span class="nc" id="L88">        return stockAnalytics.lowStockCount();</span>
     }
 
     @Override
     public List&lt;StockUpdateResultDTO&gt; getFilteredStockUpdates(StockUpdateFilterDTO filter) {
-<span class="nc" id="L94">        return stockAnalytics.getFilteredStockUpdates(filter);</span>
+<span class="nc" id="L93">        return stockAnalytics.getFilteredStockUpdates(filter);</span>
     }
 
     @Override
     public List&lt;PriceTrendDTO&gt; getPriceTrend(String itemId, String supplierId, LocalDate start, LocalDate end) {
-<span class="nc" id="L99">        return stockAnalytics.getPriceTrend(itemId, supplierId, start, end);</span>
+<span class="nc" id="L98">        return stockAnalytics.getPriceTrend(itemId, supplierId, start, end);</span>
     }
 
     @Override
     public FinancialSummaryDTO getFinancialSummaryWAC(LocalDate from, LocalDate to, String supplierId) {
-<span class="nc" id="L104">        return financialAnalytics.getFinancialSummaryWAC(from, to, supplierId);</span>
+<span class="nc" id="L103">        return financialAnalytics.getFinancialSummaryWAC(from, to, supplierId);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
