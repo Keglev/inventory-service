@@ -323,7 +323,7 @@ graph TB
 2. **Review [Controller Documentation](./controller/index.html)** - REST API endpoints, request/response shapes, and controller patterns
 3. **Study [Repository Layer](./repository/index.html)** - Data access abstraction with 7 repositories (SupplierRepository, InventoryItemRepository, StockHistoryRepository, AppUserRepository, plus 3 custom analytics mixins using JPQL and native SQL)
 4. **Check [Configuration Management](./config/index.html)** - Application properties, profiles, environment setup
-5. **Review [Security Architecture](./security.html)** - Detailed security implementation
+5. **Review [Security Architecture](./security/index.html)** - OAuth2 authentication, role-based access control, database encryption, Docker security, and demo mode
 6. Check [Data Models](./model/index.html) - Comprehensive entity documentation (Supplier, InventoryItem, StockHistory, AppUser) with relationships, lifecycle, usage examples, and testing
 7. Study [Enums Reference](./enums/index.html) - Type-safe enumerations and their business logic (Role, StockChangeReason, AuditSeverity)
 8. Study [DTOs & Data Transfer Objects](./dto/index.html) - Comprehensive documentation of all DTOs with conventions, validation, mappers, pagination, and response patterns

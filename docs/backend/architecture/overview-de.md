@@ -323,7 +323,7 @@ graph TB
 2. **Überprüfen Sie [Controller-Dokumentation](./controller/index.html)** - REST-API-Endpunkte, Request/Response-Shapes und Controller-Muster
 3. **Studieren Sie [Repository-Schicht](./repository/index.html)** - Datenzugriffs-Abstraktion mit 7 Repositories (SupplierRepository, InventoryItemRepository, StockHistoryRepository, AppUserRepository, plus 3 benutzerdefinierte Analytics-Mixins mit JPQL und nativem SQL)
 4. **Überprüfen Sie [Konfigurations-Management](./config/index.html)** - Anwendungseigenschaften, Profile, Umgebungssetup
-5. **Überprüfen Sie [Sicherheits-Architektur](./security.html)** - Detaillierte Sicherheitsimplementierung
+5. **Überprüfen Sie [Sicherheits-Architektur](./security/index.html)** - OAuth2-Authentifizierung, rollenbasierte Zugriffskontrolle, Datenbankver­schlüsselung, Docker-Sicherheit und Demo-Modus
 6. **Überprüfen Sie [Datenmodelle](./model/index.html)** - Umfassende Entity-Dokumentation (Supplier, InventoryItem, StockHistory, AppUser) mit Beziehungen, Lebenszyklen, Verwendungsbeispielen und Testing
 7. **Studieren Sie [Enums-Referenz](./enums/index.html)** - Typsichere Enumerationen und ihre Geschäftslogik (Role, StockChangeReason, AuditSeverity)
 8. **Studieren Sie [DTOs und Data Transfer Objects](./dto/index.html)** - Umfassende Dokumentation aller DTOs mit Konventionen, Validierung, Mapper, Pagination und Response-Mustern

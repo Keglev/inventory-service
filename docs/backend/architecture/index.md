@@ -15,7 +15,7 @@ The Smart Supply Pro inventory management backend is built with **Spring Boot** 
 ### Detailed Sections
 - **[Layers Architecture](./layers/overview.html)** - Detailed breakdown of controller, service, repository, and data layers
 - **[Repository Layer](./repository/index.html)** - Data access abstraction with 7 repositories (JpaRepository, custom analytics mixins, JPQL, native SQL)
-- **[Security Architecture](./security.html)** - Authentication, authorization, and OAuth2 integration
+- **[Security Architecture](./security/index.html)** - Authentication, authorization, OAuth2 integration, Docker security, and demo mode
 - **[Deployment & Infrastructure](./deployment.html)** - Containerization, CI/CD, and cloud deployment strategies
 - **[Configuration Management](./config.html)** - Application properties, profiles, and environment setup
 - **[Data Models & Entities](./model/index.html)** - Comprehensive entity documentation including Supplier, InventoryItem, StockHistory, and AppUser with relationships, lifecycle, usage examples, and testing
