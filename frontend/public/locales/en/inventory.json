@@ -66,6 +66,7 @@
   "typeToSearchItems": "Type to search items...",
   "noItemsFound": "No items found for this search.",
   "typeToSearchHint": "Start typing to search for items...",
+  "typeToSearch": "Type at least 2 characters to search",
   "setQuantityHint": "Setting quantity to {{quantity}}",
   "priceNotAvailable": "Price: N/A",
   "qtyNotAvailable": "Qty: N/A",

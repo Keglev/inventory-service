@@ -70,6 +70,7 @@
   "typeToSearchItems": "Tippen Sie, um Artikel zu suchen...",
   "noItemsFound": "Keine Artikel für diese Suche gefunden.",
   "typeToSearchHint": "Beginnen Sie mit der Eingabe, um nach Artikeln zu suchen...",
+  "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
   "setQuantityHint": "Menge wird auf {{quantity}} gesetzt",
   "priceNotAvailable": "Preis: N/V",
   "qtyNotAvailable": "Menge: N/V",

@@ -25,6 +25,7 @@ import analytics from '../../public/locales/en/analytics.json';
 import auth from '../../public/locales/en/auth.json';
 import system from '../../public/locales/en/system.json';
 import inventory from '../../public/locales/en/inventory.json';
+import errors from '../../public/locales/en/errors.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -52,6 +53,9 @@ declare module 'i18next' {
 
       /** dedicated namespace for inventory screens */
       inventory: typeof inventory;
+
+      /** dedicated namespace for error messages */
+      errors: typeof errors;
 
     };
   }

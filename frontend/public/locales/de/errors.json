@@ -1,0 +1,40 @@
+{
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "minLength": "Muss mindestens {{min}} Zeichen lang sein",
+    "maxLength": "Darf nicht mehr als {{max}} Zeichen lang sein",
+    "numberOnly": "Bitte geben Sie eine gültige Nummer ein",
+    "mustBePositive": "Muss eine positive Zahl sein",
+    "cannotBeNegative": "Kann nicht negativ sein"
+  },
+  "inventory": {
+    "duplicateName": "Ein Artikel mit diesem Namen existiert bereits",
+    "duplicateCode": "Ein Artikel mit diesem Code existiert bereits",
+    "noItemSelected": "Bitte wählen Sie einen Artikel aus",
+    "noSupplierSelected": "Bitte wählen Sie einen Lieferanten aus",
+    "noReasonSelected": "Bitte wählen Sie einen Löschungsgrund aus",
+    "itemNotFound": "Artikel nicht gefunden",
+    "adminOnly": "Nur Administratoren können diese Aktion ausführen",
+    "invalidReason": "Ungültiger Grund für das Löschen",
+    "quantityMustBeZero": "Sie haben noch Artikel im Bestand. Sie müssen zuerst Artikel aus dem Bestand entfernen, indem Sie die Menge ändern",
+    "failedToLoadSuppliers": "Fehler beim Laden der Lieferanten. Bitte versuchen Sie es erneut",
+    "failedToLoadItems": "Fehler beim Laden der Artikel. Bitte versuchen Sie es erneut",
+    "failedToAddItem": "Fehler beim Hinzufügen des Artikels. Bitte versuchen Sie es erneut",
+    "failedToUpdateItem": "Fehler beim Aktualisieren des Artikels. Bitte versuchen Sie es erneut",
+    "failedToDeleteItem": "Fehler beim Löschen des Artikels. Bitte versuchen Sie es erneut",
+    "failedToAdjustQuantity": "Fehler beim Anpassen der Menge. Bitte versuchen Sie es erneut",
+    "failedToChangePrice": "Fehler beim Ändern des Preises. Bitte versuchen Sie es erneut",
+    "failedToRenameItem": "Fehler beim Ändern des Artikelnamens. Bitte versuchen Sie es erneut",
+    "serverError": "Auf dem Server ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut"
+  },
+  "supplier": {
+    "failedToLoadSuppliers": "Fehler beim Laden der Lieferanten. Bitte versuchen Sie es erneut",
+    "failedToAddSupplier": "Fehler beim Hinzufügen des Lieferanten. Bitte versuchen Sie es erneut",
+    "failedToUpdateSupplier": "Fehler beim Aktualisieren des Lieferanten. Bitte versuchen Sie es erneut",
+    "failedToDeleteSupplier": "Fehler beim Löschen des Lieferanten. Bitte versuchen Sie es erneut",
+    "duplicateName": "Ein Lieferant mit diesem Namen existiert bereits",
+    "supplierNotFound": "Lieferant nicht gefunden",
+    "cannotDeleteWithItems": "Lieferant mit verknüpften Artikeln kann nicht gelöscht werden"
+  }
+}
