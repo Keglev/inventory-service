@@ -459,7 +459,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} disabled={isSubmitting}>
-          {t('common:actions.cancel', 'Cancel')}
+          {t('inventory:cancel', 'Cancel')}
         </Button>
         <Button
           onClick={onSubmit}
