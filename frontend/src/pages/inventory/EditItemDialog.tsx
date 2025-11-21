@@ -366,6 +366,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
               </Box>
             ) : (
               <Autocomplete
+                key={selectedSupplier?.id}
                 disabled={!selectedSupplier}
                 options={itemsQuery.data ?? []}
                 getOptionLabel={(option) => option.name}
@@ -376,7 +377,11 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
                 }}
                 inputValue={itemQuery}
                 onInputChange={(_e, value) => setItemQuery(value)}
-                noOptionsText={t('inventory:noItemsFound', 'No items found for this search.')}
+                noOptionsText={
+                  itemQuery.length < 2 
+                    ? t('inventory:typeToSearch', 'Type at least 2 characters to search')
+                    : t('inventory:noItemsFound', 'No items found for this search.')
+                }
                 renderInput={(params) => (
                   <TextField
                     {...params}

@@ -149,6 +149,9 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
   /** Whether confirmation dialog is shown */
   const [showConfirmation, setShowConfirmation] = React.useState(false);
 
+  /** Selected deletion reason from dropdown */
+  const [deletionReason, setDeletionReason] = React.useState<string>('');
+
   // ================================
   // Data Queries
   // ================================
@@ -238,6 +241,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
     setItemQuery('');
     setFormError('');
     setShowConfirmation(false);
+    setDeletionReason('');
     reset();
     onClose();
   };
@@ -283,11 +287,16 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
       return;
     }
 
+    if (!deletionReason) {
+      setFormError(t('inventory:noReasonSelected', 'Please select a deletion reason.'));
+      return;
+    }
+
     setFormError('');
     setShowConfirmation(false);
 
     try {
-      const success = await deleteItem(selectedItem.id);
+      const success = await deleteItem(selectedItem.id, deletionReason);
 
       if (success.ok) {
         toast(
@@ -397,6 +406,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 </Box>
               ) : (
                 <Autocomplete
+                  key={selectedSupplier?.id}
                   disabled={!selectedSupplier}
                   options={itemsQuery.data ?? []}
                   getOptionLabel={(option) => option.name}
@@ -407,7 +417,11 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                   }}
                   inputValue={itemQuery}
                   onInputChange={(_e, value) => setItemQuery(value)}
-                  noOptionsText={t('inventory:noItemsFound', 'No items found for this search.')}
+                  noOptionsText={
+                    itemQuery.length < 2 
+                      ? t('inventory:typeToSearch', 'Type at least 2 characters to search')
+                      : t('inventory:noItemsFound', 'No items found for this search.')
+                  }
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -419,7 +433,49 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
               )}
             </Box>
 
-            {/* Step 3: Current Item Info (show only if selected) */}
+            {/* Step 3: Select Deletion Reason */}
+            {selectedItem && (
+              <>
+                <Divider />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                    {t('inventory:step3SelectReason', 'Step 3: Select Deletion Reason')}
+                  </Typography>
+                  
+                  <FormControl fullWidth>
+                    <InputLabel>
+                      {t('inventory:deletionReason', 'Deletion Reason')}
+                    </InputLabel>
+                    <Select
+                      label={t('inventory:deletionReason', 'Deletion Reason')}
+                      value={deletionReason}
+                      onChange={(e) => setDeletionReason(e.target.value)}
+                    >
+                      <MenuItem value="SCRAPPED">
+                        {t('inventory:reasonScrapped', 'Scrapped - Quality control removal')}
+                      </MenuItem>
+                      <MenuItem value="DESTROYED">
+                        {t('inventory:reasonDestroyed', 'Destroyed - Catastrophic loss')}
+                      </MenuItem>
+                      <MenuItem value="DAMAGED">
+                        {t('inventory:reasonDamaged', 'Damaged - Quality hold')}
+                      </MenuItem>
+                      <MenuItem value="EXPIRED">
+                        {t('inventory:reasonExpired', 'Expired - Expiration date breach')}
+                      </MenuItem>
+                      <MenuItem value="LOST">
+                        {t('inventory:reasonLost', 'Lost - Inventory shrinkage')}
+                      </MenuItem>
+                      <MenuItem value="RETURNED_TO_SUPPLIER">
+                        {t('inventory:reasonReturnedToSupplier', 'Returned to Supplier - Defective merchandise')}
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </>
+            )}
+
+            {/* Step 4: Current Item Info (show only if selected) */}
             {selectedItem && itemDetailsQuery.data && (
               <>
                 <Divider />

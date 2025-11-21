@@ -261,16 +261,17 @@ export async function renameItem(req: { id: string; newName: string }): Promise<
  * Only ADMIN users can delete items.
  * 
  * @param id - Item identifier to delete
+ * @param reason - Business reason for deletion (SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER)
  * @returns Object with ok status and optional error message
  * @note Only ADMIN users can delete items
  * @note Backend validates that item quantity is 0 before deletion
  * @note Backend may return error: "You still have merchandise in stock"
  */
-export async function deleteItem(id: string): Promise<UpsertItemResponse> {
+export async function deleteItem(id: string, reason: string): Promise<UpsertItemResponse> {
   try {
     await http.delete(
       `${INVENTORY_BASE}/${encodeURIComponent(id)}`,
-      { params: { reason: 'MANUAL_UPDATE' } }
+      { params: { reason } }
     );
     return { ok: true };
   } catch (e: unknown) {
