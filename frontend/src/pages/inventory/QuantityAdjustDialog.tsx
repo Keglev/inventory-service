@@ -357,7 +357,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {/* Step 1: Supplier Selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step1SelectSupplier', 'Step 1: Select Supplier')}
+              {t('inventory:step1SelectSupplier')}
             </Typography>
             
             <FormControl fullWidth size="small">
@@ -387,7 +387,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {/* Step 2: Item Selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step2SelectItem', 'Step 2: Select Item')}
+              {t('inventory:step2SelectItem')}
             </Typography>
             
             <Autocomplete
@@ -470,7 +470,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {/* Step 3: Quantity Adjustment */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step3AdjustQuantity', 'Step 3: Adjust Quantity')}
+                {t('inventory:step3AdjustQuantity')}
             </Typography>
             
             {/* New Quantity Input */}
@@ -539,7 +539,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} disabled={isSubmitting}>
-          {t('actions.cancel', 'Cancel')}
+          {t('common:actions.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={onSubmit}

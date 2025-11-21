@@ -277,10 +277,10 @@ const Inventory: React.FC = () => {
             onClick={() => setOpenEditName(true)}
             sx={{ opacity: 1, pointerEvents: 'auto' }}
           >
-            {t('actions.edit', 'Edit')}
+            {t('common:actions.edit', 'Edit')}
           </Button>
           <Button onClick={() => setOpenDelete(true)}>
-            {t('actions.delete', 'Delete')}
+            {t('common:actions.delete', 'Delete')}
           </Button>
           <Button onClick={() => setOpenAdjust(true)}>
             {t('inventory:adjustQty', 'Adjust quantity')}

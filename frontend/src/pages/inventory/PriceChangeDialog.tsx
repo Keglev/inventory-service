@@ -304,7 +304,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
           {/* Step 1: Supplier Selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step1SelectSupplier', 'Step 1: Select Supplier')}
+              {t('inventory:step1SelectSupplier')}
             </Typography>
             
             <FormControl fullWidth size="small">
@@ -334,7 +334,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
           {/* Step 2: Item Selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step2SelectItem', 'Step 2: Select Item')}
+              {t('inventory:step2SelectItem')}
             </Typography>
             
             <Autocomplete
@@ -415,7 +415,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
           {/* Step 3: Price Change */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step3ChangePrice', 'Step 3: Change Price')}
+              {t('inventory:step3ChangePrice')}
             </Typography>
             
             {/* New Price Input */}
@@ -459,7 +459,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} disabled={isSubmitting}>
-          {t('actions.cancel', 'Cancel')}
+          {t('common:actions.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={onSubmit}

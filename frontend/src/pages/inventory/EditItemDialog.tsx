@@ -399,7 +399,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
           {selectedItem && itemDetailsQuery.data && (
             <Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                {t('inventory:step3EditName', 'Step 3: Change Item Name')}
+                {t('inventory:step3EditName')}
               </Typography>
 
               {/* Current Item Info */}
@@ -440,7 +440,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
 
       <DialogActions sx={{ gap: 1 }}>
         <Button onClick={handleClose} disabled={isSubmitting}>
-          {t('actions.cancel', 'Cancel')}
+          {t('common:actions.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={onSubmit}
