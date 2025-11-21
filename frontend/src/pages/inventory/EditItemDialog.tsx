@@ -440,7 +440,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
 
       <DialogActions sx={{ gap: 1 }}>
         <Button onClick={handleClose} disabled={isSubmitting}>
-          {t('common:actions.cancel', 'Cancel')}
+          {t('inventory:cancel', 'Cancel')}
         </Button>
         <Button
           onClick={onSubmit}

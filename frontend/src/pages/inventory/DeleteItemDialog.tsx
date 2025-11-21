@@ -439,35 +439,35 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 <Divider />
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                    {t('inventory:step3SelectReason')}
+                    {t('inventory:step3SelectReason', 'Step 3: Select Deletion Reason')}
                   </Typography>
                   
                   <FormControl fullWidth>
                     <InputLabel>
-                      {t('inventory:deletionReason')}
+                      {t('inventory:deletionReason', 'Deletion Reason')}
                     </InputLabel>
                     <Select
-                      label={t('inventory:deletionReason')}
+                      label={t('inventory:deletionReason', 'Deletion Reason')}
                       value={deletionReason}
                       onChange={(e) => setDeletionReason(e.target.value)}
                     >
                       <MenuItem value="SCRAPPED">
-                        {t('inventory:reasonScrapped')}
+                        {t('inventory:reasonScrapped', 'Scrapped - Quality control removal')}
                       </MenuItem>
                       <MenuItem value="DESTROYED">
-                        {t('inventory:reasonDestroyed')}
+                        {t('inventory:reasonDestroyed', 'Destroyed - Catastrophic loss')}
                       </MenuItem>
                       <MenuItem value="DAMAGED">
-                        {t('inventory:reasonDamaged')}
+                        {t('inventory:reasonDamaged', 'Damaged - Quality hold')}
                       </MenuItem>
                       <MenuItem value="EXPIRED">
-                        {t('inventory:reasonExpired')}
+                        {t('inventory:reasonExpired', 'Expired - Expiration date breach')}
                       </MenuItem>
                       <MenuItem value="LOST">
-                        {t('inventory:reasonLost')}
+                        {t('inventory:reasonLost', 'Lost - Inventory shrinkage')}
                       </MenuItem>
                       <MenuItem value="RETURNED_TO_SUPPLIER">
-                        {t('inventory:reasonReturnedToSupplier')}
+                        {t('inventory:reasonReturnedToSupplier', 'Returned to Supplier - Defective merchandise')}
                       </MenuItem>
                     </Select>
                   </FormControl>
@@ -481,7 +481,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 <Divider />
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                    {t('inventory:itemInfo')}
+                    {t('inventory:itemInfo', 'Item Information')}
                   </Typography>
 
                   <Box sx={{ 
@@ -491,14 +491,14 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                     mb: 1
                   }}>
                     <Typography variant="body2" color="text.secondary">
-                      {t('inventory:name')}
+                      {t('inventory:name', 'Name')}
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 600 }}>
                       {itemDetailsQuery.data.name}
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      {t('inventory:onHand')}
+                      {t('inventory:onHand', 'On-hand')}
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 600 }}>
                       {itemDetailsQuery.data.onHand}
@@ -512,7 +512,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
 
         <DialogActions sx={{ gap: 1 }}>
           <Button onClick={handleClose} disabled={isSubmitting}>
-            {t('common:actions.cancel', 'Cancel')}
+            {t('inventory:cancel', 'Cancel')}
           </Button>
           <Button
             onClick={onSubmit}
@@ -526,7 +526,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 {t('common:deleting', 'Deleting...')}
               </>
             ) : (
-              t('common:actions.delete', 'Delete')
+              t('inventory:delete', 'Delete')
             )}
           </Button>
         </DialogActions>
@@ -540,16 +540,16 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
         fullWidth
       >
         <DialogTitle>
-          {t('inventory:confirmDelete')}
+          {t('inventory:confirmDelete', 'Confirm Deletion')}
         </DialogTitle>
         
         <DialogContent dividers>
           <Alert severity="warning" sx={{ mb: 2 }}>
-            {t('inventory:deleteWarning')}
+            {t('inventory:deleteWarning', 'This action cannot be reversed!!')}
           </Alert>
 
           <Typography variant="body1" gutterBottom>
-            {t('inventory:deleteConfirmMessage')}
+            {t('inventory:deleteConfirmMessage', 'Are you sure you want to delete this item?')}
           </Typography>
 
           {selectedItem && itemDetailsQuery.data && (
@@ -560,7 +560,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
               mt: 2
             }}>
               <Typography variant="body2" color="text.secondary">
-                {t('inventory:item')}
+                {t('inventory:item', 'Item')}
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>
                 {itemDetailsQuery.data.name}
