@@ -574,7 +574,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             onClick={handleCancelConfirmation} 
             disabled={isSubmitting}
           >
-            {t('common:actions.no')}
+            {t('inventory:no', 'No')}
           </Button>
           <Button
             onClick={onConfirmedDelete}
@@ -588,7 +588,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 {t('common:deleting')}
               </>
             ) : (
-              t('common:actions.yes')
+              t('inventory:yes', 'Yes')
             )}
           </Button>
         </DialogActions>
