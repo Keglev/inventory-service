@@ -127,7 +127,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
   onClose,
   onItemDeleted,
 }) => {
-  const { t } = useTranslation(['common', 'inventory']);
+  const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
   // ================================
@@ -252,7 +252,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
    */
   const handleCancelConfirmation = () => {
     toast(
-      t('inventory:operationCanceled', 'Operation cancelled'),
+      t('inventory:status.operationCanceled', 'Operation cancelled'),
       'info'
     );
     setShowConfirmation(false);
@@ -268,7 +268,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
    */
   const onSubmit = handleSubmit(async () => {
     if (!selectedItem) {
-      setFormError(t('inventory:noItemSelected', 'Please select an item.'));
+      setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item.'));
       return;
     }
 
@@ -283,12 +283,12 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
    */
   const onConfirmedDelete = async () => {
     if (!selectedItem) {
-      setFormError(t('inventory:noItemSelected', 'Please select an item.'));
+      setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item.'));
       return;
     }
 
     if (!deletionReason) {
-      setFormError(t('inventory:noReasonSelected', 'Please select a deletion reason.'));
+      setFormError(t('errors:inventory.selection.noReasonSelected', 'Please select a deletion reason.'));
       return;
     }
 
@@ -300,7 +300,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
 
       if (success.ok) {
         toast(
-          t('inventory:itemDeletedSuccessfully', 'Operation successful. Item was removed from inventory!'),
+          t('inventory:status.itemDeletedSuccessfully', 'Operation successful. Item was removed from inventory!'),
           'success'
         );
         onItemDeleted();
@@ -310,21 +310,21 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                  success.error?.includes('stock')) {
         // Backend error: quantity > 0
         setFormError(
-          t('inventory:deleteStockError', 
+          t('errors:inventory.businessRules.quantityMustBeZero', 
             'You still have merchandise in stock. You need to first remove items from stock by changing quantity.')
         );
         // Don't auto-close, let user click OK to return to inventory
         setShowConfirmation(false);
       } else if (success.error?.includes('Admin') || success.error?.includes('Access denied')) {
-        setFormError(t('inventory:adminOnly', 'Only administrators can delete items.'));
+        setFormError(t('errors:inventory.businessRules.adminOnly', 'Only administrators can delete items.'));
       } else if (success.error?.includes('404') || success.error?.includes('not found')) {
-        setFormError(t('inventory:itemNotFound', 'Item not found.'));
+        setFormError(t('errors:inventory.businessRules.itemNotFound', 'Item not found.'));
       } else {
-        setFormError(success.error || t('inventory:deleteItemFailed', 'Failed to delete item. Please try again.'));
+        setFormError(success.error || t('errors:inventory.requests.failedToDeleteItem', 'Failed to delete item. Please try again.'));
       }
     } catch (error) {
       console.error('Delete item error:', error);
-      setFormError(t('inventory:deleteItemFailed', 'Failed to delete item. Please try again.'));
+      setFormError(t('errors:inventory.requests.failedToDeleteItem', 'Failed to delete item. Please try again.'));
     }
   };
 
@@ -333,7 +333,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
       {/* Main delete item dialog */}
       <Dialog open={open && !showConfirmation} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>
-          {t('inventory:deleteItem', 'Delete Item')}
+          {t('inventory:dialogs.deleteItemTitle', 'Delete Item')}
         </DialogTitle>
         
         <DialogContent dividers>
@@ -349,7 +349,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             {/* Step 1: Supplier Selection */}
             <Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                {t('inventory:step1SelectSupplier')}
+                {t('inventory:steps.selectSupplier')}
               </Typography>
               
               {suppliersQuery.isLoading ? (
@@ -362,7 +362,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
               ) : (
                 <FormControl fullWidth>
                   <InputLabel id="supplier-select-label">
-                    {t('inventory:supplier', 'Supplier')}
+                    {t('inventory:table.supplier', 'Supplier')}
                   </InputLabel>
                   <Select
                     labelId="supplier-select-label"
@@ -373,7 +373,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                       );
                       setSelectedSupplier(supplier ?? null);
                     }}
-                    label={t('inventory:supplier', 'Supplier')}
+                    label={t('inventory:table.supplier', 'Supplier')}
                   >
                     {suppliersQuery.data?.map((supplier) => (
                       <MenuItem key={supplier.id} value={supplier.id}>
@@ -390,12 +390,12 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             {/* Step 2: Item Selection */}
             <Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                {t('inventory:step2SelectItem')}
+                {t('inventory:steps.selectItem')}
               </Typography>
               
               {!selectedSupplier ? (
                 <Alert severity="info">
-                  {t('inventory:selectSupplierFirst', 'Select a supplier to enable search.')}
+                  {t('inventory:search.selectSupplierFirst', 'Select a supplier to enable search.')}
                 </Alert>
               ) : itemsQuery.isLoading ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -419,14 +419,14 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                   onInputChange={(_e, value) => setItemQuery(value)}
                   noOptionsText={
                     itemQuery.length < 2 
-                      ? t('inventory:typeToSearch', 'Type at least 2 characters to search')
-                      : t('inventory:noItemsFound', 'No items found for this search.')
+                      ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
+                      : t('inventory:search.noItemsFound', 'No items found for this search.')
                   }
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       label={t('inventory:item', 'Item')}
-                      placeholder={t('inventory:typeToSearchItems', 'Type to search items...')}
+                      placeholder={t('inventory:search.typeToSearchItems', 'Type to search items...')}
                     />
                   )}
                 />
@@ -439,35 +439,35 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 <Divider />
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                    {t('inventory:step3SelectReason', 'Step 3: Select Deletion Reason')}
+                    {t('inventory:steps.selectReason', 'Step 3: Select Deletion Reason')}
                   </Typography>
                   
                   <FormControl fullWidth>
                     <InputLabel>
-                      {t('inventory:deletionReason', 'Deletion Reason')}
+                      {t('inventory:deleteFlow.deletionReasonLabel', 'Deletion Reason')}
                     </InputLabel>
                     <Select
-                      label={t('inventory:deletionReason', 'Deletion Reason')}
+                      label={t('inventory:deleteFlow.deletionReasonLabel', 'Deletion Reason')}
                       value={deletionReason}
                       onChange={(e) => setDeletionReason(e.target.value)}
                     >
                       <MenuItem value="SCRAPPED">
-                        {t('inventory:reasonScrapped', 'Scrapped - Quality control removal')}
+                        {t('inventory:reasons.reasonScrapped', 'Scrapped - Quality control removal')}
                       </MenuItem>
                       <MenuItem value="DESTROYED">
-                        {t('inventory:reasonDestroyed', 'Destroyed - Catastrophic loss')}
+                        {t('inventory:reasons.reasonDestroyed', 'Destroyed - Catastrophic loss')}
                       </MenuItem>
                       <MenuItem value="DAMAGED">
-                        {t('inventory:reasonDamaged', 'Damaged - Quality hold')}
+                        {t('inventory:reasons.reasonDamaged', 'Damaged - Quality hold')}
                       </MenuItem>
                       <MenuItem value="EXPIRED">
-                        {t('inventory:reasonExpired', 'Expired - Expiration date breach')}
+                        {t('inventory:reasons.reasonExpired', 'Expired - Expiration date breach')}
                       </MenuItem>
                       <MenuItem value="LOST">
-                        {t('inventory:reasonLost', 'Lost - Inventory shrinkage')}
+                        {t('inventory:reasons.reasonLost', 'Lost - Inventory shrinkage')}
                       </MenuItem>
                       <MenuItem value="RETURNED_TO_SUPPLIER">
-                        {t('inventory:reasonReturnedToSupplier', 'Returned to Supplier - Defective merchandise')}
+                        {t('inventory:reasons.reasonReturnedToSupplier', 'Returned to Supplier - Defective merchandise')}
                       </MenuItem>
                     </Select>
                   </FormControl>
@@ -481,7 +481,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 <Divider />
                 <Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                    {t('inventory:itemInfo', 'Item Information')}
+                    {t('inventory:dialogs.itemInfoTitle', 'Item Information')}
                   </Typography>
 
                   <Box sx={{ 
@@ -491,14 +491,14 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                     mb: 1
                   }}>
                     <Typography variant="body2" color="text.secondary">
-                      {t('inventory:name', 'Name')}
+                      {t('inventory:table.name', 'Name')}
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 600 }}>
                       {itemDetailsQuery.data.name}
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      {t('inventory:onHand', 'On-hand')}
+                      {t('inventory:table.onHand', 'On-hand')}
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 600 }}>
                       {itemDetailsQuery.data.onHand}
@@ -512,7 +512,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
 
         <DialogActions sx={{ gap: 1 }}>
           <Button onClick={handleClose} disabled={isSubmitting}>
-            {t('inventory:cancel', 'Cancel')}
+            {t('inventory:buttons.cancel', 'Cancel')}
           </Button>
           <Button
             onClick={onSubmit}
@@ -526,7 +526,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 {t('common:deleting', 'Deleting...')}
               </>
             ) : (
-              t('inventory:delete', 'Delete')
+              t('inventory:toolbar.delete', 'Delete')
             )}
           </Button>
         </DialogActions>
@@ -540,16 +540,16 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
         fullWidth
       >
         <DialogTitle>
-          {t('inventory:confirmDelete', 'Confirm Deletion')}
+          {t('inventory:dialogs.confirmDeleteTitle', 'Confirm Deletion')}
         </DialogTitle>
         
         <DialogContent dividers>
           <Alert severity="warning" sx={{ mb: 2 }}>
-            {t('inventory:deleteWarning', 'This action cannot be reversed!!')}
+            {t('inventory:deleteFlow.warning', 'This action cannot be reversed!!')}
           </Alert>
 
           <Typography variant="body1" gutterBottom>
-            {t('inventory:deleteConfirmMessage', 'Are you sure you want to delete this item?')}
+            {t('inventory:deleteFlow.confirmMessage', 'Are you sure you want to delete this item?')}
           </Typography>
 
           {selectedItem && itemDetailsQuery.data && (
@@ -560,7 +560,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
               mt: 2
             }}>
               <Typography variant="body2" color="text.secondary">
-                {t('inventory:item', 'Item')}
+                {t('inventory:table.name', 'Item')}
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>
                 {itemDetailsQuery.data.name}
@@ -574,7 +574,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
             onClick={handleCancelConfirmation} 
             disabled={isSubmitting}
           >
-            {t('inventory:no', 'No')}
+            {t('inventory:buttons.no', 'No')}
           </Button>
           <Button
             onClick={onConfirmedDelete}
@@ -588,7 +588,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
                 {t('common:deleting')}
               </>
             ) : (
-              t('inventory:yes', 'Yes')
+              t('inventory:buttons.yes', 'Yes')
             )}
           </Button>
         </DialogActions>

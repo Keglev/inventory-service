@@ -121,7 +121,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   onClose,
   onPriceChanged,
 }) => {
-  const { t } = useTranslation(['common', 'inventory']);
+  const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
   // ================================
@@ -255,7 +255,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
    */
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedItem) {
-      setFormError(t('inventory:noItemSelected', 'Please select an item to change price.'));
+      setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item to change price.'));
       return;
     }
 
@@ -269,7 +269,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
 
       if (success) {
         toast(
-          t('inventory:priceUpdatedTo', 'Price changed to ${{price}}', {
+          t('inventory:price.priceUpdatedTo', 'Price changed to ${{price}}', {
             price: values.newPrice.toFixed(2),
           }),
           'success'
@@ -277,18 +277,18 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
         onPriceChanged();
         handleClose();
       } else {
-        setFormError(t('inventory:priceChangeFailed', 'Failed to change price. Please try again.'));
+        setFormError(t('errors:inventory.requests.failedToChangePrice', 'Failed to change price. Please try again.'));
       }
     } catch (error) {
       console.error('Price change error:', error);
-      setFormError(t('inventory:priceChangeFailed', 'Failed to change price. Please try again.'));
+      setFormError(t('errors:inventory.requests.failedToChangePrice', 'Failed to change price. Please try again.'));
     }
   });
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        {t('inventory:changePrice', 'Change Price')}
+        {t('inventory:toolbar.changePrice', 'Change Price')}
       </DialogTitle>
       
       <DialogContent dividers>
@@ -304,14 +304,14 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
           {/* Step 1: Supplier Selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step1SelectSupplier')}
+              {t('inventory:steps.selectSupplier')}
             </Typography>
             
             <FormControl fullWidth size="small">
-              <InputLabel>{t('inventory:supplier', 'Supplier')}</InputLabel>
+              <InputLabel>{t('inventory:table.supplier', 'Supplier')}</InputLabel>
               <Select
                 value={selectedSupplier?.id || ''}
-                label={t('inventory:supplier', 'Supplier')}
+                label={t('inventory:table.supplier', 'Supplier')}
                 onChange={(e) => {
                   const supplierId = e.target.value;
                   const supplier = suppliersQuery.data?.find(s => String(s.id) === String(supplierId)) || null;
@@ -334,7 +334,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
           {/* Step 2: Item Selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step2SelectItem')}
+              {t('inventory:steps.selectItem')}
             </Typography>
             
             <Autocomplete
@@ -350,14 +350,14 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
               loading={itemsQuery.isLoading}
               noOptionsText={
                 itemQuery.length < 2 
-                  ? t('inventory:typeToSearch', 'Type at least 2 characters to search')
-                  : t('inventory:noItemsFound', 'No items found')
+                  ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
+                  : t('inventory:search.noItemsFound', 'No items found')
               }
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label={t('inventory:searchSelectItem', 'Search and select item...')}
-                  placeholder={!selectedSupplier ? t('inventory:selectSupplierFirst', 'Select supplier first') : undefined}
+                  label={t('inventory:search.searchSelectItem', 'Search and select item...')}
+                  placeholder={!selectedSupplier ? t('inventory:search.selectSupplierFirst', 'Select supplier first') : undefined}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
@@ -377,13 +377,13 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
           {selectedItem && (
             <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, mb: 2 }}>
               <Typography variant="subtitle2" color="primary">
-                {t('inventory:selectedItem', 'Selected Item')}: {selectedItem.name}
+                {t('inventory:selection.selectedItemLabel', 'Selected Item')}: {selectedItem.name}
               </Typography>
               
               {/* Current Price */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('inventory:currentPrice', 'Current Price')}:
+                  {t('inventory:price.currentPrice', 'Current Price')}:
                 </Typography>
                 <Typography variant="body2" fontWeight="medium">
                   {itemDetailsQuery.isLoading ? (
@@ -397,7 +397,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
               {/* Current Quantity */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('inventory:currentQuantity', 'Current Quantity')}:
+                  {t('inventory:quantity.currentQuantity', 'Current Quantity')}:
                 </Typography>
                 <Typography variant="body2" fontWeight="medium">
                   {itemDetailsQuery.isLoading ? (
@@ -415,7 +415,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
           {/* Step 3: Price Change */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step3ChangePrice')}
+              {t('inventory:steps.changePrice')}
             </Typography>
             
             {/* New Price Input */}
@@ -430,7 +430,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                     const val = e.target.value;
                     onChange(val === '' ? 0 : Number(val));
                   }}
-                  label={t('inventory:newPrice', 'New Price')}
+                  label={t('inventory:price.newPrice', 'New Price')}
                   type="number"
                   fullWidth
                   disabled={!selectedItem}
@@ -444,7 +444,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                   helperText={
                     errors.newPrice?.message ||
                     (selectedItem && itemDetailsQuery.data && (
-                      t('inventory:priceChangeFromTo', 'Change from ${{from}} to ${{to}}', {
+                      t('inventory:price.priceUpdatedTo', 'Change from ${{from}} to ${{to}}', {
                         from: itemDetailsQuery.data.price.toFixed(2),
                         to: Number(value).toFixed(2),
                       })
@@ -459,7 +459,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} disabled={isSubmitting}>
-          {t('inventory:cancel', 'Cancel')}
+          {t('inventory:buttons.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={onSubmit}
@@ -472,7 +472,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
               {t('common:saving', 'Saving...')}
             </>
           ) : (
-            t('inventory:applyPriceChange', 'Apply Price Change')
+            t('inventory:buttons.applyPriceChange', 'Apply Price Change')
           )}
         </Button>
       </DialogActions>

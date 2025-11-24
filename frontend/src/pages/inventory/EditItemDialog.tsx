@@ -123,7 +123,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
   onClose,
   onItemRenamed,
 }) => {
-  const { t } = useTranslation(['common', 'inventory']);
+  const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
   // ================================
@@ -258,7 +258,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
    */
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedItem) {
-      setFormError(t('inventory:noItemSelected', 'Please select an item.'));
+      setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item.'));
       return;
     }
 
@@ -272,28 +272,28 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
 
       if (success.ok) {
         toast(
-          t('inventory:itemRenamed', 'Item name changed successfully!'),
+          t('inventory:status.itemRenamed', 'Item name changed successfully!'),
           'success'
         );
         onItemRenamed();
         handleClose();
       } else if (success.error?.includes('Admin') || success.error?.includes('Access denied')) {
-        setFormError(t('inventory:adminOnly', 'Only administrators can rename items.'));
+        setFormError(t('errors:inventory.adminOnly', 'Only administrators can rename items.'));
       } else if (success.error?.includes('duplicate') || success.error?.includes('already exists')) {
-        setFormError(t('inventory:duplicateName', 'An item with this name already exists.'));
+        setFormError(t('errors:inventory.conflicts.duplicateName', 'An item with this name already exists.'));
       } else {
-        setFormError(success.error || t('inventory:renameItemFailed', 'Failed to rename item. Please try again.'));
+        setFormError(success.error || t('errors:inventory.requests.failedToRenameItem', 'Failed to rename item. Please try again.'));
       }
     } catch (error) {
       console.error('Edit item error:', error);
-      setFormError(t('inventory:renameItemFailed', 'Failed to rename item. Please try again.'));
+      setFormError(t('errors:inventory.requests.failedToRenameItem', 'Failed to rename item. Please try again.'));
     }
   });
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        {t('inventory:editItem', 'Edit Item')}
+        {t('inventory:dialogs.editItemTitle', 'Edit Item')}
       </DialogTitle>
       
       <DialogContent dividers>
@@ -309,7 +309,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
           {/* Step 1: Supplier Selection */}
           <Box>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              {t('inventory:step1SelectSupplier', 'Step 1: Select Supplier')}
+              {t('inventory:steps.selectSupplier', 'Step 1: Select Supplier')}
             </Typography>
             
             {suppliersQuery.isLoading ? (
@@ -322,7 +322,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
             ) : (
               <FormControl fullWidth>
                 <InputLabel id="supplier-select-label">
-                  {t('inventory:supplier', 'Supplier')}
+                  {t('inventory:table.supplier', 'Supplier')}
                 </InputLabel>
                 <Select
                   labelId="supplier-select-label"
@@ -333,7 +333,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
                     );
                     setSelectedSupplier(supplier ?? null);
                   }}
-                  label={t('inventory:supplier', 'Supplier')}
+                  label={t('inventory:table.supplier', 'Supplier')}
                 >
                   {suppliersQuery.data?.map((supplier) => (
                     <MenuItem key={supplier.id} value={supplier.id}>
@@ -350,12 +350,12 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
           {/* Step 2: Item Selection */}
           <Box>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              {t('inventory:step2SelectItem', 'Step 2: Select Item')}
+              {t('inventory:steps.selectItem', 'Step 2: Select Item')}
             </Typography>
             
             {!selectedSupplier ? (
               <Alert severity="info">
-                {t('inventory:selectSupplierFirst', 'Select a supplier to enable search.')}
+                {t('inventory:search.selectSupplierFirst', 'Select a supplier to enable search.')}
               </Alert>
             ) : itemsQuery.isLoading ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -379,14 +379,14 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
                 onInputChange={(_e, value) => setItemQuery(value)}
                 noOptionsText={
                   itemQuery.length < 2 
-                    ? t('inventory:typeToSearch', 'Type at least 2 characters to search')
-                    : t('inventory:noItemsFound', 'No items found for this search.')
+                    ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
+                    : t('inventory:search.noItemsFound', 'No items found for this search.')
                 }
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={t('inventory:item', 'Item')}
-                    placeholder={t('inventory:typeToSearchItems', 'Type to search items...')}
+                    label={t('inventory:table.name', 'Item')}
+                    placeholder={t('inventory:search.typeToSearchItems', 'Type to search items...')}
                   />
                 )}
               />
@@ -399,7 +399,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
           {selectedItem && itemDetailsQuery.data && (
             <Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                {t('inventory:step3EditName', 'Step 3: Edit Item Name')}
+                {t('inventory:steps.editName', 'Step 3: Edit Item Name')}
               </Typography>
 
               {/* Current Item Info */}
@@ -410,7 +410,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
                 mb: 2 
               }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('inventory:currentItemInfo', 'Current Item Information')}
+                  {t('inventory:quantity.currentItemInfo', 'Current Item Information')}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
                   {itemDetailsQuery.data.name}
@@ -425,8 +425,8 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
                   <TextField
                     {...field}
                     fullWidth
-                    label={t('inventory:name', 'Item Name')}
-                    placeholder={t('inventory:name', 'Item Name')}
+                    label={t('inventory:table.name', 'Item Name')}
+                    placeholder={t('inventory:table.name', 'Item Name')}
                     error={!!errors.newName}
                     helperText={errors.newName?.message}
                     disabled={isSubmitting}
@@ -440,7 +440,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
 
       <DialogActions sx={{ gap: 1 }}>
         <Button onClick={handleClose} disabled={isSubmitting}>
-          {t('inventory:cancel', 'Cancel')}
+          {t('inventory:buttons.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={onSubmit}
@@ -453,7 +453,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
               {t('common:saving', 'Saving...')}
             </>
           ) : (
-            t('inventory:change', 'Change')
+            t('inventory:buttons.change', 'Change')
           )}
         </Button>
       </DialogActions>

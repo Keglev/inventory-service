@@ -94,7 +94,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
   readOnly = false,
 }) => {
   // Load both 'common' and 'inventory' namespaces. Keep i18n domain-based (enterprise style).
-  const { t } = useTranslation(['common', 'inventory']);
+  const { t } = useTranslation(['common', 'inventory', 'errors']);
 
   /**
    * React Hook Form setup with Zod resolver.
@@ -123,8 +123,8 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 
   /** Allowed reasons for *create* flow only (server enum-compatible). */
   const CREATE_REASON_OPTIONS = [
-    { value: 'INITIAL_STOCK', i18nKey: 'reasons.initial_stock' },
-    { value: 'MANUAL_UPDATE', i18nKey: 'reasons.manual_update' },
+    { value: 'INITIAL_STOCK', i18nKey: 'stockReasons.initial_stock' },
+    { value: 'MANUAL_UPDATE', i18nKey: 'stockReasons.manual_update' },
   ] as const;
 
   /**
@@ -186,26 +186,26 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
     // Heuristics for duplicates and supplier selection issues
     if (msg.includes('name') && (msg.includes('duplicate') || msg.includes('exists'))) {
       setError('name', {
-        message: t('inventory:duplicateName', 'An item with this name already exists.'),
+        message: t('errors:inventory.conflicts.duplicateName', 'An item with this name already exists.'),
       });
-      setFormError(t('inventory:validationFailed', 'Please fix the highlighted fields.'));
+      setFormError(t('errors:inventory.validationFailed', 'Please fix the highlighted fields.'));
       return;
     }
     if ((msg.includes('code') || msg.includes('sku')) && (msg.includes('duplicate') || msg.includes('exists'))) {
       setError('code', {
-        message: t('inventory:duplicateCode', 'An item with this code already exists.'),
+        message: t('errors:inventory.conflicts.duplicateCode', 'An item with this code already exists.'),
       });
-      setFormError(t('inventory:validationFailed', 'Please fix the highlighted fields.'));
+      setFormError(t('errors:inventory.validationFailed', 'Please fix the highlighted fields.'));
       return;
     }
     if (msg.includes('supplier')) {
       setError('supplierId', { message });
-      setFormError(t('inventory:validationFailed', 'Please fix the highlighted fields.'));
+      setFormError(t('errors:inventory.validationFailed', 'Please fix the highlighted fields.'));
       return;
     }
 
     // Generic fallback
-    setFormError(message || t('inventory:serverError', 'Something went wrong. Please try again.'));
+    setFormError(message || t('errors:inventory.server.serverError', 'Something went wrong. Please try again.'));
   }
 
   /**
@@ -242,7 +242,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
       onSaved();
       onClose();
     } else {
-      applyServerError(res.error ?? t('inventory:serverError', 'Something went wrong. Please try again.'));
+      applyServerError(res.error ?? t('errors:inventory.server.serverError', 'Something went wrong. Please try again.'));
     }
   });
 
@@ -250,8 +250,8 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
         {initial?.id
-          ? t('inventory:editItem', 'Edit item')
-          : t('inventory:newItem', 'Add new item')}
+          ? t('inventory:dialogs.editItemTitle', 'Edit item')
+          : t('inventory:toolbar.newItem', 'Add new item')}
       </DialogTitle>
 
       <DialogContent dividers>
@@ -274,7 +274,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
             renderInput={(p) => (
               <TextField
                 {...p}
-                label={t('inventory:supplier', 'Supplier')}
+                label={t('inventory:table.supplier', 'Supplier')}
                 error={!!errors.supplierId}
                 helperText={errors.supplierId?.message}
               />
@@ -283,16 +283,16 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 
           {/* Name */}
           <TextField
-            label={t('inventory:name', 'Item')}
+            label={t('inventory:table.name', 'Item')}
             {...register('name')}
             error={!!errors.name}
             helperText={errors.name?.message}
           />
 
           {/* Code / SKU */}
-          <Tooltip title={t('inventory:codeReadOnlyHint', 'Optional for now')}>
+          <Tooltip title={t('inventory:fields.codeReadOnlyHint', 'Optional for now')}>
             <TextField
-              label={t('inventory:code', 'Code / SKU')}
+              label={t('inventory:table.code', 'Code / SKU')}
               {...register('code')}
               InputProps={{ readOnly: true }}
               error={!!errors.code}
@@ -301,7 +301,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 
           {/* Initial Stock Quantity */}
           <TextField
-            label={t('inventory:quantity', 'Initial Stock')}
+            label={t('inventory:table.quantity', 'Initial Stock')}
             type="number"
             slotProps={{ htmlInput: { min: 0 } }}
             {...register('quantity', { valueAsNumber: true })}
@@ -311,7 +311,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 
           {/* Price */}
           <TextField
-            label={t('inventory:price', 'Price')}
+            label={t('inventory:table.price', 'Price')}
             type="number"
             slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
             {...register('price', { valueAsNumber: true })}
@@ -325,10 +325,10 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
           {/* Reason dropdown on CREATE only */}
           {!initial?.id && (
             <FormControl error={!!errors.reason}>
-              <InputLabel id="reason-label">{t('inventory:reason', 'Reason')}</InputLabel>
+              <InputLabel id="reason-label">{t('inventory:fields.reasonLabel', 'Reason')}</InputLabel>
               <Select
                 labelId="reason-label"
-                label={t('inventory:reason', 'Reason')}
+                label={t('inventory:fields.reasonLabel', 'Reason')}
                 value={watch('reason') ?? 'INITIAL_STOCK'}
                 onChange={(e) => setValue('reason', e.target.value as UpsertItemForm['reason'], { shouldValidate: true })}
               >
@@ -358,8 +358,8 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
           <span>
             <Button onClick={onSubmit} disabled={isSubmitting || readOnly} variant="contained">
               {initial?.id
-                ? t('inventory:save', 'Save')
-                : t('inventory:create', 'Create')}
+                ? t('inventory:buttons.save', 'Save')
+                : t('inventory:buttons.create', 'Create')}
             </Button>
           </span>
         </Tooltip>

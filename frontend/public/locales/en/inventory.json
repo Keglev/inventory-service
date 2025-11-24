@@ -1,109 +1,136 @@
 {
-  "title": "Inventory Management",
-  "name": "Item",
-  "code": "Code / SKU",
-  "codeHint": "Optional for now",
-  "supplier": "Supplier",
-  "price": "Price",
-  "quantity": "Initial Stock",
-  "onHand": "On-hand",
-  "minQty": "Min Qty",
-  "updated": "Updated",
-  "empty": "No items found for the current filters.",
-  "newItem": "Add new item",
-  "editItem": "Edit item",
-  "deleteItem": "Delete Item",
-  "adjustQty": "Adjust quantity",
-  "delta": "Delta",
-  "reason": "Reason",
-  "qty": "Qty",
-  "codeReadOnlyHint": "Optional for now",
-  "changePrice": "Change price",
-  "newPrice": "New price",
-  "selectSupplierPrompt": "Select a supplier to view their items.",
-  "selectSupplierFirst": "Select a supplier to enable search.",
-  "emptySearch": "No matching items for this supplier.",
-  "belowMinOnly": "Below min only",
-  "notes": "Notes",
-  "save": "Save",
-  "create": "Create",
-  "itemAddedToStock": "Item added to stock successfully!",
-  "itemUpdated": "Item updated successfully!",
-  "itemDeletedSuccessfully": "Operation successful. Item was removed from inventory!",
-  "deleteItem": "Delete Item",
-  "confirmDelete": "Confirm Deletion",
-  "deleteWarning": "This action cannot be reversed!!",
-  "deleteConfirmMessage": "Are you sure you want to delete this item?",
-  "deleteStockError": "You still have merchandise in stock. You need to first remove items from stock by changing quantity.",
-  "deleteItemFailed": "Failed to delete item. Please try again.",
-  "itemNotFound": "Item not found.",
-  "operationCanceled": "Operation cancelled",
-  "itemInfo": "Item Information",
-  "duplicateName": "An item with this name already exists.",
-  "duplicateCode": "An item with this code already exists.",
-  "validationFailed": "Please fix the highlighted fields.",
-  "serverError": "Something went wrong. Please try again.",
-  "formSaved": "Item saved successfully.",
-  "failedToLoadSuppliers": "Failed to load suppliers. Please try again.",
-  "failedToLoadItems": "Failed to load items. Please try again.",
-  "step1SelectSupplier": "Step 1: Select Supplier",
-  "step2SelectItem": "Step 2: Select Item",
-  "step3AdjustQuantity": "Step 3: Adjust Quantity",
-  "step3ChangePrice": "Step 3: Change Price",
-  "step3EditName": "Step 3: Change Item Name",
-  "selectSupplierPlaceholder": "Choose a supplier...",
-  "item": "Item",
-  "currentStock": "Current: {{quantity}}",
-  "currentItemInfo": "Current Item Information",
-  "currentQuantity": "Current Quantity",
-  "newQuantity": "New Quantity",
-  "quantityChangeHint": "Change from {{current}} to {{new}}",
-  "applyAdjustment": "Apply Adjustment",
-  "noItemSelected": "Please select an item to adjust.",
-  "adjustmentFailed": "Failed to adjust quantity. Please try again.",
-  "quantityUpdatedTo": "Quantity changed to {{quantity}}",
-  "selectedItem": "Selected Item",
-  "typeToSearchItems": "Type to search items...",
-  "noItemsFound": "No items found for this search.",
-  "typeToSearchHint": "Start typing to search for items...",
-  "typeToSearch": "Type at least 2 characters to search",
-  "setQuantityHint": "Setting quantity to {{quantity}}",
-  "priceNotAvailable": "Price: N/A",
-  "qtyNotAvailable": "Qty: N/A",
-  "change": "Change",
-  "delete": "Delete",
-  "edit": "Edit",
-  "cancel": "Cancel",
-  "yes": "Yes",
-  "no": "No",
-  "deletionReason": "Deletion Reason",
-  "step3SelectReason": "Step 3: Select Deletion Reason",
-  "reasonScrapped": "Scrapped - Quality control removal",
-  "reasonDestroyed": "Destroyed - Catastrophic loss",
-  "reasonDamaged": "Damaged - Quality hold",
-  "reasonExpired": "Expired - Expiration date breach",
-  "reasonLost": "Lost - Inventory shrinkage",
-  "reasonReturnedToSupplier": "Returned to Supplier - Defective merchandise",
-  "noReasonSelected": "Please select a deletion reason.",
-  "itemRenamed": "Item name changed successfully!",
-  "renameItemFailed": "Failed to rename item. Please try again.",
-  "adminOnly": "Only administrators can rename items.",
-  "currentPrice": "Current Price",
-  "setPriceHint": "Price will be set to ${{price}}",
-  "applyPriceChange": "Apply Price Change",
-  "priceChangeFailed": "Failed to change price. Please try again.",
-  "priceUpdatedTo": "Price changed to ${{price}}",
+  "page": {
+    "title": "Inventory Management",
+    "empty": "No entries found for the current filters."
+  },
+
+  "table": {
+    "name": "Item",
+    "code": "Code / SKU",
+    "supplier": "Supplier",
+    "price": "Price",
+    "quantity": "Initial Quantity",
+    "onHand": "On Hand",
+    "minQty": "Minimum Quantity",
+    "updated": "Updated",
+    "notes": "Notes"
+  },
+
+  "toolbar": {
+    "newItem": "Add New Item",
+    "edit": "Edit",
+    "delete": "Delete",
+    "adjustQty": "Adjust Quantity",
+    "changePrice": "Change Price"
+  },
+
+  "steps": {
+    "selectSupplier": "Step 1: Select Supplier",
+    "selectItem": "Step 2: Select Item",
+    "adjustQuantity": "Step 3: Adjust Quantity",
+    "changePrice": "Step 3: Change Price",
+    "editName": "Step 3: Edit Item Name",
+    "selectReason": "Step 3: Select Deletion Reason"
+  },
+
+  "dialogs": {
+    "editItemTitle": "Edit Item",
+    "deleteItemTitle": "Delete Item",
+    "itemInfoTitle": "Item Information",
+    "confirmDeleteTitle": "Confirm Deletion"
+  },
+
+  "buttons": {
+    "create": "Create",
+    "save": "Save",
+    "change": "Change",
+    "applyAdjustment": "Apply Adjustment",
+    "applyPriceChange": "Apply Price Change",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No"
+  },
+
+  "search": {
+    "selectSupplierPrompt": "Please select a supplier to view their items.",
+    "selectSupplierFirst": "Please select a supplier first to enable searching.",
+    "emptySearch": "No matching items found for this supplier.",
+    "typeToSearchItems": "Type to search for items...",
+    "noItemsFound": "No items found for this search.",
+    "typeToSearchHint": "Start typing to search for items...",
+    "typeToSearch": "Enter at least 2 characters to search",
+    "selectSupplierPlaceholder": "Select supplier...",
+    "allSuppliers": "All Suppliers",
+    "search": "Search items...",
+    "searchSelectItem": "Search and select item..."
+  },
+
+  "quantity": {
+    "currentStock": "Current: {{quantity}}",
+    "currentItemInfo": "Current Item Information",
+    "currentQuantity": "Current Quantity",
+    "newQuantity": "New Quantity",
+    "quantityChangeHint": "Changing from {{current}} to {{new}}",
+    "setQuantityHint": "Quantity will be set to {{quantity}}",
+    "noItemSelected": "Please select an item to adjust.",
+    "quantityUpdatedTo": "Quantity updated to {{quantity}}"
+  },
+
+  "price": {
+    "newPrice": "New Price",
+    "currentPrice": "Current Price",
+    "setPriceHint": "Price will be set to ${{price}}",
+    "priceUpdatedTo": "Price updated to ${{price}}",
+    "priceNotAvailable": "Price: N/A"
+  },
+
+  "status": {
+    "itemAddedToStock": "Item successfully added to stock!",
+    "itemUpdated": "Item successfully updated!",
+    "itemDeletedSuccessfully": "Success! The item has been removed from the inventory!",
+    "itemRenamed": "Item name successfully updated!",
+    "operationCanceled": "Operation canceled",
+    "formSaved": "Item successfully saved."
+  },
+
+  "deleteFlow": {
+    "deletionReasonLabel": "Deletion Reason",
+    "confirmMessage": "Are you sure you want to delete this item?",
+    "warning": "This action cannot be undone!!",
+    "noReasonSelected": "Please select a deletion reason."
+  },
+
   "reasons": {
-    "initial_stock": "Initial stock",
-    "manual_update": "Manual update",
+    "reasonScrapped": "Scrapped - Quality Control",
+    "reasonDestroyed": "Destroyed - Catastrophic Loss",
+    "reasonDamaged": "Damaged - Quality Issues",
+    "reasonExpired": "Expired - Exceeded Shelf Life",
+    "reasonLost": "Lost - Inventory Discrepancy",
+    "reasonReturnedToSupplier": "Returned to Supplier - Defective Material"
+  },
+
+  "stockReasons": {
+    "initial_stock": "Initial Stock",
+    "manual_update": "Manual Adjustment",
     "sold": "Sold",
     "scrapped": "Scrapped",
     "destroyed": "Destroyed",
     "damaged": "Damaged",
     "expired": "Expired",
     "lost": "Lost",
-    "returned_to_supplier": "Returned to supplier",
-    "returned_by_customer": "Returned by customer"
+    "returned_to_supplier": "Returned to Supplier",
+    "returned_by_customer": "Returned by Customer"
+  },
+
+  "fields": {
+    "codeReadOnlyHint": "Optional for now",
+    "reasonLabel": "Reason"
+  },
+
+  "filters": {
+    "belowMinOnly": "Below min only"
+  },
+  "selection": {
+    "selectedItemLabel": "Selected Item"
   }
 }
-

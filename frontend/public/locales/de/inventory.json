@@ -1,98 +1,115 @@
 {
-  "title": "Bestandsverwaltung",
-  "name": "Artikel",
-  "code": "Code / SKU",
-  "codeHint": "Derzeit optional",
-  "supplier": "Lieferant",
-  "price": "Preis",
-  "quantity": "Anfangsbestand",
-  "onHand": "Bestand",
-  "minQty": "Mindestmenge",
-  "updated": "Aktualisiert",
-  "empty": "Keine Einträge für die aktuellen Filter gefunden.",
-  "newItem": "Neuen Artikel anlegen",
-  "editItem": "Artikel bearbeiten",
-  "deleteItem": "Artikel löschen",
-  "adjustQty": "Menge anpassen",
-  "delta": "Differenz",
-  "reason": "Grund",
-  "codeReadOnlyHint": "Derzeit nur lesbar",
-  "qty": "Menge",
-  "save": "Speichern",
-  "create": "Erstellen",
-  "changePrice": "Preis ändern",
-  "newPrice": "Neuer Preis",
-  "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen.",
-  "selectSupplierFirst": "Bitte wählen Sie zuerst einen Lieferanten, um die Suche zu aktivieren.",
-  "emptySearch": "Keine passenden Artikel für diesen Lieferanten.",
-  "belowMinOnly": "Nur unter Mindestmenge",
-  "notes": "Notizen",
-  "itemAddedToStock": "Artikel erfolgreich zum Lager hinzugefügt!",
-  "itemUpdated": "Artikel erfolgreich aktualisiert!",
-  "itemDeletedSuccessfully": "Operation erfolgreich. Artikel wurde aus dem Bestand entfernt!",
-  "confirmDelete": "Löschung bestätigen",
-  "deleteWarning": "Diese Aktion kann nicht rückgängig gemacht werden!!",
-  "deleteConfirmMessage": "Sind Sie sicher, dass Sie diesen Artikel löschen möchten?",
-  "deleteStockError": "Sie haben noch Artikel im Bestand. Sie müssen zuerst Artikel aus dem Bestand entfernen, indem Sie die Menge ändern.",
-  "deleteItemFailed": "Fehler beim Löschen des Artikels. Bitte versuchen Sie es erneut.",
-  "itemNotFound": "Artikel nicht gefunden.",
-  "operationCanceled": "Operation abgebrochen",
-  "itemInfo": "Artikelinformationen",
-  "duplicateName": "Ein Artikel mit diesem Namen existiert bereits.",
-  "duplicateCode": "Ein Artikel mit diesem Code existiert bereits.",
-  "validationFailed": "Bitte beheben Sie die markierten Felder.",
-  "serverError": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
-  "formSaved": "Artikel wurde erfolgreich gespeichert.",
-  "failedToLoadSuppliers": "Fehler beim Laden der Lieferanten. Bitte versuchen Sie es erneut.",
-  "failedToLoadItems": "Fehler beim Laden der Artikel. Bitte versuchen Sie es erneut.",
-  "step1SelectSupplier": "Schritt 1: Lieferant auswählen",
-  "step2SelectItem": "Schritt 2: Artikel auswählen",
-  "step3AdjustQuantity": "Schritt 3: Menge anpassen",
-  "step3ChangePrice": "Schritt 3: Preis ändern",
-  "step3EditName": "Schritt 3: Artikelname ändern",
-  "selectSupplierPlaceholder": "Lieferant auswählen...",
-  "item": "Artikel",
-  "currentStock": "Aktuell: {{quantity}}",
-  "currentItemInfo": "Aktuelle Artikelinformationen",
-  "currentQuantity": "Aktuelle Menge",
-  "currentPrice": "Aktueller Preis",
-  "newQuantity": "Neue Menge",
-  "quantityChangeHint": "Änderung von {{current}} auf {{new}}",
-  "setPriceHint": "Preis wird auf ${{price}} gesetzt",
-  "applyAdjustment": "Anpassung anwenden",
-  "applyPriceChange": "Preisänderung anwenden",
-  "noItemSelected": "Bitte wählen Sie einen Artikel zum Anpassen aus.",
-  "adjustmentFailed": "Fehler beim Anpassen der Menge. Bitte versuchen Sie es erneut.",
-  "priceChangeFailed": "Fehler beim Ändern des Preises. Bitte versuchen Sie es erneut.",
-  "quantityUpdatedTo": "Menge wurde auf {{quantity}} geändert",
-  "priceUpdatedTo": "Preis wurde auf ${{price}} geändert",
-  "selectedItem": "Ausgewählter Artikel",
-  "typeToSearchItems": "Tippen Sie, um Artikel zu suchen...",
-  "noItemsFound": "Keine Artikel für diese Suche gefunden.",
-  "typeToSearchHint": "Beginnen Sie mit der Eingabe, um nach Artikeln zu suchen...",
-  "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
-  "setQuantityHint": "Menge wird auf {{quantity}} gesetzt",
-  "priceNotAvailable": "Preis: N/V",
-  "qtyNotAvailable": "Menge: N/V",
-  "change": "Ändern",
-  "delete": "Löschen",
-  "edit": "Bearbeiten",
-  "cancel": "Abbrechen",
-  "yes": "Ja",
-  "no": "Nein",
-  "deletionReason": "Löschungsgrund",
-  "step3SelectReason": "Schritt 3: Löschungsgrund auswählen",
-  "reasonScrapped": "Verschrottet - Qualitätskontrolle",
-  "reasonDestroyed": "Zerstört - Katastrophaler Verlust",
-  "reasonDamaged": "Beschädigt - Qualitätsprobleme",
-  "reasonExpired": "Abgelaufen - Verfallsdatum überschritten",
-  "reasonLost": "Verloren - Bestandsdifferenz",
-  "reasonReturnedToSupplier": "An Lieferant zurückgegeben - Defektes Material",
-  "noReasonSelected": "Bitte wählen Sie einen Löschungsgrund aus.",
-  "itemRenamed": "Artikelname erfolgreich geändert!",
-  "renameItemFailed": "Fehler beim Ändern des Artikelnamens. Bitte versuchen Sie es erneut.",
-  "adminOnly": "Nur Administratoren können Artikelnamen ändern.",
+  "page": {
+    "title": "Bestandsverwaltung",
+    "empty": "Keine Einträge für die aktuellen Filter gefunden."
+  },
+
+  "table": {
+    "name": "Artikel",
+    "code": "Code / SKU",
+    "supplier": "Lieferant",
+    "price": "Preis",
+    "quantity": "Anfangsbestand",
+    "onHand": "Bestand",
+    "minQty": "Mindestmenge",
+    "updated": "Aktualisiert",
+    "notes": "Notizen"
+  },
+
+  "toolbar": {
+    "newItem": "Neuen Artikel anlegen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "adjustQty": "Menge anpassen",
+    "changePrice": "Preis ändern"
+  },
+
+  "steps": {
+    "selectSupplier": "Schritt 1: Lieferant auswählen",
+    "selectItem": "Schritt 2: Artikel auswählen",
+    "adjustQuantity": "Schritt 3: Menge anpassen",
+    "changePrice": "Schritt 3: Preis ändern",
+    "editName": "Schritt 3: Artikelname ändern",
+    "selectReason": "Schritt 3: Löschungsgrund auswählen"
+  },
+
+  "dialogs": {
+    "editItemTitle": "Artikel bearbeiten",
+    "deleteItemTitle": "Artikel löschen",
+    "itemInfoTitle": "Artikelinformationen",
+    "confirmDeleteTitle": "Löschung bestätigen"
+  },
+
+  "buttons": {
+    "create": "Erstellen",
+    "save": "Speichern",
+    "change": "Ändern",
+    "applyAdjustment": "Anpassung anwenden",
+    "applyPriceChange": "Preisänderung anwenden",
+    "cancel": "Abbrechen",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+
+  "search": {
+    "selectSupplierPrompt": "Bitte wählen Sie einen Lieferanten, um dessen Artikel zu sehen.",
+    "selectSupplierFirst": "Bitte wählen Sie zuerst einen Lieferanten, um die Suche zu aktivieren.",
+    "emptySearch": "Keine passenden Artikel für diesen Lieferanten.",
+    "typeToSearchItems": "Tippen Sie, um Artikel zu suchen...",
+    "noItemsFound": "Keine Artikel für diese Suche gefunden.",
+    "typeToSearchHint": "Beginnen Sie mit der Eingabe, um nach Artikeln zu suchen...",
+    "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
+    "selectSupplierPlaceholder": "Lieferant auswählen...",
+    "allSuppliers": "Alle Lieferanten",
+    "search": "Artikel suchen...",
+    "searchSelectItem": "Artikel suchen und auswählen..."
+  },
+
+  "quantity": {
+    "currentStock": "Aktuell: {{quantity}}",
+    "currentItemInfo": "Aktuelle Artikelinformationen",
+    "currentQuantity": "Aktuelle Menge",
+    "newQuantity": "Neue Menge",
+    "quantityChangeHint": "Änderung von {{current}} auf {{new}}",
+    "setQuantityHint": "Menge wird auf {{quantity}} gesetzt",
+    "noItemSelected": "Bitte wählen Sie einen Artikel zum Anpassen aus.",
+    "quantityUpdatedTo": "Menge wurde auf {{quantity}} geändert"
+  },
+
+  "price": {
+    "newPrice": "Neuer Preis",
+    "currentPrice": "Aktueller Preis",
+    "setPriceHint": "Preis wird auf ${{price}} gesetzt",
+    "priceUpdatedTo": "Preis wurde auf ${{price}} geändert",
+    "priceNotAvailable": "Preis: N/V"
+  },
+
+  "status": {
+    "itemAddedToStock": "Artikel erfolgreich zum Lager hinzugefügt!",
+    "itemUpdated": "Artikel erfolgreich aktualisiert!",
+    "itemDeletedSuccessfully": "Operation erfolgreich. Artikel wurde aus dem Bestand entfernt!",
+    "itemRenamed": "Artikelname erfolgreich geändert!",
+    "operationCanceled": "Operation abgebrochen",
+    "formSaved": "Artikel wurde erfolgreich gespeichert."
+  },
+
+  "deleteFlow": {
+    "deletionReasonLabel": "Löschungsgrund",
+    "confirmMessage": "Sind Sie sicher, dass Sie diesen Artikel löschen möchten?",
+    "warning": "Diese Aktion kann nicht rückgängig gemacht werden!!",
+    "noReasonSelected": "Bitte wählen Sie einen Löschungsgrund aus."
+  },
+
   "reasons": {
+    "reasonScrapped": "Verschrottet - Qualitätskontrolle",
+    "reasonDestroyed": "Zerstört - Katastrophaler Verlust",
+    "reasonDamaged": "Beschädigt - Qualitätsprobleme",
+    "reasonExpired": "Abgelaufen - Verfallsdatum überschritten",
+    "reasonLost": "Verloren - Bestandsdifferenz",
+    "reasonReturnedToSupplier": "An Lieferant zurückgegeben - Defektes Material"
+  },
+
+  "stockReasons": {
     "initial_stock": "Anfangsbestand",
     "manual_update": "Manuelle Anpassung",
     "sold": "Verkauft",
@@ -103,7 +120,18 @@
     "lost": "Verloren",
     "returned_to_supplier": "An Lieferant zurückgegeben",
     "returned_by_customer": "Vom Kunden zurückgegeben"
+  },
+
+  "fields": {
+    "codeReadOnlyHint": "Derzeit optional",
+    "reasonLabel": "Grund"
+  },
+
+  "filters": {
+    "belowMinOnly": "Nur unter Mindestbestand"
+  },
+
+  "selection": {
+    "selectedItemLabel": "Ausgewählter Artikel"
   }
 }
-
-

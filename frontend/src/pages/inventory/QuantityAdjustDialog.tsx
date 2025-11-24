@@ -142,7 +142,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   onClose,
   onAdjusted,
 }) => {
-  const { t } = useTranslation(['common', 'inventory']);
+  const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
 
   // ================================
@@ -296,7 +296,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
    */
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedItem) {
-      setFormError(t('inventory:noItemSelected', 'Please select an item to adjust.'));
+      setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item to adjust.'));
       return;
     }
 
@@ -318,7 +318,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
       if (success) {
         // Show success message with the new quantity
         toast(
-          t('inventory:quantityUpdatedTo', 'Quantity changed to {{quantity}}', {
+          t('inventory:quantity.quantityUpdatedTo', 'Quantity changed to {{quantity}}', {
             quantity: values.newQuantity,
           }),
           'success'
@@ -326,11 +326,11 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
         onAdjusted();
         handleClose();
       } else {
-        setFormError(t('inventory:adjustmentFailed', 'Failed to adjust quantity. Please try again.'));
+        setFormError(t('errors.inventory.requests.failedToAdjustQuantity', 'Failed to adjust quantity. Please try again.'));
       }
     } catch (error) {
       console.error('Quantity adjustment error:', error);
-      setFormError(t('inventory:adjustmentFailed', 'Failed to adjust quantity. Please try again.'));
+      setFormError(t('errors.inventory.requests.failedToAdjustQuantity', 'Failed to adjust quantity. Please try again.'));
     }
   });
 
@@ -341,7 +341,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        {t('inventory:adjustQty', 'Adjust Quantity')}
+        {t('inventory:toolbar.adjustQty', 'Adjust Quantity')}
       </DialogTitle>
       
       <DialogContent dividers>
@@ -357,14 +357,14 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {/* Step 1: Supplier Selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step1SelectSupplier')}
+              {t('inventory:steps.selectSupplier')}
             </Typography>
             
             <FormControl fullWidth size="small">
-              <InputLabel>{t('inventory:supplier', 'Supplier')}</InputLabel>
+              <InputLabel>{t('inventory:table.supplier', 'Supplier')}</InputLabel>
               <Select
                 value={selectedSupplier?.id || ''}
-                label={t('inventory:supplier', 'Supplier')}
+                label={t('inventory:table.supplier', 'Supplier')}
                 onChange={(e) => {
                   const supplierId = e.target.value;
                   const supplier = suppliersQuery.data?.find(s => String(s.id) === String(supplierId)) || null;
@@ -387,7 +387,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {/* Step 2: Item Selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-              {t('inventory:step2SelectItem')}
+              {t('inventory:steps.selectItem')}
             </Typography>
             
             <Autocomplete
@@ -403,14 +403,14 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               loading={itemsQuery.isLoading}
               noOptionsText={
                 itemQuery.length < 2 
-                  ? t('inventory:typeToSearch', 'Type at least 2 characters to search')
-                  : t('inventory:noItemsFound', 'No items found')
+                  ? t('inventory:search.typeToSearch', 'Type at least 2 characters to search')
+                  : t('inventory:search.noItemsFound', 'No items found')
               }
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label={t('inventory:searchSelectItem', 'Search and select item...')}
-                  placeholder={!selectedSupplier ? t('inventory:selectSupplierFirst', 'Select supplier first') : undefined}
+                  label={t('inventory:search.searchSelectItem', 'Search and select item...')}
+                  placeholder={!selectedSupplier ? t('inventory:search.selectSupplierFirst', 'Select supplier first') : undefined}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
@@ -430,13 +430,13 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {selectedItem && (
             <Box sx={{ display: 'grid', gap: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1, mb: 2 }}>
               <Typography variant="subtitle2" color="primary">
-                {t('inventory:selectedItem', 'Selected Item')}: {selectedItem.name}
+                {t('inventory:selection.selectedItemLabel', 'Selected Item')}: {selectedItem.name}
               </Typography>
               
               {/* Current Quantity */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('inventory:currentQuantity', 'Current Quantity')}:
+                  {t('inventory:quantity.currentQuantity', 'Current Quantity')}:
                 </Typography>
                 <Typography variant="body2" fontWeight="medium">
                   {itemDetailsQuery.isLoading ? (
@@ -450,7 +450,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               {/* Current Price */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('inventory:currentPrice', 'Current Price')}:
+                  {t('inventory:price.currentPrice', 'Current Price')}:
                 </Typography>
                 <Typography variant="body2" fontWeight="medium">
                   {itemPriceQuery.isLoading ? (
@@ -470,7 +470,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           {/* Step 3: Quantity Adjustment */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-                {t('inventory:step3AdjustQuantity')}
+                {t('inventory:steps.adjustQuantity')}
             </Typography>
             
             {/* New Quantity Input */}
@@ -485,7 +485,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     const val = e.target.value;
                     onChange(val === '' ? 0 : Number(val));
                   }}
-                  label={t('inventory:newQuantity', 'New Quantity')}
+                  label={t('inventory:quantity.newQuantity', 'New Quantity')}
                   type="number"
                   fullWidth
                   disabled={!selectedItem}
@@ -494,9 +494,9 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                   helperText={
                     errors.newQuantity?.message ||
                     (selectedItem && (
-                      t('inventory:changeFromTo', 'Change from {{from}} to {{to}}', {
-                        from: selectedItem.onHand,
-                        to: value,
+                      t('inventory:quantity.QuantityChangeHint', 'Changing from {{current}} to {{new}}', {
+                        current: selectedItem.onHand,
+                        new: value,
                       })
                     ))
                   }
@@ -511,17 +511,17 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               render={({ field }) => (
                 <FormControl fullWidth sx={{ mt: 2 }} disabled={!selectedItem}>
                   <InputLabel id="reason-select-label" error={!!errors.reason}>
-                    {t('inventory:reason', 'Reason')}
+                    {t('inventory:fields.reasonLabel', 'Reason')}
                   </InputLabel>
                   <Select
                     {...field}
                     labelId="reason-select-label"
-                    label={t('inventory:reason', 'Reason')}
+                    label={t('inventory:fields.reasonLabel', 'Reason')}
                     error={!!errors.reason}
                   >
                     {STOCK_CHANGE_REASONS.map((reason) => (
                       <MenuItem key={reason} value={reason}>
-                        {t(`inventory:reasons.${reason.toLowerCase()}`, reason.replace(/_/g, ' '))}
+                        {t(`inventory:stockReasons.${reason.toLowerCase()}`, reason.replace(/_/g, ' '))}
                       </MenuItem>
                     ))}
                   </Select>
@@ -552,7 +552,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               {t('common:saving', 'Saving...')}
             </>
           ) : (
-            t('inventory:applyAdjustment', 'Apply Adjustment')
+            t('inventory:buttons.applyAdjustment', 'Apply Adjustment')
           )}
         </Button>
       </DialogActions>

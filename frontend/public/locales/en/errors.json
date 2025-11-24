@@ -2,39 +2,55 @@
   "validation": {
     "required": "This field is required",
     "invalidEmail": "Please enter a valid email address",
-    "minLength": "Must be at least {{min}} characters",
+    "minLength": "Must be at least {{min}} characters long",
     "maxLength": "Must not exceed {{max}} characters",
     "numberOnly": "Please enter a valid number",
     "mustBePositive": "Must be a positive number",
     "cannotBeNegative": "Cannot be negative"
   },
+
   "inventory": {
-    "duplicateName": "An item with this name already exists",
-    "duplicateCode": "An item with this code already exists",
-    "noItemSelected": "Please select an item",
-    "noSupplierSelected": "Please select a supplier",
-    "noReasonSelected": "Please select a deletion reason",
-    "itemNotFound": "Item not found",
-    "adminOnly": "Only administrators can perform this action",
-    "invalidReason": "Invalid reason for deletion",
-    "quantityMustBeZero": "You still have merchandise in stock. You need to first remove items from stock by changing quantity",
-    "failedToLoadSuppliers": "Failed to load suppliers. Please try again",
-    "failedToLoadItems": "Failed to load items. Please try again",
-    "failedToAddItem": "Failed to add item. Please try again",
-    "failedToUpdateItem": "Failed to update item. Please try again",
-    "failedToDeleteItem": "Failed to delete item. Please try again",
-    "failedToAdjustQuantity": "Failed to adjust quantity. Please try again",
-    "failedToChangePrice": "Failed to change price. Please try again",
-    "failedToRenameItem": "Failed to rename item. Please try again",
-    "serverError": "Something went wrong on the server. Please try again"
+    "conflicts": {
+      "duplicateName": "An item with this name already exists",
+      "duplicateCode": "An item with this code already exists"
+    },
+    "selection": {
+      "noItemSelected": "Please select an item",
+      "noSupplierSelected": "Please select a supplier",
+      "noReasonSelected": "Please select a deletion reason"
+    },
+    "businessRules": {
+      "itemNotFound": "Item not found",
+      "adminOnly": "Only administrators can perform this action",
+      "invalidReason": "Invalid deletion reason",
+      "quantityMustBeZero": "You still have items in stock. Please adjust the quantity before deleting."
+    },
+    "requests": {
+      "failedToLoadSuppliers": "Failed to load suppliers. Please try again.",
+      "failedToLoadItems": "Failed to load items. Please try again.",
+      "failedToAddItem": "Failed to add item. Please try again.",
+      "failedToUpdateItem": "Failed to update item. Please try again.",
+      "failedToDeleteItem": "Failed to delete item. Please try again.",
+      "failedToAdjustQuantity": "Failed to adjust quantity. Please try again.",
+      "failedToChangePrice": "Failed to change price. Please try again.",
+      "failedToRenameItem": "Failed to rename item. Please try again."
+    },
+    "server": {
+      "serverError": "A server error occurred. Please try again."
+    }
   },
+
   "supplier": {
-    "failedToLoadSuppliers": "Failed to load suppliers. Please try again",
-    "failedToAddSupplier": "Failed to add supplier. Please try again",
-    "failedToUpdateSupplier": "Failed to update supplier. Please try again",
-    "failedToDeleteSupplier": "Failed to delete supplier. Please try again",
-    "duplicateName": "A supplier with this name already exists",
-    "supplierNotFound": "Supplier not found",
-    "cannotDeleteWithItems": "Cannot delete supplier with linked items"
+    "requests": {
+      "failedToLoadSuppliers": "Failed to load suppliers. Please try again.",
+      "failedToAddSupplier": "Failed to add supplier. Please try again.",
+      "failedToUpdateSupplier": "Failed to update supplier. Please try again.",
+      "failedToDeleteSupplier": "Failed to delete supplier. Please try again."
+    },
+    "businessRules": {
+      "duplicateName": "A supplier with this name already exists",
+      "supplierNotFound": "Supplier not found",
+      "cannotDeleteWithItems": "Supplier cannot be deleted because it has linked items"
+    }
   }
 }

@@ -74,12 +74,12 @@ const Inventory: React.FC = () => {
   
   const handleItemSaved = () => {
     load();
-    toast(t('inventory:itemAddedToStock'), 'success');
+    toast(t('inventory:status.itemAddedToStock'), 'success');
   };
 
   const handleItemUpdated = () => {
     load();
-    toast(t('inventory:itemUpdated'), 'success');
+    toast(t('inventory:status.itemUpdated'), 'success');
   };
 
   // -----------------------------
@@ -201,18 +201,18 @@ const Inventory: React.FC = () => {
   // -----------------------------
   const columns = React.useMemo<GridColDef<InventoryRow>[]>(() => {
     return [
-      { field: 'name', headerName: t('inventory:name', 'Item'), flex: 1, minWidth: 180 },
+      { field: 'name', headerName: t('inventory:table.name', 'Item'), flex: 1, minWidth: 180 },
       {
         field: 'code',
-        headerName: t('inventory:code', 'Code / SKU'),
+        headerName: t('inventory:table.code', 'Code / SKU'),
         width: 140,
         valueGetter: (_value: unknown, row: InventoryRow) => row.code ?? '—',
       },
       // Supplier column removed (supplier is selected in the filter)
-      { field: 'onHand', headerName: t('inventory:onHand', 'On-hand'), type: 'number', width: 120 },
+      { field: 'onHand', headerName: t('inventory:table.onHand', 'On-hand'), type: 'number', width: 120 },
       {
         field: 'updatedAt',
-        headerName: t('inventory:updated', 'Updated'),
+        headerName: t('inventory:table.updated', 'Updated'),
         width: 180,
         valueGetter: (_value: unknown, row: InventoryRow) => row.updatedAt ?? getMaybeCreatedAt(row) ?? '—',
       },
@@ -267,26 +267,26 @@ const Inventory: React.FC = () => {
     <Box sx={{ display: 'grid', gap: 1 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {t('inventory:title', 'Inventory Management')}
+          {t('inventory:page.title', 'Inventory Management')}
         </Typography>
         <Stack direction="row" spacing={1}>
           <Button variant="contained" onClick={() => setOpenNew(true)}>
-            {t('inventory:newItem', 'Add new item')}
+            {t('inventory:toolbar.newItem', 'Add new item')}
           </Button>
           <Button 
             onClick={() => setOpenEditName(true)}
             sx={{ opacity: 1, pointerEvents: 'auto' }}
           >
-            {t('inventory:edit', 'Edit')}
+            {t('inventory:toolbar.edit', 'Edit')}
           </Button>
           <Button onClick={() => setOpenDelete(true)}>
-            {t('inventory:delete', 'Delete')}
+            {t('inventory:toolbar.delete', 'Delete')}
           </Button>
           <Button onClick={() => setOpenAdjust(true)}>
-            {t('inventory:adjustQty', 'Adjust quantity')}
+            {t('inventory:toolbar.adjustQty', 'Adjust quantity')}
           </Button>
           <Button onClick={() => setOpenPrice(true)}>
-            {t('inventory:changePrice', 'Change price')}
+            {t('inventory:toolbar.changePrice', 'Change price')}
           </Button>
         </Stack>
       </Stack>
@@ -323,7 +323,7 @@ const Inventory: React.FC = () => {
               disabled={!supplierId}
             />
           }
-          label={t('inventory:belowMinOnly', 'Below min only')}
+          label={t('inventory:filters.belowMinOnly', 'Below min only')}
         />
       </Box>
     </Paper>
@@ -334,7 +334,7 @@ const Inventory: React.FC = () => {
         {!supplierId ? (
           <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
             <Typography variant="body1" color="text.secondary">
-              {t('inventory:selectSupplierPrompt', 'Select a supplier to view their items.')}
+              {t('inventory:search.selectSupplierPrompt', 'Select a supplier to view their items.')}
             </Typography>
           </Box>
         ) : (
@@ -370,8 +370,8 @@ const Inventory: React.FC = () => {
                 noRowsOverlay: () => (
                   <Box sx={{ p: 2, textAlign: 'center' }}>
                     {q
-                      ? t('inventory:emptySearch', 'No matching items for this supplier.')
-                      : t('inventory:empty', 'No items found for this supplier.')}
+                      ? t('inventory:search.emptySearch', 'No matching items for this supplier.')
+                      : t('inventory:page.empty', 'No items found for this supplier.')}
                   </Box>
                 ),
               }}

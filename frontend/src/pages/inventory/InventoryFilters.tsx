@@ -53,21 +53,21 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
   supplierLoading,
   disableSearchUntilSupplier = false,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['inventory']);
 
   return (
     <Stack direction="row" spacing={2} alignItems="center">
       {/* Supplier Selection */}
       <FormControl size="small" sx={{ minWidth: 200 }}>
-        <InputLabel>{t('inventory:supplier', 'Supplier')}</InputLabel>
+        <InputLabel>{t('inventory:table.supplier', 'Supplier')}</InputLabel>
         <Select
           value={supplierId}
-          label={t('inventory:supplier', 'Supplier')}
+          label={t('inventory:table.supplier', 'Supplier')}
           onChange={(e) => onSupplierChange(e.target.value)}
           disabled={supplierLoading}
         >
           <MenuItem value="">
-            <em>{t('inventory:allSuppliers', 'All Suppliers')}</em>
+            <em>{t('inventory:search.allSuppliers', 'All Suppliers')}</em>
           </MenuItem>
           {supplierOptions.map((supplier) => (
             <MenuItem key={supplier.id} value={supplier.id}>
@@ -85,13 +85,13 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
       {/* Search Field */}
       <TextField
         size="small"
-        label={t('inventory:searchItems', 'Search items...')}
+        label={t('inventory:search.searchItems', 'Search items...')}
         value={q}
         onChange={(e) => onQChange(e.target.value)}
         disabled={disableSearchUntilSupplier && !supplierId}
         placeholder={
           disableSearchUntilSupplier && !supplierId
-            ? t('inventory:selectSupplierFirst', 'Select supplier first')
+            ? t('inventory:search.selectSupplierFirst', 'Select supplier first')
             : undefined
         }
         sx={{ flexGrow: 1 }}
