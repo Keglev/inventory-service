@@ -52,6 +52,7 @@ import { getSuppliersPage } from '../../api/suppliers';
 import type { SupplierListResponse, SupplierRow } from '../../api/suppliers';
 import http from '../../api/httpClient';
 import { CreateSupplierDialog } from './CreateSupplierDialog';
+import { EditSupplierDialog } from './EditSupplierDialog';
 import { useToast } from '../../app/ToastContext';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -89,6 +90,7 @@ const Suppliers: React.FC = () => {
 
   // ===== Dialog State =====
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
+  const [openEditDialog, setOpenEditDialog] = React.useState(false);
 
   // ===== Supplier search handler (requires 2+ chars) =====
   const handleSearchQueryChange = React.useCallback(async (query: string) => {
@@ -193,6 +195,11 @@ const Suppliers: React.FC = () => {
   const handleSupplierCreated = () => {
     toast(t('suppliers:status.created', 'Supplier created successfully'), 'success');
     load();
+  };
+
+  const handleSupplierUpdated = () => {
+    void load();
+    setSelectedId(null);
   };
 
   // ===== Render =====
@@ -358,14 +365,18 @@ const Suppliers: React.FC = () => {
         </Paper>
       )}
 
-      {/* Selected Info (temporary - will be replaced by dialogs) */}
+      {/* Selected Info with Edit/Delete buttons */}
       {selectedId && (
         <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover' }}>
           <Typography variant="body2" color="text.secondary">
             {t('suppliers:status.selected', 'Selected supplier ID')}: <strong>{selectedId}</strong>
           </Typography>
           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-            <Button variant="outlined" size="small">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setOpenEditDialog(true)}
+            >
               {t('suppliers:actions.edit', 'Edit')}
             </Button>
             <Button variant="outlined" size="small" color="error">
@@ -380,6 +391,13 @@ const Suppliers: React.FC = () => {
         open={openCreateDialog}
         onClose={() => setOpenCreateDialog(false)}
         onCreated={handleSupplierCreated}
+      />
+
+      {/* Edit Supplier Dialog */}
+      <EditSupplierDialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        onSupplierUpdated={handleSupplierUpdated}
       />
     </Box>
   );

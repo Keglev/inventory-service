@@ -15,7 +15,10 @@
   },
   "search": {
     "title": "Search Supplier",
-    "placeholder": "Enter supplier name (min 2 chars)..."
+    "placeholder": "Enter supplier name (min 2 chars)...",
+    "typeToSearch": "Type at least 2 characters to search",
+    "noResults": "No suppliers found",
+    "selectSupplierFirst": "Search and select a supplier to enable editing."
   },
   "filters": {
     "showAll": "Show all suppliers",
@@ -28,6 +31,24 @@
     "delete": "Delete",
     "clear": "Clear"
   },
+  "buttons": {
+    "reviewChanges": "Review Changes"
+  },
+  "dialogs": {
+    "editSupplierTitle": "Edit Supplier",
+    "confirmChanges": "Confirm Changes"
+  },
+  "steps": {
+    "selectSupplier": "Step 1: Search and Select Supplier",
+    "editInfo": "Step 2: Edit Contact Information"
+  },
+  "hints": {
+    "nameCannotBeChanged": "(Cannot be changed)"
+  },
+  "confirmations": {
+    "changesCannotBeReversed": "These changes cannot be reversed.",
+    "changes": "Changes"
+  },
   "info": "Double-click to edit, use action buttons to delete",
   "empty": {
     "default": "No suppliers found",
@@ -35,6 +56,7 @@
   },
   "status": {
     "selected": "Selected supplier ID",
-    "created": "Supplier created successfully"
+    "created": "Supplier created successfully",
+    "updated": "Supplier information updated successfully!"
   }
 }

@@ -15,7 +15,10 @@
   },
   "search": {
     "title": "Lieferant suchen",
-    "placeholder": "Lieferantennamen eingeben (mind. 2 Zeichen)..."
+    "placeholder": "Lieferantennamen eingeben (mind. 2 Zeichen)...",
+    "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
+    "noResults": "Keine Lieferanten gefunden",
+    "selectSupplierFirst": "Suchen und wählen Sie einen Lieferanten, um die Bearbeitung zu aktivieren."
   },
   "filters": {
     "showAll": "Alle Lieferanten anzeigen",
@@ -28,6 +31,24 @@
     "delete": "Löschen",
     "clear": "Löschen"
   },
+  "buttons": {
+    "reviewChanges": "Änderungen überprüfen"
+  },
+  "dialogs": {
+    "editSupplierTitle": "Lieferant bearbeiten",
+    "confirmChanges": "Änderungen bestätigen"
+  },
+  "steps": {
+    "selectSupplier": "Schritt 1: Lieferanten suchen und auswählen",
+    "editInfo": "Schritt 2: Kontaktinformationen bearbeiten"
+  },
+  "hints": {
+    "nameCannotBeChanged": "(Kann nicht geändert werden)"
+  },
+  "confirmations": {
+    "changesCannotBeReversed": "Diese Änderungen können nicht rückgängig gemacht werden.",
+    "changes": "Änderungen"
+  },
   "info": "Doppelklick zum Bearbeiten, verwenden Sie Schaltflächen zum Löschen",
   "empty": {
     "default": "Keine Lieferanten gefunden",
@@ -35,6 +56,7 @@
   },
   "status": {
     "selected": "Ausgewählte Lieferanten-ID",
-    "created": "Lieferant erfolgreich erstellt"
+    "created": "Lieferant erfolgreich erstellt",
+    "updated": "Lieferanteninformationen erfolgreich aktualisiert!"
   }
 }

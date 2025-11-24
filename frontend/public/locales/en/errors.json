@@ -41,6 +41,10 @@
   },
 
   "supplier": {
+    "selection": {
+      "noSupplierSelected": "Please select a supplier"
+    },
+    "adminOnly": "Only administrators can edit supplier information.",
     "requests": {
       "failedToLoadSuppliers": "Failed to load suppliers. Please try again.",
       "failedToAddSupplier": "Failed to add supplier. Please try again.",
@@ -49,6 +53,7 @@
     },
     "businessRules": {
       "duplicateName": "A supplier with this name already exists",
+      "duplicateEmail": "This email is already in use",
       "supplierNotFound": "Supplier not found",
       "cannotDeleteWithItems": "Supplier cannot be deleted because it has linked items"
     }

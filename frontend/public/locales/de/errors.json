@@ -41,6 +41,10 @@
   },
 
   "supplier": {
+    "selection": {
+      "noSupplierSelected": "Bitte wählen Sie einen Lieferanten"
+    },
+    "adminOnly": "Nur Administratoren können Lieferantendaten bearbeiten.",
     "requests": {
       "failedToLoadSuppliers": "Fehler beim Laden der Lieferanten. Bitte versuchen Sie es erneut",
       "failedToAddSupplier": "Fehler beim Hinzufügen des Lieferanten. Bitte versuchen Sie es erneut",
@@ -49,6 +53,7 @@
     },
     "businessRules": {
       "duplicateName": "Ein Lieferant mit diesem Namen existiert bereits",
+      "duplicateEmail": "Diese E-Mail-Adresse wird bereits verwendet",
       "supplierNotFound": "Lieferant nicht gefunden",
       "cannotDeleteWithItems": "Lieferant mit verknüpften Artikeln kann nicht gelöscht werden"
     }
