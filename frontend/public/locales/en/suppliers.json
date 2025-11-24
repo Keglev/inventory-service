@@ -8,12 +8,19 @@
     "createdAt": "Created"
   },
   "search": {
-    "placeholder": "Search by name or email..."
+    "title": "Search Supplier",
+    "placeholder": "Enter supplier name (min 2 chars)..."
+  },
+  "filters": {
+    "showAll": "Show all suppliers",
+    "showAllHint": "Check this box to display the complete supplier list",
+    "selectToShow": "Check \"Show all suppliers\" to display the complete list"
   },
   "actions": {
     "create": "Create Supplier",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "clear": "Clear"
   },
   "info": "Double-click to edit, use action buttons to delete",
   "empty": {

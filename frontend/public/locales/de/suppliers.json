@@ -8,12 +8,19 @@
     "createdAt": "Erstellt"
   },
   "search": {
-    "placeholder": "Nach Name oder E-Mail suchen..."
+    "title": "Lieferant suchen",
+    "placeholder": "Lieferantennamen eingeben (mind. 2 Zeichen)..."
+  },
+  "filters": {
+    "showAll": "Alle Lieferanten anzeigen",
+    "showAllHint": "Aktivieren Sie dieses Kontrollkästchen, um die vollständige Lieferantenliste anzuzeigen",
+    "selectToShow": "Aktivieren Sie \"Alle Lieferanten anzeigen\", um die vollständige Liste anzuzeigen"
   },
   "actions": {
     "create": "Lieferant erstellen",
     "edit": "Bearbeiten",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "clear": "Löschen"
   },
   "info": "Doppelklick zum Bearbeiten, verwenden Sie Schaltflächen zum Löschen",
   "empty": {
