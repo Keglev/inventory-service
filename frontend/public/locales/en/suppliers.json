@@ -1,0 +1,26 @@
+{
+  "title": "Supplier Management",
+  "table": {
+    "name": "Supplier Name",
+    "contactName": "Contact",
+    "phone": "Phone",
+    "email": "Email",
+    "createdAt": "Created"
+  },
+  "search": {
+    "placeholder": "Search by name or email..."
+  },
+  "actions": {
+    "create": "Create Supplier",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "info": "Double-click to edit, use action buttons to delete",
+  "empty": {
+    "default": "No suppliers found",
+    "search": "No suppliers match your search"
+  },
+  "status": {
+    "selected": "Selected supplier ID"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "title": "Lieferantenverwaltung",
+  "table": {
+    "name": "Lieferantenname",
+    "contactName": "Kontakt",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "createdAt": "Erstellt"
+  },
+  "search": {
+    "placeholder": "Nach Name oder E-Mail suchen..."
+  },
+  "actions": {
+    "create": "Lieferant erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen"
+  },
+  "info": "Doppelklick zum Bearbeiten, verwenden Sie Schaltflächen zum Löschen",
+  "empty": {
+    "default": "Keine Lieferanten gefunden",
+    "search": "Keine Lieferanten entsprechen Ihrer Suche"
+  },
+  "status": {
+    "selected": "Ausgewählte Lieferanten-ID"
+  }
+}
