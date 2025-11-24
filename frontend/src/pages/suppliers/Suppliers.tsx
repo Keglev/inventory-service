@@ -51,11 +51,14 @@ import { useTranslation } from 'react-i18next';
 import { getSuppliersPage } from '../../api/suppliers';
 import type { SupplierListResponse, SupplierRow } from '../../api/suppliers';
 import http from '../../api/httpClient';
+import { CreateSupplierDialog } from './CreateSupplierDialog';
+import { useToast } from '../../app/ToastContext';
 
 const DEFAULT_PAGE_SIZE = 10;
 
 const Suppliers: React.FC = () => {
   const { t } = useTranslation(['common', 'suppliers']);
+  const toast = useToast();
 
   // ===== State =====
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -83,6 +86,9 @@ const Suppliers: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
 
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+
+  // ===== Dialog State =====
+  const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
 
   // ===== Supplier search handler (requires 2+ chars) =====
   const handleSearchQueryChange = React.useCallback(async (query: string) => {
@@ -183,6 +189,12 @@ const Suppliers: React.FC = () => {
     setSelectedId(String(params.id));
   };
 
+  // ===== Dialog Handlers =====
+  const handleSupplierCreated = () => {
+    toast(t('suppliers:status.created', 'Supplier created successfully'), 'success');
+    load();
+  };
+
   // ===== Render =====
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: { xs: 1, md: 2 } }}>
@@ -191,6 +203,13 @@ const Suppliers: React.FC = () => {
         <Typography variant="h5">
           {t('suppliers:title', 'Supplier Management')}
         </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenCreateDialog(true)}
+        >
+          {t('suppliers:actions.create', 'Add Supplier')}
+        </Button>
       </Box>
 
       {/* Search Supplier Panel */}
@@ -355,6 +374,13 @@ const Suppliers: React.FC = () => {
           </Stack>
         </Paper>
       )}
+
+      {/* Create Supplier Dialog */}
+      <CreateSupplierDialog
+        open={openCreateDialog}
+        onClose={() => setOpenCreateDialog(false)}
+        onCreated={handleSupplierCreated}
+      />
     </Box>
   );
 };

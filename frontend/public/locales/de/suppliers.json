@@ -7,6 +7,12 @@
     "email": "E-Mail",
     "createdAt": "Erstellt"
   },
+  "form": {
+    "namePlaceholder": "Lieferantennamen eingeben",
+    "contactNamePlaceholder": "Kontaktname eingeben",
+    "phonePlaceholder": "Telefonnummer eingeben",
+    "emailPlaceholder": "E-Mail-Adresse eingeben"
+  },
   "search": {
     "title": "Lieferant suchen",
     "placeholder": "Lieferantennamen eingeben (mind. 2 Zeichen)..."
@@ -17,7 +23,7 @@
     "selectToShow": "Aktivieren Sie \"Alle Lieferanten anzeigen\", um die vollständige Liste anzuzeigen"
   },
   "actions": {
-    "create": "Lieferant erstellen",
+    "create": "Lieferant hinzufügen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "clear": "Löschen"
@@ -28,6 +34,7 @@
     "search": "Keine Lieferanten entsprechen Ihrer Suche"
   },
   "status": {
-    "selected": "Ausgewählte Lieferanten-ID"
+    "selected": "Ausgewählte Lieferanten-ID",
+    "created": "Lieferant erfolgreich erstellt"
   }
 }

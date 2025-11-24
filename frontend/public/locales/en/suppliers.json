@@ -7,6 +7,12 @@
     "email": "Email",
     "createdAt": "Created"
   },
+  "form": {
+    "namePlaceholder": "Enter supplier name",
+    "contactNamePlaceholder": "Enter contact name",
+    "phonePlaceholder": "Enter phone number",
+    "emailPlaceholder": "Enter email address"
+  },
   "search": {
     "title": "Search Supplier",
     "placeholder": "Enter supplier name (min 2 chars)..."
@@ -17,7 +23,7 @@
     "selectToShow": "Check \"Show all suppliers\" to display the complete list"
   },
   "actions": {
-    "create": "Create Supplier",
+    "create": "Add Supplier",
     "edit": "Edit",
     "delete": "Delete",
     "clear": "Clear"
@@ -28,6 +34,7 @@
     "search": "No suppliers match your search"
   },
   "status": {
-    "selected": "Selected supplier ID"
+    "selected": "Selected supplier ID",
+    "created": "Supplier created successfully"
   }
 }
