@@ -210,13 +210,22 @@ const Suppliers: React.FC = () => {
         <Typography variant="h5">
           {t('suppliers:title', 'Supplier Management')}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenCreateDialog(true)}
-        >
-          {t('suppliers:actions.create', 'Add Supplier')}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => setOpenEditDialog(true)}
+          >
+            {t('suppliers:actions.edit', 'Edit Supplier')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setOpenCreateDialog(true)}
+          >
+            {t('suppliers:actions.create', 'Add Supplier')}
+          </Button>
+        </Box>
       </Box>
 
       {/* Search Supplier Panel */}

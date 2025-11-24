@@ -189,7 +189,7 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{t('suppliers:actions.create', 'Create Supplier')}</DialogTitle>
 
-      <DialogContent sx={{ pt: 2 }}>
+      <DialogContent sx={{ pt: 3.5 }}>
         {formError && <Alert severity="error" sx={{ mb: 2 }}>{formError}</Alert>}
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
