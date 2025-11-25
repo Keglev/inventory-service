@@ -168,12 +168,12 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
           errorMsg.toLowerCase().includes('verknüpften') // German word for "linked"
         ) {
           setError(t('errors:supplier.businessRules.cannotDeleteWithItems', 
-            'Supplier with linked items cannot be deleted'));
+            'This supplier cannot be deleted because there are still items with stock > 0. Please reduce the stock to 0 before deleting the supplier.'));
         } 
         // 403 Forbidden: user is not admin
         else if (errorMsg.includes('403') || errorMsg.toLowerCase().includes('forbidden')) {
           setError(t('errors:supplier.adminOnly', 
-            'Only administrators can delete suppliers'));
+            'Only administrators can perform this action.'));
         } 
         // 404 Not Found: supplier doesn't exist
         else if (errorMsg.includes('404') || errorMsg.toLowerCase().includes('not found')) {
@@ -188,7 +188,8 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
-      setError(t('errors:supplier.requests.failedToDeleteSupplier'));
+      setError(t('errors:supplier.requests.failedToDeleteSupplier', 
+        'Failed to delete supplier. Please try again.'));
       console.error('Delete failed:', msg);
     } finally {
       setIsDeleting(false);
