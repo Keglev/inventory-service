@@ -12,7 +12,7 @@ This project simulates a real-world software system for small-to-medium manufact
 ![CI Backend](https://github.com/Keglev/inventory-service/actions/workflows/ci-build.yml/badge.svg)  
 ![CI Frontend](https://github.com/Keglev/inventory-service/actions/workflows/frontend-ci.yml/badge.svg)
 
-**📅 Last Updated:** October 13, 2025 - Controller Layer Testing Architecture Complete  
+**📅 Last Updated:** November 25, 2025 - Dockerfile fixed and deployment pipeline updated  
 **🏗️ Status:** 60,000+ words comprehensive documentation | Enterprise architecture | Working CI/CD pipeline
 
 ---
