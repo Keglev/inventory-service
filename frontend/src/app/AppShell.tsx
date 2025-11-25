@@ -263,7 +263,14 @@ export default function AppShell() {
                 label={t('auth:demoBadge', 'DEMO')}
                 color="warning"
                 variant="outlined"
-                sx={{ ml: 1 }}
+                sx={{ 
+                  ml: 1,
+                  fontWeight: 700,
+                  '& .MuiChip-label': {
+                    fontWeight: 700,
+                    color: '#000',
+                  }
+                }}
               />
             )}
 
@@ -316,7 +323,11 @@ export default function AppShell() {
                     '& .MuiChip-icon': {
                       mr: 0.5,
                     },
-                    fontWeight: 500,
+                    fontWeight: 700,
+                    '& .MuiChip-label': {
+                      fontWeight: 700,
+                      color: healthTone === 'success' ? '#1b5e20' : healthTone === 'warning' ? '#e65100' : '#b71c1c',
+                    }
                   }}
                 />
               </Tooltip>
