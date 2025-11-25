@@ -12,7 +12,7 @@ Inventory Service,com.smartsupplypro.inventory.controller,SupplierController,4,9
 Inventory Service,com.smartsupplypro.inventory.controller,InventoryItemController,0,139,2,8,0,30,2,16,0,13
 Inventory Service,com.smartsupplypro.inventory.controller,AnalyticsController,4,191,0,0,1,35,1,10,1,10
 Inventory Service,com.smartsupplypro.inventory.controller,AuthController.AppUserProfileDTO,0,15,0,0,0,1,0,1,0,1
-Inventory Service,com.smartsupplypro.inventory.controller,HealthCheckController,54,3,8,0,12,1,6,1,2,1
+Inventory Service,com.smartsupplypro.inventory.controller,HealthCheckController,107,3,12,0,25,1,8,1,2,1
 Inventory Service,com.smartsupplypro.inventory.controller,RootRedirectController,6,6,0,0,1,1,1,1,1,1
 Inventory Service,com.smartsupplypro.inventory.controller,StockHistoryController,0,46,2,4,0,10,2,5,0,4
 Inventory Service,com.smartsupplypro.inventory.service.impl.inventory,InventoryItemValidationHelper,149,0,26,0,35,0,22,0,9,0
