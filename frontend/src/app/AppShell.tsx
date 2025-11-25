@@ -52,7 +52,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useTranslation } from 'react-i18next';
 import { useSessionTimeout } from '../features/auth/hooks/useSessionTimeout';
 import { ToastContext } from '../app/ToastContext';
-import Footer from '../app/Footer';
 import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
 import { useAuth } from '../context/useAuth';
@@ -236,78 +235,79 @@ export default function AppShell() {
       <ToastContext.Provider
         value={(msg, severity = 'success') => setToast({ open: true, msg, severity })}
       >
-        <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: 'background.default', flexDirection: 'column' }}>
-          {/* Header */}
-          <AppBar position="fixed" color="primary" sx={{ width: '100%', zIndex: 1200 }}>
-            <Toolbar>
-              <IconButton edge="start" onClick={toggleDrawer} sx={{ mr: 1, display: { md: 'none' } }}>
-                <MenuIcon />
-              </IconButton>
+        {/* Fixed AppBar */}
+        <AppBar position="fixed" color="primary" sx={{ width: '100%', zIndex: 1200 }}>
+          <Toolbar>
+            <IconButton edge="start" onClick={toggleDrawer} sx={{ mr: 1, display: { md: 'none' } }}>
+              <MenuIcon />
+            </IconButton>
 
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                {t('app.title')}
-              </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              {t('app.title')}
+            </Typography>
 
-              {/* DEMO badge (right next to the title) */}
-              {isDemo && (
-                <Chip
-                  size="small"
-                  label={t('auth:demoBadge', 'DEMO')}
-                  color="warning"
-                  variant="outlined"
-                  sx={{ ml: 1 }}
-                />
-              )}
+            {/* DEMO badge (right next to the title) */}
+            {isDemo && (
+              <Chip
+                size="small"
+                label={t('auth:demoBadge', 'DEMO')}
+                color="warning"
+                variant="outlined"
+                sx={{ ml: 1 }}
+              />
+            )}
 
-              <Box sx={{ flex: 1 }} />
+            <Box sx={{ flex: 1 }} />
 
-              {/* Density (informational for now) */}
-              <Tooltip title={t('actions.toggleDensity')}>
-                <span>
-                  <IconButton
-                    onClick={() =>
-                      setToast({
-                        open: true,
-                        msg: t('toast.densityStatic'),
-                        severity: 'info',
-                      })
-                    }
-                  >
-                    <DensitySmallIcon />
-                  </IconButton>
-                </span>
-              </Tooltip>
-
-              {/* Language toggle: 🇩🇪 <-> 🇺🇸 */}
-              <Tooltip title={t('actions.toggleLanguage')}>
-                <IconButton onClick={toggleLocale}>
-                  <img
-                    src={locale === 'de' ? deFlag : usFlag}
-                    alt={locale === 'de' ? 'Deutsch' : 'English'}
-                    width={20}
-                    height={20}
-                  />
+            {/* Density (informational for now) */}
+            <Tooltip title={t('actions.toggleDensity')}>
+              <span>
+                <IconButton
+                  onClick={() =>
+                    setToast({
+                      open: true,
+                      msg: t('toast.densityStatic'),
+                      severity: 'info',
+                    })
+                  }
+                >
+                  <DensitySmallIcon />
                 </IconButton>
-              </Tooltip>
+              </span>
+            </Tooltip>
 
-              {/* Profile menu */}
-              <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
-                <Avatar sx={{ width: 28, height: 28 }}>
-                  {user?.fullName?.slice(0, 2).toUpperCase() || 'SS'}
-                </Avatar>
+            {/* Language toggle: 🇩🇪 <-> 🇺🇸 */}
+            <Tooltip title={t('actions.toggleLanguage')}>
+              <IconButton onClick={toggleLocale}>
+                <img
+                  src={locale === 'de' ? deFlag : usFlag}
+                  alt={locale === 'de' ? 'Deutsch' : 'English'}
+                  width={20}
+                  height={20}
+                />
               </IconButton>
-              <Menu anchorEl={anchorEl} open={profileOpen} onClose={() => setAnchorEl(null)}>
-                <MenuItem disabled>
-                  {/* Example: "Ada Lovelace (ADMIN)" */}
-                  {user ? `${user.fullName} (${user.role})` : '—'}
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>{t('nav.logout')}</MenuItem>
-              </Menu>
-            </Toolbar>
-          </AppBar>
+            </Tooltip>
 
+            {/* Profile menu */}
+            <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
+              <Avatar sx={{ width: 28, height: 28 }}>
+                {user?.fullName?.slice(0, 2).toUpperCase() || 'SS'}
+              </Avatar>
+            </IconButton>
+            <Menu anchorEl={anchorEl} open={profileOpen} onClose={() => setAnchorEl(null)}>
+              <MenuItem disabled>
+                {/* Example: "Ada Lovelace (ADMIN)" */}
+                {user ? `${user.fullName} (${user.role})` : '—'}
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>{t('nav.logout')}</MenuItem>
+            </Menu>
+          </Toolbar>
+        </AppBar>
+
+        {/* Main container with sidebar + content, positioned below fixed AppBar */}
+        <Box sx={{ display: 'flex', mt: '64px', minHeight: 'calc(100dvh - 64px)', bgcolor: 'background.default' }}>
           {/* Side nav */}
-          <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 }, mt: { xs: 0, md: 0 } }}>
+          <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
             {/* Mobile drawer */}
             <Drawer
               variant="temporary"
@@ -316,7 +316,7 @@ export default function AppShell() {
               ModalProps={{ keepMounted: true }}
               sx={{
                 display: { xs: 'block', md: 'none' },
-                '& .MuiDrawer-paper': { width: drawerWidth, mt: '64px' },
+                '& .MuiDrawer-paper': { width: drawerWidth },
               }}
             >
               {drawer}
@@ -334,10 +334,8 @@ export default function AppShell() {
             </Drawer>
           </Box>
 
-          {/* Content */}
-          <Box component="main" sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: { xs: 2, md: 3 }, bgcolor: 'background.default', mt: '64px', ml: { xs: 0, md: drawerWidth }, width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` }, overflowY: 'auto' }}>
-            <Toolbar />
-
+          {/* Content area */}
+          <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, overflowY: 'auto' }}>
             {/* Demo notice banner (non-blocking, subtle) */}
             {isDemo && (
               <Alert
@@ -358,9 +356,6 @@ export default function AppShell() {
             </React.Suspense>
           </Box>
         </Box>
-
-        {/* Footer */}
-        <Footer />
 
         {/* Toasts */}
         <Snackbar
