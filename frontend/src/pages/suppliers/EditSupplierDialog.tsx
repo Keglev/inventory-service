@@ -66,6 +66,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useToast } from '../../app/ToastContext';
+import { useAuth } from '../../context/useAuth';
 import { getSuppliersPage, updateSupplier } from '../../api/suppliers';
 import type { SupplierRow } from '../../api/suppliers/types';
 
@@ -133,6 +134,7 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const toast = useToast();
+  const { user } = useAuth();
 
   // ================================
   // State Management
@@ -330,6 +332,7 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
     try {
       const response = await updateSupplier(selectedSupplier.id, {
         name: selectedSupplier.name, // Include current name (immutable, required by backend)
+        createdBy: user?.email, // Current logged-in user's email
         contactName: pendingChanges.contactName,
         phone: pendingChanges.phone,
         email: pendingChanges.email,
