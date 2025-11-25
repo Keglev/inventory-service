@@ -1,0 +1,37 @@
+{
+  "section": {
+    "legal": "Legal & Meta",
+    "support": "Support & Docs",
+    "health": "System Health",
+    "localization": "Language & Region"
+  },
+  "legal": {
+    "rights": "All rights reserved"
+  },
+  "meta": {
+    "version": "Version",
+    "build": "Build",
+    "environment": "Environment"
+  },
+  "support": {
+    "documentation": "Documentation",
+    "apiRef": "API Reference",
+    "releaseNotes": "Release Notes",
+    "contact": "Contact Support"
+  },
+  "health": {
+    "backend": "Backend",
+    "database": "Database"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "locale": {
+    "language": "Language",
+    "region": "Region"
+  },
+  "privacy": {
+    "notice": "This portfolio showcases a fictional enterprise inventory system. No real customer data is stored. For demonstration purposes only."
+  }
+}

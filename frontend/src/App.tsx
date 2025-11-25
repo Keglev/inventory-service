@@ -1,15 +1,26 @@
 /**
  * @file App.tsx
  * @description
- * Root application component. Delegates routing to `AppRouter`. Keep this file
- * intentionally small—global providers (theme, query client) live higher in the tree
- * or inside AppShell to avoid tight coupling at the root.
+ * Root application component. Delegates routing to `AppRouter` and includes the
+ * global Footer (outside AppShell). Flex layout ensures footer stays at bottom.
+ *
+ * @layout
+ * - Container: flex column, full viewport height
+ * - AppRouter (routes): flex-grow to fill available space
+ * - Footer: fixed at bottom, visible on all pages
  */
 
+import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
+import Footer from './app/Footer';
 
 export default function App() {
-  return <AppRouter />;
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
+      <AppRouter />
+      <Footer />
+    </Box>
+  );
 }
 
 
