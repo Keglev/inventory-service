@@ -352,13 +352,13 @@ const Suppliers: React.FC = () => {
 
       {/* Suppliers List (only shows if checkbox is checked) */}
       {!showAllSuppliers ? (
-        <Paper variant="outlined" sx={{ p: 2, height: 560, display: 'grid', placeItems: 'center' }}>
+        <Paper variant="outlined" sx={{ p: 2, height: 420, display: 'grid', placeItems: 'center' }}>
           <Typography variant="body1" color="text.secondary">
             {t('suppliers:filters.selectToShow', 'Check "Show all suppliers" to display the complete list')}
           </Typography>
         </Paper>
       ) : (
-        <Paper variant="outlined" sx={{ height: 560, position: 'relative' }}>
+        <Paper variant="outlined" sx={{ height: 420, position: 'relative' }}>
           {loading && (
             <LinearProgress sx={{ position: 'absolute', left: 0, right: 0, top: 0 }} />
           )}

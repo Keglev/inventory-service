@@ -26,11 +26,11 @@ const Dashboard: React.FC = () => {
 
   return (
     <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
         {t('dashboard.title')}
       </Typography>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <StatCard
             title={t('dashboard.kpi.totalItems')}
@@ -54,7 +54,7 @@ const Dashboard: React.FC = () => {
         </Grid>
       </Grid>
       {/* Compact chart: Monthly movement (90d) */}
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 2 }}>
         <MonthlyMovementMini />
       </Box>
 

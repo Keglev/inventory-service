@@ -330,7 +330,7 @@ const Inventory: React.FC = () => {
     </Paper>
 
       {/* Content area */}
-      <Paper variant="outlined" sx={{ height: 560, position: 'relative', p: supplierId ? 0 : 2 }}>
+      <Paper variant="outlined" sx={{ height: 420, position: 'relative', p: supplierId ? 0 : 2 }}>
         {/* Supplier gate: block the grid until a supplier is selected */}
         {!supplierId ? (
           <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>

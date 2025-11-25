@@ -236,7 +236,7 @@ export default function AppShell() {
         value={(msg, severity = 'success') => setToast({ open: true, msg, severity })}
       >
         {/* Fixed AppBar */}
-        <AppBar position="fixed" color="primary" sx={{ width: '100%', zIndex: 1200 }}>
+        <AppBar position="fixed" color="primary" sx={{ width: '100%', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
           <Toolbar>
             <IconButton edge="start" onClick={toggleDrawer} sx={{ mr: 1, display: { md: 'none' } }}>
               <MenuIcon />
@@ -305,7 +305,7 @@ export default function AppShell() {
         </AppBar>
 
         {/* Main container with sidebar + content, positioned below fixed AppBar */}
-        <Box sx={{ display: 'flex', mt: '64px', minHeight: 'calc(100dvh - 64px)', bgcolor: 'background.default' }}>
+        <Box sx={{ display: 'flex', bgcolor: 'background.default' }}>
           {/* Side nav */}
           <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
             {/* Mobile drawer */}
@@ -345,6 +345,7 @@ export default function AppShell() {
           {/* Content area */}
           <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, overflowY: 'auto' }}>
             {/* Demo notice banner (non-blocking, subtle) */}
+            <Toolbar />
             {isDemo && (
               <Alert
                 severity="info"

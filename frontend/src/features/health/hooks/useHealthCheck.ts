@@ -46,7 +46,7 @@ export const useHealthCheck = () => {
         status: string;
         database: string;
         timestamp: number;
-      }>('/api/health');
+      }>('/health');
       const elapsed = Math.round(performance.now() - start);
 
       setHealth({

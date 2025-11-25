@@ -34,7 +34,7 @@ export default function MonthlyMovementMini() {
                     <Skeleton variant="rounded" height={220} />
                 ) : (
                     <Box sx={{ height: 240 }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="90%">
                             <BarChart data={q.data ?? []}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="month" />
