@@ -31,7 +31,7 @@ import { useTranslation } from 'react-i18next';
 import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
 
 const Footer: React.FC = () => {
-  const { i18n } = useTranslation(['common']);
+  const { i18n, t } = useTranslation(['common', 'footer']);
   const { health } = useHealthCheck();
 
   const [detailsOpen, setDetailsOpen] = React.useState(false);
@@ -112,16 +112,16 @@ const Footer: React.FC = () => {
                 variant="caption"
                 sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
               >
-                Legal & Meta
+                {t('footer:section.legal', 'Legal & Meta')}
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                © 2025 Smart Supply Pro • All rights reserved
+                © 2025 Smart Supply Pro • {t('footer:legal.rights', 'All rights reserved')}
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                Version: {appVersion} • Build: {buildId}
+                {t('footer:meta.version', 'Version')}: {appVersion} • {t('footer:meta.build', 'Build')}: {buildId}
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                Environment: {environment}
+                {t('footer:meta.environment', 'Environment')}: {environment}
               </Typography>
             </Box>
 
@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
                 variant="caption"
                 sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
               >
-                Support & Docs
+                {t('footer:section.support', 'Support & Docs')}
               </Typography>
               <Stack spacing={0.25}>
                 <Link
@@ -140,7 +140,7 @@ const Footer: React.FC = () => {
                   variant="caption"
                   sx={{ color: 'primary.main' }}
                 >
-                  Documentation
+                  {t('footer:support.documentation', 'Documentation')}
                 </Link>
                 <Link
                   href="#"
@@ -148,7 +148,7 @@ const Footer: React.FC = () => {
                   variant="caption"
                   sx={{ color: 'primary.main' }}
                 >
-                  API Reference
+                  {t('footer:support.apiRef', 'API Reference')}
                 </Link>
                 <Link
                   href="#"
@@ -156,7 +156,7 @@ const Footer: React.FC = () => {
                   variant="caption"
                   sx={{ color: 'primary.main' }}
                 >
-                  Release Notes
+                  {t('footer:support.releaseNotes', 'Release Notes')}
                 </Link>
                 <Link
                   href="mailto:support@smartsupplypro.com"
@@ -164,7 +164,7 @@ const Footer: React.FC = () => {
                   variant="caption"
                   sx={{ color: 'primary.main' }}
                 >
-                  Contact Support
+                  {t('footer:support.contact', 'Contact Support')}
                 </Link>
               </Stack>
             </Box>
@@ -175,7 +175,7 @@ const Footer: React.FC = () => {
                 variant="caption"
                 sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
               >
-                System Health
+                {t('footer:section.health', 'System Health')}
               </Typography>
               <Typography
                 variant="caption"
@@ -183,7 +183,7 @@ const Footer: React.FC = () => {
                 display="block"
                 sx={{ mb: 0.25 }}
               >
-                Backend
+                {t('footer:health.backend', 'Backend')}
               </Typography>
               {renderHealthStatus(health)}
               <Typography
@@ -192,7 +192,7 @@ const Footer: React.FC = () => {
                 display="block"
                 sx={{ mt: 0.5, mb: 0.25 }}
               >
-                Database
+                {t('footer:health.database', 'Database')}
               </Typography>
               <Chip
                 icon={
@@ -205,7 +205,7 @@ const Footer: React.FC = () => {
                     }}
                   />
                 }
-                label={databaseOnline ? 'Oracle ADB' : 'Offline'}
+                label={databaseOnline ? 'Oracle ADB' : t('footer:status.offline', 'Offline')}
                 size="small"
                 variant="outlined"
                 sx={{ borderColor: dbColor, color: dbColor }}
@@ -218,13 +218,13 @@ const Footer: React.FC = () => {
                 variant="caption"
                 sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
               >
-                Language & Region
+                {t('footer:section.localization', 'Language & Region')}
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                Language: {currentLanguage}
+                {t('footer:locale.language', 'Language')}: {currentLanguage}
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                Region: {region}
+                {t('footer:locale.region', 'Region')}: {region}
               </Typography>
             </Box>
           </Stack>
@@ -237,8 +237,7 @@ const Footer: React.FC = () => {
             display="block"
             sx={{ mb: 0.5, lineHeight: 1.4 }}
           >
-            This portfolio showcases a fictional enterprise inventory system. No real
-            customer data is stored. For demonstration purposes only.
+            {t('footer:privacy.notice', 'This portfolio showcases a fictional enterprise inventory system. No real customer data is stored. For demonstration purposes only.')}
           </Typography>
         </Collapse>
 
