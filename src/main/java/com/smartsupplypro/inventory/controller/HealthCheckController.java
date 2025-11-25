@@ -19,13 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Health check controller for application and database status monitoring.
  *
- * <p>Provides lightweight and deep health checks for monitoring systems.
+ * <p>Provides lightweight and deep health checks with JSON response mapping for frontend integration.
  * Particularly useful for Oracle Free Tier environments where database pausing occurs.</p>
  *
  * <p><strong>Endpoints:</strong></p>
  * <ul>
- *   <li>{@code GET /api/health} - Basic application health check (no database verification)</li>
- *   <li>{@code GET /api/health/db} - Deep health check with database connectivity verification</li>
+ *   <li>{@code GET /api/health} - Basic application health check with JSON mapping:
+ *       {@code {"status": "ok"|"down", "database": "ok"|"down", "timestamp": epochMillis}}</li>
+ *   <li>{@code GET /api/health/db} - Deep health check with database connectivity verification and JSON response:
+ *       {@code {"status": "UP"|"DOWN", "oracleSeesIp": "<ip>"|"error": "<message>"}}</li>
  * </ul>
  *
  * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
@@ -90,7 +92,6 @@ public class HealthCheckController {
             // Use SYS_CONTEXT query instead of simple SELECT 1 FROM DUAL
             // to verify actual Oracle functionality and return diagnostic info
             PreparedStatement stmt = conn.prepareStatement("SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL");
-
             ResultSet rs = stmt.executeQuery()
         ) {
             if (rs.next()) {
