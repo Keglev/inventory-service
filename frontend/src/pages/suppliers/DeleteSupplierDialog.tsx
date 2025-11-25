@@ -159,18 +159,31 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
         // Handle error from backend
         const errorMsg = response.error || 'Unknown error';
 
-        // Map backend errors to i18n keys
+        // Map backend errors to i18n keys with more specific detection
+        // 409 Conflict: supplier has linked items
         if (
-          errorMsg.includes('Cannot delete supplier with linked items') ||
-          errorMsg.includes('cannot delete supplier')
+          errorMsg.toLowerCase().includes('cannot delete supplier with linked items') ||
+          errorMsg.toLowerCase().includes('linked items') ||
+          errorMsg.toLowerCase().includes('cannot delete supplier') ||
+          errorMsg.toLowerCase().includes('verknüpften') // German word for "linked"
         ) {
-          setError(t('errors:supplier.businessRules.cannotDeleteWithItems'));
-        } else if (errorMsg.includes('403') || errorMsg.includes('Forbidden')) {
-          setError(t('errors:supplier.adminOnly'));
-        } else if (errorMsg.includes('404') || errorMsg.includes('not found')) {
-          setError(t('errors:supplier.businessRules.supplierNotFound'));
-        } else {
-          setError(t('errors:supplier.requests.failedToDeleteSupplier'));
+          setError(t('errors:supplier.businessRules.cannotDeleteWithItems', 
+            'Supplier with linked items cannot be deleted'));
+        } 
+        // 403 Forbidden: user is not admin
+        else if (errorMsg.includes('403') || errorMsg.toLowerCase().includes('forbidden')) {
+          setError(t('errors:supplier.adminOnly', 
+            'Only administrators can delete suppliers'));
+        } 
+        // 404 Not Found: supplier doesn't exist
+        else if (errorMsg.includes('404') || errorMsg.toLowerCase().includes('not found')) {
+          setError(t('errors:supplier.businessRules.supplierNotFound', 
+            'Supplier not found'));
+        } 
+        // Generic delete error
+        else {
+          setError(t('errors:supplier.requests.failedToDeleteSupplier', 
+            'Failed to delete supplier. Please try again.'));
         }
       }
     } catch (err) {

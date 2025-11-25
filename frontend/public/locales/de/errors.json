@@ -44,7 +44,7 @@
     "selection": {
       "noSupplierSelected": "Bitte wählen Sie einen Lieferanten"
     },
-    "adminOnly": "Nur Administratoren können Lieferantendaten bearbeiten.",
+    "adminOnly": "Nur Administratoren können diese Aktion ausführen.",
     "validation": {
       "createdByRequired": "Erstellerinformationen sind erforderlich. Stellen Sie sicher, dass Sie angemeldet sind.",
       "nameRequired": "Lieferantenname ist erforderlich",
@@ -60,7 +60,7 @@
       "duplicateName": "Ein Lieferant mit diesem Namen existiert bereits",
       "duplicateEmail": "Diese E-Mail-Adresse wird bereits verwendet",
       "supplierNotFound": "Lieferant nicht gefunden",
-      "cannotDeleteWithItems": "Lieferant mit verknüpften Artikeln kann nicht gelöscht werden"
+      "cannotDeleteWithItems": "Dieser Lieferant kann nicht gelöscht werden, da noch Waren mit Bestand > 0 vorhanden sind. Bitte reduzieren Sie den Bestand auf 0, bevor Sie den Lieferanten löschen."
     }
   }
 }

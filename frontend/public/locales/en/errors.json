@@ -44,7 +44,7 @@
     "selection": {
       "noSupplierSelected": "Please select a supplier"
     },
-    "adminOnly": "Only administrators can edit supplier information.",
+    "adminOnly": "Only administrators can perform this action.",
     "validation": {
       "createdByRequired": "Creator information is required. Please ensure you are logged in.",
       "nameRequired": "Supplier name is required",
@@ -60,7 +60,7 @@
       "duplicateName": "A supplier with this name already exists",
       "duplicateEmail": "This email is already in use",
       "supplierNotFound": "Supplier not found",
-      "cannotDeleteWithItems": "Supplier cannot be deleted because it has linked items"
+      "cannotDeleteWithItems": "This supplier cannot be deleted because there are still items with stock > 0. Please reduce the stock to 0 before deleting the supplier."
     }
   }
 }
