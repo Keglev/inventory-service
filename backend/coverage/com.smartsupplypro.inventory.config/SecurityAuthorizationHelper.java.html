@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 <span class="fc" id="L26">        auth.requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll();</span>
 <span class="fc" id="L27">        auth.requestMatchers(&quot;/logout&quot;).permitAll();</span>
 <span class="fc" id="L28">        auth.requestMatchers(</span>
-                &quot;/&quot;, &quot;/actuator/**&quot;, &quot;/health/**&quot;,
+                &quot;/&quot;, &quot;/actuator/**&quot;, &quot;/health/**&quot;, &quot;/api/health/**&quot;,
                 &quot;/oauth2/**&quot;, &quot;/login/oauth2/**&quot;, &quot;/login/**&quot;, &quot;/error&quot;
 <span class="fc" id="L31">        ).permitAll();</span>
 
