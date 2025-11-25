@@ -94,6 +94,7 @@ public class InventoryItemValidatorTest {
 
     /**
      * Verifies that an empty or blank supplier ID triggers validation failure as expected.
+     * This ensures that all inventory items are associated with a valid supplier.
      */
     @Test
     void testValidateBase_withEmptySupplier_shouldThrow() {
