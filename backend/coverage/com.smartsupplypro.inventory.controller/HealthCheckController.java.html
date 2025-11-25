@@ -19,20 +19,22 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Health check controller for application and database status monitoring.
  *
- * &lt;p&gt;Provides lightweight and deep health checks for monitoring systems.
+ * &lt;p&gt;Provides lightweight and deep health checks with JSON response mapping for frontend integration.
  * Particularly useful for Oracle Free Tier environments where database pausing occurs.&lt;/p&gt;
  *
  * &lt;p&gt;&lt;strong&gt;Endpoints:&lt;/strong&gt;&lt;/p&gt;
  * &lt;ul&gt;
- *   &lt;li&gt;{@code GET /api/health} - Basic application health check (no database verification)&lt;/li&gt;
- *   &lt;li&gt;{@code GET /api/health/db} - Deep health check with database connectivity verification&lt;/li&gt;
+ *   &lt;li&gt;{@code GET /api/health} - Basic application health check with JSON mapping:
+ *       {@code {&quot;status&quot;: &quot;ok&quot;|&quot;down&quot;, &quot;database&quot;: &quot;ok&quot;|&quot;down&quot;, &quot;timestamp&quot;: epochMillis}}&lt;/li&gt;
+ *   &lt;li&gt;{@code GET /api/health/db} - Deep health check with database connectivity verification and JSON response:
+ *       {@code {&quot;status&quot;: &quot;UP&quot;|&quot;DOWN&quot;, &quot;oracleSeesIp&quot;: &quot;&lt;ip&gt;&quot;|&quot;error&quot;: &quot;&lt;message&gt;&quot;}}&lt;/li&gt;
  * &lt;/ul&gt;
  *
  * @see &lt;a href=&quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller Patterns&lt;/a&gt;
  */
 @RestController
 @RequestMapping(&quot;/api/health&quot;)
-<span class="fc" id="L35">public class HealthCheckController {</span>
+<span class="fc" id="L37">public class HealthCheckController {</span>
 
     @Autowired
     private DataSource dataSource;
@@ -50,30 +52,30 @@ import org.springframework.web.bind.annotation.RestController;
     @GetMapping
     public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; health() {
 
-<span class="nc" id="L53">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L55">        long now = System.currentTimeMillis();</span>
         boolean dbUp;
 
         // low-cost DB ping; runs every 15min from the frontend
-<span class="nc" id="L57">        try (Connection conn = dataSource.getConnection();</span>
-<span class="nc" id="L58">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT 1 FROM DUAL&quot;);</span>
-<span class="nc" id="L59">            ResultSet rs = stmt.executeQuery()) {</span>
+<span class="nc" id="L59">        try (Connection conn = dataSource.getConnection();</span>
+<span class="nc" id="L60">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT 1 FROM DUAL&quot;);</span>
+<span class="nc" id="L61">            ResultSet rs = stmt.executeQuery()) {</span>
 
-<span class="nc" id="L61">            dbUp = rs.next();</span>
+<span class="nc" id="L63">            dbUp = rs.next();</span>
 
-<span class="nc" id="L63">        } catch (SQLException ex) {</span>
+<span class="nc" id="L65">        } catch (SQLException ex) {</span>
             // DB unreachable or query failed
-<span class="nc" id="L65">            dbUp = false;</span>
+<span class="nc" id="L67">            dbUp = false;</span>
             // optionally log here with your logger
             // log.warn(&quot;Database health check failed&quot;, ex);
-<span class="nc" id="L68">        }</span>
-<span class="nc" id="L69">        Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L70">        }</span>
+<span class="nc" id="L71">        Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();</span>
         // application is running if we reached this controller at all
-<span class="nc" id="L71">        body.put(&quot;status&quot;, &quot;ok&quot;);</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">        body.put(&quot;database&quot;, dbUp ? &quot;ok&quot; : &quot;down&quot;);</span>
-<span class="nc" id="L73">        body.put(&quot;timestamp&quot;, now);</span>
+<span class="nc" id="L73">        body.put(&quot;status&quot;, &quot;ok&quot;);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        body.put(&quot;database&quot;, dbUp ? &quot;ok&quot; : &quot;down&quot;);</span>
+<span class="nc" id="L75">        body.put(&quot;timestamp&quot;, now);</span>
 
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;</span>
-<span class="nc" id="L76">        return new ResponseEntity&lt;&gt;(body, status);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;</span>
+<span class="nc" id="L78">        return new ResponseEntity&lt;&gt;(body, status);</span>
     }
 
     /**
@@ -84,28 +86,27 @@ import org.springframework.web.bind.annotation.RestController;
     @GetMapping(&quot;/db&quot;)
     public ResponseEntity&lt;String&gt; checkDatabaseConnection() {
         try (
-<span class="nc" id="L87">            Connection conn = dataSource.getConnection();</span>
+<span class="nc" id="L89">            Connection conn = dataSource.getConnection();</span>
 
             // Oracle Health Check Strategy
             // Use SYS_CONTEXT query instead of simple SELECT 1 FROM DUAL
             // to verify actual Oracle functionality and return diagnostic info
-<span class="nc" id="L92">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL&quot;);</span>
-
-<span class="nc" id="L94">            ResultSet rs = stmt.executeQuery()</span>
+<span class="nc" id="L94">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL&quot;);</span>
+<span class="nc" id="L95">            ResultSet rs = stmt.executeQuery()</span>
         ) {
-<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (rs.next()) {</span>
-<span class="nc" id="L97">                String ip = rs.getString(&quot;ip&quot;);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (rs.next()) {</span>
+<span class="nc" id="L98">                String ip = rs.getString(&quot;ip&quot;);</span>
                 // Query succeeded — DB is reachable
-<span class="nc" id="L99">                return ResponseEntity.ok(&quot;{\&quot;status\&quot;: \&quot;UP\&quot;, \&quot;oracleSeesIp\&quot;: \&quot;&quot; + ip + &quot;\&quot;}&quot;);</span>
+<span class="nc" id="L100">                return ResponseEntity.ok(&quot;{\&quot;status\&quot;: \&quot;UP\&quot;, \&quot;oracleSeesIp\&quot;: \&quot;&quot; + ip + &quot;\&quot;}&quot;);</span>
             } else {
                 // Query returned no result — unusual but possible
-<span class="nc" id="L102">                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
-<span class="nc" id="L103">                        .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;db\&quot;: \&quot;query failed\&quot;}&quot;);</span>
+<span class="nc" id="L103">                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
+<span class="nc" id="L104">                        .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;db\&quot;: \&quot;query failed\&quot;}&quot;);</span>
             }
-<span class="nc bnc" id="L105" title="All 6 branches missed.">        } catch (Exception ex) {</span>
+<span class="nc bnc" id="L106" title="All 6 branches missed.">        } catch (Exception ex) {</span>
             // DB unreachable or misconfigured
-<span class="nc" id="L107">            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
-<span class="nc" id="L108">                    .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;error\&quot;: \&quot;&quot; + ex.getMessage() + &quot;\&quot;}&quot;);</span>
+<span class="nc" id="L108">            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
+<span class="nc" id="L109">                    .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;error\&quot;: \&quot;&quot; + ex.getMessage() + &quot;\&quot;}&quot;);</span>
         }
     }
 }
