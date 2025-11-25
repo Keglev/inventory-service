@@ -79,13 +79,6 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 #  */
 RUN apk add --no-cache unzip coreutils && apk upgrade --no-cache
 
-# Set correct file ownership for the non-root user
-RUN chown -R appuser:appgroup /app
-
-# Use non-root user for the rest of the container operations
-USER appuser
-
-
 # ==========================================================
 # Metadata for image traceability and maintainability
 # ==========================================================
@@ -106,12 +99,16 @@ COPY --chown=appuser:appgroup --chmod=0755 scripts/start.sh /app/start.sh
 # Copy packaged JAR from build stage with correct ownership
 COPY --from=build --chown=appuser:appgroup /build/target/*.jar /app/
 
-# Normalize to /app/app.jar (no chown here; already owned by appuser)
+# Normalize to /app/app.jar (must run as root before switching user)
 RUN set -eux; \
     JAR="$(ls -1 /app/*.jar | head -n1)"; \
-    mv "$JAR" /app/app.jar
+    mv "$JAR" /app/app.jar; \
+    chown appuser:appgroup /app/app.jar
 
-# Drop privileges
+# Set correct file ownership for the non-root user
+RUN chown -R appuser:appgroup /app
+
+# Drop privileges - must be last
 USER appuser
 
 # /**
