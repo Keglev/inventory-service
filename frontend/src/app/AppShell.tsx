@@ -38,7 +38,7 @@ import {
   MenuItem,
   Avatar,
   CircularProgress,
-  Chip, // 👈 NEW
+  Chip, 
 } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -55,6 +55,7 @@ import { ToastContext } from '../app/ToastContext';
 import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
 import { useAuth } from '../context/useAuth';
+import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
 import deFlag from '/flags/de.svg';
 import usFlag from '/flags/us.svg';
 
@@ -115,6 +116,15 @@ export default function AppShell() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isDemo = Boolean(user?.isDemo);
+
+  // System health (for header badge)
+  const { health } = useHealthCheck();
+  const backendOnline = health.status === 'online';
+  const dbOnline = health.database === 'online';
+  const allOk = backendOnline && dbOnline;
+
+  const healthTone: 'success' | 'warning' | 'error' =
+    allOk ? 'success' : backendOnline ? 'warning' : 'error';
 
   // Initialize locale from i18n/localStorage and keep theme in sync with i18n changes.
   const initial = normalize(localStorage.getItem(LS_KEY) || i18n.resolvedLanguage || 'de');
@@ -258,6 +268,59 @@ export default function AppShell() {
             )}
 
             <Box sx={{ flex: 1 }} />
+
+            {/* System health badge (SAP/Fiori-style) */}
+            <Box
+              sx={{
+                mr: 1.5,
+                display: { xs: 'none', sm: 'flex' },
+                alignItems: 'center',
+              }}
+            >
+              <Tooltip
+                title={
+                  allOk
+                    ? t('app.health.okTooltip', 'Backend & database online')
+                    : backendOnline && !dbOnline
+                    ? t('app.health.dbDownTooltip', 'Database reachable, DB issue')
+                    : t('app.health.downTooltip', 'Backend not reachable')
+                }
+              >
+                <Chip
+                  size="small"
+                  color={healthTone}
+                  variant="outlined"
+                  icon={
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        bgcolor:
+                          healthTone === 'success'
+                            ? 'success.main'
+                            : healthTone === 'warning'
+                            ? 'warning.main'
+                            : 'error.main',
+                      }}
+                    />
+                  }
+                  label={
+                    allOk
+                      ? t('app.health.okLabel', 'System OK')
+                      : backendOnline
+                      ? t('app.health.degradedLabel', 'Degraded')
+                      : t('app.health.downLabel', 'Offline')
+                  }
+                  sx={{
+                    '& .MuiChip-icon': {
+                      mr: 0.5,
+                    },
+                    fontWeight: 500,
+                  }}
+                />
+              </Tooltip>
+            </Box>
 
             {/* Density (informational for now) */}
             <Tooltip title={t('actions.toggleDensity')}>
