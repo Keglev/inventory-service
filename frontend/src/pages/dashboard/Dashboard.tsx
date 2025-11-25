@@ -8,7 +8,7 @@
  * Uses 'common' namespace: dashboard.title, dashboard.kpi.*, dashboard.actions.*
  */
 import * as React from 'react';
-import { Box, Grid, Button, Stack, Typography } from '@mui/material';
+import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { getInventoryCount, getSuppliersCount, getLowStockCount } from '../../api/metrics';
@@ -25,8 +25,8 @@ const Dashboard: React.FC = () => {
   const lowQ = useQuery({ queryKey: ['kpi', 'lowStockCount'], queryFn: getLowStockCount });
 
   return (
-    <Box sx={{ p: { xs: 2, md: 3 } }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
+    <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}>
+      <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
         {t('dashboard.title')}
       </Typography>
 
@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
           {t('dashboard.actions.viewAnalytics')}
         </Button>
       </Stack>
-    </Box>
+    </Paper>
   );
 };
 

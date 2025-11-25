@@ -9,7 +9,7 @@
 import * as React from 'react';
 import type { JSX } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { Box, Typography, Stack, Button } from '@mui/material';
+import { Box, Typography, Stack, Button, Paper } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { readParams } from '../../utils/urlState';
@@ -73,9 +73,9 @@ export default function Analytics(): JSX.Element {
     staleTime: 5 * 60_000,
   });
   return (
-    <Box sx={{ px: { xs: 2, md: 3 }, py: { xs: 2, md: 3 } }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-        <Typography variant="h5">{t('analytics:title')}</Typography>
+    <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600 }}>{t('analytics:title')}</Typography>
           <Button variant="text" onClick={() => navigate('/dashboard')}>
             {t('common:actions.backToDashboard')}
           </Button>
@@ -132,6 +132,6 @@ export default function Analytics(): JSX.Element {
           </>
         )}
       </Box>
-    </Box>
+    </Paper>
   );
 }

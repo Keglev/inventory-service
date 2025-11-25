@@ -52,16 +52,16 @@ export const buildTheme = (locale: SupportedLocale = 'en') => {
         h3: { fontWeight: 600 },
       },
 
-      // Light palette (can be toggled in the future if needed)
+      // Enterprise light palette: deep blue header, light grey shell, white cards
       palette: {
         mode: 'light',
-        primary: { main: '#00458A' },   // Enterprise blue
+        primary: { main: '#00458A' },   // Enterprise deep blue
         secondary: { main: '#00A3A3' }, // Teal accent
         success: { main: '#2E7D32' },
         warning: { main: '#ED6C02' },
         error: { main: '#D32F2F' },
         info: { main: '#0288D1' },
-        background: { default: '#F6F7F9', paper: '#FFFFFF' },
+        background: { default: '#F0F2F5', paper: '#FFFFFF' },
         divider: 'rgba(0,0,0,0.08)',
       },
 
@@ -87,7 +87,12 @@ export const buildTheme = (locale: SupportedLocale = 'en') => {
         //
         MuiAppBar: {
           styleOverrides: {
-            root: { boxShadow: 'none', borderBottom: '1px solid rgba(0,0,0,0.08)' },
+            root: { 
+              boxShadow: 'none',
+              borderBottom: '1px solid rgba(0,0,0,0.08)',
+              backgroundColor: '#00458A',
+              color: '#FFFFFF'
+            },
           },
         },
         MuiDrawer: {
@@ -96,11 +101,21 @@ export const buildTheme = (locale: SupportedLocale = 'en') => {
           },
         },
         MuiCard: {
-          styleOverrides: { root: { borderRadius: 12 } },
+          styleOverrides: { 
+            root: { 
+              borderRadius: 12,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
+            } 
+          },
         },
         MuiPaper: {
           // Use `root` instead of the `rounded` slot to ensure consistent radius application
-          styleOverrides: { root: { borderRadius: 10 } },
+          styleOverrides: { 
+            root: { 
+              borderRadius: 10,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
+            } 
+          },
         },
 
         //

@@ -264,35 +264,36 @@ const Inventory: React.FC = () => {
   // Once clicked, it opens EditItemDialog where user selects supplier and item name to change
   // -------- -------
   return (
-    <Box sx={{ display: 'grid', gap: 1 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {t('inventory:page.title', 'Inventory Management')}
-        </Typography>
-        <Stack direction="row" spacing={1}>
-          <Button variant="contained" onClick={() => setOpenNew(true)}>
-            {t('inventory:toolbar.newItem', 'Add new item')}
-          </Button>
-          <Button 
-            onClick={() => setOpenEditName(true)}
-            sx={{ opacity: 1, pointerEvents: 'auto' }}
-          >
-            {t('inventory:toolbar.edit', 'Edit')}
-          </Button>
-          <Button onClick={() => setOpenDelete(true)}>
-            {t('inventory:toolbar.delete', 'Delete')}
-          </Button>
-          <Button onClick={() => setOpenAdjust(true)}>
-            {t('inventory:toolbar.adjustQty', 'Adjust quantity')}
-          </Button>
-          <Button onClick={() => setOpenPrice(true)}>
-            {t('inventory:toolbar.changePrice', 'Change price')}
-          </Button>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper' }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            {t('inventory:page.title', 'Inventory Management')}
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            <Button variant="contained" onClick={() => setOpenNew(true)}>
+              {t('inventory:toolbar.newItem', 'Add new item')}
+            </Button>
+            <Button 
+              onClick={() => setOpenEditName(true)}
+              sx={{ opacity: 1, pointerEvents: 'auto' }}
+            >
+              {t('inventory:toolbar.edit', 'Edit')}
+            </Button>
+            <Button onClick={() => setOpenDelete(true)}>
+              {t('inventory:toolbar.delete', 'Delete')}
+            </Button>
+            <Button onClick={() => setOpenAdjust(true)}>
+              {t('inventory:toolbar.adjustQty', 'Adjust quantity')}
+            </Button>
+            <Button onClick={() => setOpenPrice(true)}>
+              {t('inventory:toolbar.changePrice', 'Change price')}
+            </Button>
+          </Stack>
         </Stack>
-      </Stack>
 
-      {/* Filters */}
-      <Paper variant="outlined" sx={{ p: 1.5 }}>
+        {/* Filters */}
+        <Paper variant="outlined" sx={{ p: 1.5, mb: 2 }}>
         <InventoryFilters
           q={q}
           onQChange={setQ}
@@ -448,6 +449,7 @@ const Inventory: React.FC = () => {
         onClose={() => setOpenPrice(false)}
         onPriceChanged={load}
       />
+      </Paper>
     </Box>
   );
 };

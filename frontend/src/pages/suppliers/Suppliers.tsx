@@ -211,39 +211,40 @@ const Suppliers: React.FC = () => {
 
   // ===== Render =====
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: { xs: 1, md: 2 } }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5">
-          {t('suppliers:title', 'Supplier Management')}
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => setOpenDeleteDialog(true)}
-          >
-            {t('suppliers:actions.delete', 'Delete Supplier')}
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => setOpenEditDialog(true)}
-          >
-            {t('suppliers:actions.edit', 'Edit Supplier')}
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setOpenCreateDialog(true)}
-          >
-            {t('suppliers:actions.create', 'Add Supplier')}
-          </Button>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper' }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            {t('suppliers:title', 'Supplier Management')}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => setOpenDeleteDialog(true)}
+            >
+              {t('suppliers:actions.delete', 'Delete Supplier')}
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => setOpenEditDialog(true)}
+            >
+              {t('suppliers:actions.edit', 'Edit Supplier')}
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setOpenCreateDialog(true)}
+            >
+              {t('suppliers:actions.create', 'Add Supplier')}
+            </Button>
+          </Box>
         </Box>
-      </Box>
 
-      {/* Search Supplier Panel */}
-      <Paper variant="outlined" sx={{ p: 2 }}>
+        {/* Search Supplier Panel */}
+        <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
           {t('suppliers:search.title', 'Search Supplier')}
         </Typography>
@@ -405,6 +406,7 @@ const Suppliers: React.FC = () => {
           </Stack>
         </Paper>
       )}
+      </Paper>
 
       {/* Create Supplier Dialog */}
       <CreateSupplierDialog

@@ -237,7 +237,7 @@ export default function AppShell() {
       >
         <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: 'background.default' }}>
           {/* Header */}
-          <AppBar position="fixed" color="inherit" sx={{ bgcolor: 'background.paper' }}>
+          <AppBar position="fixed" color="primary" sx={{ width: '100%' }}>
             <Toolbar>
               <IconButton edge="start" onClick={toggleDrawer} sx={{ mr: 1, display: { md: 'none' } }}>
                 <MenuIcon />
@@ -334,7 +334,7 @@ export default function AppShell() {
           </Box>
 
           {/* Content */}
-          <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, ml: { md: `${drawerWidth}px` } }}>
+          <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, bgcolor: 'background.default' }}>
             <Toolbar />
 
             {/* Demo notice banner (non-blocking, subtle) */}
