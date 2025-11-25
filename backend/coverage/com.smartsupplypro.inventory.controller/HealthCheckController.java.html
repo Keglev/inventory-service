@@ -30,11 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
  *       {@code {&quot;status&quot;: &quot;UP&quot;|&quot;DOWN&quot;, &quot;oracleSeesIp&quot;: &quot;&lt;ip&gt;&quot;|&quot;error&quot;: &quot;&lt;message&gt;&quot;}}&lt;/li&gt;
  * &lt;/ul&gt;
  *
+ * @version 1.1
  * @see &lt;a href=&quot;file:../../../../../../docs/architecture/patterns/controller-patterns.md&quot;&gt;Controller Patterns&lt;/a&gt;
  */
 @RestController
 @RequestMapping(&quot;/api/health&quot;)
-<span class="fc" id="L37">public class HealthCheckController {</span>
+<span class="fc" id="L38">public class HealthCheckController {</span>
 
     @Autowired
     private DataSource dataSource;
@@ -52,30 +53,30 @@ import org.springframework.web.bind.annotation.RestController;
     @GetMapping
     public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; health() {
 
-<span class="nc" id="L55">        long now = System.currentTimeMillis();</span>
+<span class="nc" id="L56">        long now = System.currentTimeMillis();</span>
         boolean dbUp;
 
         // low-cost DB ping; runs every 15min from the frontend
-<span class="nc" id="L59">        try (Connection conn = dataSource.getConnection();</span>
-<span class="nc" id="L60">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT 1 FROM DUAL&quot;);</span>
-<span class="nc" id="L61">            ResultSet rs = stmt.executeQuery()) {</span>
+<span class="nc" id="L60">        try (Connection conn = dataSource.getConnection();</span>
+<span class="nc" id="L61">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT 1 FROM DUAL&quot;);</span>
+<span class="nc" id="L62">            ResultSet rs = stmt.executeQuery()) {</span>
 
-<span class="nc" id="L63">            dbUp = rs.next();</span>
+<span class="nc" id="L64">            dbUp = rs.next();</span>
 
-<span class="nc" id="L65">        } catch (SQLException ex) {</span>
+<span class="nc" id="L66">        } catch (SQLException ex) {</span>
             // DB unreachable or query failed
-<span class="nc" id="L67">            dbUp = false;</span>
+<span class="nc" id="L68">            dbUp = false;</span>
             // optionally log here with your logger
             // log.warn(&quot;Database health check failed&quot;, ex);
-<span class="nc" id="L70">        }</span>
-<span class="nc" id="L71">        Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L71">        }</span>
+<span class="nc" id="L72">        Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();</span>
         // application is running if we reached this controller at all
-<span class="nc" id="L73">        body.put(&quot;status&quot;, &quot;ok&quot;);</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        body.put(&quot;database&quot;, dbUp ? &quot;ok&quot; : &quot;down&quot;);</span>
-<span class="nc" id="L75">        body.put(&quot;timestamp&quot;, now);</span>
+<span class="nc" id="L74">        body.put(&quot;status&quot;, &quot;ok&quot;);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        body.put(&quot;database&quot;, dbUp ? &quot;ok&quot; : &quot;down&quot;);</span>
+<span class="nc" id="L76">        body.put(&quot;timestamp&quot;, now);</span>
 
-<span class="nc bnc" id="L77" title="All 2 branches missed.">        HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;</span>
-<span class="nc" id="L78">        return new ResponseEntity&lt;&gt;(body, status);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;</span>
+<span class="nc" id="L79">        return new ResponseEntity&lt;&gt;(body, status);</span>
     }
 
     /**
@@ -86,27 +87,27 @@ import org.springframework.web.bind.annotation.RestController;
     @GetMapping(&quot;/db&quot;)
     public ResponseEntity&lt;String&gt; checkDatabaseConnection() {
         try (
-<span class="nc" id="L89">            Connection conn = dataSource.getConnection();</span>
+<span class="nc" id="L90">            Connection conn = dataSource.getConnection();</span>
 
             // Oracle Health Check Strategy
             // Use SYS_CONTEXT query instead of simple SELECT 1 FROM DUAL
             // to verify actual Oracle functionality and return diagnostic info
-<span class="nc" id="L94">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL&quot;);</span>
-<span class="nc" id="L95">            ResultSet rs = stmt.executeQuery()</span>
+<span class="nc" id="L95">            PreparedStatement stmt = conn.prepareStatement(&quot;SELECT SYS_CONTEXT('USERENV', 'IP_ADDRESS') As ip FROM DUAL&quot;);</span>
+<span class="nc" id="L96">            ResultSet rs = stmt.executeQuery()</span>
         ) {
-<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (rs.next()) {</span>
-<span class="nc" id="L98">                String ip = rs.getString(&quot;ip&quot;);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (rs.next()) {</span>
+<span class="nc" id="L99">                String ip = rs.getString(&quot;ip&quot;);</span>
                 // Query succeeded — DB is reachable
-<span class="nc" id="L100">                return ResponseEntity.ok(&quot;{\&quot;status\&quot;: \&quot;UP\&quot;, \&quot;oracleSeesIp\&quot;: \&quot;&quot; + ip + &quot;\&quot;}&quot;);</span>
+<span class="nc" id="L101">                return ResponseEntity.ok(&quot;{\&quot;status\&quot;: \&quot;UP\&quot;, \&quot;oracleSeesIp\&quot;: \&quot;&quot; + ip + &quot;\&quot;}&quot;);</span>
             } else {
                 // Query returned no result — unusual but possible
-<span class="nc" id="L103">                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
-<span class="nc" id="L104">                        .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;db\&quot;: \&quot;query failed\&quot;}&quot;);</span>
+<span class="nc" id="L104">                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
+<span class="nc" id="L105">                        .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;db\&quot;: \&quot;query failed\&quot;}&quot;);</span>
             }
-<span class="nc bnc" id="L106" title="All 6 branches missed.">        } catch (Exception ex) {</span>
+<span class="nc bnc" id="L107" title="All 6 branches missed.">        } catch (Exception ex) {</span>
             // DB unreachable or misconfigured
-<span class="nc" id="L108">            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
-<span class="nc" id="L109">                    .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;error\&quot;: \&quot;&quot; + ex.getMessage() + &quot;\&quot;}&quot;);</span>
+<span class="nc" id="L109">            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)</span>
+<span class="nc" id="L110">                    .body(&quot;{\&quot;status\&quot;: \&quot;DOWN\&quot;, \&quot;error\&quot;: \&quot;&quot; + ex.getMessage() + &quot;\&quot;}&quot;);</span>
         }
     }
 }
