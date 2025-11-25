@@ -121,20 +121,10 @@ jobs:
           echo "📦 Deploying image: ckbuzin/inventory-service:${IMAGE_TAG}"
           echo "🎯 Strategy: ${STRATEGY}"
       # ---------------------------------------------------------------------
-      # 2) Checkout repository (for fly.toml context)
+      # 2) Checkout repository
       # ---------------------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # ---------------------------------------------------------------------
-      # 2.5) Update fly.toml health check path
-      # ---------------------------------------------------------------------
-      - name: Update fly.toml health check
-        run: |
-          echo "Updating health check path in fly.toml..."
-          sed -i 's|path = "/health"|path = "/api/health"|g' fly.toml
-          echo "✅ Health check path updated to /api/health"
-          grep -A2 "services.http_checks" fly.toml || true
 
       # ---------------------------------------------------------------------
       # 3) Validate Docker image exists
