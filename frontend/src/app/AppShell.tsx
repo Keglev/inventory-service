@@ -327,7 +327,15 @@ export default function AppShell() {
               open
               sx={{
                 display: { xs: 'none', md: 'block' },
-                '& .MuiDrawer-paper': { width: drawerWidth, position: 'fixed', left: 0, top: '64px', height: 'calc(100dvh - 64px)', overflowY: 'auto' },
+                '& .MuiDrawer-paper': {
+                  width: drawerWidth,
+                  boxSizing: 'border-box',
+                  position: 'relative',    
+                  left: 'auto',
+                  top: 'auto',
+                  height: '100%',           
+                  overflowY: 'auto',
+                },
               }}
             >
               {drawer}

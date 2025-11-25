@@ -14,9 +14,18 @@
  * - Collapsible sections (click title to expand/collapse)
  * - Full i18n support for all text
  */
-
 import * as React from 'react';
-import { Box, Container, Typography, Link, Divider, Stack, Chip, Collapse } from '@mui/material';
+import {
+  Box,
+  Container,
+  Typography,
+  Link,
+  Divider,
+  Stack,
+  Chip,
+  Collapse,
+  IconButton,
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from 'react-i18next';
 import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
@@ -24,14 +33,8 @@ import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
 const Footer: React.FC = () => {
   const { i18n } = useTranslation(['common']);
   const { health } = useHealthCheck();
-  
-  // State for collapsible sections
-  const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>({
-    legal: false,
-    support: false,
-    health: false,
-    language: false,
-  });
+
+  const [detailsOpen, setDetailsOpen] = React.useState(false);
 
   const currentLanguage = i18n.language.split('-')[0].toUpperCase();
   const region = 'DE';
@@ -39,14 +42,13 @@ const Footer: React.FC = () => {
   const environment = 'Production (Koyeb)';
   const appVersion = '1.0.0';
 
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
+  const toggleDetails = () => setDetailsOpen((prev) => !prev);
 
-  const renderHealthStatus = (status: { status: 'online' | 'offline'; responseTime: number; database: 'online' | 'offline' }) => {
+  const renderHealthStatus = (status: {
+    status: 'online' | 'offline';
+    responseTime: number;
+    database: 'online' | 'offline';
+  }) => {
     const isOnline = status.status === 'online';
     const color = isOnline ? 'success' : 'error';
     const label = isOnline ? 'Online' : 'Offline';
@@ -60,11 +62,11 @@ const Footer: React.FC = () => {
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                backgroundColor: isOnline ? '#4CAF50' : '#F44336',
+                bgcolor: isOnline ? '#4CAF50' : '#F44336',
               }}
             />
           }
-          label={`${label}`}
+          label={label}
           size="small"
           variant="outlined"
           sx={{ borderColor: color, color }}
@@ -81,164 +83,209 @@ const Footer: React.FC = () => {
   const databaseOnline = health.database === 'online';
   const dbColor = databaseOnline ? 'success' : 'error';
 
-  /**
-   * Collapsible section header with toggle icon
-   */
-  const CollapsibleHeader: React.FC<{ title: string; sectionKey: string }> = ({ title, sectionKey }) => (
-    <Box
-      onClick={() => toggleSection(sectionKey)}
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        cursor: 'pointer',
-        py: 1,
-        px: 1,
-        borderRadius: 0.5,
-        transition: 'background-color 0.2s',
-        '&:hover': {
-          bgcolor: 'action.hover',
-        },
-      }}
-    >
-      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-        {title}
-      </Typography>
-      <ExpandMoreIcon
-        sx={{
-          transform: expandedSections[sectionKey] ? 'rotate(180deg)' : 'rotate(0deg)',
-          transition: 'transform 0.3s',
-          fontSize: '1.2rem',
-        }}
-      />
-    </Box>
-  );
-
   return (
     <Box
       component="footer"
       sx={{
         mt: 'auto',
-        pt: 2,
-        pb: 2,
-        bgcolor: 'background.default',
         borderTop: '1px solid',
         borderTopColor: 'divider',
+        bgcolor: 'background.default',
+        // OPTIONAL: uncomment and adjust if you want the footer to sit
+        // to the right of a fixed 240px sidebar on desktop:
+        // ml: { md: '240px' },
+        // zIndex a bit below the app bar / drawer
+        zIndex: (theme) => theme.zIndex.appBar - 1,
       }}
     >
-      <Container maxWidth="lg">
-        <Stack spacing={1}>
-          {/* Section 1: Legal & Meta */}
-          <CollapsibleHeader title="Legal & Meta" sectionKey="legal" />
-          <Collapse in={expandedSections.legal}>
-            <Stack spacing={0.5} sx={{ pl: 2, pb: 1.5 }}>
-              <Typography variant="caption" color="text.secondary">
+      <Container maxWidth="xl" sx={{ py: 0.5 }}>
+        {/* EXPANDED DETAILS PANEL (collapses away on login/logout screens) */}
+        <Collapse in={detailsOpen} unmountOnExit>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            sx={{ mb: 0.75 }}
+          >
+            {/* Legal & Meta */}
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
+              >
+                Legal & Meta
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
                 © 2025 Smart Supply Pro • All rights reserved
               </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Version: {appVersion}
+              <Typography variant="caption" color="text.secondary" display="block">
+                Version: {appVersion} • Build: {buildId}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Build: {buildId}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" display="block">
                 Environment: {environment}
               </Typography>
-            </Stack>
-          </Collapse>
+            </Box>
 
-          {/* Section 2: Support & Documentation */}
-          <CollapsibleHeader title="Support & Docs" sectionKey="support" />
-          <Collapse in={expandedSections.support}>
-            <Stack spacing={0.5} sx={{ pl: 2, pb: 1.5 }}>
-              <Link
-                href="#"
-                underline="hover"
+            {/* Support & Docs */}
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography
                 variant="caption"
-                sx={{ color: 'primary.main', cursor: 'pointer' }}
+                sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
               >
-                Documentation
-              </Link>
-              <Link
-                href="#"
-                underline="hover"
-                variant="caption"
-                sx={{ color: 'primary.main', cursor: 'pointer' }}
-              >
-                API Reference
-              </Link>
-              <Link
-                href="#"
-                underline="hover"
-                variant="caption"
-                sx={{ color: 'primary.main', cursor: 'pointer' }}
-              >
-                Release Notes
-              </Link>
-              <Link
-                href="mailto:support@smartsupplypro.com"
-                underline="hover"
-                variant="caption"
-                sx={{ color: 'primary.main', cursor: 'pointer' }}
-              >
-                Contact Support
-              </Link>
-            </Stack>
-          </Collapse>
+                Support & Docs
+              </Typography>
+              <Stack spacing={0.25}>
+                <Link
+                  href="#"
+                  underline="hover"
+                  variant="caption"
+                  sx={{ color: 'primary.main' }}
+                >
+                  Documentation
+                </Link>
+                <Link
+                  href="#"
+                  underline="hover"
+                  variant="caption"
+                  sx={{ color: 'primary.main' }}
+                >
+                  API Reference
+                </Link>
+                <Link
+                  href="#"
+                  underline="hover"
+                  variant="caption"
+                  sx={{ color: 'primary.main' }}
+                >
+                  Release Notes
+                </Link>
+                <Link
+                  href="mailto:support@smartsupplypro.com"
+                  underline="hover"
+                  variant="caption"
+                  sx={{ color: 'primary.main' }}
+                >
+                  Contact Support
+                </Link>
+              </Stack>
+            </Box>
 
-          {/* Section 3: System Health */}
-          <CollapsibleHeader title="System Health" sectionKey="health" />
-          <Collapse in={expandedSections.health}>
-            <Stack spacing={1} sx={{ pl: 2, pb: 1.5 }}>
-              <Box>
-                <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                  Backend
-                </Typography>
-                {renderHealthStatus(health)}
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                  Database
-                </Typography>
-                <Chip
-                  icon={
-                    <Box
-                      sx={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        backgroundColor: databaseOnline ? '#4CAF50' : '#F44336',
-                      }}
-                    />
-                  }
-                  label={databaseOnline ? 'Oracle ADB' : 'Offline'}
-                  size="small"
-                  variant="outlined"
-                  sx={{ borderColor: dbColor, color: dbColor }}
-                />
-              </Box>
-            </Stack>
-          </Collapse>
+            {/* System Health */}
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
+              >
+                System Health
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+                sx={{ mb: 0.25 }}
+              >
+                Backend
+              </Typography>
+              {renderHealthStatus(health)}
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+                sx={{ mt: 0.5, mb: 0.25 }}
+              >
+                Database
+              </Typography>
+              <Chip
+                icon={
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      bgcolor: databaseOnline ? '#4CAF50' : '#F44336',
+                    }}
+                  />
+                }
+                label={databaseOnline ? 'Oracle ADB' : 'Offline'}
+                size="small"
+                variant="outlined"
+                sx={{ borderColor: dbColor, color: dbColor }}
+              />
+            </Box>
 
-          {/* Section 4: Language & Region */}
-          <CollapsibleHeader title="Language & Region" sectionKey="language" />
-          <Collapse in={expandedSections.language}>
-            <Stack spacing={0.5} sx={{ pl: 2, pb: 1.5 }}>
-              <Typography variant="caption" color="text.secondary">
+            {/* Language & Region */}
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 600, display: 'block', mb: 0.25 }}
+              >
+                Language & Region
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
                 Language: {currentLanguage}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" display="block">
                 Region: {region}
               </Typography>
-            </Stack>
-          </Collapse>
+            </Box>
+          </Stack>
 
-          <Divider sx={{ my: 1 }} />
+          <Divider sx={{ mb: 0.5 }} />
 
-          {/* Data Privacy Blurb */}
-          <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.6, py: 1 }}>
-            This portfolio showcases a fictional enterprise inventory system. No real customer data is stored. For demonstration purposes only.
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            display="block"
+            sx={{ mb: 0.5, lineHeight: 1.4 }}
+          >
+            This portfolio showcases a fictional enterprise inventory system. No real
+            customer data is stored. For demonstration purposes only.
           </Typography>
+        </Collapse>
+
+        {/* COMPACT STATUS BAR (always visible, very small height) */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          spacing={2}
+          sx={{ minHeight: 40 }}
+        >
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            noWrap
+            sx={{ maxWidth: { xs: '100%', sm: '60%' } }}
+          >
+            © 2025 Smart Supply Pro • v{appVersion} • Build {buildId} •{' '}
+            {environment} • Demo data only
+          </Typography>
+
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            sx={{ flexShrink: 0 }}
+          >
+            {renderHealthStatus(health)}
+            <Divider orientation="vertical" flexItem />
+            <Typography variant="caption" color="text.secondary">
+              {currentLanguage}-{region}
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={toggleDetails}
+              aria-label="Footer details"
+              sx={{ ml: 0.5 }}
+            >
+              <ExpandMoreIcon
+                sx={{
+                  fontSize: '1.1rem',
+                  transform: detailsOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s',
+                }}
+              />
+            </IconButton>
+          </Stack>
         </Stack>
       </Container>
     </Box>
