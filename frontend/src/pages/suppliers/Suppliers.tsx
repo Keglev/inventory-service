@@ -220,6 +220,13 @@ const Suppliers: React.FC = () => {
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
             variant="outlined"
+            color="error"
+            onClick={() => setOpenDeleteDialog(true)}
+          >
+            {t('suppliers:actions.delete', 'Delete Supplier')}
+          </Button>
+          <Button
+            variant="outlined"
             color="primary"
             onClick={() => setOpenEditDialog(true)}
           >
@@ -381,7 +388,7 @@ const Suppliers: React.FC = () => {
         </Paper>
       )}
 
-      {/* Selected Info with Edit/Delete buttons */}
+      {/* Selected Info with Edit button */}
       {selectedId && (
         <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover' }}>
           <Typography variant="body2" color="text.secondary">
@@ -394,14 +401,6 @@ const Suppliers: React.FC = () => {
               onClick={() => setOpenEditDialog(true)}
             >
               {t('suppliers:actions.edit', 'Edit')}
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              color="error"
-              onClick={() => setOpenDeleteDialog(true)}
-            >
-              {t('suppliers:actions.delete', 'Delete')}
             </Button>
           </Stack>
         </Paper>
