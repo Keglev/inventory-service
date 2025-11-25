@@ -50,7 +50,6 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableConfigurationProperties(AppProperties.class)
 public class SecurityConfig {
 
-    
     /** OAuth2 authentication success handler for user provisioning. */
     @Autowired
     private OAuth2LoginSuccessHandler successHandler;
