@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  *       {@code {"status": "UP"|"DOWN", "oracleSeesIp": "<ip>"|"error": "<message>"}}</li>
  * </ul>
  *
+ * @version 1.1
  * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
  */
 @RestController
