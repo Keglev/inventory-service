@@ -33,7 +33,7 @@
 # DEPLOYMENT PHASES:
 # 1. Validation: Verify image exists in registry, Fly app exists
 # 2. Deployment: Execute flyctl deploy with specified strategy
-# 3. Health Gate: Poll /health endpoint until HEALTHY or timeout (5min)
+# 3. Health Gate: Poll /api/health endpoint until HEALTHY or timeout (5min)
 # 4. Smoke Tests: Validate core API endpoints respond correctly
 # 5. Diagnostics: Capture Fly.io logs and status if health gate fails
 #
@@ -44,8 +44,8 @@
 #
 # SAFETY GATES:
 # - Image validation: Manifest inspection ensures image exists before deploy
-# - Health checks: Waits up to 5 minutes for /health endpoint (30-second polling)
-# - Smoke tests: Validates /health and / endpoints return expected status codes
+# - Health checks: Waits up to 5 minutes for /api/health endpoint (30-second polling)
+# - Smoke tests: Validates /api/health and / endpoints return expected status codes
 # - Automatic rollback: On health gate timeout, deployment terminates
 #
 # DESIGN PRINCIPLES:
@@ -193,7 +193,7 @@ jobs:
           echo "Waiting for deployment to be healthy..."
           sleep 15
           
-          HEALTH_URL="https://inventoryservice.fly.dev/health"
+          HEALTH_URL="https://inventoryservice.fly.dev/api/health"
           echo "Checking: $HEALTH_URL"
           
           MAX_ATTEMPTS=12
@@ -240,7 +240,7 @@ jobs:
           
           # Test 1: Health endpoint
           echo "Test 1: Health endpoint"
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/health")
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/api/health")
           if [ "$HTTP_CODE" = "200" ]; then
             echo "  ✅ Health check: PASS"
           else
@@ -274,5 +274,5 @@ jobs:
           echo "- **URL:** https://inventoryservice.fly.dev" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Quick Links" >> $GITHUB_STEP_SUMMARY
-          echo "- [Health Check](https://inventoryservice.fly.dev/health)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Health Check](https://inventoryservice.fly.dev/api/health)" >> $GITHUB_STEP_SUMMARY
           echo "- [Fly.io Dashboard](https://fly.io/apps/inventoryservice)" >> $GITHUB_STEP_SUMMARY
