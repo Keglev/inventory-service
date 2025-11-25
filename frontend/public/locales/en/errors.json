@@ -45,6 +45,11 @@
       "noSupplierSelected": "Please select a supplier"
     },
     "adminOnly": "Only administrators can edit supplier information.",
+    "validation": {
+      "createdByRequired": "Creator information is required. Please ensure you are logged in.",
+      "nameRequired": "Supplier name is required",
+      "invalidEmail": "Invalid email format"
+    },
     "requests": {
       "failedToLoadSuppliers": "Failed to load suppliers. Please try again.",
       "failedToAddSupplier": "Failed to add supplier. Please try again.",

@@ -354,6 +354,14 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
         );
         setShowConfirmation(false);
       } else if (
+        response.error?.includes('createdBy') ||
+        response.error?.includes('CreatedBy')
+      ) {
+        setFormError(
+          t('errors:supplier.validation.createdByRequired', 'Creator information is required. Please ensure you are logged in.')
+        );
+        setShowConfirmation(false);
+      } else if (
         response.error?.includes('duplicate') ||
         response.error?.includes('already exists')
       ) {

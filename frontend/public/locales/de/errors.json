@@ -45,6 +45,11 @@
       "noSupplierSelected": "Bitte wählen Sie einen Lieferanten"
     },
     "adminOnly": "Nur Administratoren können Lieferantendaten bearbeiten.",
+    "validation": {
+      "createdByRequired": "Erstellerinformationen sind erforderlich. Stellen Sie sicher, dass Sie angemeldet sind.",
+      "nameRequired": "Lieferantenname ist erforderlich",
+      "invalidEmail": "Ungültiges E-Mail-Format"
+    },
     "requests": {
       "failedToLoadSuppliers": "Fehler beim Laden der Lieferanten. Bitte versuchen Sie es erneut",
       "failedToAddSupplier": "Fehler beim Hinzufügen des Lieferanten. Bitte versuchen Sie es erneut",
