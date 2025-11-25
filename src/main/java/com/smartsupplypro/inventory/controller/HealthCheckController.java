@@ -3,6 +3,9 @@ package com.smartsupplypro.inventory.controller;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -35,25 +38,44 @@ public class HealthCheckController {
     private DataSource dataSource;
 
     /**
-     * Performs a low-cost health check by running "SELECT 1 FROM DUAL".
-     *
-     * <p>This query confirms:
-     * <ul>
-     *     <li>Connection pool is active</li>
-     *     <li>Oracle database is reachable</li>
-     *     <li>Basic query execution works</li>
-     * </ul>
-     *
-
-    /**
-     * Basic application health check.
-     *
-     * @return 200 OK if application is running
-     */
+    * Basic JSON health check for the frontend.
+    *
+    * Returns:
+    * {
+    *   "status": "ok" | "down",
+    *   "database": "ok" | "down",
+    *   "timestamp": <epochMillis>
+    * }
+    */
     @GetMapping
-    public ResponseEntity<String> health() {
-        return ResponseEntity.ok("OK");
+    public ResponseEntity<Map<String, Object>> health() {
+
+        long now = System.currentTimeMillis();
+        boolean dbUp;
+
+        // low-cost DB ping; runs every 15min from the frontend
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT 1 FROM DUAL");
+            ResultSet rs = stmt.executeQuery()) {
+
+            dbUp = rs.next();
+
+        } catch (SQLException ex) {
+            // DB unreachable or query failed
+            dbUp = false;
+            // optionally log here with your logger
+            // log.warn("Database health check failed", ex);
+        }
+        Map<String, Object> body = new HashMap<>();
+        // application is running if we reached this controller at all
+        body.put("status", "ok");
+        body.put("database", dbUp ? "ok" : "down");
+        body.put("timestamp", now);
+
+        HttpStatus status = dbUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+        return new ResponseEntity<>(body, status);
     }
+
     /**
      * Deep database health check with Oracle-specific query.
      *
