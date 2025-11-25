@@ -235,9 +235,9 @@ export default function AppShell() {
       <ToastContext.Provider
         value={(msg, severity = 'success') => setToast({ open: true, msg, severity })}
       >
-        <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: 'background.default' }}>
+        <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: 'background.default', flexDirection: 'column' }}>
           {/* Header */}
-          <AppBar position="fixed" color="primary" sx={{ width: '100%' }}>
+          <AppBar position="fixed" color="primary" sx={{ width: '100%', zIndex: 1200 }}>
             <Toolbar>
               <IconButton edge="start" onClick={toggleDrawer} sx={{ mr: 1, display: { md: 'none' } }}>
                 <MenuIcon />
@@ -306,7 +306,7 @@ export default function AppShell() {
           </AppBar>
 
           {/* Side nav */}
-          <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
+          <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 }, mt: { xs: 0, md: 0 } }}>
             {/* Mobile drawer */}
             <Drawer
               variant="temporary"
@@ -315,7 +315,7 @@ export default function AppShell() {
               ModalProps={{ keepMounted: true }}
               sx={{
                 display: { xs: 'block', md: 'none' },
-                '& .MuiDrawer-paper': { width: drawerWidth },
+                '& .MuiDrawer-paper': { width: drawerWidth, mt: '64px' },
               }}
             >
               {drawer}
@@ -326,7 +326,7 @@ export default function AppShell() {
               open
               sx={{
                 display: { xs: 'none', md: 'block' },
-                '& .MuiDrawer-paper': { width: drawerWidth, position: 'relative' },
+                '& .MuiDrawer-paper': { width: drawerWidth, position: 'fixed', left: 0, top: '64px', height: 'calc(100dvh - 64px)', overflowY: 'auto' },
               }}
             >
               {drawer}
@@ -334,7 +334,7 @@ export default function AppShell() {
           </Box>
 
           {/* Content */}
-          <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, bgcolor: 'background.default' }}>
+          <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, bgcolor: 'background.default', mt: '64px', ml: { xs: 0, md: drawerWidth }, width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` } }}>
             <Toolbar />
 
             {/* Demo notice banner (non-blocking, subtle) */}

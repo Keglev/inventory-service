@@ -55,7 +55,7 @@ export const buildTheme = (locale: SupportedLocale = 'en') => {
       // Enterprise light palette: deep blue header, light grey shell, white cards
       palette: {
         mode: 'light',
-        primary: { main: '#00458A' },   // Enterprise deep blue
+        primary: { main: '#1976D2' },   // Lighter enterprise blue
         secondary: { main: '#00A3A3' }, // Teal accent
         success: { main: '#2E7D32' },
         warning: { main: '#ED6C02' },
@@ -88,10 +88,8 @@ export const buildTheme = (locale: SupportedLocale = 'en') => {
         MuiAppBar: {
           styleOverrides: {
             root: { 
-              boxShadow: 'none',
-              borderBottom: '1px solid rgba(0,0,0,0.08)',
-              backgroundColor: '#00458A',
-              color: '#FFFFFF'
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              borderBottom: 'none',
             },
           },
         },
