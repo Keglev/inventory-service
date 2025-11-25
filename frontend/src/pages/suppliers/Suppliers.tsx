@@ -53,6 +53,7 @@ import type { SupplierListResponse, SupplierRow } from '../../api/suppliers';
 import http from '../../api/httpClient';
 import { CreateSupplierDialog } from './CreateSupplierDialog';
 import { EditSupplierDialog } from './EditSupplierDialog';
+import { DeleteSupplierDialog } from './DeleteSupplierDialog';
 import { useToast } from '../../app/ToastContext';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -91,6 +92,7 @@ const Suppliers: React.FC = () => {
   // ===== Dialog State =====
   const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
   // ===== Supplier search handler (requires 2+ chars) =====
   const handleSearchQueryChange = React.useCallback(async (query: string) => {
@@ -198,6 +200,11 @@ const Suppliers: React.FC = () => {
   };
 
   const handleSupplierUpdated = () => {
+    void load();
+    setSelectedId(null);
+  };
+
+  const handleSupplierDeleted = () => {
     void load();
     setSelectedId(null);
   };
@@ -388,7 +395,12 @@ const Suppliers: React.FC = () => {
             >
               {t('suppliers:actions.edit', 'Edit')}
             </Button>
-            <Button variant="outlined" size="small" color="error">
+            <Button
+              variant="outlined"
+              size="small"
+              color="error"
+              onClick={() => setOpenDeleteDialog(true)}
+            >
               {t('suppliers:actions.delete', 'Delete')}
             </Button>
           </Stack>
@@ -407,6 +419,13 @@ const Suppliers: React.FC = () => {
         open={openEditDialog}
         onClose={() => setOpenEditDialog(false)}
         onSupplierUpdated={handleSupplierUpdated}
+      />
+
+      {/* Delete Supplier Dialog */}
+      <DeleteSupplierDialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        onSupplierDeleted={handleSupplierDeleted}
       />
     </Box>
   );

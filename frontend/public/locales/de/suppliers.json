@@ -29,14 +29,27 @@
     "create": "Lieferant hinzufügen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
-    "clear": "Löschen"
+    "clear": "Löschen",
+    "yes": "Ja",
+    "no": "Nein",
+    "deleteSuccess": "Lieferant aus der Datenbank entfernt"
   },
   "buttons": {
     "reviewChanges": "Änderungen überprüfen"
   },
   "dialogs": {
     "editSupplierTitle": "Lieferant bearbeiten",
-    "confirmChanges": "Änderungen bestätigen"
+    "confirmChanges": "Änderungen bestätigen",
+    "delete": {
+      "title": "Lieferant löschen",
+      "confirmation": {
+        "title": "Löschung bestätigen",
+        "warning": "Sind Sie sicher, dass Sie diesen Lieferanten löschen möchten? Dies kann nicht rückgängig gemacht werden!"
+      },
+      "search": {
+        "hint": "Suchen Sie nach dem Lieferanten, den Sie löschen möchten"
+      }
+    }
   },
   "steps": {
     "selectSupplier": "Schritt 1: Lieferanten suchen und auswählen",

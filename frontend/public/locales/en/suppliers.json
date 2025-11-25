@@ -29,14 +29,27 @@
     "create": "Add Supplier",
     "edit": "Edit",
     "delete": "Delete",
-    "clear": "Clear"
+    "clear": "Clear",
+    "yes": "Yes",
+    "no": "No",
+    "deleteSuccess": "Supplier removed from database"
   },
   "buttons": {
     "reviewChanges": "Review Changes"
   },
   "dialogs": {
     "editSupplierTitle": "Edit Supplier",
-    "confirmChanges": "Confirm Changes"
+    "confirmChanges": "Confirm Changes",
+    "delete": {
+      "title": "Delete Supplier",
+      "confirmation": {
+        "title": "Confirm Deletion",
+        "warning": "Are you sure do you want to delete this supplier? This cannot be reversed!"
+      },
+      "search": {
+        "hint": "Search for the supplier you want to delete"
+      }
+    }
   },
   "steps": {
     "selectSupplier": "Step 1: Search and Select Supplier",
