@@ -38,11 +38,13 @@ export default defineConfig({
   server: {
     https: httpsConfig,
     proxy: {
-      '/api': 'https://inventoryservice.fly.dev',
+      '/api': {
+        target: 'https://inventoryservice.fly.dev',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
       '/oauth2': 'https://inventoryservice.fly.dev',
       '/logout': 'https://inventoryservice.fly.dev',
-      // NEW: proxy health so dev & prod code paths match
-      '/health': 'https://inventoryservice.fly.dev',
     },
     port: 5173,
   },
