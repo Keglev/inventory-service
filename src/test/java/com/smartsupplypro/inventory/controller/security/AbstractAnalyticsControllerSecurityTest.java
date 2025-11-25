@@ -84,7 +84,10 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
             when(mock.getPriceTrend(anyString(), anyString(), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
             return mock;
         }
-        
+        /**
+         * Provides a Mockito mock for the financial analytics service.
+         * @return
+         */
         @Bean
         @SuppressWarnings("unused")
         FinancialAnalyticsService financialAnalyticsService() {
@@ -95,6 +98,10 @@ public abstract class AbstractAnalyticsControllerSecurityTest {
             return mock;
         }
         
+        /**
+         * Provides a Mockito mock for the analytics controller validation helper.
+         * @return
+         */
         @Bean
         @SuppressWarnings("unused")
         AnalyticsControllerValidationHelper analyticsControllerValidationHelper() {
