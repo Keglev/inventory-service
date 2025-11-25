@@ -14,12 +14,17 @@
  */
 
 import * as React from 'react';
-import http from '../../../api/httpClient';
 
 export interface HealthStatus {
   status: 'online' | 'offline';
-  responseTime: number; // milliseconds
+  responseTime: number;
   database: 'online' | 'offline';
+  timestamp: number;
+}
+
+interface BackendHealthResponse {
+  status: string;     // expect "ok" or "down"
+  database: string;   // expect "ok" or "down"
   timestamp: number;
 }
 
@@ -40,23 +45,60 @@ export const useHealthCheck = () => {
 
   const checkHealth = React.useCallback(async () => {
     setLoading(true);
+
     try {
       const start = performance.now();
-      const response = await http.get<{
-        status: string;
-        database: string;
-        timestamp: number;
-      }>('/health');
+
+      const response = await fetch('/api/health', {
+        credentials: 'include',
+      });
+
       const elapsed = Math.round(performance.now() - start);
 
+      const contentType = response.headers.get('content-type') ?? '';
+
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        console.warn('Health endpoint returned non-JSON:', text);
+
+        throw new Error('Backend health endpoint did not return JSON');
+      }
+
+      const parsed: unknown = await response.json();
+
+      // Runtime type check to ensure parsed is BackendHealthResponse
+      const isBackendHealthResponse = (
+        obj: unknown
+      ): obj is BackendHealthResponse => {
+        if (typeof obj !== 'object' || obj === null) return false;
+
+        const o = obj as Record<string, unknown>;
+
+        return (
+          typeof o.status === 'string' &&
+          typeof o.database === 'string' &&
+          typeof o.timestamp === 'number'
+        );
+      };
+
+      if (!isBackendHealthResponse(parsed)) {
+        console.error('Unexpected health response structure:', parsed);
+        throw new Error('Health response does not match expected shape');
+      }
+
+      // Now parsed is fully typed ✔
+      const backendVal = parsed.status.toLowerCase();
+      const dbVal = parsed.database.toLowerCase();
+
       setHealth({
-        status: response.data.status === 'ok' ? 'online' : 'offline',
+        status: backendVal === 'ok' ? 'online' : 'offline',
+        database: dbVal === 'ok' ? 'online' : 'offline',
         responseTime: elapsed,
-        database: response.data.database === 'ok' ? 'online' : 'offline',
-        timestamp: response.data.timestamp,
+        timestamp: parsed.timestamp,
       });
-    } catch (error) {
-      console.error('Health check failed:', error);
+    } catch (err) {
+      console.error('Health check failed:', err);
+
       setHealth({
         status: 'offline',
         responseTime: 0,
@@ -68,16 +110,12 @@ export const useHealthCheck = () => {
     }
   }, []);
 
-  // Initial check on mount
-  React.useEffect(() => {
-    void checkHealth();
-  }, [checkHealth]);
+  React.useEffect(() => void checkHealth(), [checkHealth]);
 
-  // Periodic polling every 15 minutes
   React.useEffect(() => {
     const interval = setInterval(() => {
       void checkHealth();
-    }, 15 * 60 * 1000); // 15 minutes
+    }, 15 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, [checkHealth]);

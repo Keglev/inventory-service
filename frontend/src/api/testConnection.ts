@@ -28,7 +28,7 @@ export type AppUserProfile = {
  */
 export async function testConnection(): Promise<boolean> {
   try {
-    const res = await httpClient.get('/health/db');
+    const res = await httpClient.get('/api/health/db');
     return res.status === 200;
   } catch {
     return false;

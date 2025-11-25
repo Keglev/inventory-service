@@ -53,12 +53,12 @@ httpClient.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * - Lets you migrate call sites gradually.
  */
 httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const u = typeof config.url === 'string' ? config.url : '';
+  //const u = typeof config.url === 'string' ? config.url : '';
   // Only strip if baseURL is *exactly* '/api'
-  const base = (httpClient.defaults.baseURL || '').replace(/\/+$/, '');
-  if (base === '/api' && u.startsWith('/api/')) {
-    config.url = u.slice(4); // '/api/foo' -> '/foo'
-  }
+  //const base = (httpClient.defaults.baseURL || '').replace(/\/+$/, '');
+  //if (base === '/api' && u.startsWith('/api/')) {
+  //  config.url = u.slice(4); // '/api/foo' -> '/foo'
+  //}
   return config;
 });
 
