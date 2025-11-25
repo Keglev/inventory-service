@@ -10,17 +10,10 @@
  * - Footer: fixed at bottom, visible on all pages
  */
 
-import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
-import Footer from './app/Footer';
 
 export default function App() {
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
-      <AppRouter />
-      <Footer />
-    </Box>
-  );
+  return <AppRouter />;
 }
 
 

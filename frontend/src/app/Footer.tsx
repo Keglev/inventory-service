@@ -1,7 +1,7 @@
 /**
  * @file Footer.tsx
  * @description
- * Enterprise-quality application footer with:
+ * Enterprise-quality collapsible application footer with:
  * - Legal & copyright information
  * - Support & documentation links
  * - System health status (backend, database, response time)
@@ -11,33 +11,41 @@
  * @enterprise
  * - Professional SAP/Fiori aesthetic
  * - Real-time system health monitoring
- * - Responsive design (stacked on mobile, grid on desktop)
+ * - Collapsible sections (click title to expand/collapse)
  * - Full i18n support for all text
- *
- * @design
- * - Background: subtle grey (background.default) with top border
- * - Font: small, muted colors, enterprise spacing
- * - Health status: live indicators with response time
  */
 
 import * as React from 'react';
-import { Box, Container, Typography, Link, Divider, Stack, Chip } from '@mui/material';
+import { Box, Container, Typography, Link, Divider, Stack, Chip, Collapse } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from 'react-i18next';
 import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
 
 const Footer: React.FC = () => {
   const { i18n } = useTranslation(['common']);
   const { health } = useHealthCheck();
+  
+  // State for collapsible sections
+  const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>({
+    legal: false,
+    support: false,
+    health: false,
+    language: false,
+  });
 
-  const currentLanguage = i18n.language.split('-')[0].toUpperCase(); // 'de' -> 'DE', 'en' -> 'EN'
-  const region = 'DE'; // Can be extended to support multi-region
-  const buildId = '4a9c12f'; // From env or build metadata
-  const environment = 'Production (Koyeb)'; // From env
-  const appVersion = '1.0.0'; // From package.json or env
+  const currentLanguage = i18n.language.split('-')[0].toUpperCase();
+  const region = 'DE';
+  const buildId = '4a9c12f';
+  const environment = 'Production (Koyeb)';
+  const appVersion = '1.0.0';
 
-  /**
-   * Render health status indicator with color coding
-   */
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
   const renderHealthStatus = (status: { status: 'online' | 'offline'; responseTime: number; database: 'online' | 'offline' }) => {
     const isOnline = status.status === 'online';
     const color = isOnline ? 'success' : 'error';
@@ -73,26 +81,57 @@ const Footer: React.FC = () => {
   const databaseOnline = health.database === 'online';
   const dbColor = databaseOnline ? 'success' : 'error';
 
+  /**
+   * Collapsible section header with toggle icon
+   */
+  const CollapsibleHeader: React.FC<{ title: string; sectionKey: string }> = ({ title, sectionKey }) => (
+    <Box
+      onClick={() => toggleSection(sectionKey)}
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        cursor: 'pointer',
+        py: 1,
+        px: 1,
+        borderRadius: 0.5,
+        transition: 'background-color 0.2s',
+        '&:hover': {
+          bgcolor: 'action.hover',
+        },
+      }}
+    >
+      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+        {title}
+      </Typography>
+      <ExpandMoreIcon
+        sx={{
+          transform: expandedSections[sectionKey] ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 0.3s',
+          fontSize: '1.2rem',
+        }}
+      />
+    </Box>
+  );
+
   return (
     <Box
       component="footer"
       sx={{
         mt: 'auto',
-        pt: 4,
-        pb: 3,
+        pt: 2,
+        pb: 2,
         bgcolor: 'background.default',
         borderTop: '1px solid',
         borderTopColor: 'divider',
       }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
-          {/* Column 1: Legal & Meta Info */}
-          <Box>
-            <Typography variant="caption" display="block" sx={{ fontWeight: 600, mb: 1 }}>
-              Legal & Meta
-            </Typography>
-            <Stack spacing={0.5}>
+        <Stack spacing={1}>
+          {/* Section 1: Legal & Meta */}
+          <CollapsibleHeader title="Legal & Meta" sectionKey="legal" />
+          <Collapse in={expandedSections.legal}>
+            <Stack spacing={0.5} sx={{ pl: 2, pb: 1.5 }}>
               <Typography variant="caption" color="text.secondary">
                 © 2025 Smart Supply Pro • All rights reserved
               </Typography>
@@ -106,14 +145,12 @@ const Footer: React.FC = () => {
                 Environment: {environment}
               </Typography>
             </Stack>
-          </Box>
+          </Collapse>
 
-          {/* Column 2: Support & Documentation */}
-          <Box>
-            <Typography variant="caption" display="block" sx={{ fontWeight: 600, mb: 1 }}>
-              Support & Docs
-            </Typography>
-            <Stack spacing={0.5}>
+          {/* Section 2: Support & Documentation */}
+          <CollapsibleHeader title="Support & Docs" sectionKey="support" />
+          <Collapse in={expandedSections.support}>
+            <Stack spacing={0.5} sx={{ pl: 2, pb: 1.5 }}>
               <Link
                 href="#"
                 underline="hover"
@@ -147,14 +184,12 @@ const Footer: React.FC = () => {
                 Contact Support
               </Link>
             </Stack>
-          </Box>
+          </Collapse>
 
-          {/* Column 3: System Health */}
-          <Box>
-            <Typography variant="caption" display="block" sx={{ fontWeight: 600, mb: 1 }}>
-              System Health
-            </Typography>
-            <Stack spacing={1}>
+          {/* Section 3: System Health */}
+          <CollapsibleHeader title="System Health" sectionKey="health" />
+          <Collapse in={expandedSections.health}>
+            <Stack spacing={1} sx={{ pl: 2, pb: 1.5 }}>
               <Box>
                 <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
                   Backend
@@ -183,14 +218,12 @@ const Footer: React.FC = () => {
                 />
               </Box>
             </Stack>
-          </Box>
+          </Collapse>
 
-          {/* Column 4: Language & Region */}
-          <Box>
-            <Typography variant="caption" display="block" sx={{ fontWeight: 600, mb: 1 }}>
-              Language & Region
-            </Typography>
-            <Stack spacing={0.5}>
+          {/* Section 4: Language & Region */}
+          <CollapsibleHeader title="Language & Region" sectionKey="language" />
+          <Collapse in={expandedSections.language}>
+            <Stack spacing={0.5} sx={{ pl: 2, pb: 1.5 }}>
               <Typography variant="caption" color="text.secondary">
                 Language: {currentLanguage}
               </Typography>
@@ -198,17 +231,15 @@ const Footer: React.FC = () => {
                 Region: {region}
               </Typography>
             </Stack>
-          </Box>
-        </Box>
+          </Collapse>
 
-        <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 1 }} />
 
-        {/* Data Privacy Blurb */}
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.6 }}>
+          {/* Data Privacy Blurb */}
+          <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.6, py: 1 }}>
             This portfolio showcases a fictional enterprise inventory system. No real customer data is stored. For demonstration purposes only.
           </Typography>
-        </Box>
+        </Stack>
       </Container>
     </Box>
   );

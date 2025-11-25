@@ -52,6 +52,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useTranslation } from 'react-i18next';
 import { useSessionTimeout } from '../features/auth/hooks/useSessionTimeout';
 import { ToastContext } from '../app/ToastContext';
+import Footer from '../app/Footer';
 import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
 import { useAuth } from '../context/useAuth';
@@ -334,7 +335,7 @@ export default function AppShell() {
           </Box>
 
           {/* Content */}
-          <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, bgcolor: 'background.default', mt: '64px', ml: { xs: 0, md: drawerWidth }, width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` } }}>
+          <Box component="main" sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: { xs: 2, md: 3 }, bgcolor: 'background.default', mt: '64px', ml: { xs: 0, md: drawerWidth }, width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` }, overflowY: 'auto' }}>
             <Toolbar />
 
             {/* Demo notice banner (non-blocking, subtle) */}
@@ -357,6 +358,9 @@ export default function AppShell() {
             </React.Suspense>
           </Box>
         </Box>
+
+        {/* Footer */}
+        <Footer />
 
         {/* Toasts */}
         <Snackbar
