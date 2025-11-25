@@ -24,14 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p><strong>Endpoints:</strong></p>
  * <ul>
- *   <li>{@code GET /health} - Basic application health check (no database verification)</li>
- *   <li>{@code GET /health/db} - Deep health check with database connectivity verification</li>
+ *   <li>{@code GET /api/health} - Basic application health check (no database verification)</li>
+ *   <li>{@code GET /api/health/db} - Deep health check with database connectivity verification</li>
  * </ul>
  *
  * @see <a href="file:../../../../../../docs/architecture/patterns/controller-patterns.md">Controller Patterns</a>
  */
 @RestController
-@RequestMapping("/health")
+@RequestMapping("/api/health")
 public class HealthCheckController {
 
     @Autowired

@@ -26,7 +26,7 @@ public class SecurityAuthorizationHelper {
         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
         auth.requestMatchers("/logout").permitAll();
         auth.requestMatchers(
-                "/", "/actuator/**", "/health/**",
+                "/", "/actuator/**", "/health/**", "/api/health/**",
                 "/oauth2/**", "/login/oauth2/**", "/login/**", "/error"
         ).permitAll();
 
