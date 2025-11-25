@@ -194,7 +194,8 @@ jobs:
             --image "$IMAGE_NAME" \
             --strategy "${{ steps.vars.outputs.strategy }}" \
             --remote-only \
-            --wait-timeout 300
+            --wait-timeout 300 \
+            --no-build-cache
       # ---------------------------------------------------------------------
       # 6) Health check
       # ---------------------------------------------------------------------
