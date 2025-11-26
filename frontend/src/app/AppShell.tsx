@@ -38,7 +38,7 @@ import {
   MenuItem,
   Avatar,
   CircularProgress,
-  Chip, 
+  Chip,
 } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -49,6 +49,9 @@ import InsightsIcon from '@mui/icons-material/Insights';
 import MenuIcon from '@mui/icons-material/Menu';
 import DensitySmallIcon from '@mui/icons-material/DensitySmall';
 import LogoutIcon from '@mui/icons-material/Logout';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import SettingsIcon from '@mui/icons-material/Settings';
+import HelpIcon from '@mui/icons-material/Help';
 import { useTranslation } from 'react-i18next';
 import { useSessionTimeout } from '../features/auth/hooks/useSessionTimeout';
 import { ToastContext } from '../app/ToastContext';
@@ -235,6 +238,76 @@ export default function AppShell() {
           </ListItemIcon>
           <ListItemText primary={t('nav.logout')} />
         </ListItemButton>
+      </Box>
+
+      {/* User Info & Settings Section */}
+      <Divider />
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        
+        {/* User Info */}
+        <Box>
+          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+            {t('common:loggedInAs', 'Logged in as:')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            {user?.fullName || 'User'}
+          </Typography>
+          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
+            {t('common:role', 'Role:')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            {user?.role || 'user'}
+          </Typography>
+        </Box>
+
+        {/* Environment & Version */}
+        <Box>
+          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+            {t('footer:meta.environment', 'Environment:')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            Production (Koyeb)
+          </Typography>
+          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
+            {t('footer:meta.version', 'Version:')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            1.0.0
+          </Typography>
+        </Box>
+
+        {/* Icons Row: Theme toggle, Language, Settings */}
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-around', alignItems: 'center' }}>
+          <Tooltip title={t('actions.toggleTheme', 'Toggle theme (TBD)')}>
+            <IconButton size="small" disabled>
+              <Brightness4Icon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
+            <IconButton size="small" onClick={toggleLocale}>
+              <img
+                src={locale === 'de' ? deFlag : usFlag}
+                alt={locale === 'de' ? 'Deutsch' : 'English'}
+                width={16}
+                height={16}
+              />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('actions.settings', 'Settings (TBD)')}>
+            <IconButton size="small" disabled>
+              <SettingsIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        {/* Help Button */}
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Tooltip title={t('actions.help', 'Help (TBD)')}>
+            <IconButton size="small" disabled>
+              <HelpIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
     </Box>
   );
