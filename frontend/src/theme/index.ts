@@ -30,10 +30,11 @@ const locales = {
 export type SupportedLocale = keyof typeof locales; // 'en' | 'de'
 
 /**
- * Build the theme for a given locale.
+ * Build the theme for a given locale and mode.
  * @param locale - UI locale; defaults to 'en'
+ * @param mode - 'light' or 'dark'; defaults to 'light'
  */
-export const buildTheme = (locale: SupportedLocale = 'en') => {
+export const buildTheme = (locale: SupportedLocale = 'en', mode: 'light' | 'dark' = 'light') => {
   const base = createTheme(
     {
       // MUI v7: output CSS variables for palette/typography/etc.
@@ -52,8 +53,8 @@ export const buildTheme = (locale: SupportedLocale = 'en') => {
         h3: { fontWeight: 600 },
       },
 
-      // Enterprise light palette: deep blue header, light grey shell, white cards
-      palette: {
+      // Enterprise palette (light/dark modes)
+      palette: mode === 'light' ? {
         mode: 'light',
         primary: { main: '#1976D2' },   // Lighter enterprise blue
         secondary: { main: '#00A3A3' }, // Teal accent
@@ -63,6 +64,16 @@ export const buildTheme = (locale: SupportedLocale = 'en') => {
         info: { main: '#0288D1' },
         background: { default: '#F0F2F5', paper: '#FFFFFF' },
         divider: 'rgba(0,0,0,0.08)',
+      } : {
+        mode: 'dark',
+        primary: { main: '#64B5F6' },   // Light blue for dark mode
+        secondary: { main: '#4DD0E1' }, // Light teal
+        success: { main: '#66BB6A' },
+        warning: { main: '#FFA726' },
+        error: { main: '#EF5350' },
+        info: { main: '#29B6F6' },
+        background: { default: '#121212', paper: '#1E1E1E' },
+        divider: 'rgba(255,255,255,0.12)',
       },
 
       // Component defaults & style overrides

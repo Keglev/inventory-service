@@ -132,6 +132,14 @@ export default function AppShell() {
   // Initialize locale from i18n/localStorage and keep theme in sync with i18n changes.
   const initial = normalize(localStorage.getItem(LS_KEY) || i18n.resolvedLanguage || 'de');
   const [locale, setLocale] = React.useState<SupportedLocale>(initial);
+
+  // Theme mode (light/dark) with localStorage persistence
+  const LS_THEME_KEY = 'themeMode';
+  const [themeMode, setThemeMode] = React.useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem(LS_THEME_KEY) as 'light' | 'dark' | null;
+    return saved || 'light';
+  });
+
   React.useEffect(() => {
     // Keep locale state in sync with i18n (in case language was changed elsewhere).
     const handler = (lng: string) => setLocale(normalize(lng));
@@ -141,8 +149,22 @@ export default function AppShell() {
     };
   }, [i18n]);
 
-  // Update MUI theme when locale changes.
-  const theme = React.useMemo(() => buildTheme(locale), [locale]);
+  // Update MUI theme when locale or theme mode changes.
+  const theme = React.useMemo(() => buildTheme(locale, themeMode), [locale, themeMode]);
+
+  // Toggle theme mode and persist to localStorage
+  const toggleThemeMode = () => {
+    setThemeMode((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem(LS_THEME_KEY, next);
+      setToast({
+        open: true,
+        msg: next === 'dark' ? 'Dark mode enabled' : 'Light mode enabled',
+        severity: 'info',
+      });
+      return next;
+    });
+  };
 
   // Session timeout/ping (see hook for details).
   useSessionTimeout({
@@ -278,8 +300,8 @@ export default function AppShell() {
 
         {/* Icons Row: Theme toggle, Language, Settings */}
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-around', alignItems: 'center' }}>
-          <Tooltip title={t('actions.toggleTheme', 'Toggle theme (TBD)')}>
-            <IconButton size="small" disabled>
+          <Tooltip title={themeMode === 'light' ? t('actions.darkMode', 'Dark mode') : t('actions.lightMode', 'Light mode')}>
+            <IconButton size="small" onClick={toggleThemeMode}>
               <Brightness4Icon fontSize="small" />
             </IconButton>
           </Tooltip>
