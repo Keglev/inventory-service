@@ -49,7 +49,8 @@ import InsightsIcon from '@mui/icons-material/Insights';
 import MenuIcon from '@mui/icons-material/Menu';
 import DensitySmallIcon from '@mui/icons-material/DensitySmall';
 import LogoutIcon from '@mui/icons-material/Logout';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpIcon from '@mui/icons-material/Help';
 import { useTranslation } from 'react-i18next';
@@ -300,9 +301,20 @@ export default function AppShell() {
 
         {/* Icons Row: Theme toggle, Language, Settings */}
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-around', alignItems: 'center' }}>
-          <Tooltip title={themeMode === 'light' ? t('actions.darkMode', 'Dark mode') : t('actions.lightMode', 'Light mode')}>
-            <IconButton size="small" onClick={toggleThemeMode}>
-              <Brightness4Icon fontSize="small" />
+          <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
+            <IconButton 
+              size="small" 
+              onClick={toggleThemeMode}
+              sx={{
+                color: themeMode === 'light' ? 'warning.main' : 'info.main',
+                transition: 'color 0.3s ease',
+              }}
+            >
+              {themeMode === 'light' ? (
+                <LightModeIcon fontSize="small" />
+              ) : (
+                <DarkModeIcon fontSize="small" />
+              )}
             </IconButton>
           </Tooltip>
           <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
