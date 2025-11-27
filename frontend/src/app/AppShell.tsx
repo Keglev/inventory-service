@@ -60,6 +60,7 @@ import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
 import { useAuth } from '../context/useAuth';
 import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
+import AppSettingsDialog from './AppSettingsDialog';
 import deFlag from '/flags/de.svg';
 import usFlag from '/flags/us.svg';
 
@@ -182,6 +183,9 @@ export default function AppShell() {
     msg: string;
     severity: 'success' | 'info' | 'warning' | 'error';
   } | null>(null);
+
+  // Settings dialog state
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   // Profile menu.
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -327,8 +331,8 @@ export default function AppShell() {
               />
             </IconButton>
           </Tooltip>
-          <Tooltip title={t('actions.settings', 'Settings (TBD)')}>
-            <IconButton size="small" disabled>
+          <Tooltip title={t('actions.settings', 'Settings')}>
+            <IconButton size="small" onClick={() => setSettingsOpen(true)}>
               <SettingsIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -558,6 +562,9 @@ export default function AppShell() {
             {toast?.msg}
           </Alert>
         </Snackbar>
+
+        {/* Settings Dialog */}
+        <AppSettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       </ToastContext.Provider>
     </ThemeProvider>
   );
