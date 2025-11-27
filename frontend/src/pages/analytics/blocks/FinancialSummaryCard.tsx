@@ -17,12 +17,15 @@ import { useQuery } from '@tanstack/react-query';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell } from 'recharts';
 import { getFinancialSummary, type FinancialSummary } from '../../../api/analytics/finance';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatNumber } from '../../../utils/formatters';
 
 export type FinancialSummaryCardProps = { from?: string; to?: string; supplierId?: string | null };
 
 export default function FinancialSummaryCard({ from, to, supplierId }: FinancialSummaryCardProps) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
+  const { userPreferences } = useSettings();
 
   /** Finance API on this backend expects a supplier; do not fire without one. */
   const enabled = !!supplierId;
@@ -90,8 +93,8 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
           <>
             {/* KPIs */}
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 1 }}>
-              <Kpi label={t('analytics:finance.opening', 'Opening')} value={q.data?.openingValue} />
-              <Kpi label={t('analytics:finance.ending', 'Ending')} value={q.data?.endingValue} />
+              <Kpi label={t('analytics:finance.opening', 'Opening')} value={q.data?.openingValue} numberFormat={userPreferences.numberFormat} />
+              <Kpi label={t('analytics:finance.ending', 'Ending')} value={q.data?.endingValue} numberFormat={userPreferences.numberFormat} />
             </Stack>
 
             {/* Bars */}
@@ -117,12 +120,12 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
   );
 }
 
-function Kpi({ label, value }: { label: string; value?: number }) {
+function Kpi({ label, value, numberFormat }: { label: string; value?: number; numberFormat: 'DE' | 'EN_US' }) {
   return (
     <Stack>
       <Typography variant="caption" color="text.secondary">{label}</Typography>
       <Typography variant="h6">
-        {typeof value === 'number' ? value.toLocaleString() : '—'}
+        {typeof value === 'number' ? formatNumber(value, numberFormat, 2) : '—'}
       </Typography>
     </Stack>
   );

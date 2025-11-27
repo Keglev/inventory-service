@@ -10,6 +10,8 @@ import { Card, CardContent, Typography, Skeleton, Box, Table, TableHead, TableRo
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getStockUpdates, type StockUpdateRow } from '../../../api/analytics/updates';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatDate } from '../../../utils/formatters';
 
 // Map backend reason codes to friendly labels
 const REASON_LABEL: Record<string, string> = {
@@ -26,6 +28,7 @@ export type StockUpdatesTableProps = { from?: string; to?: string; supplierId?: 
 
 export default function StockUpdatesTable({ from, to, supplierId }: StockUpdatesTableProps) {
     const { t } = useTranslation(['analytics']);
+    const { userPreferences } = useSettings();
     
     
     const q = useQuery<StockUpdateRow[]>({
@@ -61,7 +64,9 @@ export default function StockUpdatesTable({ from, to, supplierId }: StockUpdates
                             <TableBody>
                                 {q.data!.map((r, idx) => (
                                     <TableRow key={idx}>
-                                        <TableCell>{r.timestamp}</TableCell>
+                                        <TableCell>
+                                          {r.timestamp ? formatDate(new Date(r.timestamp), userPreferences.dateFormat) : '—'}
+                                        </TableCell>
                                         <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {r.itemName}
                                         </TableCell>
