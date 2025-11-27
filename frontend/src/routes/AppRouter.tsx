@@ -30,6 +30,7 @@ import LoginPage from '../pages/auth/LoginPage';
 import AuthCallback from '../pages/auth/AuthCallback';
 import LogoutSuccess from '../pages/auth/LogoutSuccess';
 import NotFoundPage from '../pages/system/NotFoundPage';
+import PublicShell from '../app/PublicShell';
 
 // Authenticated pages
 import Dashboard from '../pages/dashboard/Dashboard';            
@@ -58,10 +59,12 @@ const AppRouter: React.FC = () => {
       {/**
        * PUBLIC ROUTES (no AppShell)
        */}
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/auth" element={<AuthCallback />} />
-      <Route path="/logout-success" element={<LogoutSuccess />} />
+      <Route element={<PublicShell />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth" element={<AuthCallback />} />
+        <Route path="/logout-success" element={<LogoutSuccess />} />
+      </Route>
       {/* Make /logout public: it's safe & avoids RequireAuth race during cleanup */}
       <Route path="/logout" element={<LogoutPage />} />
 

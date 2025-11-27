@@ -47,7 +47,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: 'calc(100dvh - 64px)', display: 'grid', placeItems: 'center', px: 2 }}>
+    <Box sx={{ minHeight: '70vh', display: 'grid', placeItems: 'center', px: 2 }}>
       <Card sx={{ width: 480, maxWidth: '94vw' }}>
         <CardHeader
           title="SmartSupplyPro"
