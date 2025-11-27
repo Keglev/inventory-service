@@ -13,13 +13,16 @@
 import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
 import Footer from './app/Footer';
+import { SettingsProvider } from './context/SettingsContext';
 
 export default function App() {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
-      <AppRouter />
-      <Footer />
-    </Box>
+    <SettingsProvider>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
+        <AppRouter />
+        <Footer />
+      </Box>
+    </SettingsProvider>
   );
 }
 

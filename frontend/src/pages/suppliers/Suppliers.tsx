@@ -47,6 +47,8 @@ import {
   type GridColDef,
 } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '../../hooks/useSettings';
+import { formatDate } from '../../utils/formatters';
 
 import { getSuppliersPage } from '../../api/suppliers';
 import type { SupplierListResponse, SupplierRow } from '../../api/suppliers';
@@ -60,6 +62,7 @@ const DEFAULT_PAGE_SIZE = 10;
 
 const Suppliers: React.FC = () => {
   const { t } = useTranslation(['common', 'suppliers']);
+  const { userPreferences } = useSettings();
   const toast = useToast();
 
   // ===== State =====
@@ -183,10 +186,18 @@ const Suppliers: React.FC = () => {
         field: 'createdAt',
         headerName: t('suppliers:table.createdAt', 'Created'),
         width: 160,
-        valueGetter: (_value: unknown, row: SupplierRow) => row.createdAt ?? '—',
+        valueGetter: (_value: unknown, row: SupplierRow) => {
+          const dateStr = row.createdAt;
+          if (!dateStr) return '—';
+          try {
+            return formatDate(new Date(dateStr), userPreferences.dateFormat);
+          } catch {
+            return dateStr;
+          }
+        },
       },
     ];
-  }, [t]);
+  }, [t, userPreferences.dateFormat]);
 
   // ===== Row click handler =====
   const handleRowClick = (params: { id: string | number }) => {
@@ -374,6 +385,7 @@ const Suppliers: React.FC = () => {
             sortModel={sortModel}
             onSortModelChange={setSortModel}
             getRowId={(r) => r.id}
+            density={userPreferences.tableDensity === 'compact' ? 'compact' : 'standard'}
             onRowClick={handleRowClick}
             slots={{
               noRowsOverlay: () => (

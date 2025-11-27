@@ -31,20 +31,29 @@ import {
   Typography,
   Divider,
   Paper,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  CircularProgress,
+  Stack,
+  Chip,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '../hooks/useSettings';
+import { formatDate, formatNumber } from '../utils/formatters';
+import type { DateFormat, NumberFormat, TableDensity } from '../context/SettingsContext';
 
 interface AppSettingsDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
-/**
- * AppSettingsDialog: Modal dialog for application settings and system information.
- */
 const AppSettingsDialog: React.FC<AppSettingsDialogProps> = ({ open, onClose }) => {
   const { t } = useTranslation('common');
+  const { userPreferences, systemInfo, setUserPreferences, resetToDefaults, isLoading } = useSettings();
 
   return (
     <Dialog
@@ -93,20 +102,113 @@ const AppSettingsDialog: React.FC<AppSettingsDialogProps> = ({ open, onClose }) 
                 borderColor: 'divider',
               }}
             >
-              <Typography variant="body2" color="text.secondary">
-                Preferences will be configured here:
-              </Typography>
-              <Box component="ul" sx={{ mt: 1, ml: 2, mb: 0 }}>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  Date Format (DD.MM.YYYY, YYYY-MM-DD, MM/DD/YYYY)
-                </Typography>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  Number Format (1.234,56 vs 1,234.56)
-                </Typography>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  Table Density (Comfort, Compact)
-                </Typography>
-              </Box>
+              <Stack spacing={2}>
+                {/* Date Format Selector */}
+                <FormControl>
+                  <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
+                    {t('settings.dateFormat', 'Date Format')}
+                  </FormLabel>
+                  <RadioGroup
+                    value={userPreferences.dateFormat}
+                    onChange={(e) => setUserPreferences({ dateFormat: e.target.value as DateFormat })}
+                  >
+                    <FormControlLabel
+                      value="DD.MM.YYYY"
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2">DD.MM.YYYY</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatDate(new Date(), 'DD.MM.YYYY')}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <FormControlLabel
+                      value="YYYY-MM-DD"
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2">YYYY-MM-DD</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatDate(new Date(), 'YYYY-MM-DD')}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <FormControlLabel
+                      value="MM/DD/YYYY"
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2">MM/DD/YYYY</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatDate(new Date(), 'MM/DD/YYYY')}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </RadioGroup>
+                </FormControl>
+
+                {/* Number Format Selector */}
+                <FormControl>
+                  <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
+                    {t('settings.numberFormat', 'Number Format')}
+                  </FormLabel>
+                  <RadioGroup
+                    value={userPreferences.numberFormat}
+                    onChange={(e) => setUserPreferences({ numberFormat: e.target.value as NumberFormat })}
+                  >
+                    <FormControlLabel
+                      value="DE"
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2">German (DE)</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatNumber(1234.56, 'DE')}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <FormControlLabel
+                      value="EN_US"
+                      control={<Radio size="small" />}
+                      label={
+                        <Box>
+                          <Typography variant="body2">English (US)</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {formatNumber(1234.56, 'EN_US')}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </RadioGroup>
+                </FormControl>
+
+                {/* Table Density Selector */}
+                <FormControl>
+                  <FormLabel sx={{ fontWeight: 600, mb: 1 }}>
+                    {t('settings.tableDensity', 'Table Density')}
+                  </FormLabel>
+                  <RadioGroup
+                    value={userPreferences.tableDensity}
+                    onChange={(e) => setUserPreferences({ tableDensity: e.target.value as TableDensity })}
+                  >
+                    <FormControlLabel
+                      value="comfortable"
+                      control={<Radio size="small" />}
+                      label={t('settings.tableDensity.comfortable', 'Comfortable')}
+                    />
+                    <FormControlLabel
+                      value="compact"
+                      control={<Radio size="small" />}
+                      label={t('settings.tableDensity.compact', 'Compact')}
+                    />
+                  </RadioGroup>
+                </FormControl>
+              </Stack>
             </Paper>
           </Box>
 
@@ -137,23 +239,55 @@ const AppSettingsDialog: React.FC<AppSettingsDialogProps> = ({ open, onClose }) 
                 borderColor: 'divider',
               }}
             >
-              <Typography variant="body2" color="text.secondary">
-                System information will be displayed here:
-              </Typography>
-              <Box component="ul" sx={{ mt: 1, ml: 2, mb: 0 }}>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  Frontend Version
+              {isLoading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : systemInfo ? (
+                <Stack spacing={1.5}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                      {t('settings.database', 'Database')}
+                    </Typography>
+                    <Typography variant="body2">{systemInfo.database}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                      {t('settings.environment', 'Environment')}
+                    </Typography>
+                    <Box sx={{ mt: 0.5 }}>
+                      <Chip
+                        label={systemInfo.environment}
+                        size="small"
+                        color={systemInfo.environment === 'production' ? 'error' : 'success'}
+                        variant="outlined"
+                      />
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                      {t('settings.version', 'Version')}
+                    </Typography>
+                    <Typography variant="body2">{systemInfo.version}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                      {t('settings.status', 'Status')}
+                    </Typography>
+                    <Typography variant="body2">{systemInfo.status}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                      {t('settings.buildDate', 'Build Date')}
+                    </Typography>
+                    <Typography variant="body2">{systemInfo.buildDate}</Typography>
+                  </Box>
+                </Stack>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  {t('settings.systemInfoUnavailable', 'System information unavailable')}
                 </Typography>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  Backend Version
-                </Typography>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  Environment
-                </Typography>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  Database Type
-                </Typography>
-              </Box>
+              )}
             </Paper>
           </Box>
 
@@ -185,19 +319,8 @@ const AppSettingsDialog: React.FC<AppSettingsDialogProps> = ({ open, onClose }) 
               }}
             >
               <Typography variant="body2" color="text.secondary">
-                Quick links will be displayed here:
+                Documentation links will be configured here
               </Typography>
-              <Box component="ul" sx={{ mt: 1, ml: 2, mb: 0 }}>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  Documentation
-                </Typography>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  GitHub Repository
-                </Typography>
-                <Typography component="li" variant="caption" color="text.secondary">
-                  API Documentation
-                </Typography>
-              </Box>
             </Paper>
           </Box>
 
@@ -206,6 +329,14 @@ const AppSettingsDialog: React.FC<AppSettingsDialogProps> = ({ open, onClose }) 
 
       {/* Dialog Actions */}
       <DialogActions sx={{ p: 2, gap: 1 }}>
+        <Button
+          onClick={resetToDefaults}
+          variant="outlined"
+          color="primary"
+          sx={{ textTransform: 'none', fontWeight: 600 }}
+        >
+          {t('settings.resetToDefaults', 'Reset to Defaults')}
+        </Button>
         <Button
           onClick={onClose}
           variant="contained"

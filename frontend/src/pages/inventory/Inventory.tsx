@@ -42,6 +42,8 @@ import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
 import { useToast } from '../../app/ToastContext';
 import { useSuppliersQuery } from './hooks/useInventoryData';
+import { useSettings } from '../../hooks/useSettings';
+import { formatDate } from '../../utils/formatters';
 
 /** Debounce simple values to reduce server chatter while typing. */
 function useDebounced<T>(value: T, delayMs: number): T {
@@ -70,6 +72,7 @@ const DEFAULT_PAGE_SIZE = 10;
 const Inventory: React.FC = () => {
   // Include 'inventory' so `t('inventory.*')` is strongly typed and error-free.
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);
+  const { userPreferences } = useSettings();
   const toast = useToast();
   
   const handleItemSaved = () => {
@@ -214,10 +217,18 @@ const Inventory: React.FC = () => {
         field: 'updatedAt',
         headerName: t('inventory:table.updated', 'Updated'),
         width: 180,
-        valueGetter: (_value: unknown, row: InventoryRow) => row.updatedAt ?? getMaybeCreatedAt(row) ?? '—',
+        valueGetter: (_value: unknown, row: InventoryRow) => {
+          const dateStr = row.updatedAt ?? getMaybeCreatedAt(row);
+          if (!dateStr) return '—';
+          try {
+            return formatDate(new Date(dateStr), userPreferences.dateFormat);
+          } catch {
+            return dateStr;
+          }
+        },
       },
     ];
-  }, [t]);
+  }, [t, userPreferences.dateFormat]);
 
   /**
    * Filter rows by selected supplier (client-side fallback).
@@ -359,6 +370,7 @@ const Inventory: React.FC = () => {
               sortModel={sortModel}
               onSortModelChange={setSortModel}
               getRowId={(r) => r.id}
+              density={userPreferences.tableDensity === 'compact' ? 'compact' : 'standard'}
               /**
                * Single-selection via click to avoid selection model type drift between MUI versions.
                */
