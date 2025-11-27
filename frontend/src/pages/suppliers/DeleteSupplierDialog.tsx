@@ -56,10 +56,14 @@ import {
   Stack,
   Paper,
   TextField,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../app/ToastContext';
 import { useAuth } from '../../context/useAuth';
+import { useHelp } from '../../hooks/useHelp';
 import { deleteSupplier, getSuppliersPage } from '../../api/suppliers';
 import type { SupplierRow } from '../../api/suppliers/types';
 
@@ -90,6 +94,7 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const toast = useToast();
   const { user } = useAuth();
+  const { openHelp } = useHelp();
 
   // ===== State =====
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierRow | null>(null);
@@ -225,7 +230,16 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
       {!showConfirmation && (
         <>
           <DialogTitle sx={{ pt: 3.5 }}>
-            {t('suppliers:dialogs.delete.title', 'Delete Supplier')}
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Box>
+                {t('suppliers:dialogs.delete.title', 'Delete Supplier')}
+              </Box>
+              <Tooltip title={t('actions.help', 'Help')}>
+                <IconButton size="small" onClick={() => openHelp('suppliers.delete')}>
+                  <HelpOutlineIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
           </DialogTitle>
           <DialogContent>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>

@@ -28,11 +28,16 @@ import {
   Button,
   Alert,
   Box,
+  IconButton,
+  Stack,
+  Tooltip,
 } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useHelp } from '../../hooks/useHelp';
 import { z } from 'zod';
 import { createSupplier } from '../../api/suppliers';
 
@@ -94,6 +99,7 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
   onCreated,
 }) => {
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
+  const { openHelp } = useHelp();
 
   const {
     register,
@@ -187,7 +193,18 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{t('suppliers:actions.create', 'Create Supplier')}</DialogTitle>
+      <DialogTitle>
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Box>
+            {t('suppliers:actions.create', 'Create Supplier')}
+          </Box>
+          <Tooltip title={t('actions.help', 'Help')}>
+            <IconButton size="small" onClick={() => openHelp('suppliers.manage')}>
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </DialogTitle>
 
       <DialogContent sx={{ pt: 3.5 }}>
         {formError && <Alert severity="error" sx={{ mb: 2 }}>{formError}</Alert>}

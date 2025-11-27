@@ -34,8 +34,9 @@ import * as React from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Button, Box, Autocomplete, Alert, Tooltip, FormControl,
-  InputLabel, Select, MenuItem
+  InputLabel, Select, MenuItem, IconButton, Stack
 } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
@@ -43,6 +44,7 @@ import { upsertItem } from '../../api/inventory/mutations';
 import type { UpsertItemRequest } from '../../api/inventory/mutations';
 import type { InventoryRow } from '../../api/inventory/types';
 import { useTranslation } from 'react-i18next';
+import { useHelp } from '../../hooks/useHelp';
 import { itemFormSchema } from './validation';
 import type { UpsertItemForm } from './validation';
 import { useSuppliersQuery } from './hooks/useInventoryData';
@@ -95,6 +97,7 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
 }) => {
   // Load both 'common' and 'inventory' namespaces. Keep i18n domain-based (enterprise style).
   const { t } = useTranslation(['common', 'inventory', 'errors']);
+  const { openHelp } = useHelp();
 
   /**
    * React Hook Form setup with Zod resolver.
@@ -249,9 +252,18 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        {initial?.id
-          ? t('inventory:dialogs.editItemTitle', 'Edit item')
-          : t('inventory:toolbar.newItem', 'Add new item')}
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Box>
+            {initial?.id
+              ? t('inventory:dialogs.editItemTitle', 'Edit item')
+              : t('inventory:toolbar.newItem', 'Add new item')}
+          </Box>
+          <Tooltip title={t('actions.help', 'Help')}>
+            <IconButton size="small" onClick={() => openHelp('inventory.editItem')}>
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Stack>
       </DialogTitle>
 
       <DialogContent dividers>

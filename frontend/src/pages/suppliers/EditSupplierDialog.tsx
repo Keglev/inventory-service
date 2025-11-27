@@ -60,10 +60,15 @@ import {
   List,
   ListItemButton,
   ListItemText,
+  IconButton,
+  Stack,
+  Tooltip,
 } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { useHelp } from '../../hooks/useHelp';
 import { z } from 'zod';
 import { useToast } from '../../app/ToastContext';
 import { useAuth } from '../../context/useAuth';
@@ -135,6 +140,7 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const toast = useToast();
   const { user } = useAuth();
+  const { openHelp } = useHelp();
 
   // ================================
   // State Management
@@ -498,7 +504,16 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        {t('suppliers:dialogs.editSupplierTitle', 'Edit Supplier')}
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Box>
+            {t('suppliers:dialogs.editSupplierTitle', 'Edit Supplier')}
+          </Box>
+          <Tooltip title={t('actions.help', 'Help')}>
+            <IconButton size="small" onClick={() => openHelp('suppliers.manage')}>
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Stack>
       </DialogTitle>
 
       <DialogContent dividers>

@@ -62,11 +62,16 @@ import {
   Divider,
   Autocomplete,
   TextField,
+  IconButton,
+  Stack,
+  Tooltip,
 } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../app/ToastContext';
+import { useHelp } from '../../hooks/useHelp';
 import { deleteItem } from '../../api/inventory/mutations';
 import { deleteItemSchema } from './validation';
 import type { DeleteItemForm } from './validation';
@@ -129,6 +134,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
+  const { openHelp } = useHelp();
 
   // ================================
   // State Management
@@ -333,7 +339,16 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
       {/* Main delete item dialog */}
       <Dialog open={open && !showConfirmation} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>
-          {t('inventory:dialogs.deleteItemTitle', 'Delete Item')}
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Box>
+              {t('inventory:dialogs.deleteItemTitle', 'Delete Item')}
+            </Box>
+            <Tooltip title={t('actions.help', 'Help')}>
+              <IconButton size="small" onClick={() => openHelp('inventory.deleteItem')}>
+                <HelpOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Stack>
         </DialogTitle>
         
         <DialogContent dividers>

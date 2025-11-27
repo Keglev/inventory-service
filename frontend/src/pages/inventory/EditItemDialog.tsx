@@ -58,11 +58,16 @@ import {
   Alert,
   Divider,
   Autocomplete,
+  IconButton,
+  Stack,
+  Tooltip,
 } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../app/ToastContext';
+import { useHelp } from '../../hooks/useHelp';
 import { renameItem } from '../../api/inventory/mutations';
 import { editItemSchema } from './validation';
 import type { EditItemForm } from './validation';
@@ -125,6 +130,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
+  const { openHelp } = useHelp();
 
   // ================================
   // State Management
@@ -293,7 +299,16 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
-        {t('inventory:dialogs.editItemTitle', 'Edit Item')}
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Box>
+            {t('inventory:dialogs.editItemTitle', 'Edit Item')}
+          </Box>
+          <Tooltip title={t('actions.help', 'Help')}>
+            <IconButton size="small" onClick={() => openHelp('inventory.editItem')}>
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Stack>
       </DialogTitle>
       
       <DialogContent dividers>
