@@ -86,6 +86,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
         }}
       >
         <Typography variant="h6" sx={{ fontWeight: 700, flex: 1 }}>
+          {/* @ts-expect-error: topic.titleKey is runtime value from registry */}
           {t(topic.titleKey)}
         </Typography>
         <IconButton onClick={closeHelp} size="small" sx={{ ml: 1 }}>
@@ -97,6 +98,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
       <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
         {/* Help body text */}
         <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+          {/* @ts-expect-error: topic.bodyKey is runtime value from registry */}
           {t(topic.bodyKey)}
         </Typography>
 
@@ -115,6 +117,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
                 }}
                 sx={{ textTransform: 'none' }}
               >
+                {/* @ts-expect-error: topic.linkKey is runtime value from registry */}
                 {t(topic.linkKey)}
               </Button>
             </Stack>

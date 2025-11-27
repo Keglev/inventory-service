@@ -14,15 +14,20 @@ import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
 import Footer from './app/Footer';
 import { SettingsProvider } from './context/SettingsContext';
+import { HelpProvider } from './context/HelpContext';
+import HelpPanel from './components/help/HelpPanel';
 
 export default function App() {
   return (
-    <SettingsProvider>
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
-        <AppRouter />
-        <Footer />
-      </Box>
-    </SettingsProvider>
+    <HelpProvider>
+      <SettingsProvider>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
+          <AppRouter />
+          <Footer />
+          <HelpPanel />
+        </Box>
+      </SettingsProvider>
+    </HelpProvider>
   );
 }
 

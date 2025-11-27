@@ -60,6 +60,7 @@ import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
 import { useAuth } from '../context/useAuth';
 import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
+import { useHelp } from '../hooks/useHelp';
 import AppSettingsDialog from './AppSettingsDialog';
 import deFlag from '/flags/de.svg';
 import usFlag from '/flags/us.svg';
@@ -120,6 +121,7 @@ export default function AppShell() {
   const { t, i18n } = useTranslation(['common', 'auth']);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { openHelp } = useHelp();
   const isDemo = Boolean(user?.isDemo);
 
   // System health (for header badge)
@@ -340,8 +342,8 @@ export default function AppShell() {
 
         {/* Help Button */}
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Tooltip title={t('actions.help', 'Help (TBD)')}>
-            <IconButton size="small" disabled>
+          <Tooltip title={t('actions.help', 'Help')}>
+            <IconButton size="small" onClick={() => openHelp('app.main')}>
               <HelpIcon fontSize="small" />
             </IconButton>
           </Tooltip>
