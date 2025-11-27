@@ -28,6 +28,7 @@ import inventory from '../../public/locales/en/inventory.json';
 import errors from '../../public/locales/en/errors.json';
 import suppliers from '../../public/locales/en/suppliers.json';
 import footer from '../../public/locales/en/footer.json';
+import help from '../../public/locales/en/help.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -64,6 +65,9 @@ declare module 'i18next' {
 
       /** dedicated namespace for footer */
       footer: typeof footer;
+
+      /** dedicated namespace for help system */
+      help: typeof help;
     };
   }
 }

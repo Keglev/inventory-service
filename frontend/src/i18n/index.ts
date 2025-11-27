@@ -28,7 +28,7 @@ console.log('[i18n] boot file loaded')
 export const I18N_LS_KEY = 'i18nextLng';
 
 /** Namespaces we maintain as separate JSON files. */
-export const I18N_NAMESPACES = ['common', 'auth', 'system', 'analytics', 'inventory', 'errors', 'suppliers', 'footer'] as const;
+export const I18N_NAMESPACES = ['common', 'auth', 'system', 'analytics', 'inventory', 'errors', 'suppliers', 'footer', 'help'] as const;
 
 /**
  * Force initial language to DE unless the user already chose one.

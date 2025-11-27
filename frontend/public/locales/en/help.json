@@ -1,0 +1,52 @@
+{
+  "general": {
+    "closeHint": "Press Escape to close"
+  },
+  "app": {
+    "main": {
+      "title": "Application Overview",
+      "body": "Welcome to Inventory Management System. This application helps you manage inventory items, track suppliers, and analyze stock movements.\n\nKey sections:\n• Inventory: View, create, edit, and delete inventory items. Adjust quantities and prices.\n• Suppliers: Manage your list of suppliers and their contact information.\n• Analytics: View key performance indicators, stock trends, financial summaries, and low-stock alerts.\n\nTip: Use the search bar in each section to quickly find items or suppliers. Click the settings icon in the sidebar to customize your preferences (date format, number format, table density).",
+      "link": "View Full Documentation"
+    }
+  },
+  "inventory": {
+    "editItem": {
+      "title": "Edit Inventory Item",
+      "body": "Edit item details including:\n• Item Name: The name of the inventory item\n• Code/SKU: Unique identifier for the item\n• Supplier: Which supplier provides this item\n• Minimum Quantity: The low-stock threshold\n• Unit Cost: Cost per unit (affects financial calculations)\n\nChanges are saved immediately and will be reflected in all reports and analytics. The update timestamp is recorded for audit purposes."
+    },
+    "deleteItem": {
+      "title": "Delete Item",
+      "body": "Permanently remove an item from your inventory system.\n\nImportant: This action cannot be undone. When you delete an item:\n• It will be removed from all reports and analytics\n• Historical data for this item will be archived\n• You won't be able to select this item in new transactions\n\nProceed with caution, especially for items with transaction history."
+    },
+    "adjustQuantity": {
+      "title": "Adjust Quantity",
+      "body": "Manually adjust the on-hand quantity for an inventory item.\n\nWhen adjusting, you must:\n• Enter the adjustment reason (Physical count, Damage, Theft, etc.)\n• Provide the quantity change (positive for additions, negative for reductions)\n\nAdjustments are tracked for audit purposes and will appear in the Analytics section under 'Recent Stock Updates'. This helps maintain inventory accuracy and accountability."
+    },
+    "changePrice": {
+      "title": "Change Price",
+      "body": "Update the unit cost or selling price for an item.\n\nBenefits of tracking price changes:\n• Historical prices are maintained for accurate financial reporting\n• You can analyze cost trends over time\n• Financial analytics (COGS, profitability) use price history\n• Reports show price-adjusted inventory values\n\nPrice changes are effective immediately for new transactions and reports."
+    }
+  },
+  "suppliers": {
+    "manage": {
+      "title": "Manage Suppliers",
+      "body": "View and manage your complete list of suppliers.\n\nIn the Suppliers section you can:\n• View all supplier information (name, contact, email, phone)\n• Create new suppliers by clicking 'Add New Supplier'\n• Edit supplier details\n• Delete suppliers\n• Filter and search suppliers\n\nSuppliers are used to organize your inventory items. Each item is linked to a supplier, which helps with analysis, purchasing, and organization."
+    },
+    "delete": {
+      "title": "Delete Supplier",
+      "body": "Remove a supplier from your system.\n\nWhat happens when you delete:\n• The supplier record is permanently removed\n• Existing inventory items remain, but are no longer linked to this supplier\n• You cannot select this supplier for new items\n• Historical data and transactions remain intact\n\nThis is useful when you stop working with a supplier or need to clean up your supplier list."
+    }
+  },
+  "analytics": {
+    "overview": {
+      "title": "Analytics Dashboard",
+      "body": "The Analytics section provides insights into your inventory and business metrics.\n\nKey features:\n• Overview: Dashboard with key metrics and visualizations\n• Inventory: Stock value, trends, and per-supplier breakdown\n• Pricing: Price trends and cost analysis\n• Finance: Financial summaries, COGS, and profitability metrics\n\nUse the filter bar to:\n• Select a supplier (or view all suppliers)\n• Choose a date range for analysis\n\nAll charts and tables respect your preferred date format and number format from Settings."
+    }
+  },
+  "settings": {
+    "preferences": {
+      "title": "Settings",
+      "body": "Customize your application experience with these preferences:\n\n• Date Format: Choose how dates are displayed (DD.MM.YYYY, YYYY-MM-DD, or MM/DD/YYYY). Used throughout the app in tables, reports, and forms.\n• Number Format: Choose number formatting (German: 1.234,56 or US: 1,234.56). Affects all numeric displays including prices and quantities.\n• Table Density: Choose comfortable spacing (standard) or compact display for data grids.\n\nSystem Info:\nView information about your application and database setup, including version, environment, and database type."
+    }
+  }
+}

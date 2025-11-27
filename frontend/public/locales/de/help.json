@@ -1,0 +1,52 @@
+{
+  "general": {
+    "closeHint": "Zum Schließen Escape drücken"
+  },
+  "app": {
+    "main": {
+      "title": "Anwendungsübersicht",
+      "body": "Willkommen beim Bestandsverwaltungssystem. Diese Anwendung hilft Ihnen, Bestandsartikel zu verwalten, Lieferanten zu verfolgen und Bestandsbewegungen zu analysieren.\n\nHauptabschnitte:\n• Bestand: Bestandsartikel anzeigen, erstellen, bearbeiten und löschen. Mengen und Preise anpassen.\n• Lieferanten: Ihre Lieferantenliste und Kontaktinformationen verwalten.\n• Analysen: Kennzahlen anzeigen, Bestandstrends, Finanzzusammenfassungen und Meldungen für niedrige Bestände einsehen.\n\nTipp: Verwenden Sie die Suchleiste in jedem Abschnitt, um schnell Artikel oder Lieferanten zu finden. Klicken Sie auf das Einstellungssymbol in der Seitenleiste, um Ihre Voreinstellungen anzupassen (Datumsformat, Zahlenformat, Tabellendichte).",
+      "link": "Vollständige Dokumentation anzeigen"
+    }
+  },
+  "inventory": {
+    "editItem": {
+      "title": "Bestandsartikel bearbeiten",
+      "body": "Bearbeiten Sie Artikeldetails einschließlich:\n• Artikelname: Name des Bestandsartikels\n• Code/SKU: Eindeutige Artikelnummer\n• Lieferant: Welcher Lieferant diesen Artikel bereitstellt\n• Mindestmenge: Schwellenwert für niedrige Bestände\n• Stückkosten: Kosten pro Einheit (beeinflusst Finanzberechnungen)\n\nÄnderungen werden sofort gespeichert und in allen Berichten und Analysen angezeigt. Der Aktualisierungszeitstempel wird zu Prüfzwecken aufgezeichnet."
+    },
+    "deleteItem": {
+      "title": "Artikel löschen",
+      "body": "Entfernen Sie einen Artikel dauerhaft aus Ihrem Bestandsverwaltungssystem.\n\nWichtig: Diese Aktion kann nicht rückgängig gemacht werden. Wenn Sie einen Artikel löschen:\n• Wird er aus allen Berichten und Analysen entfernt\n• Historische Daten für diesen Artikel werden archiviert\n• Sie können diesen Artikel nicht in neuen Transaktionen auswählen\n\nSeien Sie vorsichtig, besonders bei Artikeln mit Transaktionsverlauf."
+    },
+    "adjustQuantity": {
+      "title": "Menge anpassen",
+      "body": "Passen Sie die verfügbare Menge für einen Bestandsartikel manuell an.\n\nBei der Anpassung müssen Sie:\n• Den Grund für die Anpassung eingeben (Physische Zählung, Beschädigung, Diebstahl, etc.)\n• Die Mengenänderung angeben (positiv für Hinzufügungen, negativ für Reduzierungen)\n\nAnpassungen werden zu Prüfzwecken nachverfolgbar gemacht und erscheinen im Abschnitt Analysen unter 'Aktuelle Bestandsaktualisierungen'. Dies trägt zur Gewährleistung der Bestandsgenauigkeit und Rechenschaftspflicht bei."
+    },
+    "changePrice": {
+      "title": "Preis ändern",
+      "body": "Aktualisieren Sie die Stückkosten oder den Verkaufspreis für einen Artikel.\n\nVorteile der Verfolgung von Preisänderungen:\n• Historische Preise werden für genaue Finanzberichte beibehalten\n• Sie können Kostentrends im Laufe der Zeit analysieren\n• Finanzanalysen (COGS, Rentabilität) nutzen Preishistorie\n• Berichte zeigen preisangepasste Bestandswerte\n\nPreisänderungen wirken sich sofort auf neue Transaktionen und Berichte aus."
+    }
+  },
+  "suppliers": {
+    "manage": {
+      "title": "Lieferanten verwalten",
+      "body": "Sehen Sie Ihre vollständige Lieferantenliste und verwalten Sie sie.\n\nIm Abschnitt Lieferanten können Sie:\n• Alle Lieferanteninformationen anzeigen (Name, Kontakt, E-Mail, Telefon)\n• Neue Lieferanten durch Klicken auf 'Neuen Lieferanten hinzufügen' erstellen\n• Lieferantendetails bearbeiten\n• Lieferanten löschen\n• Lieferanten filtern und durchsuchen\n\nLieferanten werden verwendet, um Ihre Bestandsartikel zu organisieren. Jeder Artikel ist mit einem Lieferanten verknüpft, was bei der Analyse, dem Einkauf und der Organisation hilft."
+    },
+    "delete": {
+      "title": "Lieferant löschen",
+      "body": "Entfernen Sie einen Lieferanten aus Ihrem System.\n\nWas geschieht beim Löschen:\n• Der Lieferantendatensatz wird dauerhaft entfernt\n• Vorhandene Bestandsartikel bleiben erhalten, sind aber nicht mehr mit diesem Lieferanten verknüpft\n• Sie können diesen Lieferanten nicht für neue Artikel auswählen\n• Historische Daten und Transaktionen bleiben erhalten\n\nDies ist nützlich, wenn Sie die Zusammenarbeit mit einem Lieferanten beenden oder Ihre Lieferantenliste bereinigen müssen."
+    }
+  },
+  "analytics": {
+    "overview": {
+      "title": "Analyse-Dashboard",
+      "body": "Der Abschnitt Analysen bietet Einblicke in Ihre Bestände und Geschäftskennzahlen.\n\nWichtigste Funktionen:\n• Übersicht: Dashboard mit Schlüsselkennzahlen und Visualisierungen\n• Bestand: Bestandswert, Trends und Aufteilung nach Lieferant\n• Preisgestaltung: Preistrends und Kostenanalyse\n• Finanzen: Finanzzusammenfassungen, COGS und Rentabilitätskennzahlen\n\nVerwenden Sie die Filterleiste zu:\n• Auswahl eines Lieferanten (oder Anzeige aller Lieferanten)\n• Auswahl eines Datumsbereichs für die Analyse\n\nAlle Diagramme und Tabellen beachten Ihr bevorzugtes Datumsformat und Zahlenformat aus den Einstellungen."
+    }
+  },
+  "settings": {
+    "preferences": {
+      "title": "Einstellungen",
+      "body": "Passen Sie Ihr Anwendungserlebnis mit diesen Voreinstellungen an:\n\n• Datumsformat: Wählen Sie, wie Daten angezeigt werden (DD.MM.YYYY, YYYY-MM-DD oder MM/DD/YYYY). Wird in der gesamten App in Tabellen, Berichten und Formularen verwendet.\n• Zahlenformat: Wählen Sie Zahlenformatierung (Deutsch: 1.234,56 oder US: 1,234.56). Beeinflusst alle numerischen Anzeigen, einschließlich Preise und Mengen.\n• Tabellendichte: Wählen Sie komfortable Abstände (Standard) oder kompakte Anzeige für Datenraster.\n\nSysteminformationen:\nSehen Sie sich Informationen zu Ihrem Anwendungs- und Datenbanksetup an, einschließlich Version, Umgebung und Datenbanktyp."
+    }
+  }
+}
