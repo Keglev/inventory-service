@@ -44,7 +44,9 @@
     "apply": "Apply",
     "update": "Update",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "settings": "Settings",
+    "help": "Help"
   },
   "loading": "Loading...",
   "saving": "Saving...",

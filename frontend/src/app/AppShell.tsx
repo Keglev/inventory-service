@@ -52,7 +52,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsIcon from '@mui/icons-material/Settings';
-import HelpIcon from '@mui/icons-material/Help';
 import { useTranslation } from 'react-i18next';
 import { useSessionTimeout } from '../features/auth/hooks/useSessionTimeout';
 import { ToastContext } from '../app/ToastContext';
@@ -60,10 +59,10 @@ import { buildTheme } from '../theme';
 import type { SupportedLocale } from '../theme';
 import { useAuth } from '../context/useAuth';
 import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
-import { useHelp } from '../hooks/useHelp';
 import AppSettingsDialog from './AppSettingsDialog';
 import deFlag from '/flags/de.svg';
 import usFlag from '/flags/us.svg';
+import HelpIconButton from '../features/help/components/HelpIconButton';
 
 /* Layout constants */
 const drawerWidth = 248;
@@ -121,7 +120,6 @@ export default function AppShell() {
   const { t, i18n } = useTranslation(['common', 'auth']);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { openHelp } = useHelp();
   const isDemo = Boolean(user?.isDemo);
 
   // System health (for header badge)
@@ -207,6 +205,18 @@ export default function AppShell() {
       severity: 'info',
     });
   };
+
+  const location = useLocation();
+
+  function getHelpTopicForCurrentRoute(): string {
+    if (location.pathname.startsWith('/inventory')) return 'inventory.manage';
+    if (location.pathname.startsWith('/analytics')) return 'analytics.overview';
+    if (location.pathname.startsWith('/suppliers')) return 'suppliers.manage';
+    if (location.pathname.startsWith('/orders')) return 'orders.main';
+    if (location.pathname.startsWith('/dashboard')) return 'app.main';
+
+    return 'app.main';
+  }
 
   /**
    * Logout UX:
@@ -342,11 +352,10 @@ export default function AppShell() {
 
         {/* Help Button */}
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Tooltip title={t('actions.help', 'Help')}>
-            <IconButton size="small" onClick={() => openHelp('app.main')}>
-              <HelpIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <HelpIconButton
+            topicId="app.main"
+            tooltip={t('actions.help', 'Help')}
+          />
         </Box>
       </Box>
     </Box>
@@ -476,6 +485,10 @@ export default function AppShell() {
             </Tooltip>
 
             {/* Profile menu */}
+            <HelpIconButton 
+              topicId={getHelpTopicForCurrentRoute()} 
+              tooltip={t('actions.help', 'Help')} 
+            />
             <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
               <Avatar sx={{ width: 28, height: 28 }}>
                 {user?.fullName?.slice(0, 2).toUpperCase() || 'SS'}

@@ -15,6 +15,7 @@ import { getInventoryCount, getSuppliersCount, getLowStockCount } from '../../ap
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
 import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';
+import HelpIconButton from '../../features/help/components/HelpIconButton';
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation('common');
@@ -26,9 +27,23 @@ const Dashboard: React.FC = () => {
 
   return (
     <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}>
-      <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
-        {t('dashboard.title')}
-      </Typography>
+      <Box
+        sx={{
+          mb: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+          {t('dashboard.title')}
+        </Typography>
+
+      <HelpIconButton
+          topicId="app.main"
+          tooltip={t('actions.help', 'Help')}
+        />
+      </Box>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 4 }}>

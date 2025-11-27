@@ -41,8 +41,11 @@
     "apply": "Anwenden",
     "update": "Aktualisieren",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "settings": "Einstellungen",
+    "help": "Hilfe"
   },
+  
   "loading": "Wird geladen...",
   "saving": "Wird gespeichert...",
   "deleting": "Wird gelöscht...",

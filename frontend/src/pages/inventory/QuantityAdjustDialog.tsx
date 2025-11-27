@@ -54,15 +54,12 @@ import {
   Alert,
   Divider,
   Autocomplete,
-  IconButton,
   Stack,
-  Tooltip,
 } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import HelpIconButton from '../../features/help/components/HelpIconButton';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useHelp } from '../../hooks/useHelp';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { adjustQuantity } from '../../api/inventory/mutations';
@@ -149,7 +146,6 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
-  const { openHelp } = useHelp();
 
   // ================================
   // State Management
@@ -351,11 +347,10 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
           <Box>
             {t('inventory:toolbar.adjustQty', 'Adjust Quantity')}
           </Box>
-          <Tooltip title={t('actions.help', 'Help')}>
-            <IconButton size="small" onClick={() => openHelp('inventory.adjustQuantity')}>
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <HelpIconButton
+            topicId="inventory.adjustQuantity"
+            tooltip={t('actions.help', 'Help')}
+          />
         </Stack>
       </DialogTitle>
       

@@ -61,8 +61,9 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
       anchor={position}
       open={isOpen}
       onClose={closeHelp}
-      PaperProps={{
-        sx: {
+      sx={{
+        zIndex: (theme) => theme.zIndex.modal + 10,
+        '& .MuiDrawer-paper': {
           width: { xs: '100%', sm: width },
           maxHeight: '100vh',
           overflow: 'auto',
