@@ -370,11 +370,11 @@ Content-Type: application/json
   &quot;address&quot;: &quot;789 Pine St, Chicago, IL&quot;
 }</code></pre>
         <h3 id="authorization-4">Authorization</h3>
-        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <p><code>@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")</code></p>
         <ul>
-        <li>✅ ADMIN users only</li>
-        <li>❌ Regular users</li>
-        <li>❌ Demo mode</li>
+        <li>✅ ADMIN users (not in demo mode)</li>
+        <li>❌ USER users (all blocked)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
         </ul>
         <h3 id="request-body">Request Body</h3>
         <div class="sourceCode" id="cb11"><pre
@@ -432,7 +432,12 @@ Content-Type: application/json
   &quot;address&quot;: &quot;789 Main St, New York, NY&quot;
 }</code></pre>
         <h3 id="authorization-5">Authorization</h3>
-        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <p><code>@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")</code></p>
+        <ul>
+        <li>✅ ADMIN users (not in demo mode)</li>
+        <li>❌ USER users (all blocked)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
+        </ul>
         <h3 id="path-parameters-1">Path Parameters</h3>
         <table>
         <thead>
@@ -481,7 +486,12 @@ Content-Type: application/json
         <pre><code>DELETE /api/suppliers/SUP-001
 Authorization: Bearer &lt;token&gt;</code></pre>
         <h3 id="authorization-6">Authorization</h3>
-        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <p><code>@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")</code></p>
+        <ul>
+        <li>✅ ADMIN users (not in demo mode)</li>
+        <li>❌ USER users (all blocked)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
+        </ul>
         <h3 id="path-parameters-2">Path Parameters</h3>
         <table>
         <thead>

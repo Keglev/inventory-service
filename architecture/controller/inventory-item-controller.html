@@ -479,7 +479,12 @@ Content-Type: application/json
   &quot;status&quot;: &quot;ACTIVE&quot;
 }</code></pre>
         <h3 id="authorization-3">Authorization</h3>
-        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <p><code>@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")</code></p>
+        <ul>
+        <li>✅ ADMIN users (not in demo mode)</li>
+        <li>❌ USER users (all blocked)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
+        </ul>
         <h3 id="request-body">Request Body</h3>
         <div class="sourceCode" id="cb11"><pre
         class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="at">@NotBlank</span><span class="op">(</span>message <span class="op">=</span> <span class="st">&quot;Name must not be blank&quot;</span><span class="op">)</span></span>
@@ -532,7 +537,12 @@ Content-Type: application/json
   &quot;status&quot;: &quot;ACTIVE&quot;
 }</code></pre>
         <h3 id="authorization-4">Authorization</h3>
-        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <p><code>@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")</code></p>
+        <ul>
+        <li>✅ ADMIN users (not in demo mode)</li>
+        <li>❌ USER users (all blocked)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
+        </ul>
         <h3 id="response-200-ok-4">Response (200 OK)</h3>
         <div class="sourceCode" id="cb14"><pre
         class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
@@ -560,7 +570,11 @@ Content-Type: application/json
   &quot;notes&quot;: &quot;Sale order #12345&quot;
 }</code></pre>
         <h3 id="authorization-5">Authorization</h3>
-        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <p><code>@PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")</code></p>
+        <ul>
+        <li>✅ USER and ADMIN users (not in demo mode)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
+        </ul>
         <h3 id="path-parameters-1">Path Parameters</h3>
         <table>
         <thead>
@@ -614,7 +628,11 @@ Content-Type: application/json
         <pre><code>PATCH /api/inventory/items/ITEM-001/price?price=24.99
 Authorization: Bearer &lt;token&gt;</code></pre>
         <h3 id="authorization-6">Authorization</h3>
-        <p><code>@PreAuthorize("isAuthenticated()")</code></p>
+        <p><code>@PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")</code></p>
+        <ul>
+        <li>✅ USER and ADMIN users (not in demo mode)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
+        </ul>
         <h3 id="path-parameters-2">Path Parameters</h3>
         <table>
         <thead>
@@ -692,9 +710,12 @@ Authorization: Bearer &lt;token&gt;</code></pre>
         <pre><code>PATCH /api/inventory/items/ITEM-001/name?name=Widget%20A%20Pro
 Authorization: Bearer &lt;token&gt;</code></pre>
         <h3 id="authorization-7">Authorization</h3>
-        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
-        <p>Only ADMIN users can rename inventory items. Users with other
-        roles will receive 403 Forbidden.</p>
+        <p><code>@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")</code></p>
+        <ul>
+        <li>✅ ADMIN users (not in demo mode)</li>
+        <li>❌ USER users (all blocked)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
+        </ul>
         <h3 id="path-parameters-3">Path Parameters</h3>
         <table>
         <thead>
@@ -803,7 +824,12 @@ Authorization: Bearer &lt;token&gt;</code></pre>
         <pre><code>DELETE /api/inventory/items/ITEM-001
 Authorization: Bearer &lt;token&gt;</code></pre>
         <h3 id="authorization-8">Authorization</h3>
-        <p><code>@PreAuthorize("hasRole('ADMIN')")</code></p>
+        <p><code>@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")</code></p>
+        <ul>
+        <li>✅ ADMIN users (not in demo mode)</li>
+        <li>❌ USER users (all blocked)</li>
+        <li>❌ Demo users (all blocked, even ADMIN)</li>
+        </ul>
         <h3 id="response-204-no-content">Response (204 No Content)</h3>
         <pre><code>(empty body)</code></pre>
         <hr />
