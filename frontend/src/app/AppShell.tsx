@@ -9,8 +9,9 @@
  * - Language toggle (🇩🇪/🇺🇸) persists in localStorage and syncs with i18next + MUI theme locale.
  * - Toast context for lightweight notifications (replace with notistack later if desired).
  * - Drawer supports temporary (mobile) and permanent (desktop) variants.
- * - **Demo mode UX:** shows a DEMO badge in the AppBar, an inline info banner
- *   (“changes disabled”), and disables CRUD nav items via Drawer tooltips.
+ * - **Demo mode UX:** shows a DEMO badge in the AppBar and a non-blocking info banner
+ *   (“changes are disabled in demo mode”), while navigation remains fully enabled.
+ *   Backend + SecurityService enforce read-only behavior for demo users on write APIs.
  *
  * @routing
  * Links point to authenticated routes (/dashboard, /inventory, /suppliers, /orders, /analytics).
@@ -78,7 +79,7 @@ const normalize = (lng?: string): SupportedLocale => (lng?.startsWith('en') ? 'e
 
 /**
  * Side navigation item (highlights when current path matches).
- * Accepts optional `disabled` and `tooltip` for demo-readonly UX.
+ * Accepts optional `disabled` and `tooltip` for contextual UX (e.g., feature flags).
  */
 const NavItem: React.FC<{
   to: string;
@@ -240,27 +241,22 @@ export default function AppShell() {
       <Box sx={{ flex: 1, py: 1 }}>
         <List>
           <NavItem to="/dashboard" icon={<DashboardIcon />} label={t('nav.dashboard')} />
-          {/* In demo mode, disable CRUD routes with an explanatory tooltip */}
+           {/* Inventory / Suppliers / Orders remain fully navigable; 
+           demo-mode write protection is enforced on the backend and at dialogs. */}
           <NavItem
             to="/inventory"
             icon={<InventoryIcon />}
             label={t('nav.inventory')}
-            disabled={isDemo}
-            tooltip={isDemo ? t('auth:demoNotice') : undefined}
           />
           <NavItem
             to="/suppliers"
             icon={<LocalShippingIcon />}
             label={t('nav.suppliers')}
-            disabled={isDemo}
-            tooltip={isDemo ? t('auth:demoNotice') : undefined}
           />
           <NavItem
             to="/orders"
             icon={<ReceiptLongIcon />}
             label={t('nav.orders')}
-            disabled={isDemo}
-            tooltip={isDemo ? t('auth:demoNotice') : undefined}
           />
           <NavItem
             to="/analytics/overview"
@@ -353,7 +349,7 @@ export default function AppShell() {
         {/* Help Button */}
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <HelpIconButton
-            topicId="app.main"
+            topicId={getHelpTopicForCurrentRoute()}
             tooltip={t('actions.help', 'Help')}
           />
         </Box>

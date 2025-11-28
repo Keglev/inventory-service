@@ -93,6 +93,11 @@ export interface DeleteItemDialogProps {
   onClose: () => void;
   /** Callback invoked after successful item deletion to refresh parent data */
   onItemDeleted: () => void;
+  /**
+   * When true, dialog behaves as demo-readonly:
+   * user can go through the delete flow, but the actual delete is blocked.
+   */
+  readOnly?: boolean;
 }
 
 /**
@@ -131,6 +136,7 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
   open,
   onClose,
   onItemDeleted,
+  readOnly = false,
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
@@ -295,6 +301,17 @@ export const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
 
     if (!deletionReason) {
       setFormError(t('errors:inventory.selection.noReasonSelected', 'Please select a deletion reason.'));
+      return;
+    }
+
+    // Demo guard: allow user to reach this step, but block the actual delete
+    if (readOnly) {
+      setFormError(
+        t(
+          'common.demoDisabled',
+          'You are in demo mode and cannot perform this operation.'
+        )
+      );
       return;
     }
 

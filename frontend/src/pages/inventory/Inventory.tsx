@@ -432,6 +432,7 @@ const Inventory: React.FC = () => {
       {/* Dialogs */}
       <ItemFormDialog
         open={openNew}
+        mode="create"
         onClose={() => setOpenNew(false)}
         onSaved={handleItemSaved}
       />
@@ -451,6 +452,7 @@ const Inventory: React.FC = () => {
       {selectedRow && (
         <ItemFormDialog
           open={openEdit}
+          mode="edit"
           initial={{
             id: selectedRow.id,
             name: selectedRow.name,

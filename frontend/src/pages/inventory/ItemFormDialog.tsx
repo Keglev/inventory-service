@@ -56,11 +56,13 @@ import type { SupplierOption } from './types/inventory-dialog.types';
 export interface ItemFormDialogProps {
   /** Whether the dialog is visible. */
   open: boolean;
+  /** Mode of the dialog: "create" or "edit". */
+  mode: 'create' | 'edit';
   /**
    * When present, dialog operates in **Edit** mode and pre-fills fields.
    * When absent, dialog operates in **Create** mode.
    */
-  initial?: InventoryRow;
+  initial?: InventoryRow | null;
   /** Called when the user cancels or after a successful save. */
   onClose: () => void;
   /**
@@ -68,10 +70,8 @@ export interface ItemFormDialogProps {
    * Parent typically reloads the grid and shows a toast.
    */
   onSaved: () => void;
-  /**
-   * When true, disables the primary action and shows a tooltip.
-   * This is used for “demo mode” where mutations are read-only.
-   * The actual flag will be provided by AppShell later.
+  /** When true, dialog behaves as demo-readonly: 
+   * user sees form but cannot persist changes.
    */
   readOnly?: boolean;
 }
@@ -361,14 +361,16 @@ export const ItemFormDialog: React.FC<ItemFormDialogProps> = ({
       <DialogActions>
         <Button onClick={onClose}>{t('common.cancel', 'Cancel')}</Button>
 
-        {/* Primary action: disabled in demo (readOnly) with explanatory tooltip */}
+        {/* Primary action:
+            - In demo mode, keep button clickable so onSubmit can show a friendly message.
+            - Tooltip explains why the operation is blocked. */}
         <Tooltip
-          title={readOnly ? t('common.demoDisabled', 'Disabled in demo mode') : ''}
+          title={readOnly ? t('common.demoDisabled', 'You are in demo mode and cannot perform this operation.') : ''}
           disableHoverListener={!readOnly}
         >
           {/* span wrapper: Tooltip needs an enabled element even if the button is disabled */}
           <span>
-            <Button onClick={onSubmit} disabled={isSubmitting || readOnly} variant="contained">
+            <Button onClick={onSubmit} disabled={isSubmitting} variant="contained">
               {initial?.id
                 ? t('inventory:buttons.save', 'Save')
                 : t('inventory:buttons.create', 'Create')}

@@ -88,6 +88,11 @@ export interface PriceChangeDialogProps {
   onClose: () => void;
   /** Callback invoked after successful price change to refresh parent data */
   onPriceChanged: () => void;
+  /**
+   * When true, dialog behaves as demo-readonly:
+   * user can walk through the workflow but final change is blocked.
+   */
+  readOnly?: boolean;
 }
 
 /**
@@ -125,6 +130,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   open,
   onClose,
   onPriceChanged,
+  readOnly = false,
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
@@ -262,6 +268,16 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedItem) {
       setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item to change price.'));
+      return;
+    }
+    // Demo guard: allow exploration but block mutation
+    if (readOnly) {
+      setFormError(
+        t(
+          'common.demoDisabled',
+          'You are in demo mode and cannot perform this operation.'
+        )
+      );
       return;
     }
 

@@ -105,6 +105,11 @@ export interface QuantityAdjustDialogProps {
   onClose: () => void;
   /** Callback invoked after successful quantity adjustment */
   onAdjusted: () => void;
+  /**
+   * When true, dialog behaves as demo-readonly:
+   * user can explore the workflow but cannot commit changes.
+   */
+  readOnly?: boolean;
 }
 
 /**
@@ -143,6 +148,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   open,
   onClose,
   onAdjusted,
+  readOnly = false,
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
@@ -299,6 +305,16 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedItem) {
       setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item to adjust.'));
+      return;
+    }
+    // Demo guard: allow exploration but block mutation
+    if (readOnly) {
+      setFormError(
+        t(
+          'common.demoDisabled',
+          'You are in demo mode and cannot perform this operation.'
+        )
+      );
       return;
     }
 
