@@ -10,6 +10,10 @@
     }
   },
   "inventory": {
+    "overview": {
+      "title": "Inventory Overview",
+      "body": "This screen provides a complete view of your inventory data and all related actions.\n\n• Select an item: Click any item in the list to prepare actions such as editing, adjusting quantity, deleting, or changing prices.\n\n• Create new items: Use the \"Add new item\" button to register new merchandise in the system.\n\n• Quick actions: The top toolbar allows direct access to editing, deleting, adjusting quantities, and changing prices for the selected item.\n\n• Search & filtering: Use the search field to quickly locate items by name.\n\n• Navigating to details: Some actions (such as Edit or Adjust Quantity) will open dialogs with contextual help available.\n\nThis page serves as the central hub for managing all inventory activities."
+    },
     "editItem": {
       "title": "Edit Inventory Item",
       "body": "Edit item details including:\n• Item Name: The name of the inventory item\n• Code/SKU: Unique identifier for the item\n• Supplier: Which supplier provides this item\n• Minimum Quantity: The low-stock threshold\n• Unit Cost: Cost per unit (affects financial calculations)\n\nChanges are saved immediately and will be reflected in all reports and analytics. The update timestamp is recorded for audit purposes."

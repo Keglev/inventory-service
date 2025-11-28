@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { readParams } from '../../utils/urlState';
 import { getSuppliersLite, type SupplierRef } from '../../api/analytics/suppliers';
+import HelpIconButton from '../../features/help/components/HelpIconButton';
 
 // Blocks
 import StockValueCard from './blocks/StockValueCard';
@@ -74,11 +75,25 @@ export default function Analytics(): JSX.Element {
   });
   return (
     <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>{t('analytics:title')}</Typography>
+      <Stack 
+        direction="row" 
+        alignItems="center" 
+        justifyContent="space-between" 
+        sx={{ mb: 3 }}
+      >
+        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+          {t('analytics:title')}
+        </Typography>
+
+        <Stack direction="row" spacing={1} alignItems="center">
+          <HelpIconButton
+            topicId="analytics.overview"
+            tooltip={t('actions.help', 'Help')}
+          />
           <Button variant="text" onClick={() => navigate('/dashboard')}>
             {t('common:actions.backToDashboard')}
           </Button>
+        </Stack>
       </Stack>
       {/* Submenu (tabs) */}
         <AnalyticsNav section={section} />  

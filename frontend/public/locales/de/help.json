@@ -10,6 +10,10 @@
     }
   },
   "inventory": {
+    "overview": {
+      "title": "Bestandsübersicht",
+      "body": "Dieser Bildschirm bietet eine vollständige Übersicht über Ihre Bestandsdaten und alle zugehörigen Aktionen.\n\n• Artikel auswählen: Klicken Sie auf einen beliebigen Artikel in der Liste, um Aktionen wie Bearbeiten, Menge anpassen, Löschen oder Preisänderungen vorzubereiten.\n\n• Neue Artikel erstellen: Verwenden Sie die Schaltfläche \"Neuen Artikel hinzufügen\", um neue Waren im System zu registrieren.\n\n• Schnelle Aktionen: Die obere Symbolleiste ermöglicht den direkten Zugriff auf das Bearbeiten, Löschen, Anpassen von Mengen und Ändern von Preisen für den ausgewählten Artikel.\n\n• Suche & Filterung: Verwenden Sie das Suchfeld, um Artikel schnell nach Namen zu finden.\n\n• Navigation zu Details: Einige Aktionen (wie Bearbeiten oder Menge anpassen) öffnen Dialoge mit kontextbezogener Hilfe.\n\nDiese Seite dient als zentrales Hub für die Verwaltung aller Bestandsaktivitäten."
+    },
     "editItem": {
       "title": "Bestandsartikel bearbeiten",
       "body": "Bearbeiten Sie Artikeldetails einschließlich:\n• Artikelname: Name des Bestandsartikels\n• Code/SKU: Eindeutige Artikelnummer\n• Lieferant: Welcher Lieferant diesen Artikel bereitstellt\n• Mindestmenge: Schwellenwert für niedrige Bestände\n• Stückkosten: Kosten pro Einheit (beeinflusst Finanzberechnungen)\n\nÄnderungen werden sofort gespeichert und in allen Berichten und Analysen angezeigt. Der Aktualisierungszeitstempel wird zu Prüfzwecken aufgezeichnet."

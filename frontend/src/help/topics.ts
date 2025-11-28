@@ -39,6 +39,12 @@ export const HELP_TOPICS: Record<string, HelpTopic> = {
     linkKey: 'help:app.main.link',
     category: 'general',
   },
+  'inventory.overview': {
+    id: 'inventory.overview',
+    titleKey: 'help:inventory.overview.title',
+    bodyKey: 'help:inventory.overview.body',
+    category: 'inventory',
+  },
   'inventory.editItem': {
     id: 'inventory.editItem',
     titleKey: 'help:inventory.editItem.title',

@@ -98,7 +98,11 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
       {/* Content */}
       <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
         {/* Help body text */}
-        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+        <Typography 
+          variant="body2" 
+          color="text.secondary" 
+          sx={{ lineHeight: 1.7, whiteSpace: 'pre-line' }}
+        >
           {/* @ts-expect-error: topic.bodyKey is runtime value from registry */}
           {t(topic.bodyKey)}
         </Typography>

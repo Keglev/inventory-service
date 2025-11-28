@@ -44,6 +44,7 @@ import { useToast } from '../../app/ToastContext';
 import { useSuppliersQuery } from './hooks/useInventoryData';
 import { useSettings } from '../../hooks/useSettings';
 import { formatDate } from '../../utils/formatters';
+import HelpIconButton from '../../features/help/components/HelpIconButton';
 
 /** Debounce simple values to reduce server chatter while typing. */
 function useDebounced<T>(value: T, delayMs: number): T {
@@ -277,10 +278,22 @@ const Inventory: React.FC = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper' }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+        <Stack 
+          direction="row" 
+          alignItems="center" 
+          justifyContent="space-between" 
+          sx={{ mb: 3 }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
             {t('inventory:page.title', 'Inventory Management')}
           </Typography>
+          <HelpIconButton
+            topicId="inventory.overview"
+            tooltip={t('actions.help', 'Help')}
+          />
+          </Stack>
+
           <Stack direction="row" spacing={1}>
             <Button variant="contained" onClick={() => setOpenNew(true)}>
               {t('inventory:toolbar.newItem', 'Add new item')}
