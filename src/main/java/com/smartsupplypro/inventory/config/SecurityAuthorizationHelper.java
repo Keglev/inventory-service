@@ -44,14 +44,17 @@ public class SecurityAuthorizationHelper {
 
         // Admin-only area (role-protected)
         auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
-        auth.requestMatchers(HttpMethod.POST, "/api/inventory/**").hasRole("ADMIN");
-        auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**").hasRole("ADMIN");
-        auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**").hasRole("ADMIN");
-        auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasRole("ADMIN");
-        auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**").hasRole("ADMIN");
-        auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**").hasRole("ADMIN");
-        auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**").hasRole("ADMIN");
-        auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**").hasRole("ADMIN");
+        
+        // Inventory & supplier mutations: authenticated business users (USER or ADMIN)
+        auth.requestMatchers(HttpMethod.POST, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+
+        auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
 
         // Everything else under /api/** must be authenticated
         auth.requestMatchers("/api/**").authenticated();

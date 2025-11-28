@@ -117,13 +117,28 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    /** Handles authorization failures. Returns generic message to prevent enumeration. */
+    /**
+     * Handle Spring Security access control violations.
+     *
+     * @enterprise
+     * - Returns generic 403 message to avoid leaking details about permissions.
+     * - For demo-mode violations, returns a friendly UX message that matches frontend wording.
+    */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAuthorization(AccessDeniedException ex) {
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        // By default: generic authorization failure
+        String message = "You are not allowed to perform this operation.";
+
+        // Heuristic: if the expression for @PreAuthorize with demo flag failed,
+        // the underlying exception message may carry that expression.
+        if (ex.getMessage() != null && ex.getMessage().contains("principal.isDemo")) {
+            message = "You are in demo mode and cannot perform this operation.";
+        }
+        
         return ErrorResponse.builder()
-                .status(HttpStatus.FORBIDDEN)
-                .message("Access denied")
-                .build();
+            .status(HttpStatus.FORBIDDEN)
+            .message(sanitize(message))
+            .build();
     }
 
     /* =======================================================================

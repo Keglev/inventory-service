@@ -8,6 +8,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.smartsupplypro.inventory.service.SecurityService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -69,5 +71,22 @@ public class TestSecurityConfig {
             .headers(headers -> headers.frameOptions(frame -> frame.disable())); // Allow H2 console if needed
 
         return http.build();
+    }
+
+    /**
+     * Provides SecurityService bean for @PreAuthorize expression evaluation in tests.
+     *
+     * <p><b>Purpose</b>: Enables `@securityService.isDemo()` SpEL expressions in @PreAuthorize
+     * annotations during @WebMvcTest slices. The bean is automatically registered and available
+     * for method security checks.</p>
+     *
+     * <p><b>Enterprise Context</b>: SecurityService encapsulates authorization logic for demo mode
+     * and other complex permission checks that are difficult to express with standard SpEL.</p>
+     *
+     * @return SecurityService instance for authorization checks
+     */
+    @Bean
+    public SecurityService securityService() {
+        return new SecurityService();
     }
 }

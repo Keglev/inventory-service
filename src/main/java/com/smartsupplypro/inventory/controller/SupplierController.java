@@ -83,11 +83,20 @@ public class SupplierController {
     }
 
     /**
-     * Creates new supplier with admin authorization and returns 201 + Location header.
-     * @param dto supplier data (ID must be null)
-     * @return created supplier with 201 status
-     */
-    @PreAuthorize("hasRole('ADMIN')")
+     * Creates new supplier (ADMIN only).
+     *
+     * <p><b>Authorization</b>:
+     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
+     * - Demo users receive 403 Forbidden with demo mode message</p>
+     *
+     * <p><b>REST Pattern</b>: Returns 201 Created with Location header for resource discovery</p>
+     *
+     * @param dto supplier data (ID must be null for creation)
+     * @return created supplier with 201 status and Location header
+     * @throws ResponseStatusException 400 if ID is not null
+     * @throws ResponseStatusException 403 if user is in demo mode
+    */
+    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
     @PostMapping
     public ResponseEntity<SupplierDTO> create(@Valid @RequestBody SupplierDTO dto) {
         if (dto.getId() != null) {
@@ -104,12 +113,22 @@ public class SupplierController {
     }
 
     /**
-     * Updates existing supplier with path ID taking precedence over body ID.
-     * @param id supplier ID from path
-     * @param dto updated supplier data
+     * Updates existing supplier (ADMIN only).
+     *
+     * <p><b>Authorization</b>:
+     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
+     * - Demo users receive 403 Forbidden with demo mode message</p>
+     *
+     * <p><b>ID Consistency</b>: Path ID takes precedence; body ID must match or be null</p>
+     *
+     * @param id supplier ID from path parameter
+     * @param dto updated supplier data (id in body is ignored for consistency)
      * @return updated supplier DTO
+     * @throws ResponseStatusException 400 if path ID and body ID mismatch
+     * @throws ResponseStatusException 404 if supplier not found
+     * @throws ResponseStatusException 403 if user is in demo mode
      */
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
     @PutMapping("/{id}")
     public ResponseEntity<SupplierDTO> update(@PathVariable String id, @Valid @RequestBody SupplierDTO dto) {
         // Enterprise Comment: Path vs body ID validation - ensure API contract consistency
@@ -122,11 +141,20 @@ public class SupplierController {
     }
 
     /**
-     * Deletes supplier with referential integrity checks.
+     * Deletes supplier (ADMIN only).
+     *
+     * <p><b>Authorization</b>:
+     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
+     * - Demo users receive 403 Forbidden with demo mode message</p>
+     *
+     * <p><b>Referential Integrity</b>: Supplier deletion may cascade or be blocked based on business rules</p>
+     *
      * @param id supplier ID to delete
      * @return 204 No Content on success
+     * @throws ResponseStatusException 404 if supplier not found
+     * @throws ResponseStatusException 403 if user is in demo mode
      */
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         supplierService.delete(id);

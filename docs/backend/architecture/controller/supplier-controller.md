@@ -233,11 +233,11 @@ Content-Type: application/json
 
 ### Authorization
 
-`@PreAuthorize("hasRole('ADMIN')")`
+`@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")`
 
-- ✅ ADMIN users only
-- ❌ Regular users
-- ❌ Demo mode
+- ✅ ADMIN users (not in demo mode)
+- ❌ USER users (all blocked)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Request Body
 
@@ -311,7 +311,11 @@ Content-Type: application/json
 
 ### Authorization
 
-`@PreAuthorize("hasRole('ADMIN')")`
+`@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")`
+
+- ✅ ADMIN users (not in demo mode)
+- ❌ USER users (all blocked)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Path Parameters
 
@@ -365,7 +369,11 @@ Authorization: Bearer <token>
 
 ### Authorization
 
-`@PreAuthorize("hasRole('ADMIN')")`
+`@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")`
+
+- ✅ ADMIN users (not in demo mode)
+- ❌ USER users (all blocked)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Path Parameters
 

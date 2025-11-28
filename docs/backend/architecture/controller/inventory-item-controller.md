@@ -272,7 +272,11 @@ Content-Type: application/json
 
 ### Authorization
 
-`@PreAuthorize("hasRole('ADMIN')")`
+`@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")`
+
+- ✅ ADMIN users (not in demo mode)
+- ❌ USER users (all blocked)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Request Body
 
@@ -340,7 +344,11 @@ Content-Type: application/json
 
 ### Authorization
 
-`@PreAuthorize("hasRole('ADMIN')")`
+`@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")`
+
+- ✅ ADMIN users (not in demo mode)
+- ❌ USER users (all blocked)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Response (200 OK)
 
@@ -378,7 +386,10 @@ Content-Type: application/json
 
 ### Authorization
 
-`@PreAuthorize("hasRole('ADMIN')")`
+`@PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")`
+
+- ✅ USER and ADMIN users (not in demo mode)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Path Parameters
 
@@ -435,7 +446,10 @@ Authorization: Bearer <token>
 
 ### Authorization
 
-`@PreAuthorize("isAuthenticated()")`
+`@PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")`
+
+- ✅ USER and ADMIN users (not in demo mode)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Path Parameters
 
@@ -485,9 +499,11 @@ Authorization: Bearer <token>
 
 ### Authorization
 
-`@PreAuthorize("hasRole('ADMIN')")`
+`@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")`
 
-Only ADMIN users can rename inventory items. Users with other roles will receive 403 Forbidden.
+- ✅ ADMIN users (not in demo mode)
+- ❌ USER users (all blocked)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Path Parameters
 
@@ -547,7 +563,11 @@ Authorization: Bearer <token>
 
 ### Authorization
 
-`@PreAuthorize("hasRole('ADMIN')")`
+`@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")`
+
+- ✅ ADMIN users (not in demo mode)
+- ❌ USER users (all blocked)
+- ❌ Demo users (all blocked, even ADMIN)
 
 ### Response (204 No Content)
 
