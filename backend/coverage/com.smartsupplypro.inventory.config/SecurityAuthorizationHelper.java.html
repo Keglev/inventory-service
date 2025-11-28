@@ -44,20 +44,23 @@ import org.springframework.stereotype.Component;
 
         // Admin-only area (role-protected)
 <span class="fc" id="L46">        auth.requestMatchers(&quot;/api/admin/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-<span class="fc" id="L47">        auth.requestMatchers(HttpMethod.POST, &quot;/api/inventory/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-<span class="fc" id="L48">        auth.requestMatchers(HttpMethod.PUT, &quot;/api/inventory/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-<span class="fc" id="L49">        auth.requestMatchers(HttpMethod.PATCH, &quot;/api/inventory/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-<span class="fc" id="L50">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/inventory/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-<span class="fc" id="L51">        auth.requestMatchers(HttpMethod.POST, &quot;/api/suppliers/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-<span class="fc" id="L52">        auth.requestMatchers(HttpMethod.PUT, &quot;/api/suppliers/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-<span class="fc" id="L53">        auth.requestMatchers(HttpMethod.PATCH, &quot;/api/suppliers/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-<span class="fc" id="L54">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/suppliers/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
+        
+        // Inventory &amp; supplier mutations: authenticated business users (USER or ADMIN)
+<span class="fc" id="L49">        auth.requestMatchers(HttpMethod.POST, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L50">        auth.requestMatchers(HttpMethod.PUT, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L51">        auth.requestMatchers(HttpMethod.PATCH, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L52">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+
+<span class="fc" id="L54">        auth.requestMatchers(HttpMethod.POST, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L55">        auth.requestMatchers(HttpMethod.PUT, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L56">        auth.requestMatchers(HttpMethod.PATCH, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L57">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
 
         // Everything else under /api/** must be authenticated
-<span class="fc" id="L57">        auth.requestMatchers(&quot;/api/**&quot;).authenticated();</span>
+<span class="fc" id="L60">        auth.requestMatchers(&quot;/api/**&quot;).authenticated();</span>
 
         // Default: everything else authenticated
-<span class="fc" id="L60">        auth.anyRequest().authenticated();</span>
-<span class="fc" id="L61">    }</span>
+<span class="fc" id="L63">        auth.anyRequest().authenticated();</span>
+<span class="fc" id="L64">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

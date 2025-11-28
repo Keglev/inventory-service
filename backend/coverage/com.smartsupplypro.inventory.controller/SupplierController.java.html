@@ -83,54 +83,82 @@ public class SupplierController {
     }
 
     /**
-     * Creates new supplier with admin authorization and returns 201 + Location header.
-     * @param dto supplier data (ID must be null)
-     * @return created supplier with 201 status
-     */
-    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+     * Creates new supplier (ADMIN only).
+     *
+     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
+     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
+     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;b&gt;REST Pattern&lt;/b&gt;: Returns 201 Created with Location header for resource discovery&lt;/p&gt;
+     *
+     * @param dto supplier data (ID must be null for creation)
+     * @return created supplier with 201 status and Location header
+     * @throws ResponseStatusException 400 if ID is not null
+     * @throws ResponseStatusException 403 if user is in demo mode
+    */
+    @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @PostMapping
     public ResponseEntity&lt;SupplierDTO&gt; create(@Valid @RequestBody SupplierDTO dto) {
-<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (dto.getId() != null) {</span>
             // ID consistency validation - prevent client-generated IDs on creation
             // to maintain server-side ID generation control and avoid potential ID conflicts
-<span class="fc" id="L96">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
+<span class="fc" id="L105">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
         }
-<span class="fc" id="L98">        SupplierDTO created = supplierService.create(dto);</span>
+<span class="fc" id="L107">        SupplierDTO created = supplierService.create(dto);</span>
         // Enterprise Comment: REST Location header pattern - provide resource URI for immediate access
         // enabling client-side navigation and RESTful resource discovery
-<span class="fc" id="L101">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId()))</span>
-<span class="fc" id="L102">                .header(HttpHeaders.LOCATION, &quot;/api/suppliers/&quot; + created.getId())</span>
-<span class="fc" id="L103">                .body(created);</span>
+<span class="fc" id="L110">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId()))</span>
+<span class="fc" id="L111">                .header(HttpHeaders.LOCATION, &quot;/api/suppliers/&quot; + created.getId())</span>
+<span class="fc" id="L112">                .body(created);</span>
     }
 
     /**
-     * Updates existing supplier with path ID taking precedence over body ID.
-     * @param id supplier ID from path
-     * @param dto updated supplier data
+     * Updates existing supplier (ADMIN only).
+     *
+     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
+     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
+     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;b&gt;ID Consistency&lt;/b&gt;: Path ID takes precedence; body ID must match or be null&lt;/p&gt;
+     *
+     * @param id supplier ID from path parameter
+     * @param dto updated supplier data (id in body is ignored for consistency)
      * @return updated supplier DTO
+     * @throws ResponseStatusException 400 if path ID and body ID mismatch
+     * @throws ResponseStatusException 404 if supplier not found
+     * @throws ResponseStatusException 403 if user is in demo mode
      */
-    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @PutMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;SupplierDTO&gt; update(@PathVariable String id, @Valid @RequestBody SupplierDTO dto) {
         // Enterprise Comment: Path vs body ID validation - ensure API contract consistency
         // by preventing mismatched identifiers that could lead to unintended updates
-<span class="pc bpc" id="L117" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
-<span class="fc" id="L118">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
+<span class="pc bpc" id="L136" title="1 of 4 branches missed.">        if (dto.getId() != null &amp;&amp; !id.equals(dto.getId())) {</span>
+<span class="fc" id="L137">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Path id and body id must match&quot;);</span>
         }
-<span class="fc" id="L120">        SupplierDTO updated = supplierService.update(id, dto);</span>
-<span class="fc" id="L121">        return ResponseEntity.ok(updated);</span>
+<span class="fc" id="L139">        SupplierDTO updated = supplierService.update(id, dto);</span>
+<span class="fc" id="L140">        return ResponseEntity.ok(updated);</span>
     }
 
     /**
-     * Deletes supplier with referential integrity checks.
+     * Deletes supplier (ADMIN only).
+     *
+     * &lt;p&gt;&lt;b&gt;Authorization&lt;/b&gt;:
+     * - Requires ROLE_ADMIN and non-demo mode (read-write access)
+     * - Demo users receive 403 Forbidden with demo mode message&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;b&gt;Referential Integrity&lt;/b&gt;: Supplier deletion may cascade or be blocked based on business rules&lt;/p&gt;
+     *
      * @param id supplier ID to delete
      * @return 204 No Content on success
+     * @throws ResponseStatusException 404 if supplier not found
+     * @throws ResponseStatusException 403 if user is in demo mode
      */
-    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
     @DeleteMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;Void&gt; delete(@PathVariable String id) {
-<span class="fc" id="L132">        supplierService.delete(id);</span>
-<span class="fc" id="L133">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L160">        supplierService.delete(id);</span>
+<span class="fc" id="L161">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

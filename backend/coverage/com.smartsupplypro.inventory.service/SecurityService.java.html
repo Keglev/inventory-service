@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Inventory Service</a> &gt; <a href="index.source.html" class="el_package">com.smartsupplypro.inventory.service</a> &gt; <span class="el_source">SecurityService.java</span></div><h1>SecurityService.java</h1><pre class="source lang-java linenums">package com.smartsupplypro.inventory.service;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+
+/**
+ * Security context service for authorization checks.
+ *
+ * &lt;p&gt;&lt;b&gt;Purpose&lt;/b&gt;: Centralized authorization logic for demo mode and role-based access control.
+ * Abstracts Spring Security internals from controllers and @PreAuthorize expressions.&lt;/p&gt;
+ *
+ * &lt;p&gt;&lt;b&gt;Design Pattern&lt;/b&gt;: Security service pattern allows complex authorization rules to be:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Tested independently from controllers&lt;/li&gt;
+ *   &lt;li&gt;Shared across multiple @PreAuthorize expressions&lt;/li&gt;
+ *   &lt;li&gt;Updated in one place (DRY principle)&lt;/li&gt;
+ *   &lt;li&gt;Works with both OAuth2 (runtime) and test authentication (UsernamePasswordAuthenticationToken)&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;&lt;b&gt;Enterprise Use Cases&lt;/b&gt;:
+ * &lt;ul&gt;
+ *   &lt;li&gt;&lt;b&gt;Demo Mode&lt;/b&gt;: Read-only access for user evaluation (isDemo=true blocks mutations)&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Role-Based Access&lt;/b&gt;: ADMIN vs. USER authorization checks&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Feature Flags&lt;/b&gt;: Time-limited access during pilot programs&lt;/li&gt;
+ *   &lt;li&gt;&lt;b&gt;Audit Trail&lt;/b&gt;: Track who attempted restricted operations&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * @see &lt;a href=&quot;file:../../../../../../docs/architecture/patterns/security-patterns.md&quot;&gt;Security Patterns&lt;/a&gt;
+ */
+@Service
+<span class="fc" id="L35">public class SecurityService {</span>
+
+    /**
+     * Checks if current authenticated user is in demo mode (read-only).
+     *
+     * &lt;p&gt;&lt;b&gt;ENTERPRISE CONTEXT&lt;/b&gt;:
+     * Demo mode is a product feature that allows:
+     * - Sales team to share live app with prospects without granting write access
+     * - Training environments where users can explore but not modify data
+     * - A/B testing read-only vs. full-access user experiences
+     * &lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;b&gt;Authorization Behavior&lt;/b&gt;:
+     * &lt;ul&gt;
+     *   &lt;li&gt;OAuth2 runtime (Google/Azure OAuth): Checks `isDemo` attribute set by authentication service&lt;/li&gt;
+     *   &lt;li&gt;Test authentication (@WithMockUser): Returns false (tests don't set isDemo, only test demo scenarios explicitly)&lt;/li&gt;
+     *   &lt;li&gt;Unauthenticated: Returns false (no security context)&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;b&gt;Usage in @PreAuthorize&lt;/b&gt;:
+     * &lt;pre&gt;
+     * &amp;#64;PreAuthorize(&quot;hasRole('ADMIN') and !@securityService.isDemo()&quot;)
+     * public ResponseEntity&amp;lt;ItemDTO&amp;gt; create(@RequestBody ItemDTO item) { ... }
+     * &lt;/pre&gt;
+     * Denies ADMIN users in demo mode from creating items. Normal ADMIN users are allowed.
+     * &lt;/p&gt;
+     *
+     * @return true if current user is authenticated AND has isDemo=true; false otherwise
+     * @throws java.lang.ClassCastException never thrown (safe type checking in place)
+     */
+    public boolean isDemo() {
+        // Step 1: Retrieve current authentication from thread-local context
+        // SecurityContextHolder manages authentication for the current request thread
+<span class="fc" id="L69">        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();</span>
+
+        // Step 2: Handle unauthenticated requests (null or !isAuthenticated)
+        // In these cases, demo mode doesn't apply (no user to be in demo)
+<span class="pc bpc" id="L73" title="2 of 4 branches missed.">        if (authentication == null || !authentication.isAuthenticated()) {</span>
+<span class="nc" id="L74">            return false;</span>
+        }
+
+        // Step 3: Extract principal object from authentication token
+        // This could be OAuth2User (runtime), UserDetails (standard auth), or other types
+<span class="fc" id="L79">        Object principal = authentication.getPrincipal();</span>
+
+        // Step 4: Handle OAuth2 runtime authentication
+        // At runtime (with real OAuth2), the principal is an OAuth2User with attributes map
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (principal instanceof OAuth2User oauth2User) {</span>
+            // OAuth2User stores custom attributes (like isDemo) in an attributes map
+            // Attribute key must match what CustomOAuth2UserService or CustomOidcUserService sets
+<span class="nc" id="L86">            Boolean isDemoAttribute = oauth2User.getAttribute(&quot;isDemo&quot;);</span>
+
+            // Boolean.TRUE.equals() safely handles null (returns false) and type checking
+            // This prevents NullPointerException if isDemo attribute is missing
+<span class="nc" id="L90">            return Boolean.TRUE.equals(isDemoAttribute);</span>
+        }
+
+        // Step 5: Handle test authentication (@WithMockUser)
+        // @WithMockUser creates UsernamePasswordAuthenticationToken, not OAuth2User
+        // Tests use explicit OAuth2 mocking only when testing demo scenarios
+        // Therefore, standard @WithMockUser tests default to isDemo=false
+<span class="fc" id="L97">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
