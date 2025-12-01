@@ -45,7 +45,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory2';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InsightsIcon from '@mui/icons-material/Insights';
 import MenuIcon from '@mui/icons-material/Menu';
 import DensitySmallIcon from '@mui/icons-material/DensitySmall';
@@ -241,7 +240,7 @@ export default function AppShell() {
       <Box sx={{ flex: 1, py: 1 }}>
         <List>
           <NavItem to="/dashboard" icon={<DashboardIcon />} label={t('nav.dashboard')} />
-           {/* Inventory / Suppliers / Orders remain fully navigable; 
+           {/* Inventory / Suppliers remain fully navigable; 
            demo-mode write protection is enforced on the backend and at dialogs. */}
           <NavItem
             to="/inventory"
@@ -252,11 +251,6 @@ export default function AppShell() {
             to="/suppliers"
             icon={<LocalShippingIcon />}
             label={t('nav.suppliers')}
-          />
-          <NavItem
-            to="/orders"
-            icon={<ReceiptLongIcon />}
-            label={t('nav.orders')}
           />
           <NavItem
             to="/analytics/overview"

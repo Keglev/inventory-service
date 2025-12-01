@@ -36,7 +36,6 @@ import PublicShell from '../app/PublicShell';
 import Dashboard from '../pages/dashboard/Dashboard';            
 import Inventory from '../pages/inventory/Inventory';            
 import Suppliers from '../pages/suppliers/Suppliers';
-import PurchaseOrders from '../pages/orders/PurchaseOrders';             
 import LogoutPage from '../pages/auth/LogoutPage';
 import Analytics from '../pages/analytics/Analytics';
 
@@ -101,14 +100,6 @@ const AppRouter: React.FC = () => {
           element={
             <RequireAuth allowDemo>
               <Suppliers />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/orders"
-          element={
-            <RequireAuth allowDemo>
-              <PurchaseOrders />
             </RequireAuth>
           }
         />
