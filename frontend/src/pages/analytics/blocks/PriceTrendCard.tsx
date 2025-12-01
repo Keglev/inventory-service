@@ -28,6 +28,8 @@ import {
 } from '../../../api/analytics';
 import { useDebounced } from '../hooks/useDebounced';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatDate, formatNumber } from '../../../utils/formatters';
 
 export type PriceTrendCardProps = { from?: string; to?: string; supplierId?: string | null };
 
@@ -40,6 +42,15 @@ type ItemWithSupplier = ItemRef & { supplierId?: string | null };
 export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardProps) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
+  const { userPreferences } = useSettings();
+  const formatDateLabel = React.useCallback(
+    (value: string | number) => {
+      const str = String(value);
+      const formatted = formatDate(str, userPreferences.dateFormat);
+      return formatted || str;
+    },
+    [userPreferences.dateFormat]
+  );
 
   // ---------------------------------------------------------------------------
   // Type-ahead state (stable selection + debounced query)
@@ -197,9 +208,19 @@ export default function PriceTrendCard({ from, to, supplierId }: PriceTrendCardP
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={priceData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis domain={['auto', 'auto']} />
-                <Tooltip />
+                <XAxis dataKey="date" tickFormatter={formatDateLabel} />
+                <YAxis
+                  domain={['auto', 'auto']}
+                  tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)}
+                />
+                <Tooltip
+                  labelFormatter={(value) => formatDateLabel(value as string)}
+                  formatter={(value: number | string) =>
+                    typeof value === 'number'
+                      ? formatNumber(value, userPreferences.numberFormat, 2)
+                      : value
+                  }
+                />
                 <Line
                   type="monotone"
                   dataKey="price"

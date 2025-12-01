@@ -43,7 +43,7 @@ import { PriceChangeDialog } from './PriceChangeDialog';
 import { useToast } from '../../app/ToastContext';
 import { useSuppliersQuery } from './hooks/useInventoryData';
 import { useSettings } from '../../hooks/useSettings';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatNumber } from '../../utils/formatters';
 import HelpIconButton from '../../features/help/components/HelpIconButton';
 import { useAuth } from '../../context/useAuth';
 
@@ -216,18 +216,25 @@ const Inventory: React.FC = () => {
         valueGetter: (_value: unknown, row: InventoryRow) => row.code ?? '—',
       },
       // Supplier column removed (supplier is selected in the filter)
-      { field: 'onHand', headerName: t('inventory:table.onHand', 'On-hand'), type: 'number', width: 120 },
+      {
+        field: 'onHand',
+        headerName: t('inventory:table.onHand', 'On-hand'),
+        type: 'number',
+        width: 140,
+        valueFormatter: ({ value }) =>
+          formatNumber(typeof value === 'number' ? value : Number(value ?? 0), userPreferences.numberFormat, 0),
+      },
       {
         field: 'updatedAt',
         headerName: t('inventory:table.updated', 'Updated'),
-        width: 180,
-        valueGetter: (_value: unknown, row: InventoryRow) => {
-          const dateStr = row.updatedAt ?? getMaybeCreatedAt(row);
-          if (!dateStr) return '—';
+        width: 200,
+        valueGetter: (_value: unknown, row: InventoryRow) => row.updatedAt ?? getMaybeCreatedAt(row) ?? null,
+        valueFormatter: ({ value }) => {
+          if (!value) return '—';
           try {
-            return formatDate(new Date(dateStr), userPreferences.dateFormat);
+            return formatDate(new Date(String(value)), userPreferences.dateFormat);
           } catch {
-            return dateStr;
+            return String(value);
           }
         },
       },
@@ -386,7 +393,7 @@ const Inventory: React.FC = () => {
               sortModel={sortModel}
               onSortModelChange={setSortModel}
               getRowId={(r) => r.id}
-              density={userPreferences.tableDensity === 'compact' ? 'compact' : 'standard'}
+              density={userPreferences.tableDensity === 'compact' ? 'compact' : 'comfortable'}
               /**
                * Single-selection via click to avoid selection model type drift between MUI versions.
                */

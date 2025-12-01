@@ -16,7 +16,7 @@
  * - Uses plain MUI Table for portability.
  */
 
-import type { JSX } from 'react';
+import { useCallback, type JSX } from 'react';
 import {
   Box,
   Typography,
@@ -34,6 +34,8 @@ import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getLowStockItems, type LowStockRow, type AnalyticsParams } from '../../../api/analytics';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatNumber } from '../../../utils/formatters';
 
 /**
  * Props accepted by {@link LowStockTable}.
@@ -49,12 +51,6 @@ export type LowStockTableProps = {
   /** Show at most N most severe rows (by deficit). `0` = show all. @defaultValue 12 */
   limit?: number;
 };
-
-/** Format a number for table cells. Falls back to "0" for invalid values. @internal */
-function fmt(n: number | undefined | null): string {
-  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
-  return String(v);
-}
 
 /** Narrow filter params to only allowed keys for the low-stock endpoint. @internal */
 function narrowParams(p: Pick<AnalyticsParams, 'from' | 'to'>): AnalyticsParams {
@@ -81,6 +77,14 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
   const { supplierId, from, to, limit = 12 } = props;
   const { t } = useTranslation(['analytics', 'common']);
   const muiTheme = useMuiTheme();
+  const { userPreferences } = useSettings();
+  const formatQty = useCallback(
+    (value: number | undefined | null): string => {
+      if (typeof value !== 'number' || Number.isNaN(value)) return formatNumber(0, userPreferences.numberFormat, 0);
+      return formatNumber(value, userPreferences.numberFormat, 0);
+    },
+    [userPreferences.numberFormat]
+  );
 
   // Data fetching (Hooks MUST be unconditioned; gate with `enabled`)
   const enabled = Boolean(supplierId);
@@ -190,8 +194,8 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
                 >
                   {r.itemName}
                 </TableCell>
-                <TableCell align="right">{fmt(r.quantity)}</TableCell>
-                <TableCell align="right">{fmt(r.minimumQuantity)}</TableCell>
+                <TableCell align="right">{formatQty(r.quantity)}</TableCell>
+                <TableCell align="right">{formatQty(r.minimumQuantity)}</TableCell>
                 <TableCell
                   align="right"
                   sx={{
@@ -203,7 +207,7 @@ export default function LowStockTable(props: LowStockTableProps): JSX.Element {
                         : muiTheme.palette.text.primary,
                   }}
                 >
-                  {fmt(r.deficit)}
+                  {formatQty(r.deficit)}
                 </TableCell>
                 <TableCell align="left" sx={{ whiteSpace: 'nowrap' }}>
                   {critical ? (

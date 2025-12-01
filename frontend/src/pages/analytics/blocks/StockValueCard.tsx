@@ -13,6 +13,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getStockValueOverTime, type StockValuePoint } from '../../../api/analytics/stock';
 import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatDate, formatNumber } from '../../../utils/formatters';
 
 
 export type StockValueCardProps = { from?: string; to?: string; supplierId?: string | null };
@@ -21,6 +23,7 @@ export type StockValueCardProps = { from?: string; to?: string; supplierId?: str
 export default function StockValueCard({ from, to, supplierId }: StockValueCardProps) {
     const { t } = useTranslation(['analytics']);
     const muiTheme = useMuiTheme();
+    const { userPreferences } = useSettings();
     
     
     const q = useQuery<StockValuePoint[]>({
@@ -34,6 +37,14 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
     const data = React.useMemo(
         () => [...(q.data ?? [])].sort((a, b) => (a?.date ?? '').localeCompare(b?.date ?? '')),
         [q.data]
+    );
+    const formatDateLabel = React.useCallback(
+        (value: string | number) => {
+            const str = String(value);
+            const formatted = formatDate(str, userPreferences.dateFormat);
+            return formatted || str;
+        },
+        [userPreferences.dateFormat]
     );
     
     return (
@@ -51,11 +62,24 @@ export default function StockValueCard({ from, to, supplierId }: StockValueCardP
         ) : (
             <Box sx={{ height: 260 }}>
             <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                        <LineChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis domain={['auto', 'auto']} />
-            <Tooltip />
+                        <XAxis
+                            dataKey="date"
+                            tickFormatter={formatDateLabel}
+                        />
+                        <YAxis
+                            domain={['auto', 'auto']}
+                            tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)}
+                        />
+                        <Tooltip
+                            labelFormatter={(value) => formatDateLabel(value as string)}
+                            formatter={(value: number | string) =>
+                                typeof value === 'number'
+                                    ? formatNumber(value, userPreferences.numberFormat, 2)
+                                    : value
+                            }
+                        />
             <Line
             type="monotone"
             dataKey="totalValue"

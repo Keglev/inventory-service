@@ -18,12 +18,15 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from 'recharts';
 import { getMonthlyStockMovement, type MonthlyMovement } from '../../../api/analytics';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatDate, formatNumber } from '../../../utils/formatters';
 
 export type MovementLineCardProps = { from?: string; to?: string; supplierId?: string | null };
 
 export default function MovementLineCard({ from, to, supplierId }: MovementLineCardProps) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
+  const { userPreferences } = useSettings();
 
   const q = useQuery<MonthlyMovement[]>({
     queryKey: ['analytics', 'movementLine', from ?? null, to ?? null, supplierId ?? null],
@@ -34,6 +37,14 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
   const data = React.useMemo(
     () => [...(q.data ?? [])],
     [q.data]
+  );
+  const formatDateLabel = React.useCallback(
+    (value: string | number) => {
+      const str = String(value);
+      const formatted = formatDate(str, userPreferences.dateFormat);
+      return formatted || str;
+    },
+    [userPreferences.dateFormat]
   );
 
   return (
@@ -54,9 +65,16 @@ export default function MovementLineCard({ from, to, supplierId }: MovementLineC
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+                <XAxis dataKey="month" tickFormatter={formatDateLabel} />
+                <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
+                <Tooltip
+                  labelFormatter={(value) => formatDateLabel(value as string)}
+                  formatter={(value: number | string) =>
+                    typeof value === 'number'
+                      ? formatNumber(value, userPreferences.numberFormat, 0)
+                      : value
+                  }
+                />
                 <Legend />
                 <Line
                   type="monotone"

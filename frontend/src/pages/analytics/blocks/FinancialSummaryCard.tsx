@@ -103,8 +103,14 @@ export default function FinancialSummaryCard({ from, to, supplierId }: Financial
                 <BarChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
+                  <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 2)} />
+                  <Tooltip
+                    formatter={(value: number | string) =>
+                      typeof value === 'number'
+                        ? formatNumber(value, userPreferences.numberFormat, 2)
+                        : value
+                    }
+                  />
                   <Bar dataKey="value" isAnimationActive={false}>
                     {data.map((_, i) => (
                       <Cell key={i} fill={barColors[i % barColors.length]} />

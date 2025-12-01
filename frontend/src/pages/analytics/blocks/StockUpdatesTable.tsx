@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getStockUpdates, type StockUpdateRow } from '../../../api/analytics/updates';
 import { useSettings } from '../../../hooks/useSettings';
-import { formatDate } from '../../../utils/formatters';
+import { formatDate, formatNumber } from '../../../utils/formatters';
 
 // Map backend reason codes to friendly labels
 const REASON_LABEL: Record<string, string> = {
@@ -62,23 +62,32 @@ export default function StockUpdatesTable({ from, to, supplierId }: StockUpdates
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {q.data!.map((r, idx) => (
-                                    <TableRow key={idx}>
-                                        <TableCell>
-                                          {r.timestamp ? formatDate(new Date(r.timestamp), userPreferences.dateFormat) : '—'}
-                                        </TableCell>
-                                        <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {r.itemName}
-                                        </TableCell>
-                                        <TableCell align="right">{r.delta >= 0 ? `+${r.delta}` : r.delta}</TableCell>
+                                                                {q.data!.map((r, idx) => {
+                                                                        const decimals = typeof r.delta === 'number' && !Number.isInteger(r.delta) ? 2 : 0;
+                                                                        const formattedDelta = typeof r.delta === 'number'
+                                                                            ? formatNumber(Math.abs(r.delta), userPreferences.numberFormat, decimals)
+                                                                            : '—';
+                                                                        const deltaLabel = typeof r.delta === 'number'
+                                                                            ? `${r.delta >= 0 ? '+' : '-'}${formattedDelta}`
+                                                                            : '—';
+                                                                        return (
+                                                                            <TableRow key={idx}>
+                                                                                <TableCell>
+                                                                                    {r.timestamp ? formatDate(new Date(r.timestamp), userPreferences.dateFormat) : '—'}
+                                                                                </TableCell>
+                                                                                <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                                        {r.itemName}
+                                                                                </TableCell>
+                                                                                <TableCell align="right">{deltaLabel}</TableCell>
                                         <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {formatReason(r.reason)}
                                         </TableCell>
                                         <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {r.user ?? '—'}
                                         </TableCell>
-                                    </TableRow>
-                                ))}
+                                                                            </TableRow>
+                                                                        );
+                                                                })}
                             </TableBody>
                         </Table>
                     </Box>

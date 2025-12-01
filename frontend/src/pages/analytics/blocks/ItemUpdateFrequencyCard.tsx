@@ -16,12 +16,15 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell } from 'recharts';
 import { getItemUpdateFrequency, type ItemUpdateFrequencyPoint } from '../../../api/analytics/frequency';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatNumber } from '../../../utils/formatters';
 
 export type ItemUpdateFrequencyCardProps = { supplierId?: string | null };
 
 export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFrequencyCardProps) {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
+  const { userPreferences } = useSettings();
 
   // Fetch (unconditional hook; gated by `enabled`)
   const enabled = !!supplierId;
@@ -71,9 +74,18 @@ export default function ItemUpdateFrequencyCard({ supplierId }: ItemUpdateFreque
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} layout="vertical" margin={{ left: 24, right: 16 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
+                <XAxis
+                  type="number"
+                  tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)}
+                />
                 <YAxis type="category" dataKey="name" width={140} />
-                <Tooltip />
+                <Tooltip
+                  formatter={(value: number | string) =>
+                    typeof value === 'number'
+                      ? formatNumber(value, userPreferences.numberFormat, 0)
+                      : value
+                  }
+                />
                 <Bar dataKey="updates" isAnimationActive={false}>
                   {data.map((_, i) => (
                     <Cell key={`u-${i}`} fill={barColors[i % barColors.length]} />

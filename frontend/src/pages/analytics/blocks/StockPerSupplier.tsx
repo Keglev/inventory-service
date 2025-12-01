@@ -20,10 +20,13 @@ import {
 import {
   ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, CartesianGrid, Bar,
 } from 'recharts';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatNumber } from '../../../utils/formatters';
 
 export default function StockPerSupplier(): JSX.Element {
   const { t } = useTranslation(['analytics']);
   const theme = useTheme();
+  const { userPreferences } = useSettings();
 
   const q = useQuery<StockPerSupplierPoint[]>({
     queryKey: ['analytics', 'stockPerSupplier'],
@@ -48,8 +51,14 @@ export default function StockPerSupplier(): JSX.Element {
         <BarChart data={data} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="supplierName" interval={0} angle={-20} height={60} textAnchor="end" />
-          <YAxis />
-          <Tooltip />
+          <YAxis tickFormatter={(value) => formatNumber(Number(value), userPreferences.numberFormat, 0)} />
+          <Tooltip
+            formatter={(value: number | string) =>
+              typeof value === 'number'
+                ? formatNumber(value, userPreferences.numberFormat, 0)
+                : value
+            }
+          />
           <Bar dataKey="totalQuantity" fill={theme.palette.primary.main} />
         </BarChart>
       </ResponsiveContainer>

@@ -18,10 +18,13 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { ResponsiveContainer, PieChart, Pie, Tooltip, Legend, Cell } from 'recharts';
 import { getStockPerSupplier, type StockPerSupplierPoint } from '../../../api/analytics';
+import { useSettings } from '../../../hooks/useSettings';
+import { formatNumber } from '../../../utils/formatters';
 
 export default function StockPerSupplierDonut() {
   const { t } = useTranslation(['analytics']);
   const muiTheme = useMuiTheme();
+  const { userPreferences } = useSettings();
 
   const q = useQuery<StockPerSupplierPoint[]>({
     queryKey: ['analytics', 'stockPerSupplierDonut'],
@@ -73,7 +76,13 @@ export default function StockPerSupplierDonut() {
                     <Cell key={`seg-${i}`} fill={colors[i % colors.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  formatter={(value: number | string) =>
+                    typeof value === 'number'
+                      ? formatNumber(value, userPreferences.numberFormat, 0)
+                      : value
+                  }
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

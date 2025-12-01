@@ -185,14 +185,14 @@ const Suppliers: React.FC = () => {
       {
         field: 'createdAt',
         headerName: t('suppliers:table.createdAt', 'Created'),
-        width: 160,
-        valueGetter: (_value: unknown, row: SupplierRow) => {
-          const dateStr = row.createdAt;
-          if (!dateStr) return '—';
+        width: 180,
+        valueGetter: (_value: unknown, row: SupplierRow) => row.createdAt ?? null,
+        valueFormatter: ({ value }) => {
+          if (!value) return '—';
           try {
-            return formatDate(new Date(dateStr), userPreferences.dateFormat);
+            return formatDate(new Date(String(value)), userPreferences.dateFormat);
           } catch {
-            return dateStr;
+            return String(value);
           }
         },
       },
@@ -385,7 +385,7 @@ const Suppliers: React.FC = () => {
             sortModel={sortModel}
             onSortModelChange={setSortModel}
             getRowId={(r) => r.id}
-            density={userPreferences.tableDensity === 'compact' ? 'compact' : 'standard'}
+            density={userPreferences.tableDensity === 'compact' ? 'compact' : 'comfortable'}
             onRowClick={handleRowClick}
             slots={{
               noRowsOverlay: () => (
