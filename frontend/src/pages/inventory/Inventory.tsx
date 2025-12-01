@@ -45,6 +45,7 @@ import { useSuppliersQuery } from './hooks/useInventoryData';
 import { useSettings } from '../../hooks/useSettings';
 import { formatDate } from '../../utils/formatters';
 import HelpIconButton from '../../features/help/components/HelpIconButton';
+import { useAuth } from '../../context/useAuth';
 
 /** Debounce simple values to reduce server chatter while typing. */
 function useDebounced<T>(value: T, delayMs: number): T {
@@ -74,6 +75,8 @@ const Inventory: React.FC = () => {
   // Include 'inventory' so `t('inventory.*')` is strongly typed and error-free.
   const { t } = useTranslation(['common', 'auth', 'analytics', 'inventory']);
   const { userPreferences } = useSettings();
+  const { user } = useAuth();
+  const isDemo = Boolean(user?.isDemo);
   const toast = useToast();
   
   const handleItemSaved = () => {
@@ -435,6 +438,7 @@ const Inventory: React.FC = () => {
         mode="create"
         onClose={() => setOpenNew(false)}
         onSaved={handleItemSaved}
+        readOnly={isDemo}
       />
 
       <EditItemDialog
@@ -447,6 +451,7 @@ const Inventory: React.FC = () => {
         open={openDelete}
         onClose={() => setOpenDelete(false)}
         onItemDeleted={load}
+        readOnly={isDemo}
       />
 
       {selectedRow && (
@@ -462,6 +467,7 @@ const Inventory: React.FC = () => {
           }}
           onClose={() => setOpenEdit(false)}
           onSaved={handleItemUpdated}
+          readOnly={isDemo}
         />
       )}
 
@@ -469,12 +475,14 @@ const Inventory: React.FC = () => {
         open={openAdjust}
         onClose={() => setOpenAdjust(false)}
         onAdjusted={load}
+        readOnly={isDemo}
       />
 
       <PriceChangeDialog
         open={openPrice}
         onClose={() => setOpenPrice(false)}
         onPriceChanged={load}
+        readOnly={isDemo}
       />
       </Paper>
     </Box>
