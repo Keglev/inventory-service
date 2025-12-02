@@ -475,7 +475,13 @@ export default function AppShell() {
         </AppBar>
 
         {/* Main container with sidebar + content, positioned below fixed AppBar */}
-        <Box sx={{ display: 'flex', bgcolor: 'background.default' }}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            bgcolor: 'background.default',
+            minHeight: 'calc(100vh - 40px)',
+          }}
+        >
           {/* Side nav */}
           <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
             {/* Mobile drawer */}
