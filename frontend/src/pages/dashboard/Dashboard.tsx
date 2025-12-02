@@ -26,13 +26,14 @@ const Dashboard: React.FC = () => {
   const lowQ = useQuery({ queryKey: ['kpi', 'lowStockCount'], queryFn: getLowStockCount });
 
   return (
-    <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper', m: 0 }}>
+    <Paper elevation={0} sx={{ p: 0, bgcolor: 'background.paper', m: 0 }}>
       <Box
         sx={{
-          mb: 2,
+          mb: 1,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          p: 2,
         }}
       >
         <Typography variant="h5" sx={{ fontWeight: 600 }}>

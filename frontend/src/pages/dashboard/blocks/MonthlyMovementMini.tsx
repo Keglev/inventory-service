@@ -28,8 +28,8 @@ export default function MonthlyMovementMini() {
     });
     return (
         <Card>
-            <CardContent>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>{t('dashboard.kpi.movementTitle', 'Stock movement (90d)')}</Typography>
+            <CardContent sx={{ py: 1.5, px: 2 }}>
+                <Typography variant="subtitle1" sx={{ mb: 0.75 }}>{t('dashboard.kpi.movementTitle', 'Stock movement (90d)')}</Typography>
                 {q.isLoading ? (
                     <Skeleton variant="rounded" height={220} />
                 ) : (
@@ -41,9 +41,7 @@ export default function MonthlyMovementMini() {
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="stockIn" />
-                                <Bar dataKey="stockOut" />
-                                <Bar dataKey="stockIn"  fill={muiTheme.palette.success.main} />
+                                <Bar dataKey="stockIn" fill={muiTheme.palette.success.main} />
                                 <Bar dataKey="stockOut" fill={muiTheme.palette.error.main} />
                             </BarChart>
                         </ResponsiveContainer>

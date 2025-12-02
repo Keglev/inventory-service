@@ -287,12 +287,12 @@ const Inventory: React.FC = () => {
   // -------- -------
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'background.paper' }}>
+      <Paper elevation={0} sx={{ p: 0, bgcolor: 'background.paper' }}>
         <Stack 
           direction="row" 
           alignItems="center" 
           justifyContent="space-between" 
-          sx={{ mb: 3 }}
+          sx={{ mb: 2, p: 2 }}
         >
           <Stack direction="row" alignItems="center" spacing={1}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>

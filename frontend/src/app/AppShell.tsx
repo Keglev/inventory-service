@@ -228,7 +228,7 @@ export default function AppShell() {
         </Typography>
       </Toolbar>
       <Divider />
-      <Box sx={{ flex: 1, py: 1 }}>
+      <Box sx={{ flex: 1, py: 0.5 }}>
         <List>
           <NavItem to="/dashboard" icon={<DashboardIcon />} label={t('nav.dashboard')} />
            {/* Inventory / Suppliers remain fully navigable; 
@@ -262,7 +262,7 @@ export default function AppShell() {
 
       {/* User Info & Settings Section */}
       <Divider />
-      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         
         {/* User Info */}
         <Box>
@@ -332,7 +332,7 @@ export default function AppShell() {
         </Box>
 
         {/* Help Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0 }}>
           <HelpIconButton
             topicId={getHelpTopicForCurrentRoute()}
             tooltip={t('actions.help', 'Help')}
