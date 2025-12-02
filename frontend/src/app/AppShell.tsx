@@ -63,6 +63,7 @@ import usFlag from '/flags/us.svg';
 
 /* Layout constants */
 const drawerWidth = 248;
+const APP_BAR_DESKTOP_HEIGHT = 64;
 const LS_KEY = 'i18nextLng';
 
 /**
@@ -517,8 +518,9 @@ export default function AppShell() {
                   boxSizing: 'border-box',
                   position: 'fixed',
                   left: 0,
-                  top: 64,  
-                  height: 'calc(100vh - 64px -40px)',         
+                  top: `calc(${APP_BAR_DESKTOP_HEIGHT}px + env(safe-area-inset-top, 0px))`,
+                  bottom: (theme) =>
+                    `calc(${theme.spacing(1)} + env(safe-area-inset-bottom, 0px))`,
                   overflowY: 'auto',
                 },
               }}
