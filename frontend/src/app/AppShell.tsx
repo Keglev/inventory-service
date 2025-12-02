@@ -262,7 +262,7 @@ export default function AppShell() {
 
       {/* User Info & Settings Section */}
       <Divider />
-      <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ p: 1.5, pb: 1, display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
         
         {/* User Info */}
         <Box>
@@ -332,7 +332,7 @@ export default function AppShell() {
         </Box>
 
         {/* Help Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 'auto' }}>
           <HelpIconButton
             topicId={getHelpTopicForCurrentRoute()}
             tooltip={t('actions.help', 'Help')}
@@ -513,7 +513,18 @@ export default function AppShell() {
           </Box>
 
           {/* Content area */}
-          <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, overflowY: 'auto' }}>
+          <Box
+            component="main"
+            sx={{
+              flex: 1,
+              p: { xs: 2, md: 3 },
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0,
+              minHeight: '100vh',
+            }}
+          >
             {/* Demo notice banner (non-blocking, subtle) */}
             <Toolbar />
             {isDemo && (
@@ -530,9 +541,11 @@ export default function AppShell() {
               </Alert>
             )}
 
-            <React.Suspense fallback={<Fallback />}>
-              <Outlet />
-            </React.Suspense>
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <React.Suspense fallback={<Fallback />}>
+                <Outlet />
+              </React.Suspense>
+            </Box>
           </Box>
         </Box>
 

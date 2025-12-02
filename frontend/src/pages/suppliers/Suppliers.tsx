@@ -222,8 +222,17 @@ const Suppliers: React.FC = () => {
 
   // ===== Render =====
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Paper elevation={0} sx={{ p: 0, bgcolor: 'background.paper' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 2 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 0,
+          bgcolor: 'background.paper',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, p: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
@@ -255,7 +264,7 @@ const Suppliers: React.FC = () => {
         </Box>
 
         {/* Search Supplier Panel */}
-        <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+        <Paper variant="outlined" sx={{ p: 2, mb: 2, mx: 2 }}>
         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
           {t('suppliers:search.title', 'Search Supplier')}
         </Typography>
@@ -311,7 +320,7 @@ const Suppliers: React.FC = () => {
 
         {/* Selected Supplier Info */}
         {selectedSupplier && (
-          <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', mb: 2 }}>
+          <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', mb: 2, mx: 2 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -363,13 +372,27 @@ const Suppliers: React.FC = () => {
 
       {/* Suppliers List (only shows if checkbox is checked) */}
       {!showAllSuppliers ? (
-        <Paper variant="outlined" sx={{ p: 2, height: 420, display: 'grid', placeItems: 'center' }}>
+        <Paper
+          variant="outlined"
+          sx={{ p: 2, height: 420, display: 'grid', placeItems: 'center', mx: 2, mb: 3 }}
+        >
           <Typography variant="body1" color="text.secondary">
             {t('suppliers:filters.selectToShow', 'Check "Show all suppliers" to display the complete list')}
           </Typography>
         </Paper>
       ) : (
-        <Paper variant="outlined" sx={{ height: 420, position: 'relative' }}>
+        <Paper
+          variant="outlined"
+          sx={{
+            flex: 1,
+            position: 'relative',
+            mx: 2,
+            mb: 3,
+            minHeight: 420,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {loading && (
             <LinearProgress sx={{ position: 'absolute', left: 0, right: 0, top: 0 }} />
           )}
@@ -403,7 +426,7 @@ const Suppliers: React.FC = () => {
 
       {/* Selected Info with Edit button */}
       {selectedId && (
-        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover' }}>
+        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', mx: 2, mb: 3 }}>
           <Typography variant="body2" color="text.secondary">
             {t('suppliers:status.selected', 'Selected supplier ID')}: <strong>{selectedId}</strong>
           </Typography>

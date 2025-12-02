@@ -26,65 +26,88 @@ const Dashboard: React.FC = () => {
   const lowQ = useQuery({ queryKey: ['kpi', 'lowStockCount'], queryFn: getLowStockCount });
 
   return (
-    <Paper elevation={0} sx={{ p: 0, bgcolor: 'background.paper', m: 0 }}>
+    <Paper
+      elevation={0}
+      sx={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.paper',
+        m: 0,
+      }}
+    >
       <Box
         sx={{
-          mb: 1,
+          flex: 1,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          p: 2,
+          flexDirection: 'column',
+          px: { xs: 2, md: 3 },
+          py: { xs: 2, md: 3 },
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          {t('dashboard.title')}
-        </Typography>
+        <Box
+          sx={{
+            mb: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            {t('dashboard.title')}
+          </Typography>
 
-      <HelpIconButton
-          topicId="app.main"
-          tooltip={t('actions.help', 'Help')}
-        />
+          <HelpIconButton
+            topicId="app.main"
+            tooltip={t('actions.help', 'Help')}
+          />
+        </Box>
+
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <StatCard
+              title={t('dashboard.kpi.totalItems')}
+              value={invQ.data}
+              loading={invQ.isLoading}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <StatCard
+              title={t('dashboard.kpi.suppliers')}
+              value={supQ.data}
+              loading={supQ.isLoading}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <StatCard
+              title={t('dashboard.kpi.lowStock')}
+              value={lowQ.data}
+              loading={lowQ.isLoading}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Compact chart: Monthly movement (90d) */}
+        <Box sx={{ mb: 2 }}>
+          <MonthlyMovementMini />
+        </Box>
+
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={1}
+          sx={{ mt: 'auto', pt: 1 }}
+        >
+          <Button variant="contained" onClick={() => navigate('/inventory')}>
+            {t('dashboard.actions.manageInventory')}
+          </Button>
+          <Button variant="outlined" onClick={() => navigate('/suppliers')}>
+            {t('dashboard.actions.manageSuppliers')}
+          </Button>
+          <Button variant="outlined" onClick={() => navigate('/analytics/overview')}>
+            {t('dashboard.actions.viewAnalytics')}
+          </Button>
+        </Stack>
       </Box>
-
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <StatCard
-            title={t('dashboard.kpi.totalItems')}
-            value={invQ.data}
-            loading={invQ.isLoading}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <StatCard
-            title={t('dashboard.kpi.suppliers')}
-            value={supQ.data}
-            loading={supQ.isLoading}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <StatCard
-            title={t('dashboard.kpi.lowStock')}
-            value={lowQ.data}
-            loading={lowQ.isLoading}
-          />
-        </Grid>
-      </Grid>
-      {/* Compact chart: Monthly movement (90d) */}
-      <Box sx={{ mb: 2 }}>
-        <MonthlyMovementMini />
-      </Box>
-
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
-        <Button variant="contained" onClick={() => navigate('/inventory')}>
-          {t('dashboard.actions.manageInventory')}
-        </Button>
-        <Button variant="outlined" onClick={() => navigate('/suppliers')}>
-          {t('dashboard.actions.manageSuppliers')}
-        </Button>
-        <Button variant="outlined" onClick={() => navigate('/analytics/overview')}>
-          {t('dashboard.actions.viewAnalytics')}
-        </Button>
-      </Stack>
     </Paper>
   );
 };

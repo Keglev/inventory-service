@@ -16,7 +16,6 @@
  * - `hooks/useInventoryData.ts` - useSuppliersQuery for consistent caching
  * - `types/inventory-dialog.types.ts` - SupplierOption interface
  */
-
 import * as React from 'react';
 import { 
   Box, Paper, Typography, LinearProgress, Stack, Button
@@ -94,7 +93,6 @@ const Inventory: React.FC = () => {
   // -----------------------------
   const [q, setQ] = React.useState('');
   const debouncedQ = useDebounced(q, 350);
-
   const [supplierId, setSupplierId] = React.useState<string | number | null>(null);
 
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
@@ -239,7 +237,7 @@ const Inventory: React.FC = () => {
         },
       },
     ];
-  }, [t, userPreferences.dateFormat]);
+  }, [t, userPreferences.dateFormat, userPreferences.numberFormat]);
 
   /**
    * Filter rows by selected supplier (client-side fallback).
@@ -286,29 +284,38 @@ const Inventory: React.FC = () => {
   // Once clicked, it opens EditItemDialog where user selects supplier and item name to change
   // -------- -------
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Paper elevation={0} sx={{ p: 0, bgcolor: 'background.paper' }}>
-        <Stack 
-          direction="row" 
-          alignItems="center" 
-          justifyContent="space-between" 
-          sx={{ mb: 2, p: 2 }}
+    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 2 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 0,
+          bgcolor: 'background.paper',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ px: { xs: 2, md: 3 }, pt: { xs: 2, md: 3 }, pb: 2 }}
         >
           <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            {t('inventory:page.title', 'Inventory Management')}
-          </Typography>
-          <HelpIconButton
-            topicId="inventory.overview"
-            tooltip={t('actions.help', 'Help')}
-          />
+            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              {t('inventory:page.title', 'Inventory Management')}
+            </Typography>
+            <HelpIconButton
+              topicId="inventory.overview"
+              tooltip={t('actions.help', 'Help')}
+            />
           </Stack>
 
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="flex-end">
             <Button variant="contained" onClick={() => setOpenNew(true)}>
               {t('inventory:toolbar.newItem', 'Add new item')}
             </Button>
-            <Button 
+            <Button
               onClick={() => setOpenEditName(true)}
               sx={{ opacity: 1, pointerEvents: 'auto' }}
             >
@@ -326,117 +333,108 @@ const Inventory: React.FC = () => {
           </Stack>
         </Stack>
 
-        {/* Filters */}
-        <Paper variant="outlined" sx={{ p: 1.5, mb: 2 }}>
-        <InventoryFilters
-          q={q}
-          onQChange={setQ}
-          supplierId={supplierId || ''}
-          onSupplierChange={(next) => {
-            // When supplier changes, reset paging & selection, and clear search
-            setSupplierId(next);
-            setSelectedId(null);
-            setQ('');
-            setPaginationModel((m) => ({ ...m, page: 0 }));
-          }}
-          supplierOptions={supplierOptions}
-          supplierLoading={supplierLoading}
-          disableSearchUntilSupplier
-        />
+        <Paper variant="outlined" sx={{ p: 1.5, mb: 2, mx: { xs: 2, md: 3 } }}>
+          <InventoryFilters
+            q={q}
+            onQChange={setQ}
+            supplierId={supplierId || ''}
+            onSupplierChange={(next) => {
+              setSupplierId(next);
+              setSelectedId(null);
+              setQ('');
+              setPaginationModel((m) => ({ ...m, page: 0 }));
+            }}
+            supplierOptions={supplierOptions}
+            supplierLoading={supplierLoading}
+            disableSearchUntilSupplier
+          />
 
-      {/* Below-Min toggle (only active once a supplier is chosen) */}
-      <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={belowMinOnly}
-              onChange={(e) => {
-                setBelowMinOnly(e.target.checked);
-                // Reset to first page so user sees results immediately in client mode
-                setPaginationModel((m) => ({ ...m, page: 0 }));
-              }}
-              disabled={!supplierId}
+          <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={belowMinOnly}
+                  onChange={(e) => {
+                    setBelowMinOnly(e.target.checked);
+                    setPaginationModel((m) => ({ ...m, page: 0 }));
+                  }}
+                  disabled={!supplierId}
+                />
+              }
+              label={t('inventory:filters.belowMinOnly', 'Below min only')}
             />
-          }
-          label={t('inventory:filters.belowMinOnly', 'Below min only')}
-        />
-      </Box>
-    </Paper>
-
-      {/* Content area */}
-      <Paper variant="outlined" sx={{ height: 420, position: 'relative', p: supplierId ? 0 : 2 }}>
-        {/* Supplier gate: block the grid until a supplier is selected */}
-        {!supplierId ? (
-          <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
-            <Typography variant="body1" color="text.secondary">
-              {t('inventory:search.selectSupplierPrompt', 'Select a supplier to view their items.')}
-            </Typography>
           </Box>
-        ) : (
-          <>
-            {loading && (
-              <LinearProgress sx={{ position: 'absolute', left: 0, right: 0, top: 0 }} />
-            )}
+        </Paper>
 
-            <DataGrid
-              /**
-               * Server-driven list *only* after supplier is chosen.
-               * We pass both { supplierId, q } to the backend so search is supplier-scoped.
-               */
-              rows={filteredItems}
-              columns={columns}
-              rowCount={useClientPaging ? filteredItems.length : server.total}
-              paginationMode={useClientPaging ? 'client' : 'server'}
-              sortingMode={useClientPaging ? 'client' : 'server'}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              sortModel={sortModel}
-              onSortModelChange={setSortModel}
-              getRowId={(r) => r.id}
-              density={userPreferences.tableDensity === 'compact' ? 'compact' : 'comfortable'}
-              /**
-               * Single-selection via click to avoid selection model type drift between MUI versions.
-               */
-              onRowClick={(params) => setSelectedId(String(params.id))}
+        <Paper
+          variant="outlined"
+          sx={{
+            flex: 1,
+            position: 'relative',
+            mx: { xs: 2, md: 3 },
+            mb: { xs: 3, md: 4 },
+            p: supplierId ? 0 : 2,
+            minHeight: 420,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {!supplierId ? (
+            <Box sx={{ display: 'grid', placeItems: 'center', height: '100%' }}>
+              <Typography variant="body1" color="text.secondary">
+                {t('inventory:search.selectSupplierPrompt', 'Select a supplier to view their items.')}
+              </Typography>
+            </Box>
+          ) : (
+            <>
+              {loading && (
+                <LinearProgress sx={{ position: 'absolute', left: 0, right: 0, top: 0 }} />
+              )}
 
-              /**
-               * Empty state text.
-               */
-              slots={{
-                noRowsOverlay: () => (
-                  <Box sx={{ p: 2, textAlign: 'center' }}>
-                    {q
-                      ? t('inventory:search.emptySearch', 'No matching items for this supplier.')
-                      : t('inventory:page.empty', 'No items found for this supplier.')}
-                  </Box>
-                ),
-              }}
-              /**
-               * Row-level styles for low stock (warning/critical).
-               * @enterprise
-               * - Default threshold 5 when minQty is 0/undefined.    
-               */
-              sx={{
-                '& .low-stock-warning': (theme) => ({
-                  bgcolor: theme.palette.warning.light,
-                }),
-                '& .low-stock-critical': (theme) => ({
-                  bgcolor: theme.palette.error.light,
-                }),
-              }}
-              getRowClassName={(params) => {
-                const r = params.row as InventoryRow;
-                const minRaw = Number(r.minQty ?? 0);
-                const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 5; // default to 5
-                const onHand = Number(r.onHand ?? 0);
-                const deficit = min - onHand;
-                if (deficit >= 5) return 'low-stock-critical';
-                if (deficit > 0) return 'low-stock-warning';
-                return '';
-              }}
-            />
-          </>
-        )}
+              <DataGrid
+                rows={filteredItems}
+                columns={columns}
+                rowCount={useClientPaging ? filteredItems.length : server.total}
+                paginationMode={useClientPaging ? 'client' : 'server'}
+                sortingMode={useClientPaging ? 'client' : 'server'}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                sortModel={sortModel}
+                onSortModelChange={setSortModel}
+                getRowId={(r) => r.id}
+                density={userPreferences.tableDensity === 'compact' ? 'compact' : 'comfortable'}
+                onRowClick={(params) => setSelectedId(String(params.id))}
+                slots={{
+                  noRowsOverlay: () => (
+                    <Box sx={{ p: 2, textAlign: 'center' }}>
+                      {q
+                        ? t('inventory:search.emptySearch', 'No matching items for this supplier.')
+                        : t('inventory:page.empty', 'No items found for this supplier.')}
+                    </Box>
+                  ),
+                }}
+                sx={{
+                  '& .low-stock-warning': (theme) => ({
+                    bgcolor: theme.palette.warning.light,
+                  }),
+                  '& .low-stock-critical': (theme) => ({
+                    bgcolor: theme.palette.error.light,
+                  }),
+                }}
+                getRowClassName={(params) => {
+                  const r = params.row as InventoryRow;
+                  const minRaw = Number(r.minQty ?? 0);
+                  const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 5;
+                  const onHand = Number(r.onHand ?? 0);
+                  const deficit = min - onHand;
+                  if (deficit >= 5) return 'low-stock-critical';
+                  if (deficit > 0) return 'low-stock-warning';
+                  return '';
+                }}
+              />
+            </>
+          )}
+        </Paper>
       </Paper>
 
       {/* Dialogs */}
@@ -491,7 +489,6 @@ const Inventory: React.FC = () => {
         onPriceChanged={load}
         readOnly={isDemo}
       />
-      </Paper>
     </Box>
   );
 };
