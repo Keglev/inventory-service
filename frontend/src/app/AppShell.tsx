@@ -63,7 +63,6 @@ import usFlag from '/flags/us.svg';
 
 /* Layout constants */
 const drawerWidth = 248;
-const APP_BAR_DESKTOP_HEIGHT = 64;
 const LS_KEY = 'i18nextLng';
 
 /**
@@ -486,14 +485,24 @@ export default function AppShell() {
         </AppBar>
 
         {/* Main container with sidebar + content, positioned below fixed AppBar */}
-        <Box 
-          sx={{ 
-            display: 'flex', 
+        <Box
+          sx={{
+            display: 'flex',
+            flex: 1,
+            minHeight: 0,
             bgcolor: 'background.default',
           }}
         >
           {/* Side nav */}
-          <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
+          <Box
+            component="nav"
+            sx={{
+              width: { md: drawerWidth },
+              flexShrink: { md: 0 },
+              display: { xs: 'block', md: 'flex' },
+              flexDirection: { md: 'column' },
+            }}
+          >
             {/* Mobile drawer */}
             <Drawer
               variant="temporary"
@@ -512,16 +521,18 @@ export default function AppShell() {
               variant="permanent"
               open
               sx={{
-                display: { xs: 'none', md: 'block' },
+                display: { xs: 'none', md: 'flex' },
+                flex: 1,
                 '& .MuiDrawer-paper': {
                   width: drawerWidth,
                   boxSizing: 'border-box',
-                  position: 'fixed',
-                  left: 0,
-                  top: `calc(${APP_BAR_DESKTOP_HEIGHT}px + env(safe-area-inset-top, 0px))`,
-                  bottom: (theme) =>
-                    `calc(${theme.spacing(1)} + env(safe-area-inset-bottom, 0px))`,
+                  borderRight: (theme) => `1px solid ${theme.palette.divider}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: 'auto',
+                  minHeight: '100%',
                   overflowY: 'auto',
+                  pb: 1,
                 },
               }}
             >
@@ -534,6 +545,7 @@ export default function AppShell() {
             component="main"
             sx={{
               flex: 1,
+              minHeight: 0,
               px: 0,
               pt: 0,
               pb: 0.5,
@@ -541,8 +553,6 @@ export default function AppShell() {
               display: 'flex',
               flexDirection: 'column',
               gap: 0,
-              // Make room for footer and app bar so we don’t get a “double height” page
-              minHeight: 'auto',
             }}
           >
             {/* Demo notice banner (non-blocking, subtle) */}
