@@ -489,7 +489,6 @@ export default function AppShell() {
           sx={{ 
             display: 'flex', 
             bgcolor: 'background.default',
-            minHeight: 'calc(100vh - 40px)',
           }}
         >
           {/* Side nav */}
@@ -516,8 +515,10 @@ export default function AppShell() {
                 '& .MuiDrawer-paper': {
                   width: drawerWidth,
                   boxSizing: 'border-box',
-                  position: 'relative',  
-                  height: '100%',         
+                  position: 'fixed',
+                  left: 0,
+                  top: 64,  
+                  height: 'calc(100vh - 64px -40px)',         
                   overflowY: 'auto',
                 },
               }}
