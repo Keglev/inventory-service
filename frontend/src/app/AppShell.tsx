@@ -45,6 +45,9 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import InsightsIcon from '@mui/icons-material/Insights';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useTranslation } from 'react-i18next';
 import { useSessionTimeout } from '../features/auth/hooks/useSessionTimeout';
 import { ToastContext } from '../app/ToastContext';
@@ -55,6 +58,8 @@ import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
 import AppSettingsDialog from './AppSettingsDialog';
 import HelpIconButton from '../features/help/components/HelpIconButton';
 import { HamburgerMenu } from './HamburgerMenu';
+import deFlag from '/flags/de.svg';
+import usFlag from '/flags/us.svg';
 
 /* Layout constants */
 const drawerWidth = 248;
@@ -177,6 +182,21 @@ export default function AppShell() {
     severity: 'success' | 'info' | 'warning' | 'error';
   } | null>(null);
 
+  /**
+   * Toggle language (DE <-> EN), persist choice, and let i18n drive the theme update via effect.
+   */
+  const toggleLocale = () => {
+    const next: SupportedLocale = locale === 'de' ? 'en' : 'de';
+    localStorage.setItem(LS_KEY, next);
+    setLocale(next); // optimistic
+    i18n.changeLanguage(next);
+    setToast({
+      open: true,
+      msg: next === 'de' ? 'Sprache: Deutsch' : 'Language: English',
+      severity: 'info',
+    });
+  };
+
   const location = useLocation();
 
   function getHelpTopicForCurrentRoute(): string {
@@ -238,6 +258,86 @@ export default function AppShell() {
           </ListItemIcon>
           <ListItemText primary={t('nav.logout')} />
         </ListItemButton>
+      </Box>
+
+      {/* User Info & Settings Section */}
+      <Divider />
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        
+        {/* User Info */}
+        <Box>
+          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+            {t('common:loggedInAs', 'Logged in as:')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            {user?.fullName || 'User'}
+          </Typography>
+          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
+            {t('common:role', 'Role:')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            {user?.role || 'user'}
+          </Typography>
+        </Box>
+
+        {/* Environment & Version */}
+        <Box>
+          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+            {t('footer:meta.environment', 'Environment:')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            Production (Koyeb)
+          </Typography>
+          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
+            {t('footer:meta.version', 'Version:')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block">
+            1.0.0
+          </Typography>
+        </Box>
+
+        {/* Icons Row: Theme toggle, Language, Settings */}
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-around', alignItems: 'center' }}>
+          <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
+            <IconButton 
+              size="small" 
+              onClick={toggleThemeMode}
+              sx={{
+                color: themeMode === 'light' ? 'warning.main' : 'info.main',
+                transition: 'color 0.3s ease',
+              }}
+            >
+              {themeMode === 'light' ? (
+                <LightModeIcon fontSize="small" />
+              ) : (
+                <DarkModeIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
+            <IconButton size="small" onClick={toggleLocale}>
+              <img
+                src={locale === 'de' ? deFlag : usFlag}
+                alt={locale === 'de' ? 'Deutsch' : 'English'}
+                width={16}
+                height={16}
+              />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('actions.settings', 'Settings')}>
+            <IconButton size="small" onClick={() => setSettingsOpen(true)}>
+              <SettingsIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        {/* Help Button */}
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <HelpIconButton
+            topicId={getHelpTopicForCurrentRoute()}
+            tooltip={t('actions.help', 'Help')}
+          />
+        </Box>
       </Box>
     </Box>
   );
