@@ -516,10 +516,8 @@ export default function AppShell() {
                 '& .MuiDrawer-paper': {
                   width: drawerWidth,
                   boxSizing: 'border-box',
-                  position: 'fixed',    
-                  left: '0',
-                  top: '64',
-                  bottom: '40',           
+                  position: 'relative',  
+                  height: '100%',         
                   overflowY: 'auto',
                 },
               }}
