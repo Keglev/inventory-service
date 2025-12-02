@@ -35,11 +35,8 @@ import {
   Tooltip,
   Snackbar,
   Alert,
-  Menu,
-  MenuItem,
-  Avatar,
-  CircularProgress,
   Chip,
+  CircularProgress,
 } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -47,11 +44,7 @@ import InventoryIcon from '@mui/icons-material/Inventory2';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import InsightsIcon from '@mui/icons-material/Insights';
 import MenuIcon from '@mui/icons-material/Menu';
-import DensitySmallIcon from '@mui/icons-material/DensitySmall';
 import LogoutIcon from '@mui/icons-material/Logout';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { useTranslation } from 'react-i18next';
 import { useSessionTimeout } from '../features/auth/hooks/useSessionTimeout';
 import { ToastContext } from '../app/ToastContext';
@@ -60,9 +53,8 @@ import type { SupportedLocale } from '../theme';
 import { useAuth } from '../context/useAuth';
 import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
 import AppSettingsDialog from './AppSettingsDialog';
-import deFlag from '/flags/de.svg';
-import usFlag from '/flags/us.svg';
 import HelpIconButton from '../features/help/components/HelpIconButton';
+import { HamburgerMenu } from './HamburgerMenu';
 
 /* Layout constants */
 const drawerWidth = 248;
@@ -178,33 +170,12 @@ export default function AppShell() {
 
   // Drawer + toast state.
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [toast, setToast] = React.useState<{
     open: boolean;
     msg: string;
     severity: 'success' | 'info' | 'warning' | 'error';
   } | null>(null);
-
-  // Settings dialog state
-  const [settingsOpen, setSettingsOpen] = React.useState(false);
-
-  // Profile menu.
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const profileOpen = Boolean(anchorEl);
-
-  /**
-   * Toggle language (DE <-> EN), persist choice, and let i18n drive the theme update via effect.
-   */
-  const toggleLocale = () => {
-    const next: SupportedLocale = locale === 'de' ? 'en' : 'de';
-    localStorage.setItem(LS_KEY, next);
-    setLocale(next); // optimistic
-    i18n.changeLanguage(next);
-    setToast({
-      open: true,
-      msg: next === 'de' ? 'Sprache: Deutsch' : 'Language: English',
-      severity: 'info',
-    });
-  };
 
   const location = useLocation();
 
@@ -267,86 +238,6 @@ export default function AppShell() {
           </ListItemIcon>
           <ListItemText primary={t('nav.logout')} />
         </ListItemButton>
-      </Box>
-
-      {/* User Info & Settings Section */}
-      <Divider />
-      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        
-        {/* User Info */}
-        <Box>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-            {t('common:loggedInAs', 'Logged in as:')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            {user?.fullName || 'User'}
-          </Typography>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
-            {t('common:role', 'Role:')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            {user?.role || 'user'}
-          </Typography>
-        </Box>
-
-        {/* Environment & Version */}
-        <Box>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-            {t('footer:meta.environment', 'Environment:')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            Production (Koyeb)
-          </Typography>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
-            {t('footer:meta.version', 'Version:')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            1.0.0
-          </Typography>
-        </Box>
-
-        {/* Icons Row: Theme toggle, Language, Settings */}
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-around', alignItems: 'center' }}>
-          <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
-            <IconButton 
-              size="small" 
-              onClick={toggleThemeMode}
-              sx={{
-                color: themeMode === 'light' ? 'warning.main' : 'info.main',
-                transition: 'color 0.3s ease',
-              }}
-            >
-              {themeMode === 'light' ? (
-                <LightModeIcon fontSize="small" />
-              ) : (
-                <DarkModeIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
-            <IconButton size="small" onClick={toggleLocale}>
-              <img
-                src={locale === 'de' ? deFlag : usFlag}
-                alt={locale === 'de' ? 'Deutsch' : 'English'}
-                width={16}
-                height={16}
-              />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('actions.settings', 'Settings')}>
-            <IconButton size="small" onClick={() => setSettingsOpen(true)}>
-              <SettingsIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        {/* Help Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <HelpIconButton
-            topicId={getHelpTopicForCurrentRoute()}
-            tooltip={t('actions.help', 'Help')}
-          />
-        </Box>
       </Box>
     </Box>
   );
@@ -445,52 +336,29 @@ export default function AppShell() {
               </Tooltip>
             </Box>
 
-            {/* Density (informational for now) */}
-            <Tooltip title={t('actions.toggleDensity')}>
-              <span>
-                <IconButton
-                  onClick={() =>
-                    setToast({
-                      open: true,
-                      msg: t('toast.densityStatic'),
-                      severity: 'info',
-                    })
-                  }
-                >
-                  <DensitySmallIcon />
-                </IconButton>
-              </span>
-            </Tooltip>
-
-            {/* Language toggle: 🇩🇪 <-> 🇺🇸 */}
-            <Tooltip title={t('actions.toggleLanguage')}>
-              <IconButton onClick={toggleLocale}>
-                <img
-                  src={locale === 'de' ? deFlag : usFlag}
-                  alt={locale === 'de' ? 'Deutsch' : 'English'}
-                  width={20}
-                  height={20}
-                />
-              </IconButton>
-            </Tooltip>
-
-            {/* Profile menu */}
+            {/* Help Icon Button */}
             <HelpIconButton 
               topicId={getHelpTopicForCurrentRoute()} 
               tooltip={t('actions.help', 'Help')} 
             />
-            <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
-              <Avatar sx={{ width: 28, height: 28 }}>
-                {user?.fullName?.slice(0, 2).toUpperCase() || 'SS'}
-              </Avatar>
-            </IconButton>
-            <Menu anchorEl={anchorEl} open={profileOpen} onClose={() => setAnchorEl(null)}>
-              <MenuItem disabled>
-                {/* Example: "Ada Lovelace (ADMIN)" */}
-                {user ? `${user.fullName} (${user.role})` : '—'}
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>{t('nav.logout')}</MenuItem>
-            </Menu>
+
+            {/* Hamburger Menu (contains Profile, Appearance, Language, Notifications, Help, System Info, Logout) */}
+            <HamburgerMenu
+              themeMode={themeMode}
+              onThemeModeChange={toggleThemeMode}
+              locale={locale}
+              onLocaleChange={(next: SupportedLocale) => {
+                localStorage.setItem(LS_KEY, next);
+                setLocale(next);
+                i18n.changeLanguage(next);
+                setToast({
+                  open: true,
+                  msg: next === 'de' ? 'Sprache: Deutsch' : 'Language: English',
+                  severity: 'info',
+                });
+              }}
+              onLogout={handleLogout}
+            />
           </Toolbar>
         </AppBar>
 

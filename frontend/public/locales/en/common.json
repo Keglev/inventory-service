@@ -32,6 +32,7 @@
   }
 },
   "actions": {
+    "menu": "Menu",
     "toggleDensity": "Toggle compact density",
     "toggleLanguage": "Switch language",
     "backToDashboard": "Back to dashboard",
@@ -55,6 +56,51 @@
     "densityStatic": "Compact density mode is not yet fully implemented in this version"
   },
   "profile": { "soon": "Profile (soon)" },
+  "name": "Name",
+  "email": "Email",
+  "role": "Role",
+  "loggedInAs": "Logged in as",
+  "appearance": {
+    "title": "Appearance",
+    "theme": "Theme",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "light": "Light",
+    "dark": "Dark",
+    "density": "Table Density",
+    "standard": "Standard",
+    "compact": "Compact"
+  },
+  "language": {
+    "title": "Language & Region",
+    "language": "Language",
+    "dateFormat": "Date Format",
+    "numberFormat": "Number Format"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "error": "Could not load notifications",
+    "lowStock": "Low Stock Items",
+    "items": "items with low or no stock"
+  },
+  "help": {
+    "title": "Help & Docs",
+    "github": "GitHub Repository",
+    "apiDocs": "Open API Docs",
+    "frontendDocs": "Frontend Docs"
+  },
+  "systemInfo": {
+    "title": "System Info",
+    "environment": "Environment",
+    "backend": "Backend",
+    "frontend": "Frontend",
+    "version": "Version",
+    "build": "Build",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "backendOnline": "Status: Online",
+    "backendOffline": "Status: Offline"
+  },
   "analytics": {
     "title": "Analytics",
     "cards": {

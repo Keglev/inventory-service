@@ -29,6 +29,7 @@
     }
   },
   "actions": {
+    "menu": "Menü",
     "toggleDensity": "Kompakte Dichte umschalten",
     "toggleLanguage": "Sprache wechseln",
     "backToDashboard": "Zurück zur Übersicht",
@@ -53,6 +54,51 @@
     "densityStatic": "Der kompakte Dichtenmodus ist in dieser Version noch nicht vollständig implementiert"
   },
   "profile": { "soon": "Profil (bald)" },
+  "name": "Name",
+  "email": "E-Mail",
+  "role": "Rolle",
+  "loggedInAs": "Angemeldet als",
+  "appearance": {
+    "title": "Erscheinungsbild",
+    "theme": "Design",
+    "lightMode": "Hellmodus",
+    "darkMode": "Dunkelmodus",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "density": "Tabellendichte",
+    "standard": "Standard",
+    "compact": "Kompakt"
+  },
+  "language": {
+    "title": "Sprache & Region",
+    "language": "Sprache",
+    "dateFormat": "Datumsformat",
+    "numberFormat": "Zahlenformat"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "error": "Benachrichtigungen konnten nicht geladen werden",
+    "lowStock": "Artikel mit niedrigem Bestand",
+    "items": "Artikel mit niedrigem oder keinem Bestand"
+  },
+  "help": {
+    "title": "Hilfe & Docs",
+    "github": "GitHub-Repository",
+    "apiDocs": "API-Dokumentation anzeigen",
+    "frontendDocs": "Frontend-Docs"
+  },
+  "systemInfo": {
+    "title": "Systeminfo",
+    "environment": "Umgebung",
+    "backend": "Backend",
+    "frontend": "Frontend",
+    "version": "Version",
+    "build": "Build",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "backendOnline": "Status: Online",
+    "backendOffline": "Status: Offline"
+  },
   "analytics": {
     "title": "Analysen",
     "cards": { "stockValue": "Bestandswert im Zeitverlauf", "monthlyMovement": "Monatliche Bestandsbewegungen", "priceTrend": "Preisentwicklung" },
