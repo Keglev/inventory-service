@@ -261,83 +261,93 @@ export default function AppShell() {
       </Box>
 
       {/* User Info & Settings Section */}
-      <Divider />
-      <Box sx={{ p: 1.25, pb: 0.75, mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.75, }}>
+      <Box sx={{ mt: 'auto' }}>
+        <Divider />
+          <Box 
+            sx={{ 
+              p: 1.25, 
+              pb: 0.75, 
+              mt: 0.5, 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 0.75, 
+            }}
+          >
         
-        {/* User Info + env + version + icons*/}
-        <Box>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-            {t('common:loggedInAs', 'Logged in as:')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            {user?.fullName || 'User'}
-          </Typography>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
-            {t('common:role', 'Role:')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            {user?.role || 'user'}
-          </Typography>
-        </Box>
+            {/* User Info + env + version + icons*/}
+            <Box>
+              <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+                {t('common:loggedInAs', 'Logged in as:')}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                {user?.fullName || 'User'}
+              </Typography>
+              <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
+                {t('common:role', 'Role:')}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                {user?.role || 'user'}
+              </Typography>
+            </Box>
+            {/* Environment & Version */}
+            <Box>
+              <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+                {t('footer:meta.environment', 'Environment:')}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                Production (Koyeb)
+              </Typography>
+              <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
+                {t('footer:meta.version', 'Version:')}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                1.0.0
+              </Typography>
+            </Box>
 
-        {/* Environment & Version */}
-        <Box>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-            {t('footer:meta.environment', 'Environment:')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            Production (Koyeb)
-          </Typography>
-          <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 0.5, mb: 0.5 }}>
-            {t('footer:meta.version', 'Version:')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
-            1.0.0
-          </Typography>
-        </Box>
+            {/* Icons Row: Theme toggle, Language, Settings */}
+            <Box sx={{ display: 'flex', gap: 0.75, justifyContent: 'space-around', alignItems: 'center', mt: 0.5, }}>
+              <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
+                <IconButton 
+                  size="small" 
+                  onClick={toggleThemeMode}
+                  sx={{
+                    color: themeMode === 'light' ? 'warning.main' : 'info.main',
+                    transition: 'color 0.3s ease',
+                  }}
+                >
+                  {themeMode === 'light' ? (
+                    <LightModeIcon fontSize="small" />
+                  ) : (
+                    <DarkModeIcon fontSize="small" />
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
+                <IconButton size="small" onClick={toggleLocale}>
+                  <img
+                    src={locale === 'de' ? deFlag : usFlag}
+                    alt={locale === 'de' ? 'Deutsch' : 'English'}
+                    width={16}
+                    height={16}
+                  />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={t('actions.settings', 'Settings')}>
+                <IconButton size="small" onClick={() => setSettingsOpen(true)}>
+                  <SettingsIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
 
-        {/* Icons Row: Theme toggle, Language, Settings */}
-        <Box sx={{ display: 'flex', gap: 0.75, justifyContent: 'space-around', alignItems: 'center', mt: 0.5, }}>
-          <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
-            <IconButton 
-              size="small" 
-              onClick={toggleThemeMode}
-              sx={{
-                color: themeMode === 'light' ? 'warning.main' : 'info.main',
-                transition: 'color 0.3s ease',
-              }}
-            >
-              {themeMode === 'light' ? (
-                <LightModeIcon fontSize="small" />
-              ) : (
-                <DarkModeIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
-            <IconButton size="small" onClick={toggleLocale}>
-              <img
-                src={locale === 'de' ? deFlag : usFlag}
-                alt={locale === 'de' ? 'Deutsch' : 'English'}
-                width={16}
-                height={16}
+            {/* Help Button */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 0.75, mb: 0.5 }}>
+              <HelpIconButton
+                topicId={getHelpTopicForCurrentRoute()}
+                tooltip={t('actions.help', 'Help')}
               />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('actions.settings', 'Settings')}>
-            <IconButton size="small" onClick={() => setSettingsOpen(true)}>
-              <SettingsIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        {/* Help Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 0.75, mb: 0.5 }}>
-          <HelpIconButton
-            topicId={getHelpTopicForCurrentRoute()}
-            tooltip={t('actions.help', 'Help')}
-          />
-        </Box>
+            </Box>
+          </Box>
       </Box>
     </Box>
   );
