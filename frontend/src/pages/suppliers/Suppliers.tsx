@@ -320,7 +320,10 @@ const Suppliers: React.FC = () => {
 
         {/* Selected Supplier Info */}
         {selectedSupplier && (
-          <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', mb: 2, mx: 2 }}>
+          <Paper 
+            variant="outlined" 
+            sx={{ p: 2, bgcolor: 'action.hover', mb: 2, mx: 2 }}
+          >
             <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -374,7 +377,7 @@ const Suppliers: React.FC = () => {
       {!showAllSuppliers ? (
         <Paper
           variant="outlined"
-          sx={{ p: 2, height: 420, display: 'grid', placeItems: 'center', mx: 2, mb: 3 }}
+          sx={{ p: 2, height: 420, display: 'grid', placeItems: 'center', mx: 2, mb: 2 }}
         >
           <Typography variant="body1" color="text.secondary">
             {t('suppliers:filters.selectToShow', 'Check "Show all suppliers" to display the complete list')}
@@ -387,7 +390,7 @@ const Suppliers: React.FC = () => {
             flex: 1,
             position: 'relative',
             mx: 2,
-            mb: 3,
+            mb: 2,
             minHeight: 420,
             display: 'flex',
             flexDirection: 'column',
@@ -426,7 +429,7 @@ const Suppliers: React.FC = () => {
 
       {/* Selected Info with Edit button */}
       {selectedId && (
-        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', mx: 2, mb: 3 }}>
+        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', mx: 2, mb: 2 }}>
           <Typography variant="body2" color="text.secondary">
             {t('suppliers:status.selected', 'Selected supplier ID')}: <strong>{selectedId}</strong>
           </Typography>

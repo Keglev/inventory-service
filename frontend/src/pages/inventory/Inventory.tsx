@@ -372,7 +372,7 @@ const Inventory: React.FC = () => {
             flex: 1,
             position: 'relative',
             mx: { xs: 2, md: 3 },
-            mb: { xs: 3, md: 4 },
+            mb: { xs: 2, md: 3 },
             p: supplierId ? 0 : 2,
             minHeight: 420,
             display: 'flex',

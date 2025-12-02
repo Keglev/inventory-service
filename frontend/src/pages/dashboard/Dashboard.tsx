@@ -42,7 +42,8 @@ const Dashboard: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           px: { xs: 2, md: 3 },
-          py: { xs: 2, md: 3 },
+          pt: { xs: 1.5, md: 2 },
+          pb: { xs: 2, md: 3 },
         }}
       >
         <Box

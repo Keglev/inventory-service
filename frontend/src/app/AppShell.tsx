@@ -262,7 +262,7 @@ export default function AppShell() {
 
       {/* User Info & Settings Section */}
       <Divider />
-      <Box sx={{ p: 1.5, pb: 1, display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
+      <Box sx={{ p: 1.5, pb: 1, display: 'flex', flexDirection: 'column', gap: 1, flexShrink: 0 }}>
         
         {/* User Info */}
         <Box>
@@ -517,12 +517,16 @@ export default function AppShell() {
             component="main"
             sx={{
               flex: 1,
-              p: { xs: 2, md: 3 },
+              // No top padding – Toolbar already adds the app bar spacer
+              px: { xs: 2, md: 3 },
+              pb: { xs: 2, md: 3 },
+              pt: 0,
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
               gap: 0,
-              minHeight: '100vh',
+              // Make room for footer and app bar so we don’t get a “double height” page
+              minHeight: 'calc(100vh - 64px - 40px)', // 64 = AppBar, 40 = compact footer bar
             }}
           >
             {/* Demo notice banner (non-blocking, subtle) */}
@@ -532,7 +536,7 @@ export default function AppShell() {
                 severity="info"
                 icon={false}
                 sx={{
-                  mb: 2,
+                  mb: 1.5, // slightly smaller, so banner + cards feel tighter
                   borderLeft: (theme) => `4px solid ${theme.palette.info.main}`,
                   bgcolor: (theme) => theme.palette.info.light,
                 }}
