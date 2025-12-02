@@ -228,7 +228,7 @@ export default function AppShell() {
         </Typography>
       </Toolbar>
       <Divider />
-      <Box sx={{ flex: 1, py: 0.5 }}>
+      <Box sx={{ py: 0.5 }}>
         <List>
           <NavItem to="/dashboard" icon={<DashboardIcon />} label={t('nav.dashboard')} />
            {/* Inventory / Suppliers remain fully navigable; 
@@ -262,9 +262,9 @@ export default function AppShell() {
 
       {/* User Info & Settings Section */}
       <Divider />
-      <Box sx={{ p: 1.5, pb: 1, display: 'flex', flexDirection: 'column', gap: 1, flexShrink: 0 }}>
+      <Box sx={{ p: 1.5, pb: 1, mt: 1, display: 'flex', flexDirection: 'column', gap: 1, }}>
         
-        {/* User Info */}
+        {/* User Info + env + version + icons*/}
         <Box>
           <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
             {t('common:loggedInAs', 'Logged in as:')}
@@ -332,7 +332,7 @@ export default function AppShell() {
         </Box>
 
         {/* Help Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 'auto' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1, mb: 1.5 }}>
           <HelpIconButton
             topicId={getHelpTopicForCurrentRoute()}
             tooltip={t('actions.help', 'Help')}
@@ -517,16 +517,15 @@ export default function AppShell() {
             component="main"
             sx={{
               flex: 1,
-              // No top padding – Toolbar already adds the app bar spacer
               px: { xs: 2, md: 3 },
-              pb: { xs: 2, md: 3 },
               pt: 0,
+              pb: { xs: 1.5, md: 2.5 },
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
               gap: 0,
               // Make room for footer and app bar so we don’t get a “double height” page
-              minHeight: 'calc(100vh - 64px - 40px)', // 64 = AppBar, 40 = compact footer bar
+              minHeight: 'auto',
             }}
           >
             {/* Demo notice banner (non-blocking, subtle) */}
