@@ -228,7 +228,7 @@ export default function AppShell() {
         </Typography>
       </Toolbar>
       <Divider />
-      <Box sx={{ py: 0.5 }}>
+      <Box sx={{ py: 0.25 }}>
         <List>
           <NavItem to="/dashboard" icon={<DashboardIcon />} label={t('nav.dashboard')} />
            {/* Inventory / Suppliers remain fully navigable; 
@@ -262,7 +262,7 @@ export default function AppShell() {
 
       {/* User Info & Settings Section */}
       <Divider />
-      <Box sx={{ p: 1.5, pb: 1, mt: 1, display: 'flex', flexDirection: 'column', gap: 1, }}>
+      <Box sx={{ p: 1.25, pb: 0.75, mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.75, }}>
         
         {/* User Info + env + version + icons*/}
         <Box>
@@ -297,7 +297,7 @@ export default function AppShell() {
         </Box>
 
         {/* Icons Row: Theme toggle, Language, Settings */}
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-around', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 0.75, justifyContent: 'space-around', alignItems: 'center', mt: 0.5, }}>
           <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
             <IconButton 
               size="small" 
@@ -332,7 +332,7 @@ export default function AppShell() {
         </Box>
 
         {/* Help Button */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1, mb: 1.5 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 0.75, mb: 0.5 }}>
           <HelpIconButton
             topicId={getHelpTopicForCurrentRoute()}
             tooltip={t('actions.help', 'Help')}
@@ -517,9 +517,9 @@ export default function AppShell() {
             component="main"
             sx={{
               flex: 1,
-              px: { xs: 2, md: 3 },
+              px: 0,
               pt: 0,
-              pb: { xs: 1.5, md: 2.5 },
+              pb: 0.5,
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
@@ -535,7 +535,7 @@ export default function AppShell() {
                 severity="info"
                 icon={false}
                 sx={{
-                  mb: 1.5, // slightly smaller, so banner + cards feel tighter
+                  mb: 0.5,
                   borderLeft: (theme) => `4px solid ${theme.palette.info.main}`,
                   bgcolor: (theme) => theme.palette.info.light,
                 }}
