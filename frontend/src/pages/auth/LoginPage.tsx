@@ -45,7 +45,7 @@ export default function LoginPage() {
 
   const handleDemo = () => {
     loginAsDemo();
-    navigate('/analytics/overview', { replace: true });
+    navigate('/dashboard', { replace: true });
   };
 
   return (

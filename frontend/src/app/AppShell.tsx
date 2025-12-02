@@ -379,10 +379,10 @@ export default function AppShell() {
 
             <Box sx={{ flex: 1 }} />
 
-            {/* System health badge (SAP/Fiori-style) */}
+            {/* System health badge (SAP/Fiori-style) - moved to left */}
             <Box
               sx={{
-                mr: 1.5,
+                mr: 2,
                 display: { xs: 'none', sm: 'flex' },
                 alignItems: 'center',
               }}
@@ -435,6 +435,18 @@ export default function AppShell() {
                 />
               </Tooltip>
             </Box>
+
+            {/* Language Flag (Enterprise SaaS style) */}
+            <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
+              <IconButton size="small" onClick={toggleLocale} sx={{ mr: 1 }}>
+                <img
+                  src={locale === 'de' ? deFlag : usFlag}
+                  alt={locale === 'de' ? 'Deutsch' : 'English'}
+                  width={16}
+                  height={16}
+                />
+              </IconButton>
+            </Tooltip>
 
             {/* Help Icon Button */}
             <HelpIconButton 

@@ -35,7 +35,7 @@ const RequireAuth: React.FC<Props> = ({ children, fallback, allowDemo }) => {
   }
 
   if (user.isDemo && !allowDemo) {
-    return <Navigate to="/analytics/overview" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

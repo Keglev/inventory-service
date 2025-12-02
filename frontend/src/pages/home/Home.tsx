@@ -43,7 +43,7 @@ const Home: React.FC = () => {
   // Unauthenticated → show a small, focused landing with Sign in + Demo
   const handleDemo = () => {
     loginAsDemo();
-    navigate('/analytics/overview', { replace: true });
+    navigate('/dashboard', { replace: true });
   };
 
   return (
