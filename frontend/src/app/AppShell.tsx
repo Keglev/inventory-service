@@ -543,7 +543,7 @@ export default function AppShell() {
             component="main"
             sx={{
               flex: 1,
-              minHeight: 0,
+              minHeight: 'auto',
               px: 0,
               pt: 0,
               pb: 0.5,
