@@ -499,7 +499,8 @@ export default function AppShell() {
             sx={{
               width: { md: drawerWidth },
               flexShrink: { md: 0 },
-              display: { xs: 'block', md: 'flex' },
+              minHeight: 'calc(100vh - 64px - 40px)',
+              display: 'flex',
               flexDirection: { md: 'column' },
             }}
           >
@@ -521,16 +522,13 @@ export default function AppShell() {
               variant="permanent"
               open
               sx={{
-                display: { xs: 'none', md: 'flex' },
+                display: { xs: 'none', md: 'block' },
                 flex: 1,
                 '& .MuiDrawer-paper': {
                   width: drawerWidth,
                   boxSizing: 'border-box',
-                  borderRight: (theme) => `1px solid ${theme.palette.divider}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: 'auto',
-                  minHeight: '100%',
+                  height: '100%',
+                  position: 'relative',
                   overflowY: 'auto',
                   pb: 1,
                 },
