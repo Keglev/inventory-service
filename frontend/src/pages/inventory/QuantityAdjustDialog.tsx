@@ -263,11 +263,11 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
    * Use current quantity from selected item data.
    */
   React.useEffect(() => {
-    if (selectedItem) {
+    if (selectedItem && itemDetailsQuery.data) {
       setValue('itemId', selectedItem.id);
-      setValue('newQuantity', selectedItem.onHand);
+      setValue('newQuantity', itemDetailsQuery.data.onHand);
     }
-  }, [selectedItem, setValue]);
+  }, [selectedItem, itemDetailsQuery.data, setValue]);
 
   // ================================
   // Event Handlers
@@ -484,7 +484,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                   ) : itemPriceQuery.data !== null && itemPriceQuery.data !== undefined ? (
                     `$${itemPriceQuery.data.toFixed(2)}`
                   ) : (
-                    `$${selectedItem.price.toFixed(2)}`
+                    `$${(selectedItem?.price ?? 0).toFixed(2)}`
                   )}
                 </Typography>
               </Box>
@@ -521,7 +521,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     errors.newQuantity?.message ||
                     (selectedItem && (
                       t('inventory:quantity.QuantityChangeHint', 'Changing from {{current}} to {{new}}', {
-                        current: selectedItem.onHand,
+                        current: itemDetailsQuery.data?.onHand ?? 0,
                         new: value,
                       })
                     ))

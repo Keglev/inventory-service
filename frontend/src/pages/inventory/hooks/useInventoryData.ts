@@ -31,6 +31,40 @@ import { searchItemsForSupplier } from '../../../api/analytics/search';
 import http from '../../../api/httpClient';
 import type { SupplierOption, ItemOption, ItemDetails } from '../types/inventory-dialog.types';
 
+
+/**
+* Helpers
+*/
+type UnknownRecord = Record<string, unknown>;
+
+const isRecord = (value: unknown): value is UnknownRecord => 
+  typeof value === 'object' && value !== null;
+
+const toFiniteNumber = (value: unknown): number | undefined => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+};
+
+const pickNumberField = (
+  obj: UnknownRecord,
+  keys: readonly string[],
+): number | undefined => {
+  for (const key of keys) {
+    const maybe = toFiniteNumber(obj[key]);
+    if (maybe !== undefined) return maybe;
+  }
+  return undefined;
+};
+
+
 /**
  * Hook to load suppliers for dropdown/autocomplete selection.
  * Caches results for 5 minutes to reduce API calls.
@@ -131,8 +165,6 @@ export function useItemSearchQuery(
       return supplierFiltered.map((item): ItemOption => ({
         id: item.id,
         name: item.name,
-        onHand: 0, // Placeholder - will be fetched when item is selected
-        price: 0,  // Placeholder - will be fetched when item is selected
       }));
     },
     enabled: !!selectedSupplier && searchQuery.length >= 2,
@@ -181,18 +213,51 @@ export function useItemDetailsQuery(itemId: string | undefined | null) {
 
       try {
         const response = await http.get(`/api/inventory/${encodeURIComponent(itemId)}`);
-        const data = response.data;
+        
+        // Axios response has `data`; defensively normalize it.
+        const rawData = isRecord(response) && 'data' in response
+          ? (response as { data: unknown }).data
+          : (response as unknown);
 
-        // Extract and normalize the item details from backend response
+        const data: UnknownRecord = isRecord(rawData) ? rawData : {};
+
+        const onHand =
+          pickNumberField(data, [
+            'onHand',
+            'quantity',
+            'qty',
+            'currentQuantity',
+            'currentQty',
+            'quantityOnHand',
+            'onHandQuantity',
+            'stock',
+          ]) ?? 0;
+
+        const price =
+          pickNumberField(data, ['price', 'currentPrice']) ?? 0;
+
+        const idValue = data['id'];
+        const nameValue = data['name'];
+        const codeValue = data['code'];
+        const supplierIdValue = data['supplierId'];
+
+        const code =
+          typeof codeValue === 'string' ? codeValue : null;
+
+        const supplierId =
+          typeof supplierIdValue === 'string' || typeof supplierIdValue === 'number'
+            ? supplierIdValue
+            : null;
+
         return {
-          id: String(data.id || ''),
-          name: String(data.name || ''),
-          // Handle both 'quantity' and 'onHand' field names (backend inconsistency)
-          onHand: Number(data.quantity || data.onHand || 0),
-          price: Number(data.price || 0),
-          code: data.code || null,
-          supplierId: data.supplierId || null,
+          id: String(idValue ?? ''),
+          name: typeof nameValue === 'string' ? nameValue : '',
+          onHand,
+          price,
+          code,
+          supplierId,
         };
+        
       } catch (error) {
         // Gracefully handle errors - don't block the dialog
         console.error('Failed to fetch item details:', error);

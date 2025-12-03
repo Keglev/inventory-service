@@ -72,9 +72,9 @@ export interface ItemOption {
   /** Display name for item selection */
   name: string;
   /** Current quantity on hand (placeholder in search results, actual value from details query) */
-  onHand: number;
+  onHand?: number;
   /** Current price per unit (placeholder in search results, actual value from details query) */
-  price: number;
+  price?: number;
 }
 
 /**
