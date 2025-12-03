@@ -7,45 +7,35 @@
  * Fetches low-stock item count from backend and displays notification status.
  */
 
-import {
-  Box,
-  Typography,
-  Stack,
-  Chip,
-} from '@mui/material';
+import { Box, Typography, Stack, Chip, Skeleton } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import httpClient from '../../api/httpClient';
-
-  export interface LowStockItem {
-  id: string;
-  name: string;
-  onHand: number;
-  minQty: number | null;
-  supplierId?: string;
-  category?: string;
-}
+import { getLowStockCount } from '../../api/metrics';
 
 export default function NotificationsMenuSection() {
   const { t } = useTranslation(['common', 'analytics']);
 
   // Fetch low-stock count from backend
-  const q = useQuery<LowStockItem[]>({
-    queryKey: ['notifications', 'lowStock'],
-    queryFn: async () => {
-        const res = await httpClient.get('/analytics/low-stock-items'); // keep your real URL
-        return res.data as LowStockItem[];
-    },
+  const q = useQuery<number>({
+    queryKey: ['notifications', 'lowStockCount'],
+    queryFn: getLowStockCount,
     staleTime: 30_000,
     retry: 1,
-    });
+  });
 
-    // Derive count + flag from the array
-    const lowStockItems = q.data ?? [];
-    const lowStockCount = lowStockItems.length;
-    const hasLowStock = lowStockCount > 0;
+  const lowStockCount = q.data ?? 0;
+  const hasLowStock = !q.isLoading && lowStockCount > 0;
+
+  if (q.isLoading) {
+    return (
+      <Stack spacing={0.5} sx={{ p: 1 }}>
+        <Skeleton variant="text" width={160} />
+        <Skeleton variant="text" width={120} />
+      </Stack>
+    );
+  }
 
   return (
     <>

@@ -28,8 +28,18 @@ const pickString = (r: UnknownRecord, k: string): string | undefined => {
 };
 
 const pickNumber = (r: UnknownRecord, k: string): number | undefined => {
+  if (!(k in r)) return undefined;
   const v = r[k];
-  return typeof v === 'number' ? v : undefined;
+  if (typeof v === 'number') {
+    return Number.isFinite(v) ? v : undefined;
+  }
+  if (typeof v === 'string') {
+    const trimmed = v.trim();
+    if (trimmed.length === 0) return undefined;
+    const numeric = Number(trimmed);
+    return Number.isFinite(numeric) ? numeric : undefined;
+  }
+  return undefined;
 };
 
 /* ---------------------------- normalization ----------------------------- */
