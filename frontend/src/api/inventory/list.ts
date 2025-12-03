@@ -24,7 +24,9 @@ const isRecord = (v: unknown): v is UnknownRecord =>
 
 const pickString = (r: UnknownRecord, k: string): string | undefined => {
   const v = r[k];
-  return typeof v === 'string' ? v : undefined;
+  if (typeof v === 'string') return v;
+  if (typeof v === 'number') return String(v);
+  return undefined;
 };
 
 const pickNumber = (r: UnknownRecord, k: string): number | undefined => {
@@ -70,15 +72,19 @@ function toInventoryRow(raw: unknown): InventoryRow | null {
     pickString(raw, 'itemCode') ??
     null;
 
+  const supplierRecord = isRecord(raw.supplier) ? (raw.supplier as UnknownRecord) : undefined;
   const supplierIdStr =
     pickString(raw, 'supplierId') ??
-    pickString(raw, 'supplier_id');
-  const supplierIdNum = pickNumber(raw, 'supplierId');
+    pickString(raw, 'supplier_id') ??
+    pickString(raw, 'supplier') ??
+    (supplierRecord ? pickString(supplierRecord, 'id') : undefined);
+  const supplierIdNum = pickNumber(raw, 'supplierId') ?? (supplierRecord ? pickNumber(supplierRecord, 'id') : undefined);
   const supplierId: string | number | null =
     supplierIdStr ?? (typeof supplierIdNum === 'number' ? supplierIdNum : null);
 
   const supplierName =
     pickString(raw, 'supplierName') ??
+    (supplierRecord ? pickString(supplierRecord, 'name') : undefined) ??
     pickString(raw, 'supplier') ??
     null;
 
@@ -86,18 +92,27 @@ function toInventoryRow(raw: unknown): InventoryRow | null {
     pickNumber(raw, 'onHand') ??
     pickNumber(raw, 'quantity') ??
     pickNumber(raw, 'qty') ??
+    pickNumber(raw, 'currentQuantity') ??
+    pickNumber(raw, 'currentQty') ??
+    pickNumber(raw, 'quantityOnHand') ??
+    pickNumber(raw, 'onHandQuantity') ??
+    pickNumber(raw, 'stock') ??
     0;
 
   const minQty =
     pickNumber(raw, 'minQty') ??
     pickNumber(raw, 'min_quantity') ??
     pickNumber(raw, 'minimumQuantity') ??
+    pickNumber(raw, 'minimum') ??
+    pickNumber(raw, 'reorderLevel') ??
     null;
 
   const updatedAt =
     pickString(raw, 'updatedAt') ??
     pickString(raw, 'updated_at') ??
     pickString(raw, 'lastUpdate') ??
+    pickString(raw, 'updatedOn') ??
+    pickString(raw, 'modifiedAt') ??
     pickString(raw, 'createdAt') ??
     null;
 
