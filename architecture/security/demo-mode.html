@@ -208,46 +208,62 @@ Write Request? → Deny with &quot;Demo Mode&quot; message
             ↓
             HTTP 403 (Forbidden)</code></pre>
         <h3 id="implementation">Implementation</h3>
-        <p><strong>Demo mode is enforced at the method level, not the
-        filter level.</strong></p>
-        <p><strong>SecurityAuthorizationHelper.java</strong> uses simple
-        role-based rules:</p>
+        <p><strong>Demo mode is enforced at BOTH URL level AND method
+        level.</strong></p>
+        <p><strong>SecurityAuthorizationHelper.java</strong> supports
+        demo mode conditionally:</p>
         <div class="sourceCode" id="cb8"><pre
-        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// URL-level: READ operations only require authentication</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">();</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">// URL-level: WRITE operations require USER or ADMIN role</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">POST</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">)</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">hasAnyRole</span><span class="op">(</span><span class="st">&quot;USER&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">PUT</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">)</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">hasAnyRole</span><span class="op">(</span><span class="st">&quot;USER&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span></code></pre></div>
-        <p><strong>SecurityService.isDemo()</strong> is used in
-        <code>@PreAuthorize</code> expressions:</p>
+        class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">configureAuthorization</span><span class="op">(</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        AuthorizeHttpRequestsConfigurer<span class="op">&lt;</span>HttpSecurity<span class="op">&gt;.</span><span class="fu">AuthorizationManagerRequestMatcherRegistry</span> auth<span class="op">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">boolean</span> isDemoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Demo mode: allow read-only endpoints without login</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>isDemoReadonly<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/analytics/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">permitAll</span><span class="op">();</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Default: authenticated users may READ these resources</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/suppliers/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">GET</span><span class="op">,</span> <span class="st">&quot;/api/analytics/**&quot;</span><span class="op">).</span><span class="fu">authenticated</span><span class="op">();</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Write operations ALWAYS require USER or ADMIN role (demo doesn&#39;t affect URL rules)</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">POST</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasAnyRole</span><span class="op">(</span><span class="st">&quot;USER&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">PUT</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasAnyRole</span><span class="op">(</span><span class="st">&quot;USER&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">PATCH</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasAnyRole</span><span class="op">(</span><span class="st">&quot;USER&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="fu">requestMatchers</span><span class="op">(</span>HttpMethod<span class="op">.</span><span class="fu">DELETE</span><span class="op">,</span> <span class="st">&quot;/api/inventory/**&quot;</span><span class="op">).</span><span class="fu">hasAnyRole</span><span class="op">(</span><span class="st">&quot;USER&quot;</span><span class="op">,</span> <span class="st">&quot;ADMIN&quot;</span><span class="op">);</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>InventoryItemController.java</strong> applies
+        method-level checks:</p>
         <div class="sourceCode" id="cb9"><pre
-        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasAnyRole(&#39;USER&#39;, &#39;ADMIN&#39;) and !@securityService.isDemo()&quot;</span><span class="op">)</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> InventoryItemDTO <span class="fu">create</span><span class="op">(</span><span class="at">@RequestBody</span> InventoryItemDTO dto<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Executes only if:</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 1. User has USER or ADMIN role</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 2. User is NOT in demo mode</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">@PatchMapping</span><span class="op">(</span><span class="st">&quot;/{id}/quantity&quot;</span><span class="op">)</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasAnyRole(&#39;USER&#39;,&#39;ADMIN&#39;) and !@securityService.isDemo()&quot;</span><span class="op">)</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> InventoryItemDTO <span class="fu">adjustQuantity</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">,</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">@RequestParam</span> <span class="dt">int</span> delta<span class="op">,</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">@RequestParam</span> StockChangeReason reason<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Demo users cannot adjust quantities</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-        <p><strong>Why this approach?</strong></p>
+        class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Read operations: authenticated users OR demo mode (unauthenticated)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="at">@GetMapping</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;isAuthenticated() or @appProperties.demoReadonly&quot;</span><span class="op">)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">List</span><span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">getAll</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Write operations: ALWAYS blocked if in demo mode</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">@PostMapping</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasRole(&#39;ADMIN&#39;) and !@securityService.isDemo()&quot;</span><span class="op">)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> ResponseEntity<span class="op">&lt;</span>InventoryItemDTO<span class="op">&gt;</span> <span class="fu">create</span><span class="op">(</span><span class="at">@RequestBody</span> InventoryItemDTO dto<span class="op">)</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="at">@PatchMapping</span><span class="op">(</span><span class="st">&quot;/{id}/quantity&quot;</span><span class="op">)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="at">@PreAuthorize</span><span class="op">(</span><span class="st">&quot;hasAnyRole(&#39;USER&#39;,&#39;ADMIN&#39;) and !@securityService.isDemo()&quot;</span><span class="op">)</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> InventoryItemDTO <span class="fu">adjustQuantity</span><span class="op">(</span><span class="at">@PathVariable</span> <span class="bu">String</span> id<span class="op">,</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">@RequestParam</span> <span class="dt">int</span> delta<span class="op">,</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">@RequestParam</span> StockChangeReason reason<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Demo users cannot adjust quantities (403 Forbidden)</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+        <p><strong>Why this two-level approach?</strong></p>
         <ul>
-        <li>✅ Simpler URL rules at the filter level</li>
-        <li>✅ Demo mode logic is explicit in each method that performs
-        writes</li>
-        <li>✅ Easy to audit and understand which operations are blocked
-        in demo mode</li>
-        <li>✅ Reduces complexity in
-        <code>SecurityAuthorizationHelper</code></li>
+        <li>✅ URL-level: Determines if unauthenticated GET access is
+        allowed</li>
+        <li>✅ Method-level: Ensures demo users cannot write even if
+        somehow authenticated</li>
+        <li>✅ Redundant safety: Both layers block writes in demo
+        mode</li>
+        <li>✅ Clear intent: Each layer serves a specific purpose</li>
         </ul>
         <hr />
         <h2 id="demo-mode-authorization-flow">Demo Mode Authorization
@@ -257,20 +273,24 @@ Write Request? → Deny with &quot;Demo Mode&quot; message
 ┌─────────────────────────────────┐
 │ Is it a GET request?             │
 └─────────────────────────────────┘
-    ↓ YES              ↓ NO
-[Return Data]      [Check Authorization]
-                       ↓
-                  ┌──────────────────────┐
-                  │ Demo Mode Enabled?   │
-                  └──────────────────────┘
-                    ↓ YES              ↓ NO
-              [403 Forbidden]     [Check User Role]
-             (Demo Mode blocks)        ↓
-                            ┌──────────────────────┐
-                            │ User is ADMIN?       │
-                            └──────────────────────┘
-                              ↓ YES        ↓ NO
-                          [Allow]     [403 Forbidden]</code></pre>
+    ↓ YES              ↓ NO (Write: POST/PUT/PATCH/DELETE)
+    ↓                  ↓
+┌─────────────────────────────────┐  ┌──────────────────────────────┐
+│ URL-Level Check                 │  │ Check User Has Role          │
+│ isDemoReadonly=true?            │  │ (USER or ADMIN)              │
+└─────────────────────────────────┘  └──────────────────────────────┘
+    ↓ YES        ↓ NO              ↓ NO          ↓ YES
+ [permitAll]  [authenticated]  [403]      [Check Demo Mode]
+    ↓              ↓                           ↓
+[Method Check]  [Method Check]      ┌──────────────────────────┐
+    ↓              ↓                 │ isDemo() = true?         │
+┌──────────────────────────────────┐ └──────────────────────────┘
+│ @PreAuthorize:                   │  ↓ YES        ↓ NO
+│ isAuthenticated() or             │ [403]      [Allow Write]
+│ @appProperties.demoReadonly      │
+└──────────────────────────────────┘
+    ↓ YES        ↓ NO
+[Return Data] [403]</code></pre>
         <hr />
         <h2 id="demo-mode-use-cases">Demo Mode Use Cases</h2>
         <h3 id="live-product-demonstration">1. Live Product
