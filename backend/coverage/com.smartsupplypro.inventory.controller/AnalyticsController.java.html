@@ -138,6 +138,9 @@ public class AnalyticsController {
 
     /**
      * Gets monthly stock movement within date range.
+     * @param start inclusive start date (ISO yyyy-MM-dd)
+     * @param end inclusive end date (ISO yyyy-MM-dd)
+     * @param supplierId optional supplier filter
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/monthly-stock-movement&quot;)
@@ -146,12 +149,20 @@ public class AnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) String supplierId) {
 
-<span class="fc" id="L149">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
-<span class="fc" id="L150">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
+<span class="fc" id="L152">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
+<span class="fc" id="L153">        return ResponseEntity.ok(stockAnalyticsService.getMonthlyStockMovement(start, end, supplierId));</span>
     }
 
     /**
      * Gets filtered stock updates via query parameters (defaults to last 30 days).
+     *
+     * @param startDate optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param endDate optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param itemName optional item name filter
+     * @param supplierId optional supplier identifier filter
+     * @param createdBy optional creator username filter
+     * @param minChange optional minimum quantity change filter
+     * @param maxChange optional maximum quantity change filter
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/stock-updates&quot;)
@@ -165,24 +176,24 @@ public class AnalyticsController {
             @RequestParam(required = false) Integer maxChange) {
 
         // Apply default date window (last 30 days)
-<span class="fc" id="L168">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
-<span class="fc" id="L169">        startDate = dateWindow[0];</span>
-<span class="fc" id="L170">        endDate = dateWindow[1];</span>
+<span class="fc" id="L179">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
+<span class="fc" id="L180">        startDate = dateWindow[0];</span>
+<span class="fc" id="L181">        endDate = dateWindow[1];</span>
         
         // Validate date &amp; numeric params
-<span class="fc" id="L173">        validationHelper.validateDateTimeRange(startDate, endDate, &quot;startDate&quot;, &quot;endDate&quot;);</span>
-<span class="fc" id="L174">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
+<span class="fc" id="L184">        validationHelper.validateDateTimeRange(startDate, endDate, &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L185">        validationHelper.validateNumericRange(minChange, maxChange, &quot;minChange&quot;, &quot;maxChange&quot;);</span>
 
-<span class="fc" id="L176">        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();</span>
-<span class="fc" id="L177">        filter.setStartDate(startDate);</span>
-<span class="fc" id="L178">        filter.setEndDate(endDate);</span>
-<span class="fc" id="L179">        filter.setItemName(itemName);</span>
-<span class="fc" id="L180">        filter.setSupplierId(supplierId);</span>
-<span class="fc" id="L181">        filter.setCreatedBy(createdBy);</span>
-<span class="fc" id="L182">        filter.setMinChange(minChange);</span>
-<span class="fc" id="L183">        filter.setMaxChange(maxChange);</span>
+<span class="fc" id="L187">        StockUpdateFilterDTO filter = new StockUpdateFilterDTO();</span>
+<span class="fc" id="L188">        filter.setStartDate(startDate);</span>
+<span class="fc" id="L189">        filter.setEndDate(endDate);</span>
+<span class="fc" id="L190">        filter.setItemName(itemName);</span>
+<span class="fc" id="L191">        filter.setSupplierId(supplierId);</span>
+<span class="fc" id="L192">        filter.setCreatedBy(createdBy);</span>
+<span class="fc" id="L193">        filter.setMinChange(minChange);</span>
+<span class="fc" id="L194">        filter.setMaxChange(maxChange);</span>
 
-<span class="fc" id="L185">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+<span class="fc" id="L196">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
     }
 
     /**
@@ -190,18 +201,23 @@ public class AnalyticsController {
      *
      * @param filter stock update filter criteria
      * @return list of filtered stock updates
+     * @throws IllegalArgumentException if validation fails
      */
     @PreAuthorize(&quot;isAuthenticated()&quot;)
     @PostMapping(value = &quot;/stock-updates/query&quot;, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity&lt;List&lt;StockUpdateResultDTO&gt;&gt; getFilteredStockUpdatesPost(
             @RequestBody @Valid StockUpdateFilterDTO filter) {
 
-<span class="fc" id="L199">        validationHelper.validateStockUpdateFilter(filter);</span>
-<span class="fc" id="L200">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
+<span class="fc" id="L211">        validationHelper.validateStockUpdateFilter(filter);</span>
+<span class="fc" id="L212">        return ResponseEntity.ok(stockAnalyticsService.getFilteredStockUpdates(filter));</span>
     }
 
     /**
      * Gets dashboard summary with multiple analytics (defaults to last 30 days).
+     * @param supplierId optional supplier filter
+     * @param startDate optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param endDate optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @return dashboard summary DTO
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/summary&quot;)
@@ -211,17 +227,22 @@ public class AnalyticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
 
         // Apply default date window
-<span class="fc" id="L214">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
-<span class="fc" id="L215">        startDate = dateWindow[0];</span>
-<span class="fc" id="L216">        endDate = dateWindow[1];</span>
+<span class="fc" id="L230">        LocalDateTime[] dateWindow = validationHelper.applyDefaultDateWindow(startDate, endDate);</span>
+<span class="fc" id="L231">        startDate = dateWindow[0];</span>
+<span class="fc" id="L232">        endDate = dateWindow[1];</span>
         
-<span class="fc" id="L218">        validationHelper.validateDateTimeRange(startDate, endDate, &quot;startDate&quot;, &quot;endDate&quot;);</span>
+<span class="fc" id="L234">        validationHelper.validateDateTimeRange(startDate, endDate, &quot;startDate&quot;, &quot;endDate&quot;);</span>
 
-<span class="fc" id="L220">        return ResponseEntity.ok(dashboardHelper.buildDashboardSummary(supplierId, startDate, endDate));</span>
+<span class="fc" id="L236">        return ResponseEntity.ok(dashboardHelper.buildDashboardSummary(supplierId, startDate, endDate));</span>
     }
 
     /**
      * Gets historical price changes for an item.
+     * @param itemId required item identifier
+     * @param supplierId optional supplier filter
+     * @param start inclusive start date (ISO yyyy-MM-dd)
+     * @param end inclusive end date (ISO yyyy-MM-dd)
+     * @return list of price trend DTOs
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/price-trend&quot;)
@@ -231,13 +252,17 @@ public class AnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
 
-<span class="fc" id="L234">        validationHelper.requireNonBlank(itemId, &quot;itemId&quot;);</span>
-<span class="fc" id="L235">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
-<span class="fc" id="L236">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
+<span class="fc" id="L255">        validationHelper.requireNonBlank(itemId, &quot;itemId&quot;);</span>
+<span class="fc" id="L256">        validationHelper.validateDateRange(start, end, &quot;start&quot;, &quot;end&quot;);</span>
+<span class="fc" id="L257">        return ResponseEntity.ok(stockAnalyticsService.getPriceTrend(itemId, supplierId, start, end));</span>
     }
 
     /**
      * Gets financial summary with WAC calculations.
+     * @param from inclusive start date (ISO yyyy-MM-dd)
+     * @param to inclusive end date (ISO yyyy-MM-dd)
+     * @param supplierId optional supplier filter
+     * @return financial summary DTO
      */
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/financial/summary&quot;)
@@ -246,8 +271,8 @@ public class AnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) String supplierId) {
 
-<span class="fc" id="L249">        validationHelper.validateDateRange(from, to, &quot;from&quot;, &quot;to&quot;);</span>
-<span class="fc" id="L250">        return ResponseEntity.ok(financialAnalyticsService.getFinancialSummaryWAC(from, to, supplierId));</span>
+<span class="fc" id="L274">        validationHelper.validateDateRange(from, to, &quot;from&quot;, &quot;to&quot;);</span>
+<span class="fc" id="L275">        return ResponseEntity.ok(financialAnalyticsService.getFinancialSummaryWAC(from, to, supplierId));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
