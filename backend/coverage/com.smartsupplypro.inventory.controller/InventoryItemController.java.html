@@ -55,11 +55,10 @@ public class InventoryItemController {
      * @return inventory item details
      * @throws ResponseStatusException 404 if item not found
      */
-    @PreAuthorize(&quot;isAuthenticated()&quot;)
     @GetMapping(&quot;/{id}&quot;)
     public InventoryItemDTO getById(@PathVariable String id) {
-<span class="fc" id="L61">        return inventoryItemService.getById(id)</span>
-<span class="fc" id="L62">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
+<span class="fc" id="L60">        return inventoryItemService.getById(id)</span>
+<span class="fc" id="L61">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
     /**
@@ -70,7 +69,7 @@ public class InventoryItemController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping
     public List&lt;InventoryItemDTO&gt; getAll() {
-<span class="fc" id="L73">        return inventoryItemService.getAll();</span>
+<span class="fc" id="L72">        return inventoryItemService.getAll();</span>
     }
 
     /**
@@ -81,7 +80,7 @@ public class InventoryItemController {
     @PreAuthorize(&quot;isAuthenticated() or @appProperties.demoReadonly&quot;)
     @GetMapping(&quot;/count&quot;)
     public long countItems() {
-<span class="fc" id="L84">        return inventoryItemService.countItems();</span>
+<span class="fc" id="L83">        return inventoryItemService.countItems();</span>
     }
 
 
@@ -97,7 +96,7 @@ public class InventoryItemController {
     public Page&lt;InventoryItemDTO&gt; search(
         @RequestParam String name,
         @org.springframework.data.web.PageableDefault(size = 20, sort = &quot;price&quot;) Pageable pageable) {
-<span class="fc" id="L100">        return inventoryItemService.findByNameSortedByPrice(name, pageable);</span>
+<span class="fc" id="L99">        return inventoryItemService.findByNameSortedByPrice(name, pageable);</span>
     }
 
     /**
@@ -117,19 +116,19 @@ public class InventoryItemController {
     public ResponseEntity&lt;InventoryItemDTO&gt; create(
             @Validated(InventoryItemDTO.Create.class) @RequestBody InventoryItemDTO body) {
 
-<span class="fc" id="L120">        InventoryItemDTO created = inventoryItemService.save(body);</span>
-<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (created == null) {</span>
-<span class="fc" id="L122">            return ResponseEntity.badRequest().build();</span>
+<span class="fc" id="L119">        InventoryItemDTO created = inventoryItemService.save(body);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (created == null) {</span>
+<span class="fc" id="L121">            return ResponseEntity.badRequest().build();</span>
         }
         
         // REST Location Header Pattern
         // Generate Location header pointing to the newly created resource
         // Follows RFC 7231 standard for 201 Created responses
         URI location = ServletUriComponentsBuilder
-<span class="fc" id="L129">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
-<span class="fc" id="L130">                .buildAndExpand(created.getId())</span>
-<span class="fc" id="L131">                .toUri();</span>
-<span class="fc" id="L132">        return ResponseEntity.created(location).body(created);</span>
+<span class="fc" id="L128">                .fromCurrentRequest().path(&quot;/{id}&quot;)</span>
+<span class="fc" id="L129">                .buildAndExpand(created.getId())</span>
+<span class="fc" id="L130">                .toUri();</span>
+<span class="fc" id="L131">        return ResponseEntity.created(location).body(created);</span>
     }
 
     /**
@@ -156,10 +155,10 @@ public class InventoryItemController {
         // ID Consistency Strategy
         // Ignore client-sent body.id to prevent conflicts and match test expectations
         // Path parameter takes precedence for resource identification
-<span class="fc" id="L159">        body.setId(null); // or body.setId(id) if you prefer</span>
+<span class="fc" id="L158">        body.setId(null); // or body.setId(id) if you prefer</span>
 
-<span class="fc" id="L161">        return inventoryItemService.update(id, body)</span>
-<span class="fc" id="L162">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
+<span class="fc" id="L160">        return inventoryItemService.update(id, body)</span>
+<span class="fc" id="L161">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Item not found&quot;));</span>
     }
 
     /**
@@ -181,8 +180,8 @@ public class InventoryItemController {
     @DeleteMapping(&quot;/{id}&quot;)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String id, @RequestParam StockChangeReason reason) {
-<span class="fc" id="L184">        inventoryItemService.delete(id, reason);</span>
-<span class="fc" id="L185">    }</span>
+<span class="fc" id="L183">        inventoryItemService.delete(id, reason);</span>
+<span class="fc" id="L184">    }</span>
 
     /**
      * Adjusts item quantity by delta amount (partial update).
@@ -208,7 +207,7 @@ public class InventoryItemController {
     public InventoryItemDTO adjustQuantity(@PathVariable String id,
                                        @RequestParam int delta,
                                        @RequestParam StockChangeReason reason) {
-<span class="fc" id="L211">        return inventoryItemService.adjustQuantity(id, delta, reason);</span>
+<span class="fc" id="L210">        return inventoryItemService.adjustQuantity(id, delta, reason);</span>
     }
 
     /**
@@ -234,7 +233,7 @@ public class InventoryItemController {
     @PatchMapping(&quot;/{id}/price&quot;)
     public InventoryItemDTO updatePrice(@PathVariable String id,
                                     @RequestParam @jakarta.validation.constraints.Positive BigDecimal price) {
-<span class="fc" id="L237">        return inventoryItemService.updatePrice(id, price);</span>
+<span class="fc" id="L236">        return inventoryItemService.updatePrice(id, price);</span>
     }
 
     /**
@@ -262,15 +261,15 @@ public class InventoryItemController {
     public InventoryItemDTO renameItem(@PathVariable String id,
                                        @RequestParam String name) {
         try {
-<span class="fc" id="L265">            return inventoryItemService.renameItem(id, name);</span>
-<span class="fc" id="L266">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L267">            String message = e.getMessage();</span>
-<span class="pc bpc" id="L268" title="1 of 4 branches missed.">            if (message != null &amp;&amp; message.contains(&quot;empty&quot;)) {</span>
-<span class="fc" id="L269">                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);</span>
-<span class="pc bpc" id="L270" title="1 of 4 branches missed.">            } else if (message != null &amp;&amp; message.contains(&quot;already exists&quot;)) {</span>
-<span class="fc" id="L271">                throw new ResponseStatusException(HttpStatus.CONFLICT, message);</span>
+<span class="fc" id="L264">            return inventoryItemService.renameItem(id, name);</span>
+<span class="fc" id="L265">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L266">            String message = e.getMessage();</span>
+<span class="pc bpc" id="L267" title="1 of 4 branches missed.">            if (message != null &amp;&amp; message.contains(&quot;empty&quot;)) {</span>
+<span class="fc" id="L268">                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);</span>
+<span class="pc bpc" id="L269" title="1 of 4 branches missed.">            } else if (message != null &amp;&amp; message.contains(&quot;already exists&quot;)) {</span>
+<span class="fc" id="L270">                throw new ResponseStatusException(HttpStatus.CONFLICT, message);</span>
             } else {
-<span class="fc" id="L273">                throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);</span>
+<span class="fc" id="L272">                throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);</span>
             }
         }
     }
