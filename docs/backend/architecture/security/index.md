@@ -109,7 +109,7 @@ Two roles defined:
 - Role "healing" occurs on each login (dynamic allow-list updates)
 
 **Authorization Rules:**
-- Public endpoints: /login, /logout, /actuator/health
+- Public endpoints: /login, /logout, /actuator/health, /api/health (infrastructure health checks)
 - Authenticated read: GET /api/inventory/*, GET /api/suppliers/*
 - Admin-only write: POST/PUT/DELETE /api/inventory/*, /api/suppliers/*
 - Demo mode: Allows unauthenticated GET for public showcases

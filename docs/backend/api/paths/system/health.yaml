@@ -8,7 +8,11 @@ get:
     This endpoint provides a quick way to monitor application availability without
     checking external dependencies like databases. Useful for load balancers,
     orchestration platforms, and basic uptime monitoring.
+    
+    **Security:** This endpoint is **publicly accessible** (no authentication required).
+    Used by Fly.io HTTP health checks and container orchestration systems.
   operationId: getHealth
+  security: []
   responses:
     '200':
       description: Application is running and healthy

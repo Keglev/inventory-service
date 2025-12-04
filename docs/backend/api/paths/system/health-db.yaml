@@ -13,7 +13,11 @@ get:
     
     Useful for monitoring critical dependencies and detecting infrastructure issues.
     Returns 503 Service Unavailable if database is unreachable or misconfigured.
+    
+    **Security:** This endpoint is **publicly accessible** (no authentication required).
+    Used by monitoring systems to verify database health.
   operationId: checkDatabaseConnection
+  security: []
   responses:
     '200':
       description: Database is healthy and accessible

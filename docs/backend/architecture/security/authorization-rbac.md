@@ -122,6 +122,7 @@ public void configureAuthorization(
     
     // 1. Public endpoints (no authentication required)
     auth.requestMatchers("/actuator/health", "/actuator/info").permitAll();
+    auth.requestMatchers("/api/health", "/api/health/**").permitAll();  // API health check for Fly.io
     auth.requestMatchers("/", "/index.html", "/error").permitAll();
     auth.requestMatchers("/oauth2/**", "/login/**", "/logout/**").permitAll();
     

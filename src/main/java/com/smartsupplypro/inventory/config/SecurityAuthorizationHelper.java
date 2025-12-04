@@ -29,6 +29,9 @@ public class SecurityAuthorizationHelper {
         // Health/info endpoints – keep publicly readable
         auth.requestMatchers("/actuator/health", "/actuator/info").permitAll();
 
+        // Public API health endpoint (used by Fly.io HTTP health check)
+        auth.requestMatchers("/api/health", "/api/health/**").permitAll();
+
         // Static / root / error pages (adapt if you have a different frontend setup)
         auth.requestMatchers("/", "/index.html", "/error").permitAll();
 
