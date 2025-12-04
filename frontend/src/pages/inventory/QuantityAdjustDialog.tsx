@@ -222,6 +222,9 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
    * Uses shared hook for consistent data fetching.
    */
   const itemDetailsQuery = useItemDetailsQuery(selectedItem?.id);
+  const effectiveCurrentQty =
+    selectedItem ? (itemDetailsQuery.data?.onHand ?? selectedItem.onHand ?? 0) : 0;
+
 
   // ================================
   // Form Management
@@ -322,7 +325,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
 
     try {
       // Use the actual current quantity from the fetched item details
-      const actualCurrentQty = itemDetailsQuery.data?.onHand ?? 0;
+      const actualCurrentQty = effectiveCurrentQty;
       
       // Calculate the delta from the ACTUAL current quantity
       const delta = values.newQuantity - actualCurrentQty;
@@ -468,7 +471,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                   {itemDetailsQuery.isLoading ? (
                     <CircularProgress size={16} />
                   ) : (
-                    itemDetailsQuery.data?.onHand ?? 0
+                    effectiveCurrentQty
                   )}
                 </Typography>
               </Box>
@@ -521,7 +524,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     errors.newQuantity?.message ||
                     (selectedItem && (
                       t('inventory:quantity.QuantityChangeHint', 'Changing from {{current}} to {{new}}', {
-                        current: itemDetailsQuery.data?.onHand ?? 0,
+                        current: effectiveCurrentQty,
                         new: value,
                       })
                     ))

@@ -218,10 +218,12 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
    * - Pre-fills newName with actual current name for user convenience
    */
   React.useEffect(() => {
-    if (selectedItem && itemDetailsQuery.data) {
-      setValue('itemId', selectedItem.id);
-      setValue('newName', itemDetailsQuery.data.name);
-    }
+    if (!selectedItem) return; 
+
+    setValue('itemId', selectedItem.id);
+    const effectiveName = itemDetailsQuery.data?.name ?? selectedItem.name;
+    setValue('newName', effectiveName);
+    
   }, [selectedItem, itemDetailsQuery.data, setValue]);
 
   // ================================
@@ -411,7 +413,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
           <Divider />
 
           {/* Step 3: Name Change */}
-          {selectedItem && itemDetailsQuery.data && (
+          {selectedItem && (
             <Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
                 {t('inventory:steps.editName', 'Step 3: Edit Item Name')}
@@ -428,7 +430,7 @@ export const EditItemDialog: React.FC<EditItemDialogProps> = ({
                   {t('inventory:quantity.currentItemInfo', 'Current Item Information')}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
-                  {itemDetailsQuery.data.name}
+                  {itemDetailsQuery.data?.name ?? selectedItem.name}
                 </Typography>
               </Box>
 

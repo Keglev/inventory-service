@@ -173,6 +173,11 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
    * Uses shared hook for consistent data fetching.
    */
   const itemDetailsQuery = useItemDetailsQuery(selectedItem?.id);
+    const effectiveCurrentPrice =
+    selectedItem ? (itemDetailsQuery.data?.price ?? selectedItem.price ?? 0) : 0;
+
+  const effectiveCurrentQty =
+    selectedItem ? (itemDetailsQuery.data?.onHand ?? selectedItem.onHand ?? 0) : 0;
 
   // ================================
   // Form Management
@@ -222,10 +227,11 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
    * - Pre-fills newPrice with actual current price for user convenience
    */
   React.useEffect(() => {
-    if (selectedItem && itemDetailsQuery.data) {
-      setValue('itemId', selectedItem.id);
-      setValue('newPrice', itemDetailsQuery.data.price);
-    }
+    if (!selectedItem) return;
+
+    setValue('itemId', selectedItem.id);
+    const price = itemDetailsQuery.data?.price ?? selectedItem.price ?? 0;
+    setValue('newPrice', price);
   }, [selectedItem, itemDetailsQuery.data, setValue]);
 
   // ================================
@@ -420,7 +426,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                   {itemDetailsQuery.isLoading ? (
                     <CircularProgress size={16} />
                   ) : (
-                    `$${(itemDetailsQuery.data?.price ?? 0).toFixed(2)}`
+                    effectiveCurrentPrice.toFixed(2)
                   )}
                 </Typography>
               </Box>
@@ -434,7 +440,7 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                   {itemDetailsQuery.isLoading ? (
                     <CircularProgress size={16} />
                   ) : (
-                    itemDetailsQuery.data?.onHand ?? 0
+                    effectiveCurrentQty
                   )}
                 </Typography>
               </Box>
@@ -474,9 +480,9 @@ export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
                   error={!!errors.newPrice}
                   helperText={
                     errors.newPrice?.message ||
-                    (selectedItem && itemDetailsQuery.data && (
+                    (selectedItem && (
                       t('inventory:price.priceUpdatedTo', 'Change from ${{from}} to ${{to}}', {
-                        from: itemDetailsQuery.data.price.toFixed(2),
+                        from: effectiveCurrentPrice.toFixed(2),
                         to: Number(value).toFixed(2),
                       })
                     ))

@@ -116,7 +116,7 @@ export interface ItemOptionDTO {
  * Normalize an unknown server row into an InventoryRow.
  * Returns null if required fields are missing.
  */
-function toRow(raw: unknown): InventoryRow | null {
+export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
   if (!isRecord(raw)) return null;
 
   const id =
@@ -187,11 +187,11 @@ export async function upsertItem(req: UpsertItemRequest): Promise<UpsertItemResp
   try {
     if (req.id) {
       const res = await http.put(`${INVENTORY_BASE}/${encodeURIComponent(req.id)}`, req);
-      const row = toRow(res?.data as unknown);
+      const row = normalizeInventoryRow(res?.data as unknown);
       return { ok: true, item: row ?? undefined };
     } else {
       const res = await http.post(`${INVENTORY_BASE}`, req);
-      const row = toRow(res?.data as unknown);
+      const row = normalizeInventoryRow(res?.data as unknown);
       return { ok: true, item: row ?? undefined };
     }
   } catch (e: unknown) {
@@ -248,7 +248,7 @@ export async function renameItem(req: { id: string; newName: string }): Promise<
       null,
       { params: { name: req.newName } }
     );
-    const row = toRow(res?.data as unknown);
+    const row = normalizeInventoryRow(res?.data as unknown);
     return { ok: true, item: row ?? undefined };
   } catch (e: unknown) {
     return { ok: false, error: errorMessage(e) };
