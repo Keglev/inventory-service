@@ -34,6 +34,17 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
 <span class="fc" id="L34">        this.dialectDetector = dialectDetector;</span>
 <span class="fc" id="L35">    }</span>
 
+    /**
+     * Searches stock updates with flexible filtering across supported databases.
+     * Supports H2 and Oracle with optimized SQL per dialect.
+     * @param startDate   filter start date (inclusive)
+     * @param endDate     filter end date (inclusive)
+     * @param itemName    partial item name (case-insensitive, optional)
+     * @param supplierId  exact supplier ID (optional)
+     * @param createdBy   exact creator username (case-insensitive, optional)
+     * @param minChange   minimum change value (optional)
+     * @param maxChange   maximum change value (optional)
+     */
     @SuppressWarnings(&quot;unchecked&quot;)
     @Override
     public List&lt;Object[]&gt; searchStockUpdates(
@@ -45,33 +56,41 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         Integer minChange,
         Integer maxChange
     ) {
-<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
-<span class="fc" id="L49">            ? buildH2FilteredSearchSql()</span>
-<span class="pc" id="L50">            : buildOracleFilteredSearchSql();</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        final String sql = dialectDetector.isH2()</span>
+<span class="fc" id="L60">            ? buildH2FilteredSearchSql()</span>
+<span class="pc" id="L61">            : buildOracleFilteredSearchSql();</span>
 
         // Normalize optional parameters for NULL-safe SQL filtering
-<span class="pc bpc" id="L53" title="2 of 4 branches missed.">        final String itemPattern = (itemName == null || itemName.isBlank())</span>
-<span class="pc" id="L54">            ? null : &quot;%&quot; + itemName.toLowerCase() + &quot;%&quot;;</span>
-<span class="fc" id="L55">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
-<span class="pc bpc" id="L56" title="2 of 4 branches missed.">        final String normalizedCreator = (createdBy == null || createdBy.isBlank())</span>
-<span class="pc" id="L57">            ? null : createdBy.toLowerCase();</span>
+<span class="pc bpc" id="L64" title="2 of 4 branches missed.">        final String itemPattern = (itemName == null || itemName.isBlank())</span>
+<span class="pc" id="L65">            ? null : &quot;%&quot; + itemName.toLowerCase() + &quot;%&quot;;</span>
+<span class="fc" id="L66">        final String normalizedSupplier = normalizeOptionalParam(supplierId);</span>
+<span class="pc bpc" id="L67" title="2 of 4 branches missed.">        final String normalizedCreator = (createdBy == null || createdBy.isBlank())</span>
+<span class="pc" id="L68">            ? null : createdBy.toLowerCase();</span>
 
-<span class="fc" id="L59">        final Query query = em.createNativeQuery(sql);</span>
-<span class="fc" id="L60">        query.setParameter(&quot;startDate&quot;, startDate);</span>
-<span class="fc" id="L61">        query.setParameter(&quot;endDate&quot;, endDate);</span>
-<span class="fc" id="L62">        query.setParameter(&quot;itemPattern&quot;, itemPattern);</span>
-<span class="fc" id="L63">        query.setParameter(&quot;supplierId&quot;, normalizedSupplier);</span>
-<span class="fc" id="L64">        query.setParameter(&quot;createdByNorm&quot;, normalizedCreator);</span>
-<span class="fc" id="L65">        query.setParameter(&quot;minChange&quot;, minChange);</span>
-<span class="fc" id="L66">        query.setParameter(&quot;maxChange&quot;, maxChange);</span>
+<span class="fc" id="L70">        final Query query = em.createNativeQuery(sql);</span>
+<span class="fc" id="L71">        query.setParameter(&quot;startDate&quot;, startDate);</span>
+<span class="fc" id="L72">        query.setParameter(&quot;endDate&quot;, endDate);</span>
+<span class="fc" id="L73">        query.setParameter(&quot;itemPattern&quot;, itemPattern);</span>
+<span class="fc" id="L74">        query.setParameter(&quot;supplierId&quot;, normalizedSupplier);</span>
+<span class="fc" id="L75">        query.setParameter(&quot;createdByNorm&quot;, normalizedCreator);</span>
+<span class="fc" id="L76">        query.setParameter(&quot;minChange&quot;, minChange);</span>
+<span class="fc" id="L77">        query.setParameter(&quot;maxChange&quot;, maxChange);</span>
 
-<span class="fc" id="L68">        return query.getResultList();</span>
+<span class="fc" id="L79">        return query.getResultList();</span>
     }
 
+    /**
+     * Streams stock events up to a specified end time for WAC calculations.
+     * Uses JPQL for database-agnostic entity querying.
+     * @param end         upper timestamp bound (inclusive)
+     * @param supplierId  optional supplier ID filter
+     * @return list of stock event rows for WAC processing
+     * @see StockEventRowDTO
+     */
     @Override
     public List&lt;StockEventRowDTO&gt; streamEventsForWAC(LocalDateTime end, String supplierId) {
         // Use JPQL for entity-based event streaming (database-agnostic)
-<span class="fc" id="L74">        final String jpql = &quot;&quot;&quot;</span>
+<span class="fc" id="L93">        final String jpql = &quot;&quot;&quot;</span>
             SELECT new com.smartsupplypro.inventory.dto.StockEventRowDTO(
                 sh.itemId, 
                 COALESCE(sh.supplierId, i.supplierId), 
@@ -87,21 +106,22 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
             ORDER BY sh.itemId ASC, sh.timestamp ASC
         &quot;&quot;&quot;;
 
-<span class="pc bpc" id="L90" title="2 of 4 branches missed.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
-<span class="pc" id="L91">            ? null : supplierId.trim().toLowerCase();</span>
+<span class="pc bpc" id="L109" title="2 of 4 branches missed.">        final String supplierIdNorm = (supplierId == null || supplierId.isBlank())</span>
+<span class="pc" id="L110">            ? null : supplierId.trim().toLowerCase();</span>
 
-<span class="fc" id="L93">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
-<span class="fc" id="L94">                .setParameter(&quot;end&quot;, end)</span>
-<span class="fc" id="L95">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
-<span class="fc" id="L96">                .getResultList();</span>
+<span class="fc" id="L112">        return em.createQuery(jpql, StockEventRowDTO.class)</span>
+<span class="fc" id="L113">                .setParameter(&quot;end&quot;, end)</span>
+<span class="fc" id="L114">                .setParameter(&quot;supplierIdNorm&quot;, supplierIdNorm)</span>
+<span class="fc" id="L115">                .getResultList();</span>
     }
 
-    /* ======================================================================
-     * SQL Builder Methods - H2 Dialect
-     * ====================================================================== */
-
+    /**
+     * Builds the SQL query for filtered search on H2 database.
+     * @return SQL query string
+     * @see #buildOracleFilteredSearchSql()
+     */
     private String buildH2FilteredSearchSql() {
-<span class="fc" id="L104">        return &quot;&quot;&quot;</span>
+<span class="fc" id="L124">        return &quot;&quot;&quot;</span>
             SELECT i.name AS item_name, 
                    s.name AS supplier_name, 
                    sh.quantity_change, 
@@ -122,12 +142,13 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         &quot;&quot;&quot;;
     }
 
-    /* ======================================================================
-     * SQL Builder Methods - Oracle Dialect
-     * ====================================================================== */
-
+    /**
+     * Builds the SQL query for filtered search on Oracle database.
+     * @return SQL query string
+     * @see #buildH2FilteredSearchSql()
+     */
     private String buildOracleFilteredSearchSql() {
-<span class="nc" id="L130">        return &quot;&quot;&quot;</span>
+<span class="nc" id="L151">        return &quot;&quot;&quot;</span>
             SELECT i.name AS item_name, 
                    s.name AS supplier_name, 
                    sh.quantity_change, 
@@ -152,9 +173,13 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
      * Utility Methods
      * ====================================================================== */
 
-    /** Normalizes optional string parameters (null/blank → null). */
+    /** Normalizes optional string parameters (null/blank → null). 
+     * @param param input parameter
+     * @return normalized parameter 
+     * @see #searchStockUpdates(LocalDateTime, LocalDateTime, String, String, String, Integer, Integer)
+    */
     private String normalizeOptionalParam(String param) {
-<span class="pc bpc" id="L157" title="2 of 4 branches missed.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
+<span class="pc bpc" id="L182" title="2 of 4 branches missed.">        return (param == null || param.isBlank()) ? null : param.trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
