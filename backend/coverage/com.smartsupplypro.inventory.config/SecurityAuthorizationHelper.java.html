@@ -14,53 +14,79 @@ import org.springframework.stereotype.Component;
 <span class="fc" id="L14">public class SecurityAuthorizationHelper {</span>
 
     /**
-     * Configures authorization rules with demo mode support.
-     * 
-     * &lt;p&gt;Applies public access, demo read-only, and role-based patterns.&lt;/p&gt;
+     * Configure URL-based authorization rules.
+     *
+     * @param auth         Spring Security authorization registry
+     * @param demoReadonly global demo flag (currently leveraged via method security –
+     *                     this method keeps URL rules simple and role-based)
      */
     public void configureAuthorization(
             AuthorizeHttpRequestsConfigurer&lt;HttpSecurity&gt;.AuthorizationManagerRequestMatcherRegistry auth,
             boolean isDemoReadonly) {
         
-        // CORS preflight and public endpoints
-<span class="fc" id="L26">        auth.requestMatchers(HttpMethod.OPTIONS, &quot;/**&quot;).permitAll();</span>
-<span class="fc" id="L27">        auth.requestMatchers(&quot;/logout&quot;).permitAll();</span>
-<span class="fc" id="L28">        auth.requestMatchers(</span>
-                &quot;/&quot;, &quot;/actuator/**&quot;, &quot;/health/**&quot;, &quot;/api/health/**&quot;,
-                &quot;/oauth2/**&quot;, &quot;/login/oauth2/**&quot;, &quot;/login/**&quot;, &quot;/error&quot;
-<span class="fc" id="L31">        ).permitAll();</span>
+        /* -------------------- Public / health / OAuth2 endpoints -------------------- */
 
-        // Demo mode: allow read-only endpoints without login
-<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if (isDemoReadonly) {</span>
-<span class="nc" id="L35">            auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).permitAll();</span>
-<span class="nc" id="L36">            auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).permitAll();</span>
-<span class="nc" id="L37">            auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).permitAll();</span>
-        }
+        // Health/info endpoints – keep publicly readable
+<span class="fc" id="L30">        auth.requestMatchers(&quot;/actuator/health&quot;, &quot;/actuator/info&quot;).permitAll();</span>
 
-        // Default: authenticated users may READ these resources
-<span class="fc" id="L41">        auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory/**&quot;).authenticated();</span>
-<span class="fc" id="L42">        auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers/**&quot;).authenticated();</span>
-<span class="fc" id="L43">        auth.requestMatchers(HttpMethod.GET, &quot;/api/analytics/**&quot;).authenticated();</span>
+        // Static / root / error pages (adapt if you have a different frontend setup)
+<span class="fc" id="L33">        auth.requestMatchers(&quot;/&quot;, &quot;/index.html&quot;, &quot;/error&quot;).permitAll();</span>
 
-        // Admin-only area (role-protected)
-<span class="fc" id="L46">        auth.requestMatchers(&quot;/api/admin/**&quot;).hasRole(&quot;ADMIN&quot;);</span>
-        
-        // Inventory &amp; supplier mutations: authenticated business users (USER or ADMIN)
-<span class="fc" id="L49">        auth.requestMatchers(HttpMethod.POST, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L50">        auth.requestMatchers(HttpMethod.PUT, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L51">        auth.requestMatchers(HttpMethod.PATCH, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L52">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/inventory/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+        // OAuth2 login and logout endpoints
+<span class="fc" id="L36">        auth.requestMatchers(&quot;/oauth2/**&quot;, &quot;/login/**&quot;, &quot;/logout/**&quot;).permitAll();</span>
 
-<span class="fc" id="L54">        auth.requestMatchers(HttpMethod.POST, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L55">        auth.requestMatchers(HttpMethod.PUT, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L56">        auth.requestMatchers(HttpMethod.PATCH, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
-<span class="fc" id="L57">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/suppliers/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+        // If you have a public auth/user info endpoint for debugging/demo,
+        // you can open it here; otherwise it will fall under /api/** below.
 
-        // Everything else under /api/** must be authenticated
-<span class="fc" id="L60">        auth.requestMatchers(&quot;/api/**&quot;).authenticated();</span>
+        /* ----------------------- Inventory API (read) ----------------------- */
 
-        // Default: everything else authenticated
-<span class="fc" id="L63">        auth.anyRequest().authenticated();</span>
-<span class="fc" id="L64">    }</span>
+        // Allow any authenticated user (including demo) to read inventory:
+        // - list endpoint
+        // - get-by-id
+<span class="fc" id="L46">        auth.requestMatchers(HttpMethod.GET, &quot;/api/inventory&quot;, &quot;/api/inventory/**&quot;)</span>
+<span class="fc" id="L47">                .authenticated();</span>
+
+        /* ----------------------- Supplier API (read) ------------------------ */
+
+        // Allow any authenticated user to read suppliers
+<span class="fc" id="L52">        auth.requestMatchers(HttpMethod.GET, &quot;/api/suppliers&quot;, &quot;/api/suppliers/**&quot;)</span>
+<span class="fc" id="L53">                .authenticated();</span>
+
+        /* -------------------- Inventory API (mutations) --------------------- */
+        // NOTE:
+        // - Method-level @PreAuthorize on InventoryItemController already enforces:
+        //   - create: hasRole('ADMIN') and !@securityService.isDemo()
+        //   - adjustQuantity: hasAnyRole('USER','ADMIN') and !@securityService.isDemo()
+        //   - changePrice: similar pattern
+        // - Here we keep URL rules role-based; demo is blocked by method security.
+
+<span class="fc" id="L63">        auth.requestMatchers(HttpMethod.POST, &quot;/api/inventory/**&quot;)</span>
+<span class="fc" id="L64">                .hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L65">        auth.requestMatchers(HttpMethod.PUT, &quot;/api/inventory/**&quot;)</span>
+<span class="fc" id="L66">                .hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L67">        auth.requestMatchers(HttpMethod.PATCH, &quot;/api/inventory/**&quot;)</span>
+<span class="fc" id="L68">                .hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L69">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/inventory/**&quot;)</span>
+<span class="fc" id="L70">                .hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+
+        /* -------------------- Supplier API (mutations) ---------------------- */
+
+<span class="fc" id="L74">        auth.requestMatchers(HttpMethod.POST, &quot;/api/suppliers/**&quot;)</span>
+<span class="fc" id="L75">                .hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L76">        auth.requestMatchers(HttpMethod.PUT, &quot;/api/suppliers/**&quot;)</span>
+<span class="fc" id="L77">                .hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L78">        auth.requestMatchers(HttpMethod.PATCH, &quot;/api/suppliers/**&quot;)</span>
+<span class="fc" id="L79">                .hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+<span class="fc" id="L80">        auth.requestMatchers(HttpMethod.DELETE, &quot;/api/suppliers/**&quot;)</span>
+<span class="fc" id="L81">                .hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;);</span>
+
+        /* ---------------------- All other API endpoints --------------------- */
+
+        // Everything else under /api/** requires authentication
+<span class="fc" id="L86">        auth.requestMatchers(&quot;/api/**&quot;).authenticated();</span>
+
+        // Default: everything else must be authenticated
+<span class="fc" id="L89">        auth.anyRequest().authenticated();</span>
+<span class="fc" id="L90">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
