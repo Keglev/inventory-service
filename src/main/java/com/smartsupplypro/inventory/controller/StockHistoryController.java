@@ -1,21 +1,27 @@
 package com.smartsupplypro.inventory.controller;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.smartsupplypro.inventory.dto.StockHistoryDTO;
 import com.smartsupplypro.inventory.enums.StockChangeReason;
 import com.smartsupplypro.inventory.exception.InvalidRequestException;
 import com.smartsupplypro.inventory.service.StockHistoryService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Stock history audit trail controller providing comprehensive change tracking.
@@ -82,12 +88,12 @@ public class StockHistoryController {
         @RequestParam(required = false) String supplierId,
         @PageableDefault(size = 50, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        // Enterprise Comment: Date range validation - prevent logical inconsistencies that could
+        // Date range validation - prevent logical inconsistencies that could
         // cause confusion in audit reports and ensure temporal query validity
         if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
             throw new InvalidRequestException("endDate must be >= startDate");
         }
-        // Enterprise Comment: Page size protection - cap large page requests to prevent memory issues
+        // Page size protection - cap large page requests to prevent memory issues
         // and maintain reasonable response times for audit queries over large datasets
         pageable = PageRequest.of(
             pageable.getPageNumber(),
