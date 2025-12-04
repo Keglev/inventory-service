@@ -138,6 +138,9 @@ public class AnalyticsController {
 
     /**
      * Gets monthly stock movement within date range.
+     * @param start inclusive start date (ISO yyyy-MM-dd)
+     * @param end inclusive end date (ISO yyyy-MM-dd)
+     * @param supplierId optional supplier filter
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/monthly-stock-movement")
@@ -152,6 +155,14 @@ public class AnalyticsController {
 
     /**
      * Gets filtered stock updates via query parameters (defaults to last 30 days).
+     *
+     * @param startDate optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param endDate optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param itemName optional item name filter
+     * @param supplierId optional supplier identifier filter
+     * @param createdBy optional creator username filter
+     * @param minChange optional minimum quantity change filter
+     * @param maxChange optional maximum quantity change filter
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/stock-updates")
@@ -190,6 +201,7 @@ public class AnalyticsController {
      *
      * @param filter stock update filter criteria
      * @return list of filtered stock updates
+     * @throws IllegalArgumentException if validation fails
      */
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/stock-updates/query", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -202,6 +214,10 @@ public class AnalyticsController {
 
     /**
      * Gets dashboard summary with multiple analytics (defaults to last 30 days).
+     * @param supplierId optional supplier filter
+     * @param startDate optional inclusive start date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @param endDate optional inclusive end date-time (ISO yyyy-MM-dd'T'HH:mm:ss)
+     * @return dashboard summary DTO
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/summary")
@@ -222,6 +238,11 @@ public class AnalyticsController {
 
     /**
      * Gets historical price changes for an item.
+     * @param itemId required item identifier
+     * @param supplierId optional supplier filter
+     * @param start inclusive start date (ISO yyyy-MM-dd)
+     * @param end inclusive end date (ISO yyyy-MM-dd)
+     * @return list of price trend DTOs
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/price-trend")
@@ -238,6 +259,10 @@ public class AnalyticsController {
 
     /**
      * Gets financial summary with WAC calculations.
+     * @param from inclusive start date (ISO yyyy-MM-dd)
+     * @param to inclusive end date (ISO yyyy-MM-dd)
+     * @param supplierId optional supplier filter
+     * @return financial summary DTO
      */
     @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     @GetMapping("/financial/summary")
