@@ -15,6 +15,7 @@ public class RootRedirectController {
 
     /**
      * Application properties with frontend URL/path.
+     * @see AppProperties#getFrontend()
      */
     private final AppProperties props;
     public RootRedirectController(AppProperties props) { this.props = props; }
@@ -22,6 +23,7 @@ public class RootRedirectController {
     /**
      * Redirects root requests to configured frontend application.
      * @return redirect URL to frontend base path
+     * @see AppProperties#getFrontend()
      */
     @GetMapping("/")
     public String root() {
