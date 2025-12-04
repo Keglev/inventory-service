@@ -108,7 +108,11 @@ public class GlobalExceptionHandler {
      * 401 / 403 - Security & Authorization
      * ======================================================================= */
 
-    /** Handles authentication failures. Returns generic message to prevent enumeration. */
+    /** Handles authentication failures. Returns generic message to prevent enumeration. 
+     * 
+     * @enterprise 
+     * - Avoids leaking details about authentication mechanisms or user existence.
+    */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
         return ErrorResponse.builder()

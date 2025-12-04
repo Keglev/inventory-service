@@ -61,6 +61,7 @@ public class ErrorResponse {
 
     /**
      * Fluent builder for ErrorResponse construction with validation.
+     * @author Smart Supply Pro Development Team
      */
     public static class Builder {
         private String error;
