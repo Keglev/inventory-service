@@ -14,52 +14,78 @@ import org.springframework.stereotype.Component;
 public class SecurityAuthorizationHelper {
 
     /**
-     * Configures authorization rules with demo mode support.
-     * 
-     * <p>Applies public access, demo read-only, and role-based patterns.</p>
+     * Configure URL-based authorization rules.
+     *
+     * @param auth         Spring Security authorization registry
+     * @param demoReadonly global demo flag (currently leveraged via method security –
+     *                     this method keeps URL rules simple and role-based)
      */
     public void configureAuthorization(
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth,
             boolean isDemoReadonly) {
         
-        // CORS preflight and public endpoints
-        auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
-        auth.requestMatchers("/logout").permitAll();
-        auth.requestMatchers(
-                "/", "/actuator/**", "/health/**", "/api/health/**",
-                "/oauth2/**", "/login/oauth2/**", "/login/**", "/error"
-        ).permitAll();
+        /* -------------------- Public / health / OAuth2 endpoints -------------------- */
 
-        // Demo mode: allow read-only endpoints without login
-        if (isDemoReadonly) {
-            auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
-            auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll();
-            auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").permitAll();
-        }
+        // Health/info endpoints – keep publicly readable
+        auth.requestMatchers("/actuator/health", "/actuator/info").permitAll();
 
-        // Default: authenticated users may READ these resources
-        auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated();
-        auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").authenticated();
-        auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").authenticated();
+        // Static / root / error pages (adapt if you have a different frontend setup)
+        auth.requestMatchers("/", "/index.html", "/error").permitAll();
 
-        // Admin-only area (role-protected)
-        auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
-        
-        // Inventory & supplier mutations: authenticated business users (USER or ADMIN)
-        auth.requestMatchers(HttpMethod.POST, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+        // OAuth2 login and logout endpoints
+        auth.requestMatchers("/oauth2/**", "/login/**", "/logout/**").permitAll();
 
-        auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
-        auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+        // If you have a public auth/user info endpoint for debugging/demo,
+        // you can open it here; otherwise it will fall under /api/** below.
 
-        // Everything else under /api/** must be authenticated
+        /* ----------------------- Inventory API (read) ----------------------- */
+
+        // Allow any authenticated user (including demo) to read inventory:
+        // - list endpoint
+        // - get-by-id
+        auth.requestMatchers(HttpMethod.GET, "/api/inventory", "/api/inventory/**")
+                .authenticated();
+
+        /* ----------------------- Supplier API (read) ------------------------ */
+
+        // Allow any authenticated user to read suppliers
+        auth.requestMatchers(HttpMethod.GET, "/api/suppliers", "/api/suppliers/**")
+                .authenticated();
+
+        /* -------------------- Inventory API (mutations) --------------------- */
+        // NOTE:
+        // - Method-level @PreAuthorize on InventoryItemController already enforces:
+        //   - create: hasRole('ADMIN') and !@securityService.isDemo()
+        //   - adjustQuantity: hasAnyRole('USER','ADMIN') and !@securityService.isDemo()
+        //   - changePrice: similar pattern
+        // - Here we keep URL rules role-based; demo is blocked by method security.
+
+        auth.requestMatchers(HttpMethod.POST, "/api/inventory/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**")
+                .hasAnyRole("USER", "ADMIN");
+
+        /* -------------------- Supplier API (mutations) ---------------------- */
+
+        auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**")
+                .hasAnyRole("USER", "ADMIN");
+
+        /* ---------------------- All other API endpoints --------------------- */
+
+        // Everything else under /api/** requires authentication
         auth.requestMatchers("/api/**").authenticated();
 
-        // Default: everything else authenticated
+        // Default: everything else must be authenticated
         auth.anyRequest().authenticated();
     }
 }

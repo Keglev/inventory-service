@@ -76,91 +76,47 @@ Write Request? → Deny with "Demo Mode" message
 
 ### Implementation
 
-**SecuritySpelBridgeConfig.java:**
-```java
-@Configuration
-public class SecuritySpelBridgeConfig {
+**Demo mode is enforced at the method level, not the filter level.**
 
-    @Bean
-    public SpELSecurityBridge spelSecurityBridge(AppProperties appProperties) {
-        return new SpELSecurityBridge(appProperties);
-    }
+**SecurityAuthorizationHelper.java** uses simple role-based rules:
+
+```java
+// URL-level: READ operations only require authentication
+auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated();
+
+// URL-level: WRITE operations require USER or ADMIN role
+auth.requestMatchers(HttpMethod.POST, "/api/inventory/**")
+        .hasAnyRole("USER", "ADMIN");
+auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**")
+        .hasAnyRole("USER", "ADMIN");
+```
+
+**SecurityService.isDemo()** is used in `@PreAuthorize` expressions:
+
+```java
+@PostMapping
+@PreAuthorize("hasAnyRole('USER', 'ADMIN') and !@securityService.isDemo()")
+public InventoryItemDTO create(@RequestBody InventoryItemDTO dto) {
+    // Executes only if:
+    // 1. User has USER or ADMIN role
+    // 2. User is NOT in demo mode
 }
 
-public class SpELSecurityBridge {
-    private final boolean demoReadonly;
-
-    public SpELSecurityBridge(AppProperties appProperties) {
-        this.demoReadonly = appProperties.isDemoReadonly();
-    }
-
-    /**
-     * Check if request is allowed in demo mode
-     * Demo mode: GET allowed (read), write operations denied
-     */
-    public boolean isDemoModeAllowed(String httpMethod) {
-        if (!demoReadonly) {
-            return true;  // Demo mode disabled, allow normally
-        }
-        return "GET".equalsIgnoreCase(httpMethod);  // Demo: only GET allowed
-    }
+@PatchMapping("/{id}/quantity")
+@PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")
+public InventoryItemDTO adjustQuantity(@PathVariable String id,
+                                       @RequestParam int delta,
+                                       @RequestParam StockChangeReason reason) {
+    // Demo users cannot adjust quantities
 }
 ```
 
-**SecurityAuthorizationHelper.java:**
-```java
-@Configuration
-public class SecurityAuthorizationHelper {
+**Why this approach?**
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
-        http.authorizeHttpRequests(authz -> authz
-            // GET requests - allowed in demo mode
-            .requestMatchers(HttpMethod.GET, "/api/**")
-            .permitAll()
-            
-            // Write operations - require ADMIN or disallow in demo mode
-            .requestMatchers(HttpMethod.POST, "/api/**")
-            .access("hasRole('ADMIN') and @spelSecurityBridge.isDemoModeAllowed('POST')")
-            
-            .requestMatchers(HttpMethod.PUT, "/api/**")
-            .access("hasRole('ADMIN') and @spelSecurityBridge.isDemoModeAllowed('PUT')")
-            
-            .requestMatchers(HttpMethod.DELETE, "/api/**")
-            .access("hasRole('ADMIN') and @spelSecurityBridge.isDemoModeAllowed('DELETE')")
-        );
-    }
-}
-```
-
-### @PreAuthorize with Demo Mode
-
-**Controller Methods:**
-```java
-@RestController
-@RequestMapping("/api/inventory")
-public class InventoryController {
-
-    @GetMapping
-    @PreAuthorize("permitAll()")  // Always allowed
-    public ResponseEntity<?> listInventory() {
-        return ResponseEntity.ok(inventoryService.getAll());
-    }
-
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN') and @spelSecurityBridge.isDemoModeAllowed('POST')")
-    public ResponseEntity<?> createInventory(@RequestBody InventoryItemRequest req) {
-        return ResponseEntity.ok(inventoryService.create(req));
-    }
-
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') and @spelSecurityBridge.isDemoModeAllowed('DELETE')")
-    public ResponseEntity<?> deleteInventory(@PathVariable Long id) {
-        inventoryService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-}
-```
+- ✅ Simpler URL rules at the filter level
+- ✅ Demo mode logic is explicit in each method that performs writes
+- ✅ Easy to audit and understand which operations are blocked in demo mode
+- ✅ Reduces complexity in `SecurityAuthorizationHelper`
 
 ---
 

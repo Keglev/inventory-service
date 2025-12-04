@@ -172,26 +172,57 @@ These are `@Component` classes (automatically created beans) that break down sec
 ```java
 @Component
 public class SecurityAuthorizationHelper {
+    
     public void configureAuthorization(
-        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth,
-        boolean isDemoReadonly) {
+            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth,
+            boolean isDemoReadonly) {
         
-        // Public endpoints
-        auth.requestMatchers("/", "/login/**", "/oauth2/**").permitAll();
+        // 1. Public endpoints
+        auth.requestMatchers("/actuator/health", "/actuator/info").permitAll();
+        auth.requestMatchers("/", "/index.html", "/error").permitAll();
+        auth.requestMatchers("/oauth2/**", "/login/**", "/logout/**").permitAll();
         
-        // Demo mode: allow GET without login
-        if (isDemoReadonly) {
-            auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
-        }
+        // 2. Inventory & Supplier API (read): authenticated users
+        auth.requestMatchers(HttpMethod.GET, "/api/inventory", "/api/inventory/**")
+                .authenticated();
+        auth.requestMatchers(HttpMethod.GET, "/api/suppliers", "/api/suppliers/**")
+                .authenticated();
         
-        // Protected: require authentication for reads
-        auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated();
+        // 3. Inventory & Supplier mutations: USER or ADMIN role required
+        // Demo mode write protection via @PreAuthorize method-level security
+        auth.requestMatchers(HttpMethod.POST, "/api/inventory/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**")
+                .hasAnyRole("USER", "ADMIN");
         
-        // Admin-only: writes require ADMIN role
-        auth.requestMatchers(HttpMethod.POST, "/api/inventory/**").hasRole("ADMIN");
+        auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**")
+                .hasAnyRole("USER", "ADMIN");
+        auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**")
+                .hasAnyRole("USER", "ADMIN");
+        
+        // 4. All other /api/** endpoints: authenticated
+        auth.requestMatchers("/api/**").authenticated();
+        
+        // 5. Default: everything else authenticated
+        auth.anyRequest().authenticated();
     }
 }
 ```
+
+**Key Points:**
+
+- URL rules are simple and role-based (no complex SpEL expressions)
+- Demo mode write protection is **exclusively** at the method level via `@PreAuthorize` 
+- READ endpoints are always allowed for authenticated users (including demo users)
+- WRITE endpoints check both role (`hasAnyRole('USER','ADMIN')`) AND demo status (`!@securityService.isDemo()`)
 
 #### SecurityEntryPointHelper
 

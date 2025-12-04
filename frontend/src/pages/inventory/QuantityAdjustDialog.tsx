@@ -222,6 +222,12 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
    * Uses shared hook for consistent data fetching.
    */
   const itemDetailsQuery = useItemDetailsQuery(selectedItem?.id);
+
+  /**
+   * Effective current quantity:
+   * - Prefer value from itemDetailsQuery (GET /api/inventory/{id})
+   * - Fall back to selectedItem.onHand (search placeholder) if details not loaded yet
+   */
   const effectiveCurrentQty =
     selectedItem ? (itemDetailsQuery.data?.onHand ?? selectedItem.onHand ?? 0) : 0;
 
