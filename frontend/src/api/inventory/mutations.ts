@@ -154,11 +154,19 @@ export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
     pickNumber(raw, 'onHand') ??
     pickNumber(raw, 'quantity') ??
     pickNumber(raw, 'qty') ??
+    pickNumber(raw, 'currentQuantity') ??
+    pickNumber(raw, 'currentQty') ??
+    pickNumber(raw, 'quantityOnHand') ??
+    pickNumber(raw, 'onHandQuantity') ??
+    pickNumber(raw, 'stock') ??
     0;
 
   const minQty =
     pickNumber(raw, 'minQty') ??
     pickNumber(raw, 'min_quantity') ??
+    pickNumber(raw, 'minimumQuantity') ??
+    pickNumber(raw, 'minimum') ??
+    pickNumber(raw, 'reorderLevel') ??
     null;
 
   const updatedAt =

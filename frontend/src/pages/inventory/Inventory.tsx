@@ -56,18 +56,6 @@ function useDebounced<T>(value: T, delayMs: number): T {
   return v;
 }
 
-/**
- * Narrower type guard to read an optional createdAt without using `any`.
- * @enterprise Avoids coupling the grid to backend-specific fields.
- */
-function getMaybeCreatedAt(row: unknown): string | null {
-  if (typeof row === 'object' && row !== null && 'createdAt' in row) {
-    const v = (row as { createdAt?: unknown }).createdAt;
-    return typeof v === 'string' ? v : null;
-  }
-  return null;
-}
-
 const DEFAULT_PAGE_SIZE = 10;
 
 const Inventory: React.FC = () => {
@@ -219,20 +207,45 @@ const Inventory: React.FC = () => {
         headerName: t('inventory:table.onHand', 'On-hand'),
         type: 'number',
         width: 140,
-        valueFormatter: ({ value }) =>
-          formatNumber(typeof value === 'number' ? value : Number(value ?? 0), userPreferences.numberFormat, 0),
+        valueFormatter: (
+          params: { value: number | string | null | undefined }
+        ) => {
+          const raw = params.value;
+          let numeric = 0;
+
+          if (typeof raw === 'number' && Number.isFinite(raw)) {
+            numeric = raw;
+          } else if (typeof raw === 'string') {
+            const parsed = Number(raw.trim());
+            if (Number.isFinite(parsed)) {
+              numeric = parsed;
+            }
+          }
+
+          return formatNumber(numeric, userPreferences.numberFormat);
+        },
       },
+      {
+        field: 'minQty',
+        headerName: t('inventory:table.minQty', 'Min. Qty'),
+        type: 'number',
+        width: 140,
+      }, 
       {
         field: 'updatedAt',
         headerName: t('inventory:table.updated', 'Updated'),
-        width: 200,
-        valueGetter: (_value: unknown, row: InventoryRow) => row.updatedAt ?? getMaybeCreatedAt(row) ?? null,
-        valueFormatter: ({ value }) => {
-          if (!value) return '—';
+        width: 190,
+        // just use updatedAt from the normalized row (it's already a Date or null)
+        valueFormatter: (
+          params: { value: string | null | undefined }
+        ) => {
+          const raw = params.value;
+          if (!raw) return '—';
           try {
-            return formatDate(new Date(String(value)), userPreferences.dateFormat);
+            return formatDate(new Date(String(raw)), userPreferences.dateFormat);
           } catch {
-            return String(value);
+            // If backend sends a invalid date string, avoid breaking the grid
+            return String(raw);
           }
         },
       },
