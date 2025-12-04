@@ -208,9 +208,9 @@ const Inventory: React.FC = () => {
         type: 'number',
         width: 140,
         valueFormatter: (
-          params: { value: number | string | null | undefined }
+          params: { value?: number | string | null } | null
         ) => {
-          const raw = params.value;
+          const raw = params?.value;
           let numeric = 0;
 
           if (typeof raw === 'number' && Number.isFinite(raw)) {
@@ -237,9 +237,9 @@ const Inventory: React.FC = () => {
         width: 190,
         // just use updatedAt from the normalized row (it's already a Date or null)
         valueFormatter: (
-          params: { value: string | null | undefined }
+          params: { value?: string | null } | null
         ) => {
-          const raw = params.value;
+          const raw = params?.value;
           if (!raw) return '—';
           try {
             return formatDate(new Date(String(raw)), userPreferences.dateFormat);
