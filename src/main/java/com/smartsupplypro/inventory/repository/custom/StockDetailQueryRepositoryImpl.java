@@ -34,6 +34,17 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         this.dialectDetector = dialectDetector;
     }
 
+    /**
+     * Searches stock updates with flexible filtering across supported databases.
+     * Supports H2 and Oracle with optimized SQL per dialect.
+     * @param startDate   filter start date (inclusive)
+     * @param endDate     filter end date (inclusive)
+     * @param itemName    partial item name (case-insensitive, optional)
+     * @param supplierId  exact supplier ID (optional)
+     * @param createdBy   exact creator username (case-insensitive, optional)
+     * @param minChange   minimum change value (optional)
+     * @param maxChange   maximum change value (optional)
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Object[]> searchStockUpdates(
@@ -68,6 +79,14 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         return query.getResultList();
     }
 
+    /**
+     * Streams stock events up to a specified end time for WAC calculations.
+     * Uses JPQL for database-agnostic entity querying.
+     * @param end         upper timestamp bound (inclusive)
+     * @param supplierId  optional supplier ID filter
+     * @return list of stock event rows for WAC processing
+     * @see StockEventRowDTO
+     */
     @Override
     public List<StockEventRowDTO> streamEventsForWAC(LocalDateTime end, String supplierId) {
         // Use JPQL for entity-based event streaming (database-agnostic)
@@ -96,10 +115,11 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
                 .getResultList();
     }
 
-    /* ======================================================================
-     * SQL Builder Methods - H2 Dialect
-     * ====================================================================== */
-
+    /**
+     * Builds the SQL query for filtered search on H2 database.
+     * @return SQL query string
+     * @see #buildOracleFilteredSearchSql()
+     */
     private String buildH2FilteredSearchSql() {
         return """
             SELECT i.name AS item_name, 
@@ -122,10 +142,11 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
         """;
     }
 
-    /* ======================================================================
-     * SQL Builder Methods - Oracle Dialect
-     * ====================================================================== */
-
+    /**
+     * Builds the SQL query for filtered search on Oracle database.
+     * @return SQL query string
+     * @see #buildH2FilteredSearchSql()
+     */
     private String buildOracleFilteredSearchSql() {
         return """
             SELECT i.name AS item_name, 
@@ -152,7 +173,11 @@ public class StockDetailQueryRepositoryImpl implements StockDetailQueryRepositor
      * Utility Methods
      * ====================================================================== */
 
-    /** Normalizes optional string parameters (null/blank → null). */
+    /** Normalizes optional string parameters (null/blank → null). 
+     * @param param input parameter
+     * @return normalized parameter 
+     * @see #searchStockUpdates(LocalDateTime, LocalDateTime, String, String, String, Integer, Integer)
+    */
     private String normalizeOptionalParam(String param) {
         return (param == null || param.isBlank()) ? null : param.trim();
     }
