@@ -23,7 +23,7 @@ Inventory Service,com.smartsupplypro.inventory.config,SecurityEntryPointHelper,1
 Inventory Service,com.smartsupplypro.inventory.config,AppProperties.Frontend,3,20,0,0,1,6,1,4,1,4
 Inventory Service,com.smartsupplypro.inventory.config,AppProperties,0,21,0,0,0,6,0,4,0,4
 Inventory Service,com.smartsupplypro.inventory.config,SecurityConfig,62,213,8,0,15,43,8,14,4,14
-Inventory Service,com.smartsupplypro.inventory.config,SecurityAuthorizationHelper,0,281,0,0,0,27,0,2,0,2
+Inventory Service,com.smartsupplypro.inventory.config,SecurityAuthorizationHelper,0,296,0,0,0,28,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.config,SecurityFilterHelper,0,8,0,0,0,2,0,2,0,2
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockMetricsRepositoryImpl,14,76,5,5,3,25,8,8,3,8
 Inventory Service,com.smartsupplypro.inventory.repository.custom,StockDetailQueryRepositoryImpl,12,112,9,9,1,29,10,5,1,5
