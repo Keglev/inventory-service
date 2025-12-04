@@ -55,7 +55,6 @@ public class InventoryItemController {
      * @return inventory item details
      * @throws ResponseStatusException 404 if item not found
      */
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public InventoryItemDTO getById(@PathVariable String id) {
         return inventoryItemService.getById(id)

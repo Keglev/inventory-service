@@ -5,9 +5,13 @@ get:
   description: |
     Searches for inventory items by name with pagination and sorting support.
     Name search is case-insensitive and matches substrings.
+    
+    **Security:** Requires authentication OR demo mode enabled. If APP_DEMO_READONLY=true, 
+    unauthenticated access is allowed.
   operationId: searchInventoryItems
   security:
     - oauth2: [openid]
+    - {}  # Empty security allows demo mode unauthenticated access
   parameters:
     - name: name
       in: query

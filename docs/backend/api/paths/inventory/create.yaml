@@ -5,6 +5,10 @@ post:
   description: |
     Creates a new inventory item. Requires ADMIN role.
     
+    **Authorization:** 
+    - Requires ROLE_ADMIN
+    - Blocked in demo mode (APP_DEMO_READONLY=true) - returns 403 Forbidden
+    
     **Validation:**
     - ID must be absent (system-generated)
     - Name, quantity, price, and supplierId are required

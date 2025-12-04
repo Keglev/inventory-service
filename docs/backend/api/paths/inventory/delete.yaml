@@ -5,6 +5,10 @@ delete:
   description: |
     Deletes an inventory item permanently. Requires ADMIN role.
     
+    **Authorization:** 
+    - Requires ROLE_ADMIN
+    - Blocked in demo mode (APP_DEMO_READONLY=true) - returns 403 Forbidden
+    
     **Business Rules:**
     - Item must have quantity = 0 (all stock must be removed before deletion)
     - Reason parameter is required for compliance tracking

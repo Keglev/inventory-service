@@ -2,10 +2,15 @@ get:
   tags:
     - Inventory
   summary: Get total item count
-  description: Returns the total number of inventory items in the system.
+  description: |
+    Returns the total number of inventory items in the system.
+    
+    **Security:** Requires authentication OR demo mode enabled. If APP_DEMO_READONLY=true, 
+    unauthenticated access is allowed.
   operationId: countInventoryItems
   security:
     - oauth2: [openid]
+    - {}  # Empty security allows demo mode unauthenticated access
   responses:
     '200':
       description: Total count of inventory items

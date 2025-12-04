@@ -5,6 +5,10 @@ patch:
   description: |
     Updates the unit price of an inventory item.
     Total value is automatically recalculated (quantity × new price).
+    
+    **Authorization:** 
+    - Requires ROLE_USER or ROLE_ADMIN
+    - Blocked in demo mode (APP_DEMO_READONLY=true) - returns 403 Forbidden
   operationId: updateInventoryItemPrice
   security:
     - oauth2: [openid]

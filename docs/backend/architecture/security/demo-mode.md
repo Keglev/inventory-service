@@ -76,47 +76,63 @@ Write Request? → Deny with "Demo Mode" message
 
 ### Implementation
 
-**Demo mode is enforced at the method level, not the filter level.**
+**Demo mode is enforced at BOTH URL level AND method level.**
 
-**SecurityAuthorizationHelper.java** uses simple role-based rules:
+**SecurityAuthorizationHelper.java** supports demo mode conditionally:
 
 ```java
-// URL-level: READ operations only require authentication
-auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated();
+public void configureAuthorization(
+        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth,
+        boolean isDemoReadonly) {
+    
+    // Demo mode: allow read-only endpoints without login
+    if (isDemoReadonly) {
+        auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
+        auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll();
+        auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").permitAll();
+    }
 
-// URL-level: WRITE operations require USER or ADMIN role
-auth.requestMatchers(HttpMethod.POST, "/api/inventory/**")
-        .hasAnyRole("USER", "ADMIN");
-auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**")
-        .hasAnyRole("USER", "ADMIN");
+    // Default: authenticated users may READ these resources
+    auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated();
+    auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").authenticated();
+    auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").authenticated();
+
+    // Write operations ALWAYS require USER or ADMIN role (demo doesn't affect URL rules)
+    auth.requestMatchers(HttpMethod.POST, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+}
 ```
 
-**SecurityService.isDemo()** is used in `@PreAuthorize` expressions:
+**InventoryItemController.java** applies method-level checks:
 
 ```java
+// Read operations: authenticated users OR demo mode (unauthenticated)
+@GetMapping
+@PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
+public List<InventoryItemDTO> getAll() { ... }
+
+// Write operations: ALWAYS blocked if in demo mode
 @PostMapping
-@PreAuthorize("hasAnyRole('USER', 'ADMIN') and !@securityService.isDemo()")
-public InventoryItemDTO create(@RequestBody InventoryItemDTO dto) {
-    // Executes only if:
-    // 1. User has USER or ADMIN role
-    // 2. User is NOT in demo mode
-}
+@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+public ResponseEntity<InventoryItemDTO> create(@RequestBody InventoryItemDTO dto) { ... }
 
 @PatchMapping("/{id}/quantity")
 @PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")
 public InventoryItemDTO adjustQuantity(@PathVariable String id,
                                        @RequestParam int delta,
                                        @RequestParam StockChangeReason reason) {
-    // Demo users cannot adjust quantities
+    // Demo users cannot adjust quantities (403 Forbidden)
 }
 ```
 
-**Why this approach?**
+**Why this two-level approach?**
 
-- ✅ Simpler URL rules at the filter level
-- ✅ Demo mode logic is explicit in each method that performs writes
-- ✅ Easy to audit and understand which operations are blocked in demo mode
-- ✅ Reduces complexity in `SecurityAuthorizationHelper`
+- ✅ URL-level: Determines if unauthenticated GET access is allowed
+- ✅ Method-level: Ensures demo users cannot write even if somehow authenticated
+- ✅ Redundant safety: Both layers block writes in demo mode
+- ✅ Clear intent: Each layer serves a specific purpose
 
 ---
 
@@ -128,20 +144,24 @@ User Request
 ┌─────────────────────────────────┐
 │ Is it a GET request?             │
 └─────────────────────────────────┘
-    ↓ YES              ↓ NO
-[Return Data]      [Check Authorization]
-                       ↓
-                  ┌──────────────────────┐
-                  │ Demo Mode Enabled?   │
-                  └──────────────────────┘
-                    ↓ YES              ↓ NO
-              [403 Forbidden]     [Check User Role]
-             (Demo Mode blocks)        ↓
-                            ┌──────────────────────┐
-                            │ User is ADMIN?       │
-                            └──────────────────────┘
-                              ↓ YES        ↓ NO
-                          [Allow]     [403 Forbidden]
+    ↓ YES              ↓ NO (Write: POST/PUT/PATCH/DELETE)
+    ↓                  ↓
+┌─────────────────────────────────┐  ┌──────────────────────────────┐
+│ URL-Level Check                 │  │ Check User Has Role          │
+│ isDemoReadonly=true?            │  │ (USER or ADMIN)              │
+└─────────────────────────────────┘  └──────────────────────────────┘
+    ↓ YES        ↓ NO              ↓ NO          ↓ YES
+ [permitAll]  [authenticated]  [403]      [Check Demo Mode]
+    ↓              ↓                           ↓
+[Method Check]  [Method Check]      ┌──────────────────────────┐
+    ↓              ↓                 │ isDemo() = true?         │
+┌──────────────────────────────────┐ └──────────────────────────┘
+│ @PreAuthorize:                   │  ↓ YES        ↓ NO
+│ isAuthenticated() or             │ [403]      [Allow Write]
+│ @appProperties.demoReadonly      │
+└──────────────────────────────────┘
+    ↓ YES        ↓ NO
+[Return Data] [403]
 ```
 
 ---

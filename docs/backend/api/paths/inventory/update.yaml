@@ -5,6 +5,10 @@ put:
   description: |
     Updates an existing inventory item completely (full replacement).
     
+    **Authorization:** 
+    - Requires ROLE_ADMIN
+    - Blocked in demo mode (APP_DEMO_READONLY=true) - returns 403 Forbidden
+    
     **ID Handling:**
     - Path parameter takes precedence
     - Request body ID is ignored to prevent conflicts

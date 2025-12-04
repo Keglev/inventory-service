@@ -5,6 +5,10 @@ patch:
   description: |
     Adjusts the quantity of an inventory item by a delta amount.
     
+    **Authorization:** 
+    - Requires ROLE_USER or ROLE_ADMIN
+    - Blocked in demo mode (APP_DEMO_READONLY=true) - returns 403 Forbidden
+    
     **Delta Logic:**
     - Positive delta: Add stock (e.g., +50 to increase by 50 units)
     - Negative delta: Remove stock (e.g., -25 to decrease by 25 units)

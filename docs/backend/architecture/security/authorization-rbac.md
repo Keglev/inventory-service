@@ -119,81 +119,85 @@ if (existingUser.getRole() != desired) {
 public void configureAuthorization(
         AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth,
         boolean isDemoReadonly) {
-    
-    // 1. Public endpoints (no authentication required)
-    auth.requestMatchers("/actuator/health", "/actuator/info").permitAll();
-    auth.requestMatchers("/api/health", "/api/health/**").permitAll();  // API health check for Fly.io
-    auth.requestMatchers("/", "/index.html", "/error").permitAll();
-    auth.requestMatchers("/oauth2/**", "/login/**", "/logout/**").permitAll();
-    
-    // 2. Inventory API (read): authenticated users only
-    // Note: Demo mode allows unauthenticated read via frontend session management
-    auth.requestMatchers(HttpMethod.GET, "/api/inventory", "/api/inventory/**")
-            .authenticated();
-    
-    // 3. Supplier API (read): authenticated users only
-    auth.requestMatchers(HttpMethod.GET, "/api/suppliers", "/api/suppliers/**")
-            .authenticated();
-    
-    // 4. Inventory API (write): USER or ADMIN roles required
-    // Note: Demo mode write protection is enforced at method level via @PreAuthorize
-    auth.requestMatchers(HttpMethod.POST, "/api/inventory/**")
-            .hasAnyRole("USER", "ADMIN");
-    auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**")
-            .hasAnyRole("USER", "ADMIN");
-    auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**")
-            .hasAnyRole("USER", "ADMIN");
-    auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**")
-            .hasAnyRole("USER", "ADMIN");
-    
-    // 5. Supplier API (write): USER or ADMIN roles required
-    auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**")
-            .hasAnyRole("USER", "ADMIN");
-    auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**")
-            .hasAnyRole("USER", "ADMIN");
-    auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**")
-            .hasAnyRole("USER", "ADMIN");
-    auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**")
-            .hasAnyRole("USER", "ADMIN");
-    
-    // 6. Analytics endpoints: authenticated users only
-    auth.requestMatchers(HttpMethod.GET, "/api/analytics/**")
-            .authenticated();
-    
-    // 7. All other /api/** endpoints: authenticated users only
+    // CORS and public endpoints
+    auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+    auth.requestMatchers("/logout").permitAll();
+    auth.requestMatchers(
+            "/",
+            "/actuator/**",
+            "/health/**",
+            "/api/health/**",
+            "/oauth2/**",
+            "/login/oauth2/**",
+            "/login/**",
+            "/error"
+    ).permitAll();
+
+    // Demo mode: allow read-only endpoints without login
+    if (isDemoReadonly) {
+        auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").permitAll();
+        auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").permitAll();
+        auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").permitAll();
+    }
+
+    // Default: authenticated users may READ these resources
+    auth.requestMatchers(HttpMethod.GET, "/api/inventory/**").authenticated();
+    auth.requestMatchers(HttpMethod.GET, "/api/suppliers/**").authenticated();
+    auth.requestMatchers(HttpMethod.GET, "/api/analytics/**").authenticated();
+
+    // Admin-only area (role-protected)
+    auth.requestMatchers("/api/admin/**").hasRole("ADMIN");
+
+    // Inventory & supplier mutations: authenticated business users (USER or ADMIN)
+    auth.requestMatchers(HttpMethod.POST, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.PUT, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.PATCH, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasAnyRole("USER", "ADMIN");
+
+    auth.requestMatchers(HttpMethod.POST, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.PUT, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.PATCH, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+    auth.requestMatchers(HttpMethod.DELETE, "/api/suppliers/**").hasAnyRole("USER", "ADMIN");
+
+    // Everything else under /api/** must be authenticated
     auth.requestMatchers("/api/**").authenticated();
-    
-    // 8. Default: everything else must be authenticated
+
+    // Default: everything else authenticated
     auth.anyRequest().authenticated();
 }
 ```
 
 ### Method-Level Security
 
-**Spring Security @PreAuthorize annotations enforce demo mode:**
+**Spring Security @PreAuthorize annotations provide additional enforcement:**
 
-Write operations check both user role AND demo mode status:
+Read operations allow both authenticated users AND demo mode unauthenticated access:
 
 ```java
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryItemController {
     
-    // Read operations: any authenticated user (including demo users)
+    // Read operations: authenticated OR demo mode
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
     public List<InventoryItemDTO> getAll() { ... }
     
-    // Write operations: USER or ADMIN role, but NOT in demo mode
+    @GetMapping("/search")
+    @PreAuthorize("isAuthenticated() or @appProperties.demoReadonly")
+    public Page<InventoryItemDTO> search(@RequestParam String name, Pageable pageable) { ... }
+    
+    // Write operations: ADMIN role with demo mode check
     @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and !@securityService.isDemo()")
-    public InventoryItemDTO create(@RequestBody InventoryItemDTO dto) { ... }
+    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
+    public ResponseEntity<InventoryItemDTO> create(@RequestBody InventoryItemDTO dto) { ... }
     
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN') and !@securityService.isDemo()")
+    @PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")
     public InventoryItemDTO update(@PathVariable String id, 
                                     @RequestBody InventoryItemDTO dto) { ... }
     
+    // Partial updates: USER or ADMIN with demo mode check
     @PatchMapping("/{id}/quantity")
     @PreAuthorize("hasAnyRole('USER','ADMIN') and !@securityService.isDemo()")
     public InventoryItemDTO adjustQuantity(@PathVariable String id,

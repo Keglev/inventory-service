@@ -6,10 +6,14 @@ get:
     Retrieves all inventory items in the system (non-paginated).
     Includes supplier names and calculated total values.
     
+    **Security:** Requires authentication OR demo mode enabled. If APP_DEMO_READONLY=true, 
+    unauthenticated access is allowed.
+    
     **Note:** For large datasets, consider using the search endpoint with pagination.
   operationId: getAllInventoryItems
   security:
     - oauth2: [openid]
+    - {}  # Empty security allows demo mode unauthenticated access
   responses:
     '200':
       description: List of all inventory items
