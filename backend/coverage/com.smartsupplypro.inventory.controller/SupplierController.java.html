@@ -105,7 +105,7 @@ public class SupplierController {
 <span class="fc" id="L105">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;ID must be null on create&quot;);</span>
         }
 <span class="fc" id="L107">        SupplierDTO created = supplierService.create(dto);</span>
-        // Enterprise Comment: REST Location header pattern - provide resource URI for immediate access
+        // REST Location header pattern - provide resource URI for immediate access
         // enabling client-side navigation and RESTful resource discovery
 <span class="fc" id="L110">        return ResponseEntity.created(URI.create(&quot;/api/suppliers/&quot; + created.getId()))</span>
 <span class="fc" id="L111">                .header(HttpHeaders.LOCATION, &quot;/api/suppliers/&quot; + created.getId())</span>
