@@ -61,8 +61,9 @@ public class ErrorResponse {
 
     /**
      * Fluent builder for ErrorResponse construction with validation.
+     * @author Smart Supply Pro Development Team
      */
-<span class="fc" id="L65">    public static class Builder {</span>
+<span class="fc" id="L66">    public static class Builder {</span>
         private String error;
         private String message;
         private String timestamp;
@@ -76,9 +77,9 @@ public class ErrorResponse {
          * @return this builder for chaining
          */
         public Builder status(HttpStatus status) {
-<span class="fc" id="L79">            this.status = status;</span>
-<span class="fc" id="L80">            this.error = status.name().toLowerCase();</span>
-<span class="fc" id="L81">            return this;</span>
+<span class="fc" id="L80">            this.status = status;</span>
+<span class="fc" id="L81">            this.error = status.name().toLowerCase();</span>
+<span class="fc" id="L82">            return this;</span>
         }
 
         /**
@@ -88,10 +89,10 @@ public class ErrorResponse {
          * @return this builder for chaining
          */
         public Builder message(String message) {
-<span class="pc bpc" id="L91" title="2 of 4 branches missed.">            this.message = (message == null || message.isBlank()) </span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">                ? (status != null ? status.getReasonPhrase() : &quot;Unknown error&quot;)</span>
-<span class="fc" id="L93">                : message;</span>
-<span class="fc" id="L94">            return this;</span>
+<span class="pc bpc" id="L92" title="2 of 4 branches missed.">            this.message = (message == null || message.isBlank()) </span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">                ? (status != null ? status.getReasonPhrase() : &quot;Unknown error&quot;)</span>
+<span class="fc" id="L94">                : message;</span>
+<span class="fc" id="L95">            return this;</span>
         }
 
         /**
@@ -101,17 +102,17 @@ public class ErrorResponse {
          */
         public ResponseEntity&lt;ErrorResponse&gt; build() {
             // Auto-generate timestamp and correlation ID if not provided
-<span class="pc bpc" id="L104" title="1 of 2 branches missed.">            if (this.timestamp == null) {</span>
-<span class="fc" id="L105">                this.timestamp = Instant.now().toString();</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">            if (this.timestamp == null) {</span>
+<span class="fc" id="L106">                this.timestamp = Instant.now().toString();</span>
             }
-<span class="pc bpc" id="L107" title="1 of 2 branches missed.">            if (this.correlationId == null) {</span>
-<span class="fc" id="L108">                this.correlationId = generateCorrelationId();</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">            if (this.correlationId == null) {</span>
+<span class="fc" id="L109">                this.correlationId = generateCorrelationId();</span>
             }
             
-<span class="fc" id="L111">            ErrorResponse response = new ErrorResponse(this);</span>
-<span class="fc" id="L112">            return ResponseEntity.status(status)</span>
-<span class="fc" id="L113">                    .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L114">                    .body(response);</span>
+<span class="fc" id="L112">            ErrorResponse response = new ErrorResponse(this);</span>
+<span class="fc" id="L113">            return ResponseEntity.status(status)</span>
+<span class="fc" id="L114">                    .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L115">                    .body(response);</span>
         }
 
         /**
@@ -120,15 +121,15 @@ public class ErrorResponse {
          * @return formatted correlation ID (SSP-{timestamp}-{random})
          */
         private String generateCorrelationId() {
-<span class="fc" id="L123">            return &quot;SSP-&quot; + System.currentTimeMillis() + &quot;-&quot; + </span>
-<span class="fc" id="L124">                   ThreadLocalRandom.current().nextInt(1000, 9999);</span>
+<span class="fc" id="L124">            return &quot;SSP-&quot; + System.currentTimeMillis() + &quot;-&quot; + </span>
+<span class="fc" id="L125">                   ThreadLocalRandom.current().nextInt(1000, 9999);</span>
         }
     }
 
     // Getters for JSON serialization
-<span class="fc" id="L129">    public String getError() { return error; }</span>
-<span class="fc" id="L130">    public String getMessage() { return message; }</span>
-<span class="fc" id="L131">    public String getTimestamp() { return timestamp; }</span>
-<span class="fc" id="L132">    public String getCorrelationId() { return correlationId; }</span>
+<span class="fc" id="L130">    public String getError() { return error; }</span>
+<span class="fc" id="L131">    public String getMessage() { return message; }</span>
+<span class="fc" id="L132">    public String getTimestamp() { return timestamp; }</span>
+<span class="fc" id="L133">    public String getCorrelationId() { return correlationId; }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

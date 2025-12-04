@@ -108,13 +108,17 @@ import jakarta.validation.ConstraintViolationException;
      * 401 / 403 - Security &amp; Authorization
      * ======================================================================= */
 
-    /** Handles authentication failures. Returns generic message to prevent enumeration. */
+    /** Handles authentication failures. Returns generic message to prevent enumeration. 
+     * 
+     * @enterprise 
+     * - Avoids leaking details about authentication mechanisms or user existence.
+    */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleAuthentication(AuthenticationException ex) {
-<span class="nc" id="L114">        return ErrorResponse.builder()</span>
-<span class="nc" id="L115">                .status(HttpStatus.UNAUTHORIZED)</span>
-<span class="nc" id="L116">                .message(&quot;Authentication required&quot;)</span>
-<span class="nc" id="L117">                .build();</span>
+<span class="nc" id="L118">        return ErrorResponse.builder()</span>
+<span class="nc" id="L119">                .status(HttpStatus.UNAUTHORIZED)</span>
+<span class="nc" id="L120">                .message(&quot;Authentication required&quot;)</span>
+<span class="nc" id="L121">                .build();</span>
     }
 
     /**
@@ -127,18 +131,18 @@ import jakarta.validation.ConstraintViolationException;
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleAccessDenied(AccessDeniedException ex) {
         // By default: generic authorization failure
-<span class="fc" id="L130">        String message = &quot;You are not allowed to perform this operation.&quot;;</span>
+<span class="fc" id="L134">        String message = &quot;You are not allowed to perform this operation.&quot;;</span>
 
         // Heuristic: if the expression for @PreAuthorize with demo flag failed,
         // the underlying exception message may carry that expression.
-<span class="pc bpc" id="L134" title="2 of 4 branches missed.">        if (ex.getMessage() != null &amp;&amp; ex.getMessage().contains(&quot;principal.isDemo&quot;)) {</span>
-<span class="nc" id="L135">            message = &quot;You are in demo mode and cannot perform this operation.&quot;;</span>
+<span class="pc bpc" id="L138" title="2 of 4 branches missed.">        if (ex.getMessage() != null &amp;&amp; ex.getMessage().contains(&quot;principal.isDemo&quot;)) {</span>
+<span class="nc" id="L139">            message = &quot;You are in demo mode and cannot perform this operation.&quot;;</span>
         }
         
-<span class="fc" id="L138">        return ErrorResponse.builder()</span>
-<span class="fc" id="L139">            .status(HttpStatus.FORBIDDEN)</span>
-<span class="fc" id="L140">            .message(sanitize(message))</span>
-<span class="fc" id="L141">            .build();</span>
+<span class="fc" id="L142">        return ErrorResponse.builder()</span>
+<span class="fc" id="L143">            .status(HttpStatus.FORBIDDEN)</span>
+<span class="fc" id="L144">            .message(sanitize(message))</span>
+<span class="fc" id="L145">            .build();</span>
     }
 
     /* =======================================================================
@@ -148,14 +152,14 @@ import jakarta.validation.ConstraintViolationException;
     /** Handles resource lookup failures from repositories and service layer. */
     @ExceptionHandler({NoSuchElementException.class, IllegalArgumentException.class})
     public ResponseEntity&lt;ErrorResponse&gt; handleNotFound(RuntimeException ex) {
-<span class="pc bpc" id="L151" title="2 of 4 branches missed.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
-<span class="fc" id="L152">            ? ex.getMessage()</span>
-<span class="pc" id="L153">            : &quot;Resource not found&quot;;</span>
+<span class="pc bpc" id="L155" title="2 of 4 branches missed.">        String message = (ex.getMessage() != null &amp;&amp; !ex.getMessage().isBlank())</span>
+<span class="fc" id="L156">            ? ex.getMessage()</span>
+<span class="pc" id="L157">            : &quot;Resource not found&quot;;</span>
         
-<span class="fc" id="L155">        return ErrorResponse.builder()</span>
-<span class="fc" id="L156">                .status(HttpStatus.NOT_FOUND)</span>
-<span class="fc" id="L157">                .message(sanitize(message))</span>
-<span class="fc" id="L158">                .build();</span>
+<span class="fc" id="L159">        return ErrorResponse.builder()</span>
+<span class="fc" id="L160">                .status(HttpStatus.NOT_FOUND)</span>
+<span class="fc" id="L161">                .message(sanitize(message))</span>
+<span class="fc" id="L162">                .build();</span>
     }
 
     /** Handles missing static resources (CSS, JS, images) with no response body. */
@@ -163,7 +167,7 @@ import jakarta.validation.ConstraintViolationException;
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleStaticResource() {
         // No body - standard 404 for static resources
-<span class="nc" id="L166">    }</span>
+<span class="nc" id="L170">    }</span>
 
     /* =======================================================================
      * 409 - Data Conflicts
@@ -172,19 +176,19 @@ import jakarta.validation.ConstraintViolationException;
     /** Handles database constraint violations. Sanitizes SQL to prevent disclosure. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleDataIntegrity(DataIntegrityViolationException ex) {
-<span class="nc" id="L175">        return ErrorResponse.builder()</span>
-<span class="nc" id="L176">                .status(HttpStatus.CONFLICT)</span>
-<span class="nc" id="L177">                .message(&quot;Data conflict - constraint violation&quot;)</span>
-<span class="nc" id="L178">                .build();</span>
+<span class="nc" id="L179">        return ErrorResponse.builder()</span>
+<span class="nc" id="L180">                .status(HttpStatus.CONFLICT)</span>
+<span class="nc" id="L181">                .message(&quot;Data conflict - constraint violation&quot;)</span>
+<span class="nc" id="L182">                .build();</span>
     }
 
     /** Handles JPA optimistic locking failures during concurrent updates. */
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
-<span class="nc" id="L184">        return ErrorResponse.builder()</span>
-<span class="nc" id="L185">                .status(HttpStatus.CONFLICT)</span>
-<span class="nc" id="L186">                .message(&quot;Concurrent update detected - please refresh and retry&quot;)</span>
-<span class="nc" id="L187">                .build();</span>
+<span class="nc" id="L188">        return ErrorResponse.builder()</span>
+<span class="nc" id="L189">                .status(HttpStatus.CONFLICT)</span>
+<span class="nc" id="L190">                .message(&quot;Concurrent update detected - please refresh and retry&quot;)</span>
+<span class="nc" id="L191">                .build();</span>
     }
 
     /* =======================================================================
@@ -195,16 +199,16 @@ import jakarta.validation.ConstraintViolationException;
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleResponseStatus(ResponseStatusException ex,
                                                                HttpServletRequest request) {
-<span class="fc" id="L198">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
-<span class="fc" id="L199">        String reason = ex.getReason();  // Store to avoid multiple null-check warnings</span>
-<span class="pc bpc" id="L200" title="2 of 4 branches missed.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
-<span class="fc" id="L201">            ? reason</span>
-<span class="pc bnc" id="L202" title="All 2 branches missed.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
+<span class="fc" id="L202">        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());</span>
+<span class="fc" id="L203">        String reason = ex.getReason();  // Store to avoid multiple null-check warnings</span>
+<span class="pc bpc" id="L204" title="2 of 4 branches missed.">        String message = (reason != null &amp;&amp; !reason.isBlank())</span>
+<span class="fc" id="L205">            ? reason</span>
+<span class="pc bnc" id="L206" title="All 2 branches missed.">            : (status != null ? status.getReasonPhrase() : &quot;Request failed&quot;);</span>
         
-<span class="fc" id="L204">        return ErrorResponse.builder()</span>
-<span class="pc bpc" id="L205" title="1 of 2 branches missed.">                .status(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR)</span>
-<span class="fc" id="L206">                .message(sanitize(message))</span>
-<span class="fc" id="L207">                .build();</span>
+<span class="fc" id="L208">        return ErrorResponse.builder()</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">                .status(status != null ? status : HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="fc" id="L210">                .message(sanitize(message))</span>
+<span class="fc" id="L211">                .build();</span>
     }
 
     /** 
@@ -213,10 +217,10 @@ import jakarta.validation.ConstraintViolationException;
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponse&gt; handleUnexpected(Exception ex) {
-<span class="nc" id="L216">        return ErrorResponse.builder()</span>
-<span class="nc" id="L217">                .status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
-<span class="nc" id="L218">                .message(&quot;Unexpected server error&quot;)</span>
-<span class="nc" id="L219">                .build();</span>
+<span class="nc" id="L220">        return ErrorResponse.builder()</span>
+<span class="nc" id="L221">                .status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L222">                .message(&quot;Unexpected server error&quot;)</span>
+<span class="nc" id="L223">                .build();</span>
     }
 
     /* =======================================================================
@@ -228,16 +232,16 @@ import jakarta.validation.ConstraintViolationException;
      * Removes file paths, class names, SQL fragments, and credentials.
      */
     private String sanitize(String message) {
-<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        if (message == null) return &quot;Unknown error&quot;;</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">        if (message == null) return &quot;Unknown error&quot;;</span>
         
-<span class="fc" id="L233">        return message</span>
-<span class="fc" id="L234">            .replaceAll(&quot;\\b[A-Za-z]:\\\\[\\w\\\\.-]+&quot;, &quot;[PATH]&quot;)           // Windows paths</span>
-<span class="fc" id="L235">            .replaceAll(&quot;/[\\w/.-]+\\.(java|class)&quot;, &quot;[INTERNAL]&quot;)         // Unix paths</span>
-<span class="fc" id="L236">            .replaceAll(&quot;\\bcom\\.smartsupplypro\\.[\\w.]+&quot;, &quot;[INTERNAL]&quot;) // Package names</span>
-<span class="fc" id="L237">            .replaceAll(&quot;(?i)\\bSQL.*&quot;, &quot;Database operation failed&quot;)       // SQL fragments</span>
-<span class="fc" id="L238">            .replaceAll(&quot;(?i)\\bPassword.*&quot;, &quot;Authentication failed&quot;)      // Credentials</span>
-<span class="fc" id="L239">            .replaceAll(&quot;(?i)\\bToken.*&quot;, &quot;Authentication failed&quot;)         // Tokens</span>
-<span class="fc" id="L240">            .trim();</span>
+<span class="fc" id="L237">        return message</span>
+<span class="fc" id="L238">            .replaceAll(&quot;\\b[A-Za-z]:\\\\[\\w\\\\.-]+&quot;, &quot;[PATH]&quot;)           // Windows paths</span>
+<span class="fc" id="L239">            .replaceAll(&quot;/[\\w/.-]+\\.(java|class)&quot;, &quot;[INTERNAL]&quot;)         // Unix paths</span>
+<span class="fc" id="L240">            .replaceAll(&quot;\\bcom\\.smartsupplypro\\.[\\w.]+&quot;, &quot;[INTERNAL]&quot;) // Package names</span>
+<span class="fc" id="L241">            .replaceAll(&quot;(?i)\\bSQL.*&quot;, &quot;Database operation failed&quot;)       // SQL fragments</span>
+<span class="fc" id="L242">            .replaceAll(&quot;(?i)\\bPassword.*&quot;, &quot;Authentication failed&quot;)      // Credentials</span>
+<span class="fc" id="L243">            .replaceAll(&quot;(?i)\\bToken.*&quot;, &quot;Authentication failed&quot;)         // Tokens</span>
+<span class="fc" id="L244">            .trim();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
