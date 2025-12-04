@@ -269,10 +269,11 @@
         other users default to USER role - Role “healing” occurs on each
         login (dynamic allow-list updates)</p>
         <p><strong>Authorization Rules:</strong> - Public endpoints:
-        /login, /logout, /actuator/health - Authenticated read: GET
-        /api/inventory/<em>, GET /api/suppliers/</em> - Admin-only
-        write: POST/PUT/DELETE /api/inventory/<em>, /api/suppliers/</em>
-        - Demo mode: Allows unauthenticated GET for public showcases</p>
+        /login, /logout, /actuator/health, /api/health (infrastructure
+        health checks) - Authenticated read: GET /api/inventory/<em>,
+        GET /api/suppliers/</em> - Admin-only write: POST/PUT/DELETE
+        /api/inventory/<em>, /api/suppliers/</em> - Demo mode: Allows
+        unauthenticated GET for public showcases</p>
         <p><strong>Enforcement:</strong> - <code>@PreAuthorize</code>
         method-level security - <code>SecurityAuthorizationHelper</code>
         for HTTP request matching - SpEL expressions for dynamic demo
