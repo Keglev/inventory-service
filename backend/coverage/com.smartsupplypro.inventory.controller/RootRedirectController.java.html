@@ -15,19 +15,21 @@ public class RootRedirectController {
 
     /**
      * Application properties with frontend URL/path.
+     * @see AppProperties#getFrontend()
      */
     private final AppProperties props;
-<span class="fc" id="L20">    public RootRedirectController(AppProperties props) { this.props = props; }</span>
+<span class="fc" id="L21">    public RootRedirectController(AppProperties props) { this.props = props; }</span>
 
     /**
      * Redirects root requests to configured frontend application.
      * @return redirect URL to frontend base path
+     * @see AppProperties#getFrontend()
      */
     @GetMapping(&quot;/&quot;)
     public String root() {
         // Enterprise Comment: Single-page application hosting pattern - redirect root to configured frontend
         // rather than serving static content directly from Spring Boot, enabling flexible deployment models
-<span class="nc" id="L30">        return &quot;redirect:&quot; + props.getFrontend().getBaseUrl();</span>
+<span class="nc" id="L32">        return &quot;redirect:&quot; + props.getFrontend().getBaseUrl();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
