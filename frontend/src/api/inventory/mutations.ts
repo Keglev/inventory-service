@@ -43,6 +43,24 @@ const pickNumber = (r: UnknownRecord, k: string): number | undefined => {
   return undefined;
 };
 
+/** Try a list of keys and return the first numeric value found. */
+const pickNumberFromList = (r: UnknownRecord, keys: string[]): number | undefined => {
+  for (const key of keys) {
+    const val = pickNumber(r, key);
+    if (val !== undefined) return val;
+  }
+  return undefined;
+};
+
+/** Try a list of keys and return the first string value found. */
+const pickStringFromList = (r: UnknownRecord, keys: string[]): string | undefined => {
+  for (const key of keys) {
+    const val = pickString(r, key);
+    if (val !== undefined) return val;
+  }
+  return undefined;
+};
+
 const errorMessage = (e: unknown): string => {
   // Axios-like error shape with response.data.{message|error}
   if (isRecord(e) && isRecord(e.response)) {
@@ -159,42 +177,44 @@ export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
     pickString(raw, 'supplier') ??
     null;
 
-  const onHand =
-    pickNumber(raw, 'onHand') ??
-    pickNumber(raw, 'quantity') ??
-    pickNumber(raw, 'availableQuantity') ??
-    pickNumber(raw, 'stockQuantity') ??
-    pickNumber(raw, 'stockQty') ??
-    pickNumber(raw, 'qty') ??
-    pickNumber(raw, 'currentQuantity') ??
-    pickNumber(raw, 'currentQty') ??
-    pickNumber(raw, 'quantityOnHand') ??
-    pickNumber(raw, 'onHandQuantity') ??
-    pickNumber(raw, 'stock') ??
-    0;
+  const onHand = pickNumberFromList(raw, [
+    'quantity',
+    'onHand',
+    'availableQuantity',
+    'stockQuantity',
+    'stockQty',
+    'qty',
+    'currentQuantity',
+    'currentQty',
+    'quantityOnHand',
+    'onHandQuantity',
+    'stock',
+  ]) ?? 0;
 
   const minQty =
-    pickNumber(raw, 'minQty') ??
-    pickNumber(raw, 'min_quantity') ??
-    pickNumber(raw, 'minimumQuantity') ??
-    pickNumber(raw, 'minimum') ??
-    pickNumber(raw, 'reorderLevel') ??
-    null;
+    pickNumberFromList(raw, [
+      'minimumQuantity',
+      'minQty',
+      'min_quantity',
+      'minimum',
+      'reorderLevel',
+    ]) ?? null;
 
-  const updatedAt =
-    pickString(raw, 'updatedAt') ??
-    pickString(raw, 'updated_at') ??
-    pickString(raw, 'lastUpdate') ??
-    pickString(raw, 'lastModified') ??
-    pickString(raw, 'lastModifiedDate') ??
-    pickString(raw, 'modifiedAt') ??
-    pickString(raw, 'modified_at') ??
-    pickString(raw, 'createdDate') ??
-    pickString(raw, 'created_date') ??
-    pickString(raw, 'created') ??
-    pickString(raw, 'createdAt') ??
-    pickString(raw, 'created_at') ??
-    null;
+  // Backend list payload only has createdAt; surface it as updatedAt for the grid.
+  const updatedAt = pickStringFromList(raw, [
+    'updatedAt',
+    'updated_at',
+    'lastUpdate',
+    'lastModified',
+    'lastModifiedDate',
+    'modifiedAt',
+    'modified_at',
+    'createdAt',
+    'created_at',
+    'createdDate',
+    'created_date',
+    'created',
+  ]) ?? null;
 
   return {
     id: String(id),
