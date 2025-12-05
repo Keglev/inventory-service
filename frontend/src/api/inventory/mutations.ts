@@ -162,6 +162,9 @@ export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
   const onHand =
     pickNumber(raw, 'onHand') ??
     pickNumber(raw, 'quantity') ??
+    pickNumber(raw, 'availableQuantity') ??
+    pickNumber(raw, 'stockQuantity') ??
+    pickNumber(raw, 'stockQty') ??
     pickNumber(raw, 'qty') ??
     pickNumber(raw, 'currentQuantity') ??
     pickNumber(raw, 'currentQty') ??
@@ -182,6 +185,13 @@ export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
     pickString(raw, 'updatedAt') ??
     pickString(raw, 'updated_at') ??
     pickString(raw, 'lastUpdate') ??
+    pickString(raw, 'lastModified') ??
+    pickString(raw, 'lastModifiedDate') ??
+    pickString(raw, 'modifiedAt') ??
+    pickString(raw, 'modified_at') ??
+    pickString(raw, 'createdDate') ??
+    pickString(raw, 'created_date') ??
+    pickString(raw, 'created') ??
     pickString(raw, 'createdAt') ??
     pickString(raw, 'created_at') ??
     null;
