@@ -31,7 +31,16 @@ const pickString = (r: UnknownRecord, k: string): string | undefined => {
 
 const pickNumber = (r: UnknownRecord, k: string): number | undefined => {
   const v = r[k];
-  return typeof v === 'number' ? v : undefined;
+  if (typeof v === 'number') {
+    return Number.isFinite(v) ? v : undefined;
+  }
+  if (typeof v === 'string') {
+    const trimmed = v.trim();
+    if (!trimmed) return undefined;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
 };
 
 const errorMessage = (e: unknown): string => {
@@ -173,6 +182,8 @@ export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
     pickString(raw, 'updatedAt') ??
     pickString(raw, 'updated_at') ??
     pickString(raw, 'lastUpdate') ??
+    pickString(raw, 'createdAt') ??
+    pickString(raw, 'created_at') ??
     null;
 
   return {
