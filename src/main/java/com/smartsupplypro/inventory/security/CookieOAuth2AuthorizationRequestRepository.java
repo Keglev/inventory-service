@@ -24,6 +24,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Stateless OAuth2 authorization request repository using secure HTTP cookies.
+ * Stores OAuth2AuthorizationRequest in an HttpOnly, Secure cookie with Base64-encoded JSON.
+ * Handles serialization, deserialization, and secure cookie attributes.
+ * @see AuthorizationRequestRepository
+ * @see OAuth2AuthorizationRequest
  */
 public class CookieOAuth2AuthorizationRequestRepository
         implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
@@ -48,6 +52,10 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     /**
      * Saves OAuth2 authorization request to secure cookie.
+     * If null, deletes existing cookie.
+     * @param authorizationRequest the OAuth2 authorization request
+     * @param request the HTTP servlet request
+     * @param response the HTTP servlet response
      */
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest,
@@ -57,7 +65,8 @@ public class CookieOAuth2AuthorizationRequestRepository
             deleteCookie(request, response);
             return;
         }
-
+        // Handle optional return URL for post-login redirection
+        // (only allow known origins for security)
         String ret = request.getParameter("return");
         if (ret != null && !ret.isBlank()) {
             List<String> allowed = List.of(
@@ -76,7 +85,7 @@ public class CookieOAuth2AuthorizationRequestRepository
                 log.warn("Enterprise OAuth2: Rejected non-allowlisted return origin: {}", ret);
             }
         }
-        
+        // Serialize and store authorization request in cookie
         String json = writeJson(authorizationRequest);
         String encoded = Base64.getUrlEncoder()
                 .encodeToString(json.getBytes(StandardCharsets.UTF_8));
@@ -92,6 +101,9 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     /**
      * Removes authorization request after authentication.
+     * @return the removed OAuth2 authorization request
+     * @param request the HTTP servlet request
+     * @param response the HTTP servlet response
      */
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
@@ -103,12 +115,14 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     /**
      * Reads authorization request from cookie with error resilience.
+     * @return optional OAuth2 authorization request
+     * @param request the HTTP servlet request
      */
     private Optional<OAuth2AuthorizationRequest> read(HttpServletRequest request) {
         if (request.getCookies() == null) {
             return Optional.empty();
         }
-        
+        // Search for the specific authorization request cookie
         for (Cookie c : request.getCookies()) {
             if (AUTH_REQUEST_COOKIE_NAME.equals(c.getName())) {
                 try {
@@ -128,6 +142,8 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     /**
      * Securely removes authorization request cookie.
+     * @param request the HTTP servlet request
+     * @param response the HTTP servlet response
      */
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(AUTH_REQUEST_COOKIE_NAME, "");
@@ -140,6 +156,9 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     /**
      * Adds SameSite attribute for cross-origin compatibility.
+     * @param response the HTTP servlet response
+     * @param cookie the cookie to add
+     * @param sameSite the SameSite attribute value
      */
     private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
         StringBuilder sb = new StringBuilder();
@@ -162,6 +181,10 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     /**
      * Reconstructs OAuth2 authorization request from JSON.
+     * @return the OAuth2 authorization request
+     * @param json the JSON string representing the authorization request
+     * @throws IllegalArgumentException if JSON is invalid
+     * @SuppressWarnings("unchecked")
      */
     @SuppressWarnings("unchecked")
     private static OAuth2AuthorizationRequest readJson(String json) {
@@ -172,6 +195,7 @@ public class CookieOAuth2AuthorizationRequestRepository
             String redirectUri     = (String) m.get("redirectUri");
             String state           = (String) m.get("state");
 
+            // Extract scopes
             Set<String> scopes = new HashSet<>();
             Object sc = m.get("scopes");
             if (sc instanceof Iterable<?> it) {
@@ -180,11 +204,12 @@ public class CookieOAuth2AuthorizationRequestRepository
                 }
             }
 
+            // Extract additional parameters and attributes
             Map<String, Object> additionalParameters =
                     (Map<String, Object>) m.getOrDefault("additionalParameters", Map.of());
             Map<String, Object> attributes =
                     (Map<String, Object>) m.getOrDefault("attributes", Map.of());
-
+            // Build OAuth2AuthorizationRequest
             OAuth2AuthorizationRequest.Builder b =
                     OAuth2AuthorizationRequest.authorizationCode()
                             .authorizationUri(authorizationUri)
@@ -208,6 +233,9 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     /**
      * Converts OAuth2 authorization request to JSON format.
+     * @return JSON string representation
+     * @param r the OAuth2 authorization request
+     * @throws JsonProcessingException if serialization fails
      */
     private static String writeJson(OAuth2AuthorizationRequest r) {
         try {
@@ -230,6 +258,8 @@ public class CookieOAuth2AuthorizationRequestRepository
 
     /**
      * Detects HTTPS context including load balancer forwarding.
+     * @param request the HTTP servlet request
+     * @return true if request is secure or forwarded as HTTPS
      */
     private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
         if (request.isSecure()) return true;
