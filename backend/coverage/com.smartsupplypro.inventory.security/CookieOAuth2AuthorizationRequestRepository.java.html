@@ -24,8 +24,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Stateless OAuth2 authorization request repository using secure HTTP cookies.
+ * Stores OAuth2AuthorizationRequest in an HttpOnly, Secure cookie with Base64-encoded JSON.
+ * Handles serialization, deserialization, and secure cookie attributes.
+ * @see AuthorizationRequestRepository
+ * @see OAuth2AuthorizationRequest
  */
-<span class="fc" id="L28">public class CookieOAuth2AuthorizationRequestRepository</span>
+<span class="fc" id="L32">public class CookieOAuth2AuthorizationRequestRepository</span>
         implements AuthorizationRequestRepository&lt;OAuth2AuthorizationRequest&gt; {
 
     /** OAuth2 authorization request cookie name. */
@@ -35,206 +39,232 @@ import jakarta.servlet.http.HttpServletResponse;
     private static final int COOKIE_EXPIRE_SECONDS = 180;
 
     /** Logger for OAuth2 events. */
-<span class="fc" id="L38">    private static final Logger log = LoggerFactory.getLogger(CookieOAuth2AuthorizationRequestRepository.class);</span>
+<span class="fc" id="L42">    private static final Logger log = LoggerFactory.getLogger(CookieOAuth2AuthorizationRequestRepository.class);</span>
 
     /** JSON mapper for request serialization. */
-<span class="fc" id="L41">    private static final ObjectMapper MAPPER = new ObjectMapper();</span>
+<span class="fc" id="L45">    private static final ObjectMapper MAPPER = new ObjectMapper();</span>
 
     /** Loads authorization request from cookie. */
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
-<span class="nc" id="L46">        return read(request).orElse(null);</span>
+<span class="nc" id="L50">        return read(request).orElse(null);</span>
     }
 
     /**
      * Saves OAuth2 authorization request to secure cookie.
+     * If null, deletes existing cookie.
+     * @param authorizationRequest the OAuth2 authorization request
+     * @param request the HTTP servlet request
+     * @param response the HTTP servlet response
      */
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest,
                                          HttpServletRequest request,
                                          HttpServletResponse response) {
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if (authorizationRequest == null) {</span>
-<span class="nc" id="L57">            deleteCookie(request, response);</span>
-<span class="nc" id="L58">            return;</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (authorizationRequest == null) {</span>
+<span class="nc" id="L65">            deleteCookie(request, response);</span>
+<span class="nc" id="L66">            return;</span>
         }
-
-<span class="fc" id="L61">        String ret = request.getParameter(&quot;return&quot;);</span>
-<span class="pc bpc" id="L62" title="3 of 4 branches missed.">        if (ret != null &amp;&amp; !ret.isBlank()) {</span>
-<span class="nc" id="L63">            List&lt;String&gt; allowed = List.of(</span>
+        // Handle optional return URL for post-login redirection
+        // (only allow known origins for security)
+<span class="fc" id="L70">        String ret = request.getParameter(&quot;return&quot;);</span>
+<span class="pc bpc" id="L71" title="3 of 4 branches missed.">        if (ret != null &amp;&amp; !ret.isBlank()) {</span>
+<span class="nc" id="L72">            List&lt;String&gt; allowed = List.of(</span>
                 &quot;http://localhost:5173&quot;,
                 &quot;https://localhost:5173&quot;,
                 &quot;https://inventory-service.koyeb.app&quot;
             );
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (allowed.contains(ret)) {</span>
-<span class="nc" id="L69">                Cookie r = new Cookie(&quot;SSP_RETURN&quot;, ret);</span>
-<span class="nc" id="L70">                r.setHttpOnly(false);</span>
-<span class="nc" id="L71">                r.setSecure(isSecureOrForwardedHttps(request));</span>
-<span class="nc" id="L72">                r.setPath(&quot;/&quot;);</span>
-<span class="nc" id="L73">                r.setMaxAge(300);</span>
-<span class="nc" id="L74">                addCookieWithSameSite(response, r, &quot;None&quot;);</span>
-<span class="nc" id="L75">            } else {</span>
-<span class="nc" id="L76">                log.warn(&quot;Enterprise OAuth2: Rejected non-allowlisted return origin: {}&quot;, ret);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (allowed.contains(ret)) {</span>
+<span class="nc" id="L78">                Cookie r = new Cookie(&quot;SSP_RETURN&quot;, ret);</span>
+<span class="nc" id="L79">                r.setHttpOnly(false);</span>
+<span class="nc" id="L80">                r.setSecure(isSecureOrForwardedHttps(request));</span>
+<span class="nc" id="L81">                r.setPath(&quot;/&quot;);</span>
+<span class="nc" id="L82">                r.setMaxAge(300);</span>
+<span class="nc" id="L83">                addCookieWithSameSite(response, r, &quot;None&quot;);</span>
+<span class="nc" id="L84">            } else {</span>
+<span class="nc" id="L85">                log.warn(&quot;Enterprise OAuth2: Rejected non-allowlisted return origin: {}&quot;, ret);</span>
             }
         }
-        
-<span class="fc" id="L80">        String json = writeJson(authorizationRequest);</span>
-<span class="fc" id="L81">        String encoded = Base64.getUrlEncoder()</span>
-<span class="fc" id="L82">                .encodeToString(json.getBytes(StandardCharsets.UTF_8));</span>
+        // Serialize and store authorization request in cookie
+<span class="fc" id="L89">        String json = writeJson(authorizationRequest);</span>
+<span class="fc" id="L90">        String encoded = Base64.getUrlEncoder()</span>
+<span class="fc" id="L91">                .encodeToString(json.getBytes(StandardCharsets.UTF_8));</span>
 
-<span class="fc" id="L84">        Cookie cookie = new Cookie(AUTH_REQUEST_COOKIE_NAME, encoded);</span>
-<span class="fc" id="L85">        cookie.setHttpOnly(true);</span>
-<span class="fc" id="L86">        cookie.setSecure(isSecureOrForwardedHttps(request));</span>
-<span class="fc" id="L87">        cookie.setPath(&quot;/&quot;);</span>
-<span class="fc" id="L88">        cookie.setMaxAge(COOKIE_EXPIRE_SECONDS);</span>
+<span class="fc" id="L93">        Cookie cookie = new Cookie(AUTH_REQUEST_COOKIE_NAME, encoded);</span>
+<span class="fc" id="L94">        cookie.setHttpOnly(true);</span>
+<span class="fc" id="L95">        cookie.setSecure(isSecureOrForwardedHttps(request));</span>
+<span class="fc" id="L96">        cookie.setPath(&quot;/&quot;);</span>
+<span class="fc" id="L97">        cookie.setMaxAge(COOKIE_EXPIRE_SECONDS);</span>
 
-<span class="fc" id="L90">        addCookieWithSameSite(response, cookie, &quot;None&quot;);</span>
-<span class="fc" id="L91">    }</span>
+<span class="fc" id="L99">        addCookieWithSameSite(response, cookie, &quot;None&quot;);</span>
+<span class="fc" id="L100">    }</span>
 
     /**
      * Removes authorization request after authentication.
+     * @return the removed OAuth2 authorization request
+     * @param request the HTTP servlet request
+     * @param response the HTTP servlet response
      */
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
                                                                  HttpServletResponse response) {
-<span class="nc" id="L99">        OAuth2AuthorizationRequest existing = read(request).orElse(null);</span>
-<span class="nc" id="L100">        deleteCookie(request, response);</span>
-<span class="nc" id="L101">        return existing;</span>
+<span class="nc" id="L111">        OAuth2AuthorizationRequest existing = read(request).orElse(null);</span>
+<span class="nc" id="L112">        deleteCookie(request, response);</span>
+<span class="nc" id="L113">        return existing;</span>
     }
 
     /**
      * Reads authorization request from cookie with error resilience.
+     * @return optional OAuth2 authorization request
+     * @param request the HTTP servlet request
      */
     private Optional&lt;OAuth2AuthorizationRequest&gt; read(HttpServletRequest request) {
-<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (request.getCookies() == null) {</span>
-<span class="nc" id="L109">            return Optional.empty();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (request.getCookies() == null) {</span>
+<span class="nc" id="L123">            return Optional.empty();</span>
         }
-        
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        for (Cookie c : request.getCookies()) {</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (AUTH_REQUEST_COOKIE_NAME.equals(c.getName())) {</span>
+        // Search for the specific authorization request cookie
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        for (Cookie c : request.getCookies()) {</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (AUTH_REQUEST_COOKIE_NAME.equals(c.getName())) {</span>
                 try {
-<span class="nc" id="L115">                    String json = new String(Base64.getUrlDecoder().decode(c.getValue()), StandardCharsets.UTF_8);</span>
-<span class="nc" id="L116">                    OAuth2AuthorizationRequest o = readJson(json);</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">                    if (o != null) {</span>
-<span class="nc" id="L118">                        return Optional.of(o);</span>
+<span class="nc" id="L129">                    String json = new String(Base64.getUrlDecoder().decode(c.getValue()), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L130">                    OAuth2AuthorizationRequest o = readJson(json);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                    if (o != null) {</span>
+<span class="nc" id="L132">                        return Optional.of(o);</span>
                     }
-<span class="nc" id="L120">                } catch (Exception e) {</span>
-<span class="nc" id="L121">                    log.warn(&quot;OAuth2: Malformed authorization request cookie ignored&quot;);</span>
-<span class="nc" id="L122">                }</span>
+<span class="nc" id="L134">                } catch (Exception e) {</span>
+<span class="nc" id="L135">                    log.warn(&quot;OAuth2: Malformed authorization request cookie ignored&quot;);</span>
+<span class="nc" id="L136">                }</span>
             }
         }
         
-<span class="nc" id="L126">        return Optional.empty();</span>
+<span class="nc" id="L140">        return Optional.empty();</span>
     }
 
     /**
      * Securely removes authorization request cookie.
+     * @param request the HTTP servlet request
+     * @param response the HTTP servlet response
      */
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
-<span class="nc" id="L133">        Cookie cookie = new Cookie(AUTH_REQUEST_COOKIE_NAME, &quot;&quot;);</span>
-<span class="nc" id="L134">        cookie.setHttpOnly(true);</span>
-<span class="nc" id="L135">        cookie.setSecure(isSecureOrForwardedHttps(request));</span>
-<span class="nc" id="L136">        cookie.setPath(&quot;/&quot;);</span>
-<span class="nc" id="L137">        cookie.setMaxAge(0);</span>
-<span class="nc" id="L138">        addCookieWithSameSite(response, cookie, &quot;None&quot;);</span>
-<span class="nc" id="L139">    }</span>
+<span class="nc" id="L149">        Cookie cookie = new Cookie(AUTH_REQUEST_COOKIE_NAME, &quot;&quot;);</span>
+<span class="nc" id="L150">        cookie.setHttpOnly(true);</span>
+<span class="nc" id="L151">        cookie.setSecure(isSecureOrForwardedHttps(request));</span>
+<span class="nc" id="L152">        cookie.setPath(&quot;/&quot;);</span>
+<span class="nc" id="L153">        cookie.setMaxAge(0);</span>
+<span class="nc" id="L154">        addCookieWithSameSite(response, cookie, &quot;None&quot;);</span>
+<span class="nc" id="L155">    }</span>
 
     /**
      * Adds SameSite attribute for cross-origin compatibility.
+     * @param response the HTTP servlet response
+     * @param cookie the cookie to add
+     * @param sameSite the SameSite attribute value
      */
     private static void addCookieWithSameSite(HttpServletResponse response, Cookie cookie, String sameSite) {
-<span class="fc" id="L145">        StringBuilder sb = new StringBuilder();</span>
-<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
-<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
-<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (cookie.getMaxAge() &gt;= 0) {</span>
-<span class="fc" id="L149">            sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
+<span class="fc" id="L164">        StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">        sb.append(cookie.getName()).append('=').append(cookie.getValue() == null ? &quot;&quot; : cookie.getValue());</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        sb.append(&quot;; Path=&quot;).append(cookie.getPath() == null ? &quot;/&quot; : cookie.getPath());</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">        if (cookie.getMaxAge() &gt;= 0) {</span>
+<span class="fc" id="L168">            sb.append(&quot;; Max-Age=&quot;).append(cookie.getMaxAge());</span>
         }
-<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        if (cookie.getSecure()) {</span>
-<span class="nc" id="L152">            sb.append(&quot;; Secure&quot;);</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        if (cookie.getSecure()) {</span>
+<span class="nc" id="L171">            sb.append(&quot;; Secure&quot;);</span>
         }
-<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (cookie.isHttpOnly()) {</span>
-<span class="fc" id="L155">            sb.append(&quot;; HttpOnly&quot;);</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">        if (cookie.isHttpOnly()) {</span>
+<span class="fc" id="L174">            sb.append(&quot;; HttpOnly&quot;);</span>
         }
-<span class="pc bpc" id="L157" title="2 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) {</span>
-<span class="fc" id="L158">            sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
+<span class="pc bpc" id="L176" title="2 of 4 branches missed.">        if (sameSite != null &amp;&amp; !sameSite.isBlank()) {</span>
+<span class="fc" id="L177">            sb.append(&quot;; SameSite=&quot;).append(sameSite);</span>
         }
-<span class="fc" id="L160">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
-<span class="fc" id="L161">    }</span>
+<span class="fc" id="L179">        response.addHeader(&quot;Set-Cookie&quot;, sb.toString());</span>
+<span class="fc" id="L180">    }</span>
 
     /**
      * Reconstructs OAuth2 authorization request from JSON.
+     * @return the OAuth2 authorization request
+     * @param json the JSON string representing the authorization request
+     * @throws IllegalArgumentException if JSON is invalid
+     * @SuppressWarnings(&quot;unchecked&quot;)
      */
     @SuppressWarnings(&quot;unchecked&quot;)
     private static OAuth2AuthorizationRequest readJson(String json) {
         try {
-<span class="nc" id="L169">            Map&lt;String, Object&gt; m = MAPPER.readValue(json, new TypeReference&lt;Map&lt;String, Object&gt;&gt;() {});</span>
-<span class="nc" id="L170">            String authorizationUri = (String) m.get(&quot;authorizationUri&quot;);</span>
-<span class="nc" id="L171">            String clientId        = (String) m.get(&quot;clientId&quot;);</span>
-<span class="nc" id="L172">            String redirectUri     = (String) m.get(&quot;redirectUri&quot;);</span>
-<span class="nc" id="L173">            String state           = (String) m.get(&quot;state&quot;);</span>
+<span class="nc" id="L192">            Map&lt;String, Object&gt; m = MAPPER.readValue(json, new TypeReference&lt;Map&lt;String, Object&gt;&gt;() {});</span>
+<span class="nc" id="L193">            String authorizationUri = (String) m.get(&quot;authorizationUri&quot;);</span>
+<span class="nc" id="L194">            String clientId        = (String) m.get(&quot;clientId&quot;);</span>
+<span class="nc" id="L195">            String redirectUri     = (String) m.get(&quot;redirectUri&quot;);</span>
+<span class="nc" id="L196">            String state           = (String) m.get(&quot;state&quot;);</span>
 
-<span class="nc" id="L175">            Set&lt;String&gt; scopes = new HashSet&lt;&gt;();</span>
-<span class="nc" id="L176">            Object sc = m.get(&quot;scopes&quot;);</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">            if (sc instanceof Iterable&lt;?&gt; it) {</span>
-<span class="nc bnc" id="L178" title="All 2 branches missed.">                for (Object s : it) {</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">                    if (s != null) scopes.add(String.valueOf(s));</span>
-<span class="nc" id="L180">                }</span>
+            // Extract scopes
+<span class="nc" id="L199">            Set&lt;String&gt; scopes = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L200">            Object sc = m.get(&quot;scopes&quot;);</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">            if (sc instanceof Iterable&lt;?&gt; it) {</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">                for (Object s : it) {</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                    if (s != null) scopes.add(String.valueOf(s));</span>
+<span class="nc" id="L204">                }</span>
             }
 
-<span class="nc" id="L183">            Map&lt;String, Object&gt; additionalParameters =</span>
-<span class="nc" id="L184">                    (Map&lt;String, Object&gt;) m.getOrDefault(&quot;additionalParameters&quot;, Map.of());</span>
-<span class="nc" id="L185">            Map&lt;String, Object&gt; attributes =</span>
-<span class="nc" id="L186">                    (Map&lt;String, Object&gt;) m.getOrDefault(&quot;attributes&quot;, Map.of());</span>
-
+            // Extract additional parameters and attributes
+<span class="nc" id="L208">            Map&lt;String, Object&gt; additionalParameters =</span>
+<span class="nc" id="L209">                    (Map&lt;String, Object&gt;) m.getOrDefault(&quot;additionalParameters&quot;, Map.of());</span>
+<span class="nc" id="L210">            Map&lt;String, Object&gt; attributes =</span>
+<span class="nc" id="L211">                    (Map&lt;String, Object&gt;) m.getOrDefault(&quot;attributes&quot;, Map.of());</span>
+            // Build OAuth2AuthorizationRequest
             OAuth2AuthorizationRequest.Builder b =
-<span class="nc" id="L189">                    OAuth2AuthorizationRequest.authorizationCode()</span>
-<span class="nc" id="L190">                            .authorizationUri(authorizationUri)</span>
-<span class="nc" id="L191">                            .clientId(clientId)</span>
-<span class="nc" id="L192">                            .redirectUri(redirectUri)</span>
-<span class="nc" id="L193">                            .scopes(scopes)</span>
-<span class="nc" id="L194">                            .state(state)</span>
-<span class="nc" id="L195">                            .additionalParameters(additionalParameters)</span>
-<span class="nc" id="L196">                            .attributes(attrs -&gt; attrs.putAll(attributes));</span>
+<span class="nc" id="L214">                    OAuth2AuthorizationRequest.authorizationCode()</span>
+<span class="nc" id="L215">                            .authorizationUri(authorizationUri)</span>
+<span class="nc" id="L216">                            .clientId(clientId)</span>
+<span class="nc" id="L217">                            .redirectUri(redirectUri)</span>
+<span class="nc" id="L218">                            .scopes(scopes)</span>
+<span class="nc" id="L219">                            .state(state)</span>
+<span class="nc" id="L220">                            .additionalParameters(additionalParameters)</span>
+<span class="nc" id="L221">                            .attributes(attrs -&gt; attrs.putAll(attributes));</span>
 
-<span class="nc" id="L198">            Object authReqUri = m.get(&quot;authorizationRequestUri&quot;);</span>
-<span class="nc bnc" id="L199" title="All 4 branches missed.">            if (authReqUri instanceof String s &amp;&amp; !s.isBlank()) {</span>
-<span class="nc" id="L200">                b.authorizationRequestUri(s);</span>
+<span class="nc" id="L223">            Object authReqUri = m.get(&quot;authorizationRequestUri&quot;);</span>
+<span class="nc bnc" id="L224" title="All 4 branches missed.">            if (authReqUri instanceof String s &amp;&amp; !s.isBlank()) {</span>
+<span class="nc" id="L225">                b.authorizationRequestUri(s);</span>
             }
 
-<span class="nc" id="L203">            return b.build();</span>
-<span class="nc" id="L204">        } catch (IllegalArgumentException | java.io.IOException e) {</span>
-<span class="nc" id="L205">            return null;</span>
+<span class="nc" id="L228">            return b.build();</span>
+<span class="nc" id="L229">        } catch (IllegalArgumentException | java.io.IOException e) {</span>
+<span class="nc" id="L230">            return null;</span>
         }
     }
 
     /**
      * Converts OAuth2 authorization request to JSON format.
+     * @return JSON string representation
+     * @param r the OAuth2 authorization request
+     * @throws JsonProcessingException if serialization fails
      */
     private static String writeJson(OAuth2AuthorizationRequest r) {
         try {
-<span class="fc" id="L214">            Map&lt;String, Object&gt; m = Map.of(</span>
-<span class="fc" id="L215">                &quot;authorizationUri&quot;,        r.getAuthorizationUri(),</span>
-<span class="fc" id="L216">                &quot;clientId&quot;,                r.getClientId(),</span>
-<span class="fc" id="L217">                &quot;redirectUri&quot;,             r.getRedirectUri(),</span>
-<span class="fc" id="L218">                &quot;scopes&quot;,                  r.getScopes(),</span>
-<span class="fc" id="L219">                &quot;state&quot;,                   r.getState(),</span>
-<span class="pc bpc" id="L220" title="1 of 2 branches missed.">                &quot;responseType&quot;,            r.getResponseType() != null ? r.getResponseType().getValue() : &quot;code&quot;,</span>
-<span class="fc" id="L221">                &quot;additionalParameters&quot;,    r.getAdditionalParameters(),</span>
-<span class="fc" id="L222">                &quot;attributes&quot;,              r.getAttributes(),</span>
-<span class="fc" id="L223">                &quot;authorizationRequestUri&quot;, r.getAuthorizationRequestUri()</span>
+<span class="fc" id="L242">            Map&lt;String, Object&gt; m = Map.of(</span>
+<span class="fc" id="L243">                &quot;authorizationUri&quot;,        r.getAuthorizationUri(),</span>
+<span class="fc" id="L244">                &quot;clientId&quot;,                r.getClientId(),</span>
+<span class="fc" id="L245">                &quot;redirectUri&quot;,             r.getRedirectUri(),</span>
+<span class="fc" id="L246">                &quot;scopes&quot;,                  r.getScopes(),</span>
+<span class="fc" id="L247">                &quot;state&quot;,                   r.getState(),</span>
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">                &quot;responseType&quot;,            r.getResponseType() != null ? r.getResponseType().getValue() : &quot;code&quot;,</span>
+<span class="fc" id="L249">                &quot;additionalParameters&quot;,    r.getAdditionalParameters(),</span>
+<span class="fc" id="L250">                &quot;attributes&quot;,              r.getAttributes(),</span>
+<span class="fc" id="L251">                &quot;authorizationRequestUri&quot;, r.getAuthorizationRequestUri()</span>
             );
-<span class="fc" id="L225">            return MAPPER.writeValueAsString(m);</span>
-<span class="nc" id="L226">        } catch (JsonProcessingException e) {</span>
-<span class="nc" id="L227">        return &quot;{}&quot;;</span>
+<span class="fc" id="L253">            return MAPPER.writeValueAsString(m);</span>
+<span class="nc" id="L254">        } catch (JsonProcessingException e) {</span>
+<span class="nc" id="L255">        return &quot;{}&quot;;</span>
         }
     }
 
     /**
      * Detects HTTPS context including load balancer forwarding.
+     * @param request the HTTP servlet request
+     * @return true if request is secure or forwarded as HTTPS
      */
     private static boolean isSecureOrForwardedHttps(HttpServletRequest request) {
-<span class="pc bpc" id="L235" title="1 of 2 branches missed.">        if (request.isSecure()) return true;</span>
-<span class="fc" id="L236">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
-<span class="pc bpc" id="L237" title="3 of 4 branches missed.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">        if (request.isSecure()) return true;</span>
+<span class="fc" id="L266">        String xfProto = request.getHeader(&quot;X-Forwarded-Proto&quot;);</span>
+<span class="pc bpc" id="L267" title="3 of 4 branches missed.">        return xfProto != null &amp;&amp; xfProto.equalsIgnoreCase(&quot;https&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
