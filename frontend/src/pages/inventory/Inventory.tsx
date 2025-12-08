@@ -43,8 +43,8 @@ import { useToast } from '../../app/ToastContext';
 import { useSuppliersQuery } from './hooks/useInventoryData';
 import { useSettings } from '../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../utils/formatters';
-import HelpIconButton from '../../features/help/components/HelpIconButton';
-import { useAuth } from '../../context/useAuth';
+import { HelpIconButton } from '../../features/help';
+import { useAuth } from '../../hooks/useAuth';
 
 /** Debounce simple values to reduce server chatter while typing. */
 function useDebounced<T>(value: T, delayMs: number): T {

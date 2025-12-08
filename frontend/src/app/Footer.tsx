@@ -28,7 +28,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from 'react-i18next';
-import { useHealthCheck } from '../features/health/hooks/useHealthCheck';
+import { useHealthCheck } from '../features/health';
 
 const Footer: React.FC = () => {
   const { i18n, t } = useTranslation(['common', 'footer']);

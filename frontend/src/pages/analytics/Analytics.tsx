@@ -14,7 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { readParams } from '../../utils/urlState';
 import { getSuppliersLite, type SupplierRef } from '../../api/analytics/suppliers';
-import HelpIconButton from '../../features/help/components/HelpIconButton';
+import { HelpIconButton } from '../../features/help';
 
 // Blocks
 import StockValueCard from './blocks/StockValueCard';

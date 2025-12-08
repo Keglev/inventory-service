@@ -116,3 +116,29 @@ export const parseFormattedNumber = (str: string, format: NumberFormat): number 
     return parseFloat(str.replace(/,/g, ''));
   }
 };
+
+/**
+ * Get today's date in ISO YYYY-MM-DD format.
+ * @returns Today in local ISO format (e.g., '2025-12-08')
+ * @example
+ * getTodayIso()  // → '2025-12-08'
+ */
+export const getTodayIso = (): string => {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
+/**
+ * Get a date n days ago in ISO YYYY-MM-DD format.
+ * @param n - Number of days ago
+ * @returns Date n days ago in local ISO format
+ * @example
+ * getDaysAgoIso(180)  // → '2025-06-12' (180 days ago)
+ */
+export const getDaysAgoIso = (n: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};

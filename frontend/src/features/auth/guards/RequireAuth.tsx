@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
-import { useAuth } from '../../../context/useAuth';
+import { useAuth } from '../../../hooks/useAuth';
 
 /**
  * @file RequireAuth.tsx
@@ -41,4 +41,5 @@ const RequireAuth: React.FC<Props> = ({ children, fallback, allowDemo }) => {
   return children;
 };
 
+export { RequireAuth };
 export default RequireAuth;

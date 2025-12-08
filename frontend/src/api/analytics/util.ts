@@ -7,21 +7,7 @@
 * These utilities are internal to the API layer and are not exported to UI code directly.
 */
 import type { AnalyticsParams, ItemRef } from './types';
-
-/** Today in local ISO YYYY-MM-DD. */
-export function todayIso(): string {
-    const d = new Date();
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
-/** n days ago in local ISO YYYY-MM-DD. */
-export function daysAgoIso(n: number): string {
-    const d = new Date();
-    d.setDate(d.getDate() - n);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
+import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
 
 /** Defensive number coercion (NaN → 0). */
 export function asNumber(v: unknown): number {
@@ -86,8 +72,8 @@ export function clientFilter(items: ItemRef[], q: string, limit: number): ItemRe
 */
 export function paramClean(p?: AnalyticsParams): Record<string, string> {
     const out: Record<string, string> = {};
-    const from = p?.from ?? daysAgoIso(180);
-    const to = p?.to ?? todayIso();
+    const from = p?.from ?? getDaysAgoIso(180);
+    const to = p?.to ?? getTodayIso();
     out.start = from;
     out.end = to;
     if (p?.supplierId) out.supplierId = p.supplierId;

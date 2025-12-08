@@ -19,7 +19,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { Box, CircularProgress, Stack, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../context/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { API_BASE } from '../../api/httpClient';
 

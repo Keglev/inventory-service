@@ -13,7 +13,7 @@
 import * as React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 
 const NotFoundPage: React.FC = () => {

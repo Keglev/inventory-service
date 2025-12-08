@@ -9,8 +9,8 @@
  * const { userPreferences, systemInfo } = useSettings()
  */
 
-import { useContext } from 'react';
 import { SettingsContext, type SettingsContextType } from '../context/SettingsContext';
+import { createContextHook } from './createContextHook';
 
 /**
  * Access global settings context from anywhere in the component tree.
@@ -22,10 +22,4 @@ import { SettingsContext, type SettingsContextType } from '../context/SettingsCo
  * console.log(userPreferences.dateFormat)  // → 'DD.MM.YYYY'
  * console.log(systemInfo.database)         // → 'Oracle ADB'
  */
-export const useSettings = (): SettingsContextType => {
-  const context = useContext(SettingsContext);
-  if (!context) {
-    throw new Error('useSettings must be used within a SettingsProvider');
-  }
-  return context;
-};
+export const useSettings = createContextHook<SettingsContextType>(SettingsContext, 'useSettings');

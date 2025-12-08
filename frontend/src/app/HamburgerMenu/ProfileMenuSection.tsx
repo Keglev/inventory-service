@@ -10,7 +10,7 @@
 
 import { Box, Typography, Stack, Chip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../context/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function ProfileMenuSection() {
   const { t } = useTranslation(['common', 'auth']);

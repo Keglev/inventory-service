@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
-import { useHealthCheck } from '../../features/health/hooks/useHealthCheck';
+import { useHealthCheck } from '../../features/health';
 
 export default function SystemInfoMenuSection() {
   const { t } = useTranslation(['common']);

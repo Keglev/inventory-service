@@ -30,7 +30,7 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import httpClient from '../../../api/httpClient';
-import { useAuth } from '../../../context/useAuth';
+import { useAuth } from '../../../hooks/useAuth';
 
 
 type UseSessionTimeoutOptions = {

@@ -9,7 +9,7 @@ interface HelpIconButtonProps {
   tooltip?: string;
 }
 
-const HelpIconButton: React.FC<HelpIconButtonProps> = ({ topicId, tooltip }) => {
+export const HelpIconButton: React.FC<HelpIconButtonProps> = ({ topicId, tooltip }) => {
   const { openHelp } = useHelp();
 
   return (

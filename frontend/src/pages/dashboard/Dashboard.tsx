@@ -15,7 +15,7 @@ import { getInventoryCount, getSuppliersCount, getLowStockCount } from '../../ap
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
 import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';
-import HelpIconButton from '../../features/help/components/HelpIconButton';
+import { HelpIconButton } from '../../features/help';
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation('common');

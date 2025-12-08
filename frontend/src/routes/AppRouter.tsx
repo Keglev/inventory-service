@@ -20,8 +20,8 @@ import * as React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 
-import { useAuth } from '../context/useAuth';
-import RequireAuth from '../features/auth/guards/RequireAuth';
+import { useAuth } from '../hooks/useAuth';
+import { RequireAuth } from '../features/auth';
 import AppShell from '../app/AppShell';
 
 // Public pages

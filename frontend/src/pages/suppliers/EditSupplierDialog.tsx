@@ -71,7 +71,7 @@ import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../hooks/useHelp';
 import { z } from 'zod';
 import { useToast } from '../../app/ToastContext';
-import { useAuth } from '../../context/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { getSuppliersPage, updateSupplier } from '../../api/suppliers';
 import type { SupplierRow } from '../../api/suppliers/types';
 

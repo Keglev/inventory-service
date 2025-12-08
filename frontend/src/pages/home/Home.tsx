@@ -17,7 +17,7 @@
 import * as React from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Box, Card, CardContent, CardHeader, Stack, Button, CircularProgress, Typography } from '@mui/material';
-import { useAuth } from '../../context/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 
 /**

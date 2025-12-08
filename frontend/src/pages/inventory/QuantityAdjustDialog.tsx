@@ -56,7 +56,7 @@ import {
   Autocomplete,
   Stack,
 } from '@mui/material';
-import HelpIconButton from '../../features/help/components/HelpIconButton';
+import { HelpIconButton } from '../../features/help';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';

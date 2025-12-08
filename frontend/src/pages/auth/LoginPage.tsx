@@ -22,7 +22,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { API_BASE } from '../../api/httpClient';
-import { useAuth } from '../../context/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 
 /**
  * Begin the OAuth2 Google SSO flow.

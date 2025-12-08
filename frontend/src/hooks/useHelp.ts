@@ -9,8 +9,8 @@
  * openHelp('app.main')
  */
 
-import { useContext } from 'react';
 import { HelpContext, type HelpContextType } from '../context/HelpContext.types';
+import { createContextHook } from './createContextHook';
 
 /**
  * Access global help context from anywhere in the component tree.
@@ -30,10 +30,4 @@ import { HelpContext, type HelpContextType } from '../context/HelpContext.types'
  * )
  * ```
  */
-export const useHelp = (): HelpContextType => {
-  const context = useContext(HelpContext);
-  if (!context) {
-    throw new Error('useHelp must be used within a HelpProvider');
-  }
-  return context;
-};
+export const useHelp = createContextHook<HelpContextType>(HelpContext, 'useHelp');
