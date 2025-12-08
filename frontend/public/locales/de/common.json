@@ -80,7 +80,7 @@
     "error": "Benachrichtigungen konnten nicht geladen werden",
     "lowStock": "Artikel mit niedrigem Bestand",
     "items": "Artikel mit niedrigem oder keinem Bestand",
-    "lowStockAlert": "Bestandswarnung",
+    "lowStockAlert": "Warnung: Niedriger Bestand",
     "lowStockMessage": "Du hast {{count}} Artikel mit niedrigem Bestand",
     "itemsLowStock": "{{count}} Artikel unter Mindestbestand",
     "allGood": "Alles in Ordnung – keine Artikel mit niedrigem Bestand"

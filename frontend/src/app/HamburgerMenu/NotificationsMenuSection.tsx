@@ -15,7 +15,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getLowStockCount } from '../../api/metrics';
 
 export default function NotificationsMenuSection() {
-  const { t } = useTranslation(['common', 'analytics']);
+  // Only need the common namespace here; remove mixed namespace lookups to avoid fallbacks.
+  const { t } = useTranslation('common');
 
   // Fetch low-stock count from backend
   const q = useQuery<number>({
