@@ -7,7 +7,7 @@
 * don't break the UI. Returns an array (empty on errors).
 */
 import http from '../httpClient';
-import { isArrayOfRecords, pickString, pickNumber, paramClean } from './util';
+import { isArrayOfRecords, pickString, pickNumber } from './util';
 import type { Rec } from './util';
 
 export type StockUpdateRow = {
@@ -28,7 +28,19 @@ export type StockUpdatesFilter = {
 /** GET /api/analytics/stock-updates?start&end[&supplierId][&itemName][&limit] */
 export async function getStockUpdates(filter?: StockUpdatesFilter): Promise<StockUpdateRow[]> {
     try {
-        const params = { ...paramClean(filter), itemName: filter?.itemName ?? undefined, limit: filter?.limit ?? 50 } as Record<string, string | number | undefined>;
+        const buildDateTime = (date?: string | null, opts?: { endOfDay?: boolean }) => {
+            if (!date) return undefined;
+            const suffix = opts?.endOfDay ? 'T23:59:59' : 'T00:00:00';
+            return `${date}${suffix}`;
+        };
+
+        const params: Record<string, string | number | undefined> = {
+            startDate: buildDateTime(filter?.from ?? undefined),
+            endDate: buildDateTime(filter?.to ?? undefined, { endOfDay: true }),
+            supplierId: filter?.supplierId || undefined,
+            itemName: filter?.itemName || undefined,
+            limit: filter?.limit ?? 50,
+        };
         const { data } = await http.get<unknown>('/api/analytics/stock-updates', { params });
         if (!isArrayOfRecords(data)) return [];
         const rows = (data as Rec[])
