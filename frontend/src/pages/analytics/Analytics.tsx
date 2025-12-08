@@ -24,7 +24,7 @@ import StockPerSupplierDonut from './blocks/StockPerSupplierDonut';
 import AnalyticsNav, { type AnalyticsSection } from './components/AnalyticsNav';
 import FinancialSummaryCard from './blocks/FinancialSummaryCard';
 import ItemUpdateFrequencyCard from './blocks/ItemUpdateFrequencyCard';
-import StockUpdatesTable from './blocks/StockUpdatesTable';
+import RecentStockActivityCard from './blocks/RecentStockActivityCard';
 import MovementLineCard from './blocks/MovementLineCard';
 
 // Filters UI
@@ -142,8 +142,8 @@ export default function Analytics(): JSX.Element {
             {/* Operations — top updated items (requires supplier) */}
             <ItemUpdateFrequencyCard supplierId={filters.supplierId} />
 
-            {/* Operations — recent stock updates (period + supplier) */}
-            <StockUpdatesTable from={filters.from} to={filters.to} supplierId={filters.supplierId} />
+            {/* Operations — recent stock activity (stacked by reason) */}
+            <RecentStockActivityCard from={filters.from} to={filters.to} supplierId={filters.supplierId} />
           </>
         )}
       </Box>

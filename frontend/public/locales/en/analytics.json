@@ -41,7 +41,15 @@
     "item": "Item",
     "delta": "Δ Qty",
     "reason": "Reason",
-    "user": "User"
+    "user": "User",
+    "labels": {
+      "initialStock": "Purchases",
+      "adjustment": "Adjustments",
+      "sale": "Sales",
+      "writeOff": "Write-offs",
+      "return": "Returns",
+      "other": "Other"
+    }
   },
   "item": "Item",
   "filters": {

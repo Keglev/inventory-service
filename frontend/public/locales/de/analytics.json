@@ -41,7 +41,15 @@
     "item": "Artikel",
     "delta": "Δ Menge",
     "reason": "Grund",
-    "user": "Benutzer"
+    "user": "Benutzer",
+    "labels": {
+      "initialStock": "Einkäufe",
+      "adjustment": "Anpassungen",
+      "sale": "Verkäufe",
+      "writeOff": "Abschreibungen",
+      "return": "Rückgaben",
+      "other": "Andere"
+    }
   },
   "item": "Artikel",
   "filters": {
