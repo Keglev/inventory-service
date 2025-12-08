@@ -47,12 +47,12 @@ export default function NotificationsMenuSection() {
             <Stack direction="row" spacing={1} alignItems="center">
               <NotificationsActiveIcon sx={{ fontSize: 20, color: 'warning.main' }} />
               <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.dark' }}>
-                {t('common:notifications.lowStockAlert', 'Low Stock Alert')}
+                {t('notifications.lowStockAlert', 'Low Stock Alert')}
               </Typography>
             </Stack>
             <Typography variant="caption" color="text.secondary">
               {t(
-                'common:notifications.lowStockMessage',
+                'notifications.lowStockMessage',
                 'You have {{count}} merchandise item(s) with low stock',
                 { count: lowStockCount }
               )}
@@ -65,7 +65,7 @@ export default function NotificationsMenuSection() {
               size="small"
               label={
                 <Typography variant="caption">
-                  {t('common:notifications.itemsLowStock', '{{count}} items below minimum', {
+                  {t('notifications.itemsLowStock', '{{count}} items below minimum', {
                     count: lowStockCount,
                   })}
                 </Typography>
@@ -79,7 +79,7 @@ export default function NotificationsMenuSection() {
         <Stack direction="row" spacing={1} alignItems="center" sx={{ p: 1 }}>
           <NotificationsIcon sx={{ fontSize: 20, color: 'success.main' }} />
           <Typography variant="caption" color="success.main">
-            {t('common:notifications.allGood', 'All clear – no low stock items')}
+            {t('notifications.allGood', 'All clear – no low stock items')}
           </Typography>
         </Stack>
       )}
