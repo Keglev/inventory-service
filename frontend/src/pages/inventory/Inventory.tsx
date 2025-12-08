@@ -192,65 +192,118 @@ const Inventory: React.FC = () => {
   // -----------------------------
   // Columns (value getters avoid missing data gracefully)
   // -----------------------------
-  const columns = React.useMemo<GridColDef<InventoryRow>[]>(() => {
-    return [
-      { field: 'name', headerName: t('inventory:table.name', 'Item'), flex: 1, minWidth: 180 },
-      {
-        field: 'code',
-        headerName: t('inventory:table.code', 'Code / SKU'),
-        width: 140,
-        valueGetter: (_value: unknown, row: InventoryRow) => row.code ?? '—',
-      },
-      // Supplier column removed (supplier is selected in the filter)
-      {
-        field: 'onHand',
-        headerName: t('inventory:table.onHand', 'On-hand'),
-        type: 'number',
-        width: 140,
-        valueFormatter: (
-          params: { value?: number | string | null } | null
-        ) => {
-          const raw = params?.value;
-          let numeric = 0;
+  const columns = React.useMemo<GridColDef[]>(() => {
+  return [
+    {
+      field: 'name',
+      headerName: t('inventory:table.name', 'Item'),
+      flex: 1,
+      minWidth: 180,
+    },
+    {
+      field: 'code',
+      headerName: t('inventory:table.code', 'Code / SKU'),
+      width: 140,
+      // row: InventoryRow as we know it
+      valueGetter: (_value: unknown, row: InventoryRow) => row.code ?? '—',
+    },
 
-          if (typeof raw === 'number' && Number.isFinite(raw)) {
-            numeric = raw;
-          } else if (typeof raw === 'string') {
-            const parsed = Number(raw.trim());
-            if (Number.isFinite(parsed)) {
-              numeric = parsed;
-            }
-          }
+    // -------- On-hand --------
+    {
+      field: 'onHand',
+      headerName: t('inventory:table.onHand', 'On-hand'),
+      type: 'number',
+      width: 140,
+      // Normalize backend quantity -> onHand
+      valueGetter: (
+        _value: unknown,
+        row: InventoryRow & { quantity?: number | null },
+      ) => {
+        const fromNormalized =
+          typeof row.onHand === 'number' && Number.isFinite(row.onHand)
+            ? row.onHand
+            : undefined;
+
+        const fromBackend =
+          typeof row.quantity === 'number' && Number.isFinite(row.quantity)
+            ? row.quantity
+            : undefined;
+
+        return fromNormalized ?? fromBackend ?? 0;
+      },
+      valueFormatter: (value: unknown) => {
+        const numeric =
+          typeof value === 'number' && Number.isFinite(value)
+            ? value
+            : 0;
 
           return formatNumber(numeric, userPreferences.numberFormat);
         },
       },
-      {
-        field: 'minQty',
-        headerName: t('inventory:table.minQty', 'Min. Qty'),
-        type: 'number',
-        width: 140,
-      }, 
-      {
-        field: 'updatedAt',
-        headerName: t('inventory:table.updated', 'Updated'),
-        width: 190,
-        // just use updatedAt from the normalized row (it's already a Date or null)
-        valueFormatter: (
-          params: { value?: string | null } | null
-        ) => {
-          const raw = params?.value;
-          if (!raw) return '—';
-          try {
-            return formatDate(new Date(String(raw)), userPreferences.dateFormat);
-          } catch {
-            // If backend sends a invalid date string, avoid breaking the grid
-            return String(raw);
-          }
-        },
+
+    // -------- Min. Qty --------
+    {
+      field: 'minQty',
+      headerName: t('inventory:table.minQty', 'Min. Qty'),
+      type: 'number',
+      width: 140,
+      valueGetter: (
+        _value: unknown,
+        row: InventoryRow & { minimumQuantity?: number | string | null },
+      ) => {
+        const raw = row.minQty ?? row.minimumQuantity ?? 0;
+
+        if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+        if (typeof raw === 'string' && raw.trim() !== '') {
+          const parsed = Number(raw);
+          return Number.isFinite(parsed) ? parsed : 0;
+        }
+        return 0;
       },
-    ];
-  }, [t, userPreferences.dateFormat, userPreferences.numberFormat]);
+      valueFormatter: (value: unknown) => {
+        const numeric =
+          typeof value === 'number'
+            ? value
+            : typeof value === 'string' && value.trim() !== ''
+            ? Number(value)
+            : 0;
+
+        return formatNumber(
+          Number.isFinite(numeric) ? numeric : 0,
+          userPreferences.numberFormat,
+        );
+      },
+    },
+
+    // -------- Updated --------
+    {
+      field: 'updatedAt',
+      headerName: t('inventory:table.updated', 'Updated'),
+      width: 190,
+      valueGetter: (
+        _value: unknown,
+        row: InventoryRow & {
+          createdAt?: string | null;
+          created_at?: string | null;
+        },
+      ) => {
+        // Prefer normalized updatedAt, fallback to createdAt from backend
+        return row.updatedAt ?? row.createdAt ?? row.created_at ?? null;
+      },
+      valueFormatter: (value: unknown) => {
+        if (!value) return '—';
+
+        const str = String(value);
+        try {
+          return formatDate(new Date(str), userPreferences.dateFormat);
+        } catch {
+          return str;
+        }
+      },
+    },
+  ];
+}, [t, userPreferences.numberFormat, userPreferences.dateFormat]);
+
 
   /**
    * Filter rows by selected supplier (client-side fallback).
@@ -435,15 +488,25 @@ const Inventory: React.FC = () => {
                   }),
                 }}
                 getRowClassName={(params) => {
-                  const r = params.row as InventoryRow;
-                  const minRaw = Number(r.minQty ?? 0);
+                  const r = params.row as InventoryRow & {
+                    quantity?: number | string | null;
+                    minimumQuantity?: number | string | null;
+                  };
+
+                  const minSource = r.minQty ?? r.minimumQuantity ?? 0;
+                  const minRaw = Number(minSource ?? 0);
                   const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 5;
-                  const onHand = Number(r.onHand ?? 0);
+
+                  const onHandSource = r.onHand ?? r.quantity ?? 0;
+                  const onHand = Number(onHandSource ?? 0);
+
                   const deficit = min - onHand;
+
                   if (deficit >= 5) return 'low-stock-critical';
                   if (deficit > 0) return 'low-stock-warning';
                   return '';
                 }}
+
               />
             </>
           )}
