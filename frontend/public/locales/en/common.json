@@ -81,7 +81,11 @@
     "title": "Notifications",
     "error": "Could not load notifications",
     "lowStock": "Low Stock Items",
-    "items": "items with low or no stock"
+    "items": "items with low or no stock",
+    "lowStockAlert": "Low Stock Alert",
+    "lowStockMessage": "You have {{count}} merchandise item(s) with low stock",
+    "itemsLowStock": "{{count}} items below minimum",
+    "allGood": "All clear – no low stock items"
   },
   "help": {
     "title": "Help & Docs",

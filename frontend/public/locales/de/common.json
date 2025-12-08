@@ -79,7 +79,11 @@
     "title": "Benachrichtigungen",
     "error": "Benachrichtigungen konnten nicht geladen werden",
     "lowStock": "Artikel mit niedrigem Bestand",
-    "items": "Artikel mit niedrigem oder keinem Bestand"
+    "items": "Artikel mit niedrigem oder keinem Bestand",
+    "lowStockAlert": "Bestandswarnung",
+    "lowStockMessage": "Du hast {{count}} Artikel mit niedrigem Bestand",
+    "itemsLowStock": "{{count}} Artikel unter Mindestbestand",
+    "allGood": "Alles in Ordnung – keine Artikel mit niedrigem Bestand"
   },
   "help": {
     "title": "Hilfe & Docs",
