@@ -4,23 +4,29 @@
  *
  * @summary
  * Notifications section with low-stock alerts.
- * Fetches low-stock item count from dashboard metrics hook and displays notification status.
+ * Fetches low-stock item count from backend and displays notification status.
  */
 
 import { Box, Typography, Stack, Chip, Skeleton } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { useTranslation } from 'react-i18next';
-import { useDashboardMetrics } from '../../api/analytics/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { getLowStockCount } from '../../api/metrics';
 
 export default function NotificationsMenuSection() {
   // Only need the common namespace here; remove mixed namespace lookups to avoid fallbacks.
   const { t } = useTranslation('common');
 
-  // Fetch dashboard metrics (includes low-stock count) with consolidated cache management
-  const q = useDashboardMetrics();
+  // Fetch low-stock count from backend
+  const q = useQuery<number>({
+    queryKey: ['notifications', 'lowStockCount'],
+    queryFn: getLowStockCount,
+    staleTime: 30_000,
+    retry: 1,
+  });
 
-  const lowStockCount = q.data?.lowStockCount ?? 0;
+  const lowStockCount = q.data ?? 0;
   const hasLowStock = !q.isLoading && lowStockCount > 0;
 
   if (q.isLoading) {

@@ -83,8 +83,8 @@ export function useDashboardMetrics(enabled: boolean = true) {
       };
     },
     enabled,
-    staleTime: 2 * 60_000, // 2 minutes
-    gcTime: 10 * 60_000,   // 10 minutes (formerly cacheTime)
+    staleTime: 5 * 60_000, // 5 minutes
+    gcTime: 15 * 60_000,   // 15 minutes (formerly cacheTime)
   });
 }
 
