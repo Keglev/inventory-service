@@ -73,9 +73,10 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../app/ToastContext';
 import { useHelp } from '../../hooks/useHelp';
 import { deleteItem } from '../../api/inventory/mutations';
-import { deleteItemSchema, type DeleteItemForm } from '../../api/inventory/validation';
-import type { SupplierOption, ItemOption } from '../../api/analytics/types';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../api/inventory/hooks/useInventoryData';
+import { deleteItemSchema } from './validation';
+import type { DeleteItemForm } from './validation';
+import type { SupplierOption, ItemOption } from './types/inventory-dialog.types';
+import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from './hooks/useInventoryData';
 
 /**
  * Properties for the DeleteItemDialog component.

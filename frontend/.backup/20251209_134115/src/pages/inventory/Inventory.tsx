@@ -29,7 +29,8 @@ import {
 } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 
-import { getInventoryPage, type InventoryListResponse, type InventoryRow } from '../../api/inventory';
+import { getInventoryPage } from '../../api/inventory';
+import type { InventoryListResponse, InventoryRow } from '../../api/inventory';
 
 import { InventoryFilters } from './InventoryFilters';
 
@@ -39,7 +40,7 @@ import { DeleteItemDialog } from './DeleteItemDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
 import { useToast } from '../../app/ToastContext';
-import { useSuppliersQuery } from '../../api/inventory/hooks/useInventoryData';
+import { useSuppliersQuery } from './hooks/useInventoryData';
 import { useSettings } from '../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../utils/formatters';
 import { HelpIconButton } from '../../features/help';

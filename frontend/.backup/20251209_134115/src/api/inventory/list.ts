@@ -12,7 +12,38 @@
 
 import http from '../httpClient';
 import type { InventoryListParams, InventoryListResponse, InventoryRow } from './types';
-import { isRecord, pickString, pickNumber } from './utils';
+
+/* ----------------------------- type guards ------------------------------ */
+
+type UnknownRecord = Record<string, unknown>;
+
+const isRecord = (v: unknown): v is UnknownRecord =>
+  typeof v === 'object' && v !== null;
+
+const pickString = (r: UnknownRecord, k: string): string | undefined => {
+  const v = r[k];
+  if (typeof v === 'string') return v;
+  if (typeof v === 'number') return String(v);
+  return undefined;
+};
+
+const pickNumber = (r: UnknownRecord, k: string): number | undefined => {
+  if (!(k in r)) return undefined;
+  const v = r[k];
+
+  if (typeof v === 'number') {
+    return Number.isFinite(v) ? v : undefined;
+  }
+
+  if (typeof v === 'string') {
+    const trimmed = v.trim();
+    if (!trimmed) return undefined;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+};
 
 /* ---------------------------- normalization ----------------------------- */
 
@@ -102,7 +133,7 @@ export async function getInventoryPage(
     });
 
     const data: unknown = isRecord(resp) && 'data' in resp
-      ? (resp as Record<string, unknown>).data
+      ? (resp as UnknownRecord).data
       : {};
 
     const rowsRaw = extractRows(data);

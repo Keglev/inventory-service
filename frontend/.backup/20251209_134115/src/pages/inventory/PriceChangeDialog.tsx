@@ -1,14 +1,13 @@
-/**
- * @file QuantityAdjustDialog.tsx
- * @module pages/inventory/QuantityAdjustDialog
+﻿/**
+ * @file PriceChangeDialog.tsx
+ * @module pages/inventory/PriceChangeDialog
  *
  * @summary
- * Enterprise-level dialog for adjusting inventory item quantities with business reasoning.
- * Implements a guided workflow: supplier selection → item selection → quantity adjustment.
+ * Enterprise-level dialog for changing inventory item prices.
+ * Implements a guided workflow: supplier selection → item selection → price adjustment.
  *
  * @enterprise
- * - Strict validation: quantity ≥ 0 (cannot be negative)
- * - Audit trail: mandatory reason selection from predefined options
+ * - Strict validation: price must be positive (> 0)
  * - User experience: guided workflow prevents invalid operations
  * - Type safety: fully typed with Zod validation and TypeScript
  * - Accessibility: proper form labels, error states, and keyboard navigation
@@ -17,18 +16,22 @@
  *
  * @workflow
  * 1. User selects supplier from dropdown (via useSuppliersQuery)
- * 2. System loads available items for that supplier (via useItemSearchQuery with client-side filtering)
- * 3. User selects specific item to adjust
- * 4. System fetches full item details (via useItemDetailsQuery)
- * 5. User enters new quantity (≥ 0) and selects business reason
- * 6. System validates and applies quantity change with audit trail
+ * 2. System enables item search for that supplier (via useItemSearchQuery with client-side filtering)
+ * 3. User searches and selects specific item (type-ahead with 2+ characters)
+ * 4. System fetches and displays current item details (via useItemDetailsQuery)
+ * 5. User enters new price (must be > 0)
+ * 6. System validates and applies price change
  *
  * @validation
- * - Supplier must be selected before item selection is enabled
- * - Item must be selected before quantity adjustment is enabled
- * - New quantity must be non-negative (≥ 0)
- * - Business reason must be selected from predefined options
- * - Read-only fields (name, price) cannot be modified
+ * - Supplier must be selected before item search is enabled
+ * - Item must be selected before price adjustment is enabled
+ * - New price must be positive (> 0)
+ * - System prevents setting price to same value as current price
+ *
+ * @backend_api
+ * PATCH /api/inventory/{id}/price?price={newPrice}
+ * - Only accepts `price` parameter (no reason required)
+ * - Returns updated inventory item with new price
  * 
  * @refactored
  * Uses shared hooks and types from:
@@ -54,76 +57,57 @@ import {
   Alert,
   Divider,
   Autocomplete,
+  IconButton,
   Stack,
+  Tooltip,
 } from '@mui/material';
-import { HelpIconButton } from '../../features/help';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useHelp } from '../../hooks/useHelp';
 import { useToast } from '../../app/ToastContext';
-import { adjustQuantity } from '../../api/inventory/mutations';
-import { getPriceTrend } from '../../api/analytics/priceTrend';
-import { quantityAdjustSchema, type QuantityAdjustForm } from '../../api/inventory/validation';
-import type { SupplierOption, ItemOption } from '../../api/analytics/types';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../api/inventory/hooks/useInventoryData';
+import { changePrice } from '../../api/inventory/mutations';
+import { priceChangeSchema } from './validation';
+import type { PriceChangeForm } from './validation';
+import type { SupplierOption, ItemOption } from './types/inventory-dialog.types';
+import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from './hooks/useInventoryData';
 
 /**
- * Business reasons for stock quantity changes.
- * Mirrors the backend StockChangeReason enum for audit trail consistency.
+ * Properties for the PriceChangeDialog component.
  * 
- * @enterprise
- * These values provide traceability for all stock movements and support
- * regulatory compliance, financial reconciliation, and operational analytics.
- */
-const STOCK_CHANGE_REASONS = [
-  'INITIAL_STOCK',    // Added new stock - increases inventory
-  'MANUAL_UPDATE',
-  'SOLD',
-  'SCRAPPED',
-  'DESTROYED',
-  'DAMAGED',
-  'EXPIRED',
-  'LOST',
-  'RETURNED_TO_SUPPLIER',
-  'RETURNED_BY_CUSTOMER',
-] as const;
-
-/**
- * Properties for the QuantityAdjustDialog component.
- * 
- * @interface QuantityAdjustDialogProps
+ * @interface PriceChangeDialogProps
  * @property {boolean} open - Controls dialog visibility
  * @property {() => void} onClose - Callback when dialog is closed
- * @property {() => void} onAdjusted - Callback when quantity is successfully adjusted
+ * @property {() => void} onPriceChanged - Callback when price is successfully changed
  */
-export interface QuantityAdjustDialogProps {
+export interface PriceChangeDialogProps {
   /** Controls dialog visibility state */
   open: boolean;
   /** Callback invoked when dialog should be closed */
   onClose: () => void;
-  /** Callback invoked after successful quantity adjustment */
-  onAdjusted: () => void;
+  /** Callback invoked after successful price change to refresh parent data */
+  onPriceChanged: () => void;
   /**
    * When true, dialog behaves as demo-readonly:
-   * user can explore the workflow but cannot commit changes.
+   * user can walk through the workflow but final change is blocked.
    */
   readOnly?: boolean;
 }
 
 /**
- * Enterprise-level quantity adjustment dialog component.
+ * Enterprise-level price change dialog component.
  * 
- * Provides a guided workflow for adjusting inventory quantities with proper
- * validation, audit trails, and user experience optimizations.
+ * Provides a guided workflow for changing item prices with proper validation,
+ * and user experience optimizations.
  * 
  * @component
  * @example
  * ```tsx
- * <QuantityAdjustDialog
+ * <PriceChangeDialog
  *   open={isDialogOpen}
  *   onClose={() => setIsDialogOpen(false)}
- *   onAdjusted={() => {
+ *   onPriceChanged={() => {
  *     refreshInventoryList();
  *     showSuccessMessage();
  *   }}
@@ -132,25 +116,25 @@ export interface QuantityAdjustDialogProps {
  * 
  * @enterprise
  * - Implements step-by-step validation to prevent user errors
- * - Provides clear feedback on current item state (current quantity)
- * - Maintains audit trail through mandatory reason selection
- * - Prevents negative quantities that would cause system inconsistencies
+ * - Provides clear feedback on current item state (current price, quantity)
+ * - Prevents invalid prices (must be positive)
  * - Supports internationalization for global deployment
  * - Uses shared data hooks for consistent behavior across dialogs
  * 
  * @refactored
  * - Data fetching centralized via hooks/useInventoryData.ts
  * - Type definitions shared via types/inventory-dialog.types.ts
- * - Eliminates code duplication with PriceChangeDialog
+ * - Eliminates code duplication with QuantityAdjustDialog
  */
-export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
+export const PriceChangeDialog: React.FC<PriceChangeDialogProps> = ({
   open,
   onClose,
-  onAdjusted,
+  onPriceChanged,
   readOnly = false,
 }) => {
   const { t } = useTranslation(['common', 'inventory', 'errors']);
   const toast = useToast();
+  const { openHelp } = useHelp();
 
   // ================================
   // State Management
@@ -159,10 +143,10 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   /** Currently selected supplier for item filtering */
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierOption | null>(null);
   
-  /** Currently selected item for quantity adjustment */
+  /** Currently selected item for price change */
   const [selectedItem, setSelectedItem] = React.useState<ItemOption | null>(null);
   
-  /** Search query for item filtering */
+  /** Search query for item autocomplete filtering (minimum 2 characters) */
   const [itemQuery, setItemQuery] = React.useState('');
   
   /** Form error message for user feedback */
@@ -173,7 +157,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   // ================================
 
   /**
-   * Load suppliers for dropdown.
+   * Load suppliers for dropdown selection.
    * Uses shared hook for consistent caching and error handling.
    */
   const suppliersQuery = useSuppliersQuery(open);
@@ -185,51 +169,15 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   const itemsQuery = useItemSearchQuery(selectedSupplier, itemQuery);
 
   /**
-   * Fetch current price for the selected item.
-   * Uses price trend API to get the most recent price.
-   */
-  const itemPriceQuery = useQuery({
-    queryKey: ['itemPrice', selectedItem?.id],
-    queryFn: async () => {
-      if (!selectedItem?.id) return null;
-      
-      try {
-        // Get recent price trend to find the most current price
-        const pricePoints = await getPriceTrend(selectedItem.id, { 
-          supplierId: selectedSupplier?.id ? String(selectedSupplier.id) : undefined 
-        });
-        
-        // Return the most recent price, or fall back to item's current price
-        if (pricePoints.length > 0) {
-          // Sort by date and get the latest
-          const latestPrice = pricePoints[pricePoints.length - 1];
-          return latestPrice.price;
-        }
-        
-        return selectedItem.price;
-      } catch (error) {
-        console.error('Failed to fetch item price:', error);
-        return selectedItem.price;
-      }
-    },
-    enabled: !!selectedItem?.id,
-    staleTime: 30_000,
-  });
-
-  /**
-   * Fetch full item details including current quantity when item is selected.
+   * Fetch full item details including current price and quantity.
    * Uses shared hook for consistent data fetching.
    */
   const itemDetailsQuery = useItemDetailsQuery(selectedItem?.id);
+    const effectiveCurrentPrice =
+    selectedItem ? (itemDetailsQuery.data?.price ?? selectedItem.price ?? 0) : 0;
 
-  /**
-   * Effective current quantity:
-   * - Prefer value from itemDetailsQuery (GET /api/inventory/{id})
-   * - Fall back to selectedItem.onHand (search placeholder) if details not loaded yet
-   */
   const effectiveCurrentQty =
     selectedItem ? (itemDetailsQuery.data?.onHand ?? selectedItem.onHand ?? 0) : 0;
-
 
   // ================================
   // Form Management
@@ -241,12 +189,11 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     formState: { errors, isSubmitting },
     reset,
     setValue,
-  } = useForm<QuantityAdjustForm>({
-    resolver: zodResolver(quantityAdjustSchema),
+  } = useForm<PriceChangeForm>({
+    resolver: zodResolver(priceChangeSchema),
     defaultValues: {
       itemId: '',
-      newQuantity: 0,
-      reason: 'MANUAL_UPDATE' as const,
+      newPrice: 0,
     },
   });
 
@@ -257,24 +204,34 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   /**
    * Reset item search when supplier changes.
    * Prevents cross-supplier item selection errors.
+   * 
+   * @enterprise
+   * Clears item selection and search query to ensure data integrity
+   * when switching between suppliers.
    */
   React.useEffect(() => {
     setSelectedItem(null);
     setItemQuery('');
     setValue('itemId', '');
-    setValue('newQuantity', 0);
+    setValue('newPrice', 0);
     setFormError('');
   }, [selectedSupplier, setValue]);
 
   /**
-   * Update form value when item is selected.
-   * Use current quantity from selected item data.
+   * Pre-fill form with actual current price when item is selected.
+   * Uses fetched item details (not placeholder values from search).
+   * 
+   * @enterprise
+   * - Waits for itemDetailsQuery to complete before setting values
+   * - Sets itemId for backend API call
+   * - Pre-fills newPrice with actual current price for user convenience
    */
   React.useEffect(() => {
-    if (selectedItem && itemDetailsQuery.data) {
-      setValue('itemId', selectedItem.id);
-      setValue('newQuantity', itemDetailsQuery.data.onHand);
-    }
+    if (!selectedItem) return;
+
+    setValue('itemId', selectedItem.id);
+    const price = itemDetailsQuery.data?.price ?? selectedItem.price ?? 0;
+    setValue('newPrice', price);
   }, [selectedItem, itemDetailsQuery.data, setValue]);
 
   // ================================
@@ -282,12 +239,13 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   // ================================
 
   /**
-   * Handle dialog close with state cleanup.
-   * Ensures clean state for next dialog open.
+   * Handle dialog close with complete state cleanup.
+   * Ensures clean state for next dialog open session.
    * 
    * @enterprise
    * Prevents state pollution between dialog sessions that could
    * lead to confusing user experiences or data integrity issues.
+   * Resets all form fields, selections, and error messages.
    */
   const handleClose = () => {
     setSelectedSupplier(null);
@@ -299,20 +257,23 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
   };
 
   /**
-   * Handle form submission with quantity adjustment.
-   * Validates input and applies quantity change with audit trail.
+   * Handle form submission with price change.
+   * Validates input and applies new price to selected item.
    * 
-   * @param values - Validated form data
+   * @param values - Validated form data containing itemId and newPrice
    * 
    * @enterprise
-   * - Calculates quantity delta for backend compatibility
-   * - Maintains audit trail through reason tracking
+   * - Validates item selection before submission
+   * - Calls backend API to update price (no reason required)
    * - Provides user feedback on operation success/failure
    * - Triggers parent component refresh for data consistency
+   * - Closes dialog automatically on success
+   * 
+   * @backend_api PATCH /api/inventory/{id}/price?price={newPrice}
    */
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedItem) {
-      setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item to adjust.'));
+      setFormError(t('errors:inventory.selection.noItemSelected', 'Please select an item to change price.'));
       return;
     }
     // Demo guard: allow exploration but block mutation
@@ -329,52 +290,41 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
     setFormError('');
 
     try {
-      // Use the actual current quantity from the fetched item details
-      const actualCurrentQty = effectiveCurrentQty;
-      
-      // Calculate the delta from the ACTUAL current quantity
-      const delta = values.newQuantity - actualCurrentQty;
-      
-      const success = await adjustQuantity({
+      const success = await changePrice({
         id: values.itemId,
-        delta,
-        reason: values.reason,
+        price: values.newPrice,
       });
 
       if (success) {
-        // Show success message with the new quantity
         toast(
-          t('inventory:quantity.quantityUpdatedTo', 'Quantity changed to {{quantity}}', {
-            quantity: values.newQuantity,
+          t('inventory:price.priceUpdatedTo', 'Price changed to ${{price}}', {
+            price: values.newPrice.toFixed(2),
           }),
           'success'
         );
-        onAdjusted();
+        onPriceChanged();
         handleClose();
       } else {
-        setFormError(t('errors.inventory.requests.failedToAdjustQuantity', 'Failed to adjust quantity. Please try again.'));
+        setFormError(t('errors:inventory.requests.failedToChangePrice', 'Failed to change price. Please try again.'));
       }
     } catch (error) {
-      console.error('Quantity adjustment error:', error);
-      setFormError(t('errors.inventory.requests.failedToAdjustQuantity', 'Failed to adjust quantity. Please try again.'));
+      console.error('Price change error:', error);
+      setFormError(t('errors:inventory.requests.failedToChangePrice', 'Failed to change price. Please try again.'));
     }
   });
-
-  // ================================
-  // Render
-  // ================================
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>
-            {t('inventory:toolbar.adjustQty', 'Adjust Quantity')}
+            {t('inventory:toolbar.changePrice', 'Change Price')}
           </Box>
-          <HelpIconButton
-            topicId="inventory.adjustQuantity"
-            tooltip={t('actions.help', 'Help')}
-          />
+          <Tooltip title={t('actions.help', 'Help')}>
+            <IconButton size="small" onClick={() => openHelp('inventory.changePrice')}>
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Stack>
       </DialogTitle>
       
@@ -467,6 +417,20 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                 {t('inventory:selection.selectedItemLabel', 'Selected Item')}: {selectedItem.name}
               </Typography>
               
+              {/* Current Price */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" color="text.secondary">
+                  {t('inventory:price.currentPrice', 'Current Price')}:
+                </Typography>
+                <Typography variant="body2" fontWeight="medium">
+                  {itemDetailsQuery.isLoading ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    effectiveCurrentPrice.toFixed(2)
+                  )}
+                </Typography>
+              </Box>
+              
               {/* Current Quantity */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2" color="text.secondary">
@@ -480,36 +444,20 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                   )}
                 </Typography>
               </Box>
-              
-              {/* Current Price */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">
-                  {t('inventory:price.currentPrice', 'Current Price')}:
-                </Typography>
-                <Typography variant="body2" fontWeight="medium">
-                  {itemPriceQuery.isLoading ? (
-                    <CircularProgress size={16} />
-                  ) : itemPriceQuery.data !== null && itemPriceQuery.data !== undefined ? (
-                    `$${itemPriceQuery.data.toFixed(2)}`
-                  ) : (
-                    `$${(selectedItem?.price ?? 0).toFixed(2)}`
-                  )}
-                </Typography>
-              </Box>
             </Box>
           )}
 
           <Divider />
 
-          {/* Step 3: Quantity Adjustment */}
+          {/* Step 3: Price Change */}
           <Box>
             <Typography variant="subtitle2" gutterBottom color="primary">
-                {t('inventory:steps.adjustQuantity')}
+              {t('inventory:steps.changePrice')}
             </Typography>
             
-            {/* New Quantity Input */}
+            {/* New Price Input */}
             <Controller
-              name="newQuantity"
+              name="newPrice"
               control={control}
               render={({ field: { onChange, value, ...field } }) => (
                 <TextField
@@ -519,52 +467,27 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
                     const val = e.target.value;
                     onChange(val === '' ? 0 : Number(val));
                   }}
-                  label={t('inventory:quantity.newQuantity', 'New Quantity')}
+                  label={t('inventory:price.newPrice', 'New Price')}
                   type="number"
                   fullWidth
                   disabled={!selectedItem}
-                  slotProps={{ htmlInput: { min: 0, step: 1 } }}
-                  error={!!errors.newQuantity}
+                  slotProps={{ 
+                    htmlInput: { 
+                      min: 0, 
+                      step: 0.01
+                    }
+                  }}
+                  error={!!errors.newPrice}
                   helperText={
-                    errors.newQuantity?.message ||
+                    errors.newPrice?.message ||
                     (selectedItem && (
-                      t('inventory:quantity.QuantityChangeHint', 'Changing from {{current}} to {{new}}', {
-                        current: effectiveCurrentQty,
-                        new: value,
+                      t('inventory:price.priceUpdatedTo', 'Change from ${{from}} to ${{to}}', {
+                        from: effectiveCurrentPrice.toFixed(2),
+                        to: Number(value).toFixed(2),
                       })
                     ))
                   }
                 />
-              )}
-            />
-
-            {/* Reason Selection */}
-            <Controller
-              name="reason"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth sx={{ mt: 2 }} disabled={!selectedItem}>
-                  <InputLabel id="reason-select-label" error={!!errors.reason}>
-                    {t('inventory:fields.reasonLabel', 'Reason')}
-                  </InputLabel>
-                  <Select
-                    {...field}
-                    labelId="reason-select-label"
-                    label={t('inventory:fields.reasonLabel', 'Reason')}
-                    error={!!errors.reason}
-                  >
-                    {STOCK_CHANGE_REASONS.map((reason) => (
-                      <MenuItem key={reason} value={reason}>
-                        {t(`inventory:stockReasons.${reason.toLowerCase()}`, reason.replace(/_/g, ' '))}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {errors.reason && (
-                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
-                      {errors.reason.message}
-                    </Typography>
-                  )}
-                </FormControl>
               )}
             />
           </Box>
@@ -573,7 +496,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
 
       <DialogActions>
         <Button onClick={handleClose} disabled={isSubmitting}>
-          {t('common:actions.cancel', 'Cancel')}
+          {t('inventory:buttons.cancel', 'Cancel')}
         </Button>
         <Button
           onClick={onSubmit}
@@ -586,7 +509,7 @@ export const QuantityAdjustDialog: React.FC<QuantityAdjustDialogProps> = ({
               {t('common:saving', 'Saving...')}
             </>
           ) : (
-            t('inventory:buttons.applyAdjustment', 'Apply Adjustment')
+            t('inventory:buttons.applyPriceChange', 'Apply Price Change')
           )}
         </Button>
       </DialogActions>

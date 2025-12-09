@@ -64,9 +64,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useToast } from '../../app/ToastContext';
 import { adjustQuantity } from '../../api/inventory/mutations';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
-import { quantityAdjustSchema, type QuantityAdjustForm } from '../../api/inventory/validation';
-import type { SupplierOption, ItemOption } from '../../api/analytics/types';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../api/inventory/hooks/useInventoryData';
+import { quantityAdjustSchema } from './validation';
+import type { QuantityAdjustForm } from './validation';
+import type { SupplierOption, ItemOption } from './types/inventory-dialog.types';
+import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from './hooks/useInventoryData';
 
 /**
  * Business reasons for stock quantity changes.

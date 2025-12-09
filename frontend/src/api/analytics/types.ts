@@ -21,10 +21,16 @@ export type MonthlyMovement = { month: string; stockIn: number; stockOut: number
 export type PricePoint = { date: string; price: number };
 
 /** Lightweight item reference used by type-ahead and dropdowns. */
-export type ItemRef = { id: string; name: string; supplierId?: string | null };
+export type ItemRef = { id: string; name: string; supplierId?: string | null; onHand?: number; price?: number };
 
 /** Minimal supplier projection for selectors. */
 export type SupplierRef = { id: string; name: string };
+
+/** Supplier option for UI components - includes label for display. */
+export type SupplierOption = { id: string; label: string };
+
+/** Item option for UI components - same as ItemRef. */
+export type ItemOption = ItemRef;
 
 /** Low-stock row used by the low-stock table. */
 export type LowStockRow = { itemName: string; quantity: number; minimumQuantity: number };

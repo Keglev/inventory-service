@@ -22,7 +22,7 @@ import {
   Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { SupplierOption } from '../../api/analytics/types';
+import type { SupplierOption } from './types/inventory-dialog.types';
 
 // Re-export for backward compatibility
 export type { SupplierOption };

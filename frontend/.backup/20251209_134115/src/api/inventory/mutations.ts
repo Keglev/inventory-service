@@ -14,21 +14,75 @@
 
 import http from '../httpClient';
 import type { InventoryRow } from './types';
-import type { ItemRef } from '../analytics/types';
-import {
-  isRecord,
-  pickString,
-  pickNumber,
-  pickNumberFromList,
-  pickStringFromList,
-  errorMessage,
-  resDataOrEmpty,
-  extractArray,
-} from './utils';
 
 /** Centralized endpoint bases (adjust to match your controllers if needed). */
 export const INVENTORY_BASE = '/api/inventory';
 export const SUPPLIERS_BASE = '/api/suppliers';
+
+/** Small helpers for safe narrowing. */
+type UnknownRecord = Record<string, unknown>;
+const isRecord = (v: unknown): v is UnknownRecord =>
+  typeof v === 'object' && v !== null;
+
+const pickString = (r: UnknownRecord, k: string): string | undefined => {
+  const v = r[k];
+  return typeof v === 'string' ? v : undefined;
+};
+
+const pickNumber = (r: UnknownRecord, k: string): number | undefined => {
+  const v = r[k];
+  if (typeof v === 'number') {
+    return Number.isFinite(v) ? v : undefined;
+  }
+  if (typeof v === 'string') {
+    const trimmed = v.trim();
+    if (!trimmed) return undefined;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+};
+
+/** Try a list of keys and return the first numeric value found. */
+const pickNumberFromList = (r: UnknownRecord, keys: string[]): number | undefined => {
+  for (const key of keys) {
+    const val = pickNumber(r, key);
+    if (val !== undefined) return val;
+  }
+  return undefined;
+};
+
+/** Try a list of keys and return the first string value found. */
+const pickStringFromList = (r: UnknownRecord, keys: string[]): string | undefined => {
+  for (const key of keys) {
+    const val = pickString(r, key);
+    if (val !== undefined) return val;
+  }
+  return undefined;
+};
+
+const errorMessage = (e: unknown): string => {
+  // Axios-like error shape with response.data.{message|error}
+  if (isRecord(e) && isRecord(e.response)) {
+    const resp = e.response as UnknownRecord;
+    const status = pickNumber(resp, 'status');
+    
+    if (isRecord(resp.data)) {
+      const d = resp.data as UnknownRecord;
+      const msg = pickString(d, 'message') ?? pickString(d, 'error');
+      if (msg) return msg;
+    }
+    
+    // Fallback to HTTP status message if available
+    if (status === 403) return 'Access denied - Admin permission required';
+    if (status === 401) return 'Not authenticated - Please log in';
+    if (status === 404) return 'Item not found';
+    if (status === 409) return 'Conflict - Name already exists';
+    if (status === 400) return 'Invalid input';
+  }
+  if (e instanceof Error) return e.message;
+  return 'Request failed';
+};
 
 /** Create/Update request shapes (UI → API). */
 export interface UpsertItemRequest {
@@ -72,8 +126,21 @@ export interface ChangePriceRequest {
   price: number;
 }
 
+/** Supplier option for pickers. */
+export interface SupplierOptionDTO {
+  id: string | number;
+  name: string;
+}
+
+/** Item option for supplier-scoped type-ahead. */
+export interface ItemOptionDTO {
+  id: string;
+  name: string;
+  supplierId?: string | number | null;
+}
+
 /**
- * Create or update an inventory item.
+ * Normalize an unknown server row into an InventoryRow.
  * Returns null if required fields are missing.
  */
 export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
@@ -264,16 +331,15 @@ export async function deleteItem(id: string, reason: string): Promise<UpsertItem
 /**
  * Supplier list for pickers (tolerant).
  * Accepts: raw array OR envelopes { items: [...] } / { content: [...] }.
- * @returns Array of supplier options with id and name
  */
-export async function listSuppliers(): Promise<Array<{ id: string | number; name: string }>> {
+export async function listSuppliers(): Promise<SupplierOptionDTO[]> {
   try {
     const resData = resDataOrEmpty(await http.get(SUPPLIERS_BASE, { params: { pageSize: 1000 } }));
     const candidates: unknown[] = Array.isArray(resData)
       ? resData
       : extractArray(resData, ['items', 'content']);
 
-    const out: Array<{ id: string | number; name: string }> = [];
+    const out: SupplierOptionDTO[] = [];
     for (const entry of candidates) {
       if (!isRecord(entry)) continue;
 
@@ -301,19 +367,18 @@ export async function listSuppliers(): Promise<Array<{ id: string | number; name
 /**
  * Supplier-scoped item type-ahead (tolerant).
  * Expects either a raw array or an envelope containing an array.
- * @returns Array of item references with id, name, and supplierId
  */
 export async function searchItemsBySupplier(
   supplierId: string | number,
   q: string
-): Promise<ItemRef[]> {
+): Promise<ItemOptionDTO[]> {
   try {
     const resData = resDataOrEmpty(await http.get(`${INVENTORY_BASE}/search`, { params: { supplierId, q } }));
     const candidates = Array.isArray(resData)
       ? (resData as unknown[])
       : extractArray(resData, ['items', 'content']);
 
-    const out: ItemRef[] = [];
+    const out: ItemOptionDTO[] = [];
     for (const entry of candidates) {
       if (!isRecord(entry)) continue;
 
@@ -337,10 +402,32 @@ export async function searchItemsBySupplier(
         id,
         name,
         supplierId: sIdStr ?? (typeof sIdNum === 'number' ? sIdNum : supplierId),
-      } as ItemRef);
+      });
     }
     return out;
   } catch {
     return [];
   }
+}
+
+/** Extract `response.data` safely, or return an empty object. */
+function resDataOrEmpty(resp: unknown): unknown {
+  if (isRecord(resp) && 'data' in resp) {
+    const r = resp as UnknownRecord;
+    return r.data ?? {};
+  }
+  return {};
+}
+
+/**
+ * From an unknown response object, try to pull an array out of one of the keys.
+ * Falls back to [] if nothing sane is found.
+ */
+function extractArray(obj: unknown, keys: string[]): unknown[] {
+  if (!isRecord(obj)) return [];
+  for (const k of keys) {
+    const v = obj[k];
+    if (Array.isArray(v)) return v as unknown[];
+  }
+  return [];
 }

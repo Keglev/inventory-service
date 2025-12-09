@@ -48,27 +48,3 @@ export interface InventoryListResponse {
   page: number;      // echo of the 1-based page index
   pageSize: number;  // echo of page size
 }
-
-/**
- * Full item details fetched from backend /api/inventory/{id} endpoint.
- * Contains complete item information including actual current values.
- * Used by forms and dialogs to display/edit full item data.
- *
- * @remarks
- * This interface represents the complete item data fetched after user selects an item.
- * Use this for displaying actual current values and pre-filling forms.
- */
-export interface ItemDetails {
-  /** Unique item identifier */
-  id: string;
-  /** Item display name */
-  name: string;
-  /** Actual current quantity on hand (from backend) */
-  onHand: number;
-  /** Actual current price per unit (from backend) */
-  price: number;
-  /** Item code/SKU (nullable) */
-  code: string | null;
-  /** Associated supplier identifier (nullable) */
-  supplierId: string | number | null;
-}

@@ -68,10 +68,9 @@ import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../hooks/useHelp';
 import { useToast } from '../../app/ToastContext';
 import { changePrice } from '../../api/inventory/mutations';
-import { priceChangeSchema } from './validation';
-import type { PriceChangeForm } from './validation';
-import type { SupplierOption, ItemOption } from './types/inventory-dialog.types';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from './hooks/useInventoryData';
+import { priceChangeSchema, type PriceChangeForm } from '../../api/inventory/validation';
+import type { SupplierOption, ItemOption } from '../../api/analytics/types';
+import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../api/inventory/hooks/useInventoryData';
 
 /**
  * Properties for the PriceChangeDialog component.

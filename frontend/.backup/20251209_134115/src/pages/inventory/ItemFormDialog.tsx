@@ -41,12 +41,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
 import { upsertItem } from '../../api/inventory/mutations';
-import type { UpsertItemRequest, InventoryRow } from '../../api/inventory';
-import { itemFormSchema, type UpsertItemForm } from '../../api/inventory/validation';
-import { useSuppliersQuery } from '../../api/inventory/hooks/useInventoryData';
-import type { SupplierOption } from '../../api/analytics/types';
+import type { UpsertItemRequest } from '../../api/inventory/mutations';
+import type { InventoryRow } from '../../api/inventory/types';
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../hooks/useHelp';
+import { itemFormSchema } from './validation';
+import type { UpsertItemForm } from './validation';
+import { useSuppliersQuery } from './hooks/useInventoryData';
+import type { SupplierOption } from './types/inventory-dialog.types';
 
 /**
  * Props for {@link ItemFormDialog}.

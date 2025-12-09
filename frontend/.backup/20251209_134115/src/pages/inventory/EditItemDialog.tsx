@@ -69,9 +69,10 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../app/ToastContext';
 import { useHelp } from '../../hooks/useHelp';
 import { renameItem } from '../../api/inventory/mutations';
-import { editItemSchema, type EditItemForm } from '../../api/inventory/validation';
-import type { SupplierOption, ItemOption } from '../../api/analytics/types';
-import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '../../api/inventory/hooks/useInventoryData';
+import { editItemSchema } from './validation';
+import type { EditItemForm } from './validation';
+import type { SupplierOption, ItemOption } from './types/inventory-dialog.types';
+import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from './hooks/useInventoryData';
 
 /**
  * Properties for the EditItemDialog component.
