@@ -4,8 +4,12 @@
 *
 * @summary
 * Low-stock table: tolerant parsing + severity sorting.
+* Fetches and normalizes low-stock item data for a given supplier.
+* @enterprise
+* - Robust data parsing with flexible field recognition
+* - Severity-based sorting for actionable insights
+* - TypeDoc documentation for low-stock analytics function
 */
-
 
 import http from '../httpClient';
 import { isArrayOfRecords, isRecord, pickNumber, pickString, paramClean } from './util';
@@ -13,7 +17,17 @@ import type { AnalyticsParams } from './validation';
 import type { LowStockRow } from './types';
 
 
-/** Fetch low-stock rows for a given supplier, optionally bounded by dates. */
+/** Fetch low-stock rows for a given supplier, optionally bounded by dates. 
+ * Returns array of {itemName, quantity, minimumQuantity}. Empty array on errors.
+ * @example
+ * ```typescript
+ * const lowStockItems = await getLowStockItems('SUP-001', {
+ *  from: '2025-09-01',
+ * to: '2025-11-30'
+ * });
+ * return <AlertTable data={lowStockItems} />;
+ * ```
+*/
 export async function getLowStockItems(supplierId: string, p?: AnalyticsParams): Promise<LowStockRow[]> {
     if (!supplierId) return [];
     try {
@@ -27,7 +41,7 @@ export async function getLowStockItems(supplierId: string, p?: AnalyticsParams):
         if (isArrayOfRecords(data)) rawList = data;
         else if (isRecord(data) && isArrayOfRecords((data as Record<string, unknown>).items as unknown)) rawList = (data as Record<string, unknown>).items as Array<Record<string, unknown>>;
         
-        
+        // Parse rows with tolerant field picking
         const rows: LowStockRow[] = rawList
         .map((rec) => {
             const itemName = pickString(rec, ['itemName', 'name']);

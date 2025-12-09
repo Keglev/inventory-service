@@ -5,6 +5,9 @@
 * @summary
 * Stock value time series and monthly movement endpoints.
 * Functions are resilient and return `[]` on any error to keep charts rendering.
+* @enterprise
+* - Resilient data fetching with graceful error handling
+* - TypeDoc documentation for stock analytics functions
 */
 import http from '../httpClient';
 import { asNumber, paramClean } from './util';
@@ -16,7 +19,18 @@ type BackendStockValueDTO = { date?: string; totalValue?: unknown };
 type BackendMonthlyMovementDTO = { month?: string; stockIn?: unknown; stockOut?: unknown };
 
 
-/** Fetch total inventory value over time. */
+/** Fetch total inventory value over time. 
+ * Returns array of {date, totalValue}. Empty array on errors.
+ * @example
+ * ```typescript
+ * const points = await getStockValueOverTime({
+ *   from: '2025-09-01',
+ *   to: '2025-11-30',
+ *   supplierId: 'SUP-001'
+ * });
+ * return <LineChart data={points} />;
+ * ```
+*/
 export async function getStockValueOverTime(p?: AnalyticsParams): Promise<StockValuePoint[]> {
     try {
         const { data } = await http.get<unknown>('/api/analytics/stock-value', { params: paramClean(p) });

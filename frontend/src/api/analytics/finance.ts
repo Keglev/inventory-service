@@ -6,14 +6,30 @@
 * Financial analytics (WAC-based) for a given date window and optional supplier.
 * Tolerant parsing: unknown/missing fields → 0. Functions never throw; callers
 * get a fully-populated object with zeros on error to keep the UI resilient.
+* @enterprise
+* - Finance endpoint uses `from/to` (not `start/end` like other analytics).
+* - Accepts either a direct object or an envelope (e.g., { summary } or { data }).
+* - Returns a fully-populated zero object on any error.
 */
-
 
 import http from '../httpClient';
 import { isRecord, pickNumber } from './util';
 import type { Rec } from './util';
 
-/** Canonical FE shape for financial summary (numbers are always defined). */
+/** Canonical FE shape for financial summary (numbers are always defined). 
+ * Returns 0 for missing/invalid fields.
+ * @example
+ * ```typescript
+ * const summary = await getFinancialSummary({
+ *   from: '2025-09-01',
+ *  to: '2025-11-30',
+ *  supplierId: 'SUP-001'
+ * });
+ * return (
+ * <FinanceDashboard data={summary} />
+ * );
+ * ```
+*/
 export type FinancialSummary = {
     purchases: number;
     cogs: number;
@@ -23,7 +39,9 @@ export type FinancialSummary = {
     endingValue: number;
 };
 
-/** Zero object for graceful fallbacks. */
+/** Zero object for graceful fallbacks. 
+ * @internal 
+*/
 const ZERO_FINANCE: FinancialSummary = {
     purchases: 0,
     cogs: 0,
@@ -61,6 +79,7 @@ export async function getFinancialSummary(
       return x as Rec;
     };
 
+    // Parse fields with tolerant picking
     const body = pickPayload(data);
     if (!body) return ZERO_FINANCE;
 

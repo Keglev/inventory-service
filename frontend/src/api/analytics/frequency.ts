@@ -4,8 +4,12 @@
 *
 * @summary
 * Supplier-scoped item update frequency (top N items by change count).
+* Fetches and normalizes item update frequency data.
+* @enterprise
+* - Resilient data fetching with graceful error handling
+* - Flexible field recognition for robust parsing
+* - TypeDoc documentation for item frequency analytics function
 */
-
 
 import http from '../httpClient';
 import { isArrayOfRecords, pickNumber, pickString } from './util';
@@ -32,6 +36,7 @@ export async function getItemUpdateFrequency(
     });
     if (!isArrayOfRecords(data)) return [];
 
+    // Parse and normalize records
     return (data as Array<Record<string, unknown>>)
       .map((r) => {
         // tolerant name/id picking

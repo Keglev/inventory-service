@@ -18,6 +18,7 @@ import { z } from 'zod';
 /**
  * Base parameters for analytics queries with optional date range and supplier filter.
  * Used by most analytics endpoints for consistent parameter handling.
+ * Dates are optional but recommended for trend queries.
  */
 export const analyticsParamsSchema = z.object({
   from: z.string().date().optional(),           // ISO date YYYY-MM-DD
@@ -30,6 +31,7 @@ export type AnalyticsParams = z.infer<typeof analyticsParamsSchema>;
 /**
  * Parameters specifically for price trend queries.
  * Requires itemId, dates are required for meaningful trends.
+ * Optional supplier filter.
  */
 export const priceTrendParamsSchema = z.object({
   itemId: z.string().min(1, 'Item ID is required'),
@@ -46,6 +48,7 @@ export type PriceTrendParams = z.infer<typeof priceTrendParamsSchema>;
 /**
  * Parameters for stock movement queries.
  * Requires date range for meaningful movement analysis.
+ * Optional supplier filter.
  */
 export const stockMovementParamsSchema = z.object({
   start: z.string().date('Start must be a valid date (YYYY-MM-DD)'),
@@ -61,6 +64,7 @@ export type StockMovementParams = z.infer<typeof stockMovementParamsSchema>;
 /**
  * Parameters for financial summary queries.
  * Requires date range for WAC calculations.
+ * Optional supplier filter
  */
 export const financialSummaryParamsSchema = z.object({
   from: z.string().date('From date must be a valid date (YYYY-MM-DD)'),
