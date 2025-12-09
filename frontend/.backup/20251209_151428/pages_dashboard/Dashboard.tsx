@@ -10,7 +10,8 @@
 import * as React from 'react';
 import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDashboardMetrics } from '../../api/analytics/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { getInventoryCount, getSuppliersCount, getLowStockCount } from '../../api/metrics';
 import MonthlyMovementMini from './blocks/MonthlyMovementMini';
 import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';
@@ -20,8 +21,9 @@ const Dashboard: React.FC = () => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
 
-  // Use the dashboard metrics hook instead of individual queries
-  const metricsQuery = useDashboardMetrics(true);
+  const invQ = useQuery({ queryKey: ['kpi', 'inventoryCount'], queryFn: getInventoryCount });
+  const supQ = useQuery({ queryKey: ['kpi', 'suppliersCount'], queryFn: getSuppliersCount });
+  const lowQ = useQuery({ queryKey: ['kpi', 'lowStockCount'], queryFn: getLowStockCount });
 
   return (
     <Paper
@@ -66,22 +68,22 @@ const Dashboard: React.FC = () => {
           <Grid size={{ xs: 12, sm: 4 }}>
             <StatCard
               title={t('dashboard.kpi.totalItems')}
-              value={metricsQuery.data?.inventoryCount}
-              loading={metricsQuery.isLoading}
+              value={invQ.data}
+              loading={invQ.isLoading}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
             <StatCard
               title={t('dashboard.kpi.suppliers')}
-              value={metricsQuery.data?.suppliersCount}
-              loading={metricsQuery.isLoading}
+              value={supQ.data}
+              loading={supQ.isLoading}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
             <StatCard
               title={t('dashboard.kpi.lowStock')}
-              value={metricsQuery.data?.lowStockCount}
-              loading={metricsQuery.isLoading}
+              value={lowQ.data}
+              loading={lowQ.isLoading}
             />
           </Grid>
         </Grid>

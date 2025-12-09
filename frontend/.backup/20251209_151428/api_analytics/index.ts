@@ -16,7 +16,4 @@ export * from './search';
 export * from './finance';
 export * from './frequency';
 export * from './updates';
-export * from './metrics';
-export * from './validation';
-export * from './hooks';
 // Future: add exports for new analytics endpoints here

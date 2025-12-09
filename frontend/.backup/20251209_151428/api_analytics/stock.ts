@@ -8,8 +8,7 @@
 */
 import http from '../httpClient';
 import { asNumber, paramClean } from './util';
-import type { AnalyticsParams } from './validation';
-import type { StockValuePoint, MonthlyMovement, StockPerSupplierPoint } from './types';
+import type { AnalyticsParams, StockValuePoint, MonthlyMovement, StockPerSupplierPoint } from './types';
 
 // Backend DTO shims (tolerant, local to this module)
 type BackendStockValueDTO = { date?: string; totalValue?: unknown };

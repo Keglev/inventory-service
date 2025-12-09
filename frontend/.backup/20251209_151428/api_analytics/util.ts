@@ -6,8 +6,7 @@
 * Internal helpers for safe coercions, param normalization, and tolerant parsing.
 * These utilities are internal to the API layer and are not exported to UI code directly.
 */
-import type { AnalyticsParams } from './validation';
-import type { ItemRef } from './types';
+import type { AnalyticsParams, ItemRef } from './types';
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
 
 /** Defensive number coercion (NaN → 0). */

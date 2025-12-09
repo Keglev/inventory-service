@@ -7,8 +7,7 @@
 */
 import http from '../httpClient';
 import { asNumber, paramClean } from './util';
-import type { AnalyticsParams } from './validation';
-import type { PricePoint } from './types';
+import type { AnalyticsParams, PricePoint } from './types';
 
 // Tolerant DTO (local)
 type BackendPriceTrendDTO = { timestamp?: string; price?: unknown };

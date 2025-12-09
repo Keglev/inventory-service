@@ -6,11 +6,14 @@
 * Public DTOs and narrow types shared across Analytics API helpers.
 * These are intentionally minimal and stable so UI components can rely
 * on consistent shapes regardless of backend field variations.
-*
-* @note
-* AnalyticsParams is now defined in validation.ts with Zod schema.
-* Import from validation.ts for type-safe parameter handling.
 */
+
+/** Optional filters accepted by most analytics endpoints. Dates are ISO `YYYY-MM-DD` in local time. */
+export type AnalyticsParams = {
+    from?: string;
+    to?: string;
+    supplierId?: string;
+};
 
 /** Canonical chart/table DTOs exposed to the UI. */
 export type StockValuePoint = { date: string; totalValue: number };

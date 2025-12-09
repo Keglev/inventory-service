@@ -9,8 +9,7 @@
 
 import http from '../httpClient';
 import { isArrayOfRecords, isRecord, pickNumber, pickString, paramClean } from './util';
-import type { AnalyticsParams } from './validation';
-import type { LowStockRow } from './types';
+import type { AnalyticsParams, LowStockRow } from './types';
 
 
 /** Fetch low-stock rows for a given supplier, optionally bounded by dates. */
