@@ -21,7 +21,18 @@ import {
 import GoogleIcon from '@mui/icons-material/Google';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../../api/httpClient';
 import { useAuth } from '../../hooks/useAuth';
+
+/**
+ * Begin the OAuth2 Google SSO flow.
+ * The backend whitelists the FE origin and will redirect back after success.
+ */
+function beginSso() {
+  const origin = window.location.origin;
+  const url = `${API_BASE}/oauth2/authorization/google?return=${encodeURIComponent(origin)}`;
+  window.location.assign(url);
+}
 
 export default function LoginPage() {
   const { t } = useTranslation<'auth'>('auth');
@@ -29,7 +40,7 @@ export default function LoginPage() {
   const params = new URLSearchParams(search);
   const oauthError = params.get('error');
 
-  const { loginAsDemo, login } = useAuth();
+  const { loginAsDemo } = useAuth();
   const navigate = useNavigate();
 
   const handleDemo = () => {
@@ -53,7 +64,7 @@ export default function LoginPage() {
               type="button"
               variant="outlined"
               startIcon={<GoogleIcon />}
-              onClick={login}
+              onClick={beginSso}
               aria-label={t('signInGoogle')}
             >
               {t('signInGoogle')}

@@ -78,12 +78,9 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
 
   /**
    * Initiates Google OAuth2 on the backend (full-page redirect).
-   * Includes return URL to redirect back to AuthCallback after successful authentication.
    */
   const login = () => {
-    const origin = window.location.origin;
-    const url = `${API_BASE}/oauth2/authorization/google?return=${encodeURIComponent(origin)}`;
-    window.location.assign(url);
+    window.location.href = `${API_BASE}/oauth2/authorization/google`;
   };
 
   /**
