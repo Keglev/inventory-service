@@ -30,8 +30,9 @@ import MovementLineCard from './blocks/MovementLineCard';
 // Filters UI
 import Filters, { type AnalyticsFilters } from './components/Filters';
 
-// Import date helpers from the standard utils location
-import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
+
+// Local date helpers (UI-only)
+import { todayIso, daysAgoIso } from './utils/date';
 
 export default function Analytics(): JSX.Element {
   const { t } = useTranslation(['analytics', 'common']);
@@ -49,8 +50,8 @@ export default function Analytics(): JSX.Element {
     const m = readParams(searchParams.toString(), ['from', 'to', 'supplierId']);
     const haveRange = !!(m.from && m.to);
     return {
-      from: haveRange ? m.from : getDaysAgoIso(180),
-      to: haveRange ? m.to : getTodayIso(),
+      from: haveRange ? m.from : daysAgoIso(180),
+      to: haveRange ? m.to : todayIso(),
       supplierId: m.supplierId,
       quick: haveRange ? 'custom' : '180',
     };

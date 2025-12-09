@@ -14,8 +14,7 @@
 import type { JSX } from 'react';
 import { Stack, TextField, MenuItem, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { getTodayIso, getDaysAgoIso } from '../../../utils/formatters';
-import type { SupplierRef } from '../../../api/analytics/types';
+import dayjs from 'dayjs';
 
 /**
  * Serializable filter state mirrored to the URL.
@@ -33,6 +32,9 @@ export type AnalyticsFilters = {
   quick?: '30' | '90' | '180' | 'custom';
 };
 
+/** Lightweight supplier reference (for dropdown options). */
+export type SupplierRef = { id: string; name: string };
+
 /**
  * Props for {@link Filters}.
  * @public
@@ -48,6 +50,16 @@ export type FiltersProps = {
   disabled?: boolean;
 };
 
+/** @internal Returns today's date in `yyyy-MM-dd` for `<input type="date">`. */
+function todayIsoDate(): string {
+  return dayjs().format('YYYY-MM-DD');
+}
+
+/** @internal Returns the date `n` days ago in `yyyy-MM-dd`. */
+function daysAgoIso(n: number): string {
+  return dayjs().subtract(n, 'day').format('YYYY-MM-DD');
+}
+
 /**
  * Filters component.
  * @remarks
@@ -60,8 +72,8 @@ export default function Filters(props: FiltersProps): JSX.Element {
 
   /** Apply one of the predefined quick ranges (30/90/180 days). */
   const applyQuick = (q: '30' | '90' | '180') => {
-    const from = getDaysAgoIso(Number(q));
-    const to = getTodayIso();
+    const from = daysAgoIso(Number(q));
+    const to = todayIsoDate();
     onChange({ ...value, quick: q, from, to });
   };
 

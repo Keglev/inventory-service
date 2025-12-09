@@ -26,7 +26,7 @@ import {
   type ItemRef,
   type PricePoint,
 } from '../../../api/analytics';
-import { useDebounced } from '../../../hooks/useDebounced';
+import { useDebounced } from '../hooks/useDebounced';
 import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../../utils/formatters';

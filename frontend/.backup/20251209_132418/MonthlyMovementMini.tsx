@@ -12,12 +12,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
 import { getMonthlyStockMovement } from '../../../api/analytics';
-import { getTodayIso, getDaysAgoIso } from '../../../utils/formatters';
+
+function todayIso(): string { const d = new Date(); const p=(n:number)=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
+function daysAgoIso(n: number): string { const d=new Date(); d.setDate(d.getDate()-n); const p=(n:number)=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
 
 export default function MonthlyMovementMini() {
     const { t } = useTranslation('common');
-    const from = getDaysAgoIso(90);
-    const to = getTodayIso();
+    const from = daysAgoIso(90);
+    const to = todayIso();
     const muiTheme = useMuiTheme();
 
     const q = useQuery({

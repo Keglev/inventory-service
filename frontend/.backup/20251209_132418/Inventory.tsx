@@ -45,7 +45,16 @@ import { useSettings } from '../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../utils/formatters';
 import { HelpIconButton } from '../../features/help';
 import { useAuth } from '../../hooks/useAuth';
-import { useDebounced } from '../../hooks/useDebounced';
+
+/** Debounce simple values to reduce server chatter while typing. */
+function useDebounced<T>(value: T, delayMs: number): T {
+  const [v, setV] = React.useState(value);
+  React.useEffect(() => {
+    const h = setTimeout(() => setV(value), delayMs);
+    return () => clearTimeout(h);
+  }, [value, delayMs]);
+  return v;
+}
 
 const DEFAULT_PAGE_SIZE = 10;
 
