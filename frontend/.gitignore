@@ -1,4 +1,6 @@
-# Logs
+##
+# Frontend Build Artifacts & Runtime Dependencies
+##
 logs
 *.log
 npm-debug.log*
@@ -12,7 +14,10 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+##
+# IDE Configuration & OS-Specific Files
+# (Allow extensions config for team standardization via .vscode/extensions.json)
+##
 .vscode/*
 !.vscode/extensions.json
 .idea

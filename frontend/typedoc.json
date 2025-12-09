@@ -1,3 +1,8 @@
+/**
+ * TypeDoc configuration for automated API documentation generation.
+ * Generates markdown documentation from TypeScript source code excluding tests and internal utilities.
+ */
+
 {
   "entryPoints": ["src/index.ts", "src/components", "src/pages", "src/context", "src/api"],
   "out": "docs",

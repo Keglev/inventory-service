@@ -1,5 +1,7 @@
 /**
- * @file vitest.config.ts
+ * Vite configuration for React frontend application.
+ * Manages development server, build optimization with vendor code splitting,
+ * and API proxy routing for local development and HTTPS support.
  */
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
