@@ -69,10 +69,24 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../hooks/useHelp';
+import { z } from 'zod';
 import { useToast } from '../../app/ToastContext';
 import { useAuth } from '../../hooks/useAuth';
-import { getSuppliersPage, updateSupplier, editSupplierSchema, type EditSupplierForm } from '../../api/suppliers';
+import { getSuppliersPage, updateSupplier } from '../../api/suppliers';
 import type { SupplierRow } from '../../api/suppliers/types';
+
+/**
+ * Validation schema for editing supplier contact information.
+ * Does NOT include name field - name is immutable.
+ */
+const editSupplierSchema = z.object({
+  supplierId: z.string().min(1, 'Supplier ID is required'),
+  contactName: z.string().nullable().catch(null),
+  phone: z.string().nullable().catch(null),
+  email: z.string().nullable().catch(null),
+});
+
+type EditSupplierForm = z.infer<typeof editSupplierSchema>;
 
 /**
  * Properties for the EditSupplierDialog component.

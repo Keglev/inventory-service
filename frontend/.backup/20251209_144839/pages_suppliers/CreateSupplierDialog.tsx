@@ -38,7 +38,34 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../hooks/useHelp';
-import { createSupplier, createSupplierSchema, type CreateSupplierForm } from '../../api/suppliers';
+import { z } from 'zod';
+import { createSupplier } from '../../api/suppliers';
+
+/**
+ * Validation schema for supplier creation using Zod.
+ * Constraints based on SupplierValidator and API documentation.
+ */
+const createSupplierSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .trim(),
+  contactName: z
+    .string()
+    .optional()
+    .transform((v) => v || null),
+  phone: z
+    .string()
+    .optional()
+    .transform((v) => v || null),
+  email: z
+    .string()
+    .email('Invalid email format')
+    .optional()
+    .transform((v) => v || null),
+});
+
+type CreateSupplierForm = z.infer<typeof createSupplierSchema>;
 
 /**
  * Props for {@link CreateSupplierDialog}.

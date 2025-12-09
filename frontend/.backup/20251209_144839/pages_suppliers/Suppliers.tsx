@@ -47,12 +47,12 @@ import {
   type GridColDef,
 } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
 import { useSettings } from '../../hooks/useSettings';
 import { formatDate } from '../../utils/formatters';
 
-import { useSuppliersPageQuery, useSupplierSearchQuery } from '../../api/suppliers';
+import { getSuppliersPage } from '../../api/suppliers';
 import type { SupplierListResponse, SupplierRow } from '../../api/suppliers';
+import http from '../../api/httpClient';
 import { CreateSupplierDialog } from './CreateSupplierDialog';
 import { EditSupplierDialog } from './EditSupplierDialog';
 import { DeleteSupplierDialog } from './DeleteSupplierDialog';
@@ -68,6 +68,7 @@ const Suppliers: React.FC = () => {
   // ===== State =====
   const [searchQuery, setSearchQuery] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<SupplierRow[]>([]);
+  const [searchLoading, setSearchLoading] = React.useState(false);
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierRow | null>(null);
   const [showAllSuppliers, setShowAllSuppliers] = React.useState(false);
 
@@ -87,6 +88,8 @@ const Suppliers: React.FC = () => {
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
+  const [loading, setLoading] = React.useState(false);
+
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
   // ===== Dialog State =====
@@ -94,47 +97,63 @@ const Suppliers: React.FC = () => {
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
+  // ===== Supplier search handler (requires 2+ chars) =====
+  const handleSearchQueryChange = React.useCallback(async (query: string) => {
+    setSearchQuery(query);
+    
+    // Reset if empty or less than 2 characters
+    if (query.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const res = await http.get('/api/suppliers/search', {
+        params: { name: query.trim() },
+      });
+
+      const data = res?.data;
+      if (Array.isArray(data)) {
+        setSearchResults(data as SupplierRow[]);
+      } else {
+        setSearchResults([]);
+      }
+    } catch {
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, []);
+
   // ===== Computed state =====
   const serverPage = paginationModel.page + 1; // Convert 0-based to 1-based
   const serverSort = sortModel.length
     ? `${sortModel[0].field},${sortModel[0].sort ?? 'asc'}`
     : 'name,asc';
 
-  // ===== React Query hooks for data fetching =====
+  // ===== Data loading =====
   /**
-   * Fetch paginated suppliers from backend.
-   * Refactored to use React Query for better caching and state management.
+   * Fetch suppliers from backend with filters and pagination.
+   * Tolerant: returns empty page on error.
    */
-  const suppliersQuery = useSuppliersPageQuery(
-    {
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    const res = await getSuppliersPage({
       page: serverPage,
       pageSize: paginationModel.pageSize,
       sort: serverSort,
-    },
-    true,
-  );
+    });
+    setServer(res);
+    setLoading(false);
+  }, [serverPage, paginationModel.pageSize, serverSort]);
 
   /**
-   * Search suppliers by query string.
-   * Triggered when user types in search box (2+ characters).
+   * Re-fetch when filters, pagination, or sort changes.
    */
-  const searchQueryResult = useSupplierSearchQuery(
-    searchQuery.length >= 2 ? searchQuery : '',
-    true,
-  );
-
-  // ===== Effect to sync React Query result to local state =====
   React.useEffect(() => {
-    if (suppliersQuery.data) {
-      setServer(suppliersQuery.data);
-    }
-  }, [suppliersQuery.data]);
-
-  React.useEffect(() => {
-    if (searchQueryResult.data) {
-      setSearchResults(searchQueryResult.data);
-    }
-  }, [searchQueryResult.data]);
+    void load();
+  }, [load]);
 
   // ===== Columns =====
   const columns = React.useMemo<GridColDef<SupplierRow>[]>(() => {
@@ -180,9 +199,6 @@ const Suppliers: React.FC = () => {
     ];
   }, [t, userPreferences.dateFormat]);
 
-  // ===== Query client for cache invalidation =====
-  const queryClient = useQueryClient();
-
   // ===== Row click handler =====
   const handleRowClick = (params: { id: string | number }) => {
     setSelectedId(String(params.id));
@@ -191,19 +207,16 @@ const Suppliers: React.FC = () => {
   // ===== Dialog Handlers =====
   const handleSupplierCreated = () => {
     toast(t('suppliers:status.created', 'Supplier created successfully'), 'success');
-    // Invalidate suppliers query to trigger refetch
-    queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    load();
   };
 
   const handleSupplierUpdated = () => {
-    // Invalidate suppliers query to trigger refetch
-    queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    void load();
     setSelectedId(null);
   };
 
   const handleSupplierDeleted = () => {
-    // Invalidate suppliers query to trigger refetch
-    queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    void load();
     setSelectedId(null);
   };
 
@@ -262,10 +275,10 @@ const Suppliers: React.FC = () => {
             size="small"
             placeholder={t('suppliers:search.placeholder', 'Enter supplier name (min 2 chars)...')}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            disabled={searchQueryResult.isLoading}
+            onChange={(e) => handleSearchQueryChange(e.target.value)}
+            disabled={searchLoading}
             InputProps={{
-              endAdornment: searchQueryResult.isLoading ? <CircularProgress size={20} /> : null,
+              endAdornment: searchLoading ? <CircularProgress size={20} /> : null,
             }}
           />
 
@@ -383,7 +396,7 @@ const Suppliers: React.FC = () => {
             flexDirection: 'column',
           }}
         >
-          {suppliersQuery.isLoading && (
+          {loading && (
             <LinearProgress sx={{ position: 'absolute', left: 0, right: 0, top: 0 }} />
           )}
 
