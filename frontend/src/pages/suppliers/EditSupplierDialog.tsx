@@ -69,7 +69,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../hooks/useHelp';
-import { useToast } from '../../app/ToastContext';
+import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../hooks/useAuth';
 import { getSuppliersPage, updateSupplier, editSupplierSchema, type EditSupplierForm } from '../../api/suppliers';
 import type { SupplierRow } from '../../api/suppliers/types';

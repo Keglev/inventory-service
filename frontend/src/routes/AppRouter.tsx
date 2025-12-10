@@ -22,7 +22,7 @@ import { Box, CircularProgress } from '@mui/material';
 
 import { useAuth } from '../hooks/useAuth';
 import { RequireAuth } from '../features/auth';
-import AppShell from '../app/AppShell';
+import AppShell from '../app/layout/AppShell';
 
 // Public pages
 import Home from '../pages/home/Home';                       
@@ -30,7 +30,7 @@ import LoginPage from '../pages/auth/LoginPage';
 import AuthCallback from '../pages/auth/AuthCallback';
 import LogoutSuccess from '../pages/auth/LogoutSuccess';
 import NotFoundPage from '../pages/system/NotFoundPage';
-import PublicShell from '../app/PublicShell';
+import { AppPublicShell } from '../app/public-shell';
 
 // Authenticated pages
 import Dashboard from '../pages/dashboard/Dashboard';            
@@ -59,7 +59,7 @@ const AppRouter: React.FC = () => {
       {/**
        * PUBLIC ROUTES (no AppShell)
        */}
-      <Route element={<PublicShell />}>
+      <Route element={<AppPublicShell />}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/auth" element={<AuthCallback />} />

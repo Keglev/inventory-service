@@ -61,7 +61,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from '../../app/ToastContext';
+import { useToast } from '../../context/ToastContext';
 import { adjustQuantity } from '../../api/inventory/mutations';
 import { getPriceTrend } from '../../api/analytics/priceTrend';
 import { quantityAdjustSchema, type QuantityAdjustForm } from '../../api/inventory/validation';

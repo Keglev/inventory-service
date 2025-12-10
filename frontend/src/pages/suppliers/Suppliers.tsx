@@ -56,7 +56,7 @@ import type { SupplierListResponse, SupplierRow } from '../../api/suppliers';
 import { CreateSupplierDialog } from './CreateSupplierDialog';
 import { EditSupplierDialog } from './EditSupplierDialog';
 import { DeleteSupplierDialog } from './DeleteSupplierDialog';
-import { useToast } from '../../app/ToastContext';
+import { useToast } from '../../context/ToastContext';
 
 const DEFAULT_PAGE_SIZE = 10;
 
