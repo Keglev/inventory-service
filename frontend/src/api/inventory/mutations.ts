@@ -3,344 +3,57 @@
  * @module api/inventory/mutations
  *
  * @summary
- * Inventory mutations: create/update item, adjust quantity, change price,
- * plus tolerant helpers for suppliers and supplier-scoped item search.
+ * Barrel export for inventory mutations and queries.
+ * Provides unified interface for all inventory-related API operations:
+ * item CRUD, stock adjustments, price changes, and supplier searches.
  *
  * @enterprise
- * - No `any`: all unknown input is narrowed via type guards.
- * - Network calls are tolerant: functions return safe fallbacks instead of throwing.
- * - Endpoint bases are centralized so backend path changes are single-line edits.
+ * - Single import location for all mutations and queries
+ * - Backward compatible with existing imports
+ * - Clear separation of concerns across modules
+ * - Full TypeDoc documentation inheritance
+ *
+ * @usage
+ * ```typescript
+ * // Import specific mutations
+ * import { upsertItem, adjustQuantity, changePrice } from '@/api/inventory/mutations';
+ *
+ * // Or import types
+ * import type { UpsertItemRequest, AdjustQuantityRequest } from '@/api/inventory/mutations';
+ *
+ * // Or import suppliers
+ * import { listSuppliers, searchItemsBySupplier } from '@/api/inventory/mutations';
+ * ```
  */
 
-import http from '../httpClient';
-import type { InventoryRow } from './types';
-import type { ItemRef } from '../analytics/types';
-import {
-  isRecord,
-  pickString,
-  pickNumber,
-  pickNumberFromList,
-  pickStringFromList,
-  errorMessage,
-  resDataOrEmpty,
-  extractArray,
-} from './utils';
+// Item lifecycle mutations (create, update, rename, delete)
+export {
+  upsertItem,
+  renameItem,
+  deleteItem,
+  INVENTORY_BASE,
+} from './itemMutations';
 
-/** Centralized endpoint bases (adjust to match your controllers if needed). */
-export const INVENTORY_BASE = '/api/inventory';
-export const SUPPLIERS_BASE = '/api/suppliers';
+// Stock adjustment mutations (quantity changes)
+export { adjustQuantity } from './stockMutations';
 
-/** Create/Update request shapes (UI → API). */
-export interface UpsertItemRequest {
-  /** undefined → create, present → update */
-  id?: string;
-  name: string;
-  /** Code/SKU (nullable – DB may not have SKU yet) */
-  code?: string | null;
-  supplierId: string | number;
-  /** Initial quantity for new items */
-  quantity: number;
-  /** Unit price */
-  price: number;
-  /** Minimum quantity threshold - will be auto-set to 5 if not provided */
-  minQty?: number | null;
-  /** Notes/reason for creation */
-  notes?: string | null;
-  /** Created by user - required for backend validation */
-  createdBy?: string;
-}
+// Price change mutations
+export { changePrice } from './priceMutations';
 
-export interface UpsertItemResponse {
-  ok: boolean;
-  item?: InventoryRow;
-  error?: string;
-}
+// Supplier and item search queries
+export {
+  listSuppliers,
+  searchItemsBySupplier,
+  SUPPLIERS_BASE,
+} from './supplierQueries';
 
-/** Stock adjustment (purchase-like delta). */
-export interface AdjustQuantityRequest {
-  id: string;
-  /** Positive = purchase/inbound; negative = correction/outbound. */
-  delta: number;
-  /** Business reason (server may map to enum). */
-  reason: string;
-}
+// Data normalization utilities
+export { normalizeInventoryRow } from './normalizers';
 
-/** Price change request. */
-export interface ChangePriceRequest {
-  id: string;
-  /** New unit price. */
-  price: number;
-}
-
-/**
- * Create or update an inventory item.
- * Returns null if required fields are missing.
- */
-export function normalizeInventoryRow(raw: unknown): InventoryRow | null {
-  if (!isRecord(raw)) return null;
-
-  const id =
-    pickString(raw, 'id') ??
-    pickString(raw, 'itemId') ??
-    pickString(raw, 'item_id');
-
-  if (!id) return null;
-
-  const name =
-    pickString(raw, 'name') ??
-    pickString(raw, 'itemName') ??
-    pickString(raw, 'title') ??
-    '—';
-
-  const code =
-    pickString(raw, 'code') ??
-    pickString(raw, 'sku') ??
-    pickString(raw, 'itemCode') ??
-    null;
-
-  const supplierIdRaw =
-    pickString(raw, 'supplierId') ??
-    pickString(raw, 'supplier_id');
-  const supplierIdNum = pickNumber(raw, 'supplierId');
-  const supplierId: string | number | null =
-    supplierIdRaw ?? (typeof supplierIdNum === 'number' ? supplierIdNum : null);
-
-  const supplierName =
-    pickString(raw, 'supplierName') ??
-    pickString(raw, 'supplier') ??
-    null;
-
-  const onHand = pickNumberFromList(raw, [
-    'quantity',
-    'onHand',
-    'availableQuantity',
-    'stockQuantity',
-    'stockQty',
-    'qty',
-    'currentQuantity',
-    'currentQty',
-    'quantityOnHand',
-    'onHandQuantity',
-    'stock',
-  ]) ?? 0;
-
-  const minQty =
-    pickNumberFromList(raw, [
-      'minimumQuantity',
-      'minQty',
-      'min_quantity',
-      'minimum',
-      'reorderLevel',
-    ]) ?? null;
-
-  // Backend list payload only has createdAt; surface it as updatedAt for the grid.
-  const updatedAt = pickStringFromList(raw, [
-    'updatedAt',
-    'updated_at',
-    'lastUpdate',
-    'lastModified',
-    'lastModifiedDate',
-    'modifiedAt',
-    'modified_at',
-    'createdAt',
-    'created_at',
-    'createdDate',
-    'created_date',
-    'created',
-  ]) ?? null;
-
-  return {
-    id: String(id),
-    name,
-    code,
-    supplierId,
-    supplierName,
-    onHand,
-    minQty,
-    updatedAt,
-  };
-}
-
-/**
- * Create or update an inventory item.
- * @param req - Upsert payload; `id` absent ⇒ create, present ⇒ update.
- */
-export async function upsertItem(req: UpsertItemRequest): Promise<UpsertItemResponse> {
-  try {
-    if (req.id) {
-      const res = await http.put(`${INVENTORY_BASE}/${encodeURIComponent(req.id)}`, req);
-      const row = normalizeInventoryRow(res?.data as unknown);
-      return { ok: true, item: row ?? undefined };
-    } else {
-      const res = await http.post(`${INVENTORY_BASE}`, req);
-      const row = normalizeInventoryRow(res?.data as unknown);
-      return { ok: true, item: row ?? undefined };
-    }
-  } catch (e: unknown) {
-    return { ok: false, error: errorMessage(e) };
-  }
-}
-
-/**
- * Adjust quantity by delta (purchase/correction style).
- * @enterprise Server commonly exposes: PATCH /{id}/quantity?delta=&reason=
- */
-export async function adjustQuantity(req: AdjustQuantityRequest): Promise<boolean> {
-  try {
-    await http.patch(
-      `${INVENTORY_BASE}/${encodeURIComponent(req.id)}/quantity`,
-      null,
-      { params: { delta: req.delta, reason: req.reason } }
-    );
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Change item price (new unit price).
- * @enterprise Server commonly exposes: PATCH /{id}/price?price=
- */
-export async function changePrice(req: ChangePriceRequest): Promise<boolean> {
-  try {
-    await http.patch(
-      `${INVENTORY_BASE}/${encodeURIComponent(req.id)}/price`,
-      null,
-      { params: { price: req.price } }
-    );
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Rename an inventory item (change item name).
- * @enterprise Server commonly exposes: PATCH /{id}/name?name=
- * @param req - Rename payload with item id and new name
- * @returns Object with ok status and optional error message
- * @note Only ADMIN users can rename items
- * @note Backend validates that the new name is not a duplicate for the same supplier
- */
-export async function renameItem(req: { id: string; newName: string }): Promise<UpsertItemResponse> {
-  try {
-    const res = await http.patch(
-      `${INVENTORY_BASE}/${encodeURIComponent(req.id)}/name`,
-      null,
-      { params: { name: req.newName } }
-    );
-    const row = normalizeInventoryRow(res?.data as unknown);
-    return { ok: true, item: row ?? undefined };
-  } catch (e: unknown) {
-    return { ok: false, error: errorMessage(e) };
-  }
-}
-
-/**
- * Delete an inventory item by ID.
- * Item can only be deleted if quantity is 0 (no stock remaining).
- * Only ADMIN users can delete items.
- * 
- * @param id - Item identifier to delete
- * @param reason - Business reason for deletion (SCRAPPED, DESTROYED, DAMAGED, EXPIRED, LOST, RETURNED_TO_SUPPLIER)
- * @returns Object with ok status and optional error message
- * @note Only ADMIN users can delete items
- * @note Backend validates that item quantity is 0 before deletion
- * @note Backend may return error: "You still have merchandise in stock"
- */
-export async function deleteItem(id: string, reason: string): Promise<UpsertItemResponse> {
-  try {
-    await http.delete(
-      `${INVENTORY_BASE}/${encodeURIComponent(id)}`,
-      { params: { reason } }
-    );
-    return { ok: true };
-  } catch (e: unknown) {
-    return { ok: false, error: errorMessage(e) };
-  }
-}
-
-/**
- * Supplier list for pickers (tolerant).
- * Accepts: raw array OR envelopes { items: [...] } / { content: [...] }.
- * @returns Array of supplier options with id and name
- */
-export async function listSuppliers(): Promise<Array<{ id: string | number; name: string }>> {
-  try {
-    const resData = resDataOrEmpty(await http.get(SUPPLIERS_BASE, { params: { pageSize: 1000 } }));
-    const candidates: unknown[] = Array.isArray(resData)
-      ? resData
-      : extractArray(resData, ['items', 'content']);
-
-    const out: Array<{ id: string | number; name: string }> = [];
-    for (const entry of candidates) {
-      if (!isRecord(entry)) continue;
-
-      const idStr =
-        pickString(entry, 'id') ??
-        pickString(entry, 'supplierId') ??
-        pickString(entry, 'supplier_id');
-
-      const idNum = pickNumber(entry, 'supplierId');
-      const id: string | number | null = idStr ?? (typeof idNum === 'number' ? idNum : null);
-
-      const name =
-        pickString(entry, 'name') ??
-        pickString(entry, 'supplierName') ??
-        pickString(entry, 'supplier');
-
-      if (id != null && name) out.push({ id, name });
-    }
-    return out;
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Supplier-scoped item type-ahead (tolerant).
- * Expects either a raw array or an envelope containing an array.
- * @returns Array of item references with id, name, and supplierId
- */
-export async function searchItemsBySupplier(
-  supplierId: string | number,
-  q: string
-): Promise<ItemRef[]> {
-  try {
-    const resData = resDataOrEmpty(await http.get(`${INVENTORY_BASE}/search`, { params: { supplierId, q } }));
-    const candidates = Array.isArray(resData)
-      ? (resData as unknown[])
-      : extractArray(resData, ['items', 'content']);
-
-    const out: ItemRef[] = [];
-    for (const entry of candidates) {
-      if (!isRecord(entry)) continue;
-
-      const id =
-        pickString(entry, 'id') ??
-        pickString(entry, 'itemId') ??
-        pickString(entry, 'item_id');
-      if (!id) continue;
-
-      const name =
-        pickString(entry, 'name') ??
-        pickString(entry, 'itemName') ??
-        '—';
-
-      const sIdStr =
-        pickString(entry, 'supplierId') ??
-        pickString(entry, 'supplier_id');
-      const sIdNum = pickNumber(entry, 'supplierId');
-
-      out.push({
-        id,
-        name,
-        supplierId: sIdStr ?? (typeof sIdNum === 'number' ? sIdNum : supplierId),
-      } as ItemRef);
-    }
-    return out;
-  } catch {
-    return [];
-  }
-}
+// Request/response types
+export type {
+  UpsertItemRequest,
+  UpsertItemResponse,
+  AdjustQuantityRequest,
+  ChangePriceRequest,
+} from './types';

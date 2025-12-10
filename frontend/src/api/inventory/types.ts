@@ -72,3 +72,56 @@ export interface ItemDetails {
   /** Associated supplier identifier (nullable) */
   supplierId: string | number | null;
 }
+
+/**
+ * Create or update request shape (UI → API).
+ * When id is undefined, operation is create; when present, it's update.
+ */
+export interface UpsertItemRequest {
+  /** undefined → create, present → update */
+  id?: string;
+  name: string;
+  /** Code/SKU (nullable – DB may not have SKU yet) */
+  code?: string | null;
+  supplierId: string | number;
+  /** Initial quantity for new items */
+  quantity: number;
+  /** Unit price */
+  price: number;
+  /** Minimum quantity threshold - will be auto-set to 5 if not provided */
+  minQty?: number | null;
+  /** Notes/reason for creation */
+  notes?: string | null;
+  /** Created by user - required for backend validation */
+  createdBy?: string;
+}
+
+/**
+ * Upsert operation response with item data or error.
+ */
+export interface UpsertItemResponse {
+  ok: boolean;
+  item?: InventoryRow;
+  error?: string;
+}
+
+/**
+ * Stock adjustment request (purchase-like delta).
+ * Positive delta = purchase/inbound; negative = correction/outbound.
+ */
+export interface AdjustQuantityRequest {
+  id: string;
+  /** Positive = purchase/inbound; negative = correction/outbound. */
+  delta: number;
+  /** Business reason (server may map to enum). */
+  reason: string;
+}
+
+/**
+ * Price change request for item unit price update.
+ */
+export interface ChangePriceRequest {
+  id: string;
+  /** New unit price. */
+  price: number;
+}
