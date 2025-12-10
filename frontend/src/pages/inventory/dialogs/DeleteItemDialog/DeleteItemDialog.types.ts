@@ -27,57 +27,29 @@ export interface DeleteItemDialogProps {
   readOnly?: boolean;
 }
 
-/**
- * Props for DeleteItemContent component
- * Provides all state and handlers needed for form rendering
- */
 export interface DeleteItemContentProps {
-  /** All state and handlers from useDeleteItemDialog hook */
-  state: UseDeleteItemDialogReturn;
-  /** Whether to show confirmation view instead of form */
-  showConfirmation: boolean;
+  state: UseDeleteItemDialogReturn; // All state from hook
+  showConfirmation: boolean; // Route between form and confirmation views
 }
 
-/**
- * Return type for useDeleteItemDialog hook
- * Aggregates state, queries, and handlers for complete dialog functionality
- */
 export interface UseDeleteItemDialogReturn {
-  // ============================================
-  // Selection State
-  // ============================================
-  /** Currently selected supplier for filtering items */
+  // Selection state
   selectedSupplier: SupplierOption | null;
-  /** Currently selected item for deletion */
   selectedItem: ItemOption | null;
-  /** Search query for item autocomplete */
   itemQuery: string;
-  /** Deletion reason selected from dropdown */
   deletionReason: string;
 
-  // ============================================
-  // Dialog State
-  // ============================================
-  /** Error message to display to user */
+  // Dialog state
   formError: string;
-  /** Whether confirmation dialog is shown */
   showConfirmation: boolean;
-  /** Whether form is currently submitting */
   isSubmitting: boolean;
 
-  // ============================================
-  // Data Queries (from React Query)
-  // ============================================
-  /** Query state for supplier list */
+  // React Query states
   suppliersQuery: ReturnType<typeof useSuppliersQuery>;
-  /** Query state for filtered items */
   itemsQuery: ReturnType<typeof useItemSearchQuery>;
-  /** Query state for selected item details */
   itemDetailsQuery: ReturnType<typeof useItemDetailsQuery>;
 
-  // ============================================
-  // State Setters
-  // ============================================
+  // Setters
   setSelectedSupplier: (supplier: SupplierOption | null) => void;
   setSelectedItem: (item: ItemOption | null) => void;
   setItemQuery: (query: string) => void;
@@ -85,15 +57,9 @@ export interface UseDeleteItemDialogReturn {
   setShowConfirmation: (show: boolean) => void;
   setDeletionReason: (reason: string) => void;
 
-  // ============================================
-  // Event Handlers
-  // ============================================
-  /** Close dialog and reset all state */
-  handleClose: () => void;
-  /** Cancel confirmation and return to form */
-  handleCancelConfirmation: () => void;
-  /** Submit form to show confirmation */
-  onSubmit: () => void;
-  /** Confirmed deletion - call backend API */
-  onConfirmedDelete: () => Promise<void>;
+  // Handlers
+  handleClose: () => void; // Close and reset all
+  handleCancelConfirmation: () => void; // Back to form
+  onSubmit: () => void; // Validate and show confirmation
+  onConfirmedDelete: () => Promise<void>; // Execute deletion
 }

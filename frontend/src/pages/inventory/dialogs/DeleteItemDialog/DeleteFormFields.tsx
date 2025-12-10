@@ -1,8 +1,5 @@
 /**
- * @file DeleteFormFields.tsx
- * @description
- * Individual form field components for DeleteItemDialog.
- * Each field is isolated for easier testing and reuse.
+ * DeleteFormFields - Individual field components for delete workflow
  */
 
 import {
@@ -20,28 +17,15 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
 
-/**
- * Step 1: Supplier selection dropdown
- * 
- * Features:
- * - Shows loading state while fetching suppliers
- * - Triggers item list reset when supplier changes
- * - Disabled form submission until supplier selected
- */
-export function SupplierSelectField({
-  state,
-}: {
-  state: UseDeleteItemDialogReturn;
-}) {
+// Supplier selection dropdown - enables item search once selected
+export function SupplierSelectField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['common', 'inventory']);
-
+  // Show loading while fetching supplier list
   if (state.suppliersQuery.isLoading) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={20} />
-        <Typography variant="body2" color="text.secondary">
-          {t('common:loading', 'Loading...')}
-        </Typography>
+        <Typography variant="body2" color="text.secondary">{t('common:loading', 'Loading...')}</Typography>
       </Box>
     );
   }
@@ -72,37 +56,19 @@ export function SupplierSelectField({
   );
 }
 
-/**
- * Step 2: Item search and selection with autocomplete
- *
- * Features:
- * - Disabled until supplier is selected
- * - Minimum 2 characters required before search
- * - Shows loading state while fetching items
- * - Client-side filtering by supplier
- */
-export function ItemSelectField({
-  state,
-}: {
-  state: UseDeleteItemDialogReturn;
-}) {
+// Item search autocomplete - requires supplier selection and 2+ char search
+export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['common', 'inventory']);
-
+  // Disabled until supplier selected
   if (!state.selectedSupplier) {
-    return (
-      <Alert severity="info">
-        {t('inventory:search.selectSupplierFirst', 'Select a supplier to enable search.')}
-      </Alert>
-    );
+    return <Alert severity="info">{t('inventory:search.selectSupplierFirst', 'Select a supplier to enable search.')}</Alert>;
   }
-
+  // Show loading while fetching items for selected supplier
   if (state.itemsQuery.isLoading) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={20} />
-        <Typography variant="body2" color="text.secondary">
-          {t('common:loading', 'Loading...')}
-        </Typography>
+        <Typography variant="body2" color="text.secondary">{t('common:loading', 'Loading...')}</Typography>
       </Box>
     );
   }
@@ -136,19 +102,8 @@ export function ItemSelectField({
   );
 }
 
-/**
- * Step 3: Deletion reason selector
- *
- * Features:
- * - Only shows when item is selected
- * - Predefined list of business-valid reasons
- * - Each reason includes helpful description
- */
-export function DeletionReasonField({
-  state,
-}: {
-  state: UseDeleteItemDialogReturn;
-}) {
+// Deletion reason selector - shows predefined business-valid reasons
+export function DeletionReasonField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);
 
   return (
@@ -184,19 +139,8 @@ export function DeletionReasonField({
   );
 }
 
-/**
- * Step 4: Item information display
- *
- * Features:
- * - Shows item name and current on-hand quantity
- * - Only displays when item is selected and details loaded
- * - Helps user confirm they're deleting the right item
- */
-export function ItemInfoDisplay({
-  state,
-}: {
-  state: UseDeleteItemDialogReturn;
-}) {
+// Item preview - shows name and on-hand quantity for final review
+export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);
 
   if (!state.selectedItem || !state.itemDetailsQuery.data) {
