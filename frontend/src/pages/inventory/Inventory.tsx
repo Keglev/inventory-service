@@ -35,7 +35,7 @@ import { InventoryFilters } from './InventoryFilters';
 
 import { ItemFormDialog } from './ItemFormDialog';
 import { EditItemDialog } from './EditItemDialog';
-import { DeleteItemDialog } from './DeleteItemDialog';
+import { DeleteItemDialog } from './dialogs/DeleteItemDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
 import { useToast } from '../../context/toast';
