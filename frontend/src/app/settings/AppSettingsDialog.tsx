@@ -73,10 +73,12 @@ export default function AppSettingsDialog({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
-          backgroundImage: 'none',
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 2,
+            backgroundImage: 'none',
+          },
         },
       }}
     >

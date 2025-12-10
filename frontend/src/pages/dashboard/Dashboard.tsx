@@ -1,11 +1,26 @@
 /**
  * @file Dashboard.tsx
+ * @module pages/dashboard
+ *
  * @description
- * Dashboard foundation with KPI cards and action shortcuts. KPIs are resilient:
- * if endpoints are missing/not ready, cards show "—" instead of breaking.
+ * Main dashboard page providing system overview and quick navigation.
+ * Displays KPI cards (inventory count, suppliers, low stock items) and a 90-day
+ * stock movement chart. Includes resilient error handling: if API endpoints
+ * are unavailable, cards gracefully show "—" instead of breaking the page.
+ *
+ * @responsibilities
+ * - Fetch and display key metrics via useDashboardMetrics hook
+ * - Render KPI stat cards with loading states
+ * - Display monthly stock movement chart
+ * - Provide action buttons for quick navigation to main features
+ * - Support help system integration
  *
  * @i18n
- * Uses 'common' namespace: dashboard.title, dashboard.kpi.*, dashboard.actions.*
+ * Uses 'common' namespace for all translations:
+ * - dashboard.title: Page title
+ * - dashboard.kpi.*: KPI card labels
+ * - dashboard.actions.*: Button labels
+ * - actions.help: Help button tooltip
  */
 import * as React from 'react';
 import { Box, Grid, Button, Stack, Typography, Paper } from '@mui/material';
@@ -16,11 +31,17 @@ import StatCard from '../../components/ui/StatCard';
 import { useNavigate } from 'react-router-dom';
 import { HelpIconButton } from '../../features/help';
 
+/**
+ * Dashboard page component.
+ * Provides KPI overview, trending chart, and navigation shortcuts.
+ * Resilient to partial API failures (missing KPI data shows "—").
+ * @returns React component with grid layout of cards and action buttons
+ */
 const Dashboard: React.FC = () => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
 
-  // Use the dashboard metrics hook instead of individual queries
+  // Fetch all KPI metrics in a single query with cache durability
   const metricsQuery = useDashboardMetrics(true);
 
   return (
@@ -44,6 +65,7 @@ const Dashboard: React.FC = () => {
           pb: { xs: 2, md: 3 },
         }}
       >
+        {/* Header with title and help button */}
         <Box
           sx={{
             mb: 1.5,
@@ -56,12 +78,10 @@ const Dashboard: React.FC = () => {
             {t('dashboard.title')}
           </Typography>
 
-          <HelpIconButton
-            topicId="app.main"
-            tooltip={t('actions.help', 'Help')}
-          />
+          <HelpIconButton topicId="app.main" tooltip={t('actions.help', 'Help')} />
         </Box>
 
+        {/* KPI metrics grid: Total inventory, suppliers count, low stock count */}
         <Grid container spacing={2} sx={{ mb: 2 }}>
           <Grid size={{ xs: 12, sm: 4 }}>
             <StatCard
@@ -86,11 +106,12 @@ const Dashboard: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Compact chart: Monthly movement (90d) */}
+        {/* Trending chart: Monthly stock movement over last 90 days */}
         <Box sx={{ mb: 2 }}>
           <MonthlyMovementMini />
         </Box>
 
+        {/* Action buttons for main workflows (responsive layout) */}
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={1}

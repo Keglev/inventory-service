@@ -37,10 +37,10 @@ const Home: React.FC = () => {
     );
   }
 
-  // If already authenticated, go straight to dashboard
+  // If already authenticated, redirect to dashboard
   if (user) return <Navigate to="/dashboard" replace />;
 
-  // Unauthenticated → show a small, focused landing with Sign in + Demo
+  // Unauthenticated → show landing card with sign-in and demo options
   const handleDemo = () => {
     loginAsDemo();
     navigate('/dashboard', { replace: true });
@@ -49,15 +49,18 @@ const Home: React.FC = () => {
   return (
     <Box sx={{ minHeight: '70vh', display: 'grid', placeItems: 'center', px: 2 }}>
       <Card sx={{ width: 480, maxWidth: '94vw' }}>
+        {/* Card header with branding */}
         <CardHeader
           title="SmartSupplyPro"
           subheader={t('welcome')}
         />
         <CardContent>
           <Stack spacing={2}>
+            {/* Divider text */}
             <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
               {t('or')}
             </Typography>
+            {/* Action buttons: Sign in or Demo mode */}
             <Stack direction="row" spacing={2} justifyContent="center">
               <Button variant="contained" onClick={() => navigate('/login')}>
                 {t('signIn')}
@@ -66,6 +69,7 @@ const Home: React.FC = () => {
                 {t('continueDemo', 'Continue in Demo Mode')}
               </Button>
             </Stack>
+            {/* SSO hint text */}
             <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
               {t('ssoHint')}
             </Typography>

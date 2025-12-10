@@ -28,7 +28,7 @@ import RecentStockActivityCard from './blocks/RecentStockActivityCard';
 import MovementLineCard from './blocks/MovementLineCard';
 
 // Filters UI
-import Filters, { type AnalyticsFilters } from './components/Filters';
+import { Filters, type AnalyticsFilters } from './components/filters';
 
 // Import date helpers from the standard utils location
 import { getTodayIso, getDaysAgoIso } from '../../utils/formatters';
