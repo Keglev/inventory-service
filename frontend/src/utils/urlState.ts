@@ -70,13 +70,13 @@ export function readParams(search: string, keys: string[]): UrlDict {
  */
 export function writeParams(baseSearch: string, patch: UrlDict): string {
   const sp = new URLSearchParams(baseSearch);
-
+  // Apply the patch
   Object.entries(patch).forEach(([k, v]) => {
     const val = v?.trim?.() ?? v;
     if (val === undefined || val === null || val === '') sp.delete(k);
     else sp.set(k, val);
   });
-
+  // Serialize back
   const s = sp.toString();
   return s ? `?${s}` : '';
 }

@@ -46,6 +46,32 @@ type UseSessionTimeoutOptions = {
 
 const STORAGE_FLAG = 'ssp:forceLogout';
 
+/**
+ * @description
+ * Proactive session management hook. Detects expired/invalid sessions and
+ * navigates the user to the dedicated logout flow.
+ * 
+ * @enterprise
+ * - Dual strategy:
+ *  1) **Heartbeat**: ping a lightweight endpoint (e.g., `/api/me`) on a schedule
+ *    and when the tab becomes visible to detect server-side session invalidation.
+ * 2) **Idle timeout (optional)**: if enabled, logs the user out after a period
+ *   of user inactivity (keyboard/mouse). This is off by default; enable for
+ *  stricter environments.
+ * - Cross-tab sync: leverages `storage` events to ensure logout across tabs.
+ * - Does not throw UI; it **navigates to `/logout`** (LogoutPage does the cleanup).
+ * 
+ * @param options - Configuration options for session timeout behavior.
+ * @example
+ * ```tsx
+ * useSessionTimeout({
+ *  pingEndpoint: '/api/me',
+ *  pingIntervalMs: 60_000,
+ * enableIdleTimeout: false,
+ * idleTimeoutMs: 15 * 60_000,
+ * });
+ * ```
+ */
 export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
   const {
     pingEndpoint = '/api/me',
@@ -118,10 +144,12 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
       }, idleTimeoutMs);
     };
 
+    // Monitor user activity to reset idle timer
     const events = ['mousemove', 'keydown', 'wheel', 'touchstart'];
     events.forEach((e) => window.addEventListener(e, resetIdle, { passive: true }));
     resetIdle();
 
+    // Cleanup on unmount
     return () => {
       if (idleTimer) window.clearTimeout(idleTimer);
       events.forEach((e) => window.removeEventListener(e, resetIdle));
@@ -143,6 +171,14 @@ export function useSessionTimeout(options: UseSessionTimeoutOptions = {}) {
 
 /**
  * Signal all tabs to navigate to /logout via localStorage event.
+ * @private
+ * @enterprise
+ * - Uses localStorage to trigger cross-tab logout.
+ * - Quickly removes the flag to keep storage clean while still triggering event.
+ * @example
+ * ```typescript
+ * forceLogoutAcrossTabs();
+ * ```
  */
 function forceLogoutAcrossTabs() {
   try {

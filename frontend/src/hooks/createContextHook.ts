@@ -22,6 +22,7 @@ export function createContextHook<T>(
   context: Context<T | undefined>,
   hookName: string,
 ): () => T {
+  // Return a hook function
   return (): T => {
     const value = useContext(context) as T | undefined;
     if (!value) {

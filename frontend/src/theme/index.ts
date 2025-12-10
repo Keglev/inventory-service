@@ -20,6 +20,7 @@ import '@mui/x-data-grid/themeAugmentation';
 
 /**
  * Merge locale bundles for Material Core + X Data Grid.
+ * Add new locales here as needed.
  */
 const locales = {
   en: [coreEnUS, dataGridEnUS],

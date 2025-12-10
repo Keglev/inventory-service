@@ -23,12 +23,12 @@ import * as React from 'react';
  */
 export function useDebounced<T>(value: T, delayMs: number = 250): T {
   const [debouncedValue, setDebouncedValue] = React.useState(value);
-
+  // Update debounced value after delay
   React.useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delayMs);
-
+    // Cleanup timeout if value or delay changes
     return () => clearTimeout(handler);
   }, [value, delayMs]);
 

@@ -13,7 +13,7 @@
 import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
 import { AppFooter } from './app/footer';
-import { SettingsProvider } from './context/settings';
+import { SettingsProvider } from './context/settings/SettingsContext';
 import { HelpProvider } from './context/help/HelpContext';
 import HelpPanel from './components/help/HelpPanel';
 

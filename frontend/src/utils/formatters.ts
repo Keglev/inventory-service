@@ -15,7 +15,7 @@
  * formatDate(new Date(), 'DD.MM.YYYY')  // → '27.11.2025'
  * formatNumber(1234.56, 'DE')           // → '1.234,56'
  */
-import type { DateFormat, NumberFormat } from '../context/settings';
+import type { DateFormat, NumberFormat } from '../context/settings/SettingsContext';
 
 /**
  * Format a date according to the specified format.

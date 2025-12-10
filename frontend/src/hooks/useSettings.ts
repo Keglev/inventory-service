@@ -9,7 +9,7 @@
  * const { userPreferences, systemInfo } = useSettings()
  */
 
-import { SettingsContext, type SettingsContextType } from '../context/settings';
+import { SettingsContext, type SettingsContextType } from '../context/settings/SettingsContext';
 import { createContextHook } from './createContextHook';
 
 /**

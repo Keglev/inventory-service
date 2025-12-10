@@ -30,6 +30,12 @@ export interface HelpTopic {
 /**
  * Registry of all help topics
  * Add new topics here and they'll automatically be available system-wide
+ * @example
+ * ```typescript
+ * const topic = HELP_TOPICS['app.main'];
+ * console.log(topic.titleKey); // "help:app.main.title"
+ * 
+ * ```
  */
 export const HELP_TOPICS: Record<string, HelpTopic> = {
   'app.main': {
