@@ -9,7 +9,7 @@
  * openHelp('app.main')
  */
 
-import { HelpContext, type HelpContextType } from '../context/HelpContext.types';
+import { HelpContext, type HelpContextType } from '../context/help/HelpContext.types';
 import { createContextHook } from './createContextHook';
 
 /**

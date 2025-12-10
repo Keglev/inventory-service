@@ -20,7 +20,7 @@
 
 import React, { createContext, useEffect, useMemo, useState } from 'react';
 import type { AuthContextType, AppUser } from './authTypes';
-import httpClient, { API_BASE } from '../api/httpClient';
+import httpClient, { API_BASE } from '../../api/httpClient';
 
 const STORAGE_FLAG = 'ssp:forceLogout';
 const DEMO_KEY = 'ssp.demo.session'; // ✨ NEW
@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
         if (demo && demo.isDemo) {
           setUser(demo);
           setLoading(false);
-          return; // short-circuit: demo sessions don’t call /api/me
+          return; // short-circuit: demo sessions don't call /api/me
         }
       }
     } catch {

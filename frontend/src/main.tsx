@@ -19,7 +19,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
 import App from './App';
-import AuthProvider from './context/AuthProvider';
+import AuthProvider from './context/auth/AuthProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Global CSS entry. Keep `index.css` minimal; it should only import `styles/global.css`.

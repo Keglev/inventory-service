@@ -4,8 +4,8 @@
  * Convenience hook for accessing the authentication context.
  */
 
-import { AuthContext } from '../context/AuthContext';
-import type { AuthContextType } from '../context/authTypes';
+import { AuthContext } from '../context/auth/AuthContext';
+import type { AuthContextType } from '../context/auth/authTypes';
 import { createContextHook } from './createContextHook';
 
 /**

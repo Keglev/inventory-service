@@ -61,7 +61,7 @@ import {
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../context/toast';
 import { useAuth } from '../../hooks/useAuth';
 import { useHelp } from '../../hooks/useHelp';
 import { deleteSupplier, getSuppliersPage } from '../../api/suppliers';

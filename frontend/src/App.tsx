@@ -13,8 +13,8 @@
 import { Box } from '@mui/material';
 import AppRouter from './routes/AppRouter';
 import { AppFooter } from './app/footer';
-import { SettingsProvider } from './context/SettingsContext';
-import { HelpProvider } from './context/HelpContext';
+import { SettingsProvider } from './context/settings';
+import { HelpProvider } from './context/help/HelpContext';
 import HelpPanel from './components/help/HelpPanel';
 
 export default function App() {

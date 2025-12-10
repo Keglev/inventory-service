@@ -5,6 +5,11 @@
  *
  * @usage
  * <StatCard title={t('common:dashboard.kpi.totalItems')} value={count} loading={isLoading} />
+ * @enterprise
+ * - Reusable component for consistent KPI display
+ * - Built-in loading state with skeleton
+ * - Handles null/undefined values gracefully
+ * - Uses MUI Card for consistent styling
  */
 import * as React from 'react';
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';

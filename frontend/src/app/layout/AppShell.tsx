@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useSessionTimeout } from '../../features/auth';
-import { ToastContext } from '../../context/ToastContext';
+import { ToastContext } from '../../context/toast';
 import { buildTheme } from '../../theme';
 import type { SupportedLocale } from '../../theme';
 import { useAuth } from '../../hooks/useAuth';

@@ -1,7 +1,9 @@
 /**
  * @file ToastContext.ts
- * @description
- * Ultra-light toast context: exposes a single function for ephemeral messages.
+ * @module context/toast/ToastContext
+ *
+ * @summary
+ * Ultra-light toast context: exposes a single function for ephemeral notifications.
  * Kept separate to satisfy react-refresh and to allow reuse across shells (AppShell, AppPublicShell).
  *
  * @enterprise
@@ -9,6 +11,7 @@
  * - Used by both authenticated (AppShell) and unauthenticated (AppPublicShell) shells
  * - Consumed by page components and dialogs via useToast() hook
  * - No-op default context to prevent errors if used outside provider
+ * - Type-safe severity levels matching MUI Alert component
  *
  * @example
  * ```tsx
@@ -27,26 +30,33 @@ import * as React from 'react';
 
 /**
  * Toast function type: message + optional severity level
+ * Severity levels match MUI Alert component for consistency
  */
 export type ToastFn = (msg: string, severity?: 'success' | 'info' | 'warning' | 'error') => void;
 
 /**
  * Global toast context (no-op default).
  * Provides a simple callback to display transient notifications.
+ *
+ * @remarks
+ * Default value is a no-op function to gracefully handle usage outside provider.
+ * Actual implementation should check for errors in strict mode.
  */
 export const ToastContext = React.createContext<ToastFn>(() => {});
 
 /**
  * Access the toast function provided by AppShell or AppPublicShell.
+ *
  * @throws Error if used outside of a matching provider
  *
  * @example
  * ```tsx
  * const toast = useToast();
  * toast('Success!', 'success');
+ * toast('Warning!', 'warning');
  * ```
  *
- * @returns Toast function to display notifications
+ * @returns Toast function to display notifications with optional severity
  */
 export const useToast = (): ToastFn => {
   const ctx = React.useContext(ToastContext);

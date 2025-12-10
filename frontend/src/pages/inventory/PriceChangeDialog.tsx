@@ -66,7 +66,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../hooks/useHelp';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../context/toast';
 import { changePrice } from '../../api/inventory/mutations';
 import { priceChangeSchema, type PriceChangeForm } from '../../api/inventory/validation';
 import type { SupplierOption, ItemOption } from '../../api/analytics/types';

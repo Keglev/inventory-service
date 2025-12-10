@@ -22,7 +22,7 @@ import {
   Radio,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { TableDensity } from '../../../context/SettingsContext';
+import type { TableDensity } from '../../../context/settings';
 
 interface AppearanceSettingsSectionProps {
   /** Current table density value */

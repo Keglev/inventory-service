@@ -29,7 +29,7 @@ import {
   SystemPreferencesSection,
   NotificationsSettingsSection,
 } from './sections';
-import type { DateFormat, NumberFormat, TableDensity } from '../../context/SettingsContext';
+import type { DateFormat, NumberFormat, TableDensity } from '../../context/settings';
 
 interface SystemInfo {
   database: string;

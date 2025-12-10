@@ -26,7 +26,7 @@
 import * as React from 'react';
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { ToastContext } from '../../context/ToastContext';
+import { ToastContext } from '../../context/toast';
 import { buildTheme } from '../../theme';
 import { useThemeMode, useLocale, usePublicShellToast } from './hooks';
 import { PublicShellHeader } from './header';
