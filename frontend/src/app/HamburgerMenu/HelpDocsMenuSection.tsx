@@ -4,6 +4,11 @@
  *
  * @summary
  * Help & Documentation section with links to GitHub README, API Docs, and Frontend Docs.
+ * Provides quick access to key resources for users.
+ * @example
+ * ```tsx
+ * <HelpDocsMenuSection />
+ * ```
  */
 
 import {

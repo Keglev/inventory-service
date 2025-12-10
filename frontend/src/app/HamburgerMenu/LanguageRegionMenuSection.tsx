@@ -3,48 +3,57 @@
  * @module app/HamburgerMenu/LanguageRegionMenuSection
  *
  * @summary
- * Language & Region settings: language (Deutsch/Englisch), date format, number format.
- * Integrates with i18n, useSettings hook, and flag images.
+ * Language & Region settings section coordinator that composes language, date format, and number format settings.
+ * Acts as a thin container orchestrating sub-components from LanguageRegionSettings subdirectory.
+ *
+ * @enterprise
+ * - Delegates individual settings to focused sub-components
+ * - Integrates with useSettings hook for persistence
+ * - Maintains clean separation of concerns
  */
 
-import {
-  Box,
-  Typography,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-} from '@mui/material';
+import { Box, Typography, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../hooks/useSettings';
 import type { SupportedLocale } from '../../theme';
-import deFlag from '/flags/de.svg';
-import usFlag from '/flags/us.svg';
+import {
+  LanguageToggle,
+  DateFormatSetting,
+  NumberFormatSetting,
+} from './LanguageRegionSettings';
 
 interface LanguageRegionMenuSectionProps {
+  /** Current locale (de or en) */
   locale: SupportedLocale;
+
+  /** Callback fired when locale is changed */
   onLocaleChange: (locale: SupportedLocale) => void;
 }
 
+/**
+ * Language & Region menu section component.
+ *
+ * Coordinates three distinct setting controls:
+ * 1. Language toggle (Deutsch/English with flags)
+ * 2. Date format radio group (DD.MM.YYYY vs YYYY-MM-DD)
+ * 3. Number format radio group (German vs US style)
+ *
+ * @param props - Component props
+ * @returns JSX element rendering the language and region settings section
+ */
 export default function LanguageRegionMenuSection({
   locale,
   onLocaleChange,
 }: LanguageRegionMenuSectionProps) {
-  const { t, i18n } = useTranslation(['common']);
+  const { t } = useTranslation(['common']);
   const { userPreferences, setUserPreferences } = useSettings();
 
-  const handleLanguageChange = (newLocale: SupportedLocale) => {
-    onLocaleChange(newLocale);
-  };
-
+  // Handler for date format changes - persists to user preferences
   const handleDateFormatChange = (newFormat: 'DD.MM.YYYY' | 'YYYY-MM-DD') => {
     setUserPreferences({ dateFormat: newFormat });
   };
 
+  // Handler for number format changes - persists to user preferences
   const handleNumberFormatChange = (newFormat: 'DE' | 'EN_US') => {
     setUserPreferences({ numberFormat: newFormat });
   };
@@ -56,83 +65,20 @@ export default function LanguageRegionMenuSection({
       </Typography>
 
       <Stack spacing={1.5}>
-        {/* Language Toggle */}
-        <Box>
-          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 0.75 }}>
-            {t('language.language', 'Language')}
-          </Typography>
-          <ToggleButtonGroup
-            value={locale}
-            exclusive
-            onChange={(_, newLocale) => {
-              if (newLocale) {
-                handleLanguageChange(newLocale as SupportedLocale);
-                i18n.changeLanguage(newLocale);
-              }
-            }}
-            size="small"
-            fullWidth
-          >
-            <ToggleButton value="de" sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-              <img src={deFlag} alt="Deutsch" width={14} height={14} />
-              <Typography variant="caption">Deutsch</Typography>
-            </ToggleButton>
-            <ToggleButton value="en" sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-              <img src={usFlag} alt="English" width={14} height={14} />
-              <Typography variant="caption">English</Typography>
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
+        {/* Language Selection Component */}
+        <LanguageToggle locale={locale} onLocaleChange={onLocaleChange} />
 
-        {/* Date Format */}
-        <FormControl size="small" component="fieldset">
-          <FormLabel sx={{ fontWeight: 600, mb: 0.75 }}>
-            <Typography variant="caption" sx={{ fontWeight: 600 }}>
-              {t('language.dateFormat', 'Date Format')}
-            </Typography>
-          </FormLabel>
-          <RadioGroup
-            value={userPreferences.dateFormat}
-            onChange={(e) => handleDateFormatChange(e.target.value as 'DD.MM.YYYY' | 'YYYY-MM-DD')}
-            row
-          >
-            <FormControlLabel
-              value="DD.MM.YYYY"
-              control={<Radio size="small" />}
-              label={<Typography variant="caption">DD.MM.YYYY</Typography>}
-            />
-            <FormControlLabel
-              value="YYYY-MM-DD"
-              control={<Radio size="small" />}
-              label={<Typography variant="caption">YYYY-MM-DD</Typography>}
-            />
-          </RadioGroup>
-        </FormControl>
+        {/* Date Format Selection Component */}
+        <DateFormatSetting
+          dateFormat={userPreferences.dateFormat}
+          onChange={handleDateFormatChange}
+        />
 
-        {/* Number Format */}
-        <FormControl size="small" component="fieldset">
-          <FormLabel sx={{ fontWeight: 600, mb: 0.75 }}>
-            <Typography variant="caption" sx={{ fontWeight: 600 }}>
-              {t('language.numberFormat', 'Number Format')}
-            </Typography>
-          </FormLabel>
-          <RadioGroup
-            value={userPreferences.numberFormat}
-            onChange={(e) => handleNumberFormatChange(e.target.value as 'DE' | 'EN_US')}
-            row
-          >
-            <FormControlLabel
-              value="DE"
-              control={<Radio size="small" />}
-              label={<Typography variant="caption">1.234,56</Typography>}
-            />
-            <FormControlLabel
-              value="EN_US"
-              control={<Radio size="small" />}
-              label={<Typography variant="caption">1,234.56</Typography>}
-            />
-          </RadioGroup>
-        </FormControl>
+        {/* Number Format Selection Component */}
+        <NumberFormatSetting
+          numberFormat={userPreferences.numberFormat}
+          onChange={handleNumberFormatChange}
+        />
       </Stack>
     </Box>
   );
