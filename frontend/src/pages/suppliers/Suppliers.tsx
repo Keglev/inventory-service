@@ -54,7 +54,7 @@ import { formatDate } from '../../utils/formatters';
 import { useSuppliersPageQuery, useSupplierSearchQuery } from '../../api/suppliers';
 import type { SupplierListResponse, SupplierRow } from '../../api/suppliers';
 import { CreateSupplierDialog } from './dialogs/CreateSupplierDialog';
-import { EditSupplierDialog } from './EditSupplierDialog';
+import { EditSupplierDialog } from './dialogs/EditSupplierDialog';
 import { DeleteSupplierDialog } from './dialogs/DeleteSupplierDialog';
 import { useToast } from '../../context/toast';
 
