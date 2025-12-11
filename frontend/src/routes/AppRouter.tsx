@@ -111,14 +111,6 @@ const AppRouter: React.FC = () => {
             </RequireAuth>
           }
         />
-        <Route
-          path="/logout"
-          element={
-            <RequireAuth>
-              <LogoutPage />
-            </RequireAuth>
-          }
-        />
       </Route>
 
       {/**
