@@ -33,12 +33,11 @@ import { getInventoryPage, type InventoryListResponse, type InventoryRow } from 
 
 import { InventoryFilters } from './InventoryFilters';
 
-import { ItemFormDialog } from './ItemFormDialog';
+import { ItemFormDialog } from './dialogs/ItemFormDialog';
 import { EditItemDialog } from './dialogs/EditItemDialog';
 import DeleteItemDialog from './dialogs/DeleteItemDialog/DeleteItemDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
-import { useToast } from '../../context/toast';
 import { useSuppliersQuery } from '../../api/inventory/hooks/useInventoryData';
 import { useSettings } from '../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../utils/formatters';
@@ -54,17 +53,6 @@ const Inventory: React.FC = () => {
   const { userPreferences } = useSettings();
   const { user } = useAuth();
   const isDemo = Boolean(user?.isDemo);
-  const toast = useToast();
-  
-  const handleItemSaved = () => {
-    load();
-    toast(t('inventory:status.itemAddedToStock'), 'success');
-  };
-
-  const handleItemUpdated = () => {
-    load();
-    toast(t('inventory:status.itemUpdated'), 'success');
-  };
 
   // -----------------------------
   // Filters/state
@@ -505,11 +493,9 @@ const Inventory: React.FC = () => {
 
       {/* Dialogs */}
       <ItemFormDialog
-        open={openNew}
-        mode="create"
+        isOpen={openNew}
         onClose={() => setOpenNew(false)}
-        onSaved={handleItemSaved}
-        readOnly={isDemo}
+        onSaved={load}
       />
 
       <EditItemDialog
@@ -527,18 +513,16 @@ const Inventory: React.FC = () => {
 
       {selectedRow && (
         <ItemFormDialog
-          open={openEdit}
-          mode="edit"
+          isOpen={openEdit}
           initial={{
             id: selectedRow.id,
             name: selectedRow.name,
             code: selectedRow.code ?? '',
-            supplierId: String(selectedRow.supplierId ?? supplierId ?? ''),
+            supplierId: selectedRow.supplierId,
             onHand: selectedRow.onHand,
           }}
           onClose={() => setOpenEdit(false)}
-          onSaved={handleItemUpdated}
-          readOnly={isDemo}
+          onSaved={load}
         />
       )}
 
