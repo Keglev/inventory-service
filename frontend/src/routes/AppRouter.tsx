@@ -34,7 +34,7 @@ import { AppPublicShell } from '../app/public-shell';
 
 // Authenticated pages
 import Dashboard from '../pages/dashboard/Dashboard';            
-import Inventory from '../pages/inventory/Inventory';            
+import InventoryBoard from '../pages/inventory/InventoryBoard';            
 import Suppliers from '../pages/suppliers/Suppliers';
 import LogoutPage from '../pages/auth/LogoutPage';
 import Analytics from '../pages/analytics/Analytics';
@@ -91,7 +91,7 @@ const AppRouter: React.FC = () => {
           path="/inventory"
           element={
             <RequireAuth allowDemo>
-              <Inventory />
+              <InventoryBoard />
             </RequireAuth>
           }
         />
