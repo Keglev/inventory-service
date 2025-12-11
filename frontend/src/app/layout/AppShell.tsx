@@ -24,11 +24,13 @@ import {
   Alert,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSessionTimeout } from '../../features/auth';
 import { ToastContext } from '../../context/toast';
 import { buildTheme } from '../../theme';
 import type { SupportedLocale } from '../../theme';
 import { useAuth } from '../../hooks/useAuth';
+import { API_BASE } from '../../api/httpClient';
 import { AppSettingsDialog } from '../settings';
 import AppHeader from './AppHeader';
 import AppSidebar from './AppSidebar';
@@ -72,7 +74,8 @@ export default function AppShell() {
   const { i18n } = useTranslation(['common', 'auth']);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth(); 
+  const queryClient = useQueryClient();
+  const { user, logout } = useAuth(); 
   const isDemo = Boolean(user?.isDemo);
 
   // Get current help topic based on route
@@ -143,15 +146,33 @@ export default function AppShell() {
 
   /**
    * Handle logout action.
-   * Navigates to /logout which handles server/demo-specific flows
-   * and then redirects to /logout-success.
+   * Clears client state and then triggers backend logout (for real users)
+   * or a simple client-side redirect (for demo users).
    */
   const handleLogout = () => {
     console.debug('[AppShell] handleLogout invoked at', location.pathname, {
       hasUser: Boolean(user),
     });
-    console.debug('[AppShell] navigating to /logout');
-    navigate('/logout', { replace: true });
+    // Clear React Query cache and client auth state
+    queryClient.clear();
+    logout();
+
+    // Demo mode: no backend session → just go to logout-success
+    if (isDemo) {
+      console.debug('[AppShell] demo logout → redirecting to /logout-success');
+      navigate('/logout-success', { replace: true });
+      return;
+    }
+
+    // Real user: submit a POST to backend /logout with return URL
+    const form = document.createElement('form');
+    form.method = 'POST';
+    const returnUrl = `${window.location.origin}/logout-success`;
+    form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
+    form.style.display = 'none';
+    document.body.appendChild(form);
+    console.debug('[AppShell] submitting logout form to', form.action);
+    form.submit();
   };
 
   /**
