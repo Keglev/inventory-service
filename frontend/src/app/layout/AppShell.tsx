@@ -153,18 +153,17 @@ export default function AppShell() {
     console.debug('[AppShell] handleLogout invoked at', location.pathname, {
       hasUser: Boolean(user),
     });
-    // Clear React Query cache and client auth state
-    queryClient.clear();
-    logout();
 
-    // Demo mode: no backend session → just go to logout-success
+    // Demo mode: clear client state and route directly to logout-success
     if (isDemo) {
+      queryClient.clear();
+      logout();
       console.debug('[AppShell] demo logout → redirecting to /logout-success');
       navigate('/logout-success', { replace: true });
       return;
     }
 
-    // Real user: submit a POST to backend /logout with return URL
+    // Real user: trigger backend logout via POST redirect, avoid SPA guard flicker
     const form = document.createElement('form');
     form.method = 'POST';
     const returnUrl = `${window.location.origin}/logout-success`;

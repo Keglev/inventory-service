@@ -51,6 +51,13 @@ export const HELP_TOPICS: Record<string, HelpTopic> = {
     bodyKey: 'help:inventory.overview.body',
     category: 'inventory',
   },
+  // Alias to keep older references working
+  'inventory.manage': {
+    id: 'inventory.manage',
+    titleKey: 'help:inventory.overview.title',
+    bodyKey: 'help:inventory.overview.body',
+    category: 'inventory',
+  },
   'inventory.editItem': {
     id: 'inventory.editItem',
     titleKey: 'help:inventory.editItem.title',

@@ -38,7 +38,7 @@ export type AppRoutesType = (typeof AppRoutes)[keyof typeof AppRoutes];
 export const HelpTopics = {
   Main: 'app.main',
   Dashboard: 'app.main',
-  Inventory: 'inventory.manage',
+  Inventory: 'inventory.overview',
   Suppliers: 'suppliers.manage',
   Analytics: 'analytics.overview',
 } as const;
