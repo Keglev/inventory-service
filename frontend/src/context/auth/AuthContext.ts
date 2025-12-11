@@ -110,6 +110,9 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
    * - Removes DEMO persistence if present.
    */
   const logout = () => {
+    // Debug: auth.logout invoked
+    // eslint-disable-next-line no-console
+    console.debug('[AuthContext] logout() called');
     try {
       localStorage.setItem(STORAGE_FLAG, '1');
       localStorage.removeItem(STORAGE_FLAG);

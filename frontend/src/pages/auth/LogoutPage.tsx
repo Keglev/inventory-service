@@ -29,6 +29,7 @@ const LogoutPage: React.FC = () => {
   const { logout } = useAuth();
 
   useEffect(() => {
+    console.debug('[LogoutPage] effect start, posting to backend logout');
     // 1) Clear client-side state immediately
     queryClient.clear();
     logout();
@@ -40,6 +41,7 @@ const LogoutPage: React.FC = () => {
     form.action = `${API_BASE}/logout?return=${encodeURIComponent(returnUrl)}`;
     form.style.display = 'none';
     document.body.appendChild(form);
+      console.debug('[LogoutPage] submitting logout form to', form.action);
     form.submit();
 
     return () => {
