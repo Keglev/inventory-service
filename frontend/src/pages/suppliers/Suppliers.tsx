@@ -55,7 +55,7 @@ import { useSuppliersPageQuery, useSupplierSearchQuery } from '../../api/supplie
 import type { SupplierListResponse, SupplierRow } from '../../api/suppliers';
 import { CreateSupplierDialog } from './dialogs/CreateSupplierDialog';
 import { EditSupplierDialog } from './EditSupplierDialog';
-import { DeleteSupplierDialog } from './DeleteSupplierDialog';
+import { DeleteSupplierDialog } from './dialogs/DeleteSupplierDialog';
 import { useToast } from '../../context/toast';
 
 const DEFAULT_PAGE_SIZE = 10;
