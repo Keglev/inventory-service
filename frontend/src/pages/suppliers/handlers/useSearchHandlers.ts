@@ -30,6 +30,7 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
   const handleSearchChange = useCallback(
     (query: string) => {
       state.setSearchQuery(query);
+      state.setShowAllSuppliers(true);
     },
     [state]
   );
@@ -37,13 +38,19 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
   const handleSearchResultSelect = useCallback(
     (supplier: SupplierRow) => {
       state.setSelectedSearchResult(supplier);
-      state.setSearchQuery('');
+      state.setSelectedId(supplier.id);
+      state.setShowAllSuppliers(true);
+      state.setPaginationModel({ ...state.paginationModel, page: 0 });
+      state.setSearchQuery(supplier.name ?? '');
     },
     [state]
   );
 
   const handleClearSearchSelection = useCallback(() => {
     state.setSelectedSearchResult(null);
+    state.setSelectedId(null);
+    state.setSearchQuery('');
+    state.setShowAllSuppliers(true);
   }, [state]);
 
   return {

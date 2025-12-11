@@ -27,6 +27,7 @@ import {
   type GridPaginationModel,
   type GridSortModel,
   type GridColDef,
+  type GridRowSelectionModel,
 } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../hooks/useSettings';
@@ -55,6 +56,8 @@ export interface SuppliersTableProps {
   isLoading: boolean;
   /** Handler for row click (selection) */
   onRowClick: (params: { id: string | number }) => void;
+  /** Currently selected supplier ID */
+  selectedId?: string | null;
 }
 
 /**
@@ -92,6 +95,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
   onSortChange,
   isLoading,
   onRowClick,
+  selectedId,
 }) => {
   const { t } = useTranslation(['common', 'suppliers']);
   const { userPreferences } = useSettings();
@@ -140,6 +144,10 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
     ];
   }, [t, userPreferences.dateFormat]);
 
+  const selectionModel = React.useMemo(() => (
+    selectedId ? [selectedId] : []
+  ), [selectedId]) as unknown as GridRowSelectionModel;
+
   return (
     <Paper
       variant="outlined"
@@ -170,6 +178,12 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
           userPreferences.tableDensity === 'compact' ? 'compact' : 'comfortable'
         }
         onRowClick={onRowClick}
+        rowSelectionModel={selectionModel}
+        onRowSelectionModelChange={(model) => {
+          if (Array.isArray(model) && model[0] !== undefined) {
+            onRowClick({ id: model[0] });
+          }
+        }}
         slots={{
           noRowsOverlay: () => (
             <Box

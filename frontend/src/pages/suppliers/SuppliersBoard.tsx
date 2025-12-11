@@ -78,6 +78,9 @@ const SuppliersBoard: React.FC = () => {
   // Data Fetching & Processing
   // =====================
   const data = useDataFetchingLogic(state);
+  const usingSearch = state.searchQuery.length >= 2;
+  const displayRows = usingSearch ? data.searchResults : data.suppliers;
+  const displayRowCount = usingSearch ? data.searchResults.length : data.total;
 
   // =====================
   // Render
@@ -142,14 +145,15 @@ const SuppliersBoard: React.FC = () => {
         ) : (
           <Box sx={{ px: 2, mb: 2, flex: 1, minHeight: 0 }}>
             <SuppliersTable
-              rows={data.suppliers}
-              rowCount={data.total}
+              rows={displayRows}
+              rowCount={displayRowCount}
               paginationModel={state.paginationModel}
               onPaginationChange={handlePaginationChange}
               sortModel={state.sortModel}
               onSortChange={handleSortChange}
               isLoading={data.isLoadingSuppliers}
               onRowClick={handleRowClick}
+              selectedId={state.selectedId}
             />
           </Box>
         )}
