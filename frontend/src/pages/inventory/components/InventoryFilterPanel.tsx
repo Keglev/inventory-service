@@ -15,6 +15,7 @@
 import * as React from 'react';
 import {
   Stack,
+  Box,
   TextField,
   FormControl,
   InputLabel,
@@ -89,46 +90,59 @@ export const InventoryFilterPanel: React.FC<InventoryFilterPanelProps> = ({
   const { t } = useTranslation(['inventory']);
 
   return (
-    <Stack spacing={2}>
-      <TextField
-        label={t('inventory:filter.search', 'Search')}
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        size="small"
-        fullWidth
-        placeholder={t('inventory:filter.searchPlaceholder', 'Item name or code')}
-      />
-
-      <FormControl size="small" fullWidth>
-        <InputLabel>
-          {t('inventory:filter.supplier', 'Supplier')}
-        </InputLabel>
-        <Select
-          value={String(supplierId ?? '')}
-          label={t('inventory:filter.supplier', 'Supplier')}
-          onChange={(e) => setSupplierId(e.target.value || null)}
-          disabled={supplierLoading}
-        >
-          <MenuItem value="">
-            {t('inventory:filter.allSuppliers', 'All suppliers')}
-          </MenuItem>
-          {(suppliers ?? []).map((supplier) => (
-            <MenuItem key={supplier.id} value={String(supplier.id)}>
-              {supplier.label}
+    <Stack
+      spacing={2}
+      direction={{ xs: 'column', md: 'row' }}
+      alignItems={{ xs: 'stretch', md: 'flex-end' }}
+    >
+      {/* Supplier dropdown on the left */}
+      <Box sx={{ flex: 1, minWidth: 220 }}>
+        <FormControl size="small" fullWidth>
+          <InputLabel>
+            {t('inventory:filter.supplier', 'Supplier')}
+          </InputLabel>
+          <Select
+            value={String(supplierId ?? '')}
+            label={t('inventory:filter.supplier', 'Supplier')}
+            onChange={(e) => setSupplierId(e.target.value || null)}
+            disabled={supplierLoading}
+          >
+            <MenuItem value="">
+              {t('inventory:filter.allSuppliers', 'All suppliers')}
             </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+            {(suppliers ?? []).map((supplier) => (
+              <MenuItem key={supplier.id} value={String(supplier.id)}>
+                {supplier.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
 
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={belowMinOnly}
-            onChange={(e) => setBelowMinOnly(e.target.checked)}
-          />
-        }
-        label={t('inventory:filter.belowMinOnly', 'Below minimum quantity only')}
-      />
+      {/* Item search on the right */}
+      <Box sx={{ flex: 1 }}>
+        <TextField
+          label={t('inventory:filter.search', 'Search')}
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          size="small"
+          fullWidth
+          placeholder={t('inventory:filter.searchPlaceholder', 'Item name or code')}
+        />
+      </Box>
+
+      {/* Below minimum toggle */}
+      <Box sx={{ minWidth: { xs: '100%', md: 260 } }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={belowMinOnly}
+              onChange={(e) => setBelowMinOnly(e.target.checked)}
+            />
+          }
+          label={t('inventory:filter.belowMinOnly', 'Below minimum quantity only')}
+        />
+      </Box>
     </Stack>
   );
 };

@@ -27,8 +27,8 @@ export const useInventoryRowStyling = (): ((onHand: number, minQty: number) => s
     const min = Number.isFinite(minRaw) && minRaw > 0 ? minRaw : 5;
     const deficit = min - Number(onHand ?? 0);
 
-    if (deficit >= 5) return 'low-stock-critical';
-    if (deficit > 0) return 'low-stock-warning';
+    if (deficit >= 5) return 'row-critical';
+    if (deficit > 0) return 'row-warning';
     return '';
   };
 };

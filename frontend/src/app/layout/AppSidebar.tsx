@@ -155,7 +155,7 @@ export default function AppSidebar({
       sx={{
         width: { md: drawerWidth },
         flexShrink: { md: 0 },
-        minHeight: 'calc(100vh - 64px - 40px)',
+        minHeight: 'calc(100vh - 64px)',
         display: 'flex',
         flexDirection: { md: 'column' },
       }}
