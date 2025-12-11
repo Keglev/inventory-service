@@ -18,12 +18,17 @@
 
 import * as React from 'react';
 import { Box, Paper } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
 import type { SupplierRow } from '../../api/suppliers';
 
-import { useToast } from '../../context/toast';
-import { useSuppliersBoardState, useSuppliersBoardData } from './hooks';
+import { useSuppliersBoardState } from './hooks';
+import {
+  useToolbarHandlers,
+  useSearchHandlers,
+  useTableHandlers,
+  useFilterHandlers,
+  useDialogHandlers,
+  useDataFetchingLogic,
+} from './handlers';
 import {
   SuppliersToolbar,
   SuppliersSearchPanel,
@@ -53,89 +58,26 @@ import {
  * ```
  */
 const SuppliersBoard: React.FC = () => {
-  const { t } = useTranslation(['common', 'suppliers']);
-  const toast = useToast();
-  const queryClient = useQueryClient();
-
   // =====================
   // State Management
   // =====================
   const state = useSuppliersBoardState();
 
   // =====================
+  // Event Handlers
+  // =====================
+  const { handleAddNew, handleEdit, handleDelete } = useToolbarHandlers(state);
+  const { handleSearchChange, handleSearchResultSelect, handleClearSearchSelection } =
+    useSearchHandlers(state);
+  const { handleRowClick, handlePaginationChange, handleSortChange } = useTableHandlers(state);
+  const { handleToggleShowAll } = useFilterHandlers(state);
+  const { handleSupplierCreated, handleSupplierUpdated, handleSupplierDeleted } =
+    useDialogHandlers(state);
+
+  // =====================
   // Data Fetching & Processing
   // =====================
-  const serverPage = state.paginationModel.page + 1; // Convert 0-based to 1-based
-  const serverSort = state.sortModel.length
-    ? `${state.sortModel[0].field},${state.sortModel[0].sort ?? 'asc'}`
-    : 'name,asc';
-
-  const data = useSuppliersBoardData(
-    serverPage,
-    state.paginationModel.pageSize,
-    serverSort,
-    state.searchQuery
-  );
-
-  // =====================
-  // Event Handlers: Toolbar
-  // =====================
-  const handleAddNew = () => state.setOpenCreate(true);
-  const handleEdit = () => state.setOpenEdit(true);
-  const handleDelete = () => state.setOpenDelete(true);
-
-  // =====================
-  // Event Handlers: Search
-  // =====================
-  const handleSearchChange = (query: string) => {
-    state.setSearchQuery(query);
-  };
-
-  const handleSearchResultSelect = (supplier: SupplierRow) => {
-    state.setSelectedSearchResult(supplier);
-    state.setSearchQuery('');
-  };
-
-  const handleClearSearchSelection = () => {
-    state.setSelectedSearchResult(null);
-  };
-
-  // =====================
-  // Event Handlers: Table
-  // =====================
-  const handleRowClick = (params: { id: string | number }) => {
-    state.setSelectedId(String(params.id));
-  };
-
-  // =====================
-  // Event Handlers: Filter
-  // =====================
-  const handleToggleShowAll = (show: boolean) => {
-    state.setShowAllSuppliers(show);
-  };
-
-  // =====================
-  // Event Handlers: Dialog
-  // =====================
-  const handleSupplierCreated = () => {
-    toast(t('suppliers:status.created', 'Supplier created successfully'), 'success');
-    queryClient.invalidateQueries({ queryKey: ['suppliers'] });
-    state.setOpenCreate(false);
-  };
-
-  const handleSupplierUpdated = () => {
-    toast(t('suppliers:status.updated', 'Supplier updated successfully'), 'success');
-    queryClient.invalidateQueries({ queryKey: ['suppliers'] });
-    state.setOpenEdit(false);
-    state.setSelectedId(null);
-  };
-
-  const handleSupplierDeleted = () => {
-    toast(t('suppliers:status.deleted', 'Supplier deleted successfully'), 'success');
-    queryClient.invalidateQueries({ queryKey: ['suppliers'] });
-    state.setOpenDelete(false);
-    state.setSelectedId(null);
-  };
+  const data = useDataFetchingLogic(state);
 
   // =====================
   // Render
@@ -203,9 +145,9 @@ const SuppliersBoard: React.FC = () => {
               rows={data.suppliers}
               rowCount={data.total}
               paginationModel={state.paginationModel}
-              onPaginationChange={state.setPaginationModel}
+              onPaginationChange={handlePaginationChange}
               sortModel={state.sortModel}
-              onSortChange={state.setSortModel}
+              onSortChange={handleSortChange}
               isLoading={data.isLoadingSuppliers}
               onRowClick={handleRowClick}
             />

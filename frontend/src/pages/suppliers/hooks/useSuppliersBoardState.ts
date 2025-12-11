@@ -56,13 +56,18 @@ export interface SuppliersBoardStateSetters {
 }
 
 /**
+ * Return type of useSuppliersBoardState hook.
+ */
+export type UseSuppliersBoardStateReturn = SuppliersBoardState & SuppliersBoardStateSetters;
+
+/**
  * Hook for managing suppliers board page state.
  *
  * Returns unified state object and setter functions.
  *
  * @returns State and setter functions
  */
-export const useSuppliersBoardState = (): SuppliersBoardState & SuppliersBoardStateSetters => {
+export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [showAllSuppliers, setShowAllSuppliers] = React.useState(false);
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
