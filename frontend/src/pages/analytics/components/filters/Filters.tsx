@@ -45,9 +45,16 @@ export function Filters({
   };
 
   return (
-    <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, border: '1px solid', borderColor: 'divider' }}>
-      <Stack spacing={2}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+    <Paper
+      elevation={0}
+      sx={{
+        p: { xs: 2, md: 2.5 },
+        border: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Stack spacing={1.5}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ gap: 1 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
             Filters
           </Typography>
@@ -58,17 +65,17 @@ export function Filters({
 
         <Stack
           direction={{ xs: 'column', md: 'row' }}
-          spacing={2}
+          spacing={{ xs: 2, md: 2.5 }}
           alignItems={{ xs: 'stretch', md: 'flex-end' }}
         >
           <Box sx={{ flex: 2 }}>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+            <Typography variant="body2" sx={{ mb: 0.75, fontWeight: 500 }}>
               Date Range
             </Typography>
             <DateRangeFilter value={value} onChange={onChange} disabled={disabled} />
           </Box>
 
-          <Box sx={{ flex: 1, minWidth: 220 }}>
+          <Box sx={{ flex: 1, minWidth: 240 }}>
             <SupplierFilter
               value={value}
               suppliers={suppliers}

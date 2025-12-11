@@ -110,7 +110,7 @@ export const SuppliersSearchPanel: React.FC<SuppliersSearchPanelProps> = ({
         />
 
         {/* Search Results Dropdown */}
-        {searchResults.length > 0 && (
+        {searchResults.length > 0 && !selectedSupplier && (
           <Paper
             elevation={2}
             sx={{

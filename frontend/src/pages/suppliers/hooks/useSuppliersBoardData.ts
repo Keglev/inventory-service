@@ -72,6 +72,7 @@ export const useSuppliersBoardData = (
       page,
       pageSize,
       sort,
+      q: searchQuery.length >= 2 ? searchQuery : undefined,
     },
     true
   );

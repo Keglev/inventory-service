@@ -18,7 +18,7 @@
  * - DEMO session is persisted to localStorage to enable deep-links (/analytics/...).
  */
 
-import React, { createContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthContextType, AppUser } from './authTypes';
 import httpClient, { API_BASE } from '../../api/httpClient';
 
@@ -38,6 +38,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [logoutInProgress, setLogoutInProgress] = useState<boolean>(false);
+  const logoutTimerRef = useRef<number | null>(null);
 
   /**
    * One-time session hydration on app load.
@@ -113,6 +115,11 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
     // Debug: auth.logout invoked
     // eslint-disable-next-line no-console
     console.debug('[AuthContext] logout() called');
+    setLogoutInProgress(true);
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = null;
+    }
     try {
       localStorage.setItem(STORAGE_FLAG, '1');
       localStorage.removeItem(STORAGE_FLAG);
@@ -121,11 +128,30 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       // ignore storage failures
     }
     setUser(null);
+    // Safety valve: clear the in-progress flag after a short interval in case navigation stalls
+    logoutTimerRef.current = window.setTimeout(() => setLogoutInProgress(false), 4000);
   };
 
+  // If a user is set (hydration or login), ensure we drop any stale logout flag
+  useEffect(() => {
+    if (user) {
+      setLogoutInProgress(false);
+      if (logoutTimerRef.current) {
+        clearTimeout(logoutTimerRef.current);
+        logoutTimerRef.current = null;
+      }
+    }
+  }, [user]);
+
+  useEffect(() => () => {
+    if (logoutTimerRef.current) {
+      clearTimeout(logoutTimerRef.current);
+    }
+  }, []);
+
   const value = useMemo<AuthContextType>(
-    () => ({ user, setUser, login, loginAsDemo, logout, loading }),
-    [user, loading]
+    () => ({ user, setUser, login, loginAsDemo, logout, loading, logoutInProgress }),
+    [user, loading, logoutInProgress]
   );
 
   return React.createElement(AuthContext.Provider, { value }, children);

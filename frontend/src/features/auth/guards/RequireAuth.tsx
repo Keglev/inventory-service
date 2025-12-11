@@ -58,11 +58,16 @@ const DefaultLoading = () => (
  * - Accepts a `fallback` prop to customize the loading indicator while auth state is being determined.
  */
 const RequireAuth: React.FC<Props> = ({ children, fallback, allowDemo }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, logoutInProgress } = useAuth();
   const location = useLocation();
 
   // Show loading indicator while auth state is being determined
   if (loading) return (fallback ?? <DefaultLoading />);
+
+  // If a logout was just triggered, hold the guard to avoid flashing the login page
+  if (!user && logoutInProgress) {
+    return (fallback ?? <DefaultLoading />);
+  }
 
   // Redirect unauthenticated users to login
   if (!user) {

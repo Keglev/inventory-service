@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import { Button } from '@mui/material';
+import { Button, Stack, TextField, Typography } from '@mui/material';
 import { formatToIsoDate, getQuickDateRange, parseIsoDate } from './useFiltersLogic';
 import type { AnalyticsFilters } from './Filters.types';
 
@@ -63,8 +63,8 @@ export function DateRangeFilter({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    <Stack spacing={1.25} alignItems="flex-start">
+      <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
         <Button
           variant={value.quick === '30' ? 'contained' : 'outlined'}
           size="small"
@@ -97,27 +97,35 @@ export function DateRangeFilter({
         >
           Custom
         </Button>
-      </div>
+      </Stack>
 
       {showCustom && (
-        <div style={{ display: 'flex', gap: '12px', marginTop: '12px', alignItems: 'center' }}>
-          <input
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <TextField
+            label="From"
             type="date"
             value={fromDate?.toISOString().split('T')[0] || ''}
             onChange={handleFromChange}
             disabled={disabled}
-            style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 160 }}
           />
-          <span style={{ fontSize: '14px', color: '#999' }}>to</span>
-          <input
+          <Typography variant="body2" color="text.secondary">
+            to
+          </Typography>
+          <TextField
+            label="To"
             type="date"
             value={toDate?.toISOString().split('T')[0] || ''}
             onChange={handleToChange}
             disabled={disabled}
-            style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{ minWidth: 160 }}
           />
-        </div>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 }

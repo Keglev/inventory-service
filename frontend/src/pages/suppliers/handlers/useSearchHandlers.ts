@@ -30,6 +30,10 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
   const handleSearchChange = useCallback(
     (query: string) => {
       state.setSearchQuery(query);
+      // Reset selection and jump back to first page when search text changes
+      state.setSelectedSearchResult(null);
+      state.setSelectedId(null);
+      state.setPaginationModel({ ...state.paginationModel, page: 0 });
       state.setShowAllSuppliers(true);
     },
     [state]

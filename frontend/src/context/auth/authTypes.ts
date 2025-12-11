@@ -32,4 +32,6 @@ export interface AuthContextType {
   logout: () => void;
   /** True while hydrating the session on app startup. */
   loading: boolean;
+  /** True immediately after logout is triggered to avoid guard flicker. */
+  logoutInProgress: boolean;
 }
