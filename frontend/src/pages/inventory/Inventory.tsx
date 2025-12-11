@@ -37,7 +37,7 @@ import { ItemFormDialog } from './dialogs/ItemFormDialog';
 import { EditItemDialog } from './dialogs/EditItemDialog';
 import DeleteItemDialog from './dialogs/DeleteItemDialog/DeleteItemDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
-import { PriceChangeDialog } from './PriceChangeDialog';
+import { PriceChangeDialog } from './dialogs/PriceChangeDialog';
 import { useSuppliersQuery } from '../../api/inventory/hooks/useInventoryData';
 import { useSettings } from '../../hooks/useSettings';
 import { formatDate, formatNumber } from '../../utils/formatters';
