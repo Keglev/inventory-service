@@ -72,7 +72,7 @@ export default function AppShell() {
   const { i18n } = useTranslation(['common', 'auth']);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const isDemo = Boolean(user?.isDemo);
 
   // Get current help topic based on route
@@ -147,6 +147,7 @@ export default function AppShell() {
    * and then redirects to /logout-success.
    */
   const handleLogout = () => {
+    logout();
     navigate('/logout', { replace: true });
   };
 
