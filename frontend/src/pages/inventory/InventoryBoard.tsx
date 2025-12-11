@@ -22,11 +22,17 @@ import { useAuth } from '../../hooks/useAuth';
 import { HelpIconButton } from '../../features/help';
 
 import { useInventoryState } from './hooks/useInventoryState';
-import { useInventoryData } from './hooks/useInventoryData';
 import { InventoryToolbar } from './components/InventoryToolbar';
 import { InventoryFilterPanel } from './components/InventoryFilterPanel';
 import { InventoryTable } from './components/InventoryTable';
 import { InventoryDialogs } from './components/InventoryDialogs';
+import {
+  useToolbarHandlers,
+  useFilterHandlers,
+  useTableHandlers,
+  useRefreshHandler,
+  useDataFetchingLogic,
+} from './handlers';
 
 /**
  * Inventory Management Board - main page orchestrator.
@@ -59,78 +65,24 @@ const InventoryBoard: React.FC = () => {
   const state = useInventoryState();
 
   // =====================
+  // Event Handlers
+  // =====================
+  const { handleAddNew, handleEdit, handleDelete, handleAdjustQty, handleChangePrice } =
+    useToolbarHandlers(state);
+  const { handleSearchChange, handleSupplierChange, handleBelowMinChange } =
+    useFilterHandlers(state);
+  const { handleRowClick, handlePaginationChange, handleSortChange } = useTableHandlers(state);
+  const { handleReload } = useRefreshHandler(state);
+
+  // =====================
   // Data Fetching & Processing
   // =====================
-  const serverSort = state.sortModel.length
-    ? `${state.sortModel[0].field},${state.sortModel[0].sort ?? 'asc'}`
-    : 'name,asc';
-  
-  const data = useInventoryData(
-    state.supplierId,
-    state.q,
-    state.belowMinOnly,
-    state.paginationModel.page + 1,
-    state.paginationModel.pageSize,
-    serverSort
-  );
+  const data = useDataFetchingLogic(state);
 
   // =====================
   // Selected Row
   // =====================
   const selectedRow = data.server.items.find((r) => r.id === state.selectedId) ?? null;
-
-  // =====================
-  // Event Handlers: Toolbar
-  // =====================
-  const handleAddNew = () => state.setOpenNew(true);
-  const handleEdit = () => state.setOpenEditName(true);
-  const handleDelete = () => state.setOpenDelete(true);
-  const handleAdjustQty = () => state.setOpenAdjust(true);
-  const handleChangePrice = () => state.setOpenPrice(true);
-
-  // =====================
-  // Event Handlers: Filter
-  // =====================
-  const handleSearchChange = (newQ: string) => {
-    state.setQ(newQ);
-  };
-
-  const handleSupplierChange = (newSupplierId: string | number | null) => {
-    state.setSupplierId(newSupplierId);
-    state.setSelectedId(null);
-    state.setQ('');
-    state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
-  };
-
-  const handleBelowMinChange = (value: boolean) => {
-    state.setBelowMinOnly(value);
-    state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
-  };
-
-  // =====================
-  // Event Handlers: Table
-  // =====================
-  const handlePaginationChange = (newModel: typeof state.paginationModel) => {
-    state.setPaginationModel(newModel);
-  };
-
-  const handleSortChange = (newModel: typeof state.sortModel) => {
-    state.setSortModel(newModel);
-  };
-
-  const handleRowClick = (id: string) => {
-    state.setSelectedId(id);
-  };
-
-  // =====================
-  // Reload Handler
-  // =====================
-  const handleReload = () => {
-    // Trigger data reload by calling useCallback from hook
-    // Since hooks can't be called conditionally, reload happens via dependency changes
-    // Force reload by resetting pagination
-    state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
-  };
 
   // =====================
   // Render
