@@ -4,13 +4,12 @@
  *
  * @summary
  * Search step for supplier deletion dialog.
- * Displays search input and search results.
+ * Orchestrates search input, results, and empty state components.
  *
  * @enterprise
- * - Pure presentation component, no business logic
- * - Handles debounced search input
- * - Displays search results with interactive selection
- * - Accessibility: proper labels and ARIA attributes
+ * - Composes specialized search components
+ * - Clean separation of concerns
+ * - Pure presentation, no business logic
  */
 
 import * as React from 'react';
@@ -19,17 +18,17 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField,
   Typography,
   Box,
-  Paper,
-  Stack,
-  CircularProgress,
   IconButton,
+  Stack,
   Tooltip,
 } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
+import { DeleteSupplierSearchInput } from './DeleteSupplierSearchInput';
+import { DeleteSupplierSearchResults } from './DeleteSupplierSearchResults';
+import { DeleteSupplierSearchEmpty } from './DeleteSupplierSearchEmpty';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 
 /**
@@ -58,7 +57,7 @@ interface DeleteSupplierSearchProps {
  * Search step for supplier deletion dialog.
  *
  * Allows user to search for and select supplier to delete.
- * Displays search results in interactive list format.
+ * Composes search input, results list, and empty state components.
  *
  * @component
  * @param props - Component props
@@ -88,6 +87,8 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
 }) => {
   const { t } = useTranslation(['common', 'suppliers']);
 
+  const hasSearched = searchQuery.trim().length >= 2;
+
   return (
     <>
       <DialogTitle sx={{ pt: 3.5 }}>
@@ -106,73 +107,21 @@ export const DeleteSupplierSearch: React.FC<DeleteSupplierSearchProps> = ({
           {t('suppliers:dialogs.delete.search.hint', 'Search for the supplier you want to delete')}
         </Typography>
 
-        {/* Search Input */}
-        <Box sx={{ mb: 2 }}>
-          <TextField
-            fullWidth
-            size="small"
-            placeholder={t('suppliers:search.placeholder', 'Enter supplier name (min 2 chars)...')}
-            value={searchQuery}
-            onChange={(e) => onSearchQueryChange(e.target.value)}
-            disabled={searchLoading}
-            InputProps={{
-              endAdornment: searchLoading ? <CircularProgress size={20} /> : null,
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: '#fafafa',
-              },
-            }}
-          />
-        </Box>
+        <DeleteSupplierSearchInput
+          value={searchQuery}
+          onChange={onSearchQueryChange}
+          isLoading={searchLoading}
+        />
 
-        {/* Search Results */}
-        {searchResults.length > 0 && (
-          <Paper
-            variant="outlined"
-            sx={{
-              maxHeight: 300,
-              overflow: 'auto',
-              backgroundColor: '#fafafa',
-            }}
-          >
-            <Stack spacing={0}>
-              {searchResults.map((supplier) => (
-                <Box
-                  key={supplier.id}
-                  onClick={() => onSelectSupplier(supplier)}
-                  sx={{
-                    p: 1.5,
-                    cursor: 'pointer',
-                    borderBottom: '1px solid #e0e0e0',
-                    transition: 'background-color 0.2s',
-                    '&:hover': {
-                      backgroundColor: '#e3f2fd',
-                    },
-                    '&:last-child': {
-                      borderBottom: 'none',
-                    },
-                  }}
-                >
-                  <Typography variant="body2" fontWeight={500}>
-                    {supplier.name}
-                  </Typography>
-                  {supplier.contactName && (
-                    <Typography variant="caption" color="text.secondary">
-                      {supplier.contactName}
-                    </Typography>
-                  )}
-                </Box>
-              ))}
-            </Stack>
-          </Paper>
-        )}
+        <DeleteSupplierSearchResults
+          suppliers={searchResults}
+          onSelectSupplier={onSelectSupplier}
+        />
 
-        {searchQuery.trim().length >= 2 && searchResults.length === 0 && !searchLoading && (
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ py: 2 }}>
-            {t('suppliers:search.noResults', 'No suppliers found')}
-          </Typography>
-        )}
+        <DeleteSupplierSearchEmpty
+          hasSearched={hasSearched}
+          isLoading={searchLoading}
+        />
       </DialogContent>
 
       <DialogActions sx={{ p: 2 }}>

@@ -3,12 +3,12 @@
  * @module dialogs/DeleteSupplierDialog/useDeleteSupplierForm
  *
  * @summary
- * Hook for supplier deletion workflow logic.
- * Handles search, selection, and deletion submission.
+ * Hook for supplier deletion workflow.
+ * Handles selection, confirmation, and deletion submission.
  *
  * @enterprise
- * - Two-step workflow: search → confirm delete
- * - Supplier search with debouncing
+ * - Focuses on deletion-specific logic only
+ * - Delegates search to useSupplierSearch hook
  * - Business rule enforcement (admin-only, linked items check)
  * - Server error mapping with intelligent heuristics
  */
@@ -16,7 +16,8 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../../hooks/useAuth';
-import { deleteSupplier, getSuppliersPage } from '../../../../api/suppliers';
+import { deleteSupplier } from '../../../../api/suppliers';
+import { useSupplierSearch } from './useSupplierSearch';
 import type { SupplierRow } from '../../../../api/suppliers/types';
 
 /**
@@ -25,7 +26,7 @@ import type { SupplierRow } from '../../../../api/suppliers/types';
  * @interface UseDeleteSupplierFormReturn
  */
 export interface UseDeleteSupplierFormReturn {
-  // Search state
+  // Search state (delegated to useSupplierSearch)
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   searchResults: SupplierRow[];
@@ -53,11 +54,12 @@ export interface UseDeleteSupplierFormReturn {
  * Hook for supplier deletion workflow.
  *
  * Manages:
- * - Supplier search with debouncing
- * - Selection validation
+ * - Selection and confirmation state
  * - Deletion submission
  * - Error mapping and display
  * - Authorization checks
+ *
+ * Uses useSupplierSearch for search functionality.
  *
  * @param onDeleted - Callback when supplier is successfully deleted
  * @returns Workflow state and handlers
@@ -68,10 +70,8 @@ export const useDeleteSupplierForm = (
   const { t } = useTranslation(['common', 'suppliers', 'errors']);
   const { user } = useAuth();
 
-  // Search state
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [searchResults, setSearchResults] = React.useState<SupplierRow[]>([]);
-  const [searchLoading, setSearchLoading] = React.useState(false);
+  // Search functionality
+  const search = useSupplierSearch();
 
   // Selection state
   const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierRow | null>(null);
@@ -82,42 +82,15 @@ export const useDeleteSupplierForm = (
   const [error, setError] = React.useState<string | null>(null);
 
   /**
-   * Search for suppliers by name.
-   * Requires minimum 2 characters, debounces API calls.
-   */
-  const handleSearchQueryChange = React.useCallback(
-    async (query: string) => {
-      setSearchQuery(query);
-
-      if (query.trim().length < 2) {
-        setSearchResults([]);
-        return;
-      }
-
-      setSearchLoading(true);
-      try {
-        const response = await getSuppliersPage({ page: 1, pageSize: 10, q: query });
-        setSearchResults(response.items);
-      } catch {
-        setSearchResults([]);
-      } finally {
-        setSearchLoading(false);
-      }
-    },
-    []
-  );
-
-  /**
    * Handle supplier selection from search results.
    * Clears search and shows confirmation step.
    */
   const handleSelectSupplier = React.useCallback((supplier: SupplierRow) => {
     setSelectedSupplier(supplier);
-    setSearchQuery('');
-    setSearchResults([]);
+    search.resetSearch();
     setError(null);
     setShowConfirmation(true);
-  }, []);
+  }, [search]);
 
   /**
    * Handle delete confirmation and submission.
@@ -197,19 +170,18 @@ export const useDeleteSupplierForm = (
    */
   const resetForm = React.useCallback(() => {
     setSelectedSupplier(null);
-    setSearchQuery('');
-    setSearchResults([]);
+    search.resetSearch();
     setError(null);
     setShowConfirmation(false);
-  }, []);
+  }, [search]);
 
   return {
-    // Search state
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    searchLoading,
-    handleSearchQueryChange,
+    // Search state (delegated)
+    searchQuery: search.searchQuery,
+    setSearchQuery: search.setSearchQuery,
+    searchResults: search.searchResults,
+    searchLoading: search.searchLoading,
+    handleSearchQueryChange: search.handleSearchQueryChange,
 
     // Selection state
     selectedSupplier,
