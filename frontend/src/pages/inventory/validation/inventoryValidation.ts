@@ -1,6 +1,6 @@
-﻿/**
- * @file validation.ts
- * @module pages/inventory/validation
+/**
+ * @file inventoryValidation.ts
+ * @module pages/inventory/validation/inventoryValidation
  *
  * @summary
  * Centralized validation schemas for inventory management forms.
