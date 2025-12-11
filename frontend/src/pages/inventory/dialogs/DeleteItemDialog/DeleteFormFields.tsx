@@ -1,5 +1,23 @@
 /**
- * DeleteFormFields - Individual field components for delete workflow
+ * DeleteFormFields - Isolated field components for delete workflow
+ * 
+ * @module dialogs/DeleteItemDialog/DeleteFormFields
+ * @description
+ * Individual form field components for the 4-step delete item workflow.
+ * Each field is isolated for easier testing, reuse, and composition.
+ * 
+ * @enterprise
+ * - Single Responsibility: each component manages one field
+ * - Testable: can be tested independently with mock state
+ * - Reusable: can be composed into custom forms
+ * - Type-safe: all props are strictly typed
+ * - i18n-ready: all labels and messages are translated
+ * 
+ * @components
+ * - SupplierSelectField: Step 1 - Choose supplier from dropdown
+ * - ItemSelectField: Step 2 - Search and autocomplete select item
+ * - DeletionReasonField: Step 3 - Choose predefined deletion reason
+ * - ItemInfoDisplay: Step 4 - Show item details for confirmation
  */
 
 import {
@@ -17,15 +35,36 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { UseDeleteItemDialogReturn } from './DeleteItemDialog.types';
 
-// Supplier selection dropdown - enables item search once selected
+/**
+ * SupplierSelectField - Step 1: Select supplier from dropdown
+ * 
+ * @param state - Complete dialog state from useDeleteItemDialog hook
+ * 
+ * @behavior
+ * - Shows loading spinner while fetching suppliers from API
+ * - Displays dropdown with all available suppliers
+ * - On selection: updates state.selectedSupplier (triggers item search reset)
+ * - On change: clears previously selected item and search query
+ * 
+ * @visibility
+ * - Always visible in form view
+ * - First step that must be completed
+ * - Enables Step 2 (item selection) when completed
+ * 
+ * @performance
+ * - Suppliers loaded once via useSuppliersQuery (5-minute cache)
+ */
 export function SupplierSelectField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['common', 'inventory']);
-  // Show loading while fetching supplier list
+  
+  // Show loading state while suppliers are being fetched from API
   if (state.suppliersQuery.isLoading) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={20} />
-        <Typography variant="body2" color="text.secondary">{t('common:loading', 'Loading...')}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t('common:loading', 'Loading...')}
+        </Typography>
       </Box>
     );
   }
@@ -39,6 +78,8 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
         labelId="supplier-select-label"
         value={state.selectedSupplier?.id ?? ''}
         onChange={(e) => {
+          // Find supplier by ID and update state
+          // Handles both string and numeric IDs via String comparison
           const supplier = state.suppliersQuery.data?.find(
             (s) => String(s.id) === String(e.target.value)
           );
@@ -46,6 +87,7 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
         }}
         label={t('inventory:table.supplier', 'Supplier')}
       >
+        {/* Render all suppliers as menu items for selection */}
         {state.suppliersQuery.data?.map((supplier) => (
           <MenuItem key={supplier.id} value={supplier.id}>
             {supplier.label}
@@ -56,19 +98,54 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
   );
 }
 
-// Item search autocomplete - requires supplier selection and 2+ char search
+/**
+ * ItemSelectField - Step 2: Search and select item via autocomplete
+ * 
+ * @param state - Complete dialog state from useDeleteItemDialog hook
+ * 
+ * @behavior
+ * - Disabled until supplier is selected (shows info alert)
+ * - Shows loading spinner while searching items
+ * - Autocomplete with debounced search (2+ characters required)
+ * - On selection: updates state.selectedItem, clears search query
+ * - On input change: updates state.itemQuery (triggers search via API)
+ * 
+ * @visibility
+ * - Visible only after Step 1 (supplier) is completed
+ * - Conditional render: {state.selectedSupplier && (...)}
+ * - Enables Step 3 (reason) when item is selected
+ * 
+ * @search-behavior
+ * - Requires minimum 2 characters before API call
+ * - Shows helpful message if < 2 characters typed
+ * - Shows "no items found" message if search returns empty
+ * - Filters items by selected supplier via backend query
+ * 
+ * @performance
+ * - Debounced search (350ms) via useDebounced hook
+ * - Minimal API calls: only when 2+ chars and supplier selected
+ * - Uses Autocomplete internal value management for efficiency
+ */
 export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['common', 'inventory']);
-  // Disabled until supplier selected
+  
+  // Guard: cannot search items without selecting supplier first
   if (!state.selectedSupplier) {
-    return <Alert severity="info">{t('inventory:search.selectSupplierFirst', 'Select a supplier to enable search.')}</Alert>;
+    return (
+      <Alert severity="info">
+        {t('inventory:search.selectSupplierFirst', 'Select a supplier to enable search.')}
+      </Alert>
+    );
   }
-  // Show loading while fetching items for selected supplier
+  
+  // Show loading state while API searches items matching query
   if (state.itemsQuery.isLoading) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={20} />
-        <Typography variant="body2" color="text.secondary">{t('common:loading', 'Loading...')}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t('common:loading', 'Loading...')}
+        </Typography>
       </Box>
     );
   }
@@ -82,6 +159,7 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
       value={state.selectedItem}
       onChange={(_e, value) => {
         state.setSelectedItem(value);
+        // Clear search query after selection for clean slate
         state.setItemQuery('');
       }}
       inputValue={state.itemQuery}
@@ -102,7 +180,34 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
   );
 }
 
-// Deletion reason selector - shows predefined business-valid reasons
+/**
+ * DeletionReasonField - Step 3: Select predefined deletion reason
+ * 
+ * @param state - Complete dialog state from useDeleteItemDialog hook
+ * 
+ * @behavior
+ * - Dropdown menu with 6 predefined business reasons
+ * - On change: updates state.deletionReason
+ * - Required for audit trail and inventory accounting
+ * 
+ * @visibility
+ * - Visible only after Step 2 (item) is completed
+ * - Conditional render: {state.selectedItem && (...)}
+ * - Enables Step 4 (preview) when reason selected
+ * 
+ * @reasons
+ * - SCRAPPED: Quality control removal of defective items
+ * - DESTROYED: Catastrophic loss (fire, damage, etc)
+ * - DAMAGED: Quality hold pending resolution
+ * - EXPIRED: Expiration date exceeded
+ * - LOST: Inventory shrinkage/theft
+ * - RETURNED_TO_SUPPLIER: Defective merchandise returned
+ * 
+ * @business-logic
+ * - Reason is stored with deletion for audit and accounting purposes
+ * - Each reason may trigger different GL posting in finance system
+ * - Required field: form cannot proceed without selection
+ */
 export function DeletionReasonField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);
 
@@ -116,6 +221,7 @@ export function DeletionReasonField({ state }: { state: UseDeleteItemDialogRetur
         value={state.deletionReason}
         onChange={(e) => state.setDeletionReason(e.target.value)}
       >
+        {/* Predefined deletion reasons with business descriptions */}
         <MenuItem value="SCRAPPED">
           {t('inventory:reasons.reasonScrapped', 'Scrapped - Quality control removal')}
         </MenuItem>
@@ -139,10 +245,37 @@ export function DeletionReasonField({ state }: { state: UseDeleteItemDialogRetur
   );
 }
 
-// Item preview - shows name and on-hand quantity for final review
+/**
+ * ItemInfoDisplay - Step 4: Show item details for final confirmation
+ * 
+ * @param state - Complete dialog state from useDeleteItemDialog hook
+ * @returns Item preview card or null if no item selected/loaded
+ * 
+ * @behavior
+ * - Only renders when item is selected AND details are loaded
+ * - Shows: item name and on-hand quantity
+ * - Non-interactive: displays information for user verification
+ * - Helps user confirm they're deleting the correct item
+ * 
+ * @visibility
+ * - Visible only after Step 2 (item) is completed
+ * - Only renders if itemDetailsQuery has data
+ * - Conditional render: {state.selectedItem && state.itemDetailsQuery.data && (...)}
+ * 
+ * @styling
+ * - Light background (action.hover) to visually separate from form
+ * - Padding and border radius for readable presentation
+ * - Typography hierarchy: label → value for clarity
+ * 
+ * @ux-purpose
+ * - Final verification before showing confirmation dialog
+ * - Reduces risk of user accidentally deleting wrong item
+ * - User sees on-hand quantity to verify it's safe to delete
+ */
 export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);
 
+  // Guard: only render if item is selected and details are loaded
   if (!state.selectedItem || !state.itemDetailsQuery.data) {
     return null;
   }
@@ -155,6 +288,7 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
         borderRadius: 1,
       }}
     >
+      {/* Item name section */}
       <Typography variant="body2" color="text.secondary">
         {t('inventory:table.name', 'Name')}
       </Typography>
@@ -162,6 +296,7 @@ export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn })
         {state.itemDetailsQuery.data.name}
       </Typography>
 
+      {/* Item on-hand quantity section */}
       <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
         {t('inventory:table.onHand', 'On-hand')}
       </Typography>
