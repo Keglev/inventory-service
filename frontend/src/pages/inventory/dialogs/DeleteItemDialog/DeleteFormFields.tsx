@@ -115,12 +115,6 @@ export function SupplierSelectField({ state }: { state: UseDeleteItemDialogRetur
  * - Conditional render: {state.selectedSupplier && (...)}
  * - Enables Step 3 (reason) when item is selected
  * 
- * @search-behavior
- * - Requires minimum 2 characters before API call
- * - Shows helpful message if < 2 characters typed
- * - Shows "no items found" message if search returns empty
- * - Filters items by selected supplier via backend query
- * 
  * @performance
  * - Debounced search (350ms) via useDebounced hook
  * - Minimal API calls: only when 2+ chars and supplier selected
@@ -195,18 +189,6 @@ export function ItemSelectField({ state }: { state: UseDeleteItemDialogReturn })
  * - Conditional render: {state.selectedItem && (...)}
  * - Enables Step 4 (preview) when reason selected
  * 
- * @reasons
- * - SCRAPPED: Quality control removal of defective items
- * - DESTROYED: Catastrophic loss (fire, damage, etc)
- * - DAMAGED: Quality hold pending resolution
- * - EXPIRED: Expiration date exceeded
- * - LOST: Inventory shrinkage/theft
- * - RETURNED_TO_SUPPLIER: Defective merchandise returned
- * 
- * @business-logic
- * - Reason is stored with deletion for audit and accounting purposes
- * - Each reason may trigger different GL posting in finance system
- * - Required field: form cannot proceed without selection
  */
 export function DeletionReasonField({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);
@@ -266,11 +248,6 @@ export function DeletionReasonField({ state }: { state: UseDeleteItemDialogRetur
  * - Light background (action.hover) to visually separate from form
  * - Padding and border radius for readable presentation
  * - Typography hierarchy: label → value for clarity
- * 
- * @ux-purpose
- * - Final verification before showing confirmation dialog
- * - Reduces risk of user accidentally deleting wrong item
- * - User sees on-hand quantity to verify it's safe to delete
  */
 export function ItemInfoDisplay({ state }: { state: UseDeleteItemDialogReturn }) {
   const { t } = useTranslation(['inventory']);

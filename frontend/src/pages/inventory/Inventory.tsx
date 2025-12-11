@@ -34,7 +34,7 @@ import { getInventoryPage, type InventoryListResponse, type InventoryRow } from 
 import { InventoryFilters } from './InventoryFilters';
 
 import { ItemFormDialog } from './ItemFormDialog';
-import { EditItemDialog } from './EditItemDialog';
+import { EditItemDialog } from './dialogs/EditItemDialog';
 import DeleteItemDialog from './dialogs/DeleteItemDialog/DeleteItemDialog';
 import { QuantityAdjustDialog } from './QuantityAdjustDialog';
 import { PriceChangeDialog } from './PriceChangeDialog';
