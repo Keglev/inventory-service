@@ -153,7 +153,6 @@ const SuppliersBoard: React.FC = () => {
               onSortChange={handleSortChange}
               isLoading={data.isLoadingSuppliers}
               onRowClick={handleRowClick}
-              selectedId={state.selectedId}
             />
           </Box>
         )}

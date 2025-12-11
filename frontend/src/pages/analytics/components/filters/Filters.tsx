@@ -4,9 +4,11 @@
  * Main analytics filters component - orchestrates date range and supplier filters
  */
 
+import { Stack, Paper, Typography, Button, Box } from '@mui/material';
 import { DateRangeFilter } from './DateRangeFilter';
 import { SupplierFilter } from './SupplierFilter';
 import type { FiltersProps, AnalyticsFilters } from './Filters.types';
+import { getQuickDateRange, formatToIsoDate } from './useFiltersLogic';
 
 /**
  * Filters - Main filter panel for analytics page
@@ -31,30 +33,52 @@ export function Filters({
   onChange,
   disabled = false,
 }: FiltersProps) {
+  const resetFilters = () => {
+    const { from, to } = getQuickDateRange(180);
+    onChange({
+      ...value,
+      quick: '180',
+      from: formatToIsoDate(from),
+      to: formatToIsoDate(to),
+      supplierId: undefined,
+    });
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '16px', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
-      <div>
-        <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px' }}>Filters</h3>
+    <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, border: '1px solid', borderColor: 'divider' }}>
+      <Stack spacing={2}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            Filters
+          </Typography>
+          <Button variant="outlined" size="small" onClick={resetFilters} disabled={disabled}>
+            Reset
+          </Button>
+        </Stack>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {/* Date Range Filter */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Date Range</label>
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          spacing={2}
+          alignItems={{ xs: 'stretch', md: 'flex-end' }}
+        >
+          <Box sx={{ flex: 2 }}>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+              Date Range
+            </Typography>
             <DateRangeFilter value={value} onChange={onChange} disabled={disabled} />
-          </div>
+          </Box>
 
-          {/* Supplier Filter */}
-          <div>
+          <Box sx={{ flex: 1, minWidth: 220 }}>
             <SupplierFilter
               value={value}
               suppliers={suppliers}
               onChange={onChange}
               disabled={disabled}
             />
-          </div>
-        </div>
-      </div>
-    </div>
+          </Box>
+        </Stack>
+      </Stack>
+    </Paper>
   );
 }
 
