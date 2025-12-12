@@ -18,6 +18,8 @@
 
 import * as React from 'react';
 import { Box, Paper } from '@mui/material';
+import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import type { SupplierRow } from '../../api/suppliers';
 
 import { useSuppliersBoardState } from './hooks';
@@ -62,6 +64,8 @@ const SuppliersBoard: React.FC = () => {
   // State Management
   // =====================
   const state = useSuppliersBoardState();
+  const location = useLocation();
+  const { user } = useAuth();
 
   // =====================
   // Event Handlers
@@ -84,12 +88,17 @@ const SuppliersBoard: React.FC = () => {
 
   // Clear selection/search when leaving the suppliers route to avoid sticky UI state
   React.useEffect(() => {
+    if (!location.pathname.startsWith('/suppliers')) {
+      state.setSelectedId(null);
+      state.setSelectedSearchResult(null);
+      state.setSearchQuery('');
+    }
     return () => {
       state.setSelectedId(null);
       state.setSelectedSearchResult(null);
       state.setSearchQuery('');
     };
-  }, [state]);
+  }, [location.pathname, state]);
 
   // =====================
   // Render
@@ -109,9 +118,9 @@ const SuppliersBoard: React.FC = () => {
         {/* Header with Toolbar */}
         <SuppliersToolbar
           onCreateClick={handleAddNew}
-          editEnabled={state.selectedId !== null}
+          editEnabled={state.selectedId !== null || Boolean(user?.isDemo)}
           onEditClick={handleEdit}
-          deleteEnabled={state.selectedId !== null}
+          deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo)}
           onDeleteClick={handleDelete}
         />
 

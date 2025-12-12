@@ -103,7 +103,7 @@ export const SuppliersSearchPanel: React.FC<SuppliersSearchPanelProps> = ({
           )}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          disabled={isLoading}
+          disabled={false}
           InputProps={{
             endAdornment: isLoading ? <CircularProgress size={20} /> : null,
           }}

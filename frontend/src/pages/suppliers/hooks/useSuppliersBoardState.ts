@@ -72,7 +72,7 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
   const [showAllSuppliers, setShowAllSuppliers] = React.useState(false);
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
-    pageSize: 8,
+    pageSize: 6,
   });
   const [sortModel, setSortModel] = React.useState<GridSortModel>([
     { field: 'name', sort: 'asc' },
