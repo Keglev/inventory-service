@@ -14,7 +14,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { getInventoryCount, getSuppliersCount, getLowStockCount } from '../index';
+import { getItemCount, getSupplierCount, getLowStockCount } from '../index';
 
 /**
  * Hook to load dashboard KPI metrics (inventory count, supplier count, low stock count).
@@ -35,8 +35,8 @@ import { getInventoryCount, getSuppliersCount, getLowStockCount } from '../index
  *
  * return (
  *   <>
- *     <StatCard title="Items" value={metrics?.inventoryCount} loading={isLoading} />
- *     <StatCard title="Suppliers" value={metrics?.suppliersCount} loading={isLoading} />
+ *     <StatCard title="Items" value={metrics?.itemCount} loading={isLoading} />
+ *     <StatCard title="Suppliers" value={metrics?.supplierCount} loading={isLoading} />
  *     <StatCard title="Low Stock" value={metrics?.lowStockCount} loading={isLoading} />
  *   </>
  * );
@@ -47,8 +47,8 @@ export function useDashboardMetrics(enabled: boolean = true) {
     queryKey: ['analytics', 'dashboard-metrics'],
     queryFn: async () => {
       const [inventoryCount, suppliersCount, lowStockCount] = await Promise.all([
-        getInventoryCount(),
-        getSuppliersCount(),
+        getItemCount(),
+        getSupplierCount(),
         getLowStockCount(),
       ]);
 

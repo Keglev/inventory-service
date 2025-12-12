@@ -34,7 +34,6 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
       state.setSelectedSearchResult(null);
       state.setSelectedId(null);
       state.setPaginationModel({ ...state.paginationModel, page: 0 });
-      state.setShowAllSuppliers(true);
     },
     [state]
   );
@@ -43,7 +42,6 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
     (supplier: SupplierRow) => {
       state.setSelectedSearchResult(supplier);
       state.setSelectedId(supplier.id);
-      state.setShowAllSuppliers(true);
       state.setPaginationModel({ ...state.paginationModel, page: 0 });
       state.setSearchQuery(supplier.name ?? '');
     },
@@ -54,7 +52,6 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
     state.setSelectedSearchResult(null);
     state.setSelectedId(null);
     state.setSearchQuery('');
-    state.setShowAllSuppliers(true);
   }, [state]);
 
   return {

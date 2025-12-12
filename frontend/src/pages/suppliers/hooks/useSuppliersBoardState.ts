@@ -69,10 +69,10 @@ export type UseSuppliersBoardStateReturn = SuppliersBoardState & SuppliersBoardS
  */
 export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [showAllSuppliers, setShowAllSuppliers] = React.useState(true);
+  const [showAllSuppliers, setShowAllSuppliers] = React.useState(false);
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
     page: 0,
-    pageSize: 10,
+    pageSize: 8,
   });
   const [sortModel, setSortModel] = React.useState<GridSortModel>([
     { field: 'name', sort: 'asc' },

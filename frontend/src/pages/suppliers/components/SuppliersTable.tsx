@@ -146,7 +146,7 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
       sx={{
         flex: 1,
         position: 'relative',
-        minHeight: 420,
+        minHeight: 320,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -169,6 +169,8 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
         density={
           userPreferences.tableDensity === 'compact' ? 'compact' : 'comfortable'
         }
+        rowHeight={44}
+        columnHeaderHeight={48}
         onRowClick={onRowClick}
         slots={{
           noRowsOverlay: () => (

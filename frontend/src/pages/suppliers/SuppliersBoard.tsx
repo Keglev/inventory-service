@@ -82,6 +82,15 @@ const SuppliersBoard: React.FC = () => {
   const displayRows = usingSearch ? data.searchResults : data.suppliers;
   const displayRowCount = usingSearch ? data.searchResults.length : data.total;
 
+  // Clear selection/search when leaving the suppliers route to avoid sticky UI state
+  React.useEffect(() => {
+    return () => {
+      state.setSelectedId(null);
+      state.setSelectedSearchResult(null);
+      state.setSearchQuery('');
+    };
+  }, [state]);
+
   // =====================
   // Render
   // =====================
@@ -133,7 +142,7 @@ const SuppliersBoard: React.FC = () => {
             variant="outlined"
             sx={{
               p: 2,
-              height: 420,
+              height: 260,
               display: 'grid',
               placeItems: 'center',
               mx: 2,
