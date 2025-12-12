@@ -99,9 +99,11 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
       onClose={handleDialogClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 1,
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 1,
+          },
         },
       }}
     >

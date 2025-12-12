@@ -48,31 +48,26 @@ export function Filters({
     <Paper
       elevation={0}
       sx={{
-        p: { xs: 2, md: 2.5 },
+        p: { xs: 1.5, md: 2 },
         border: '1px solid',
         borderColor: 'divider',
       }}
     >
-      <Stack spacing={1.5}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ gap: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            Filters
-          </Typography>
-          <Button variant="outlined" size="small" onClick={resetFilters} disabled={disabled}>
-            Reset
-          </Button>
-        </Stack>
+      <Stack spacing={1}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+          Filters
+        </Typography>
 
         <Stack
           direction={{ xs: 'column', md: 'row' }}
-          spacing={{ xs: 2, md: 2.5 }}
-          alignItems={{ xs: 'stretch', md: 'flex-end' }}
+          spacing={{ xs: 1.5, md: 2 }}
+          alignItems={{ xs: 'stretch', md: 'flex-start' }}
         >
           <Box sx={{ flex: 2 }}>
             <Typography variant="body2" sx={{ mb: 0.75, fontWeight: 500 }}>
               Date Range
             </Typography>
-            <DateRangeFilter value={value} onChange={onChange} disabled={disabled} />
+            <DateRangeFilter value={value} onChange={onChange} disabled={disabled} onReset={resetFilters} />
           </Box>
 
           <Box sx={{ flex: 1, minWidth: 240 }}>

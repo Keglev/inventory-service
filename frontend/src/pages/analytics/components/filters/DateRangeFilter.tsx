@@ -15,6 +15,8 @@ interface DateRangeFilterProps {
   /** Changed on any date or quick-range change */
   onChange: (filters: AnalyticsFilters) => void;
   disabled?: boolean;
+  /** Optional reset handler placed inline with presets */
+  onReset?: () => void;
 }
 
 /**
@@ -24,6 +26,7 @@ export function DateRangeFilter({
   value,
   onChange,
   disabled = false,
+  onReset,
 }: DateRangeFilterProps) {
   const [showCustom, setShowCustom] = useState(value.quick === 'custom');
 
@@ -63,7 +66,7 @@ export function DateRangeFilter({
   };
 
   return (
-    <Stack spacing={1.25} alignItems="flex-start">
+    <Stack spacing={1} alignItems="flex-start">
       <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
         <Button
           variant={value.quick === '30' ? 'contained' : 'outlined'}
@@ -97,6 +100,17 @@ export function DateRangeFilter({
         >
           Custom
         </Button>
+        {onReset && (
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={onReset}
+            disabled={disabled}
+            sx={{ ml: { xs: 0, sm: 0.5 } }}
+          >
+            Reset
+          </Button>
+        )}
       </Stack>
 
       {showCustom && (
@@ -108,7 +122,7 @@ export function DateRangeFilter({
             onChange={handleFromChange}
             disabled={disabled}
             size="small"
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
             sx={{ minWidth: 160 }}
           />
           <Typography variant="body2" color="text.secondary">
@@ -121,7 +135,7 @@ export function DateRangeFilter({
             onChange={handleToChange}
             disabled={disabled}
             size="small"
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
             sx={{ minWidth: 160 }}
           />
         </Stack>
