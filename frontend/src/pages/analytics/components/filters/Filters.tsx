@@ -4,7 +4,7 @@
  * Main analytics filters component - orchestrates date range and supplier filters
  */
 
-import { Stack, Paper, Typography, Button, Box } from '@mui/material';
+import { Stack, Paper, Typography, Box } from '@mui/material';
 import { DateRangeFilter } from './DateRangeFilter';
 import { SupplierFilter } from './SupplierFilter';
 import type { FiltersProps, AnalyticsFilters } from './Filters.types';
