@@ -14,6 +14,10 @@ dist
 dist-ssr
 *.local
 
+# TypeDoc output
+docs/
+coverage/
+
 ##
 # IDE Configuration & OS-Specific Files
 # (Allow extensions config for team standardization via .vscode/extensions.json)
