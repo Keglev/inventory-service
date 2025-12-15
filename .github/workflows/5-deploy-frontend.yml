@@ -26,14 +26,13 @@ jobs:
         uses: actions/checkout@v4
 
       # Reuse your existing Docker tag logic, or simply use SHA:
-      - name: Resolve image tag
-        id: vars
+      - name: Resolve image reference
+        id: img
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "image_tag=${{ github.sha }}" >> $GITHUB_OUTPUT
-          else
-            echo "image_tag=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
-          fi
+          set -euo pipefail
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+          echo "image_ref=docker.io/${{ secrets.DOCKER_USERNAME }}/ssp-frontend:$SHA" >> $GITHUB_OUTPUT
 
       # (Optional) Validate image exists, similar to backend 3-deploy-fly.yml 
 
@@ -80,23 +79,40 @@ jobs:
           printf "token: %s\n" "$KOYEB_TOKEN" > "$HOME/.koyeb.yaml"
           chmod 600 "$HOME/.koyeb.yaml"
 
+      - name: Validate image ref
+        run: |
+          set -euo pipefail
+          REF="${{ steps.img.outputs.image_ref }}"
+          echo "Image ref: $REF"
+
+          # Accept either:
+          #  - docker.io/user/repo:tag
+          #  - docker.io/user/repo@sha256:digest
+          if [[ "$REF" =~ ^docker\.io\/[^\/]+\/[^:]+:[A-Za-z0-9._-]+$ ]]; then
+            echo "✅ Tag reference looks valid"
+            exit 0
+          fi
+          if [[ "$REF" =~ ^docker\.io\/[^\/]+\/[^@]+@sha256:[a-f0-9]{64}$ ]]; then
+            echo "✅ Digest reference looks valid"
+            exit 0
+          fi
+          echo "❌ Invalid docker image reference: $REF"
+          exit 1
+
       # ----------------------------------------------------------------------
       # 7) Deploy to Koyeb (pin by digest + keep ports pinned)
       #    - Pins by content digest for deterministic rollouts and safe rollback.
       #    - Always pass --ports to prevent accidental port config drift.
       # ----------------------------------------------------------------------
       - name: Deploy to Koyeb (pin by digest + keep ports)
-        env:
-          IMG_DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           set -euo pipefail
-          FULL_REF="docker.io/${{ env.IMAGE_NAME }}@${IMG_DIGEST}"
           SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
-          echo "Updating $SVC to $FULL_REF ..."
+          REF="${{ steps.img.outputs.image_ref }}"
+          echo "Updating $SVC to $REF ..."
           koyeb service update "$SVC" \
-            --docker "$FULL_REF" \
-            --ports 8080:http
-
+            --docker "$REF" \
+            --ports 8080:http     
       # ----------------------------------------------------------------------
       # 8) Post-deploy health gate (authoritative platform status)
       #    - Wait for service status=HEALTHY via Koyeb CLI (not public curl).

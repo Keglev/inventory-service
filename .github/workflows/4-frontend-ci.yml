@@ -194,20 +194,6 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha
-
-      - name: Inspect frontend image contents
-        run: |
-          echo "Image: $IMAGE_NAME"
-          docker run --rm $IMAGE_NAME sh -c '
-            echo "=== Verifying frontend production image contents ==="
-            echo "✅ Dist:" && ls -lh /usr/share/nginx/html || echo "missing dist"
-            echo ""
-            echo "❌ Test files should NOT exist:"
-            ls /app/tests 2>&1 || echo "  ✅ Confirmed: No /app/tests directory"
-            echo ""
-            echo "❌ Docs should NOT exist:"
-            ls /app/docs 2>&1 || echo "  ✅ Confirmed: No /app/docs directory"
-          '
           
       - name: Build & push image
         id: build
