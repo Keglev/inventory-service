@@ -90,6 +90,9 @@ ewallet.p12
 frontend/dist
 frontend/coverage
 frontend/cert
+frontend/node_modules
+frontend/src/**/*.test.*
+frontend/src/**/*.spec.*
 
 # -----------------------------------------------------------------------------
 # Node caches ANYWHERE in the tree (frontend or otherwise)

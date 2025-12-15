@@ -66,6 +66,10 @@ permissions:
   contents: write
   actions: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-docs:
     # For workflow_run: only if CI succeeded
@@ -104,6 +108,16 @@ jobs:
           fi
           echo "Using project directory:"
           cat $GITHUB_OUTPUT
+
+      - name: Download frontend coverage artifact
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.name == '4️⃣ Frontend CI - Build & Test'
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage-html-${{ github.event.workflow_run.head_sha }}
+          path: ${{ steps.where.outputs.dir }}/target/frontend/coverage
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
 
       # 3) Download JaCoCo artifact from CI (name matches ci-test.yml)
       - name: Download JaCoCo artifact
@@ -154,11 +168,82 @@ jobs:
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
           bash "$PROJECT_DIR/scripts/build-openapi-docs.sh" "$PROJECT_DIR"
 
+      # 6b) Install frontend dev deps for TypeDoc
+      - name: Install frontend deps (TypeDoc)
+        run: |
+          if [ -d "frontend" ]; then
+            cd frontend
+            npm ci
+          else
+            echo "ℹ️ No frontend directory; skipping TypeDoc"
+          fi
+
+      # 6c) Generate TypeDoc markdown from frontend sources
+      - name: Generate TypeDoc (markdown)
+        run: |
+          if [ -d "frontend" ]; then
+            cd frontend
+            if [ -f "typedoc.json" ]; then
+              npx typedoc --options typedoc.json
+            else
+              echo "ℹ️ typedoc.json not found in frontend/; skipping TypeDoc"
+            fi
+          fi
+
+      # 6d) Convert TypeDoc markdown → HTML under target/docs/frontend/api
+      - name: Convert TypeDoc markdown to HTML
+        run: |
+          PROJECT_DIR="${{ steps.where.outputs.dir }}"
+          TYPEDOC_MD_DIR="$PROJECT_DIR/frontend/docs"
+          API_OUT="$PROJECT_DIR/target/docs/frontend/api"
+          TEMPLATE="$PROJECT_DIR/docs/templates/app-docs.html"
+          LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
+
+          if [ ! -d "$TYPEDOC_MD_DIR" ]; then
+            echo "ℹ️ No TypeDoc markdown directory at $TYPEDOC_MD_DIR; skipping frontend API docs."
+            exit 0
+          fi
+
+          mkdir -p "$API_OUT"
+
+          find "$TYPEDOC_MD_DIR" -type f -name "*.md" | while read -r md; do
+            rel="${md#$TYPEDOC_MD_DIR/}"
+            out="$API_OUT/${rel%.md}.html"
+            mkdir -p "$(dirname "$out")"
+
+            pandoc "$md" \
+              --from gfm \
+              --to html \
+              --template "$TEMPLATE" \
+              --lua-filter "$LUA_FILTER" \
+              --metadata=title:"Frontend API · ${rel%.md}" \
+              --standalone \
+              --toc \
+              --toc-depth=3 \
+              -o "$out"
+
+            echo "✓ [frontend API] $md → $out"
+          done
+
       # 7) Build architecture & other markdown (your script with Lua filter)
       - name: Build architecture & markdown docs
         run: |
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
           bash "$PROJECT_DIR/scripts/build-architecture-docs.sh" "$PROJECT_DIR"
+
+      - name: Copy frontend coverage into docs tree
+        run: |
+          PROJECT_DIR="${{ steps.where.outputs.dir }}"
+          SRC="$PROJECT_DIR/target/frontend/coverage"
+          DEST="$PROJECT_DIR/target/docs/frontend/coverage"
+
+          if [ -d "$SRC" ] && [ "$(ls -A "$SRC")" ]; then
+            mkdir -p "$DEST"
+            cp -R "$SRC/." "$DEST/"
+            echo "✓ Copied frontend coverage into docs tree: $DEST"
+          else
+            echo "ℹ️ No frontend coverage found (tests may be missing or coverage disabled)."
+          fi
 
       # 8) Sanity check
       - name: Verify docs tree

@@ -1,0 +1,154 @@
+name: 5️⃣ Deploy Frontend to production (Koyeb)
+
+on:
+  workflow_run:
+    workflows: ["4️⃣ Frontend CI - Build & Test"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/ssp-frontend
+      KOYEB_APP: ${{ secrets.KOYEB_APP }}
+      KOYEB_SERVICE: ${{ secrets.KOYEB_SERVICE }}
+      FRONTEND_URL: https://inventory-service.koyeb.app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Reuse your existing Docker tag logic, or simply use SHA:
+      - name: Resolve image tag
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "image_tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "image_tag=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      # (Optional) Validate image exists, similar to backend 3-deploy-fly.yml 
+
+      # ----------------------------------------------------------------------
+      # 5) Install Koyeb CLI (latest, with retry)
+      #    - Fetches the latest release from GitHub with basic retry logic.
+      #    - Installs to $HOME/.koyeb/bin and exports PATH.
+      # ----------------------------------------------------------------------
+      - name: Install Koyeb CLI
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.koyeb/bin"
+          # Discover latest version (no jq). If discovery fails, fall back to a known version.
+          VER="$(curl -fsSL --retry 5 --retry-connrefused --retry-delay 2 \
+                https://api.github.com/repos/koyeb/koyeb-cli/releases/latest \
+                | grep -oE '"tag_name":\s*"v[0-9.]+"' | head -n1 \
+                | sed -E 's/.*"v([^"]+)".*/\1/')" || VER=""
+          if [ -z "$VER" ]; then
+            VER="4.4.1"  # fallback pin; update when needed
+          fi
+          TARBALL="koyeb-cli_${VER}_linux_amd64.tar.gz"
+          URL="https://github.com/koyeb/koyeb-cli/releases/download/v${VER}/${TARBALL}"
+          echo "Installing Koyeb CLI v${VER} from ${URL}"
+          curl -fsSL --retry 5 --retry-connrefused --retry-delay 2 -o /tmp/koyeb.tgz "$URL"
+          tar -xzf /tmp/koyeb.tgz -C "$HOME/.koyeb/bin"
+          rm /tmp/koyeb.tgz
+          echo "$HOME/.koyeb/bin" >> "$GITHUB_PATH"
+
+
+      - name: Koyeb CLI version
+        run: koyeb version
+
+      # ----------------------------------------------------------------------
+      # 6) Authenticate Koyeb (non-interactive CI)
+      #    - Write token to ~/.koyeb.yaml with strict perms (no shell history/env leaks).
+      # ----------------------------------------------------------------------
+      - name: Authenticate Koyeb (CI mode)
+        env:
+          KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$HOME"
+          printf "token: %s\n" "$KOYEB_TOKEN" > "$HOME/.koyeb.yaml"
+          chmod 600 "$HOME/.koyeb.yaml"
+
+      # ----------------------------------------------------------------------
+      # 7) Deploy to Koyeb (pin by digest + keep ports pinned)
+      #    - Pins by content digest for deterministic rollouts and safe rollback.
+      #    - Always pass --ports to prevent accidental port config drift.
+      # ----------------------------------------------------------------------
+      - name: Deploy to Koyeb (pin by digest + keep ports)
+        env:
+          IMG_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          set -euo pipefail
+          FULL_REF="docker.io/${{ env.IMAGE_NAME }}@${IMG_DIGEST}"
+          SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
+          echo "Updating $SVC to $FULL_REF ..."
+          koyeb service update "$SVC" \
+            --docker "$FULL_REF" \
+            --ports 8080:http
+
+      # ----------------------------------------------------------------------
+      # 8) Post-deploy health gate (authoritative platform status)
+      #    - Wait for service status=HEALTHY via Koyeb CLI (not public curl).
+      #    - On timeout, emit diagnostics to aid triage.
+      # ----------------------------------------------------------------------
+      - name: Wait for Koyeb service to be HEALTHY
+        run: |
+          set -euo pipefail
+          SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
+          echo "Waiting for $SVC to be HEALTHY..."
+          for i in $(seq 1 60); do  # ~5 minutes
+            if koyeb service describe "$SVC" 2>/dev/null \
+              | tr '[:upper:]' '[:lower:]' | grep -q 'healthy'; then
+              echo "Service reports HEALTHY."
+              exit 0
+            fi
+            echo "Not healthy yet... ($i/60)"
+            sleep 5
+          done
+          echo "::group::Koyeb diagnostics"
+          koyeb service describe "$SVC" || true
+          koyeb service deployments list "$SVC" --limit 5 || true
+          koyeb service instances list "$SVC" || true
+          echo "::endgroup::"
+          exit 1
+
+      # ----------------------------------------------------------------------
+      # 9) (Optional) Public URL smoke test
+      #    - After platform reports healthy, verify the public endpoint returns 200.
+      #    - This catches CDN/edge/route misconfig independent of container health.
+      # ----------------------------------------------------------------------
+      - name: Smoke test public URL
+        if: ${{ success() }}
+        env:
+          URL: ${{ env.FRONTEND_URL }}
+        run: |
+          set -euo pipefail
+          # brief settle before probing the edge
+          sleep 5
+          for i in $(seq 1 60); do
+            CODE="$(curl -sS -L -o /dev/null -w '%{http_code}' "$URL")"
+            echo "Attempt $i: HTTP $CODE"
+            if [ "$CODE" = "200" ]; then
+              echo "Public URL ready."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::group::curl diagnostics"
+          curl -I -L "$URL" || true
+          curl -s -L "$URL" | head -n 60 || true
+          echo "::endgroup::"
+          exit 1
+

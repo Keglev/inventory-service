@@ -102,6 +102,8 @@ frontend/.env.production.local
 /frontend/node_modules/
 /frontend/dist/
 /docs/node_modules/
+docs/frontend/coverage/
+docs/frontend/api/
 
 ###############################################################################
 # Java Class Files or Test Tools

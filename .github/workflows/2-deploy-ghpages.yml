@@ -42,6 +42,11 @@ on:
 permissions:
   contents: write
   actions: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+  
 # Needed to checkout gh-pages and push updates
 jobs:
   deploy-ghpages:
