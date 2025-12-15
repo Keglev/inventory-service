@@ -67,6 +67,8 @@ const SuppliersBoard: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
 
+  const { setSelectedId, setSelectedSearchResult, setSearchQuery } = state;
+
   // =====================
   // Event Handlers
   // =====================
@@ -89,16 +91,16 @@ const SuppliersBoard: React.FC = () => {
   // Clear selection/search when leaving the suppliers route to avoid sticky UI state
   React.useEffect(() => {
     if (!location.pathname.startsWith('/suppliers')) {
-      state.setSelectedId(null);
-      state.setSelectedSearchResult(null);
-      state.setSearchQuery('');
+      setSelectedId(null);
+      setSelectedSearchResult(null);
+      setSearchQuery('');
     }
     return () => {
-      state.setSelectedId(null);
-      state.setSelectedSearchResult(null);
-      state.setSearchQuery('');
+      setSelectedId(null);
+      setSelectedSearchResult(null);
+      setSearchQuery('');
     };
-  }, [location.pathname, state]);
+  }, [location.pathname, setSelectedId, setSelectedSearchResult, setSearchQuery]);
 
   // =====================
   // Render
@@ -146,7 +148,7 @@ const SuppliersBoard: React.FC = () => {
         </Box>
 
         {/* Suppliers Table */}
-        {!state.showAllSuppliers ? (
+        {!state.showAllSuppliers && !usingSearch ? (
           <Paper
             variant="outlined"
             sx={{
