@@ -148,13 +148,6 @@ jobs:
         env:
           CI: "true"
         run: |
-          npx vitest --reporter=default --reporter=github-actions --run
-
-            - name: Run unit tests (Vitest with GH annotations)
-        working-directory: frontend
-        env:
-          CI: "true"
-        run: |
           npx vitest --reporter=default --reporter=github-actions --run --coverage
 
       - name: Upload frontend coverage artifact
