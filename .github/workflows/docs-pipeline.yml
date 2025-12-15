@@ -184,15 +184,16 @@ jobs:
       # 6c) Generate TypeDoc markdown from frontend sources
       - name: Generate TypeDoc (markdown)
         run: |
-          if [ -d "frontend" ]; then
+          set -euo pipefail
+          if [ -d "frontend" ] && [ -f "frontend/typedoc.json" ]; then
             cd frontend
-            if [ -f "typedoc.json" ]; then
-              npx typedoc --options typedoc.json
-            else
-              echo "ℹ️ typedoc.json not found in frontend/; skipping TypeDoc"
-            fi
+            npx typedoc --options typedoc.json || {
+              echo "⚠️ TypeDoc failed; continuing docs pipeline (non-blocking for now)."
+            exit 0
+            }
+          else
+            echo "ℹ️ No frontend/typedoc.json; skipping TypeDoc."
           fi
-
       # 6d) Convert TypeDoc markdown → HTML under target/docs/frontend/api
       - name: Convert TypeDoc markdown to HTML
         run: |

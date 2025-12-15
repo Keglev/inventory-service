@@ -4,9 +4,17 @@
  */
 
 {
-  "entryPoints": ["src/index.ts", "src/components", "src/pages", "src/context", "src/api"],
+  "entryPoints": [
+    "src/api/**/*.ts",
+    "src/context/**/*.ts",
+    "src/context/**/*.tsx",
+    "src/components/**/*.ts",
+    "src/components/**/*.tsx",
+    "src/pages/**/*.tsx"
+  ],
+  "entryPointStrategy": "expand",
   "out": "docs",
-  "tsconfig": "tsconfig.json",
+  "tsconfig": "tsconfig.app.json",
   "plugin": ["typedoc-plugin-markdown"],
   "theme": "markdown",
   "exclude": [
@@ -15,7 +23,10 @@
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "**/*.stories.tsx",
-    "**/__mocks__/**"
+    "**/__mocks__/**",
+    "**/vite-env.d.ts",
+    "**/main.tsx",
+    "**/App.tsx"
   ],
   "readme": "none"
 }
