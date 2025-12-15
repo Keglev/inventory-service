@@ -102,6 +102,11 @@ const SuppliersBoard: React.FC = () => {
     };
   }, [location.pathname, setSelectedId, setSelectedSearchResult, setSearchQuery]);
 
+  // If the route is no longer /suppliers, render nothing so other pages can take over
+  if (!location.pathname.startsWith('/suppliers')) {
+    return null;
+  }
+
   // =====================
   // Render
   // =====================
