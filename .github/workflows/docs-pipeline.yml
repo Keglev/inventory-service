@@ -53,8 +53,8 @@ on:
 # A) After CI: for code changes
   workflow_run:
     workflows: 
-      - ["1️⃣ Backend CI - Build & Test"]
-      - ["4️⃣ Frontend CI - Build & Test"] 
+      - "1️⃣ Backend CI - Build & Test"
+      - "4️⃣ Frontend CI - Build & Test" 
     types: [completed]
 # B) Directly on docs-only changes
   push:
