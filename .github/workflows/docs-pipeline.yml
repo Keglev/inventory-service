@@ -52,7 +52,9 @@ name: Docs Pipeline – OpenAPI & Architecture
 on:
 # A) After CI: for code changes
   workflow_run:
-    workflows: ["1️⃣ Backend CI - Build & Test"]
+    workflows: 
+      - ["1️⃣ Backend CI - Build & Test"]
+      - ["4️⃣ Frontend CI - Build & Test"] 
     types: [completed]
 # B) Directly on docs-only changes
   push:
@@ -68,7 +70,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-docs:
@@ -121,7 +123,8 @@ jobs:
 
       # 3) Download JaCoCo artifact from CI (name matches ci-test.yml)
       - name: Download JaCoCo artifact
-        if: github.event_name == 'workflow_run'
+        if: github.event_name == 'workflow_run' &&
+          github.event.workflow_run.name == '1️⃣ Backend CI - Build & Test'
         uses: actions/download-artifact@v4
         with:
           name: jacoco-html-${{ github.event.workflow_run.head_sha }}

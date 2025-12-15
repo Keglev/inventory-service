@@ -57,7 +57,7 @@
 # =============================================================================
 
 # Trigger: push to main, changes in frontend/ or ops/nginx/ or this workflow
-name: Frontend CI - Build & Test
+name: "4️⃣ Frontend CI - Build & Test
 on:
   push:
     branches: [ main ]

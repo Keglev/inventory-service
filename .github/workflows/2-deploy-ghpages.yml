@@ -45,7 +45,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
   
 # Needed to checkout gh-pages and push updates
 jobs:
