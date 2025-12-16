@@ -93,6 +93,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
 }) => {
   return (
     <Box sx={{ width: '100%', height: 600, position: 'relative' }}>
+      {/* Loading Overlay */}
       {loading && (
         <Stack
           sx={{
@@ -111,6 +112,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
           <CircularProgress />
         </Stack>
       )}
+      {/* DataGrid Table */}
       <DataGrid
         rows={rows}
         columns={columns}

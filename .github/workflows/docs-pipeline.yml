@@ -165,6 +165,34 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pandoc
 
+      - name: Ensure Pandoc Lua filter exists
+        run: |
+          set -euo pipefail
+          mkdir -p scripts
+          LUA_FILTER="./scripts/md-to-html-links.lua"
+          if [ ! -f "$LUA_FILTER" ]; then
+            cat > "$LUA_FILTER" << 'EOF'
+          function Link(el)
+            if el.target:match("%.md$") then
+              el.target = el.target:gsub("%.md$", ".html")
+            elseif el.target:match("%.md#") then
+              el.target = el.target:gsub("%.md#", ".html#")
+            end
+            return el
+          end
+          function CodeBlock(el)
+            if el.classes:includes('mermaid') then
+              local html = '<div class="mermaid">\n' .. el.text .. '\n</div>'
+              return pandoc.RawBlock('html', html)
+            end
+            return el
+          end
+          EOF
+            echo "✓ Created $LUA_FILTER"
+          else
+            echo "✓ Found existing $LUA_FILTER"
+          fi
+
       # 6) Build OpenAPI docs & copy coverage (your script)
       - name: Build OpenAPI docs & copy coverage
         run: |
