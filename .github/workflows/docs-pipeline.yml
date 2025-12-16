@@ -173,13 +173,12 @@ jobs:
           if [ ! -f "$LUA_FILTER" ]; then
             cat > "$LUA_FILTER" << 'EOF'
           function Link(el)
-            echo "1) Keep links inside current docs subtree:""
-            echo " TypeDoc markdown sometimes uses ../ which escapes /frontend/api/"
+            -- 1) Keep links inside current docs subtree (prevents escaping /frontend/api/):
             while el.target:match("^%.%./") do
               el.target = el.target:gsub("^%.%./", "")
             end
 
-            echo "2) Convert .md → .html (and anchors)"
+            -- 2) Convert .md → .html (including anchors)
             if el.target:match("%.md$") then
               el.target = el.target:gsub("%.md$", ".html")
             elseif el.target:match("%.md#") then
