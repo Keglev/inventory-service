@@ -18,7 +18,6 @@
 
 import * as React from 'react';
 import { Box, Paper } from '@mui/material';
-import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import type { SupplierRow } from '../../api/suppliers';
 
@@ -64,7 +63,6 @@ const SuppliersBoard: React.FC = () => {
   // State Management
   // =====================
   const state = useSuppliersBoardState();
-  const location = useLocation();
   const { user } = useAuth();
 
   const { setSelectedId, setSelectedSearchResult, setSearchQuery } = state;
@@ -88,24 +86,14 @@ const SuppliersBoard: React.FC = () => {
   const displayRows = usingSearch ? data.searchResults : data.suppliers;
   const displayRowCount = usingSearch ? data.searchResults.length : data.total;
 
-  // Clear selection/search when leaving the suppliers route to avoid sticky UI state
+  // Reset selection/search on unmount (route change)
   React.useEffect(() => {
-    if (!location.pathname.startsWith('/suppliers')) {
-      setSelectedId(null);
-      setSelectedSearchResult(null);
-      setSearchQuery('');
-    }
     return () => {
       setSelectedId(null);
       setSelectedSearchResult(null);
       setSearchQuery('');
     };
-  }, [location.pathname, setSelectedId, setSelectedSearchResult, setSearchQuery]);
-
-  // If the route is no longer /suppliers, render nothing so other pages can take over
-  if (!location.pathname.startsWith('/suppliers')) {
-    return null;
-  }
+  }, [setSelectedId, setSelectedSearchResult, setSearchQuery]);
 
   // =====================
   // Render
