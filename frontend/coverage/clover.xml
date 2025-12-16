@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1765899822563" clover="3.2.0">
-  <project timestamp="1765899822563" name="All files">
-    <metrics statements="24615" coveredstatements="0" conditionals="287" coveredconditionals="0" methods="287" coveredmethods="0" elements="25189" coveredelements="0" complexity="0" loc="24615" ncloc="24615" packages="72" files="287" classes="287"/>
+<coverage generated="1765902426532" clover="3.2.0">
+  <project timestamp="1765902426532" name="All files">
+    <metrics statements="24636" coveredstatements="0" conditionals="287" coveredconditionals="0" methods="287" coveredmethods="0" elements="25210" coveredelements="0" complexity="0" loc="24636" ncloc="24636" packages="72" files="287" classes="287"/>
     <package name="src">
       <metrics statements="95" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
       <file name="App.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/App.tsx">
@@ -7191,9 +7191,9 @@
       </file>
     </package>
     <package name="src.app.layout.sidebar">
-      <metrics statements="439" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="6" coveredmethods="0"/>
+      <metrics statements="460" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="6" coveredmethods="0"/>
       <file name="NavItem.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/app/layout/sidebar/NavItem.tsx">
-        <metrics statements="86" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="107" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -7280,6 +7280,27 @@
         <line num="84" count="0" type="stmt"/>
         <line num="85" count="0" type="stmt"/>
         <line num="86" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="99" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="103" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
       </file>
       <file name="SidebarActions.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/app/layout/sidebar/SidebarActions.tsx">
         <metrics statements="139" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
