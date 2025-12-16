@@ -43,6 +43,57 @@ const queryClient = new QueryClient({
  */
 const root = document.getElementById('root')!;
 
+/**
+ * Ensure SPA routing stays in sync even if some code calls
+ * `window.history.pushState/replaceState` directly (outside React Router).
+ *
+ * React Router updates its state when navigation goes through its APIs.
+ * Direct calls to the History API do not trigger `popstate`, so the router
+ * may not re-render even though the URL changes.
+ */
+function installHistoryLocationChangePatch() {
+  const w = window as unknown as {
+    __sspHistoryPatched?: boolean;
+  };
+
+  if (w.__sspHistoryPatched) return;
+  w.__sspHistoryPatched = true;
+
+  const originalPushState = window.history.pushState;
+  const originalReplaceState = window.history.replaceState;
+
+  const notify = () => {
+    try {
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    } catch {
+      // no-op: environments without PopStateEvent constructor
+      window.dispatchEvent(new Event('popstate'));
+    }
+  };
+
+  window.history.pushState = function pushStatePatched(...args) {
+    const result = originalPushState.apply(this, args as never);
+    notify();
+    return result;
+  };
+
+  window.history.replaceState = function replaceStatePatched(...args) {
+    const result = originalReplaceState.apply(this, args as never);
+    notify();
+    return result;
+  };
+}
+
+installHistoryLocationChangePatch();
+
+// Optional: enable verbose routing logs via localStorage.debugRouting = '1'
+if (localStorage.getItem('debugRouting') === '1') {
+  window.addEventListener('popstate', () => {
+    // eslint-disable-next-line no-console
+    console.debug('[routing] popstate', window.location.pathname + window.location.search);
+  });
+}
+
 // In development, React.StrictMode intentionally double-invokes certain lifecycles
 // to surface side-effects. This is expected. Do not remove unless you have a
 // measured reason (e.g., performance profiling in production builds).

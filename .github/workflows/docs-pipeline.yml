@@ -173,6 +173,13 @@ jobs:
           if [ ! -f "$LUA_FILTER" ]; then
             cat > "$LUA_FILTER" << 'EOF'
           function Link(el)
+            echo "1) Keep links inside current docs subtree:""
+            echo " TypeDoc markdown sometimes uses ../ which escapes /frontend/api/"
+            while el.target:match("^%.%./") do
+              el.target = el.target:gsub("^%.%./", "")
+            end
+
+            echo "2) Convert .md → .html (and anchors)"
             if el.target:match("%.md$") then
               el.target = el.target:gsub("%.md$", ".html")
             elseif el.target:match("%.md#") then
@@ -271,6 +278,12 @@ jobs:
               fi
             fi
           fi
+      # debug frontend API output docs
+      - name: Debug frontend API output
+        run: |
+          ls -la target/docs/frontend/api || true
+          echo "Index exists?"
+          test -f target/docs/frontend/api/index.html && echo "YES" || echo "NO"
 
       # 7) Build architecture & other markdown (your script with Lua filter)
       - name: Build architecture & markdown docs
