@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend API ·
+dialogs/DeleteItemDialog/DeleteFormFields/functions/ItemSelectField · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#function-itemselectfield"
+        id="toc-function-itemselectfield">Function:
+        ItemSelectField()</a>
+        <ul>
+        <li><a href="#parameters" id="toc-parameters">Parameters</a>
+        <ul>
+        <li><a href="#state" id="toc-state">state</a></li>
+        </ul></li>
+        <li><a href="#returns" id="toc-returns">Returns</a></li>
+        <li><a href="#behavior" id="toc-behavior">Behavior</a></li>
+        <li><a href="#visibility"
+        id="toc-visibility">Visibility</a></li>
+        <li><a href="#performance"
+        id="toc-performance">Performance</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <hr />
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">dialogs/DeleteItemDialog/DeleteFormFields</a>
+        / ItemSelectField</p>
+        <h1 id="function-itemselectfield">Function:
+        ItemSelectField()</h1>
+        <blockquote>
+        <p><strong>ItemSelectField</strong>(<code>state</code>):
+        <code>Element</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/cf222152581bba9a1be2e6473e1f6f1fdd46430d/frontend/src/pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields.tsx#L123">src/pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields.tsx:123</a></p>
+        <p>ItemSelectField - Step 2: Search and select item via
+        autocomplete</p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="state">state</h3>
+        <p>Complete dialog state from useDeleteItemDialog hook</p>
+        <h4 id="state-1">state</h4>
+        <p><code>UseDeleteItemDialogReturn</code></p>
+        <h2 id="returns">Returns</h2>
+        <p><code>Element</code></p>
+        <h2 id="behavior">Behavior</h2>
+        <ul>
+        <li>Disabled until supplier is selected (shows info alert)</li>
+        <li>Shows loading spinner while searching items</li>
+        <li>Autocomplete with debounced search (2+ characters
+        required)</li>
+        <li>On selection: updates state.selectedItem, clears search
+        query</li>
+        <li>On input change: updates state.itemQuery (triggers search
+        via API)</li>
+        </ul>
+        <h2 id="visibility">Visibility</h2>
+        <ul>
+        <li>Visible only after Step 1 (supplier) is completed</li>
+        <li>Conditional render: {state.selectedSupplier &amp;&amp;
+        (...)}</li>
+        <li>Enables Step 3 (reason) when item is selected</li>
+        </ul>
+        <h2 id="performance">Performance</h2>
+        <ul>
+        <li>Debounced search (350ms) via useDebounced hook</li>
+        <li>Minimal API calls: only when 2+ chars and supplier
+        selected</li>
+        <li>Uses Autocomplete internal value management for
+        efficiency</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

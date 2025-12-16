@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend API ·
+dialogs/DeleteItemDialog/DeleteFormFields/functions/ItemInfoDisplay · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#function-iteminfodisplay"
+        id="toc-function-iteminfodisplay">Function:
+        ItemInfoDisplay()</a>
+        <ul>
+        <li><a href="#parameters" id="toc-parameters">Parameters</a>
+        <ul>
+        <li><a href="#state" id="toc-state">state</a></li>
+        </ul></li>
+        <li><a href="#returns" id="toc-returns">Returns</a></li>
+        <li><a href="#behavior" id="toc-behavior">Behavior</a></li>
+        <li><a href="#visibility"
+        id="toc-visibility">Visibility</a></li>
+        <li><a href="#styling" id="toc-styling">Styling</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <hr />
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">dialogs/DeleteItemDialog/DeleteFormFields</a>
+        / ItemInfoDisplay</p>
+        <h1 id="function-iteminfodisplay">Function:
+        ItemInfoDisplay()</h1>
+        <blockquote>
+        <p><strong>ItemInfoDisplay</strong>(<code>state</code>):
+        <code>null</code> | <code>Element</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/cf222152581bba9a1be2e6473e1f6f1fdd46430d/frontend/src/pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields.tsx#L252">src/pages/inventory/dialogs/DeleteItemDialog/DeleteFormFields.tsx:252</a></p>
+        <p>ItemInfoDisplay - Step 4: Show item details for final
+        confirmation</p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="state">state</h3>
+        <p>Complete dialog state from useDeleteItemDialog hook</p>
+        <h4 id="state-1">state</h4>
+        <p><code>UseDeleteItemDialogReturn</code></p>
+        <h2 id="returns">Returns</h2>
+        <p><code>null</code> | <code>Element</code></p>
+        <p>Item preview card or null if no item selected/loaded</p>
+        <h2 id="behavior">Behavior</h2>
+        <ul>
+        <li>Only renders when item is selected AND details are
+        loaded</li>
+        <li>Shows: item name and on-hand quantity</li>
+        <li>Non-interactive: displays information for user
+        verification</li>
+        <li>Helps user confirm they're deleting the correct item</li>
+        </ul>
+        <h2 id="visibility">Visibility</h2>
+        <ul>
+        <li>Visible only after Step 2 (item) is completed</li>
+        <li>Only renders if itemDetailsQuery has data</li>
+        <li>Conditional render: {state.selectedItem &amp;&amp;
+        state.itemDetailsQuery.data &amp;&amp; (...)}</li>
+        </ul>
+        <h2 id="styling">Styling</h2>
+        <ul>
+        <li>Light background (action.hover) to visually separate from
+        form</li>
+        <li>Padding and border radius for readable presentation</li>
+        <li>Typography hierarchy: label → value for clarity</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

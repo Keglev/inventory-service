@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend API ·
+context/settings/SettingsContext.types/interfaces/SettingsContextType · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#interface-settingscontexttype"
+        id="toc-interface-settingscontexttype">Interface:
+        SettingsContextType</a>
+        <ul>
+        <li><a href="#properties" id="toc-properties">Properties</a>
+        <ul>
+        <li><a href="#isloading" id="toc-isloading">isLoading</a></li>
+        <li><a href="#resettodefaults"
+        id="toc-resettodefaults">resetToDefaults()</a></li>
+        <li><a href="#setuserpreferences"
+        id="toc-setuserpreferences">setUserPreferences()</a></li>
+        <li><a href="#systeminfo"
+        id="toc-systeminfo">systemInfo</a></li>
+        <li><a href="#userpreferences"
+        id="toc-userpreferences">userPreferences</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <hr />
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">context/settings/SettingsContext.types</a>
+        / SettingsContextType</p>
+        <h1 id="interface-settingscontexttype">Interface:
+        SettingsContextType</h1>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/cf222152581bba9a1be2e6473e1f6f1fdd46430d/frontend/src/context/settings/SettingsContext.types.ts#L61">src/context/settings/SettingsContext.types.ts:61</a></p>
+        <p>Settings context value type Provides access to preferences
+        and system info, plus control functions</p>
+        <h2 id="properties">Properties</h2>
+        <h3 id="isloading">isLoading</h3>
+        <blockquote>
+        <p><strong>isLoading</strong>: <code>boolean</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/cf222152581bba9a1be2e6473e1f6f1fdd46430d/frontend/src/context/settings/SettingsContext.types.ts#L66">src/context/settings/SettingsContext.types.ts:66</a></p>
+        <hr />
+        <h3 id="resettodefaults">resetToDefaults()</h3>
+        <blockquote>
+        <p><strong>resetToDefaults</strong>: () =&gt;
+        <code>void</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/cf222152581bba9a1be2e6473e1f6f1fdd46430d/frontend/src/context/settings/SettingsContext.types.ts#L65">src/context/settings/SettingsContext.types.ts:65</a></p>
+        <h4 id="returns">Returns</h4>
+        <p><code>void</code></p>
+        <hr />
+        <h3 id="setuserpreferences">setUserPreferences()</h3>
+        <blockquote>
+        <p><strong>setUserPreferences</strong>: (<code>prefs</code>)
+        =&gt; <code>void</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/cf222152581bba9a1be2e6473e1f6f1fdd46430d/frontend/src/context/settings/SettingsContext.types.ts#L64">src/context/settings/SettingsContext.types.ts:64</a></p>
+        <h4 id="parameters">Parameters</h4>
+        <h5 id="prefs">prefs</h5>
+        <p><code>Partial</code>&lt;<a
+        href="UserPreferences.html"><code>UserPreferences</code></a>&gt;</p>
+        <h4 id="returns-1">Returns</h4>
+        <p><code>void</code></p>
+        <hr />
+        <h3 id="systeminfo">systemInfo</h3>
+        <blockquote>
+        <p><strong>systemInfo</strong>: <code>null</code> | <a
+        href="SystemInfo.html"><code>SystemInfo</code></a></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/cf222152581bba9a1be2e6473e1f6f1fdd46430d/frontend/src/context/settings/SettingsContext.types.ts#L63">src/context/settings/SettingsContext.types.ts:63</a></p>
+        <hr />
+        <h3 id="userpreferences">userPreferences</h3>
+        <blockquote>
+        <p><strong>userPreferences</strong>: <a
+        href="UserPreferences.html"><code>UserPreferences</code></a></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/cf222152581bba9a1be2e6473e1f6f1fdd46430d/frontend/src/context/settings/SettingsContext.types.ts#L62">src/context/settings/SettingsContext.types.ts:62</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
