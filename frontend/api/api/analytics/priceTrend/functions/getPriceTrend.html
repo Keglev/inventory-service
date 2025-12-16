@@ -80,20 +80,19 @@ api/analytics/priceTrend/functions/getPriceTrend · Smart Supply Pro Docs</title
       </nav>
       
       <article class="doc-body">
-        <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <p><a href="README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/priceTrend</a> /
+        <p><a href="README.html">frontend</a> / <a
+        href="README.html">api/analytics/priceTrend</a> /
         getPriceTrend</p>
         <h1 id="function-getpricetrend">Function: getPriceTrend()</h1>
         <blockquote>
         <p><strong>getPriceTrend</strong>(<code>itemId</code>,
         <code>p?</code>): <code>Promise</code>&lt;<a
-        href="../../types/type-aliases/PricePoint.html"><code>PricePoint</code></a>[]&gt;</p>
+        href="types/type-aliases/PricePoint.html"><code>PricePoint</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7b3898c43a80dd5ef311e20b0e7304c8bd68382f/frontend/src/api/analytics/priceTrend.ts#L32">src/api/analytics/priceTrend.ts:32</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/a1ec553d93834c3ce2a2d6e604cbfe86782670d6/frontend/src/api/analytics/priceTrend.ts#L32">src/api/analytics/priceTrend.ts:32</a></p>
         <p>Fetch an item's price trend in a time window. Returns array
         of {date, price}. Empty array on errors.</p>
         <h2 id="parameters">Parameters</h2>
@@ -108,7 +107,7 @@ api/analytics/priceTrend/functions/getPriceTrend · Smart Supply Pro Docs</title
         <p><code>string</code> = <code>...</code></p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
-        href="../../types/type-aliases/PricePoint.html"><code>PricePoint</code></a>[]&gt;</p>
+        href="types/type-aliases/PricePoint.html"><code>PricePoint</code></a>[]&gt;</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> points <span class="op">=</span> <span class="cf">await</span> <span class="fu">getPriceTrend</span>(<span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span> {</span>

@@ -83,21 +83,20 @@ api/analytics/search/functions/searchItemsForSupplier · Smart Supply Pro Docs</
       </nav>
       
       <article class="doc-body">
-        <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <p><a href="README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/search</a> /
+        <p><a href="README.html">frontend</a> / <a
+        href="README.html">api/analytics/search</a> /
         searchItemsForSupplier</p>
         <h1 id="function-searchitemsforsupplier">Function:
         searchItemsForSupplier()</h1>
         <blockquote>
         <p><strong>searchItemsForSupplier</strong>(<code>supplierId</code>,
         <code>q</code>, <code>limit</code>): <code>Promise</code>&lt;<a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
+        href="types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/7b3898c43a80dd5ef311e20b0e7304c8bd68382f/frontend/src/api/analytics/search.ts#L141">src/api/analytics/search.ts:141</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/a1ec553d93834c3ce2a2d6e604cbfe86782670d6/frontend/src/api/analytics/search.ts#L141">src/api/analytics/search.ts:141</a></p>
         <p>Supplier-scoped item search (does not silently downgrade to
         global). Returns array of {id, name}. Empty array on errors.</p>
         <h2 id="parameters">Parameters</h2>
@@ -109,7 +108,7 @@ api/analytics/search/functions/searchItemsForSupplier · Smart Supply Pro Docs</
         <p><code>number</code> = <code>50</code></p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
+        href="types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> items <span class="op">=</span> <span class="cf">await</span> <span class="fu">searchItemsForSupplier</span>(<span class="st">&#39;SUP-001&#39;</span><span class="op">,</span> <span class="st">&#39;widget&#39;</span><span class="op">,</span> <span class="dv">50</span>)<span class="op">;</span></span>
