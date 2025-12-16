@@ -257,6 +257,21 @@ jobs:
             echo "✓ [frontend API] $md → $out"
           done
 
+          if [ ! -f "$API_OUT/index.html" ]; then
+            if [ -f "$API_OUT/modules.html" ]; then
+              cp "$API_OUT/modules.html" "$API_OUT/index.html"
+              echo "✓ Created $API_OUT/index.html from modules.html"
+            else
+              FIRST_HTML="$(find "$API_OUT" -type f -name "*.html" | head -n 1 || true)"
+              if [ -n "$FIRST_HTML" ]; then
+                cp "$FIRST_HTML" "$API_OUT/index.html"
+                echo "✓ Created $API_OUT/index.html from $(basename "$FIRST_HTML")"
+              else
+                echo "⚠️ No HTML files generated under $API_OUT; frontend API docs are empty."
+              fi
+            fi
+          fi
+
       # 7) Build architecture & other markdown (your script with Lua filter)
       - name: Build architecture & markdown docs
         run: |
