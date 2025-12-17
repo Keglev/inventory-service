@@ -267,9 +267,18 @@ jobs:
             echo "⚠️ No modules.md/index.md/README.md found in $TYPEDOC_MD_DIR"
             echo "   Creating a minimal index.html so the link doesn't 404."
             cat > "$API_OUT/index.html" << 'EOF'
-            <!doctype html><html><head><meta charset="utf-8"><title>Frontend API</title></head>
-            <body><h1>Frontend API</h1><p>No TypeDoc landing page was generated.</p></body></html>
-            EOF
+          <!doctype html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Frontend API</title>
+          </head>
+          <body>
+            <h1>Frontend API</h1>
+            <p>No TypeDoc landing page was generated.</p>
+          </body>
+          </html>
+          EOF
           else
             # Generate /frontend/api/index.html (canonical)
             pandoc "$HOME_MD" \
