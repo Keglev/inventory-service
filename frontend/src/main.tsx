@@ -76,7 +76,11 @@ function installHistoryLocationChangePatch() {
     if (nextState == null) {
       try {
         if (localStorage.getItem('debugRouting') === '1') {
-          console.debug('[history] preserving router state (nextState is nullish)');
+          console.debug(
+            '[history] preserving router state (nextState is nullish)',
+            '\n',
+            new Error().stack
+          );
         }
       } catch {
         // ignore
@@ -98,7 +102,11 @@ function installHistoryLocationChangePatch() {
 
         try {
           if (localStorage.getItem('debugRouting') === '1') {
-            console.debug('[history] merged router keys into history.state');
+            console.debug(
+              '[history] merged router keys into history.state',
+              '\n',
+              new Error().stack
+            );
           }
         } catch {
           // ignore
@@ -138,6 +146,43 @@ function installHistoryLocationChangePatch() {
 }
 
 installHistoryLocationChangePatch();
+
+/**
+ * Debug-only: audit popstate listener registration/removal.
+ * Helps identify code that removes React Router's internal popstate handler.
+ */
+function installPopstateListenerAudit() {
+  try {
+    if (localStorage.getItem('debugRouting') !== '1') return;
+  } catch {
+    return;
+  }
+
+  const w = window as unknown as { __sspPopstateAuditInstalled?: boolean };
+  if (w.__sspPopstateAuditInstalled) return;
+  w.__sspPopstateAuditInstalled = true;
+
+  const originalAdd = window.addEventListener;
+  const originalRemove = window.removeEventListener;
+
+  window.addEventListener = ((...args: Parameters<typeof window.addEventListener>) => {
+    const [type, listener] = args;
+    if (type === 'popstate') {
+      console.debug('[popstate] add', listener, '\n', new Error().stack);
+    }
+    return originalAdd.apply(window, args);
+  }) as typeof window.addEventListener;
+
+  window.removeEventListener = ((...args: Parameters<typeof window.removeEventListener>) => {
+    const [type, listener] = args;
+    if (type === 'popstate') {
+      console.debug('[popstate] remove', listener, '\n', new Error().stack);
+    }
+    return originalRemove.apply(window, args);
+  }) as typeof window.removeEventListener;
+}
+
+installPopstateListenerAudit();
 
 // Optional: enable verbose routing logs via localStorage.debugRouting = '1'
 if (localStorage.getItem('debugRouting') === '1') {
