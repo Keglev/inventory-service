@@ -100,20 +100,21 @@ api/analytics/lowStock/functions/getLowStockItems · Smart Supply Pro · Fronten
       </nav>
       
       <article class="doc-body">
-        <p><a href="README.html"><strong>frontend</strong></a></p>
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="README.html">frontend</a> / <a
-        href="README.html">api/analytics/lowStock</a> /
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">api/analytics/lowStock</a> /
         getLowStockItems</p>
         <h1 id="function-getlowstockitems">Function:
         getLowStockItems()</h1>
         <blockquote>
         <p><strong>getLowStockItems</strong>(<code>supplierId</code>,
         <code>p?</code>): <code>Promise</code>&lt;<a
-        href="types/type-aliases/LowStockRow.html"><code>LowStockRow</code></a>[]&gt;</p>
+        href="../../types/type-aliases/LowStockRow.html"><code>LowStockRow</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/eac4461cede9b3a927b9d4ac4c33977a038f7e54/frontend/src/api/analytics/lowStock.ts#L31">src/api/analytics/lowStock.ts:31</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/3f592348727d422532e07f9ba217cfe8ade593d8/frontend/src/api/analytics/lowStock.ts#L31">src/api/analytics/lowStock.ts:31</a></p>
         <p>Fetch low-stock rows for a given supplier, optionally bounded
         by dates. Returns array of {itemName, quantity,
         minimumQuantity}. Empty array on errors.</p>
@@ -129,7 +130,7 @@ api/analytics/lowStock/functions/getLowStockItems · Smart Supply Pro · Fronten
         <p><code>string</code> = <code>...</code></p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
-        href="types/type-aliases/LowStockRow.html"><code>LowStockRow</code></a>[]&gt;</p>
+        href="../../types/type-aliases/LowStockRow.html"><code>LowStockRow</code></a>[]&gt;</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> lowStockItems <span class="op">=</span> <span class="cf">await</span> <span class="fu">getLowStockItems</span>(<span class="st">&#39;SUP-001&#39;</span><span class="op">,</span> {</span>

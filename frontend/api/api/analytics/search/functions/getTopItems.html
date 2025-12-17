@@ -97,18 +97,19 @@ api/analytics/search/functions/getTopItems · Smart Supply Pro · Frontend API</
       </nav>
       
       <article class="doc-body">
-        <p><a href="README.html"><strong>frontend</strong></a></p>
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="README.html">frontend</a> / <a
-        href="README.html">api/analytics/search</a> / getTopItems</p>
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">api/analytics/search</a> / getTopItems</p>
         <h1 id="function-gettopitems">Function: getTopItems()</h1>
         <blockquote>
         <p><strong>getTopItems</strong>(<code>opts?</code>):
         <code>Promise</code>&lt;<a
-        href="types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
+        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/eac4461cede9b3a927b9d4ac4c33977a038f7e54/frontend/src/api/analytics/search.ts#L38">src/api/analytics/search.ts:38</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/3f592348727d422532e07f9ba217cfe8ade593d8/frontend/src/api/analytics/search.ts#L38">src/api/analytics/search.ts:38</a></p>
         <p>Fetch a small list of items (generic dropdowns; may be
         supplier-scoped). Returns array of {id, name}. Empty array on
         errors.</p>
@@ -120,7 +121,7 @@ api/analytics/search/functions/getTopItems · Smart Supply Pro · Frontend API</
         <p><code>string</code></p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
-        href="types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
+        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> items <span class="op">=</span> <span class="cf">await</span> <span class="fu">getTopItems</span>({ supplierId<span class="op">:</span> <span class="st">&#39;SUP-001&#39;</span><span class="op">,</span> limit<span class="op">:</span> <span class="dv">30</span> })<span class="op">;</span></span>

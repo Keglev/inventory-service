@@ -104,21 +104,22 @@ api/inventory/hooks/functions/useItemSearchQuery · Smart Supply Pro · Frontend
       </nav>
       
       <article class="doc-body">
-        <p><a href="README.html"><strong>frontend</strong></a></p>
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="README.html">frontend</a> / <a
-        href="README-2.html">api/inventory/hooks</a> /
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README-2.html">api/inventory/hooks</a> /
         useItemSearchQuery</p>
         <h1 id="function-useitemsearchquery">Function:
         useItemSearchQuery()</h1>
         <blockquote>
         <p><strong>useItemSearchQuery</strong>(<code>selectedSupplier</code>,
         <code>searchQuery</code>): <code>UseQueryResult</code>&lt;<a
-        href="analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
+        href="../../../analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
         <code>Error</code>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/eac4461cede9b3a927b9d4ac4c33977a038f7e54/frontend/src/api/inventory/hooks/useItemSearchQuery.ts#L61">src/api/inventory/hooks/useItemSearchQuery.ts:61</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/3f592348727d422532e07f9ba217cfe8ade593d8/frontend/src/api/inventory/hooks/useItemSearchQuery.ts#L61">src/api/inventory/hooks/useItemSearchQuery.ts:61</a></p>
         <p>Hook to search items with supplier-scoped filtering and
         type-ahead search. Applies client-side supplier filtering due to
         backend limitation.</p>
@@ -126,14 +127,14 @@ api/inventory/hooks/functions/useItemSearchQuery · Smart Supply Pro · Frontend
         <h3 id="selectedsupplier">selectedSupplier</h3>
         <p>Currently selected supplier (required for filtering)</p>
         <p><code>null</code> | <a
-        href="analytics/types/type-aliases/SupplierOption.html"><code>SupplierOption</code></a></p>
+        href="../../../analytics/types/type-aliases/SupplierOption.html"><code>SupplierOption</code></a></p>
         <h3 id="searchquery">searchQuery</h3>
         <p><code>string</code></p>
         <p>User's search query (minimum 2 characters to trigger
         search)</p>
         <h2 id="returns">Returns</h2>
         <p><code>UseQueryResult</code>&lt;<a
-        href="analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
+        href="../../../analytics/types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[],
         <code>Error</code>&gt;</p>
         <p>React Query result with filtered item options</p>
         <h2 id="enterprise">Enterprise</h2>

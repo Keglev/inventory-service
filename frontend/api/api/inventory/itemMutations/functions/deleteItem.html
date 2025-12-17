@@ -101,19 +101,20 @@ api/inventory/itemMutations/functions/deleteItem · Smart Supply Pro · Frontend
       </nav>
       
       <article class="doc-body">
-        <p><a href="README.html"><strong>frontend</strong></a></p>
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="README.html">frontend</a> / <a
-        href="README.html">api/inventory/itemMutations</a> /
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">api/inventory/itemMutations</a> /
         deleteItem</p>
         <h1 id="function-deleteitem">Function: deleteItem()</h1>
         <blockquote>
         <p><strong>deleteItem</strong>(<code>id</code>,
         <code>reason</code>): <code>Promise</code>&lt;<a
-        href="types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
+        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/eac4461cede9b3a927b9d4ac4c33977a038f7e54/frontend/src/api/inventory/itemMutations.ts#L120">src/api/inventory/itemMutations.ts:120</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/3f592348727d422532e07f9ba217cfe8ade593d8/frontend/src/api/inventory/itemMutations.ts#L120">src/api/inventory/itemMutations.ts:120</a></p>
         <p>Delete an inventory item by ID. Item can only be deleted if
         quantity is 0 (no stock remaining). Only ADMIN users can delete
         items.</p>
@@ -127,7 +128,7 @@ api/inventory/itemMutations/functions/deleteItem · Smart Supply Pro · Frontend
         EXPIRED, LOST, RETURNED_TO_SUPPLIER)</p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
-        href="types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
+        href="../../types/interfaces/UpsertItemResponse.html"><code>UpsertItemResponse</code></a>&gt;</p>
         <p>Response object with ok status and optional error message</p>
         <h2 id="note">Note</h2>
         <p>ADMIN-only operation</p>
