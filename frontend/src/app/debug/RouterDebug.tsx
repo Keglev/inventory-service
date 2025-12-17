@@ -9,6 +9,23 @@ function isRoutingDebugEnabled() {
   }
 }
 
+function dumpHistoryStateOneLine(): string {
+  try {
+    const s = window.history.state as unknown;
+    if (s == null) return 'null';
+    if (typeof s !== 'object') return String(s);
+
+    // Keep it one-line and reasonably small.
+    return JSON.stringify(s);
+  } catch (e) {
+    try {
+      return `<<unserializable:${String(e)}>>`;
+    } catch {
+      return '<<unserializable>>';
+    }
+  }
+}
+
 /**
  * Logs React Router's location whenever it changes.
  *
@@ -26,7 +43,9 @@ export default function RouterDebug() {
         '| router',
         location.pathname + location.search,
         '| window',
-        window.location.pathname + window.location.search
+        window.location.pathname + window.location.search,
+        '| history.state',
+        dumpHistoryStateOneLine()
       );
 
       if (
@@ -49,7 +68,9 @@ export default function RouterDebug() {
       '[router] location',
       location.pathname + location.search,
       '| window',
-      window.location.pathname + window.location.search
+      window.location.pathname + window.location.search,
+      '| history.state',
+      dumpHistoryStateOneLine()
     );
 
     if (location.pathname !== window.location.pathname || location.search !== window.location.search) {

@@ -62,6 +62,55 @@ function installHistoryLocationChangePatch() {
   const originalPushState = window.history.pushState;
   const originalReplaceState = window.history.replaceState;
 
+  const preserveReactRouterHistoryState = (nextState: unknown) => {
+    const current = window.history.state as unknown;
+    const isRRState =
+      !!current &&
+      typeof current === 'object' &&
+      'idx' in (current as Record<string, unknown>) &&
+      'key' in (current as Record<string, unknown>);
+
+    if (!isRRState) return nextState;
+
+    // If some code calls replaceState/pushState with null/undefined, keep RR state.
+    if (nextState == null) {
+      try {
+        if (localStorage.getItem('debugRouting') === '1') {
+          console.debug('[history] preserving router state (nextState is nullish)');
+        }
+      } catch {
+        // ignore
+      }
+      return current;
+    }
+
+    // If caller provides an object without idx/key, merge them in to avoid corrupting router history.
+    if (typeof nextState === 'object') {
+      const ns = nextState as Record<string, unknown>;
+      const hasIdx = 'idx' in ns;
+      const hasKey = 'key' in ns;
+      if (!hasIdx || !hasKey) {
+        const cs = current as Record<string, unknown>;
+        const merged = { ...ns } as Record<string, unknown>;
+        if (!hasIdx) merged.idx = cs.idx;
+        if (!hasKey) merged.key = cs.key;
+        if (!('usr' in merged) && 'usr' in cs) merged.usr = cs.usr;
+
+        try {
+          if (localStorage.getItem('debugRouting') === '1') {
+            console.debug('[history] merged router keys into history.state');
+          }
+        } catch {
+          // ignore
+        }
+
+        return merged;
+      }
+    }
+
+    return nextState;
+  };
+
   const notify = () => {
     try {
       window.dispatchEvent(new PopStateEvent('popstate'));
@@ -72,13 +121,17 @@ function installHistoryLocationChangePatch() {
   };
 
   window.history.pushState = function pushStatePatched(...args) {
-    const result = originalPushState.apply(this, args as never);
+    const nextArgs = [...args] as unknown[];
+    nextArgs[0] = preserveReactRouterHistoryState(nextArgs[0]);
+    const result = originalPushState.apply(this, nextArgs as never);
     notify();
     return result;
   };
 
   window.history.replaceState = function replaceStatePatched(...args) {
-    const result = originalReplaceState.apply(this, args as never);
+    const nextArgs = [...args] as unknown[];
+    nextArgs[0] = preserveReactRouterHistoryState(nextArgs[0]);
+    const result = originalReplaceState.apply(this, nextArgs as never);
     notify();
     return result;
   };
@@ -89,7 +142,6 @@ installHistoryLocationChangePatch();
 // Optional: enable verbose routing logs via localStorage.debugRouting = '1'
 if (localStorage.getItem('debugRouting') === '1') {
   window.addEventListener('popstate', () => {
-    // eslint-disable-next-line no-console
     console.debug('[routing] popstate', window.location.pathname + window.location.search);
   });
 }
