@@ -16,12 +16,14 @@ import { AppFooter } from './app/footer';
 import { SettingsProvider } from './context/settings/SettingsContext';
 import { HelpProvider } from './context/help/HelpContext';
 import HelpPanel from './components/help/HelpPanel';
+import RouterDebug from './app/debug/RouterDebug';
 
 export default function App() {
   return (
     <HelpProvider>
       <SettingsProvider>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
+          <RouterDebug />
           <AppRouter />
           <AppFooter />
           <HelpPanel />

@@ -18,6 +18,7 @@
 
 import * as React from 'react';
 import { Box, Paper } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import type { SupplierRow } from '../../api/suppliers';
 
@@ -63,6 +64,7 @@ const SuppliersBoard: React.FC = () => {
   // State Management
   // =====================
   const state = useSuppliersBoardState();
+  const location = useLocation();
   const { user } = useAuth();
 
   const { setSelectedId, setSelectedSearchResult, setSearchQuery } = state;
@@ -88,12 +90,37 @@ const SuppliersBoard: React.FC = () => {
 
   // Reset selection/search on unmount (route change)
   React.useEffect(() => {
+    const debugEnabled = (() => {
+      try {
+        return localStorage.getItem('debugRouting') === '1';
+      } catch {
+        return false;
+      }
+    })();
+
+    if (debugEnabled) {
+      console.debug('[suppliers] mount', location.pathname);
+    }
+
     return () => {
+      if (debugEnabled) {
+        console.debug('[suppliers] unmount', location.pathname);
+      }
       setSelectedId(null);
       setSelectedSearchResult(null);
       setSearchQuery('');
     };
-  }, [setSelectedId, setSelectedSearchResult, setSearchQuery]);
+  }, [location.pathname, setSelectedId, setSelectedSearchResult, setSearchQuery]);
+
+  React.useEffect(() => {
+    try {
+      if (localStorage.getItem('debugRouting') === '1') {
+        console.debug('[suppliers] location change', location.pathname + location.search);
+      }
+    } catch {
+      // ignore
+    }
+  }, [location.pathname, location.search]);
 
   // =====================
   // Render

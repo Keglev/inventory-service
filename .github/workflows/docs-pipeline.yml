@@ -234,7 +234,7 @@ jobs:
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
           TYPEDOC_MD_DIR="$PROJECT_DIR/frontend/docs"
           API_OUT="$PROJECT_DIR/target/docs/frontend/api"
-          TEMPLATE="$PROJECT_DIR/docs/templates/app-docs.html"
+          TEMPLATE="$PROJECT_DIR/docs/templates/app-api.html"
           LUA_FILTER="$PROJECT_DIR/scripts/md-to-html-links.lua"
 
           if [ ! -d "$TYPEDOC_MD_DIR" ]; then
