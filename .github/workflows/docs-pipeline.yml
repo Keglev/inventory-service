@@ -170,15 +170,9 @@ jobs:
           set -euo pipefail
           mkdir -p scripts
           LUA_FILTER="./scripts/md-to-html-links.lua"
-          if [ ! -f "$LUA_FILTER" ]; then
-            cat > "$LUA_FILTER" << 'EOF'
-          function Link(el)
-            -- 1) Keep links inside current docs subtree (prevents escaping /frontend/api/):
-            while el.target:match("^%.%./") do
-              el.target = el.target:gsub("^%.%./", "")
-            end
 
-            -- 2) Convert .md → .html (including anchors)
+          cat > "$LUA_FILTER" << 'EOF'
+          function Link(el)
             if el.target:match("%.md$") then
               el.target = el.target:gsub("%.md$", ".html")
             elseif el.target:match("%.md#") then
@@ -194,11 +188,7 @@ jobs:
             return el
           end
           EOF
-            echo "✓ Created $LUA_FILTER"
-          else
-            echo "✓ Found existing $LUA_FILTER"
-          fi
-
+            echo "✓ Wrote $LUA_FILTER"
       # 6) Build OpenAPI docs & copy coverage (your script)
       - name: Build OpenAPI docs & copy coverage
         run: |
@@ -263,19 +253,49 @@ jobs:
             echo "✓ [frontend API] $md → $out"
           done
 
-          if [ ! -f "$API_OUT/index.html" ]; then
-            if [ -f "$API_OUT/modules.html" ]; then
-              cp "$API_OUT/modules.html" "$API_OUT/index.html"
-              echo "✓ Created $API_OUT/index.html from modules.html"
-            else
-              FIRST_HTML="$(find "$API_OUT" -type f -name "*.html" | head -n 1 || true)"
-              if [ -n "$FIRST_HTML" ]; then
-                cp "$FIRST_HTML" "$API_OUT/index.html"
-                echo "✓ Created $API_OUT/index.html from $(basename "$FIRST_HTML")"
-              else
-                echo "⚠️ No HTML files generated under $API_OUT; frontend API docs are empty."
-              fi
+          # ---- Create stable landing pages (index.html + modules.html) ----
+          # TypeDoc markdown home file can vary (modules.md, index.md, README.md).
+          HOME_MD=""
+          for c in "modules.md" "index.md" "README.md"; do
+            if [ -f "$TYPEDOC_MD_DIR/$c" ]; then
+              HOME_MD="$TYPEDOC_MD_DIR/$c"
+              break
             fi
+          done
+
+          if [ -z "$HOME_MD" ]; then
+            echo "⚠️ No modules.md/index.md/README.md found in $TYPEDOC_MD_DIR"
+            echo "   Creating a minimal index.html so the link doesn't 404."
+            cat > "$API_OUT/index.html" << 'EOF'
+            <!doctype html><html><head><meta charset="utf-8"><title>Frontend API</title></head>
+            <body><h1>Frontend API</h1><p>No TypeDoc landing page was generated.</p></body></html>
+            EOF
+          else
+            # Generate /frontend/api/index.html (canonical)
+            pandoc "$HOME_MD" \
+              --from gfm \
+              --to html \
+              --template "$TEMPLATE" \
+              --lua-filter "$LUA_FILTER" \
+              --metadata=title:"Frontend API" \
+              --standalone \
+              --toc \
+              --toc-depth=3 \
+              -o "$API_OUT/index.html"
+            echo "✓ Created $API_OUT/index.html from $(basename "$HOME_MD")"
+
+            # Also generate /frontend/api/modules.html for your sidebar link
+            pandoc "$HOME_MD" \
+              --from gfm \
+              --to html \
+              --template "$TEMPLATE" \
+              --lua-filter "$LUA_FILTER" \
+              --metadata=title:"Frontend API · Modules" \
+              --standalone \
+              --toc \
+              --toc-depth=3 \
+              -o "$API_OUT/modules.html"
+            echo "✓ Created $API_OUT/modules.html from $(basename "$HOME_MD")"
           fi
       # debug frontend API output docs
       - name: Debug frontend API output
@@ -284,7 +304,7 @@ jobs:
           echo "Index exists?"
           test -f target/docs/frontend/api/index.html && echo "YES" || echo "NO"
 
-      # 7) Build architecture & other markdown (your script with Lua filter)
+      # 7) Build architecture & other markdown (script with Lua filter)
       - name: Build architecture & markdown docs
         run: |
           PROJECT_DIR="${{ steps.where.outputs.dir }}"
