@@ -20,6 +20,30 @@ export default function RouterDebug() {
   React.useEffect(() => {
     if (!isRoutingDebugEnabled()) return;
 
+    const onPopState = () => {
+      console.debug(
+        '[router] popstate',
+        '| router',
+        location.pathname + location.search,
+        '| window',
+        window.location.pathname + window.location.search
+      );
+
+      if (
+        location.pathname !== window.location.pathname ||
+        location.search !== window.location.search
+      ) {
+        console.debug('[router] MISMATCH on popstate (router vs window)');
+      }
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [location.pathname, location.search]);
+
+  React.useEffect(() => {
+    if (!isRoutingDebugEnabled()) return;
+
     
     console.debug(
       '[router] location',

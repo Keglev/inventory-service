@@ -84,6 +84,16 @@ export default function NavItem({
 
     // Force React Router navigation even if some external handler manipulates the URL.
     event.preventDefault();
+
+    try {
+      if (localStorage.getItem('debugRouting') === '1') {
+        // eslint-disable-next-line no-console
+        console.debug('[nav] click -> navigate', to, '| from', window.location.pathname);
+      }
+    } catch {
+      // ignore
+    }
+
     navigate(to);
   };
 
