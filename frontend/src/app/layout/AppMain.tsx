@@ -82,8 +82,7 @@ export default function AppMain({ isDemo }: AppMainProps) {
 
       {/* Page Content Area */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Keyed to force remount when path/search changes, preventing stale route content */}
-        <Outlet key={location.pathname + location.search} />
+        <Outlet />
       </Box>
     </Box>
   );
