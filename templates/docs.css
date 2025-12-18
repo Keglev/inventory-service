@@ -374,3 +374,57 @@ a:focus-visible {
 .mermaid .note text {
   fill: #e5e7eb !important;
 }
+
+/* =============================================================================
+   Mermaid – FORCE edge/arrow visibility (covers more diagram variants)
+   Put this at the VERY END of docs.css so it wins the cascade.
+   ========================================================================== */
+
+:root {
+  --mermaid-edge: #7dd3fc;   /* bright cyan */
+  --mermaid-edge-w: 2.6px;
+}
+
+/* Many Mermaid diagrams render edges as plain <path> or <line> without edgePath */
+.mermaid svg path[stroke],
+.mermaid svg line[stroke] {
+  stroke: var(--mermaid-edge) !important;
+  stroke-width: var(--mermaid-edge-w) !important;
+}
+
+/* Specifically hit edge classes if present */
+.mermaid .edgePath path,
+.mermaid .flowchart-link,
+.mermaid .link {
+  stroke: var(--mermaid-edge) !important;
+  stroke-width: var(--mermaid-edge-w) !important;
+}
+
+/* Arrowheads across multiple Mermaid versions/types */
+.mermaid svg marker path,
+.mermaid .arrowheadPath,
+.mermaid .arrowMarkerPath {
+  fill: var(--mermaid-edge) !important;
+  stroke: var(--mermaid-edge) !important;
+}
+
+/* Some render arrowheads as polygons */
+.mermaid svg marker polygon {
+  fill: var(--mermaid-edge) !important;
+  stroke: var(--mermaid-edge) !important;
+}
+
+/* Keep node borders as you already like them (don’t let the generic stroke rule ruin them) */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon,
+.mermaid .cluster rect,
+.mermaid .note rect {
+  stroke-width: 1.8px !important;
+}
+
+/* If you see dashed arrows: make the dash more readable */
+.mermaid .edgePath path[stroke-dasharray] {
+  stroke-dasharray: 6 4 !important;
+}
