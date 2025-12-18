@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1766086116664" clover="3.2.0">
-  <project timestamp="1766086116664" name="All files">
-    <metrics statements="24902" coveredstatements="0" conditionals="288" coveredconditionals="0" methods="288" coveredmethods="0" elements="25478" coveredelements="0" complexity="0" loc="24902" ncloc="24902" packages="73" files="288" classes="288"/>
+<coverage generated="1766086887623" clover="3.2.0">
+  <project timestamp="1766086887623" name="All files">
+    <metrics statements="24895" coveredstatements="0" conditionals="288" coveredconditionals="0" methods="288" coveredmethods="0" elements="25471" coveredelements="0" complexity="0" loc="24895" ncloc="24895" packages="73" files="288" classes="288"/>
     <package name="src">
       <metrics statements="267" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
       <file name="App.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/App.tsx">
@@ -22455,7 +22455,7 @@
       </file>
     </package>
     <package name="src.pages.suppliers.dialogs.DeleteSupplierDialog">
-      <metrics statements="996" coveredstatements="0" conditionals="9" coveredconditionals="0" methods="9" coveredmethods="0"/>
+      <metrics statements="989" coveredstatements="0" conditionals="9" coveredconditionals="0" methods="9" coveredmethods="0"/>
       <file name="DeleteSupplierConfirmation.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation.tsx">
         <metrics statements="171" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -22631,7 +22631,7 @@
         <line num="171" count="0" type="stmt"/>
       </file>
       <file name="DeleteSupplierDialog.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierDialog.tsx">
-        <metrics statements="137" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="130" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -22762,13 +22762,6 @@
         <line num="128" count="0" type="stmt"/>
         <line num="129" count="0" type="stmt"/>
         <line num="130" count="0" type="stmt"/>
-        <line num="131" count="0" type="stmt"/>
-        <line num="132" count="0" type="stmt"/>
-        <line num="133" count="0" type="stmt"/>
-        <line num="134" count="0" type="stmt"/>
-        <line num="135" count="0" type="stmt"/>
-        <line num="136" count="0" type="stmt"/>
-        <line num="137" count="0" type="stmt"/>
       </file>
       <file name="DeleteSupplierSearch.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch.tsx">
         <metrics statements="134" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
