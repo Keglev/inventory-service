@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1766077063150" clover="3.2.0">
-  <project timestamp="1766077063150" name="All files">
-    <metrics statements="24918" coveredstatements="0" conditionals="288" coveredconditionals="0" methods="288" coveredmethods="0" elements="25494" coveredelements="0" complexity="0" loc="24918" ncloc="24918" packages="73" files="288" classes="288"/>
+<coverage generated="1766077870262" clover="3.2.0">
+  <project timestamp="1766077870262" name="All files">
+    <metrics statements="24919" coveredstatements="0" conditionals="288" coveredconditionals="0" methods="288" coveredmethods="0" elements="25495" coveredelements="0" complexity="0" loc="24919" ncloc="24919" packages="73" files="288" classes="288"/>
     <package name="src">
       <metrics statements="267" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
       <file name="App.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/App.tsx">
@@ -21135,9 +21135,9 @@
       </file>
     </package>
     <package name="src.pages.suppliers">
-      <metrics statements="220" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <metrics statements="221" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
       <file name="SuppliersBoard.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/SuppliersBoard.tsx">
-        <metrics statements="220" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="221" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -21358,6 +21358,7 @@
         <line num="218" count="0" type="stmt"/>
         <line num="219" count="0" type="stmt"/>
         <line num="220" count="0" type="stmt"/>
+        <line num="221" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src.pages.suppliers.components">
