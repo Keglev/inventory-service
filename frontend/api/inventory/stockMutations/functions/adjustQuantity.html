@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend API ·
+inventory/stockMutations/functions/adjustQuantity · Smart Supply Pro · Frontend API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Shared docs CSS -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+
+  <!-- Optional: tiny API-specific tweaks without changing docs.css -->
+  <style>
+    /* Small “API” header badge to reduce confusion vs architecture */
+    .api-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      border: 1px solid #e5e7eb;
+      background: #eef2ff; /* subtle indigo tint */
+      color: #3730a3;
+      margin-left: 0.6rem;
+      white-space: nowrap;
+    }
+
+    /* Make sidebar feel “lighter” for API reference pages */
+    .sidebar.api-sidebar h2 {
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">
+        📦 Smart Supply Pro Docs
+        <span class="api-badge">🧩 Frontend API</span>
+      </a>
+
+      <nav class="nav">
+        <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+        <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Small API sidebar (no backend architecture tree) -->
+    <aside class="sidebar api-sidebar">
+      <h2>Frontend API</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/api/index.html">API Home</a></li>
+      </ul>
+
+      <h2>Quick Links</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a></li>
+        <li><a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a></li>
+      </ul>
+
+      <h2>Project</h2>
+      <ul>
+        <li><a href="/inventory-service/">Docs Home</a></li>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a></li>
+      </ul>
+      <h2>Reference</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/api/modules.html">Modules</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#function-adjustquantity"
+        id="toc-function-adjustquantity">Function: adjustQuantity()</a>
+        <ul>
+        <li><a href="#parameters" id="toc-parameters">Parameters</a>
+        <ul>
+        <li><a href="#req" id="toc-req">req</a></li>
+        </ul></li>
+        <li><a href="#returns" id="toc-returns">Returns</a></li>
+        <li><a href="#enterprise"
+        id="toc-enterprise">Enterprise</a></li>
+        <li><a href="#example" id="toc-example">Example</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <hr />
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">api/inventory/stockMutations</a> /
+        adjustQuantity</p>
+        <h1 id="function-adjustquantity">Function: adjustQuantity()</h1>
+        <blockquote>
+        <p><strong>adjustQuantity</strong>(<code>req</code>):
+        <code>Promise</code>&lt;<code>boolean</code>&gt;</p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/09d36d4a1f1d1d7bfba0746b4339b3760a1e68e3/frontend/src/api/inventory/stockMutations.ts#L50">src/api/inventory/stockMutations.ts:50</a></p>
+        <p>Adjust item quantity by delta (purchase/correction style).
+        Positive delta = purchase/inbound; negative =
+        correction/outbound.</p>
+        <h2 id="parameters">Parameters</h2>
+        <h3 id="req">req</h3>
+        <p><a
+        href="../../types/interfaces/AdjustQuantityRequest.html"><code>AdjustQuantityRequest</code></a></p>
+        <p>Adjustment payload with item id, delta, and business
+        reason</p>
+        <h2 id="returns">Returns</h2>
+        <p><code>Promise</code>&lt;<code>boolean</code>&gt;</p>
+        <p>true if successful, false otherwise</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <p>Server commonly exposes: PATCH
+        /{id}/quantity?delta=&amp;reason= Reasons typically map to
+        business enums (PURCHASE, CORRECTION, WRITE_OFF, RETURN,
+        etc.)</p>
+        <h2 id="example">Example</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Record a purchase (inbound)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> success <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  delta<span class="op">:</span> <span class="dv">50</span><span class="op">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  reason<span class="op">:</span> <span class="st">&#39;PURCHASE&#39;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Record a correction (outbound)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> corrected <span class="op">=</span> <span class="cf">await</span> <span class="fu">adjustQuantity</span>({</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="st">&#39;ITEM-123&#39;</span><span class="op">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  delta<span class="op">:</span> <span class="op">-</span><span class="dv">5</span><span class="op">,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  reason<span class="op">:</span> <span class="st">&#39;CORRECTION&#39;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Frontend API · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid support (harmless even if API pages don't use it) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

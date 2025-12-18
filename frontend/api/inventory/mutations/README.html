@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend API ·
+inventory/mutations/README · Smart Supply Pro · Frontend API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Shared docs CSS -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+
+  <!-- Optional: tiny API-specific tweaks without changing docs.css -->
+  <style>
+    /* Small “API” header badge to reduce confusion vs architecture */
+    .api-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      border: 1px solid #e5e7eb;
+      background: #eef2ff; /* subtle indigo tint */
+      color: #3730a3;
+      margin-left: 0.6rem;
+      white-space: nowrap;
+    }
+
+    /* Make sidebar feel “lighter” for API reference pages */
+    .sidebar.api-sidebar h2 {
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">
+        📦 Smart Supply Pro Docs
+        <span class="api-badge">🧩 Frontend API</span>
+      </a>
+
+      <nav class="nav">
+        <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+        <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Small API sidebar (no backend architecture tree) -->
+    <aside class="sidebar api-sidebar">
+      <h2>Frontend API</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/api/index.html">API Home</a></li>
+      </ul>
+
+      <h2>Quick Links</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a></li>
+        <li><a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a></li>
+      </ul>
+
+      <h2>Project</h2>
+      <ul>
+        <li><a href="/inventory-service/">Docs Home</a></li>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a></li>
+      </ul>
+      <h2>Reference</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/api/modules.html">Modules</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#apiinventorymutations"
+        id="toc-apiinventorymutations">api/inventory/mutations</a>
+        <ul>
+        <li><a href="#file" id="toc-file">File</a></li>
+        <li><a href="#enterprise"
+        id="toc-enterprise">Enterprise</a></li>
+        <li><a href="#usage" id="toc-usage">Usage</a></li>
+        <li><a href="#references" id="toc-references">References</a>
+        <ul>
+        <li><a href="#adjustquantity"
+        id="toc-adjustquantity">adjustQuantity</a></li>
+        <li><a href="#adjustquantityrequest"
+        id="toc-adjustquantityrequest">AdjustQuantityRequest</a></li>
+        <li><a href="#changeprice"
+        id="toc-changeprice">changePrice</a></li>
+        <li><a href="#changepricerequest"
+        id="toc-changepricerequest">ChangePriceRequest</a></li>
+        <li><a href="#deleteitem"
+        id="toc-deleteitem">deleteItem</a></li>
+        <li><a href="#inventory_base"
+        id="toc-inventory_base">INVENTORY_BASE</a></li>
+        <li><a href="#listsuppliers"
+        id="toc-listsuppliers">listSuppliers</a></li>
+        <li><a href="#normalizeinventoryrow"
+        id="toc-normalizeinventoryrow">normalizeInventoryRow</a></li>
+        <li><a href="#renameitem"
+        id="toc-renameitem">renameItem</a></li>
+        <li><a href="#searchitemsbysupplier"
+        id="toc-searchitemsbysupplier">searchItemsBySupplier</a></li>
+        <li><a href="#suppliers_base"
+        id="toc-suppliers_base">SUPPLIERS_BASE</a></li>
+        <li><a href="#upsertitem"
+        id="toc-upsertitem">upsertItem</a></li>
+        <li><a href="#upsertitemrequest"
+        id="toc-upsertitemrequest">UpsertItemRequest</a></li>
+        <li><a href="#upsertitemresponse"
+        id="toc-upsertitemresponse">UpsertItemResponse</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a
+        href="../../../README.html"><strong>frontend</strong></a></p>
+        <hr />
+        <p><a href="../../../README.html">frontend</a> /
+        api/inventory/mutations</p>
+        <h1 id="apiinventorymutations">api/inventory/mutations</h1>
+        <h2 id="file">File</h2>
+        <p>mutations.ts</p>
+        <h2 id="enterprise">Enterprise</h2>
+        <ul>
+        <li>Single import location for all mutations and queries</li>
+        <li>Backward compatible with existing imports</li>
+        <li>Clear separation of concerns across modules</li>
+        <li>Full TypeDoc documentation inheritance</li>
+        </ul>
+        <h2 id="usage">Usage</h2>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Import specific mutations</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { upsertItem<span class="op">,</span> adjustQuantity<span class="op">,</span> changePrice } <span class="im">from</span> <span class="st">&#39;@/api/inventory/mutations&#39;</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Or import types</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { UpsertItemRequest<span class="op">,</span> AdjustQuantityRequest } <span class="im">from</span> <span class="st">&#39;@/api/inventory/mutations&#39;</span><span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Or import suppliers</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { listSuppliers<span class="op">,</span> searchItemsBySupplier } <span class="im">from</span> <span class="st">&#39;@/api/inventory/mutations&#39;</span><span class="op">;</span></span></code></pre></div>
+        <h2 id="references">References</h2>
+        <h3 id="adjustquantity">adjustQuantity</h3>
+        <p>Re-exports <a
+        href="../stockMutations/functions/adjustQuantity.html">adjustQuantity</a></p>
+        <hr />
+        <h3 id="adjustquantityrequest">AdjustQuantityRequest</h3>
+        <p>Re-exports <a
+        href="../types/interfaces/AdjustQuantityRequest.html">AdjustQuantityRequest</a></p>
+        <hr />
+        <h3 id="changeprice">changePrice</h3>
+        <p>Re-exports <a
+        href="../priceMutations/functions/changePrice.html">changePrice</a></p>
+        <hr />
+        <h3 id="changepricerequest">ChangePriceRequest</h3>
+        <p>Re-exports <a
+        href="../types/interfaces/ChangePriceRequest.html">ChangePriceRequest</a></p>
+        <hr />
+        <h3 id="deleteitem">deleteItem</h3>
+        <p>Re-exports <a
+        href="../itemMutations/functions/deleteItem.html">deleteItem</a></p>
+        <hr />
+        <h3 id="inventory_base">INVENTORY_BASE</h3>
+        <p>Re-exports <a
+        href="../itemMutations/variables/INVENTORY_BASE.html">INVENTORY_BASE</a></p>
+        <hr />
+        <h3 id="listsuppliers">listSuppliers</h3>
+        <p>Re-exports <a
+        href="../supplierQueries/functions/listSuppliers.html">listSuppliers</a></p>
+        <hr />
+        <h3 id="normalizeinventoryrow">normalizeInventoryRow</h3>
+        <p>Re-exports <a
+        href="../normalizers/functions/normalizeInventoryRow.html">normalizeInventoryRow</a></p>
+        <hr />
+        <h3 id="renameitem">renameItem</h3>
+        <p>Re-exports <a
+        href="../itemMutations/functions/renameItem.html">renameItem</a></p>
+        <hr />
+        <h3 id="searchitemsbysupplier">searchItemsBySupplier</h3>
+        <p>Re-exports <a
+        href="../supplierQueries/functions/searchItemsBySupplier.html">searchItemsBySupplier</a></p>
+        <hr />
+        <h3 id="suppliers_base">SUPPLIERS_BASE</h3>
+        <p>Re-exports <a
+        href="../supplierQueries/variables/SUPPLIERS_BASE.html">SUPPLIERS_BASE</a></p>
+        <hr />
+        <h3 id="upsertitem">upsertItem</h3>
+        <p>Re-exports <a
+        href="../itemMutations/functions/upsertItem.html">upsertItem</a></p>
+        <hr />
+        <h3 id="upsertitemrequest">UpsertItemRequest</h3>
+        <p>Re-exports <a
+        href="../types/interfaces/UpsertItemRequest.html">UpsertItemRequest</a></p>
+        <hr />
+        <h3 id="upsertitemresponse">UpsertItemResponse</h3>
+        <p>Re-exports <a
+        href="../types/interfaces/UpsertItemResponse.html">UpsertItemResponse</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Frontend API · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid support (harmless even if API pages don't use it) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

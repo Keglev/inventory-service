@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend API ·
+inventory/types/interfaces/InventoryListParams · Smart Supply Pro · Frontend API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Shared docs CSS -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+
+  <!-- Optional: tiny API-specific tweaks without changing docs.css -->
+  <style>
+    /* Small “API” header badge to reduce confusion vs architecture */
+    .api-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      border: 1px solid #e5e7eb;
+      background: #eef2ff; /* subtle indigo tint */
+      color: #3730a3;
+      margin-left: 0.6rem;
+      white-space: nowrap;
+    }
+
+    /* Make sidebar feel “lighter” for API reference pages */
+    .sidebar.api-sidebar h2 {
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">
+        📦 Smart Supply Pro Docs
+        <span class="api-badge">🧩 Frontend API</span>
+      </a>
+
+      <nav class="nav">
+        <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+        <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+        <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+        <a href="/inventory-service/backend/api/index.html">Backend API</a>
+        <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+        <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>
+        <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Small API sidebar (no backend architecture tree) -->
+    <aside class="sidebar api-sidebar">
+      <h2>Frontend API</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/api/index.html">API Home</a></li>
+      </ul>
+
+      <h2>Quick Links</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a></li>
+        <li><a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a></li>
+      </ul>
+
+      <h2>Project</h2>
+      <ul>
+        <li><a href="/inventory-service/">Docs Home</a></li>
+        <li><a href="/inventory-service/backend/api/index.html">Backend API</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a></li>
+      </ul>
+      <h2>Reference</h2>
+      <ul>
+        <li><a href="/inventory-service/frontend/api/modules.html">Modules</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#interface-inventorylistparams"
+        id="toc-interface-inventorylistparams">Interface:
+        InventoryListParams</a>
+        <ul>
+        <li><a href="#properties" id="toc-properties">Properties</a>
+        <ul>
+        <li><a href="#page" id="toc-page">page</a></li>
+        <li><a href="#pagesize" id="toc-pagesize">pageSize</a></li>
+        <li><a href="#q" id="toc-q">q?</a></li>
+        <li><a href="#sort" id="toc-sort">sort?</a></li>
+        <li><a href="#supplierid"
+        id="toc-supplierid">supplierId?</a></li>
+        </ul></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a
+        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <hr />
+        <p><a href="../../../../README.html">frontend</a> / <a
+        href="../README.html">api/inventory/types</a> /
+        InventoryListParams</p>
+        <h1 id="interface-inventorylistparams">Interface:
+        InventoryListParams</h1>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/09d36d4a1f1d1d7bfba0746b4339b3760a1e68e3/frontend/src/api/inventory/types.ts#L19">src/api/inventory/types.ts:19</a></p>
+        <p>Filter &amp; pagination params accepted by the list
+        endpoint.</p>
+        <h2 id="properties">Properties</h2>
+        <h3 id="page">page</h3>
+        <blockquote>
+        <p><strong>page</strong>: <code>number</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/09d36d4a1f1d1d7bfba0746b4339b3760a1e68e3/frontend/src/api/inventory/types.ts#L21">src/api/inventory/types.ts:21</a></p>
+        <p>1-based page index expected by the backend.</p>
+        <hr />
+        <h3 id="pagesize">pageSize</h3>
+        <blockquote>
+        <p><strong>pageSize</strong>: <code>number</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/09d36d4a1f1d1d7bfba0746b4339b3760a1e68e3/frontend/src/api/inventory/types.ts#L23">src/api/inventory/types.ts:23</a></p>
+        <p>Page size (rows per page).</p>
+        <hr />
+        <h3 id="q">q?</h3>
+        <blockquote>
+        <p><code>optional</code> <strong>q</strong>:
+        <code>string</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/09d36d4a1f1d1d7bfba0746b4339b3760a1e68e3/frontend/src/api/inventory/types.ts#L25">src/api/inventory/types.ts:25</a></p>
+        <p>Search term (name/code); empty string for no search.</p>
+        <hr />
+        <h3 id="sort">sort?</h3>
+        <blockquote>
+        <p><code>optional</code> <strong>sort</strong>:
+        <code>string</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/09d36d4a1f1d1d7bfba0746b4339b3760a1e68e3/frontend/src/api/inventory/types.ts#L29">src/api/inventory/types.ts:29</a></p>
+        <p>Sort expression, e.g., "name,asc".</p>
+        <hr />
+        <h3 id="supplierid">supplierId?</h3>
+        <blockquote>
+        <p><code>optional</code> <strong>supplierId</strong>:
+        <code>string</code> | <code>number</code></p>
+        </blockquote>
+        <p>Defined in: <a
+        href="https://github.com/Keglev/inventory-service/blob/09d36d4a1f1d1d7bfba0746b4339b3760a1e68e3/frontend/src/api/inventory/types.ts#L27">src/api/inventory/types.ts:27</a></p>
+        <p>Filter by supplier id (string/number).</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Frontend API · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid support (harmless even if API pages don't use it) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
