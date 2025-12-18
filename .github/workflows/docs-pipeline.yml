@@ -236,6 +236,7 @@ jobs:
 
           find "$TYPEDOC_MD_DIR" -type f -name "*.md" | while read -r md; do
             rel="${md#$TYPEDOC_MD_DIR/}"
+            rel="${rel#api/}"
             out="$API_OUT/${rel%.md}.html"
             mkdir -p "$(dirname "$out")"
 
@@ -276,7 +277,7 @@ jobs:
           rm -f "$API_OUT/index.md"
 
           # 2) Generate modules.html from the best “modules” source available
-          MODULES_MD="$TYPEDOC_MD_DIR/api/inventory/README.md"
+          MODULES_MD="$TYPEDOC_MD_DIR/README.md"
 
           if [ -f "$MODULES_MD" ]; then
             pandoc "$MODULES_MD" \

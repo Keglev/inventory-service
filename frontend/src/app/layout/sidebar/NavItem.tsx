@@ -19,7 +19,7 @@ import {
   ListItemText,
   Tooltip,
 } from '@mui/material';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface NavItemProps {
   /** Route path to navigate to */
@@ -65,25 +65,14 @@ export default function NavItem({
   tooltip,
 }: NavItemProps) {
   const location = useLocation();
-  const navigate = useNavigate();
   const selected = location.pathname === to || (to !== '/' && location.pathname.startsWith(to));
 
   const handleClick = (event: React.MouseEvent) => {
-    if (disabled) return;
-
-    // Preserve browser-native behaviors (open in new tab/window) for modified clicks.
-    if (
-      event.button !== 0 ||
-      event.metaKey ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.shiftKey
-    ) {
+    if (disabled) {
+      event.preventDefault();
+      event.stopPropagation();
       return;
     }
-
-    // Force React Router navigation even if some external handler manipulates the URL.
-    event.preventDefault();
 
     try {
       if (localStorage.getItem('debugRouting') === '1') {
@@ -94,7 +83,7 @@ export default function NavItem({
       // ignore
     }
 
-    navigate(to);
+    // Let React Router's <Link> handle the navigation.
   };
 
   const button = (
