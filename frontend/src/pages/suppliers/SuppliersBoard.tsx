@@ -67,8 +67,6 @@ const SuppliersBoard: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
 
-  const { setSelectedId, setSelectedSearchResult, setSearchQuery } = state;
-
   // =====================
   // Event Handlers
   // =====================
@@ -88,32 +86,27 @@ const SuppliersBoard: React.FC = () => {
   const displayRows = usingSearch ? data.searchResults : data.suppliers;
   const displayRowCount = usingSearch ? data.searchResults.length : data.total;
 
-  // Reset selection/search on unmount (route change)
+  // Debug mount/unmount (cleanup removed to diagnose render freeze)
   React.useEffect(() => {
-    const debugEnabled = (() => {
-      try {
-        return localStorage.getItem('debugRouting') === '1';
-      } catch {
-        return false;
+    try {
+      if (localStorage.getItem('debugRouting') === '1') {
+        console.debug('[suppliers] mount', location.pathname);
       }
-    })();
-
-    if (debugEnabled) {
-      console.debug('[suppliers] mount', location.pathname);
+    } catch {
+      // ignore
     }
 
     return () => {
-      if (debugEnabled) {
-        console.debug('[suppliers] unmount', location.pathname);
+      try {
+        if (localStorage.getItem('debugRouting') === '1') {
+          console.debug('[suppliers] unmount', location.pathname);
+        }
+      } catch {
+        // ignore
       }
-      // Defer state cleanup to avoid blocking React's render cycle
-      setTimeout(() => {
-        setSelectedId(null);
-        setSelectedSearchResult(null);
-        setSearchQuery('');
-      }, 0);
+      // NOTE: State cleanup removed to diagnose render freeze after navigation
     };
-  }, [location.pathname, setSelectedId, setSelectedSearchResult, setSearchQuery]);
+  }, [location.pathname]);
 
   React.useEffect(() => {
     try {
