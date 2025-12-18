@@ -173,13 +173,21 @@ jobs:
 
           cat > "$LUA_FILTER" << 'EOF'
           function Link(el)
-            if el.target:match("%.md$") then
-              el.target = el.target:gsub("%.md$", ".html")
-            elseif el.target:match("%.md#") then
-              el.target = el.target:gsub("%.md#", ".html#")
+            -- Keep links inside subtree (remove ../ prefixes)
+            while el.target:match("^%.%./") do
+              el.target = el.target:gsub("^%.%./", "")
             end
+
+            -- Strip leading api/ so links match the rel="${rel#api/}" output rule
+            el.target = el.target:gsub("^api/", "")
+            el.target = el.target:gsub("^%./api/", "")
+
+            -- Convert .md -> .html (including anchors)
+            el.target = el.target:gsub("%.md#", ".html#")
+            el.target = el.target:gsub("%.md$", ".html")
             return el
           end
+
           function CodeBlock(el)
             if el.classes:includes('mermaid') then
               local html = '<div class="mermaid">\n' .. el.text .. '\n</div>'
@@ -307,6 +315,9 @@ jobs:
           ls -la target/docs/frontend/api || true
           echo "Index exists?"
           test -f target/docs/frontend/api/index.html && echo "YES" || echo "NO"
+          echo "Sample output files:"
+          API_OUT="target/docs/frontend/api"
+          find "$API_OUT" -type f -name "README-1.html" | head -n 10 || true
 
       # 7) Build architecture & other markdown (script with Lua filter)
       - name: Build architecture & markdown docs

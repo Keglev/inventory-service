@@ -81,6 +81,66 @@ function installPopstateListenerAudit() {
 installPopstateListenerAudit();
 
 /**
+ * Debug-only: audit History API usage.
+ *
+ * If some code calls `history.pushState/replaceState` directly (instead of React Router's
+ * `navigate()` or `<Link>`), the URL can change without React Router updating its `location`.
+ * This audit logs call sites without dispatching synthetic events.
+ */
+function installHistoryApiAudit() {
+  try {
+    if (localStorage.getItem('debugRouting') !== '1') return;
+  } catch {
+    return;
+  }
+
+  const w = window as unknown as { __sspHistoryApiAuditInstalled?: boolean };
+  if (w.__sspHistoryApiAuditInstalled) return;
+  w.__sspHistoryApiAuditInstalled = true;
+
+  const originalPushState = window.history.pushState;
+  const originalReplaceState = window.history.replaceState;
+
+  const safeUrl = (url: unknown) => {
+    if (typeof url === 'string') return url;
+    // Some callers pass URL objects.
+    try {
+      return String(url);
+    } catch {
+      return '<<unserializable-url>>';
+    }
+  };
+
+  window.history.pushState = function pushStateAudited(...args) {
+    const url = args.length >= 3 ? safeUrl(args[2]) : '<<no-url-arg>>';
+    console.debug(
+      '[history] pushState',
+      url,
+      '| from',
+      window.location.pathname + window.location.search,
+      '\n',
+      new Error().stack
+    );
+    return originalPushState.apply(this, args as never);
+  };
+
+  window.history.replaceState = function replaceStateAudited(...args) {
+    const url = args.length >= 3 ? safeUrl(args[2]) : '<<no-url-arg>>';
+    console.debug(
+      '[history] replaceState',
+      url,
+      '| from',
+      window.location.pathname + window.location.search,
+      '\n',
+      new Error().stack
+    );
+    return originalReplaceState.apply(this, args as never);
+  };
+}
+
+installHistoryApiAudit();
+
+/**
  * Debug-only: log global runtime errors that might prevent React from committing
  * the new route tree (which can look like "URL changes but UI is stuck").
  */
