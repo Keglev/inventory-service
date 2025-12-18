@@ -184,6 +184,32 @@ function installPopstateListenerAudit() {
 
 installPopstateListenerAudit();
 
+/**
+ * Debug-only: log global runtime errors that might prevent React from committing
+ * the new route tree (which can look like "URL changes but UI is stuck").
+ */
+function installGlobalErrorAudit() {
+  try {
+    if (localStorage.getItem('debugRouting') !== '1') return;
+  } catch {
+    return;
+  }
+
+  const w = window as unknown as { __sspGlobalErrorAuditInstalled?: boolean };
+  if (w.__sspGlobalErrorAuditInstalled) return;
+  w.__sspGlobalErrorAuditInstalled = true;
+
+  window.addEventListener('error', (ev) => {
+    console.debug('[global] error', ev.message, ev.error);
+  });
+
+  window.addEventListener('unhandledrejection', (ev) => {
+    console.debug('[global] unhandledrejection', ev.reason);
+  });
+}
+
+installGlobalErrorAudit();
+
 // Optional: enable verbose routing logs via localStorage.debugRouting = '1'
 if (localStorage.getItem('debugRouting') === '1') {
   window.addEventListener('popstate', () => {

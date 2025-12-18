@@ -8,9 +8,6 @@
     "src/api/**/*.ts",
     "src/context/**/*.ts",
     "src/context/**/*.tsx",
-    "src/components/**/*.ts",
-    "src/components/**/*.tsx",
-    "src/pages/**/*.tsx"
   ],
   "entryPointStrategy": "expand",
   "out": "docs",

@@ -253,59 +253,46 @@ jobs:
             echo "✓ [frontend API] $md → $out"
           done
 
-          # ---- Create stable landing pages (index.html + modules.html) ----
-          # TypeDoc markdown home file can vary (modules.md, index.md, README.md).
-          HOME_MD=""
-          for c in "modules.md" "index.md" "README.md"; do
-            if [ -f "$TYPEDOC_MD_DIR/$c" ]; then
-              HOME_MD="$TYPEDOC_MD_DIR/$c"
-              break
-            fi
+          # ---- Landing pages ----
+          # 1) Create a small, clean index page you control
+          cat > "$API_OUT/index.md" <<'EOF'
+          # Frontend API
+
+          This is the generated API reference for the Smart Supply Pro frontend.
+
+          - Go to **Modules** to browse by area (api, context, components).
+          - Use the left navigation and page TOC for quick jumping.
+          EOF
+
+          pandoc "$API_OUT/index.md" \
+            --from gfm --to html \
+            --template "$TEMPLATE" \
+            --lua-filter "$LUA_FILTER" \
+            --metadata=title:"Frontend API" \
+            --standalone --toc --toc-depth=2 \
+            -o "$API_OUT/index.html"
+            
+          rm -f "$API_OUT/index.md"
+
+          # 2) Generate modules.html from the best “modules” source available
+          MODULES_MD=""
+          for c in "$TYPEDOC_MD_DIR/modules.md" "$TYPEDOC_MD_DIR/index.md" "$TYPEDOC_MD_DIR/api/README.md"; do
+            if [ -f "$c" ]; then MODULES_MD="$c"; break; fi
           done
 
-          if [ -z "$HOME_MD" ]; then
-            echo "⚠️ No modules.md/index.md/README.md found in $TYPEDOC_MD_DIR"
-            echo "   Creating a minimal index.html so the link doesn't 404."
-            cat > "$API_OUT/index.html" << 'EOF'
-          <!doctype html>
-          <html>
-          <head>
-            <meta charset="utf-8">
-            <title>Frontend API</title>
-          </head>
-          <body>
-            <h1>Frontend API</h1>
-            <p>No TypeDoc landing page was generated.</p>
-          </body>
-          </html>
-          EOF
-          else
-            # Generate /frontend/api/index.html (canonical)
-            pandoc "$HOME_MD" \
-              --from gfm \
-              --to html \
-              --template "$TEMPLATE" \
-              --lua-filter "$LUA_FILTER" \
-              --metadata=title:"Frontend API" \
-              --standalone \
-              --toc \
-              --toc-depth=3 \
-              -o "$API_OUT/index.html"
-            echo "✓ Created $API_OUT/index.html from $(basename "$HOME_MD")"
-
-            # Also generate /frontend/api/modules.html for your sidebar link
-            pandoc "$HOME_MD" \
-              --from gfm \
-              --to html \
+          if [ -n "$MODULES_MD" ]; then
+            pandoc "$MODULES_MD" \
+              --from gfm --to html \
               --template "$TEMPLATE" \
               --lua-filter "$LUA_FILTER" \
               --metadata=title:"Frontend API · Modules" \
-              --standalone \
-              --toc \
-              --toc-depth=3 \
+              --standalone --toc --toc-depth=3 \
               -o "$API_OUT/modules.html"
-            echo "✓ Created $API_OUT/modules.html from $(basename "$HOME_MD")"
+            echo "✓ Created $API_OUT/modules.html from $(basename "$MODULES_MD")"
+          else
+            echo "⚠️ No modules source found; modules.html not generated."
           fi
+
       # debug frontend API output docs
       - name: Debug frontend API output
         run: |
