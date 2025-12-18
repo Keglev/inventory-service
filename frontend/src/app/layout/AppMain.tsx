@@ -14,7 +14,7 @@
  */
 
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import {
   Box,
   Toolbar,
@@ -52,6 +52,7 @@ function LoadingFallback() {
  */
 export default function AppMain({ isDemo }: AppMainProps) {
   const { t } = useTranslation(['auth']);
+  const location = useLocation();
 
   return (
     <Box
@@ -89,7 +90,8 @@ export default function AppMain({ isDemo }: AppMainProps) {
       {/* Page Content Area with Suspense Boundary */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <React.Suspense fallback={<LoadingFallback />}>
-          <Outlet />
+          {/* Keyed to force remount when path/search changes, preventing stale route content */}
+          <Outlet key={location.pathname + location.search} />
         </React.Suspense>
       </Box>
     </Box>
