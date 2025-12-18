@@ -36,7 +36,8 @@ import RouterDebug from '../app/debug/RouterDebug';
 // Authenticated pages
 import Dashboard from '../pages/dashboard/Dashboard';            
 import InventoryBoard from '../pages/inventory/InventoryBoard';            
-import SuppliersBoard from '../pages/suppliers/SuppliersBoard';
+// TEMPORARY: Use minimal test version to isolate router freeze
+import SuppliersBoardTest from '../pages/suppliers/SuppliersBoard.test';
 import LogoutPage from '../pages/auth/LogoutPage';
 import Analytics from '../pages/analytics/Analytics';
 
@@ -102,7 +103,7 @@ const AppRouter: React.FC = () => {
           path="/suppliers"
           element={
             <RequireAuth allowDemo>
-              <SuppliersBoard />
+              <SuppliersBoardTest />
             </RequireAuth>
           }
         />
