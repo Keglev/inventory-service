@@ -16,7 +16,6 @@ import { AppFooter } from './app/footer';
 import { SettingsProvider } from './context/settings/SettingsContext';
 import { HelpProvider } from './context/help/HelpContext';
 import HelpPanel from './components/help/HelpPanel';
-import RouterDebug from './app/debug/RouterDebug';
 import * as React from 'react';
 
 // Debug-focused error boundary to surface render errors that can freeze routing.
@@ -59,7 +58,6 @@ export default function App() {
     <HelpProvider>
       <SettingsProvider>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
-          <RouterDebug />
           <AppErrorBoundary>
             <AppRouter />
           </AppErrorBoundary>

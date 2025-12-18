@@ -31,6 +31,7 @@ import AuthCallback from '../pages/auth/AuthCallback';
 import LogoutSuccess from '../pages/auth/LogoutSuccess';
 import NotFoundPage from '../pages/system/NotFoundPage';
 import { AppPublicShell } from '../app/public-shell';
+import RouterDebug from '../app/debug/RouterDebug';
 
 // Authenticated pages
 import Dashboard from '../pages/dashboard/Dashboard';            
@@ -55,10 +56,12 @@ const AppRouter: React.FC = () => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <Routes>
-      {/**
-       * PUBLIC ROUTES (no AppShell)
-       */}
+    <>
+      <RouterDebug />
+      <Routes>
+        {/**
+         * PUBLIC ROUTES (no AppShell)
+         */}
       <Route element={<AppPublicShell />}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
@@ -118,7 +121,8 @@ const AppRouter: React.FC = () => {
        * - Offers a button to go to Dashboard if logged-in, or Login otherwise.
        */}
       <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+      </Routes>
+    </>
   );
 };
 
