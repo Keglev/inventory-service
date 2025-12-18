@@ -34,14 +34,27 @@ function dumpHistoryStateOneLine(): string {
 export default function RouterDebug() {
   const location = useLocation();
 
+  const latestLocationRef = React.useRef({
+    pathname: location.pathname,
+    search: location.search,
+  });
+
+  React.useEffect(() => {
+    latestLocationRef.current = {
+      pathname: location.pathname,
+      search: location.search,
+    };
+  }, [location.pathname, location.search]);
+
   React.useEffect(() => {
     if (!isRoutingDebugEnabled()) return;
 
     const onPopState = () => {
+      const latest = latestLocationRef.current;
       console.debug(
         '[router] popstate',
         '| router',
-        location.pathname + location.search,
+        latest.pathname + latest.search,
         '| window',
         window.location.pathname + window.location.search,
         '| history.state',
@@ -49,8 +62,8 @@ export default function RouterDebug() {
       );
 
       if (
-        location.pathname !== window.location.pathname ||
-        location.search !== window.location.search
+        latest.pathname !== window.location.pathname ||
+        latest.search !== window.location.search
       ) {
         console.debug('[router] MISMATCH on popstate (router vs window)');
       }
@@ -58,12 +71,11 @@ export default function RouterDebug() {
 
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [location.pathname, location.search]);
+  }, []);
 
   React.useEffect(() => {
     if (!isRoutingDebugEnabled()) return;
 
-    
     console.debug(
       '[router] location',
       location.pathname + location.search,
@@ -74,7 +86,6 @@ export default function RouterDebug() {
     );
 
     if (location.pathname !== window.location.pathname || location.search !== window.location.search) {
-      
       console.debug('[router] MISMATCH (router vs window)');
     }
   }, [location.pathname, location.search]);

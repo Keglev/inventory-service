@@ -265,11 +265,12 @@ jobs:
           EOF
 
           pandoc "$API_OUT/index.md" \
-            --from gfm --to html \
+            --from gfm \
+            --to html \
             --template "$TEMPLATE" \
             --lua-filter "$LUA_FILTER" \
             --metadata=title:"Frontend API" \
-            --standalone --toc --toc-depth=2 \
+            --standalone \
             -o "$API_OUT/index.html"
             
           rm -f "$API_OUT/index.md"
@@ -280,18 +281,29 @@ jobs:
             if [ -f "$c" ]; then MODULES_MD="$c"; break; fi
           done
 
-          if [ -n "$MODULES_MD" ]; then
+          MODULES_MD="$TYPEDOC_MD_DIR/api/inventory/README.md"
+
+          if [ -f "$MODULES_MD" ]; then
             pandoc "$MODULES_MD" \
-              --from gfm --to html \
+              --from gfm \
+              --to html \
               --template "$TEMPLATE" \
               --lua-filter "$LUA_FILTER" \
               --metadata=title:"Frontend API · Modules" \
-              --standalone --toc --toc-depth=3 \
+              --standalone \
+              --toc \
+              --toc-depth=3 \
               -o "$API_OUT/modules.html"
-            echo "✓ Created $API_OUT/modules.html from $(basename "$MODULES_MD")"
+            echo "✓ Created $API_OUT/modules.html from "$MODULES_MD"
           else
-            echo "⚠️ No modules source found; modules.html not generated."
+            echo "⚠️ Expected modules source not found: $MODULES_MD"
+            echo "   Available READMEs:"
+            find "$TYPEDOC_MD_DIR" -type f -name "README.md" | head -n 20 || true
           fi
+          echo "Index exists?"
+          test -f "$API_OUT/index.html" && echo "YES" || echo "NO"
+          echo "Modules exists?"
+          test -f "$API_OUT/modules.html" && echo "YES" || echo "NO"
 
       # debug frontend API output docs
       - name: Debug frontend API output

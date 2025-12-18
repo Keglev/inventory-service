@@ -44,110 +44,6 @@ const queryClient = new QueryClient({
 const root = document.getElementById('root')!;
 
 /**
- * Ensure SPA routing stays in sync even if some code calls
- * `window.history.pushState/replaceState` directly (outside React Router).
- *
- * React Router updates its state when navigation goes through its APIs.
- * Direct calls to the History API do not trigger `popstate`, so the router
- * may not re-render even though the URL changes.
- */
-function installHistoryLocationChangePatch() {
-  const w = window as unknown as {
-    __sspHistoryPatched?: boolean;
-  };
-
-  if (w.__sspHistoryPatched) return;
-  w.__sspHistoryPatched = true;
-
-  const originalPushState = window.history.pushState;
-  const originalReplaceState = window.history.replaceState;
-
-  const preserveReactRouterHistoryState = (nextState: unknown) => {
-    const current = window.history.state as unknown;
-    const isRRState =
-      !!current &&
-      typeof current === 'object' &&
-      'idx' in (current as Record<string, unknown>) &&
-      'key' in (current as Record<string, unknown>);
-
-    if (!isRRState) return nextState;
-
-    // If some code calls replaceState/pushState with null/undefined, keep RR state.
-    if (nextState == null) {
-      try {
-        if (localStorage.getItem('debugRouting') === '1') {
-          console.debug(
-            '[history] preserving router state (nextState is nullish)',
-            '\n',
-            new Error().stack
-          );
-        }
-      } catch {
-        // ignore
-      }
-      return current;
-    }
-
-    // If caller provides an object without idx/key, merge them in to avoid corrupting router history.
-    if (typeof nextState === 'object') {
-      const ns = nextState as Record<string, unknown>;
-      const hasIdx = 'idx' in ns;
-      const hasKey = 'key' in ns;
-      if (!hasIdx || !hasKey) {
-        const cs = current as Record<string, unknown>;
-        const merged = { ...ns } as Record<string, unknown>;
-        if (!hasIdx) merged.idx = cs.idx;
-        if (!hasKey) merged.key = cs.key;
-        if (!('usr' in merged) && 'usr' in cs) merged.usr = cs.usr;
-
-        try {
-          if (localStorage.getItem('debugRouting') === '1') {
-            console.debug(
-              '[history] merged router keys into history.state',
-              '\n',
-              new Error().stack
-            );
-          }
-        } catch {
-          // ignore
-        }
-
-        return merged;
-      }
-    }
-
-    return nextState;
-  };
-
-  const notify = () => {
-    try {
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    } catch {
-      // no-op: environments without PopStateEvent constructor
-      window.dispatchEvent(new Event('popstate'));
-    }
-  };
-
-  window.history.pushState = function pushStatePatched(...args) {
-    const nextArgs = [...args] as unknown[];
-    nextArgs[0] = preserveReactRouterHistoryState(nextArgs[0]);
-    const result = originalPushState.apply(this, nextArgs as never);
-    notify();
-    return result;
-  };
-
-  window.history.replaceState = function replaceStatePatched(...args) {
-    const nextArgs = [...args] as unknown[];
-    nextArgs[0] = preserveReactRouterHistoryState(nextArgs[0]);
-    const result = originalReplaceState.apply(this, nextArgs as never);
-    notify();
-    return result;
-  };
-}
-
-installHistoryLocationChangePatch();
-
-/**
  * Debug-only: audit popstate listener registration/removal.
  * Helps identify code that removes React Router's internal popstate handler.
  */
@@ -211,10 +107,14 @@ function installGlobalErrorAudit() {
 installGlobalErrorAudit();
 
 // Optional: enable verbose routing logs via localStorage.debugRouting = '1'
-if (localStorage.getItem('debugRouting') === '1') {
-  window.addEventListener('popstate', () => {
-    console.debug('[routing] popstate', window.location.pathname + window.location.search);
-  });
+try {
+  if (localStorage.getItem('debugRouting') === '1') {
+    window.addEventListener('popstate', () => {
+      console.debug('[routing] popstate', window.location.pathname + window.location.search);
+    });
+  }
+} catch {
+  // ignore
 }
 
 // In development, React.StrictMode intentionally double-invokes certain lifecycles
