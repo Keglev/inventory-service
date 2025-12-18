@@ -119,6 +119,13 @@ const SuppliersBoard: React.FC = () => {
   }, [location.pathname, location.search]);
 
   // =====================
+  // Dialog Close Handlers (memoized to prevent re-render loops)
+  // =====================
+  const handleCloseCreate = React.useCallback(() => state.setOpenCreate(false), [state.setOpenCreate]);
+  const handleCloseEdit = React.useCallback(() => state.setOpenEdit(false), [state.setOpenEdit]);
+  const handleCloseDelete = React.useCallback(() => state.setOpenDelete(false), [state.setOpenDelete]);
+
+  // =====================
   // Render
   // =====================
   return (
@@ -197,13 +204,13 @@ const SuppliersBoard: React.FC = () => {
       {/* Dialogs */}
       <SuppliersDialogs
         openCreate={state.openCreate}
-        onCloseCreate={() => state.setOpenCreate(false)}
+        onCloseCreate={handleCloseCreate}
         onCreated={handleSupplierCreated}
         openEdit={state.openEdit}
-        onCloseEdit={() => state.setOpenEdit(false)}
+        onCloseEdit={handleCloseEdit}
         onUpdated={handleSupplierUpdated}
         openDelete={state.openDelete}
-        onCloseDelete={() => state.setOpenDelete(false)}
+        onCloseDelete={handleCloseDelete}
         onDeleted={handleSupplierDeleted}
       />
     </Box>
