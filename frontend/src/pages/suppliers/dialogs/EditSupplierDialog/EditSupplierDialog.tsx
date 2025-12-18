@@ -80,21 +80,12 @@ export const EditSupplierDialog: React.FC<EditSupplierDialogProps> = ({
   });
 
   /**
-   * Reset form when dialog opens/closes.
-   */
-  React.useEffect(() => {
-    if (!open) {
-      form.resetForm();
-    }
-  }, [open, form]);
-
-  /**
    * Handle dialog close.
    */
   const handleClose = React.useCallback(() => {
     form.resetForm();
     onClose();
-  }, [form, onClose]);
+  }, [form.resetForm, onClose]);
 
   /**
    * Handle showing confirmation dialog.

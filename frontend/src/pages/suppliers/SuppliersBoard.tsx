@@ -18,7 +18,6 @@
 
 import * as React from 'react';
 import { Box, Paper } from '@mui/material';
-import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import type { SupplierRow } from '../../api/suppliers';
 
@@ -60,17 +59,10 @@ import {
  * ```
  */
 const SuppliersBoard: React.FC = () => {
-  const renderCount = React.useRef(0);
-  renderCount.current++;
-  console.log(`[SUPPLIERS RENDER #${renderCount.current}]`);
-
   // =====================
   // State Management
   // =====================
   const state = useSuppliersBoardState();
-  console.log('[SUPPLIERS] state object identity:', state);
-  
-  const location = useLocation();
   const { user } = useAuth();
 
   // =====================
@@ -92,41 +84,6 @@ const SuppliersBoard: React.FC = () => {
   const displayRows = usingSearch ? data.searchResults : data.suppliers;
   const displayRowCount = usingSearch ? data.searchResults.length : data.total;
 
-  // Debug mount/unmount (cleanup removed to diagnose render freeze)
-  React.useEffect(() => {
-    try {
-      if (localStorage.getItem('debugRouting') === '1') {
-        console.debug('[suppliers] mount', location.pathname);
-      }
-    } catch {
-      // ignore
-    }
-
-    return () => {
-      try {
-        if (localStorage.getItem('debugRouting') === '1') {
-          console.debug('[suppliers] unmount', location.pathname);
-        }
-      } catch {
-        // ignore
-      }
-      // NOTE: State cleanup removed to diagnose render freeze after navigation
-    };
-  }, [location.pathname]);
-
-  React.useEffect(() => {
-    try {
-      if (localStorage.getItem('debugRouting') === '1') {
-        console.debug('[suppliers] location change', location.pathname + location.search);
-      }
-    } catch {
-      // ignore
-    }
-  }, [location.pathname, location.search]);
-
-  // =====================
-  // Dialog Close Handlers (memoized to prevent re-render loops)
-  // =====================
   const { setOpenCreate, setOpenEdit, setOpenDelete } = state;
   const handleCloseCreate = React.useCallback(() => setOpenCreate(false), [setOpenCreate]);
   const handleCloseEdit = React.useCallback(() => setOpenEdit(false), [setOpenEdit]);
@@ -209,6 +166,7 @@ const SuppliersBoard: React.FC = () => {
       </Paper>
 
       {/* Dialogs */}
+      {/* Step 3: Testing Dialogs */}
       <SuppliersDialogs
         openCreate={state.openCreate}
         onCloseCreate={handleCloseCreate}
