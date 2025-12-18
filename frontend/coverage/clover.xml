@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1766077870262" clover="3.2.0">
-  <project timestamp="1766077870262" name="All files">
-    <metrics statements="24919" coveredstatements="0" conditionals="288" coveredconditionals="0" methods="288" coveredmethods="0" elements="25495" coveredelements="0" complexity="0" loc="24919" ncloc="24919" packages="73" files="288" classes="288"/>
+<coverage generated="1766078900671" clover="3.2.0">
+  <project timestamp="1766078900671" name="All files">
+    <metrics statements="24929" coveredstatements="0" conditionals="288" coveredconditionals="0" methods="288" coveredmethods="0" elements="25505" coveredelements="0" complexity="0" loc="24929" ncloc="24929" packages="73" files="288" classes="288"/>
     <package name="src">
       <metrics statements="267" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
       <file name="App.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/App.tsx">
@@ -21362,7 +21362,7 @@
       </file>
     </package>
     <package name="src.pages.suppliers.components">
-      <metrics statements="684" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="6" coveredmethods="0"/>
+      <metrics statements="682" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="6" coveredmethods="0"/>
       <file name="SuppliersDialogs.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/components/SuppliersDialogs.tsx">
         <metrics statements="102" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -21742,7 +21742,7 @@
         <line num="194" count="0" type="stmt"/>
       </file>
       <file name="SuppliersTable.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/components/SuppliersTable.tsx">
-        <metrics statements="197" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="195" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -21938,8 +21938,6 @@
         <line num="193" count="0" type="stmt"/>
         <line num="194" count="0" type="stmt"/>
         <line num="195" count="0" type="stmt"/>
-        <line num="196" count="0" type="stmt"/>
-        <line num="197" count="0" type="stmt"/>
       </file>
       <file name="SuppliersToolbar.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/components/SuppliersToolbar.tsx">
         <metrics statements="105" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
@@ -24655,7 +24653,7 @@
       </file>
     </package>
     <package name="src.pages.suppliers.handlers">
-      <metrics statements="334" coveredstatements="0" conditionals="7" coveredconditionals="0" methods="7" coveredmethods="0"/>
+      <metrics statements="331" coveredstatements="0" conditionals="7" coveredconditionals="0" methods="7" coveredmethods="0"/>
       <file name="index.ts" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/handlers/index.ts">
         <metrics statements="14" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -24674,7 +24672,7 @@
         <line num="14" count="0" type="stmt"/>
       </file>
       <file name="useDataFetchingLogic.ts" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/handlers/useDataFetchingLogic.ts">
-        <metrics statements="54" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="51" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -24726,9 +24724,6 @@
         <line num="49" count="0" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
         <line num="51" count="0" type="stmt"/>
-        <line num="52" count="0" type="stmt"/>
-        <line num="53" count="0" type="stmt"/>
-        <line num="54" count="0" type="stmt"/>
       </file>
       <file name="useDialogHandlers.ts" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/handlers/useDialogHandlers.ts">
         <metrics statements="63" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
@@ -25013,7 +25008,7 @@
       </file>
     </package>
     <package name="src.pages.suppliers.hooks">
-      <metrics statements="207" coveredstatements="0" conditionals="3" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <metrics statements="222" coveredstatements="0" conditionals="3" coveredconditionals="0" methods="3" coveredmethods="0"/>
       <file name="index.ts" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/hooks/index.ts">
         <metrics statements="10" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -25122,7 +25117,7 @@
         <line num="91" count="0" type="stmt"/>
       </file>
       <file name="useSuppliersBoardState.ts" path="/home/runner/work/inventory-service/inventory-service/frontend/src/pages/suppliers/hooks/useSuppliersBoardState.ts">
-        <metrics statements="106" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="121" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -25229,6 +25224,21 @@
         <line num="104" count="0" type="stmt"/>
         <line num="105" count="0" type="stmt"/>
         <line num="106" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="112" count="0" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="115" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="119" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="121" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src.pages.system">

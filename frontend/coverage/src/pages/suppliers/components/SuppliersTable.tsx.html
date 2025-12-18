@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/197</span>
+                <span class='fraction'>0/195</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/197</span>
+                <span class='fraction'>0/195</span>
             </div>
         
             
@@ -258,11 +258,7 @@
 <a name='L193'></a><a href='#L193'>193</a>
 <a name='L194'></a><a href='#L194'>194</a>
 <a name='L195'></a><a href='#L195'>195</a>
-<a name='L196'></a><a href='#L196'>196</a>
-<a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L196'></a><a href='#L196'>196</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -555,49 +551,47 @@
 <span class="cstat-no" title="statement not covered" >  const { t } = useTranslation(['common', 'suppliers']);</span>
 <span class="cstat-no" title="statement not covered" >  const { userPreferences } = useSettings();</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  // Define grid columns</span>
-<span class="cstat-no" title="statement not covered" >  const columns = React.useMemo&lt;GridColDef&lt;SupplierRow&gt;[]&gt;(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    return [</span>
-<span class="cstat-no" title="statement not covered" >      {</span>
-<span class="cstat-no" title="statement not covered" >        field: 'name',</span>
-<span class="cstat-no" title="statement not covered" >        headerName: t('suppliers:table.name', 'Supplier Name'),</span>
-<span class="cstat-no" title="statement not covered" >        flex: 1,</span>
-<span class="cstat-no" title="statement not covered" >        minWidth: 200,</span>
+<span class="cstat-no" title="statement not covered" >  // Define grid columns (no memoization needed - same as InventoryTable)</span>
+<span class="cstat-no" title="statement not covered" >  const columns: GridColDef&lt;SupplierRow&gt;[] = [</span>
+<span class="cstat-no" title="statement not covered" >    {</span>
+<span class="cstat-no" title="statement not covered" >      field: 'name',</span>
+<span class="cstat-no" title="statement not covered" >      headerName: t('suppliers:table.name', 'Supplier Name'),</span>
+<span class="cstat-no" title="statement not covered" >      flex: 1,</span>
+<span class="cstat-no" title="statement not covered" >      minWidth: 200,</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >    {</span>
+<span class="cstat-no" title="statement not covered" >      field: 'contactName',</span>
+<span class="cstat-no" title="statement not covered" >      headerName: t('suppliers:table.contactName', 'Contact'),</span>
+<span class="cstat-no" title="statement not covered" >      width: 150,</span>
+<span class="cstat-no" title="statement not covered" >      valueGetter: (_value: unknown, row: SupplierRow) =&gt; row.contactName ?? '—',</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >    {</span>
+<span class="cstat-no" title="statement not covered" >      field: 'phone',</span>
+<span class="cstat-no" title="statement not covered" >      headerName: t('suppliers:table.phone', 'Phone'),</span>
+<span class="cstat-no" title="statement not covered" >      width: 140,</span>
+<span class="cstat-no" title="statement not covered" >      valueGetter: (_value: unknown, row: SupplierRow) =&gt; row.phone ?? '—',</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >    {</span>
+<span class="cstat-no" title="statement not covered" >      field: 'email',</span>
+<span class="cstat-no" title="statement not covered" >      headerName: t('suppliers:table.email', 'Email'),</span>
+<span class="cstat-no" title="statement not covered" >      width: 180,</span>
+<span class="cstat-no" title="statement not covered" >      valueGetter: (_value: unknown, row: SupplierRow) =&gt; row.email ?? '—',</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >    {</span>
+<span class="cstat-no" title="statement not covered" >      field: 'createdAt',</span>
+<span class="cstat-no" title="statement not covered" >      headerName: t('suppliers:table.createdAt', 'Created'),</span>
+<span class="cstat-no" title="statement not covered" >      width: 180,</span>
+<span class="cstat-no" title="statement not covered" >      valueGetter: (_value: unknown, row: SupplierRow) =&gt; row.createdAt ?? null,</span>
+<span class="cstat-no" title="statement not covered" >      valueFormatter: ({ value }: { value: unknown }) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if (!value) return '—';</span>
+<span class="cstat-no" title="statement not covered" >        try {</span>
+<span class="cstat-no" title="statement not covered" >          return formatDate(new Date(String(value)), userPreferences.dateFormat);</span>
+<span class="cstat-no" title="statement not covered" >        } catch {</span>
+<span class="cstat-no" title="statement not covered" >          return String(value);</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
 <span class="cstat-no" title="statement not covered" >      },</span>
-<span class="cstat-no" title="statement not covered" >      {</span>
-<span class="cstat-no" title="statement not covered" >        field: 'contactName',</span>
-<span class="cstat-no" title="statement not covered" >        headerName: t('suppliers:table.contactName', 'Contact'),</span>
-<span class="cstat-no" title="statement not covered" >        width: 150,</span>
-<span class="cstat-no" title="statement not covered" >        valueGetter: (_value: unknown, row: SupplierRow) =&gt; row.contactName ?? '—',</span>
-<span class="cstat-no" title="statement not covered" >      },</span>
-<span class="cstat-no" title="statement not covered" >      {</span>
-<span class="cstat-no" title="statement not covered" >        field: 'phone',</span>
-<span class="cstat-no" title="statement not covered" >        headerName: t('suppliers:table.phone', 'Phone'),</span>
-<span class="cstat-no" title="statement not covered" >        width: 140,</span>
-<span class="cstat-no" title="statement not covered" >        valueGetter: (_value: unknown, row: SupplierRow) =&gt; row.phone ?? '—',</span>
-<span class="cstat-no" title="statement not covered" >      },</span>
-<span class="cstat-no" title="statement not covered" >      {</span>
-<span class="cstat-no" title="statement not covered" >        field: 'email',</span>
-<span class="cstat-no" title="statement not covered" >        headerName: t('suppliers:table.email', 'Email'),</span>
-<span class="cstat-no" title="statement not covered" >        width: 180,</span>
-<span class="cstat-no" title="statement not covered" >        valueGetter: (_value: unknown, row: SupplierRow) =&gt; row.email ?? '—',</span>
-<span class="cstat-no" title="statement not covered" >      },</span>
-<span class="cstat-no" title="statement not covered" >      {</span>
-<span class="cstat-no" title="statement not covered" >        field: 'createdAt',</span>
-<span class="cstat-no" title="statement not covered" >        headerName: t('suppliers:table.createdAt', 'Created'),</span>
-<span class="cstat-no" title="statement not covered" >        width: 180,</span>
-<span class="cstat-no" title="statement not covered" >        valueGetter: (_value: unknown, row: SupplierRow) =&gt; row.createdAt ?? null,</span>
-<span class="cstat-no" title="statement not covered" >        valueFormatter: ({ value }: { value: unknown }) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >          if (!value) return '—';</span>
-<span class="cstat-no" title="statement not covered" >          try {</span>
-<span class="cstat-no" title="statement not covered" >            return formatDate(new Date(String(value)), userPreferences.dateFormat);</span>
-<span class="cstat-no" title="statement not covered" >          } catch {</span>
-<span class="cstat-no" title="statement not covered" >            return String(value);</span>
-<span class="cstat-no" title="statement not covered" >          }</span>
-<span class="cstat-no" title="statement not covered" >        },</span>
-<span class="cstat-no" title="statement not covered" >      },</span>
-<span class="cstat-no" title="statement not covered" >    ];</span>
-<span class="cstat-no" title="statement not covered" >  }, [t, userPreferences.dateFormat]);</span>
+<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >  ];</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >  return (</span>
 <span class="cstat-no" title="statement not covered" >    &lt;Paper</span>
@@ -661,7 +655,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-18T17:11:10.084Z
+                at 2025-12-18T17:28:20.533Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
