@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/109</span>
+                <span class='fraction'>0/91</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/109</span>
+                <span class='fraction'>0/91</span>
             </div>
         
             
@@ -154,43 +154,7 @@
 <a name='L89'></a><a href='#L89'>89</a>
 <a name='L90'></a><a href='#L90'>90</a>
 <a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a>
-<a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a>
-<a name='L101'></a><a href='#L101'>101</a>
-<a name='L102'></a><a href='#L102'>102</a>
-<a name='L103'></a><a href='#L103'>103</a>
-<a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L92'></a><a href='#L92'>92</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -296,7 +260,6 @@
 <span class="cstat-no" title="statement not covered" > * - Type-safe data transformations</span>
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >import * as React from 'react';</span>
 <span class="cstat-no" title="statement not covered" >import { useSuppliersPageQuery, useSupplierSearchQuery } from '../../../api/suppliers';</span>
 <span class="cstat-no" title="statement not covered" >import type { SupplierRow } from '../../../api/suppliers';</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -345,10 +308,6 @@
 <span class="cstat-no" title="statement not covered" >  sort: string,</span>
 <span class="cstat-no" title="statement not covered" >  searchQuery: string</span>
 <span class="cstat-no" title="statement not covered" >): SuppliersBoardData =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  const [suppliers, setSuppliers] = React.useState&lt;SupplierRow[]&gt;([]);</span>
-<span class="cstat-no" title="statement not covered" >  const [total, setTotal] = React.useState(0);</span>
-<span class="cstat-no" title="statement not covered" >  const [searchResults, setSearchResults] = React.useState&lt;SupplierRow[]&gt;([]);</span>
-<span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >  // Fetch paginated suppliers list</span>
 <span class="cstat-no" title="statement not covered" >  const suppliersQuery = useSuppliersPageQuery(</span>
 <span class="cstat-no" title="statement not covered" >    {</span>
@@ -366,25 +325,12 @@
 <span class="cstat-no" title="statement not covered" >    true</span>
 <span class="cstat-no" title="statement not covered" >  );</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  // Sync suppliers data</span>
-<span class="cstat-no" title="statement not covered" >  React.useEffect(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (suppliersQuery.data) {</span>
-<span class="cstat-no" title="statement not covered" >      setSuppliers(suppliersQuery.data.items);</span>
-<span class="cstat-no" title="statement not covered" >      setTotal(suppliersQuery.data.total);</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >  }, [suppliersQuery.data]);</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  // Sync search results</span>
-<span class="cstat-no" title="statement not covered" >  React.useEffect(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (searchQueryResult.data) {</span>
-<span class="cstat-no" title="statement not covered" >      setSearchResults(searchQueryResult.data);</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >  }, [searchQueryResult.data]);</span>
-<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >  // Return React Query data directly without intermediate state</span>
+<span class="cstat-no" title="statement not covered" >  // This prevents render loops that can block router updates</span>
 <span class="cstat-no" title="statement not covered" >  return {</span>
-<span class="cstat-no" title="statement not covered" >    suppliers,</span>
-<span class="cstat-no" title="statement not covered" >    total,</span>
-<span class="cstat-no" title="statement not covered" >    searchResults,</span>
+<span class="cstat-no" title="statement not covered" >    suppliers: suppliersQuery.data?.items ?? [],</span>
+<span class="cstat-no" title="statement not covered" >    total: suppliersQuery.data?.total ?? 0,</span>
+<span class="cstat-no" title="statement not covered" >    searchResults: searchQueryResult.data ?? [],</span>
 <span class="cstat-no" title="statement not covered" >    isLoadingSuppliers: suppliersQuery.isLoading,</span>
 <span class="cstat-no" title="statement not covered" >    isLoadingSearch: searchQueryResult.isLoading,</span>
 <span class="cstat-no" title="statement not covered" >    error: suppliersQuery.error?.message || null,</span>
@@ -397,7 +343,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-18T16:18:20.493Z
+                at 2025-12-18T16:57:43.021Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
