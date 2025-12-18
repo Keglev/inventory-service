@@ -13,6 +13,7 @@
  * - Type-safe data transformations
  */
 
+import * as React from 'react';
 import { useSuppliersPageQuery, useSupplierSearchQuery } from '../../../api/suppliers';
 import type { SupplierRow } from '../../../api/suppliers';
 
@@ -61,6 +62,8 @@ export const useSuppliersBoardData = (
   sort: string,
   searchQuery: string
 ): SuppliersBoardData => {
+  console.log('[useSuppliersBoardData] CALLED with:', { page, pageSize, sort, searchQuery });
+  
   // Fetch paginated suppliers list
   const suppliersQuery = useSuppliersPageQuery(
     {
@@ -72,20 +75,37 @@ export const useSuppliersBoardData = (
     true
   );
 
+  console.log('[useSuppliersBoardData] suppliersQuery data identity:', suppliersQuery.data);
+
   // Search suppliers by query
   const searchQueryResult = useSupplierSearchQuery(
     searchQuery.length >= 2 ? searchQuery : '',
     true
   );
 
-  // Return React Query data directly without intermediate state
-  // This prevents render loops that can block router updates
-  return {
-    suppliers: suppliersQuery.data?.items ?? [],
-    total: suppliersQuery.data?.total ?? 0,
-    searchResults: searchQueryResult.data ?? [],
-    isLoadingSuppliers: suppliersQuery.isLoading,
-    isLoadingSearch: searchQueryResult.isLoading,
-    error: suppliersQuery.error?.message || null,
-  };
+  console.log('[useSuppliersBoardData] about to return, will create new object');
+
+  // Memoize the return object to prevent creating new reference on every render
+  // This is critical to avoid infinite re-render loops that freeze router updates
+  return React.useMemo(
+    () => {
+      console.log('[useSuppliersBoardData] useMemo RUNNING - creating new data object');
+      return {
+        suppliers: suppliersQuery.data?.items ?? [],
+        total: suppliersQuery.data?.total ?? 0,
+        searchResults: searchQueryResult.data ?? [],
+        isLoadingSuppliers: suppliersQuery.isLoading,
+        isLoadingSearch: searchQueryResult.isLoading,
+        error: suppliersQuery.error?.message || null,
+      };
+    },
+    [
+      suppliersQuery.data?.items,
+      suppliersQuery.data?.total,
+      searchQueryResult.data,
+      suppliersQuery.isLoading,
+      searchQueryResult.isLoading,
+      suppliersQuery.error?.message,
+    ]
+  );
 };
