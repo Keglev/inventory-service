@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/121</span>
+                <span class='fraction'>0/116</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/121</span>
+                <span class='fraction'>0/116</span>
             </div>
         
             
@@ -179,17 +179,7 @@
 <a name='L114'></a><a href='#L114'>114</a>
 <a name='L115'></a><a href='#L115'>115</a>
 <a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a>
-<a name='L121'></a><a href='#L121'>121</a>
-<a name='L122'></a><a href='#L122'>122</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L117'></a><a href='#L117'>117</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -371,11 +361,16 @@
 <span class="cstat-no" title="statement not covered" > * Hook for managing suppliers board page state.</span>
 <span class="cstat-no" title="statement not covered" > *</span>
 <span class="cstat-no" title="statement not covered" > * Returns unified state object and setter functions.</span>
-<span class="cstat-no" title="statement not covered" > * Uses useMemo to prevent creating new object on every render.</span>
 <span class="cstat-no" title="statement not covered" > *</span>
 <span class="cstat-no" title="statement not covered" > * @returns State and setter functions</span>
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" >export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  const renderCount = React.useRef(0);</span>
+<span class="cstat-no" title="statement not covered" >  renderCount.current++;</span>
+<span class="cstat-no" title="statement not covered" >  if (renderCount.current &gt; 100) {</span>
+<span class="cstat-no" title="statement not covered" >    console.error('[SUPPLIERS STATE] INFINITE RENDER DETECTED - over 100 renders!');</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  </span>
 <span class="cstat-no" title="statement not covered" >  const [searchQuery, setSearchQuery] = React.useState('');</span>
 <span class="cstat-no" title="statement not covered" >  const [showAllSuppliers, setShowAllSuppliers] = React.useState(false);</span>
 <span class="cstat-no" title="statement not covered" >  const [paginationModel, setPaginationModel] = React.useState&lt;GridPaginationModel&gt;({</span>
@@ -391,40 +386,30 @@
 <span class="cstat-no" title="statement not covered" >  const [openEdit, setOpenEdit] = React.useState(false);</span>
 <span class="cstat-no" title="statement not covered" >  const [openDelete, setOpenDelete] = React.useState(false);</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  // Memoize the return object to prevent triggering re-renders in consumers</span>
-<span class="cstat-no" title="statement not covered" >  return React.useMemo(</span>
-<span class="cstat-no" title="statement not covered" >    () =&gt; ({</span>
-<span class="cstat-no" title="statement not covered" >      searchQuery,</span>
-<span class="cstat-no" title="statement not covered" >      showAllSuppliers,</span>
-<span class="cstat-no" title="statement not covered" >      paginationModel,</span>
-<span class="cstat-no" title="statement not covered" >      sortModel,</span>
-<span class="cstat-no" title="statement not covered" >      selectedId,</span>
-<span class="cstat-no" title="statement not covered" >      selectedSearchResult,</span>
-<span class="cstat-no" title="statement not covered" >      openCreate,</span>
-<span class="cstat-no" title="statement not covered" >      openEdit,</span>
-<span class="cstat-no" title="statement not covered" >      openDelete,</span>
-<span class="cstat-no" title="statement not covered" >      setSearchQuery,</span>
-<span class="cstat-no" title="statement not covered" >      setShowAllSuppliers,</span>
-<span class="cstat-no" title="statement not covered" >      setPaginationModel,</span>
-<span class="cstat-no" title="statement not covered" >      setSortModel,</span>
-<span class="cstat-no" title="statement not covered" >      setSelectedId,</span>
-<span class="cstat-no" title="statement not covered" >      setSelectedSearchResult,</span>
-<span class="cstat-no" title="statement not covered" >      setOpenCreate,</span>
-<span class="cstat-no" title="statement not covered" >      setOpenEdit,</span>
-<span class="cstat-no" title="statement not covered" >      setOpenDelete,</span>
-<span class="cstat-no" title="statement not covered" >    }),</span>
-<span class="cstat-no" title="statement not covered" >    [</span>
-<span class="cstat-no" title="statement not covered" >      searchQuery,</span>
-<span class="cstat-no" title="statement not covered" >      showAllSuppliers,</span>
-<span class="cstat-no" title="statement not covered" >      paginationModel,</span>
-<span class="cstat-no" title="statement not covered" >      sortModel,</span>
-<span class="cstat-no" title="statement not covered" >      selectedId,</span>
-<span class="cstat-no" title="statement not covered" >      selectedSearchResult,</span>
-<span class="cstat-no" title="statement not covered" >      openCreate,</span>
-<span class="cstat-no" title="statement not covered" >      openEdit,</span>
-<span class="cstat-no" title="statement not covered" >      openDelete,</span>
-<span class="cstat-no" title="statement not covered" >    ]</span>
-<span class="cstat-no" title="statement not covered" >  );</span>
+<span class="cstat-no" title="statement not covered" >  const stateObject = {</span>
+<span class="cstat-no" title="statement not covered" >    searchQuery,</span>
+<span class="cstat-no" title="statement not covered" >    showAllSuppliers,</span>
+<span class="cstat-no" title="statement not covered" >    paginationModel,</span>
+<span class="cstat-no" title="statement not covered" >    sortModel,</span>
+<span class="cstat-no" title="statement not covered" >    selectedId,</span>
+<span class="cstat-no" title="statement not covered" >    selectedSearchResult,</span>
+<span class="cstat-no" title="statement not covered" >    openCreate,</span>
+<span class="cstat-no" title="statement not covered" >    openEdit,</span>
+<span class="cstat-no" title="statement not covered" >    openDelete,</span>
+<span class="cstat-no" title="statement not covered" >    setSearchQuery,</span>
+<span class="cstat-no" title="statement not covered" >    setShowAllSuppliers,</span>
+<span class="cstat-no" title="statement not covered" >    setPaginationModel,</span>
+<span class="cstat-no" title="statement not covered" >    setSortModel,</span>
+<span class="cstat-no" title="statement not covered" >    setSelectedId,</span>
+<span class="cstat-no" title="statement not covered" >    setSelectedSearchResult,</span>
+<span class="cstat-no" title="statement not covered" >    setOpenCreate,</span>
+<span class="cstat-no" title="statement not covered" >    setOpenEdit,</span>
+<span class="cstat-no" title="statement not covered" >    setOpenDelete,</span>
+<span class="cstat-no" title="statement not covered" >  };</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >  console.log(`[SUPPLIERS STATE RENDER #${renderCount.current}] paginationModel:`, paginationModel);</span>
+<span class="cstat-no" title="statement not covered" >  </span>
+<span class="cstat-no" title="statement not covered" >  return stateObject;</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;</pre></td></tr></table></pre>
 
@@ -433,7 +418,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-18T17:28:20.533Z
+                at 2025-12-18T17:44:40.186Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
