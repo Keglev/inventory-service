@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/220</span>
+                <span class='fraction'>0/213</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/220</span>
+                <span class='fraction'>0/213</span>
             </div>
         
             
@@ -276,21 +276,7 @@
 <a name='L211'></a><a href='#L211'>211</a>
 <a name='L212'></a><a href='#L212'>212</a>
 <a name='L213'></a><a href='#L213'>213</a>
-<a name='L214'></a><a href='#L214'>214</a>
-<a name='L215'></a><a href='#L215'>215</a>
-<a name='L216'></a><a href='#L216'>216</a>
-<a name='L217'></a><a href='#L217'>217</a>
-<a name='L218'></a><a href='#L218'>218</a>
-<a name='L219'></a><a href='#L219'>219</a>
-<a name='L220'></a><a href='#L220'>220</a>
-<a name='L221'></a><a href='#L221'>221</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L214'></a><a href='#L214'>214</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -572,8 +558,6 @@
 <span class="cstat-no" title="statement not covered" >  const location = useLocation();</span>
 <span class="cstat-no" title="statement not covered" >  const { user } = useAuth();</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  const { setSelectedId, setSelectedSearchResult, setSearchQuery } = state;</span>
-<span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >  // =====================</span>
 <span class="cstat-no" title="statement not covered" >  // Event Handlers</span>
 <span class="cstat-no" title="statement not covered" >  // =====================</span>
@@ -593,32 +577,27 @@
 <span class="cstat-no" title="statement not covered" >  const displayRows = usingSearch ? data.searchResults : data.suppliers;</span>
 <span class="cstat-no" title="statement not covered" >  const displayRowCount = usingSearch ? data.searchResults.length : data.total;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  // Reset selection/search on unmount (route change)</span>
+<span class="cstat-no" title="statement not covered" >  // Debug mount/unmount (cleanup removed to diagnose render freeze)</span>
 <span class="cstat-no" title="statement not covered" >  React.useEffect(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    const debugEnabled = (() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      try {</span>
-<span class="cstat-no" title="statement not covered" >        return localStorage.getItem('debugRouting') === '1';</span>
-<span class="cstat-no" title="statement not covered" >      } catch {</span>
-<span class="cstat-no" title="statement not covered" >        return false;</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >      if (localStorage.getItem('debugRouting') === '1') {</span>
+<span class="cstat-no" title="statement not covered" >        console.debug('[suppliers] mount', location.pathname);</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
-<span class="cstat-no" title="statement not covered" >    })();</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    if (debugEnabled) {</span>
-<span class="cstat-no" title="statement not covered" >      console.debug('[suppliers] mount', location.pathname);</span>
+<span class="cstat-no" title="statement not covered" >    } catch {</span>
+<span class="cstat-no" title="statement not covered" >      // ignore</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    return () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (debugEnabled) {</span>
-<span class="cstat-no" title="statement not covered" >        console.debug('[suppliers] unmount', location.pathname);</span>
+<span class="cstat-no" title="statement not covered" >      try {</span>
+<span class="cstat-no" title="statement not covered" >        if (localStorage.getItem('debugRouting') === '1') {</span>
+<span class="cstat-no" title="statement not covered" >          console.debug('[suppliers] unmount', location.pathname);</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >      } catch {</span>
+<span class="cstat-no" title="statement not covered" >        // ignore</span>
 <span class="cstat-no" title="statement not covered" >      }</span>
-<span class="cstat-no" title="statement not covered" >      // Defer state cleanup to avoid blocking React's render cycle</span>
-<span class="cstat-no" title="statement not covered" >      setTimeout(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        setSelectedId(null);</span>
-<span class="cstat-no" title="statement not covered" >        setSelectedSearchResult(null);</span>
-<span class="cstat-no" title="statement not covered" >        setSearchQuery('');</span>
-<span class="cstat-no" title="statement not covered" >      }, 0);</span>
+<span class="cstat-no" title="statement not covered" >      // NOTE: State cleanup removed to diagnose render freeze after navigation</span>
 <span class="cstat-no" title="statement not covered" >    };</span>
-<span class="cstat-no" title="statement not covered" >  }, [location.pathname, setSelectedId, setSelectedSearchResult, setSearchQuery]);</span>
+<span class="cstat-no" title="statement not covered" >  }, [location.pathname]);</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >  React.useEffect(() =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
@@ -730,7 +709,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-18T15:12:31.548Z
+                at 2025-12-18T15:20:54.434Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
