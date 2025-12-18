@@ -13,13 +13,11 @@
  * - Full TypeDoc coverage for content area and demo mode integration
  */
 
-import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import {
   Box,
   Toolbar,
   Alert,
-  CircularProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -29,23 +27,9 @@ interface AppMainProps {
 }
 
 /**
- * Loading fallback component displayed while page content is loading.
- *
- * @returns JSX element showing spinner during Suspense fallback
- */
-function LoadingFallback() {
-  return (
-    <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-      <CircularProgress />
-    </Box>
-  );
-}
-
-/**
  * Main content area component.
  *
  * Renders the primary application content with optional demo mode banner.
- * Provides Suspense boundary for lazy-loaded page components.
  *
  * @param props - Component props
  * @returns JSX element rendering main content area
@@ -96,12 +80,10 @@ export default function AppMain({ isDemo }: AppMainProps) {
         </Alert>
       )}
 
-      {/* Page Content Area with Suspense Boundary */}
+      {/* Page Content Area */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <React.Suspense fallback={<LoadingFallback />}>
-          {/* Keyed to force remount when path/search changes, preventing stale route content */}
-          <Outlet key={location.pathname + location.search} />
-        </React.Suspense>
+        {/* Keyed to force remount when path/search changes, preventing stale route content */}
+        <Outlet key={location.pathname + location.search} />
       </Box>
     </Box>
   );
