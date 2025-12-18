@@ -106,9 +106,12 @@ const SuppliersBoard: React.FC = () => {
       if (debugEnabled) {
         console.debug('[suppliers] unmount', location.pathname);
       }
-      setSelectedId(null);
-      setSelectedSearchResult(null);
-      setSearchQuery('');
+      // Defer state cleanup to avoid blocking React's render cycle
+      setTimeout(() => {
+        setSelectedId(null);
+        setSelectedSearchResult(null);
+        setSearchQuery('');
+      }, 0);
     };
   }, [location.pathname, setSelectedId, setSelectedSearchResult, setSearchQuery]);
 
