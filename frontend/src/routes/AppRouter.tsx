@@ -37,7 +37,7 @@ import RouterDebug from '../app/debug/RouterDebug';
 import Dashboard from '../pages/dashboard/Dashboard';            
 import InventoryBoard from '../pages/inventory/InventoryBoard';            
 // TEMPORARY: Use minimal test version to isolate router freeze
-import SuppliersBoardTest from '../pages/suppliers/SuppliersBoard.test';
+import SuppliersBoardTest from '../pages/suppliers/SuppliersBoardalternativ';
 import LogoutPage from '../pages/auth/LogoutPage';
 import Analytics from '../pages/analytics/Analytics';
 
