@@ -96,49 +96,47 @@ export const SuppliersTable: React.FC<SuppliersTableProps> = ({
   const { t } = useTranslation(['common', 'suppliers']);
   const { userPreferences } = useSettings();
 
-  // Define grid columns
-  const columns = React.useMemo<GridColDef<SupplierRow>[]>(() => {
-    return [
-      {
-        field: 'name',
-        headerName: t('suppliers:table.name', 'Supplier Name'),
-        flex: 1,
-        minWidth: 200,
+  // Define grid columns (no memoization needed - same as InventoryTable)
+  const columns: GridColDef<SupplierRow>[] = [
+    {
+      field: 'name',
+      headerName: t('suppliers:table.name', 'Supplier Name'),
+      flex: 1,
+      minWidth: 200,
+    },
+    {
+      field: 'contactName',
+      headerName: t('suppliers:table.contactName', 'Contact'),
+      width: 150,
+      valueGetter: (_value: unknown, row: SupplierRow) => row.contactName ?? '—',
+    },
+    {
+      field: 'phone',
+      headerName: t('suppliers:table.phone', 'Phone'),
+      width: 140,
+      valueGetter: (_value: unknown, row: SupplierRow) => row.phone ?? '—',
+    },
+    {
+      field: 'email',
+      headerName: t('suppliers:table.email', 'Email'),
+      width: 180,
+      valueGetter: (_value: unknown, row: SupplierRow) => row.email ?? '—',
+    },
+    {
+      field: 'createdAt',
+      headerName: t('suppliers:table.createdAt', 'Created'),
+      width: 180,
+      valueGetter: (_value: unknown, row: SupplierRow) => row.createdAt ?? null,
+      valueFormatter: ({ value }: { value: unknown }) => {
+        if (!value) return '—';
+        try {
+          return formatDate(new Date(String(value)), userPreferences.dateFormat);
+        } catch {
+          return String(value);
+        }
       },
-      {
-        field: 'contactName',
-        headerName: t('suppliers:table.contactName', 'Contact'),
-        width: 150,
-        valueGetter: (_value: unknown, row: SupplierRow) => row.contactName ?? '—',
-      },
-      {
-        field: 'phone',
-        headerName: t('suppliers:table.phone', 'Phone'),
-        width: 140,
-        valueGetter: (_value: unknown, row: SupplierRow) => row.phone ?? '—',
-      },
-      {
-        field: 'email',
-        headerName: t('suppliers:table.email', 'Email'),
-        width: 180,
-        valueGetter: (_value: unknown, row: SupplierRow) => row.email ?? '—',
-      },
-      {
-        field: 'createdAt',
-        headerName: t('suppliers:table.createdAt', 'Created'),
-        width: 180,
-        valueGetter: (_value: unknown, row: SupplierRow) => row.createdAt ?? null,
-        valueFormatter: ({ value }: { value: unknown }) => {
-          if (!value) return '—';
-          try {
-            return formatDate(new Date(String(value)), userPreferences.dateFormat);
-          } catch {
-            return String(value);
-          }
-        },
-      },
-    ];
-  }, [t, userPreferences.dateFormat]);
+    },
+  ];
 
   return (
     <Paper

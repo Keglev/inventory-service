@@ -9,10 +9,9 @@
  * @enterprise
  * - Separation of concerns: data parameter transformation isolated
  * - Single responsibility: converts state to API query format
- * - Memoized calculations for pagination and sorting
+ * - No memoization needed - simple calculations are cheap
  */
 
-import { useMemo } from 'react';
 import { useSuppliersBoardData } from '../hooks/useSuppliersBoardData';
 import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardState';
 
@@ -33,14 +32,12 @@ import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardSta
  * ```
  */
 export function useDataFetchingLogic(state: UseSuppliersBoardStateReturn) {
-  // Prepare parameters for data hook
-  const serverPage = useMemo(() => state.paginationModel.page + 1, [state.paginationModel.page]);
+  // Prepare parameters for data hook (no memoization needed)
+  const serverPage = state.paginationModel.page + 1;
 
-  const serverSort = useMemo(() => {
-    return state.sortModel.length
-      ? `${state.sortModel[0].field},${state.sortModel[0].sort ?? 'asc'}`
-      : 'name,asc';
-  }, [state.sortModel]);
+  const serverSort = state.sortModel.length
+    ? `${state.sortModel[0].field},${state.sortModel[0].sort ?? 'asc'}`
+    : 'name,asc';
 
   // Execute data fetching with prepared parameters
   const data = useSuppliersBoardData(

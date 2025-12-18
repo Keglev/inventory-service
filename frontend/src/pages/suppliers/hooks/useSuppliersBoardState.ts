@@ -64,6 +64,7 @@ export type UseSuppliersBoardStateReturn = SuppliersBoardState & SuppliersBoardS
  * Hook for managing suppliers board page state.
  *
  * Returns unified state object and setter functions.
+ * Uses useMemo to prevent creating new object on every render.
  *
  * @returns State and setter functions
  */
@@ -83,24 +84,38 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
   const [openEdit, setOpenEdit] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
 
-  return {
-    searchQuery,
-    showAllSuppliers,
-    paginationModel,
-    sortModel,
-    selectedId,
-    selectedSearchResult,
-    openCreate,
-    openEdit,
-    openDelete,
-    setSearchQuery,
-    setShowAllSuppliers,
-    setPaginationModel,
-    setSortModel,
-    setSelectedId,
-    setSelectedSearchResult,
-    setOpenCreate,
-    setOpenEdit,
-    setOpenDelete,
-  };
+  // Memoize the return object to prevent triggering re-renders in consumers
+  return React.useMemo(
+    () => ({
+      searchQuery,
+      showAllSuppliers,
+      paginationModel,
+      sortModel,
+      selectedId,
+      selectedSearchResult,
+      openCreate,
+      openEdit,
+      openDelete,
+      setSearchQuery,
+      setShowAllSuppliers,
+      setPaginationModel,
+      setSortModel,
+      setSelectedId,
+      setSelectedSearchResult,
+      setOpenCreate,
+      setOpenEdit,
+      setOpenDelete,
+    }),
+    [
+      searchQuery,
+      showAllSuppliers,
+      paginationModel,
+      sortModel,
+      selectedId,
+      selectedSearchResult,
+      openCreate,
+      openEdit,
+      openDelete,
+    ]
+  );
 };
