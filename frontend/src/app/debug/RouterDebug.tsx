@@ -34,6 +34,15 @@ function dumpHistoryStateOneLine(): string {
 export default function RouterDebug() {
   const location = useLocation();
 
+  // Render-phase log to confirm React is rendering this component
+  try {
+    if (localStorage.getItem('debugRouting') === '1') {
+      console.debug('[RouterDebug] render', location.pathname + location.search);
+    }
+  } catch {
+    // ignore
+  }
+
   const latestLocationRef = React.useRef({
     pathname: location.pathname,
     search: location.search,

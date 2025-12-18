@@ -54,6 +54,15 @@ export default function AppMain({ isDemo }: AppMainProps) {
   const { t } = useTranslation(['auth']);
   const location = useLocation();
 
+  // Render-phase log to confirm this component is rendering
+  try {
+    if (localStorage.getItem('debugRouting') === '1') {
+      console.debug('[AppMain] render', location.pathname + location.search);
+    }
+  } catch {
+    // ignore
+  }
+
   return (
     <Box
       component="main"
