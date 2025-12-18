@@ -298,3 +298,79 @@ a:focus-visible {
     align-items: flex-start;
   }
 }
+/* =============================================================================
+   Mermaid diagrams – improve contrast on dark background
+   ========================================================================== */
+
+.mermaid {
+  background: transparent;
+}
+
+/* Main flow lines */
+.mermaid .edgePath path {
+  stroke: #7dd3fc !important;          /* cyan, readable */
+  stroke-width: 2.2px !important;
+}
+
+/* Arrow heads */
+.mermaid .arrowheadPath {
+  fill: #7dd3fc !important;
+  stroke: #7dd3fc !important;
+}
+
+/* Node borders */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon {
+  stroke: #38bdf8 !important;
+  stroke-width: 1.8px !important;
+  fill: #0f1b2d !important;             /* matches content surface */
+}
+
+/* Node labels */
+.mermaid .nodeLabel {
+  color: #e5e7eb !important;
+  fill: #e5e7eb !important;
+  font-weight: 500;
+}
+
+/* Edge labels */
+.mermaid .edgeLabel {
+  background-color: #0f1b2d !important;
+  color: #e5e7eb !important;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* Subgraph (cluster) */
+.mermaid .cluster rect {
+  stroke: rgba(125, 211, 252, 0.6) !important;
+  fill: rgba(125, 211, 252, 0.08) !important;
+  stroke-dasharray: 4 3;
+}
+
+/* Sequence diagrams */
+.mermaid .actor line {
+  stroke: #94a3b8 !important;
+}
+
+.mermaid .messageLine0,
+.mermaid .messageLine1 {
+  stroke: #7dd3fc !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid .messageText {
+  fill: #e5e7eb !important;
+}
+
+/* Notes */
+.mermaid .note rect {
+  fill: #0c1626 !important;
+  stroke: #38bdf8 !important;
+}
+
+.mermaid .note text {
+  fill: #e5e7eb !important;
+}
