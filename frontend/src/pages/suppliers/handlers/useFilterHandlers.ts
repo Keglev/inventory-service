@@ -30,7 +30,7 @@ export function useFilterHandlers(state: UseSuppliersBoardStateReturn) {
     (show: boolean) => {
       state.setShowAllSuppliers(show);
     },
-    [state]
+    [state.setShowAllSuppliers]
   );
 
   return {

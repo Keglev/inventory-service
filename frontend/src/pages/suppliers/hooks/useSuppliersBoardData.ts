@@ -13,7 +13,6 @@
  * - Type-safe data transformations
  */
 
-import * as React from 'react';
 import { useSuppliersPageQuery, useSupplierSearchQuery } from '../../../api/suppliers';
 import type { SupplierRow } from '../../../api/suppliers';
 
@@ -62,10 +61,6 @@ export const useSuppliersBoardData = (
   sort: string,
   searchQuery: string
 ): SuppliersBoardData => {
-  const [suppliers, setSuppliers] = React.useState<SupplierRow[]>([]);
-  const [total, setTotal] = React.useState(0);
-  const [searchResults, setSearchResults] = React.useState<SupplierRow[]>([]);
-
   // Fetch paginated suppliers list
   const suppliersQuery = useSuppliersPageQuery(
     {
@@ -83,25 +78,12 @@ export const useSuppliersBoardData = (
     true
   );
 
-  // Sync suppliers data
-  React.useEffect(() => {
-    if (suppliersQuery.data) {
-      setSuppliers(suppliersQuery.data.items);
-      setTotal(suppliersQuery.data.total);
-    }
-  }, [suppliersQuery.data]);
-
-  // Sync search results
-  React.useEffect(() => {
-    if (searchQueryResult.data) {
-      setSearchResults(searchQueryResult.data);
-    }
-  }, [searchQueryResult.data]);
-
+  // Return React Query data directly without intermediate state
+  // This prevents render loops that can block router updates
   return {
-    suppliers,
-    total,
-    searchResults,
+    suppliers: suppliersQuery.data?.items ?? [],
+    total: suppliersQuery.data?.total ?? 0,
+    searchResults: searchQueryResult.data ?? [],
     isLoadingSuppliers: suppliersQuery.isLoading,
     isLoadingSearch: searchQueryResult.isLoading,
     error: suppliersQuery.error?.message || null,
