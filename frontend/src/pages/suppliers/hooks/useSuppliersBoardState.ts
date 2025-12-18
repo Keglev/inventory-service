@@ -64,11 +64,16 @@ export type UseSuppliersBoardStateReturn = SuppliersBoardState & SuppliersBoardS
  * Hook for managing suppliers board page state.
  *
  * Returns unified state object and setter functions.
- * Uses useMemo to prevent creating new object on every render.
  *
  * @returns State and setter functions
  */
 export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
+  const renderCount = React.useRef(0);
+  renderCount.current++;
+  if (renderCount.current > 100) {
+    console.error('[SUPPLIERS STATE] INFINITE RENDER DETECTED - over 100 renders!');
+  }
+  
   const [searchQuery, setSearchQuery] = React.useState('');
   const [showAllSuppliers, setShowAllSuppliers] = React.useState(false);
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
@@ -84,38 +89,28 @@ export const useSuppliersBoardState = (): UseSuppliersBoardStateReturn => {
   const [openEdit, setOpenEdit] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
 
-  // Memoize the return object to prevent triggering re-renders in consumers
-  return React.useMemo(
-    () => ({
-      searchQuery,
-      showAllSuppliers,
-      paginationModel,
-      sortModel,
-      selectedId,
-      selectedSearchResult,
-      openCreate,
-      openEdit,
-      openDelete,
-      setSearchQuery,
-      setShowAllSuppliers,
-      setPaginationModel,
-      setSortModel,
-      setSelectedId,
-      setSelectedSearchResult,
-      setOpenCreate,
-      setOpenEdit,
-      setOpenDelete,
-    }),
-    [
-      searchQuery,
-      showAllSuppliers,
-      paginationModel,
-      sortModel,
-      selectedId,
-      selectedSearchResult,
-      openCreate,
-      openEdit,
-      openDelete,
-    ]
-  );
+  const stateObject = {
+    searchQuery,
+    showAllSuppliers,
+    paginationModel,
+    sortModel,
+    selectedId,
+    selectedSearchResult,
+    openCreate,
+    openEdit,
+    openDelete,
+    setSearchQuery,
+    setShowAllSuppliers,
+    setPaginationModel,
+    setSortModel,
+    setSelectedId,
+    setSelectedSearchResult,
+    setOpenCreate,
+    setOpenEdit,
+    setOpenDelete,
+  };
+
+  console.log(`[SUPPLIERS STATE RENDER #${renderCount.current}] paginationModel:`, paginationModel);
+  
+  return stateObject;
 };

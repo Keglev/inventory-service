@@ -35,7 +35,7 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
       state.setSelectedId(null);
       state.setPaginationModel({ ...state.paginationModel, page: 0 });
     },
-    [state.setSearchQuery, state.setSelectedSearchResult, state.setSelectedId, state.setPaginationModel, state.paginationModel]
+    [state]
   );
 
   const handleSearchResultSelect = useCallback(
@@ -45,14 +45,14 @@ export function useSearchHandlers(state: UseSuppliersBoardStateReturn) {
       state.setPaginationModel({ ...state.paginationModel, page: 0 });
       state.setSearchQuery(supplier.name ?? '');
     },
-    [state.setSelectedSearchResult, state.setSelectedId, state.setPaginationModel, state.paginationModel, state.setSearchQuery]
+    [state]
   );
 
   const handleClearSearchSelection = useCallback(() => {
     state.setSelectedSearchResult(null);
     state.setSelectedId(null);
     state.setSearchQuery('');
-  }, [state.setSelectedSearchResult, state.setSelectedId, state.setSearchQuery]);
+  }, [state]);
 
   return {
     handleSearchChange,

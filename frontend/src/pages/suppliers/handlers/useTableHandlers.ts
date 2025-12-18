@@ -31,21 +31,21 @@ export function useTableHandlers(state: UseSuppliersBoardStateReturn) {
     (params: { id: string | number }) => {
       state.setSelectedId(String(params.id));
     },
-    [state.setSelectedId]
+    [state]
   );
 
   const handlePaginationChange = useCallback(
     (newModel: GridPaginationModel) => {
       state.setPaginationModel(newModel);
     },
-    [state.setPaginationModel]
+    [state]
   );
 
   const handleSortChange = useCallback(
     (newModel: GridSortModel) => {
       state.setSortModel(newModel);
     },
-    [state.setSortModel]
+    [state]
   );
 
   return {

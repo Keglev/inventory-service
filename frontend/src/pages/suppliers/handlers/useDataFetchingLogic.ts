@@ -32,6 +32,8 @@ import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardSta
  * ```
  */
 export function useDataFetchingLogic(state: UseSuppliersBoardStateReturn) {
+  console.log('[DATA FETCHING LOGIC] called with pagination:', state.paginationModel);
+  
   // Prepare parameters for data hook (no memoization needed)
   const serverPage = state.paginationModel.page + 1;
 
@@ -47,5 +49,6 @@ export function useDataFetchingLogic(state: UseSuppliersBoardStateReturn) {
     state.searchQuery
   );
 
+  console.log('[DATA FETCHING LOGIC] returning data, suppliers count:', data.suppliers.length);
   return data;
 }

@@ -60,10 +60,16 @@ import {
  * ```
  */
 const SuppliersBoard: React.FC = () => {
+  const renderCount = React.useRef(0);
+  renderCount.current++;
+  console.log(`[SUPPLIERS RENDER #${renderCount.current}]`);
+
   // =====================
   // State Management
   // =====================
   const state = useSuppliersBoardState();
+  console.log('[SUPPLIERS] state object identity:', state);
+  
   const location = useLocation();
   const { user } = useAuth();
 

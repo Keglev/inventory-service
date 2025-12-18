@@ -28,15 +28,15 @@ import type { UseSuppliersBoardStateReturn } from '../hooks/useSuppliersBoardSta
 export function useToolbarHandlers(state: UseSuppliersBoardStateReturn) {
   const handleAddNew = useCallback(() => {
     state.setOpenCreate(true);
-  }, [state.setOpenCreate]);
+  }, [state]);
 
   const handleEdit = useCallback(() => {
     state.setOpenEdit(true);
-  }, [state.setOpenEdit]);
+  }, [state]);
 
   const handleDelete = useCallback(() => {
     state.setOpenDelete(true);
-  }, [state.setOpenDelete]);
+  }, [state]);
 
   return {
     handleAddNew,
