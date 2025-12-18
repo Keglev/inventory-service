@@ -66,15 +66,6 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
   });
 
   /**
-   * Reset form when dialog opens/closes.
-   */
-  React.useEffect(() => {
-    if (!open) {
-      form.resetForm();
-    }
-  }, [open, form]);
-
-  /**
    * Prevent dialog close during deletion.
    */
   const handleDialogClose = React.useCallback(() => {
@@ -82,7 +73,8 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
       form.resetForm();
       onClose();
     }
-  }, [form, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.isDeleting, form.resetForm, onClose]);
 
   /**
    * Handle cancel button (go back to search step).
@@ -91,7 +83,8 @@ export const DeleteSupplierDialog: React.FC<DeleteSupplierDialogProps> = ({
     form.setShowConfirmation(false);
     form.setSelectedSupplier(null);
     form.setError(null);
-  }, [form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.setShowConfirmation, form.setSelectedSupplier, form.setError]);
 
   return (
     <Dialog

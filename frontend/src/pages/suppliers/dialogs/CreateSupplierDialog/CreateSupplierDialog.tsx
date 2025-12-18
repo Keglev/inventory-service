@@ -68,14 +68,14 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
   const form = useCreateSupplierForm(onCreated);
 
   /**
-   * Reset form when dialog opens.
-   * Ensures clean state for new supplier creation.
+   * Handle dialog close - reset form state
    */
-  React.useEffect(() => {
-    if (!open) return;
+  const handleClose = React.useCallback(() => {
     form.reset();
     form.setFormError(null);
-  }, [open, form]);
+    onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.reset, form.setFormError, onClose]);
 
   /**
    * Handle form submission and dialog close.
@@ -83,12 +83,12 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
   const handleSubmit = async (data: CreateSupplierForm) => {
     const result = await form.onSubmit(data);
     if (result.success) {
-      onClose();
+      handleClose();
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Box>{t('suppliers:actions.create', 'Create Supplier')}</Box>
@@ -110,7 +110,7 @@ export const CreateSupplierDialog: React.FC<CreateSupplierDialogProps> = ({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} disabled={form.formState.isSubmitting}>
+        <Button onClick={handleClose} disabled={form.formState.isSubmitting}>
           {t('common:actions.cancel', 'Cancel')}
         </Button>
         <Button
