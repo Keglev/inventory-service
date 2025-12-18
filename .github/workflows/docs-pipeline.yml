@@ -276,11 +276,6 @@ jobs:
           rm -f "$API_OUT/index.md"
 
           # 2) Generate modules.html from the best “modules” source available
-          MODULES_MD=""
-          for c in "$TYPEDOC_MD_DIR/modules.md" "$TYPEDOC_MD_DIR/index.md" "$TYPEDOC_MD_DIR/api/README.md"; do
-            if [ -f "$c" ]; then MODULES_MD="$c"; break; fi
-          done
-
           MODULES_MD="$TYPEDOC_MD_DIR/api/inventory/README.md"
 
           if [ -f "$MODULES_MD" ]; then
@@ -294,7 +289,7 @@ jobs:
               --toc \
               --toc-depth=3 \
               -o "$API_OUT/modules.html"
-            echo "✓ Created $API_OUT/modules.html from "$MODULES_MD"
+            echo "✓ Created $API_OUT/modules.html from $MODULES_MD"
           else
             echo "⚠️ Expected modules source not found: $MODULES_MD"
             echo "   Available READMEs:"
