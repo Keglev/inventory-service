@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1766071254605" clover="3.2.0">
-  <project timestamp="1766071254605" name="All files">
-    <metrics statements="24946" coveredstatements="0" conditionals="288" coveredconditionals="0" methods="288" coveredmethods="0" elements="25522" coveredelements="0" complexity="0" loc="24946" ncloc="24946" packages="73" files="288" classes="288"/>
+<coverage generated="1766072066389" clover="3.2.0">
+  <project timestamp="1766072066390" name="All files">
+    <metrics statements="24948" coveredstatements="0" conditionals="288" coveredconditionals="0" methods="288" coveredmethods="0" elements="25524" coveredelements="0" complexity="0" loc="24948" ncloc="24948" packages="73" files="288" classes="288"/>
     <package name="src">
-      <metrics statements="269" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
+      <metrics statements="267" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
       <file name="App.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/App.tsx">
-        <metrics statements="72" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="70" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -76,8 +76,6 @@
         <line num="68" count="0" type="stmt"/>
         <line num="69" count="0" type="stmt"/>
         <line num="70" count="0" type="stmt"/>
-        <line num="71" count="0" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
       </file>
       <file name="main.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/main.tsx">
         <metrics statements="197" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
@@ -25318,9 +25316,9 @@
       </file>
     </package>
     <package name="src.routes">
-      <metrics statements="125" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <metrics statements="129" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
       <file name="AppRouter.tsx" path="/home/runner/work/inventory-service/inventory-service/frontend/src/routes/AppRouter.tsx">
-        <metrics statements="125" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="129" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -25446,6 +25444,10 @@
         <line num="123" count="0" type="stmt"/>
         <line num="124" count="0" type="stmt"/>
         <line num="125" count="0" type="stmt"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="128" count="0" type="stmt"/>
+        <line num="129" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src.theme">
