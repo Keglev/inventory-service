@@ -99,21 +99,20 @@ analytics/search/functions/searchItemsGlobal · Smart Supply Pro · Frontend API
       </nav>
       
       <article class="doc-body">
-        <p><a
-        href="../../../../README.html"><strong>frontend</strong></a></p>
+        <p><a href="README.html"><strong>frontend</strong></a></p>
         <hr />
-        <p><a href="../../../../README.html">frontend</a> / <a
-        href="../README.html">api/analytics/search</a> /
+        <p><a href="README.html">frontend</a> / <a
+        href="README.html">api/analytics/search</a> /
         searchItemsGlobal</p>
         <h1 id="function-searchitemsglobal">Function:
         searchItemsGlobal()</h1>
         <blockquote>
         <p><strong>searchItemsGlobal</strong>(<code>q</code>,
         <code>limit</code>): <code>Promise</code>&lt;<a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
+        href="types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         </blockquote>
         <p>Defined in: <a
-        href="https://github.com/Keglev/inventory-service/blob/09d36d4a1f1d1d7bfba0746b4339b3760a1e68e3/frontend/src/api/analytics/search.ts#L59">src/api/analytics/search.ts:59</a></p>
+        href="https://github.com/Keglev/inventory-service/blob/8c8b8e8c717c6846f91ada166f50ad55886cc2f9/frontend/src/api/analytics/search.ts#L59">src/api/analytics/search.ts:59</a></p>
         <p>Global item search (no supplier filter). Returns array of
         {id, name}. Empty array on errors.</p>
         <h2 id="parameters">Parameters</h2>
@@ -123,7 +122,7 @@ analytics/search/functions/searchItemsGlobal · Smart Supply Pro · Frontend API
         <p><code>number</code> = <code>50</code></p>
         <h2 id="returns">Returns</h2>
         <p><code>Promise</code>&lt;<a
-        href="../../types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
+        href="types/type-aliases/ItemRef.html"><code>ItemRef</code></a>[]&gt;</p>
         <h2 id="example">Example</h2>
         <div class="sourceCode" id="cb1"><pre
         class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> items <span class="op">=</span> <span class="cf">await</span> <span class="fu">searchItemsGlobal</span>(<span class="st">&#39;widget&#39;</span><span class="op">,</span> <span class="dv">50</span>)<span class="op">;</span></span>
