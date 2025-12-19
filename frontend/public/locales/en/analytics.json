@@ -53,6 +53,17 @@
   },
   "item": "Item",
   "filters": {
+    "title": "Filters",
+    "dateRangeLabel": "Date Range",
+    "days30": "30 days",
+    "days90": "90 days",
+    "days180": "180 days",
+    "custom": "Custom",
+    "reset": "Reset",
+    "from": "From",
+    "to": "To",
+    "supplier": "Supplier",
+    "allSuppliers": "All Suppliers",
     "dateRange": "Date range",
     "quick": {
       "30d": "Last 30 days",
@@ -60,7 +71,6 @@
       "180d": "Last 180 days",
       "custom": "Custom"
     },
-    "supplier": "Supplier",
     "clear": "Clear filters",
     "apply": "Apply"
   },

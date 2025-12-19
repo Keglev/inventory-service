@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { Button, Stack, TextField, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { formatToIsoDate, getQuickDateRange, parseIsoDate } from './useFiltersLogic';
 import type { AnalyticsFilters } from './Filters.types';
 
@@ -28,6 +29,7 @@ export function DateRangeFilter({
   disabled = false,
   onReset,
 }: DateRangeFilterProps) {
+  const { t } = useTranslation(['analytics']);
   const [showCustom, setShowCustom] = useState(value.quick === 'custom');
 
   const fromDate = parseIsoDate(value.from);
@@ -74,7 +76,7 @@ export function DateRangeFilter({
           onClick={() => handleQuickRange(30)}
           disabled={disabled}
         >
-          30 days
+          {t('analytics:filters.days30', '30 days')}
         </Button>
         <Button
           variant={value.quick === '90' ? 'contained' : 'outlined'}
@@ -82,7 +84,7 @@ export function DateRangeFilter({
           onClick={() => handleQuickRange(90)}
           disabled={disabled}
         >
-          90 days
+          {t('analytics:filters.days90', '90 days')}
         </Button>
         <Button
           variant={value.quick === '180' ? 'contained' : 'outlined'}
@@ -90,7 +92,7 @@ export function DateRangeFilter({
           onClick={() => handleQuickRange(180)}
           disabled={disabled}
         >
-          180 days
+          {t('analytics:filters.days180', '180 days')}
         </Button>
         <Button
           variant={value.quick === 'custom' ? 'contained' : 'outlined'}
@@ -98,7 +100,7 @@ export function DateRangeFilter({
           onClick={handleCustom}
           disabled={disabled}
         >
-          Custom
+          {t('analytics:filters.custom', 'Custom')}
         </Button>
         {onReset && (
           <Button
@@ -108,7 +110,7 @@ export function DateRangeFilter({
             disabled={disabled}
             sx={{ ml: { xs: 0, sm: 0.5 } }}
           >
-            Reset
+            {t('analytics:filters.reset', 'Reset')}
           </Button>
         )}
       </Stack>
@@ -116,7 +118,7 @@ export function DateRangeFilter({
       {showCustom && (
         <Stack direction="row" spacing={1.5} alignItems="center">
           <TextField
-            label="From"
+            label={t('analytics:filters.from', 'From')}
             type="date"
             value={fromDate?.toISOString().split('T')[0] || ''}
             onChange={handleFromChange}
@@ -126,10 +128,10 @@ export function DateRangeFilter({
             sx={{ minWidth: 160 }}
           />
           <Typography variant="body2" color="text.secondary">
-            to
+            {t('analytics:filters.to', 'to')}
           </Typography>
           <TextField
-            label="To"
+            label={t('analytics:filters.to', 'To')}
             type="date"
             value={toDate?.toISOString().split('T')[0] || ''}
             onChange={handleToChange}

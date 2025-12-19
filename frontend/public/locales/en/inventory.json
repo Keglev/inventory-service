@@ -51,6 +51,14 @@
     "no": "No"
   },
 
+  "filter": {
+    "supplier": "Supplier",
+    "allSuppliers": "All suppliers",
+    "search": "Search",
+    "searchPlaceholder": "Item name or code",
+    "belowMinOnly": "Below minimum quantity only"
+  },
+
   "search": {
     "selectSupplierPrompt": "Please select a supplier to view their items.",
     "selectSupplierFirst": "Please select a supplier first to enable searching.",
@@ -127,9 +135,6 @@
     "reasonLabel": "Reason"
   },
 
-  "filters": {
-    "belowMinOnly": "Below min only"
-  },
   "selection": {
     "selectedItemLabel": "Selected Item"
   }

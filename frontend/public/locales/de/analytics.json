@@ -53,6 +53,17 @@
   },
   "item": "Artikel",
   "filters": {
+    "title": "Filter",
+    "dateRangeLabel": "Zeitraum",
+    "days30": "30 Tage",
+    "days90": "90 Tage",
+    "days180": "180 Tage",
+    "custom": "Benutzerdefiniert",
+    "reset": "Zurücksetzen",
+    "from": "Von",
+    "to": "Bis",
+    "supplier": "Lieferant",
+    "allSuppliers": "Alle Lieferanten",
     "dateRange": "Zeitraum",
     "quick": {
       "30d": "Letzte 30 Tage",
@@ -60,7 +71,6 @@
       "180d": "Letzte 180 Tage",
       "custom": "Benutzerdefiniert"
     },
-    "supplier": "Lieferant",
     "clear": "Filter zurücksetzen",
     "apply": "Übernehmen"
   },

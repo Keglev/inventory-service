@@ -5,6 +5,7 @@
  */
 
 import { Stack, Paper, Typography, Box } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { DateRangeFilter } from './DateRangeFilter';
 import { SupplierFilter } from './SupplierFilter';
 import type { FiltersProps, AnalyticsFilters } from './Filters.types';
@@ -33,6 +34,8 @@ export function Filters({
   onChange,
   disabled = false,
 }: FiltersProps) {
+  const { t } = useTranslation(['analytics']);
+  
   const resetFilters = () => {
     const { from, to } = getQuickDateRange(180);
     onChange({
@@ -55,7 +58,7 @@ export function Filters({
     >
       <Stack spacing={1}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          Filters
+          {t('analytics:filters.title', 'Filters')}
         </Typography>
 
         <Stack
@@ -65,7 +68,7 @@ export function Filters({
         >
           <Box sx={{ flex: 2 }}>
             <Typography variant="body2" sx={{ mb: 0.75, fontWeight: 500 }}>
-              Date Range
+              {t('analytics:filters.dateRangeLabel', 'Date Range')}
             </Typography>
             <DateRangeFilter value={value} onChange={onChange} disabled={disabled} onReset={resetFilters} />
           </Box>

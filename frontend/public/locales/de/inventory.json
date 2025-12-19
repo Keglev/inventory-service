@@ -47,8 +47,16 @@
     "applyAdjustment": "Anpassung anwenden",
     "applyPriceChange": "Preisänderung anwenden",
     "cancel": "Abbrechen",
-    "yes": "Ja",
-    "no": "Nein"
+    "ja": "Ja",
+    "nein": "Nein"
+  },
+
+  "filter": {
+    "supplier": "Lieferant",
+    "allSuppliers": "Alle Lieferanten",
+    "search": "Suche",
+    "searchPlaceholder": "Artikelname oder Code",
+    "belowMinOnly": "Nur unter Mindestbestand"
   },
 
   "search": {
@@ -125,10 +133,6 @@
   "fields": {
     "codeReadOnlyHint": "Derzeit optional",
     "reasonLabel": "Grund"
-  },
-
-  "filters": {
-    "belowMinOnly": "Nur unter Mindestbestand"
   },
 
   "selection": {

@@ -4,6 +4,7 @@
  * Supplier dropdown filter component
  */
 
+import { useTranslation } from 'react-i18next';
 import type { SupplierRef } from '../../../../api/analytics/types';
 import type { AnalyticsFilters } from './Filters.types';
 
@@ -26,6 +27,8 @@ export function SupplierFilter({
   onChange,
   disabled = false,
 }: SupplierFilterProps) {
+  const { t } = useTranslation(['analytics']);
+  
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const supplierId = e.target.value || undefined;
     onChange({
@@ -37,7 +40,7 @@ export function SupplierFilter({
   return (
     <div>
       <label htmlFor="supplier-select" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
-        Supplier
+        {t('analytics:filters.supplier', 'Supplier')}
       </label>
       <select
         id="supplier-select"
@@ -46,7 +49,7 @@ export function SupplierFilter({
         disabled={disabled}
         style={{ width: '100%', padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' }}
       >
-        <option value="">All Suppliers</option>
+        <option value="">{t('analytics:filters.allSuppliers', 'All Suppliers')}</option>
         {suppliers.map((supplier) => (
           <option key={supplier.id} value={supplier.id}>
             {supplier.name}
