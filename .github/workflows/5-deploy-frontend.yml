@@ -26,13 +26,53 @@ jobs:
         uses: actions/checkout@v4
 
       # Reuse your existing Docker tag logic, or simply use SHA:
-      - name: Resolve image reference
+      - name: Resolve image reference (tag -> digest)
         id: img
         run: |
           set -euo pipefail
-          SHA="${{ github.event.workflow_run.head_sha }}"
-          echo "sha=$SHA" >> $GITHUB_OUTPUT
-          echo "image_ref=docker.io/${{ secrets.DOCKER_USERNAME }}/ssp-frontend:$SHA" >> $GITHUB_OUTPUT
+
+          # Works for workflow_run and workflow_dispatch 
+          SHA="${{ github.event.workflow_run.head_sha || github.sha }}"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          
+          NAMESPACE="${{ secrets.DOCKER_USERNAME }}"
+          REPO="ssp-frontend"
+          TAG="$SHA"
+
+          echo "Resolving digest for docker.io/${NAMESPACE}/${REPO}:${TAG} ..."
+
+          # 1) Get an anonymous registry token for this repository (public pull scope)
+          TOKEN="$(
+            curl -fsSL --retry 5 --retry-connrefused --retry-delay 2 \
+              "https://auth.docker.io/token?service=registry.docker.io&scope=repository:${NAMESPACE}/${REPO}:pull" \
+            | grep -oE '"token"\s*:\s*"[^"]+"' \
+            | sed -E 's/.*"token"\s*:\s*"([^"]+)".*/\1/'
+          )"
+
+          if [ -z "${TOKEN:-}" ]; then
+            echo "❌ Could not obtain Docker Hub registry token"
+            exit 1
+          fi
+
+          # 2) Ask registry for the manifest headers and read Docker-Content-Digest
+          DIGEST="$(
+            curl -fsSI --retry 8 --retry-connrefused --retry-delay 2 \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+              "https://registry-1.docker.io/v2/${NAMESPACE}/${REPO}/manifests/${TAG}" \
+            | tr -d '\r' \
+            | awk -F': ' '/Docker-Content-Digest/ {print $2}' \
+            | tail -n1
+          )"
+
+          if [ -z "${DIGEST:-}" ]; then
+            echo "❌ Could not resolve digest. Tag may not exist yet, or Docker Hub is having issues."
+            exit 1
+          fi
+
+          IMAGE_REF="docker.io/${NAMESPACE}/${REPO}@${DIGEST}"
+          echo "✅ Resolved: ${IMAGE_REF}"
+          echo "image_ref=${IMAGE_REF}" >> "$GITHUB_OUTPUT"
 
       # (Optional) Validate image exists, similar to backend 3-deploy-fly.yml 
 
@@ -110,9 +150,20 @@ jobs:
           SVC="${{ env.KOYEB_APP }}/${{ env.KOYEB_SERVICE }}"
           REF="${{ steps.img.outputs.image_ref }}"
           echo "Updating $SVC to $REF ..."
-          koyeb service update "$SVC" \
-            --docker "$REF" \
-            --ports 8080:http     
+
+          # Retry because Koyeb<->registry connectivity can be flaky
+          for attempt in 1 2 3 4 5; do
+            echo "Deploy attempt $attempt/5"
+            if koyeb service update "$SVC" --docker "$REF" --ports 8080:http; then
+              echo "✅ Deploy command accepted"
+              exit 0
+            fi
+            echo "❌ Deploy failed; sleeping before retry..."
+            sleep $((attempt * 10))
+          done
+
+          echo "❌ All deploy attempts failed"
+          exit 1   
       # ----------------------------------------------------------------------
       # 8) Post-deploy health gate (authoritative platform status)
       #    - Wait for service status=HEALTHY via Koyeb CLI (not public curl).
