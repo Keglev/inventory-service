@@ -80,9 +80,18 @@ const SuppliersBoard: React.FC = () => {
   // Data Fetching & Processing
   // =====================
   const data = useDataFetchingLogic(state);
-  const usingSearch = state.searchQuery.length >= 2;
-  const displayRows = usingSearch ? data.searchResults : data.suppliers;
-  const displayRowCount = usingSearch ? data.searchResults.length : data.total;
+  const hasSelectedFromSearch = state.selectedSearchResult !== null;
+  
+  // Determine what to display:
+  // 1. If user selected a result from search dropdown: show only that selected supplier
+  // 2. If showAllSuppliers is true: show paginated suppliers
+  // 3. Otherwise: show nothing
+  const displayRows = hasSelectedFromSearch 
+    ? (state.selectedSearchResult ? [state.selectedSearchResult] : [])
+    : (state.showAllSuppliers ? data.suppliers : []);
+  const displayRowCount = hasSelectedFromSearch 
+    ? (state.selectedSearchResult ? 1 : 0)
+    : (state.showAllSuppliers ? data.total : 0);
 
   const { setOpenCreate, setOpenEdit, setOpenDelete } = state;
   const handleCloseCreate = React.useCallback(() => setOpenCreate(false), [setOpenCreate]);
@@ -107,9 +116,9 @@ const SuppliersBoard: React.FC = () => {
         {/* Header with Toolbar */}
         <SuppliersToolbar
           onCreateClick={handleAddNew}
-          editEnabled={state.selectedId !== null || Boolean(user?.isDemo)}
+          editEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
           onEditClick={handleEdit}
-          deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo)}
+          deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}
           onDeleteClick={handleDelete}
         />
 
@@ -135,7 +144,7 @@ const SuppliersBoard: React.FC = () => {
         </Box>
 
         {/* Suppliers Table */}
-        {!state.showAllSuppliers && !usingSearch ? (
+        {!state.showAllSuppliers && !hasSelectedFromSearch ? (
           <Paper
             variant="outlined"
             sx={{

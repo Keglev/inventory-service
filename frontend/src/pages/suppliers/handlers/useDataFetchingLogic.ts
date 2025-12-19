@@ -41,12 +41,14 @@ export function useDataFetchingLogic(state: UseSuppliersBoardStateReturn) {
     ? `${state.sortModel[0].field},${state.sortModel[0].sort ?? 'asc'}`
     : 'name,asc';
 
-  // Execute data fetching with prepared parameters
+  // Always pass the search query to the data hook for search results dropdown
+  // The data hook will use it appropriately for both search and pagination
   const data = useSuppliersBoardData(
     serverPage,
     state.paginationModel.pageSize,
     serverSort,
-    state.searchQuery
+    state.searchQuery,
+    state.showAllSuppliers  // Pass this flag so the hook knows whether to filter paginated results
   );
 
   console.log('[DATA FETCHING LOGIC] returning data, suppliers count:', data.suppliers.length);

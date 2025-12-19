@@ -60,24 +60,26 @@ export const useSuppliersBoardData = (
   page: number,
   pageSize: number,
   sort: string,
-  searchQuery: string
+  searchQuery: string,
+  showAllSuppliers: boolean = true
 ): SuppliersBoardData => {
-  console.log('[useSuppliersBoardData] CALLED with:', { page, pageSize, sort, searchQuery });
+  console.log('[useSuppliersBoardData] CALLED with:', { page, pageSize, sort, searchQuery, showAllSuppliers });
   
   // Fetch paginated suppliers list
+  // Only pass search query to paginated API if showAllSuppliers is true
   const suppliersQuery = useSuppliersPageQuery(
     {
       page,
       pageSize,
       sort,
-      q: searchQuery.length >= 2 ? searchQuery : undefined,
+      q: (showAllSuppliers && searchQuery.length >= 2) ? searchQuery : undefined,
     },
     true
   );
 
   console.log('[useSuppliersBoardData] suppliersQuery data identity:', suppliersQuery.data);
 
-  // Search suppliers by query
+  // Search suppliers by query - always available regardless of showAllSuppliers flag
   const searchQueryResult = useSupplierSearchQuery(
     searchQuery.length >= 2 ? searchQuery : '',
     true
