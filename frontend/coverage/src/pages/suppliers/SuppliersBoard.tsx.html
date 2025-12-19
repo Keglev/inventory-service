@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/185</span>
+                <span class='fraction'>0/194</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/185</span>
+                <span class='fraction'>0/194</span>
             </div>
         
             
@@ -248,7 +248,25 @@
 <a name='L183'></a><a href='#L183'>183</a>
 <a name='L184'></a><a href='#L184'>184</a>
 <a name='L185'></a><a href='#L185'>185</a>
-<a name='L186'></a><a href='#L186'>186</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -515,9 +533,18 @@
 <span class="cstat-no" title="statement not covered" >  // Data Fetching &amp; Processing</span>
 <span class="cstat-no" title="statement not covered" >  // =====================</span>
 <span class="cstat-no" title="statement not covered" >  const data = useDataFetchingLogic(state);</span>
-<span class="cstat-no" title="statement not covered" >  const usingSearch = state.searchQuery.length &gt;= 2;</span>
-<span class="cstat-no" title="statement not covered" >  const displayRows = usingSearch ? data.searchResults : data.suppliers;</span>
-<span class="cstat-no" title="statement not covered" >  const displayRowCount = usingSearch ? data.searchResults.length : data.total;</span>
+<span class="cstat-no" title="statement not covered" >  const hasSelectedFromSearch = state.selectedSearchResult !== null;</span>
+<span class="cstat-no" title="statement not covered" >  </span>
+<span class="cstat-no" title="statement not covered" >  // Determine what to display:</span>
+<span class="cstat-no" title="statement not covered" >  // 1. If user selected a result from search dropdown: show only that selected supplier</span>
+<span class="cstat-no" title="statement not covered" >  // 2. If showAllSuppliers is true: show paginated suppliers</span>
+<span class="cstat-no" title="statement not covered" >  // 3. Otherwise: show nothing</span>
+<span class="cstat-no" title="statement not covered" >  const displayRows = hasSelectedFromSearch </span>
+<span class="cstat-no" title="statement not covered" >    ? (state.selectedSearchResult ? [state.selectedSearchResult] : [])</span>
+<span class="cstat-no" title="statement not covered" >    : (state.showAllSuppliers ? data.suppliers : []);</span>
+<span class="cstat-no" title="statement not covered" >  const displayRowCount = hasSelectedFromSearch </span>
+<span class="cstat-no" title="statement not covered" >    ? (state.selectedSearchResult ? 1 : 0)</span>
+<span class="cstat-no" title="statement not covered" >    : (state.showAllSuppliers ? data.total : 0);</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >  const { setOpenCreate, setOpenEdit, setOpenDelete } = state;</span>
 <span class="cstat-no" title="statement not covered" >  const handleCloseCreate = React.useCallback(() =&gt; setOpenCreate(false), [setOpenCreate]);</span>
@@ -542,9 +569,9 @@
 <span class="cstat-no" title="statement not covered" >        {/* Header with Toolbar */}</span>
 <span class="cstat-no" title="statement not covered" >        &lt;SuppliersToolbar</span>
 <span class="cstat-no" title="statement not covered" >          onCreateClick={handleAddNew}</span>
-<span class="cstat-no" title="statement not covered" >          editEnabled={state.selectedId !== null || Boolean(user?.isDemo)}</span>
+<span class="cstat-no" title="statement not covered" >          editEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}</span>
 <span class="cstat-no" title="statement not covered" >          onEditClick={handleEdit}</span>
-<span class="cstat-no" title="statement not covered" >          deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo)}</span>
+<span class="cstat-no" title="statement not covered" >          deleteEnabled={state.selectedId !== null || Boolean(user?.isDemo) || user?.role === 'ADMIN'}</span>
 <span class="cstat-no" title="statement not covered" >          onDeleteClick={handleDelete}</span>
 <span class="cstat-no" title="statement not covered" >        /&gt;</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -570,7 +597,7 @@
 <span class="cstat-no" title="statement not covered" >        &lt;/Box&gt;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >        {/* Suppliers Table */}</span>
-<span class="cstat-no" title="statement not covered" >        {!state.showAllSuppliers &amp;&amp; !usingSearch ? (</span>
+<span class="cstat-no" title="statement not covered" >        {!state.showAllSuppliers &amp;&amp; !hasSelectedFromSearch ? (</span>
 <span class="cstat-no" title="statement not covered" >          &lt;Paper</span>
 <span class="cstat-no" title="statement not covered" >            variant="outlined"</span>
 <span class="cstat-no" title="statement not covered" >            sx={{</span>
@@ -625,7 +652,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-19T14:54:29.464Z
+                at 2025-12-19T15:42:12.113Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
