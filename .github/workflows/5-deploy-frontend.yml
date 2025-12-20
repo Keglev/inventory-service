@@ -55,15 +55,50 @@ jobs:
           fi
 
           # 2) Ask registry for the manifest headers and read Docker-Content-Digest
-          DIGEST="$(
-            curl -fsSI --retry 8 --retry-connrefused --retry-delay 2 \
-              -H "Authorization: Bearer $TOKEN" \
-              -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
-              "https://registry-1.docker.io/v2/${NAMESPACE}/${REPO}/manifests/${TAG}" \
-            | tr -d '\r' \
-            | awk -F': ' '/Docker-Content-Digest/ {print $2}' \
-            | tail -n1
-          )"
+          MANIFEST_URL="https://registry-1.docker.io/v2/${NAMESPACE}/${REPO}/manifests/${TAG}"
+
+          HDRS="$(mktemp)"
+
+          # Retry loop because Docker Hub can be eventually-consistent right after push
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            echo "Manifest check attempt $attempt/12 ..."
+
+            STATUS="$(
+              curl -sS \
+                -D "$HDRS" -o /dev/null -w '%{http_code}' \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.index.v1+json" \
+                "$MANIFEST_URL" || true
+            )"
+
+            echo "Docker Hub manifest HTTP status: $STATUS"
+
+            if [ "$STATUS" = "200" ]; then
+              break
+            fi
+
+            # Print a few headers for diagnosis
+            echo "::group::Docker Hub headers (first 40 lines)"
+            sed -n '1,40p' "$HDRS" || true
+            echo "::endgroup::"
+
+            sleep 10
+          done
+
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Manifest request never returned 200. Final HTTP status: $STATUS"
+            exit 1
+          fi
+
+          DIGEST="$(tr -d '\r' < "$HDRS" | awk -F': ' '/Docker-Content-Digest/ {print $2}' | tail -n1)"
+
+          if [ -z "${DIGEST:-}" ]; then
+            echo "❌ Manifest returned 200 but no Docker-Content-Digest header was found."
+            echo "::group::Docker Hub headers (first 80 lines)"
+            sed -n '1,80p' "$HDRS" || true
+            echo "::endgroup::"
+            exit 1
+          fi  
 
           if [ -z "${DIGEST:-}" ]; then
             echo "❌ Could not resolve digest. Tag may not exist yet, or Docker Hub is having issues."
