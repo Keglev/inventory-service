@@ -15,7 +15,7 @@ export default defineConfig({
       '**/coverage/**',
       '**/.{idea,git,cache,output,temp}/**',
     ],
-    setupFiles: ['src/test/setupTests.ts'],
+    setupFiles: ['src/__tests__/test/setupTests.ts'],
     clearMocks: true,
     restoreMocks: true,
     coverage: {
@@ -28,7 +28,7 @@ export default defineConfig({
         'src/vite-env.d.ts',
         'src/**/index.ts',
         'src/**/index.tsx',
-        'src/test/**',
+        'src/__tests__/**',
       ],
     },
   },
