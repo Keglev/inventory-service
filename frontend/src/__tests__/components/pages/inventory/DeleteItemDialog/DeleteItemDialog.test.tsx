@@ -9,7 +9,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { DeleteItemDialog } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
-import { HelpProvider } from '../../../../../context/Help';
+import { HelpProvider } from '../../../../../context/help/HelpContext';
 
 // Mock everything the component needs
 vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemContent', () => ({
