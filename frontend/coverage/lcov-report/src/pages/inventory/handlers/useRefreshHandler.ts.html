@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/44</span>
+                <span class='fraction'>44/44</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/44</span>
+                <span class='fraction'>44/44</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -107,94 +107,94 @@
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >/**<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-<span class="cstat-no" title="statement not covered" > * @file useRefreshHandler.ts</span>
-<span class="cstat-no" title="statement not covered" > * @module pages/inventory/handlers/useRefreshHandler</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @summary</span>
-<span class="cstat-no" title="statement not covered" > * Custom hook that provides data refresh handler for InventoryBoard.</span>
-<span class="cstat-no" title="statement not covered" > * Manages: Reload data by resetting pagination.</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @enterprise</span>
-<span class="cstat-no" title="statement not covered" > * - Separation of concerns: handler logic isolated from component</span>
-<span class="cstat-no" title="statement not covered" > * - Single responsibility: triggers data reload via state changes</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >import { useCallback } from 'react';</span>
-<span class="cstat-no" title="statement not covered" >import type { InventoryState, InventoryStateSetters } from '../hooks/useInventoryState';</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >type InventoryStateReturn = InventoryState &amp; InventoryStateSetters;</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >/**</span>
-<span class="cstat-no" title="statement not covered" > * Hook providing data refresh handler.</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * Triggers data reload by resetting pagination to first page.</span>
-<span class="cstat-no" title="statement not covered" > * This causes useInventoryData to refetch data.</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @param state - Inventory board state object</span>
-<span class="cstat-no" title="statement not covered" > * @returns Object with handler function for refresh action</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @example</span>
-<span class="cstat-no" title="statement not covered" > * ```tsx</span>
-<span class="cstat-no" title="statement not covered" > * const { handleReload } = useRefreshHandler(state);</span>
-<span class="cstat-no" title="statement not covered" > * ```</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" >export function useRefreshHandler(state: InventoryStateReturn) {</span>
-<span class="cstat-no" title="statement not covered" >  const handleReload = useCallback(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    // Trigger data reload by resetting pagination</span>
-<span class="cstat-no" title="statement not covered" >    // Since hooks can't be called conditionally, reload happens via dependency changes</span>
-<span class="cstat-no" title="statement not covered" >    // Force reload by resetting pagination to first page</span>
-<span class="cstat-no" title="statement not covered" >    state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });</span>
-<span class="cstat-no" title="statement not covered" >  }, [state]);</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  return {</span>
-<span class="cstat-no" title="statement not covered" >    handleReload,</span>
-<span class="cstat-no" title="statement not covered" >  };</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+<a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file useRefreshHandler.ts
+ * @module pages/inventory/handlers/useRefreshHandler
+ *
+ * @summary
+ * Custom hook that provides data refresh handler for InventoryBoard.
+ * Manages: Reload data by resetting pagination.
+ *
+ * @enterprise
+ * - Separation of concerns: handler logic isolated from component
+ * - Single responsibility: triggers data reload via state changes
+ */
+&nbsp;
+import { useCallback } from 'react';
+import type { InventoryState, InventoryStateSetters } from '../hooks/useInventoryState';
+&nbsp;
+type InventoryStateReturn = InventoryState &amp; InventoryStateSetters;
+&nbsp;
+/**
+ * Hook providing data refresh handler.
+ *
+ * Triggers data reload by resetting pagination to first page.
+ * This causes useInventoryData to refetch data.
+ *
+ * @param state - Inventory board state object
+ * @returns Object with handler function for refresh action
+ *
+ * @example
+ * ```tsx
+ * const { handleReload } = useRefreshHandler(state);
+ * ```
+ */
+export function useRefreshHandler(state: InventoryStateReturn) {
+  const handleReload = useCallback(() =&gt; {
+    // Trigger data reload by resetting pagination
+    // Since hooks can't be called conditionally, reload happens via dependency changes
+    // Force reload by resetting pagination to first page
+    state.setPaginationModel({ page: 0, pageSize: state.paginationModel.pageSize });
+  }, [state]);
+&nbsp;
+  return {
+    handleReload,
+  };
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -202,7 +202,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-22T10:37:12.334Z
+                at 2025-12-22T10:59:11.528Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
