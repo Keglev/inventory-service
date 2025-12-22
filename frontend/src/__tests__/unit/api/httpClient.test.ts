@@ -5,6 +5,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import httpClient, { API_BASE } from '@/api/httpClient';
 
+// Mock localStorage for demo session tests
 describe('httpClient', () => {
   describe('API_BASE resolution', () => {
     it('should resolve API_BASE from environment or default to /api', () => {

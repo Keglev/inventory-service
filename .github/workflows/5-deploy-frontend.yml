@@ -191,7 +191,7 @@ jobs:
             if koyeb service update "$SVC" \
               --docker "$REF" \
               --ports 8080:http \
-              --docker-private-registry-secret docker-hub-ssp-frontend; then
+              --docker-private-registry-secret docker-hub-registry; then
               echo "✅ Deploy command accepted"
               exit 0
             fi
