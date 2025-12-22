@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/38</span>
+                <span class='fraction'>38/38</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/38</span>
+                <span class='fraction'>38/38</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -101,82 +101,82 @@
 <a name='L36'></a><a href='#L36'>36</a>
 <a name='L37'></a><a href='#L37'>37</a>
 <a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >/**<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-<span class="cstat-no" title="statement not covered" > * @file useInventoryData.ts</span>
-<span class="cstat-no" title="statement not covered" > * @module api/inventory/hooks</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @summary</span>
-<span class="cstat-no" title="statement not covered" > * Barrel export for inventory data fetching hooks.</span>
-<span class="cstat-no" title="statement not covered" > * Provides unified interface for supplier loading, item search, and item details queries.</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @enterprise</span>
-<span class="cstat-no" title="statement not covered" > * - Single import location for all inventory hooks</span>
-<span class="cstat-no" title="statement not covered" > * - Backward compatible with existing imports (no changes needed in consuming files)</span>
-<span class="cstat-no" title="statement not covered" > * - Clear separation of concerns across hook modules</span>
-<span class="cstat-no" title="statement not covered" > * - Consistent caching strategy: 5min suppliers, 30s items</span>
-<span class="cstat-no" title="statement not covered" > * - Performance optimized with conditional enabling</span>
-<span class="cstat-no" title="statement not covered" > * - Comprehensive TypeDoc documentation</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @backend_limitation</span>
-<span class="cstat-no" title="statement not covered" > * The /api/inventory search endpoint doesn't properly filter by supplierId parameter,</span>
-<span class="cstat-no" title="statement not covered" > * so `useItemSearchQuery` applies client-side filtering to ensure supplier isolation.</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @usage</span>
-<span class="cstat-no" title="statement not covered" > * ```typescript</span>
-<span class="cstat-no" title="statement not covered" > * import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '@/api/inventory/hooks';</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * const suppliers = useSuppliersQuery(dialogOpen);</span>
-<span class="cstat-no" title="statement not covered" > * const items = useItemSearchQuery(selectedSupplier, searchQuery);</span>
-<span class="cstat-no" title="statement not covered" > * const itemDetails = useItemDetailsQuery(selectedItem?.id);</span>
-<span class="cstat-no" title="statement not covered" > * ```</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >// Supplier selection hook</span>
-<span class="cstat-no" title="statement not covered" >export { useSuppliersQuery } from './useSuppliersQuery';</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >// Item search with client-side supplier filtering</span>
-<span class="cstat-no" title="statement not covered" >export { useItemSearchQuery } from './useItemSearchQuery';</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >// Item details for forms and dialogs</span>
-<span class="cstat-no" title="statement not covered" >export { useItemDetailsQuery } from './useItemDetailsQuery';</span>
+<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file useInventoryData.ts
+ * @module api/inventory/hooks
+ *
+ * @summary
+ * Barrel export for inventory data fetching hooks.
+ * Provides unified interface for supplier loading, item search, and item details queries.
+ *
+ * @enterprise
+ * - Single import location for all inventory hooks
+ * - Backward compatible with existing imports (no changes needed in consuming files)
+ * - Clear separation of concerns across hook modules
+ * - Consistent caching strategy: 5min suppliers, 30s items
+ * - Performance optimized with conditional enabling
+ * - Comprehensive TypeDoc documentation
+ *
+ * @backend_limitation
+ * The /api/inventory search endpoint doesn't properly filter by supplierId parameter,
+ * so `useItemSearchQuery` applies client-side filtering to ensure supplier isolation.
+ *
+ * @usage
+ * ```typescript
+ * import { useSuppliersQuery, useItemSearchQuery, useItemDetailsQuery } from '@/api/inventory/hooks';
+ *
+ * const suppliers = useSuppliersQuery(dialogOpen);
+ * const items = useItemSearchQuery(selectedSupplier, searchQuery);
+ * const itemDetails = useItemDetailsQuery(selectedItem?.id);
+ * ```
+ */
+&nbsp;
+// Supplier selection hook
+export { useSuppliersQuery } from './useSuppliersQuery';
+&nbsp;
+// Item search with client-side supplier filtering
+export { useItemSearchQuery } from './useItemSearchQuery';
+&nbsp;
+// Item details for forms and dialogs
+export { useItemDetailsQuery } from './useItemDetailsQuery';
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -184,7 +184,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-22T15:24:38.553Z
+                at 2025-12-22T16:09:06.583Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
