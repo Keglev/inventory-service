@@ -188,7 +188,10 @@ jobs:
           # Retry because Koyeb<->registry connectivity can be flaky
           for attempt in 1 2 3 4 5; do
             echo "Deploy attempt $attempt/5"
-            if koyeb service update "$SVC" --docker "$REF" --ports 8080:http; then
+            if koyeb service update "$SVC" \
+              --docker "$REF" \
+              --ports 8080:http \
+              --docker-private-registry-secret docker-hub-ssp-frontend; then
               echo "✅ Deploy command accepted"
               exit 0
             fi

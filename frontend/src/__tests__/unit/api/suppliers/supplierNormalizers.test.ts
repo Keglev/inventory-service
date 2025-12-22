@@ -22,7 +22,7 @@ describe('toSupplierRow', () => {
     };
 
     const result = toSupplierRow(raw);
-
+    // Assert the normalized output
     expect(result).toEqual({
       id: '123',
       name: 'Acme Corp',
