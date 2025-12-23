@@ -9,7 +9,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Outlet } from 'react-router-dom';
 import AppRouter from '../../routes/AppRouter';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -60,14 +60,18 @@ vi.mock('../../pages/analytics/Analytics', () => ({
 }));
 
 vi.mock('../../app/layout/AppShell', () => ({
-  default: ({ children }: { children: React.ReactNode }) => (
-    <div>AppShell: {children}</div>
+  default: () => (
+    <div>
+      AppShell: <Outlet />
+    </div>
   ),
 }));
 
 vi.mock('../../app/public-shell', () => ({
-  AppPublicShell: ({ children }: { children: React.ReactNode }) => (
-    <div>PublicShell: {children}</div>
+  AppPublicShell: () => (
+    <div>
+      PublicShell: <Outlet />
+    </div>
   ),
 }));
 
@@ -77,9 +81,18 @@ vi.mock('../../features/auth', () => ({
   ),
 }));
 
-vi.mock('../../app/debug/RouterDebug', () => ({
-  default: () => <div>RouterDebug</div>,
-}));
+const mockUseAuth = useAuth as unknown as { mockReturnValue: (value: unknown) => void };
+
+const renderAt = (path: string) =>
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <AppRouter />
+    </MemoryRouter>
+  );
+
+const setAuthLoading = (loading: boolean) => {
+  mockUseAuth.mockReturnValue({ loading });
+};
 
 describe('AppRouter', () => {
   beforeEach(() => {
@@ -88,15 +101,10 @@ describe('AppRouter', () => {
 
   it('should render loading screen when auth is loading', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: true });
+    setAuthLoading(true);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/');
 
     // Assert
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -104,96 +112,66 @@ describe('AppRouter', () => {
 
   it('should render routes when auth is not loading', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/');
 
-    // Assert - RouterDebug should be rendered
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText(/PublicShell:/)).toBeInTheDocument();
+    expect(screen.getByText('Home Page')).toBeInTheDocument();
   });
 
   it('should render home page on root path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/');
 
-    // Assert - RouterDebug should be present
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText('Home Page')).toBeInTheDocument();
   });
 
   it('should render login page on /login path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/login');
 
-    // Assert - Router should render without errors
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText('Login Page')).toBeInTheDocument();
   });
 
   it('should render auth callback on /auth path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/auth');
 
-    // Assert - Router should render without errors
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText('Auth Callback')).toBeInTheDocument();
   });
 
   it('should render logout success on /logout-success path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/logout-success');
 
-    // Assert - Router should render without errors
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText('Logout Success')).toBeInTheDocument();
   });
 
   it('should render logout page on /logout path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    window.history.pushState({}, 'Logout', '/logout');
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/logout');
 
     // Assert
     expect(screen.getByText('Logout Page')).toBeInTheDocument();
@@ -201,80 +179,62 @@ describe('AppRouter', () => {
 
   it('should render dashboard in AppShell on /dashboard path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/dashboard');
 
-    // Assert - Router should render without errors
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText(/AppShell:/)).toBeInTheDocument();
+    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
   it('should render inventory board in AppShell on /inventory path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/inventory');
 
-    // Assert - Router should render without errors
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText(/AppShell:/)).toBeInTheDocument();
+    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
+    expect(screen.getByText('Inventory Board')).toBeInTheDocument();
   });
 
   it('should render suppliers board in AppShell on /suppliers path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/suppliers');
 
-    // Assert - Router should render without errors
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText(/AppShell:/)).toBeInTheDocument();
+    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
+    expect(screen.getByText('Suppliers Board')).toBeInTheDocument();
   });
 
   it('should render analytics in AppShell on /analytics path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/analytics');
 
-    // Assert - Router should render without errors
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText(/AppShell:/)).toBeInTheDocument();
+    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
+    expect(screen.getByText('Analytics')).toBeInTheDocument();
   });
 
   it('should render 404 not found on unknown path', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    window.history.pushState({}, 'Not Found', '/unknown-path');
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/unknown-path');
 
     // Assert
     expect(screen.getByText('404 Not Found')).toBeInTheDocument();
@@ -282,32 +242,21 @@ describe('AppRouter', () => {
 
   it('should wrap authenticated routes with RequireAuth', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/dashboard');
 
-    // Assert - Router should render without errors
-    expect(screen.getByText('RouterDebug')).toBeInTheDocument();
+    // Assert
+    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
   });
 
   it('should render public routes outside AppShell', () => {
     // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({ loading: false });
+    setAuthLoading(false);
 
     // Act
-    window.history.pushState({}, 'Home', '/');
-    render(
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    );
+    renderAt('/');
 
     // Assert
     expect(screen.getByText(/PublicShell:/)).toBeInTheDocument();

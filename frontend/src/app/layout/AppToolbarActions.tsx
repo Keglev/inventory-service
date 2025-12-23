@@ -18,8 +18,9 @@ import { useTranslation } from 'react-i18next';
 import { HelpIconButton } from '../../features/help';
 import { HamburgerMenu } from '../HamburgerMenu';
 import type { SupportedLocale } from '../../theme';
-import deFlag from '/flags/de.svg';
-import usFlag from '/flags/us.svg';
+
+const DE_FLAG = '/flags/de.svg';
+const US_FLAG = '/flags/us.svg';
 
 interface AppToolbarActionsProps {
   /** Current theme mode (light or dark) */
@@ -66,7 +67,7 @@ export default function AppToolbarActions({
       <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
         <IconButton size="small" onClick={() => onLocaleChange(locale === 'de' ? 'en' : 'de')} sx={{ mr: 1 }}>
           <img
-            src={locale === 'de' ? deFlag : usFlag}
+            src={locale === 'de' ? DE_FLAG : US_FLAG}
             alt={locale === 'de' ? 'Deutsch' : 'English'}
             width={16}
             height={16}

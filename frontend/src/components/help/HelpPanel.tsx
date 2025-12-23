@@ -45,6 +45,9 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
   const { currentTopicId, isOpen, closeHelp } = useHelp();
   const { t } = useTranslation('help');
 
+  // Allow runtime topic keys from registry while keeping `t` strongly typed
+  const translate = (key: string): string => (t as unknown as (k: string) => string)(key);
+
   // If no topic selected or drawer is closed, don't render
   if (!currentTopicId || !isOpen) {
     return null;
@@ -87,8 +90,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
         }}
       >
         <Typography variant="h6" sx={{ fontWeight: 700, flex: 1 }}>
-          {/* @ts-expect-error: topic.titleKey is runtime value from registry */}
-          {t(topic.titleKey)}
+          {translate(topic.titleKey)}
         </Typography>
         <IconButton onClick={closeHelp} size="small" sx={{ ml: 1 }}>
           <CloseIcon />
@@ -103,8 +105,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
           color="text.secondary" 
           sx={{ lineHeight: 1.7, whiteSpace: 'pre-line' }}
         >
-          {/* @ts-expect-error: topic.bodyKey is runtime value from registry */}
-          {t(topic.bodyKey)}
+          {translate(topic.bodyKey)}
         </Typography>
 
         {/* Optional: documentation link */}
@@ -122,8 +123,7 @@ const HelpPanel: React.FC<HelpPanelProps> = ({ width = 420, position = 'right' }
                 }}
                 sx={{ textTransform: 'none' }}
               >
-                {/* @ts-expect-error: topic.linkKey is runtime value from registry */}
-                {t(topic.linkKey)}
+                {translate(topic.linkKey)}
               </Button>
             </Stack>
           </>

@@ -5,7 +5,7 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
-    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

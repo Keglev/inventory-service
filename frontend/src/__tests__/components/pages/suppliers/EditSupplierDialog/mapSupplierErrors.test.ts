@@ -10,25 +10,22 @@ import { describe, it, expect, vi } from 'vitest';
 
 describe('mapSupplierErrors', () => {
   it('handles null error message', () => {
-    const t = vi.fn((key: string, fallback: string) => fallback);
     const errorMsg: string | null | undefined = null;
     expect(errorMsg).toBeNull();
   });
 
   it('handles undefined error message', () => {
-    const t = vi.fn((key: string, fallback: string) => fallback);
     const errorMsg: string | null | undefined = undefined;
     expect(errorMsg).toBeUndefined();
   });
 
   it('handles error message string', () => {
-    const t = vi.fn((key: string, fallback: string) => fallback);
     const errorMsg = 'Failed to update supplier';
     expect(errorMsg).toBe('Failed to update supplier');
   });
 
   it('provides translation function parameter', () => {
-    const t = vi.fn((key: string, fallback: string) => fallback);
+    const t = vi.fn((_key: string, fallback: string) => fallback);
     expect(t).toBeDefined();
   });
 

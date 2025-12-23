@@ -22,8 +22,9 @@
 import * as React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import type { SupportedLocale } from '../../../theme';
-import deFlag from '/flags/de.svg';
-import usFlag from '/flags/us.svg';
+
+const DE_FLAG = '/flags/de.svg';
+const US_FLAG = '/flags/us.svg';
 
 interface LanguageToggleProps {
   /** Current locale: 'de' or 'en' */
@@ -45,7 +46,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({ locale, onToggle, toolt
   <Tooltip title={tooltip}>
     <IconButton onClick={onToggle}>
       <img
-        src={locale === 'de' ? deFlag : usFlag}
+        src={locale === 'de' ? DE_FLAG : US_FLAG}
         alt={locale === 'de' ? 'Deutsch' : 'English'}
         width={20}
         height={20}

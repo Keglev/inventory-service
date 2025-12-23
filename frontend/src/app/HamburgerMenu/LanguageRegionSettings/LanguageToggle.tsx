@@ -20,8 +20,9 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { SupportedLocale } from '../../../theme';
-import deFlag from '/flags/de.svg';
-import usFlag from '/flags/us.svg';
+
+const DE_FLAG = '/flags/de.svg';
+const US_FLAG = '/flags/us.svg';
 
 interface LanguageToggleProps {
   /** Current locale setting (de or en) */
@@ -65,11 +66,11 @@ export default function LanguageToggle({
         fullWidth
       >
         <ToggleButton value="de" sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <img src={deFlag} alt="Deutsch" width={14} height={14} />
+          <img src={DE_FLAG} alt="Deutsch" width={14} height={14} />
           <Typography variant="caption">Deutsch</Typography>
         </ToggleButton>
         <ToggleButton value="en" sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <img src={usFlag} alt="English" width={14} height={14} />
+          <img src={US_FLAG} alt="English" width={14} height={14} />
           <Typography variant="caption">English</Typography>
         </ToggleButton>
       </ToggleButtonGroup>

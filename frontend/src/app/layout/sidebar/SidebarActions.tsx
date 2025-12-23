@@ -26,8 +26,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { useTranslation } from 'react-i18next';
 import { HelpIconButton } from '../../../features/help';
 import type { SupportedLocale } from '../../../theme';
-import deFlag from '/flags/de.svg';
-import usFlag from '/flags/us.svg';
+
+const DE_FLAG = '/flags/de.svg';
+const US_FLAG = '/flags/us.svg';
 
 interface SidebarActionsProps {
   /** Current theme mode */
@@ -114,7 +115,7 @@ export default function SidebarActions({
         <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
           <IconButton size="small" onClick={onLocaleChange}>
             <img
-              src={locale === 'de' ? deFlag : usFlag}
+              src={locale === 'de' ? DE_FLAG : US_FLAG}
               alt={locale === 'de' ? 'Deutsch' : 'English'}
               width={16}
               height={16}

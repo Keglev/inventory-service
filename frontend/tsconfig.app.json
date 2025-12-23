@@ -11,6 +11,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "types": ["vite/client"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",

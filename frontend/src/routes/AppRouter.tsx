@@ -31,7 +31,6 @@ import AuthCallback from '../pages/auth/AuthCallback';
 import LogoutSuccess from '../pages/auth/LogoutSuccess';
 import NotFoundPage from '../pages/system/NotFoundPage';
 import { AppPublicShell } from '../app/public-shell';
-import RouterDebug from '../app/debug/RouterDebug';
 
 // Authenticated pages
 import Dashboard from '../pages/dashboard/Dashboard';            
@@ -57,7 +56,6 @@ const AppRouter: React.FC = () => {
 
   return (
     <>
-      <RouterDebug />
       <Routes>
         {/**
          * PUBLIC ROUTES (no AppShell)
