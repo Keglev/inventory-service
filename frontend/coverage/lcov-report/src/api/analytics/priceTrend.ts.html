@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/48</span>
+                <span class='fraction'>48/48</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">90% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>9/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/48</span>
+                <span class='fraction'>48/48</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -110,108 +110,108 @@
 <a name='L45'></a><a href='#L45'>45</a>
 <a name='L46'></a><a href='#L46'>46</a>
 <a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >/**<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-<span class="cstat-no" title="statement not covered" >* @file priceTrend.ts</span>
-<span class="cstat-no" title="statement not covered" >* @module api/analytics/priceTrend</span>
-<span class="cstat-no" title="statement not covered" >*</span>
-<span class="cstat-no" title="statement not covered" >* @summary</span>
-<span class="cstat-no" title="statement not covered" >* Price trend time series for a given item within an optional date/supplier window.</span>
-<span class="cstat-no" title="statement not covered" >* Provides function to fetch historical price points.</span>
-<span class="cstat-no" title="statement not covered" >* @enterprise</span>
-<span class="cstat-no" title="statement not covered" >* - Resilient data fetching with graceful error handling</span>
-<span class="cstat-no" title="statement not covered" >* - TypeDoc documentation for price trend analytics function</span>
-<span class="cstat-no" title="statement not covered" >*/</span>
-<span class="cstat-no" title="statement not covered" >import http from '../httpClient';</span>
-<span class="cstat-no" title="statement not covered" >import { asNumber, paramClean } from './util';</span>
-<span class="cstat-no" title="statement not covered" >import type { AnalyticsParams } from './validation';</span>
-<span class="cstat-no" title="statement not covered" >import type { PricePoint } from './types';</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >// Tolerant DTO (local)</span>
-<span class="cstat-no" title="statement not covered" >type BackendPriceTrendDTO = { timestamp?: string; price?: unknown };</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >/** Fetch an item's price trend in a time window. </span>
-<span class="cstat-no" title="statement not covered" > * Returns array of {date, price}. Empty array on errors.</span>
-<span class="cstat-no" title="statement not covered" > * @example</span>
-<span class="cstat-no" title="statement not covered" > * ```typescript</span>
-<span class="cstat-no" title="statement not covered" > * const points = await getPriceTrend('ITEM-123', {</span>
-<span class="cstat-no" title="statement not covered" > *   from: '2025-09-01',</span>
-<span class="cstat-no" title="statement not covered" > *  to: '2025-11-30',</span>
-<span class="cstat-no" title="statement not covered" > *  supplierId: 'SUP-001'</span>
-<span class="cstat-no" title="statement not covered" > * });</span>
-<span class="cstat-no" title="statement not covered" > * return &lt;LineChart data={points} /&gt;;</span>
-<span class="cstat-no" title="statement not covered" > * ```</span>
-<span class="cstat-no" title="statement not covered" >*/</span>
-<span class="cstat-no" title="statement not covered" >export async function getPriceTrend(itemId: string, p?: AnalyticsParams): Promise&lt;PricePoint[]&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (!itemId) return [];</span>
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >        const { data } = await http.get&lt;unknown&gt;('/api/analytics/price-trend', {</span>
-<span class="cstat-no" title="statement not covered" >            params: { itemId, ...paramClean(p) },</span>
-<span class="cstat-no" title="statement not covered" >        });</span>
-<span class="cstat-no" title="statement not covered" >        if (!Array.isArray(data)) return [];</span>
-<span class="cstat-no" title="statement not covered" >        const rows = (data as BackendPriceTrendDTO[]).map((d) =&gt; ({</span>
-<span class="cstat-no" title="statement not covered" >            date: String(d.timestamp ?? ''),</span>
-<span class="cstat-no" title="statement not covered" >            price: asNumber(d.price),</span>
-<span class="cstat-no" title="statement not covered" >        }));</span>
-<span class="cstat-no" title="statement not covered" >        rows.sort((a, b) =&gt; a.date.localeCompare(b.date));</span>
-<span class="cstat-no" title="statement not covered" >        return rows;</span>
-<span class="cstat-no" title="statement not covered" >    } catch {</span>
-<span class="cstat-no" title="statement not covered" >        return [];</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
+<a name='L48'></a><a href='#L48'>48</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span></td><td class="text"><pre class="prettyprint lang-js">/**
+* @file priceTrend.ts
+* @module api/analytics/priceTrend
+*
+* @summary
+* Price trend time series for a given item within an optional date/supplier window.
+* Provides function to fetch historical price points.
+* @enterprise
+* - Resilient data fetching with graceful error handling
+* - TypeDoc documentation for price trend analytics function
+*/
+import http from '../httpClient';
+import { asNumber, paramClean } from './util';
+import type { AnalyticsParams } from './validation';
+import type { PricePoint } from './types';
+&nbsp;
+// Tolerant DTO (local)
+type BackendPriceTrendDTO = { timestamp?: string; price?: unknown };
+&nbsp;
+/** Fetch an item's price trend in a time window. 
+ * Returns array of {date, price}. Empty array on errors.
+ * @example
+ * ```typescript
+ * const points = await getPriceTrend('ITEM-123', {
+ *   from: '2025-09-01',
+ *  to: '2025-11-30',
+ *  supplierId: 'SUP-001'
+ * });
+ * return &lt;LineChart data={points} /&gt;;
+ * ```
+*/
+export async function getPriceTrend(itemId: string, p?: AnalyticsParams): Promise&lt;PricePoint[]&gt; {
+    if (!itemId) return [];
+    try {
+        const { data } = await http.get&lt;unknown&gt;('/api/analytics/price-trend', {
+            params: { itemId, ...paramClean(p) },
+        });
+        if (!Array.isArray(data)) return [];
+        const rows = (data as BackendPriceTrendDTO[]).map((d) =&gt; ({
+            date: String(d.<span class="branch-0 cbranch-no" title="branch not covered" >timestamp ?? '')</span>,
+            price: asNumber(d.price),
+        }));
+        rows.sort((a, b) =&gt; a.date.localeCompare(b.date));
+        return rows;
+    } catch {
+        return [];
+    }
+}</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-23T14:01:42.193Z
+                at 2025-12-23T17:02:49.428Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
