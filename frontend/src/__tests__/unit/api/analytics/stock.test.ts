@@ -10,82 +10,135 @@
  * @responsibility Track stock additions, removals, balance updates, availability checks
  * @out_of_scope Warehouse operations, physical verification, multi-location tracking
  */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { describe, it, expect, beforeEach } from 'vitest';
+vi.mock('../../../../api/httpClient', () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
 
-// Mock stock functions for testing
-const addStock = (current: number, quantity: number): number => {
-  return current + quantity;
-};
+import http from '../../../../api/httpClient';
+import {
+  getStockValueOverTime,
+  getMonthlyStockMovement,
+  getStockPerSupplier,
+} from '../../../../api/analytics/stock';
+import type { AnalyticsParams } from '../../../../api/analytics/validation';
 
-const removeStock = (current: number, quantity: number): number => {
-  if (current < quantity) return current;
-  return current - quantity;
-};
+describe('api/analytics/stock', () => {
+  const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;
 
-const isAvailable = (current: number, required: number): boolean => {
-  return current >= required;
-};
-
-const calculateStockValue = (quantity: number, unitPrice: number): number => {
-  return quantity * unitPrice;
-};
-
-const getStockPercentage = (current: number, maximum: number): number => {
-  if (maximum === 0) return 0;
-  return (current / maximum) * 100;
-};
-
-describe('Stock Management', () => {
   beforeEach(() => {
-    // Clean up before each test
+    vi.clearAllMocks();
   });
 
-  it('should add stock correctly', () => {
-    const current = 100;
-    const quantity = 50;
-    const result = addStock(current, quantity);
+  describe('getStockValueOverTime', () => {
+    it('returns [] when backend data is not an array', async () => {
+      httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-    expect(result).toBe(150);
+      const res = await getStockValueOverTime({ from: '2025-09-01', to: '2025-11-30' });
+
+      expect(res).toEqual([]);
+    });
+
+    it('calls endpoint with cleaned params and sorts by date asc', async () => {
+      httpGet.mockResolvedValueOnce({
+        data: [
+          { date: '2025-10-03', totalValue: '12.5' },
+          { date: '2025-10-01', totalValue: 10 },
+          { date: '2025-10-02', totalValue: null }, // -> 0 via asNumber
+        ],
+      });
+
+      const params: AnalyticsParams = { from: '2025-10-01', to: '2025-10-31', supplierId: 'SUP-001' };
+      const res = await getStockValueOverTime(params);
+
+      // paramClean converts from/to -> start/end in your project
+      expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-value', {
+        params: { start: '2025-10-01', end: '2025-10-31', supplierId: 'SUP-001' },
+      });
+
+      expect(res).toEqual([
+        { date: '2025-10-01', totalValue: 10 },
+        { date: '2025-10-02', totalValue: 0 },
+        { date: '2025-10-03', totalValue: 12.5 },
+      ]);
+    });
+
+    it('returns [] when http throws', async () => {
+      httpGet.mockRejectedValueOnce(new Error('network'));
+
+      const res = await getStockValueOverTime();
+      expect(res).toEqual([]);
+    });
   });
 
-  it('should remove stock correctly', () => {
-    const current = 100;
-    const quantity = 30;
-    const result = removeStock(current, quantity);
+  describe('getMonthlyStockMovement', () => {
+    it('returns [] when backend data is not an array', async () => {
+      httpGet.mockResolvedValueOnce({ data: 'nope' });
 
-    expect(result).toBe(70);
+      const res = await getMonthlyStockMovement({ from: '2025-10-01', to: '2025-10-31' });
+      expect(res).toEqual([]);
+    });
+
+    it('maps rows with tolerant number parsing (string/null)', async () => {
+      httpGet.mockResolvedValueOnce({
+        data: [
+          { month: '2025-10', stockIn: '7', stockOut: 2 },
+          { month: '2025-11', stockIn: null, stockOut: '5' }, // null -> 0
+        ],
+      });
+
+      const res = await getMonthlyStockMovement({ from: '2025-10-01', to: '2025-11-30' });
+
+      expect(res).toEqual([
+        { month: '2025-10', stockIn: 7, stockOut: 2 },
+        { month: '2025-11', stockIn: 0, stockOut: 5 },
+      ]);
+    });
+
+    it('returns [] when http throws', async () => {
+      httpGet.mockRejectedValueOnce(new Error('network'));
+
+      const res = await getMonthlyStockMovement();
+      expect(res).toEqual([]);
+    });
   });
 
-  it('should not remove more than available', () => {
-    const current = 100;
-    const quantity = 150;
-    const result = removeStock(current, quantity);
+  describe('getStockPerSupplier', () => {
+    it('returns [] when backend data is not an array', async () => {
+      httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-    expect(result).toBe(100);
-  });
+      const res = await getStockPerSupplier();
+      expect(res).toEqual([]);
+    });
 
-  it('should check stock availability', () => {
-    expect(isAvailable(100, 50)).toBe(true);
-    expect(isAvailable(50, 50)).toBe(true);
-    expect(isAvailable(30, 50)).toBe(false);
-  });
+    it('maps rows and filters out empty supplierName', async () => {
+      httpGet.mockResolvedValueOnce({
+        data: [
+          { supplierName: 'Supplier A', totalQuantity: '10' },
+          { supplierName: '', totalQuantity: 99 },            // filtered (empty string)
+          { totalQuantity: 12 },                              // supplierName missing -> '' -> filtered
+          { supplierName: 'Supplier B', totalQuantity: null }, // null -> 0
+        ],
+      });
 
-  it('should calculate stock value', () => {
-    const value = calculateStockValue(50, 25);
+      const res = await getStockPerSupplier();
 
-    expect(value).toBe(1250);
-  });
+      expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-per-supplier');
 
-  it('should calculate stock percentage', () => {
-    const percentage = getStockPercentage(50, 100);
+      expect(res).toEqual([
+        { supplierName: 'Supplier A', totalQuantity: 10 },
+        { supplierName: 'Supplier B', totalQuantity: 0 },
+      ]);
+    });
 
-    expect(percentage).toBe(50);
-  });
+    it('returns [] when http throws', async () => {
+      httpGet.mockRejectedValueOnce(new Error('network'));
 
-  it('should handle zero maximum in percentage', () => {
-    const percentage = getStockPercentage(50, 0);
-
-    expect(percentage).toBe(0);
+      const res = await getStockPerSupplier();
+      expect(res).toEqual([]);
+    });
   });
 });

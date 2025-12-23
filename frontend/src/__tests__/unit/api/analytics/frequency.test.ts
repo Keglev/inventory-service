@@ -11,74 +11,91 @@
  * @out_of_scope Statistical inference, probability distributions, forecasting
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock frequency functions for testing
-const calculateFrequency = (items: string[]): Record<string, number> => {
-  const frequency: Record<string, number> = {};
-  items.forEach(item => {
-    frequency[item] = (frequency[item] || 0) + 1;
-  });
-  return frequency;
-};
+// Mock the http client used by frequency.ts
+vi.mock('../../../../api/httpClient', () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
 
-const getMostFrequent = (items: string[]): string | null => {
-  if (items.length === 0) return null;
-  const frequency = calculateFrequency(items);
-  return Object.keys(frequency).reduce((a, b) => 
-    frequency[a] > frequency[b] ? a : b
-  );
-};
+import http from '../../../../api/httpClient';
+import { getItemUpdateFrequency } from '../../../../api/analytics/frequency';
 
-const getFrequencyPercentage = (items: string[], item: string): number => {
-  const count = items.filter(i => i === item).length;
-  return items.length > 0 ? (count / items.length) * 100 : 0;
-};
-
-describe('Frequency Analysis', () => {
+describe('api/analytics/frequency.getItemUpdateFrequency', () => {
   beforeEach(() => {
-    // Clean up before each test
+    vi.clearAllMocks();
   });
 
-  it('should calculate frequency for single items', () => {
-    const items = ['A', 'B', 'A', 'C', 'A'];
-    const frequency = calculateFrequency(items);
-
-    expect(frequency['A']).toBe(3);
-    expect(frequency['B']).toBe(1);
-    expect(frequency['C']).toBe(1);
+  it('returns [] when supplierId is empty (no http call)', async () => {
+    const res = await getItemUpdateFrequency('');
+    expect(res).toEqual([]);
+    expect(http.get).not.toHaveBeenCalled();
   });
 
-  it('should handle empty array', () => {
-    const frequency = calculateFrequency([]);
+  it('returns [] when response is not an array of records', async () => {
+    vi.mocked(http.get).mockResolvedValueOnce({ data: { nope: true } });
 
-    expect(Object.keys(frequency).length).toBe(0);
+    const res = await getItemUpdateFrequency('SUP-001');
+    expect(res).toEqual([]);
   });
 
-  it('should return most frequent item', () => {
-    const items = ['product1', 'product2', 'product1', 'product1', 'product3'];
-    const mostFrequent = getMostFrequent(items);
+  it('normalizes records and uses name as id when id is missing', async () => {
+    vi.mocked(http.get).mockResolvedValueOnce({
+      data: [
+        { itemName: 'Item A', updateCount: 3 },                 // no id -> id=name
+        { id: 'I-2', name: 'Item B', updates: 5 },              // direct fields
+        { sku: 'SKU-3', itemName: 'Item C', changes: '7' },     // tolerant keys + string -> number
+      ],
+    });
 
-    expect(mostFrequent).toBe('product1');
+    const res = await getItemUpdateFrequency('SUP-001', 10);
+
+    expect(http.get).toHaveBeenCalledTimes(1);
+    expect(http.get).toHaveBeenCalledWith('/api/analytics/item-update-frequency', {
+      params: { supplierId: 'SUP-001', limit: 10 },
+    });
+
+    expect(res).toEqual([
+      { id: 'Item A', name: 'Item A', updates: 3 },
+      { id: 'I-2', name: 'Item B', updates: 5 },
+      { id: 'SKU-3', name: 'Item C', updates: 7 },
+    ]);
   });
 
-  it('should return null for empty array', () => {
-    const mostFrequent = getMostFrequent([]);
+  it('filters out records without a name', async () => {
+    vi.mocked(http.get).mockResolvedValueOnce({
+      data: [
+        { id: 'X', updates: 1 }, // missing name/itemName => filtered
+        { name: 'Good', count: 2 },
+      ],
+    });
 
-    expect(mostFrequent).toBeNull();
+    const res = await getItemUpdateFrequency('SUP-001', 10);
+    expect(res).toEqual([{ id: 'Good', name: 'Good', updates: 2 }]);
   });
 
-  it('should calculate frequency percentage correctly', () => {
-    const items = ['A', 'A', 'B', 'C', 'A'];
-    const percentage = getFrequencyPercentage(items, 'A');
+  it('applies limit by slicing after parsing', async () => {
+    vi.mocked(http.get).mockResolvedValueOnce({
+      data: [
+        { name: 'A', updates: 1 },
+        { name: 'B', updates: 2 },
+        { name: 'C', updates: 3 },
+      ],
+    });
 
-    expect(percentage).toBe(60);
+    const res = await getItemUpdateFrequency('SUP-001', 2);
+    expect(res).toEqual([
+      { id: 'A', name: 'A', updates: 1 },
+      { id: 'B', name: 'B', updates: 2 },
+    ]);
   });
 
-  it('should handle item not in list', () => {
-    const items = ['A', 'B', 'C'];
-    const percentage = getFrequencyPercentage(items, 'D');
+  it('returns [] when http throws', async () => {
+    vi.mocked(http.get).mockRejectedValueOnce(new Error('network'));
 
-    expect(percentage).toBe(0);
+    const res = await getItemUpdateFrequency('SUP-001');
+    expect(res).toEqual([]);
   });
 });

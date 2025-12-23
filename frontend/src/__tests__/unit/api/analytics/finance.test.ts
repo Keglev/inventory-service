@@ -11,72 +11,122 @@
  * @out_of_scope Tax calculations, currency conversions, financial reporting standards
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock finance functions for testing
-const calculateGrossMargin = (revenue: number, cogs: number): number => {
-  if (revenue === 0) return 0;
-  return (revenue - cogs) / revenue;
-};
+// Mock the http client used by finance.ts
+vi.mock('../../../../api/httpClient', () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
 
-const calculateNetMargin = (revenue: number, expenses: number): number => {
-  if (revenue === 0) return 0;
-  return (revenue - expenses) / revenue;
-};
+import http from '../../../../api/httpClient';
+import { getFinancialSummary } from '../../../../api/analytics/finance';
 
-const calculateRevenue = (unitPrice: number, unitsSold: number): number => {
-  return unitPrice * unitsSold;
-};
-
-describe('Finance Calculations', () => {
+describe('api/analytics/finance.getFinancialSummary', () => {
   beforeEach(() => {
-    // Clean up before each test
+    vi.clearAllMocks();
   });
 
-  it('should calculate gross margin correctly', () => {
-    const revenue = 10000;
-    const cogs = 6000;
-    const margin = calculateGrossMargin(revenue, cogs);
+  it('returns ZERO object when http throws', async () => {
+    vi.mocked(http.get).mockRejectedValueOnce(new Error('network'));
 
-    expect(margin).toBe(0.4);
-    expect(margin).toBeGreaterThan(0);
-    expect(margin).toBeLessThan(1);
+    const res = await getFinancialSummary({ from: '2025-01-01', to: '2025-01-31' });
+
+    expect(res).toEqual({
+      purchases: 0,
+      cogs: 0,
+      writeOffs: 0,
+      returns: 0,
+      openingValue: 0,
+      endingValue: 0,
+    });
   });
 
-  it('should return 0 margin when revenue is 0', () => {
-    const margin = calculateGrossMargin(0, 100);
+  it('builds params correctly (from/to/supplierId) and parses direct object', async () => {
+    vi.mocked(http.get).mockResolvedValueOnce({
+      data: {
+        purchases: 100,
+        cogs: 40,
+        writeOffs: 2,
+        returns: 3,
+        openingValue: 10,
+        endingValue: 20,
+      },
+    });
 
-    expect(margin).toBe(0);
+    const res = await getFinancialSummary({
+      from: '2025-09-01',
+      to: '2025-11-30',
+      supplierId: 'SUP-001',
+    });
+
+    expect(http.get).toHaveBeenCalledTimes(1);
+    expect(http.get).toHaveBeenCalledWith('/api/analytics/financial/summary', {
+      params: { from: '2025-09-01', to: '2025-11-30', supplierId: 'SUP-001' },
+    });
+
+    expect(res).toEqual({
+      purchases: 100,
+      cogs: 40,
+      writeOffs: 2,
+      returns: 3,
+      openingValue: 10,
+      endingValue: 20,
+    });
   });
 
-  it('should calculate net margin correctly', () => {
-    const revenue = 10000;
-    const expenses = 8000;
-    const margin = calculateNetMargin(revenue, expenses);
+  it('accepts envelope { summary } and tolerantly maps alternate field names', async () => {
+    vi.mocked(http.get).mockResolvedValueOnce({
+      data: {
+        summary: {
+          // alternate keys your parser accepts
+          totalPurchases: '200',
+          costOfGoodsSold: '80',
+          write_offs: '5',
+          salesReturns: '7',
+          startValue: '11',
+          endValue: '22',
+        },
+      },
+    });
 
-    expect(margin).toBe(0.2);
-    expect(margin).toBeGreaterThan(0);
+    const res = await getFinancialSummary({ from: '2025-01-01', to: '2025-01-31' });
+
+    expect(res).toEqual({
+      purchases: 200,
+      cogs: 80,
+      writeOffs: 5,
+      returns: 7,
+      openingValue: 11,
+      endingValue: 22,
+    });
   });
 
-  it('should handle negative net margin', () => {
-    const revenue = 10000;
-    const expenses = 12000;
-    const margin = calculateNetMargin(revenue, expenses);
+  it('accepts envelope { data } and returns ZERO when payload is not a record', async () => {
+    vi.mocked(http.get).mockResolvedValueOnce({
+      data: { data: null },
+    });
 
-    expect(margin).toBeLessThan(0);
+    const res = await getFinancialSummary();
+
+    expect(res).toEqual({
+      purchases: 0,
+      cogs: 0,
+      writeOffs: 0,
+      returns: 0,
+      openingValue: 0,
+      endingValue: 0,
+    });
   });
 
-  it('should calculate revenue correctly', () => {
-    const unitPrice = 50;
-    const unitsSold = 100;
-    const revenue = calculateRevenue(unitPrice, unitsSold);
+  it('omits params keys when not provided', async () => {
+    vi.mocked(http.get).mockResolvedValueOnce({ data: {} });
 
-    expect(revenue).toBe(5000);
-  });
+    await getFinancialSummary({ supplierId: 'SUP-XYZ' });
 
-  it('should handle zero sales', () => {
-    const revenue = calculateRevenue(50, 0);
-
-    expect(revenue).toBe(0);
+    expect(http.get).toHaveBeenCalledWith('/api/analytics/financial/summary', {
+      params: { supplierId: 'SUP-XYZ' },
+    });
   });
 });

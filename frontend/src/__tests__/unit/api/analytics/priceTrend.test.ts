@@ -10,88 +10,71 @@
  * @responsibility Analyze price movements, identify trends, calculate rate of change
  * @out_of_scope Market prediction, external API integration, statistical modeling
  */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { describe, it, expect, beforeEach } from 'vitest';
+vi.mock('../../../../api/httpClient', () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
 
-// Mock price trend functions for testing
-const calculateTrend = (prices: number[]): 'uptrend' | 'downtrend' | 'stable' => {
-  if (prices.length < 2) return 'stable';
-  const first = prices[0];
-  const last = prices[prices.length - 1];
-  
-  if (last > first * 1.05) return 'uptrend';
-  if (last < first * 0.95) return 'downtrend';
-  return 'stable';
-};
+import http from '../../../../api/httpClient';
+import { getPriceTrend } from '../../../../api/analytics/priceTrend';
+import type { AnalyticsParams } from '../../../../api/analytics/validation';
 
-const calculateChangeRate = (startPrice: number, endPrice: number): number => {
-  if (startPrice === 0) return 0;
-  return ((endPrice - startPrice) / startPrice) * 100;
-};
+describe('api/analytics/priceTrend.getPriceTrend', () => {
+  const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;
 
-const getMovingAverage = (prices: number[], period: number): number => {
-  if (prices.length < period) return 0;
-  const recentPrices = prices.slice(-period);
-  return recentPrices.reduce((a, b) => a + b, 0) / period;
-};
-
-const identifyPeakAndTrough = (prices: number[]): { peak: number; trough: number } => {
-  return {
-    peak: Math.max(...prices),
-    trough: Math.min(...prices),
-  };
-};
-
-describe('Price Trend Analysis', () => {
   beforeEach(() => {
-    // Clean up before each test
+    vi.clearAllMocks();
   });
 
-  it('should identify uptrend', () => {
-    const prices = [100, 105, 110, 120];
-    const trend = calculateTrend(prices);
-
-    expect(trend).toBe('uptrend');
+  it('returns [] when itemId is empty (no http call)', async () => {
+    const res = await getPriceTrend('');
+    expect(res).toEqual([]);
+    expect(httpGet).not.toHaveBeenCalled();
   });
 
-  it('should identify downtrend', () => {
-    const prices = [100, 95, 90, 85];
-    const trend = calculateTrend(prices);
+  it('calls endpoint with itemId + cleaned params', async () => {
+    httpGet.mockResolvedValueOnce({ data: [] });
 
-    expect(trend).toBe('downtrend');
+    const params: AnalyticsParams = { from: '2025-09-01', to: '2025-11-30', supplierId: 'SUP-001' };
+    await getPriceTrend('ITEM-123', params);
+
+    expect(httpGet).toHaveBeenCalledWith('/api/analytics/price-trend', {
+      params: { itemId: 'ITEM-123', start: '2025-09-01', end: '2025-11-30', supplierId: 'SUP-001' },
+    });
   });
 
-  it('should identify stable trend', () => {
-    const prices = [100, 101, 100, 102];
-    const trend = calculateTrend(prices);
+  it('returns [] when backend data is not an array', async () => {
+    httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-    expect(trend).toBe('stable');
+    const res = await getPriceTrend('ITEM-123');
+    expect(res).toEqual([]);
   });
 
-  it('should calculate change rate correctly', () => {
-    const rate = calculateChangeRate(100, 120);
+  it('maps rows (timestamp->date, price->number) and sorts by date asc', async () => {
+    httpGet.mockResolvedValueOnce({
+      data: [
+        { timestamp: '2025-10-03', price: '12.5' },
+        { timestamp: '2025-10-01', price: 10 },
+        { timestamp: '2025-10-02', price: null }, // asNumber(null) should become 0
+      ],
+    });
 
-    expect(rate).toBe(20);
+    const res = await getPriceTrend('ITEM-123');
+
+    expect(res).toEqual([
+      { date: '2025-10-01', price: 10 },
+      { date: '2025-10-02', price: 0 },
+      { date: '2025-10-03', price: 12.5 },
+    ]);
   });
 
-  it('should calculate negative change rate', () => {
-    const rate = calculateChangeRate(100, 80);
+  it('returns [] when http throws', async () => {
+    httpGet.mockRejectedValueOnce(new Error('network'));
 
-    expect(rate).toBe(-20);
-  });
-
-  it('should calculate moving average', () => {
-    const prices = [100, 110, 120, 130, 140];
-    const ma = getMovingAverage(prices, 3);
-
-    expect(ma).toBe(130); // (120 + 130 + 140) / 3
-  });
-
-  it('should identify peak and trough', () => {
-    const prices = [100, 150, 75, 120, 200];
-    const { peak, trough } = identifyPeakAndTrough(prices);
-
-    expect(peak).toBe(200);
-    expect(trough).toBe(75);
+    const res = await getPriceTrend('ITEM-123');
+    expect(res).toEqual([]);
   });
 });

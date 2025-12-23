@@ -10,100 +10,129 @@
  * @responsibility Track update timestamps, manage refresh cycles, handle data synchronization
  * @out_of_scope Real-time streaming, push notifications, change detection
  */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { describe, it, expect, beforeEach } from 'vitest';
+vi.mock('../../../../api/httpClient', () => ({
+  default: {
+    get: vi.fn(),
+  },
+}));
 
-// Mock update handling functions for testing
-interface UpdateInfo {
-  lastUpdated: Date;
-  nextUpdate?: Date;
-  isDirty: boolean;
-}
+import http from '../../../../api/httpClient';
+import { getStockUpdates } from '../../../../api/analytics/updates';
 
-const shouldRefresh = (lastUpdated: Date, intervalMs: number): boolean => {
-  const now = new Date();
-  return now.getTime() - lastUpdated.getTime() > intervalMs;
-};
+describe('api/analytics/updates.getStockUpdates', () => {
+  const httpGet = http.get as unknown as ReturnType<typeof vi.fn>;
 
-const markForUpdate = (info: UpdateInfo): UpdateInfo => {
-  return {
-    ...info,
-    isDirty: true,
-  };
-};
-
-const clearUpdateFlag = (info: UpdateInfo): UpdateInfo => {
-  return {
-    ...info,
-    isDirty: false,
-    lastUpdated: new Date(),
-  };
-};
-
-const calculateTimeUntilNextUpdate = (lastUpdated: Date, intervalMs: number): number => {
-  const nextUpdate = new Date(lastUpdated.getTime() + intervalMs);
-  const now = new Date();
-  return Math.max(0, nextUpdate.getTime() - now.getTime());
-};
-
-describe('Analytics Updates', () => {
   beforeEach(() => {
-    // Clean up before each test
+    vi.clearAllMocks();
   });
 
-  it('should determine if refresh is needed', () => {
-    const oldTime = new Date(Date.now() - 5 * 60 * 1000); // 5 minutes ago
-    const interval = 3 * 60 * 1000; // 3 minutes
+  it('builds default params (limit=50) and adds day boundaries to dates', async () => {
+    httpGet.mockResolvedValueOnce({ data: [] });
 
-    expect(shouldRefresh(oldTime, interval)).toBe(true);
+    await getStockUpdates({
+      from: '2025-10-01',
+      to: '2025-10-31',
+      supplierId: 'SUP-001',
+      itemName: 'Widget',
+    });
+
+    expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates', {
+      params: {
+        startDate: '2025-10-01T00:00:00',
+        endDate: '2025-10-31T23:59:59',
+        supplierId: 'SUP-001',
+        itemName: 'Widget',
+        limit: 50,
+      },
+    });
   });
 
-  it('should determine if refresh is not needed', () => {
-    const recentTime = new Date(Date.now() - 1 * 60 * 1000); // 1 minute ago
-    const interval = 3 * 60 * 1000; // 3 minutes
+  it('uses provided limit and omits empty optional fields', async () => {
+    httpGet.mockResolvedValueOnce({ data: [] });
 
-    expect(shouldRefresh(recentTime, interval)).toBe(false);
+    await getStockUpdates({
+      from: '2025-10-01',
+      to: '2025-10-02',
+      supplierId: '',
+      itemName: '',
+      limit: 10,
+    });
+
+    expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates', {
+      params: {
+        startDate: '2025-10-01T00:00:00',
+        endDate: '2025-10-02T23:59:59',
+        supplierId: undefined,
+        itemName: undefined,
+        limit: 10,
+      },
+    });
   });
 
-  it('should mark update flag', () => {
-    const info: UpdateInfo = {
-      lastUpdated: new Date(),
-      isDirty: false,
-    };
+  it('returns [] when backend data is not an array of records', async () => {
+    httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-    const updated = markForUpdate(info);
-
-    expect(updated.isDirty).toBe(true);
+    const res = await getStockUpdates({ from: '2025-10-01', to: '2025-10-31' });
+    expect(res).toEqual([]);
   });
 
-  it('should clear update flag and set timestamp', () => {
-    const info: UpdateInfo = {
-      lastUpdated: new Date(Date.now() - 5 * 60 * 1000),
-      isDirty: true,
-    };
+  it('maps tolerant fields and filters rows missing timestamp or itemName', async () => {
+    httpGet.mockResolvedValueOnce({
+      data: [
+        // good, uses tolerant keys: createdAt + name + change + note + performedBy
+        { createdAt: '2025-10-01T12:00:00', name: 'Item A', change: '5', note: 'restock', performedBy: 'carlos' },
 
-    const updated = clearUpdateFlag(info);
+        // good, uses timestamp + itemName + delta + reason + user
+        { timestamp: '2025-10-02T12:00:00', itemName: 'Item B', delta: -2, reason: 'sale', user: 'system' },
 
-    expect(updated.isDirty).toBe(false);
-    expect(updated.lastUpdated.getTime()).toBeGreaterThan(info.lastUpdated.getTime());
+        // filtered: missing timestamp
+        { itemName: 'No time', delta: 1 },
+
+        // filtered: missing itemName/name
+        { timestamp: '2025-10-03T12:00:00', delta: 1 },
+      ],
+    });
+
+    const res = await getStockUpdates();
+
+    expect(res).toEqual([
+      {
+        timestamp: '2025-10-01T12:00:00',
+        itemName: 'Item A',
+        delta: 5,
+        reason: 'restock',
+        user: 'carlos',
+      },
+      {
+        timestamp: '2025-10-02T12:00:00',
+        itemName: 'Item B',
+        delta: -2,
+        reason: 'sale',
+        user: 'system',
+      },
+    ]);
   });
 
-  it('should calculate time until next update', () => {
-    const now = new Date();
-    const interval = 60000; // 1 minute
+  it('sets optional fields to undefined when empty', async () => {
+    httpGet.mockResolvedValueOnce({
+      data: [
+        { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', delta: 1, reason: '', user: '' },
+      ],
+    });
 
-    const timeRemaining = calculateTimeUntilNextUpdate(now, interval);
+    const res = await getStockUpdates();
 
-    expect(timeRemaining).toBeGreaterThan(0);
-    expect(timeRemaining).toBeLessThanOrEqual(interval);
+    expect(res).toEqual([
+      { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', delta: 1, reason: undefined, user: undefined },
+    ]);
   });
 
-  it('should return 0 if update time has passed', () => {
-    const oldTime = new Date(Date.now() - 5 * 60 * 1000); // 5 minutes ago
-    const interval = 3 * 60 * 1000; // 3 minutes
+  it('returns [] when http throws', async () => {
+    httpGet.mockRejectedValueOnce(new Error('network'));
 
-    const timeRemaining = calculateTimeUntilNextUpdate(oldTime, interval);
-
-    expect(timeRemaining).toBe(0);
+    const res = await getStockUpdates({ from: '2025-10-01', to: '2025-10-31' });
+    expect(res).toEqual([]);
   });
 });
