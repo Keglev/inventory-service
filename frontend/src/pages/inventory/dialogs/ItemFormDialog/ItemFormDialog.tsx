@@ -25,7 +25,7 @@ import {
   Tooltip,
   IconButton,
 } from '@mui/material';
-import { HelpOutline as HelpIcon } from '@mui/icons-material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
 import { ItemForm } from './ItemForm';
@@ -90,7 +90,7 @@ export function ItemFormDialog({
             }}
             aria-label="help"
           >
-            <HelpIcon fontSize="small" />
+            <HelpOutlineIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </DialogTitle>

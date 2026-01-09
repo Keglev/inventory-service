@@ -13,28 +13,28 @@ import ThemeToggle from '../../../../app/public-shell/header/ThemeToggle';
 
 describe('ThemeToggle', () => {
   describe('Icon display', () => {
-    it('renders LightModeIcon when themeMode is light', () => {
+    it('indicates Dark mode when themeMode is light', () => {
       render(<ThemeToggle themeMode="light" onToggle={() => {}} />);
 
-      const lightIcon = screen.getByTestId('LightModeIcon');
-      expect(lightIcon).toBeInTheDocument();
+      const button = screen.getByLabelText(/dark mode/i);
+      expect(button).toBeInTheDocument();
     });
 
-    it('renders DarkModeIcon when themeMode is dark', () => {
+    it('indicates Light mode when themeMode is dark', () => {
       render(<ThemeToggle themeMode="dark" onToggle={() => {}} />);
 
-      const darkIcon = screen.getByTestId('DarkModeIcon');
-      expect(darkIcon).toBeInTheDocument();
+      const button = screen.getByLabelText(/light mode/i);
+      expect(button).toBeInTheDocument();
     });
 
-    it('changes icon when themeMode prop changes', () => {
+    it('updates tooltip text when themeMode prop changes', () => {
       const { rerender } = render(<ThemeToggle themeMode="light" onToggle={() => {}} />);
 
-      expect(screen.getByTestId('LightModeIcon')).toBeInTheDocument();
+      expect(screen.getByLabelText(/dark mode/i)).toBeInTheDocument();
 
       rerender(<ThemeToggle themeMode="dark" onToggle={() => {}} />);
 
-      expect(screen.getByTestId('DarkModeIcon')).toBeInTheDocument();
+      expect(screen.getByLabelText(/light mode/i)).toBeInTheDocument();
     });
   });
 
@@ -129,8 +129,7 @@ describe('ThemeToggle', () => {
 
       render(<ThemeToggle themeMode="light" onToggle={mockOnToggle} />);
 
-      const button = screen.getByRole('button');
-      button.focus();
+      await user.tab();
       await user.keyboard('{Enter}');
 
       expect(mockOnToggle).toHaveBeenCalled();

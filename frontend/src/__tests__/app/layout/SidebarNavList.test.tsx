@@ -107,14 +107,14 @@ describe('SidebarNavList', () => {
     });
 
     it('renders logout icon', () => {
-      const { container } = render(
+      render(
         <MemoryRouter>
           <SidebarNavList onLogout={mockOnLogout} />
         </MemoryRouter>
       );
 
-      const logoutIcon = container.querySelector('[data-testid="LogoutIcon"]');
-      expect(logoutIcon).toBeInTheDocument();
+      const logoutButton = screen.getAllByRole('button', { name: /logout/i })[0];
+      expect(logoutButton.querySelector('svg')).not.toBeNull();
     });
   });
 

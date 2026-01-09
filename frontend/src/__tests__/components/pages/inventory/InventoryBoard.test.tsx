@@ -5,68 +5,12 @@
  * Verifies state management, data fetching integration, dialog management, and handler integration.
  */
 
-import * as React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-
-// Stub DataGrid stylesheet and component to avoid CSS import errors under Vitest
-vi.mock('@mui/x-data-grid/esm/index.css', () => ({}));
-vi.mock('@mui/x-data-grid', () => ({
-  DataGrid: (props: { rows?: unknown[]; columns?: unknown[] }) => (
-    <div data-testid="data-grid" data-rows={props.rows?.length ?? 0} data-cols={props.columns?.length ?? 0} />
-  ),
-}));
-
-// Stub specific MUI icons that can get pulled indirectly
-vi.mock('@mui/icons-material/SettingsInputComponentOutlined', () => ({ default: () => null }));
-vi.mock('@mui/icons-material/SettingsInputComponentRounded', () => ({ default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponentOutlined', () => ({ __esModule: true, default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponentRounded', () => ({ __esModule: true, default: () => null }));
-vi.mock('@mui/icons-material/SettingsInputComponent', () => ({ default: () => null }));
-vi.mock('@mui/icons-material/SettingsInputComponentTwoTone', () => ({ default: () => null }));
-vi.mock('@mui/icons-material/SettingsInputComponentSharp', () => ({ default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponent', () => ({ __esModule: true, default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponentTwoTone', () => ({ __esModule: true, default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponentSharp', () => ({ __esModule: true, default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponentRounded.js', () => ({ __esModule: true, default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponentOutlined.js', () => ({ __esModule: true, default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponentTwoTone.js', () => ({ __esModule: true, default: () => null }));
-vi.mock('@mui/icons-material/esm/SettingsInputComponentSharp.js', () => ({ __esModule: true, default: () => null }));
-
-// Lightweight stubs for MUI components to avoid pulling icon dependencies
-vi.mock('@mui/material', () => {
-  const create = (className: string, element: React.ElementType = 'div') =>
-    ({ children, ...rest }: { children?: React.ReactNode } & Record<string, unknown>) =>
-      React.createElement(element, { className, ...rest }, children);
-
-  const Typography = ({ children, ...rest }: { children?: React.ReactNode } & Record<string, unknown>) =>
-    React.createElement('span', { className: 'MuiTypography-root', ...rest }, children);
-
-  return {
-    Box: create('MuiBox-root'),
-    Paper: create('MuiPaper-root'),
-    Typography,
-    Stack: create('MuiStack-root'),
-  };
-});
-
-// Lightweight local stub of InventoryBoard to avoid pulling heavy dependencies
-const InventoryBoard: React.FC = () => (
-  <div className="MuiBox-root">
-    <span>Inventory Management</span>
-    <button data-testid="help-button">Help</button>
-    <button data-testid="toolbar-add">Add New</button>
-    <input data-testid="filter-search" />
-    <div data-testid="inventory-table">Table</div>
-    <div data-testid="inventory-dialogs">Dialogs</div>
-    <div className="MuiPaper-root" />
-    <div className="MuiPaper-root" />
-    <div className="MuiPaper-root" />
-  </div>
-);
+import InventoryBoard from '@/pages/inventory/InventoryBoard';
 
 // Mock useAuth hook
-vi.mock('../../hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({ user: null })),
 }));
 
@@ -87,10 +31,10 @@ vi.mock('@/features/help', () => ({
 }));
 
 // Mock inventory state hook
-vi.mock('./hooks/useInventoryState', () => ({
+vi.mock('@/pages/inventory/hooks/useInventoryState', () => ({
   useInventoryState: vi.fn(() => ({
     q: '',
-    supplierId: '',
+    supplierId: '1',
     belowMinOnly: false,
     selectedId: null,
     pageIndex: 0,
@@ -101,7 +45,7 @@ vi.mock('./hooks/useInventoryState', () => ({
 }));
 
 // Mock inventory toolbar component
-vi.mock('./components/InventoryToolbar', () => ({
+vi.mock('@/pages/inventory/components/InventoryToolbar', () => ({
   InventoryToolbar: ({ onAddNew }: { onAddNew: () => void }) => (
     <button data-testid="toolbar-add" onClick={onAddNew}>
       Add New
@@ -110,24 +54,24 @@ vi.mock('./components/InventoryToolbar', () => ({
 }));
 
 // Mock filter panel component
-vi.mock('./components/InventoryFilterPanel', () => ({
+vi.mock('@/pages/inventory/components/InventoryFilterPanel', () => ({
   InventoryFilterPanel: ({ q, setQ }: { q: string; setQ: (q: string) => void }) => (
     <input data-testid="filter-search" value={q} onChange={(e) => setQ(e.target.value)} />
   ),
 }));
 
 // Mock inventory table component
-vi.mock('./components/InventoryTable', () => ({
+vi.mock('@/pages/inventory/components/InventoryTable', () => ({
   InventoryTable: () => <div data-testid="inventory-table">Table</div>,
 }));
 
 // Mock inventory dialogs component
-vi.mock('./components/InventoryDialogs', () => ({
+vi.mock('@/pages/inventory/components/InventoryDialogs', () => ({
   InventoryDialogs: () => <div data-testid="inventory-dialogs">Dialogs</div>,
 }));
 
 // Mock handlers
-vi.mock('./handlers', () => ({
+vi.mock('@/pages/inventory/handlers', () => ({
   useToolbarHandlers: () => ({
     handleAddNew: vi.fn(),
     handleEdit: vi.fn(),

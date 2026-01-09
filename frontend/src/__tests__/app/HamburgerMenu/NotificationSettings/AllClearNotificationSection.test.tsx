@@ -51,8 +51,9 @@ describe('AllClearNotificationSection', () => {
   });
 
   it('renders with success color styling', () => {
-    const { container } = render(<AllClearNotificationSection />);
-    const icon = container.querySelector('svg');
-    expect(icon).toHaveClass('MuiSvgIcon-root');
+    render(<AllClearNotificationSection />);
+    const text = screen.getByText('All clear – no low stock items');
+    const computed = window.getComputedStyle(text);
+    expect(computed.color).toBe('rgb(46, 125, 50)');
   });
 });

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import HelpPanel from '@/components/help/HelpPanel';
 
@@ -87,8 +87,8 @@ describe('HelpPanel', () => {
 
     render(<HelpPanel />);
 
-    // Query close button by its icon test ID to distinguish from link button
-    const closeButton = screen.getByTestId('CloseIcon').closest('button')!;
+    const header = screen.getByText('help:test.title').closest('div');
+    const closeButton = within(header!).getAllByRole('button')[0];
     fireEvent.click(closeButton);
 
     expect(mockCloseHelp).toHaveBeenCalledTimes(1);

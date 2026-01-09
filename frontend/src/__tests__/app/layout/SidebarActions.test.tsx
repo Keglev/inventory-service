@@ -46,16 +46,16 @@ describe('SidebarActions', () => {
   });
 
   describe('Theme toggle', () => {
-    it('renders light mode icon when theme is light', () => {
-      const { container } = render(<SidebarActions {...defaultProps} themeMode="light" />);
-      const lightIcon = container.querySelector('[data-testid="LightModeIcon"]');
-      expect(lightIcon).toBeInTheDocument();
+    it('announces Dark mode when theme is light', () => {
+      render(<SidebarActions {...defaultProps} themeMode="light" />);
+      const lightButton = screen.getByLabelText(/dark mode/i);
+      expect(lightButton).toBeInTheDocument();
     });
 
-    it('renders dark mode icon when theme is dark', () => {
-      const { container } = render(<SidebarActions {...defaultProps} themeMode="dark" />);
-      const darkIcon = container.querySelector('[data-testid="DarkModeIcon"]');
-      expect(darkIcon).toBeInTheDocument();
+    it('announces Light mode when theme is dark', () => {
+      render(<SidebarActions {...defaultProps} themeMode="dark" />);
+      const darkButton = screen.getByLabelText(/light mode/i);
+      expect(darkButton).toBeInTheDocument();
     });
 
     it('calls onThemeModeChange when theme button is clicked', async () => {
@@ -110,10 +110,9 @@ describe('SidebarActions', () => {
       expect(mockOnSettingsOpen).toHaveBeenCalledTimes(1);
     });
 
-    it('renders settings icon', () => {
-      const { container } = render(<SidebarActions {...defaultProps} />);
-      const settingsIcon = container.querySelector('[data-testid="SettingsIcon"]');
-      expect(settingsIcon).toBeInTheDocument();
+    it('renders settings icon button', () => {
+      render(<SidebarActions {...defaultProps} />);
+      expect(screen.getByLabelText(/settings/i)).toBeInTheDocument();
     });
   });
 
@@ -148,10 +147,10 @@ describe('SidebarActions', () => {
         <SidebarActions {...defaultProps} themeMode="dark" locale="de" />
       );
       
-      const darkIcon = container.querySelector('[data-testid="DarkModeIcon"]');
+      const darkButton = screen.getByLabelText(/light mode/i);
       const deFlag = container.querySelector('img[alt="Deutsch"]');
       
-      expect(darkIcon).toBeInTheDocument();
+      expect(darkButton).toBeInTheDocument();
       expect(deFlag).toBeInTheDocument();
     });
 

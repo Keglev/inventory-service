@@ -25,7 +25,7 @@ import {
   Tooltip,
   IconButton,
 } from '@mui/material';
-import { HelpOutline as HelpOutlineIcon } from '@mui/icons-material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
 import { PriceChangeForm } from './PriceChangeForm';
