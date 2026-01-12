@@ -60,7 +60,12 @@ export function PriceChangeForm({ state }: { state: UsePriceChangeFormReturn }) 
         <Typography variant="subtitle2" gutterBottom color="primary">
           {t('inventory:steps.selectSupplier', 'Step 1: Select Supplier')}
         </Typography>
-        <FormControl fullWidth size="small">
+        <FormControl
+          fullWidth
+          size="small"
+          disabled={state.suppliersLoading}
+          data-testid="supplier-form-control"
+        >
           <InputLabel>{t('inventory:table.supplier', 'Supplier')}</InputLabel>
           <Select
             value={state.selectedSupplier?.id || ''}

@@ -99,6 +99,7 @@ export function PriceChangeDialog({
               state.onSubmit();
             }}
             disabled={state.formState.isSubmitting || !state.selectedItem}
+            data-testid="apply-price-change-button"
           >
             {state.formState.isSubmitting ? (
               <>
