@@ -2,44 +2,47 @@
  * @file DeleteSupplierSearchResults.test.tsx
  *
  * @what_is_under_test DeleteSupplierSearchResults component
- * @responsibility Render search results list with selection
- * @out_of_scope API calls, filtering logic
+ * @responsibility Render search results list and propagate click events
+ * @out_of_scope API integration, filtering logic
  */
 
 import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { SupplierRow } from '../../../../../api/suppliers/types';
+
+import { DeleteSupplierSearchResults } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearchResults';
+
+const suppliers: SupplierRow[] = [
+  { id: '1', name: 'Supplier One', contactName: 'Jane', email: null, phone: null },
+  { id: '2', name: 'Supplier Two', contactName: 'John', email: null, phone: null },
+];
 
 describe('DeleteSupplierSearchResults', () => {
-  it('accepts suppliers prop as array', () => {
-    const suppliers = [
-      { id: '1', name: 'Supplier 1', contactName: 'John' },
-      { id: '2', name: 'Supplier 2', contactName: 'Jane' },
-    ];
-    expect(suppliers).toHaveLength(2);
+  it('renders supplier names and contact info when results provided', () => {
+    render(<DeleteSupplierSearchResults suppliers={suppliers} onSelectSupplier={vi.fn()} />);
+
+    expect(screen.getByText('Supplier One')).toBeInTheDocument();
+    expect(screen.getByText('Jane')).toBeInTheDocument();
+    expect(screen.getByText('Supplier Two')).toBeInTheDocument();
+    expect(screen.getByText('John')).toBeInTheDocument();
   });
 
-  it('accepts empty suppliers array', () => {
-    const suppliers: any[] = [];
-    expect(suppliers).toHaveLength(0);
+  it('returns null when no suppliers available', () => {
+    const { container } = render(
+      <DeleteSupplierSearchResults suppliers={[]} onSelectSupplier={vi.fn()} />
+    );
+
+    expect(container).toBeEmptyDOMElement();
   });
 
-  it('accepts onSelectSupplier callback', () => {
+  it('calls onSelectSupplier with clicked supplier', async () => {
+    const user = userEvent.setup();
     const onSelectSupplier = vi.fn();
-    expect(onSelectSupplier).toBeDefined();
-  });
 
-  it('handles supplier selection', () => {
-    const supplier = { id: '1', name: 'Test Supplier', contactName: 'John' };
-    const onSelectSupplier = vi.fn();
-    onSelectSupplier(supplier);
-    expect(onSelectSupplier).toHaveBeenCalledWith(supplier);
-  });
+    render(<DeleteSupplierSearchResults suppliers={suppliers} onSelectSupplier={onSelectSupplier} />);
 
-  it('handles multiple suppliers', () => {
-    const suppliers = [
-      { id: '1', name: 'Supplier 1', contactName: 'John' },
-      { id: '2', name: 'Supplier 2', contactName: 'Jane' },
-      { id: '3', name: 'Supplier 3', contactName: 'Bob' },
-    ];
-    expect(suppliers).toHaveLength(3);
+    await user.click(screen.getByText('Supplier Two'));
+    expect(onSelectSupplier).toHaveBeenCalledWith(suppliers[1]);
   });
 });
