@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/38</span>
+                <span class='fraction'>38/38</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/38</span>
+                <span class='fraction'>38/38</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -101,82 +101,82 @@
 <a name='L36'></a><a href='#L36'>36</a>
 <a name='L37'></a><a href='#L37'>37</a>
 <a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >/**</span></span></span>
-<span class="cstat-no" title="statement not covered" > * @file LowStockTableHeader.tsx</span>
-<span class="cstat-no" title="statement not covered" > * @description</span>
-<span class="cstat-no" title="statement not covered" > * Header row for low stock table with column labels.</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >import { TableHead, TableRow, TableCell } from '@mui/material';</span>
-<span class="cstat-no" title="statement not covered" >import { useTranslation } from 'react-i18next';</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >/**</span>
-<span class="cstat-no" title="statement not covered" > * Column header component for low stock table</span>
-<span class="cstat-no" title="statement not covered" > * Displays labels for: Item, Quantity, Minimum, Deficit, Status</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" >export function LowStockTableHeader() {</span>
-<span class="cstat-no" title="statement not covered" >  const { t } = useTranslation(['analytics']);</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  return (</span>
-<span class="cstat-no" title="statement not covered" >    &lt;TableHead&gt;</span>
-<span class="cstat-no" title="statement not covered" >      &lt;TableRow&gt;</span>
-<span class="cstat-no" title="statement not covered" >        &lt;TableCell sx={{ width: '40%' }}&gt;</span>
-<span class="cstat-no" title="statement not covered" >          {t('analytics:lowStock.columns.item', 'Item')}</span>
-<span class="cstat-no" title="statement not covered" >        &lt;/TableCell&gt;</span>
-<span class="cstat-no" title="statement not covered" >        &lt;TableCell align="right" sx={{ width: '15%' }}&gt;</span>
-<span class="cstat-no" title="statement not covered" >          {t('analytics:lowStock.columns.quantity', 'Quantity')}</span>
-<span class="cstat-no" title="statement not covered" >        &lt;/TableCell&gt;</span>
-<span class="cstat-no" title="statement not covered" >        &lt;TableCell align="right" sx={{ width: '15%' }}&gt;</span>
-<span class="cstat-no" title="statement not covered" >          {t('analytics:lowStock.columns.minimum', 'Minimum')}</span>
-<span class="cstat-no" title="statement not covered" >        &lt;/TableCell&gt;</span>
-<span class="cstat-no" title="statement not covered" >        &lt;TableCell align="right" sx={{ width: '15%' }}&gt;</span>
-<span class="cstat-no" title="statement not covered" >          {t('analytics:lowStock.columns.deficit', 'Deficit')}</span>
-<span class="cstat-no" title="statement not covered" >        &lt;/TableCell&gt;</span>
-<span class="cstat-no" title="statement not covered" >        &lt;TableCell align="left" sx={{ width: '15%', whiteSpace: 'nowrap' }}&gt;</span>
-<span class="cstat-no" title="statement not covered" >          {t('analytics:lowStock.columns.status', 'Status')}</span>
-<span class="cstat-no" title="statement not covered" >        &lt;/TableCell&gt;</span>
-<span class="cstat-no" title="statement not covered" >      &lt;/TableRow&gt;</span>
-<span class="cstat-no" title="statement not covered" >    &lt;/TableHead&gt;</span>
-<span class="cstat-no" title="statement not covered" >  );</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file LowStockTableHeader.tsx
+ * @description
+ * Header row for low stock table with column labels.
+ */
+&nbsp;
+import { TableHead, TableRow, TableCell } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+&nbsp;
+/**
+ * Column header component for low stock table
+ * Displays labels for: Item, Quantity, Minimum, Deficit, Status
+ */
+export function LowStockTableHeader() {
+  const { t } = useTranslation(['analytics']);
+&nbsp;
+  return (
+    &lt;TableHead&gt;
+      &lt;TableRow&gt;
+        &lt;TableCell sx={{ width: '40%' }}&gt;
+          {t('analytics:lowStock.columns.item', 'Item')}
+        &lt;/TableCell&gt;
+        &lt;TableCell align="right" sx={{ width: '15%' }}&gt;
+          {t('analytics:lowStock.columns.quantity', 'Quantity')}
+        &lt;/TableCell&gt;
+        &lt;TableCell align="right" sx={{ width: '15%' }}&gt;
+          {t('analytics:lowStock.columns.minimum', 'Minimum')}
+        &lt;/TableCell&gt;
+        &lt;TableCell align="right" sx={{ width: '15%' }}&gt;
+          {t('analytics:lowStock.columns.deficit', 'Deficit')}
+        &lt;/TableCell&gt;
+        &lt;TableCell align="left" sx={{ width: '15%', whiteSpace: 'nowrap' }}&gt;
+          {t('analytics:lowStock.columns.status', 'Status')}
+        &lt;/TableCell&gt;
+      &lt;/TableRow&gt;
+    &lt;/TableHead&gt;
+  );
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -184,7 +184,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T13:37:57.276Z
+                at 2026-01-16T14:01:51.868Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
