@@ -10,7 +10,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { FinancialSummary } from '../../../../api/analytics/finance';
+import type { FinancialSummary } from '../../../../../api/analytics/finance';
+import type { ReactNode } from 'react';
+import type { MockedFunction } from 'vitest';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -19,11 +21,11 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../api/analytics/finance', () => ({
+vi.mock('../../../../../api/analytics/finance', () => ({
   getFinancialSummary: vi.fn(),
 }));
 
-vi.mock('../../../../hooks/useSettings', () => ({
+vi.mock('../../../../../hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: {
       dateFormat: 'MM/DD/YYYY',
@@ -33,8 +35,8 @@ vi.mock('../../../../hooks/useSettings', () => ({
 }));
 
 vi.mock('recharts', () => ({
-  ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div data-testid="chart-container">{children}</div>,
-  BarChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div data-testid="chart-container">{children}</div>,
+  BarChart: ({ children }: { children?: ReactNode }) => <div data-testid="bar-chart">{children}</div>,
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   XAxis: () => <div data-testid="x-axis" />,
   YAxis: () => <div data-testid="y-axis" />,
@@ -43,8 +45,9 @@ vi.mock('recharts', () => ({
   Cell: () => <div data-testid="cell" />,
 }));
 
-const { getFinancialSummary } = await import('../../../../api/analytics/finance');
-const FinancialSummaryCard = (await import('../../../../pages/analytics/blocks/FinancialSummaryCard')).default;
+const { getFinancialSummary } = await import('../../../../../api/analytics/finance');
+const FinancialSummaryCard = (await import('../../../../../pages/analytics/blocks/FinancialSummaryCard')).default;
+const mockedGetFinancialSummary = getFinancialSummary as MockedFunction<typeof getFinancialSummary>;
 
 describe('FinancialSummaryCard', () => {
   let queryClient: QueryClient;
@@ -83,7 +86,7 @@ describe('FinancialSummaryCard', () => {
       writeOffs: 50,
       returns: 20,
     };
-    vi.mocked(getFinancialSummary).mockResolvedValue(mockData);
+    mockedGetFinancialSummary.mockResolvedValue(mockData);
 
     renderCard({ supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
 
@@ -97,7 +100,7 @@ describe('FinancialSummaryCard', () => {
   });
 
   it('renders loading skeleton when fetching data', () => {
-    vi.mocked(getFinancialSummary).mockReturnValue(new Promise(() => {}));
+    mockedGetFinancialSummary.mockReturnValue(new Promise(() => {}));
     renderCard({ supplierId: 'sup-123' });
     const skeleton = document.querySelector('.MuiSkeleton-root');
     expect(skeleton).toBeInTheDocument();
@@ -112,7 +115,7 @@ describe('FinancialSummaryCard', () => {
       writeOffs: 50,
       returns: 20,
     };
-    vi.mocked(getFinancialSummary).mockResolvedValue(mockData);
+    mockedGetFinancialSummary.mockResolvedValue(mockData);
 
     renderCard({ supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
 
@@ -131,7 +134,7 @@ describe('FinancialSummaryCard', () => {
       writeOffs: 50,
       returns: 20,
     };
-    vi.mocked(getFinancialSummary).mockResolvedValue(mockData);
+    mockedGetFinancialSummary.mockResolvedValue(mockData);
 
     renderCard({ supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
 
@@ -149,7 +152,7 @@ describe('FinancialSummaryCard', () => {
       writeOffs: 0,
       returns: 0,
     };
-    vi.mocked(getFinancialSummary).mockResolvedValue(mockData);
+    mockedGetFinancialSummary.mockResolvedValue(mockData);
 
     renderCard({ supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
 

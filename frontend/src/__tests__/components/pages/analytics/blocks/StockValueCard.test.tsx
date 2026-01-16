@@ -7,10 +7,12 @@
  * Tests data fetching, loading states, chart rendering, and empty states.
  */
 
+import type { ReactNode } from 'react';
+import type { MockedFunction } from 'vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { StockValuePoint } from '../../../../api/analytics/stock';
+import type { StockValuePoint } from '../../../../../api/analytics/stock';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -19,11 +21,11 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../api/analytics/stock', () => ({
+vi.mock('../../../../../api/analytics/stock', () => ({
   getStockValueOverTime: vi.fn(),
 }));
 
-vi.mock('../../../../hooks/useSettings', () => ({
+vi.mock('../../../../../hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: {
       dateFormat: 'MM/DD/YYYY',
@@ -33,8 +35,8 @@ vi.mock('../../../../hooks/useSettings', () => ({
 }));
 
 vi.mock('recharts', () => ({
-  ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div data-testid="chart-container">{children}</div>,
-  LineChart: ({ children }: { children?: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
+  ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div data-testid="chart-container">{children}</div>,
+  LineChart: ({ children }: { children?: ReactNode }) => <div data-testid="line-chart">{children}</div>,
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   XAxis: () => <div data-testid="x-axis" />,
   YAxis: () => <div data-testid="y-axis" />,
@@ -42,8 +44,9 @@ vi.mock('recharts', () => ({
   Line: () => <div data-testid="line" />,
 }));
 
-const { getStockValueOverTime } = await import('../../../../api/analytics/stock');
-const StockValueCard = (await import('../../../../pages/analytics/blocks/StockValueCard')).default;
+const { getStockValueOverTime } = await import('../../../../../api/analytics/stock');
+const StockValueCard = (await import('../../../../../pages/analytics/blocks/StockValueCard')).default;
+const mockedGetStockValueOverTime = getStockValueOverTime as MockedFunction<typeof getStockValueOverTime>;
 
 describe('StockValueCard', () => {
   let queryClient: QueryClient;
@@ -64,7 +67,7 @@ describe('StockValueCard', () => {
   };
 
   it('renders loading skeleton initially', () => {
-    vi.mocked(getStockValueOverTime).mockReturnValue(new Promise(() => {}));
+    mockedGetStockValueOverTime.mockReturnValue(new Promise(() => {}));
     renderCard();
     const skeleton = document.querySelector('.MuiSkeleton-root');
     expect(skeleton).toBeInTheDocument();
@@ -76,7 +79,7 @@ describe('StockValueCard', () => {
       { date: '2025-01-02', totalValue: 1100 },
       { date: '2025-01-03', totalValue: 1200 },
     ];
-    vi.mocked(getStockValueOverTime).mockResolvedValue(mockData);
+    mockedGetStockValueOverTime.mockResolvedValue(mockData);
 
     renderCard({ from: '2025-01-01', to: '2025-01-31' });
 
@@ -86,7 +89,7 @@ describe('StockValueCard', () => {
   });
 
   it('shows empty state when no data available', async () => {
-    vi.mocked(getStockValueOverTime).mockResolvedValue([]);
+    mockedGetStockValueOverTime.mockResolvedValue([]);
 
     renderCard({ from: '2025-01-01', to: '2025-01-31' });
 
@@ -96,7 +99,7 @@ describe('StockValueCard', () => {
   });
 
   it('fetches data with from and to parameters', async () => {
-    vi.mocked(getStockValueOverTime).mockResolvedValue([]);
+    mockedGetStockValueOverTime.mockResolvedValue([]);
 
     renderCard({ from: '2025-01-01', to: '2025-12-31' });
 
@@ -110,7 +113,7 @@ describe('StockValueCard', () => {
   });
 
   it('fetches data with supplierId parameter', async () => {
-    vi.mocked(getStockValueOverTime).mockResolvedValue([]);
+    mockedGetStockValueOverTime.mockResolvedValue([]);
 
     renderCard({ from: '2025-01-01', to: '2025-12-31', supplierId: 'sup-123' });
 
@@ -129,7 +132,7 @@ describe('StockValueCard', () => {
       { date: '2025-01-01', totalValue: 1000 },
       { date: '2025-01-02', totalValue: 1100 },
     ];
-    vi.mocked(getStockValueOverTime).mockResolvedValue(mockData);
+    mockedGetStockValueOverTime.mockResolvedValue(mockData);
 
     renderCard({ from: '2025-01-01', to: '2025-01-31' });
 
@@ -139,7 +142,7 @@ describe('StockValueCard', () => {
   });
 
   it('renders title', async () => {
-    vi.mocked(getStockValueOverTime).mockResolvedValue([]);
+    mockedGetStockValueOverTime.mockResolvedValue([]);
     renderCard();
     
     await waitFor(() => {
@@ -148,7 +151,7 @@ describe('StockValueCard', () => {
   });
 
   it('refetches when parameters change', async () => {
-    vi.mocked(getStockValueOverTime).mockResolvedValue([]);
+    mockedGetStockValueOverTime.mockResolvedValue([]);
 
     const { rerender } = renderCard({ from: '2025-01-01', to: '2025-01-31' });
 
@@ -168,7 +171,7 @@ describe('StockValueCard', () => {
   });
 
   it('handles null supplierId', async () => {
-    vi.mocked(getStockValueOverTime).mockResolvedValue([]);
+    mockedGetStockValueOverTime.mockResolvedValue([]);
 
     renderCard({ from: '2025-01-01', to: '2025-12-31', supplierId: null });
 
