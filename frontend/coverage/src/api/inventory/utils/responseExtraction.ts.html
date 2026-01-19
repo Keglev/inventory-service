@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">77.96% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>46/59</span>
+                <span class='fraction'>59/59</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">90.9% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>10/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">77.96% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>46/59</span>
+                <span class='fraction'>59/59</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -152,12 +152,12 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -174,13 +174,13 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file responseExtraction.ts
  * @module api/inventory/utils/responseExtraction
@@ -210,13 +210,13 @@ import { isRecord } from './typeGuards';
  * const data = resDataOrEmpty(response); // Safe access to response.data
  * ```
  */
-export const resDataOrEmpty = <span class="fstat-no" title="function not covered" >(resp: unknown): unknown =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (isRecord(resp) &amp;&amp; 'data' in resp) {</span>
-<span class="cstat-no" title="statement not covered" >    const r = resp as Record&lt;string, unknown&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    return r.data ?? {};</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
-<span class="cstat-no" title="statement not covered" >  return {};</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+export const resDataOrEmpty = (resp: unknown): unknown =&gt; {
+  if (isRecord(resp) &amp;&amp; 'data' in resp) {
+    const r = resp as Record&lt;string, unknown&gt;;
+    return r.<span class="branch-0 cbranch-no" title="branch not covered" >data ?? {};</span>
+  }
+  return {};
+};
 &nbsp;
 /**
  * From an unknown response object, try to pull an array from one of the keys.
@@ -232,14 +232,14 @@ export const resDataOrEmpty = <span class="fstat-no" title="function not covered
  * const items = extractArray(response, ['items', 'content']);
  * ```
  */
-export const extractArray = <span class="fstat-no" title="function not covered" >(obj: unknown, keys: string[]): unknown[] =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (!isRecord(obj)) return [];</span>
-<span class="cstat-no" title="statement not covered" >  for (const k of keys) {</span>
-<span class="cstat-no" title="statement not covered" >    const v = obj[k];</span>
-<span class="cstat-no" title="statement not covered" >    if (Array.isArray(v)) return v as unknown[];</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
-<span class="cstat-no" title="statement not covered" >  return [];</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+export const extractArray = (obj: unknown, keys: string[]): unknown[] =&gt; {
+  if (!isRecord(obj)) return [];
+  for (const k of keys) {
+    const v = obj[k];
+    if (Array.isArray(v)) return v as unknown[];
+  }
+  return [];
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -247,7 +247,7 @@ export const extractArray = <span class="fstat-no" title="function not covered" 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-16T14:01:51.868Z
+                at 2026-01-19T13:59:23.896Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
