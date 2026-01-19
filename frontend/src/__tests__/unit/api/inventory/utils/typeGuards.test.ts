@@ -1,8 +1,19 @@
 /**
- * Unit tests for typeGuards.ts
- * Tests type narrowing helper functions
+ * @file typeGuards.test.ts
+ * @module tests/api/inventory/utils/typeGuards
+ *
+ * @summary
+ * Safeguards the foundational type guard used across inventory parsing utilities.
+ * Confirms isRecord only approves non-null object literals and rejects primitives.
+ *
+ * @enterprise
+ * - Prevents accidental widening that could reintroduce runtime crashes in normalizers
+ * - Captures the implicit contract relied upon by every parsing helper in the inventory stack
+ * - Provides fast feedback should future refactors alter guard semantics
  */
-import { describe, it, expect } from 'vitest';
+
+import { describe, expect, it } from 'vitest';
+
 import { isRecord } from '@/api/inventory/utils/typeGuards';
 
 describe('typeGuards', () => {

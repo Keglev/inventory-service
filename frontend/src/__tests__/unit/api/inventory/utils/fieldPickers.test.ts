@@ -1,8 +1,19 @@
 /**
- * Unit tests for fieldPickers.ts
- * Tests field extraction helpers with type coercion
+ * @file fieldPickers.test.ts
+ * @module tests/api/inventory/utils/fieldPickers
+ *
+ * @summary
+ * Locks the tolerant field extraction helpers that fuel inventory DTO parsing.
+ * Validates pickers across string/number coercion and fallback lists used throughout API normalizers.
+ *
+ * @enterprise
+ * - Ensures backend schema drift does not bypass defensive coercion rules
+ * - Guarantees consistent null/undefined semantics leveraged across normalization layers
+ * - Protects downstream business logic that depends on numeric fallbacks and sanitized text fields
  */
-import { describe, it, expect } from 'vitest';
+
+import { describe, expect, it } from 'vitest';
+
 import {
   pickString,
   pickNumber,
