@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">64.4% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>38/59</span>
+                <span class='fraction'>59/59</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">66.66% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>4/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">64.4% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>38/59</span>
+                <span class='fraction'>59/59</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -160,27 +160,27 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file useSupplierByIdQuery.ts
  * @module api/suppliers/hooks/useSupplierByIdQuery
@@ -218,28 +218,28 @@ import type { SupplierRow } from '../types';
  * return &lt;TextField value={supplier?.name} /&gt;;
  * ```
  */
-export const useSupplierByIdQuery = <span class="fstat-no" title="function not covered" >(</span>
-<span class="cstat-no" title="statement not covered" >  supplierId: string | null,</span>
-<span class="cstat-no" title="statement not covered" >  enabled: boolean = true,</span>
-<span class="cstat-no" title="statement not covered" >) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  return useQuery&lt;SupplierRow | null, Error&gt;({</span>
-<span class="cstat-no" title="statement not covered" >    queryKey: ['suppliers', 'byId', supplierId],</span>
-<span class="cstat-no" title="statement not covered" >    queryFn: async () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (!supplierId) return null;</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >      const response = await getSuppliersPage({</span>
-<span class="cstat-no" title="statement not covered" >        page: 1,</span>
-<span class="cstat-no" title="statement not covered" >        pageSize: 100,</span>
-<span class="cstat-no" title="statement not covered" >        q: supplierId,</span>
-<span class="cstat-no" title="statement not covered" >      });</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >      return response.items.find((s) =&gt; s.id === supplierId) ?? null;</span>
-<span class="cstat-no" title="statement not covered" >    },</span>
-<span class="cstat-no" title="statement not covered" >    enabled: enabled &amp;&amp; !!supplierId,</span>
-<span class="cstat-no" title="statement not covered" >    staleTime: 60_000,</span>
-<span class="cstat-no" title="statement not covered" >    gcTime: 5 * 60_000,</span>
-<span class="cstat-no" title="statement not covered" >  });</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+export const useSupplierByIdQuery = (
+  supplierId: string | null,
+  enabled: boolean = true,
+) =&gt; {
+  return useQuery&lt;SupplierRow | null, Error&gt;({
+    queryKey: ['suppliers', 'byId', supplierId],
+    queryFn: async () =&gt; {
+      if (!supplierId) <span class="branch-0 cbranch-no" title="branch not covered" >return null;</span>
+&nbsp;
+      const response = await getSuppliersPage({
+        page: 1,
+        pageSize: 100,
+        q: supplierId,
+      });
+&nbsp;
+      return response.items.find((s) =&gt; s.id === supplierId<span class="branch-0 cbranch-no" title="branch not covered" >) ?? null;</span>
+    },
+    enabled: enabled &amp;&amp; !!supplierId,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+  });
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -247,7 +247,7 @@ export const useSupplierByIdQuery = <span class="fstat-no" title="function not c
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-20T14:03:16.003Z
+                at 2026-01-20T14:24:00.504Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

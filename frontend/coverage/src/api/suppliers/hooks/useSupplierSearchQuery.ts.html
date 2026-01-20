@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">67.16% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>45/67</span>
+                <span class='fraction'>67/67</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">67.16% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>45/67</span>
+                <span class='fraction'>67/67</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -175,28 +175,28 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @file useSupplierSearchQuery.ts
  * @module api/suppliers/hooks/useSupplierSearchQuery
@@ -241,29 +241,29 @@ import type { SupplierRow } from '../types';
  * /&gt;
  * ```
  */
-export const useSupplierSearchQuery = <span class="fstat-no" title="function not covered" >(</span>
-<span class="cstat-no" title="statement not covered" >  query: string,</span>
-<span class="cstat-no" title="statement not covered" >  enabled: boolean = true,</span>
-<span class="cstat-no" title="statement not covered" >) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  return useQuery({</span>
-<span class="cstat-no" title="statement not covered" >    queryKey: ['suppliers', 'search', query],</span>
-<span class="cstat-no" title="statement not covered" >    queryFn: async (): Promise&lt;SupplierRow[]&gt; =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      if (!query.trim()) return [];</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >      // Fetch suppliers using backend search</span>
-<span class="cstat-no" title="statement not covered" >      const response = await getSuppliersPage({</span>
-<span class="cstat-no" title="statement not covered" >        page: 1,</span>
-<span class="cstat-no" title="statement not covered" >        pageSize: 1000, // Fetch more suppliers for search</span>
-<span class="cstat-no" title="statement not covered" >        q: query,</span>
-<span class="cstat-no" title="statement not covered" >      });</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >      return response.items;</span>
-<span class="cstat-no" title="statement not covered" >    },</span>
-<span class="cstat-no" title="statement not covered" >    enabled: enabled &amp;&amp; query.length &gt;= 2,</span>
-<span class="cstat-no" title="statement not covered" >    staleTime: 60_000, // 1 minute</span>
-<span class="cstat-no" title="statement not covered" >    gcTime: 5 * 60_000, // 5 minutes</span>
-<span class="cstat-no" title="statement not covered" >  });</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+export const useSupplierSearchQuery = (
+  query: string,
+  enabled: boolean = true,
+) =&gt; {
+  return useQuery({
+    queryKey: ['suppliers', 'search', query],
+    queryFn: async (): Promise&lt;SupplierRow[]&gt; =&gt; {
+      if (!query.trim()) return [];
+&nbsp;
+      // Fetch suppliers using backend search
+      const response = await getSuppliersPage({
+        page: 1,
+        pageSize: 1000, // Fetch more suppliers for search
+        q: query,
+      });
+&nbsp;
+      return response.items;
+    },
+    enabled: enabled &amp;&amp; query.length &gt;= 2,
+    staleTime: 60_000, // 1 minute
+    gcTime: 5 * 60_000, // 5 minutes
+  });
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -271,7 +271,7 @@ export const useSupplierSearchQuery = <span class="fstat-no" title="function not
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-20T14:03:16.003Z
+                at 2026-01-20T14:24:00.504Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
