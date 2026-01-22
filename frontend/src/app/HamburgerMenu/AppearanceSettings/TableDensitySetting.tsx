@@ -58,7 +58,7 @@ export default function TableDensitySetting({
         </ToggleButton>
         <ToggleButton value="compact">
           <Typography variant="caption">
-            {t('appearance.compact', 'Kompakt')}
+            {t('appearance.compact', 'Compact')}
           </Typography>
         </ToggleButton>
       </ToggleButtonGroup>

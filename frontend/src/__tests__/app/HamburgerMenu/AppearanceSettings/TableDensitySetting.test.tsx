@@ -1,7 +1,21 @@
 /**
  * @file TableDensitySetting.test.tsx
- * @module __tests__/app/HamburgerMenu/AppearanceSettings/TableDensitySetting
- * @description Tests for table density setting component.
+ * @module __tests__/app/HamburgerMenu/AppearanceSettings
+ *
+ * @description
+ * Unit tests for <TableDensitySetting /> — allows users to switch table density
+ * between "comfortable" (standard) and "compact".
+ *
+ * Test strategy:
+ * - Verify the component renders labels and both options.
+ * - Verify interaction: clicking options calls onChange with the correct density.
+ * - Verify selection state reflects the current density.
+ * - Verify defensive behavior: invalid density values fall back to "comfortable".
+ * - Verify i18n integration by mocking translations and asserting rendered labels.
+ *
+ * Notes:
+ * - We intentionally assert the MUI "selected" class here because this component’s
+ *   core behavior is selection state; it’s a reasonable UI contract for a toggle group.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -9,117 +23,151 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TableDensitySetting from '../../../../app/HamburgerMenu/AppearanceSettings/TableDensitySetting';
 
-// Hoisted mocks
+// -----------------------------------------------------------------------------
+// i18n mock
+// -----------------------------------------------------------------------------
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
-// Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
+type Density = 'comfortable' | 'compact' | string;
+
 describe('TableDensitySetting', () => {
   const mockOnChange = vi.fn();
 
+  /**
+   * Arrange helper:
+   * Centralizes rendering and keeps each test focused on its scenario.
+   */
+  const arrange = (tableDensity: Density) =>
+    render(<TableDensitySetting tableDensity={tableDensity} onChange={mockOnChange} />);
+
+  /**
+   * Query helpers:
+   * Use accessible names because these are user-facing controls.
+   * (We keep regex to support translated labels like "Kompakt".)
+   */
+  const getStandardButton = () => screen.getByRole('button', { name: /standard|normal/i });
+  const getCompactButton = () => screen.getByRole('button', { name: /kompakt|compact/i });
+
   beforeEach(() => {
     vi.clearAllMocks();
+    mockOnChange.mockReset();
+
+    // Deterministic translation stub: return defaultValue for stable assertions.
     mockUseTranslation.mockReturnValue({
       t: (_key: string, defaultValue: string) => defaultValue,
       i18n: { changeLanguage: vi.fn() },
     });
   });
 
-  it('renders density setting component', () => {
-    render(<TableDensitySetting tableDensity="comfortable" onChange={mockOnChange} />);
+  // ---------------------------------------------------------------------------
+  // Rendering: labels + options
+  // ---------------------------------------------------------------------------
+  it('renders the density setting label', () => {
+    arrange('comfortable');
     expect(screen.getByText('Density')).toBeInTheDocument();
   });
 
-  it('renders standard button', () => {
-    render(<TableDensitySetting tableDensity="comfortable" onChange={mockOnChange} />);
-    expect(screen.getByRole('button', { name: /standard/i })).toBeInTheDocument();
+  it('renders both density options', () => {
+    arrange('comfortable');
+    expect(getStandardButton()).toBeInTheDocument();
+    expect(getCompactButton()).toBeInTheDocument();
   });
 
-  it('renders compact button', () => {
-    render(<TableDensitySetting tableDensity="compact" onChange={mockOnChange} />);
-    expect(screen.getByRole('button', { name: /kompakt/i })).toBeInTheDocument();
-  });
-
-  it('calls onChange with "comfortable" when standard clicked', async () => {
+  // ---------------------------------------------------------------------------
+  // Interaction: calling onChange
+  // ---------------------------------------------------------------------------
+  it('calls onChange with "comfortable" when standard is clicked', async () => {
     const user = userEvent.setup();
-    render(<TableDensitySetting tableDensity="compact" onChange={mockOnChange} />);
+    arrange('compact');
 
-    await user.click(screen.getByRole('button', { name: /standard/i }));
-
+    await user.click(getStandardButton());
     expect(mockOnChange).toHaveBeenCalledWith('comfortable');
   });
 
-  it('calls onChange with "compact" when compact clicked', async () => {
+  it('calls onChange with "compact" when compact is clicked', async () => {
     const user = userEvent.setup();
-    render(<TableDensitySetting tableDensity="comfortable" onChange={mockOnChange} />);
+    arrange('comfortable');
 
-    await user.click(screen.getByRole('button', { name: /kompakt/i }));
-
+    await user.click(getCompactButton());
     expect(mockOnChange).toHaveBeenCalledWith('compact');
   });
 
-  it('displays comfortable as selected when in comfortable mode', () => {
-    render(<TableDensitySetting tableDensity="comfortable" onChange={mockOnChange} />);
-    const button = screen.getByRole('button', { name: /standard/i });
-    expect(button).toHaveClass('Mui-selected');
+  it('does not call onChange when clicking the currently selected option', async () => {
+    const user = userEvent.setup();
+    arrange('comfortable');
+
+    // Clicking the already-selected option should be a no-op.
+    await user.click(getStandardButton());
+    expect(mockOnChange).not.toHaveBeenCalled();
   });
 
-  it('displays compact as selected when in compact mode', () => {
-    render(<TableDensitySetting tableDensity="compact" onChange={mockOnChange} />);
-    const button = screen.getByRole('button', { name: /kompakt/i });
-    expect(button).toHaveClass('Mui-selected');
+  // ---------------------------------------------------------------------------
+  // Selection state
+  // ---------------------------------------------------------------------------
+  it('marks "comfortable" as selected when tableDensity is comfortable', () => {
+    arrange('comfortable');
+    expect(getStandardButton()).toHaveClass('Mui-selected');
   });
 
-  it('defaults to comfortable for invalid density values', () => {
-    render(<TableDensitySetting tableDensity="invalid" onChange={mockOnChange} />);
-    const button = screen.getByRole('button', { name: /standard/i });
-    expect(button).toHaveClass('Mui-selected');
+  it('marks "compact" as selected when tableDensity is compact', () => {
+    arrange('compact');
+    expect(getCompactButton()).toHaveClass('Mui-selected');
   });
 
-  it('uses translations for labels', () => {
+  it('falls back to comfortable for invalid density values', () => {
+    // Defensive behavior: UI should not break on unexpected/legacy values.
+    arrange('invalid');
+    expect(getStandardButton()).toHaveClass('Mui-selected');
+  });
+
+  // ---------------------------------------------------------------------------
+  // i18n wiring
+  // ---------------------------------------------------------------------------
+  it('renders translated labels when i18n provides them', () => {
     const mockT = vi.fn((key: string, defaultValue: string) => {
       if (key === 'appearance.density') return 'Dichte';
       if (key === 'appearance.standard') return 'Normal';
       if (key === 'appearance.compact') return 'Kompakt';
       return defaultValue;
     });
+
     mockUseTranslation.mockReturnValue({
       t: mockT,
       i18n: { changeLanguage: vi.fn() },
     });
 
-    render(<TableDensitySetting tableDensity="comfortable" onChange={mockOnChange} />);
-    
+    arrange('comfortable');
+
+    // Assert rendered text (user-visible outcome)...
     expect(screen.getByText('Dichte')).toBeInTheDocument();
     expect(screen.getByText('Normal')).toBeInTheDocument();
+    expect(screen.getByText('Kompakt')).toBeInTheDocument();
+
+    // ...and ensure we requested the correct keys (integration wiring).
+    expect(mockT).toHaveBeenCalledWith('appearance.density', 'Density');
+    expect(mockT).toHaveBeenCalledWith('appearance.standard', 'Standard');
+    expect(mockT).toHaveBeenCalledWith('appearance.compact', 'Compact');
   });
 
-  it('does not call onChange when clicking currently selected option', async () => {
-    const user = userEvent.setup();
-    render(<TableDensitySetting tableDensity="comfortable" onChange={mockOnChange} />);
-
-    // Click the already selected button
-    await user.click(screen.getByRole('button', { name: /standard/i }));
-
-    // onChange should not be called for already selected value
-    expect(mockOnChange).not.toHaveBeenCalled();
-  });
-
+  // ---------------------------------------------------------------------------
+  // Regression: switching between modes (controlled component behavior)
+  // ---------------------------------------------------------------------------
   it('allows switching between modes', async () => {
     const user = userEvent.setup();
-    const { rerender } = render(
-      <TableDensitySetting tableDensity="comfortable" onChange={mockOnChange} />
-    );
 
-    await user.click(screen.getByRole('button', { name: /kompakt/i }));
+    const { rerender } = arrange('comfortable');
+
+    await user.click(getCompactButton());
     expect(mockOnChange).toHaveBeenCalledWith('compact');
 
+    // Simulate parent state update (component is controlled via props).
     rerender(<TableDensitySetting tableDensity="compact" onChange={mockOnChange} />);
 
-    await user.click(screen.getByRole('button', { name: /standard/i }));
+    await user.click(getStandardButton());
     expect(mockOnChange).toHaveBeenCalledWith('comfortable');
   });
 });
