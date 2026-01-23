@@ -1,18 +1,29 @@
 /**
  * @file NotificationsMenuSection.test.tsx
- * @module __tests__/app/HamburgerMenu/NotificationsMenuSection
- * @description Tests for notifications menu section component.
+ * @module __tests__/app/HamburgerMenu
+ *
+ * @description
+ * Unit tests for <NotificationsMenuSection /> — verifies the notification area in the
+ * hamburger menu reacts to dashboard metrics:
+ * - Loading → skeleton state
+ * - lowStockCount > 0 → low-stock alert content
+ * - lowStockCount === 0 or missing → all-clear content
+ *
+ * Notes:
+ * - useDashboardMetrics is mocked so tests stay deterministic and fast.
+ * - i18n translation is mocked with minimal interpolation support ({{count}}).
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import NotificationsMenuSection from '../../../app/HamburgerMenu/NotificationsMenuSection';
 
-// Hoisted mocks
+// -----------------------------------------------------------------------------
+// Mocks
+// -----------------------------------------------------------------------------
 const mockUseDashboardMetrics = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
 
-// Mock hooks
 vi.mock('../../../api/analytics/hooks', () => ({
   useDashboardMetrics: mockUseDashboardMetrics,
 }));
@@ -21,9 +32,23 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
+type MetricsState =
+  | { isLoading: true; data: null }
+  | { isLoading: false; data: { lowStockCount: number } }
+  | { isLoading: false; data: null };
+
 describe('NotificationsMenuSection', () => {
+  const arrange = (state: MetricsState) => {
+    mockUseDashboardMetrics.mockReturnValue(state);
+    return render(<NotificationsMenuSection />);
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Minimal i18n mock:
+    // - returns defaultValue
+    // - supports {{count}} interpolation when options.count is provided
     mockUseTranslation.mockReturnValue({
       t: (_key: string, defaultValue: string, options?: { count?: number }) => {
         if (typeof defaultValue === 'string' && options?.count !== undefined) {
@@ -35,100 +60,52 @@ describe('NotificationsMenuSection', () => {
     });
   });
 
-  it('renders loading skeleton when data is loading', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: true,
-      data: null,
-    });
-
-    const { container } = render(<NotificationsMenuSection />);
-    const skeletons = container.querySelectorAll('.MuiSkeleton-root');
-    expect(skeletons.length).toBeGreaterThan(0);
+  it('renders loading skeleton when dashboard metrics are loading', () => {
+    const { container } = arrange({ isLoading: true, data: null });
+    expect(container.querySelectorAll('.MuiSkeleton-root').length).toBeGreaterThan(0);
   });
 
-  it('renders low stock alert when items have low stock', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: { lowStockCount: 5 },
-    });
-
-    render(<NotificationsMenuSection />);
+  it('renders low stock alert when lowStockCount is greater than zero', () => {
+    arrange({ isLoading: false, data: { lowStockCount: 5 } });
     expect(screen.getByText('Low Stock Alert')).toBeInTheDocument();
   });
 
-  it('displays low stock count in message', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: { lowStockCount: 3 },
-    });
-
-    render(<NotificationsMenuSection />);
-    expect(screen.getByText('You have 3 merchandise item(s) with low stock')).toBeInTheDocument();
-  });
-
-  it('displays low stock count in chip', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: { lowStockCount: 7 },
-    });
-
-    render(<NotificationsMenuSection />);
-    expect(screen.getByText('7 items below minimum')).toBeInTheDocument();
-  });
-
-  it('renders all clear message when no low stock', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: { lowStockCount: 0 },
-    });
-
-    render(<NotificationsMenuSection />);
+  it('renders all-clear message when lowStockCount is zero', () => {
+    arrange({ isLoading: false, data: { lowStockCount: 0 } });
     expect(screen.getByText('All clear – no low stock items')).toBeInTheDocument();
   });
 
-  it('does not show alert when no low stock', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: { lowStockCount: 0 },
-    });
+  it('falls back to all-clear message when metrics data is missing', () => {
+    arrange({ isLoading: false, data: null });
+    expect(screen.getByText('All clear – no low stock items')).toBeInTheDocument();
+  });
 
-    render(<NotificationsMenuSection />);
+  it('does not render low-stock alert title when lowStockCount is zero', () => {
+    arrange({ isLoading: false, data: { lowStockCount: 0 } });
     expect(screen.queryByText('Low Stock Alert')).not.toBeInTheDocument();
   });
 
-  it('handles missing data gracefully', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: null,
-    });
-
-    render(<NotificationsMenuSection />);
-    expect(screen.getByText('All clear – no low stock items')).toBeInTheDocument();
+  it('interpolates the low stock count into the user-facing message', () => {
+    arrange({ isLoading: false, data: { lowStockCount: 3 } });
+    expect(screen.getByText('You have 3 merchandise item(s) with low stock')).toBeInTheDocument();
   });
 
-  it('renders notification icon for low stock', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: { lowStockCount: 5 },
-    });
-
-    const { container } = render(<NotificationsMenuSection />);
-    const icons = container.querySelectorAll('svg');
-    expect(icons.length).toBeGreaterThan(0);
+  it('renders the low stock count in the chip label', () => {
+    arrange({ isLoading: false, data: { lowStockCount: 7 } });
+    expect(screen.getByText('7 items below minimum')).toBeInTheDocument();
   });
 
-  it('renders notification icon for all clear', () => {
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: { lowStockCount: 0 },
-    });
-
-    const { container } = render(<NotificationsMenuSection />);
-    const icon = container.querySelector('svg');
-    expect(icon).toBeInTheDocument();
+  it('renders an icon for the low-stock alert variant', () => {
+    const { container } = arrange({ isLoading: false, data: { lowStockCount: 5 } });
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
-  it('uses translations for low stock alert', () => {
+  it('renders an icon for the all-clear variant', () => {
+    const { container } = arrange({ isLoading: false, data: { lowStockCount: 0 } });
+    expect(container.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('uses translated title for the low stock alert when provided', () => {
     const mockT = vi.fn((key: string, defaultValue: string, options?: { count?: number }) => {
       if (key === 'notifications.lowStockAlert') return 'Niedriger Bestand';
       if (typeof defaultValue === 'string' && options?.count !== undefined) {
@@ -136,16 +113,14 @@ describe('NotificationsMenuSection', () => {
       }
       return defaultValue;
     });
+
     mockUseTranslation.mockReturnValue({
       t: mockT,
       i18n: { changeLanguage: vi.fn() },
     });
-    mockUseDashboardMetrics.mockReturnValue({
-      isLoading: false,
-      data: { lowStockCount: 5 },
-    });
 
-    render(<NotificationsMenuSection />);
+    arrange({ isLoading: false, data: { lowStockCount: 5 } });
+
     expect(screen.getByText('Niedriger Bestand')).toBeInTheDocument();
   });
 });

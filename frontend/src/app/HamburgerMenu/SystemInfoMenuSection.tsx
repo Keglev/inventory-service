@@ -18,7 +18,14 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useTranslation } from 'react-i18next';
 import { useHealthCheck } from '../../features/health';
 
-export default function SystemInfoMenuSection() {
+type ClipboardLike = Pick<Clipboard, 'writeText'>;
+
+interface SystemInfoMenuSectionProps {
+  /** Dependency injection hook for clipboard; defaults to global navigator.clipboard */
+  clipboard?: ClipboardLike | null;
+}
+
+export default function SystemInfoMenuSection({ clipboard = typeof navigator !== 'undefined' ? navigator.clipboard : null }: SystemInfoMenuSectionProps) {
   const { t } = useTranslation(['common']);
   const { health } = useHealthCheck();
   const [copied, setCopied] = React.useState(false);
@@ -29,10 +36,19 @@ export default function SystemInfoMenuSection() {
   const frontendVersion = '1.0.0';
   const commitHash = '4a9c12f';
 
-  const handleCopyUrl = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyUrl = async (text: string) => {
+    if (!clipboard || typeof clipboard.writeText !== 'function') {
+      console.warn('Clipboard API not available');
+      return;
+    }
+
+    try {
+      await clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.warn('Copy to clipboard failed', error);
+    }
   };
 
   return (

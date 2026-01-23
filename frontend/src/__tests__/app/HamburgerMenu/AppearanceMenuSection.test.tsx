@@ -1,21 +1,64 @@
 /**
  * @file AppearanceMenuSection.test.tsx
- * @module __tests__/app/HamburgerMenu/AppearanceMenuSection
- * @description Tests for appearance menu section component.
+ * @module __tests__/app/HamburgerMenu
+ *
+ * @description
+ * Unit tests for <AppearanceMenuSection /> — renders the appearance section within the hamburger menu
+ * and wires user preference state (table density) through the Settings hook.
+ *
+ * Test strategy:
+ * - Render verification: section title + child settings components appear.
+ * - Prop wiring verification:
+ *   - ThemeToggle receives themeMode + callback.
+ *   - TableDensitySetting receives current density + onChange handler.
+ * - Behavior verification:
+ *   - Changing density triggers setUserPreferences with the correct partial update.
+ * - i18n wiring verification: title translation is used when provided.
+ *
+ * Notes:
+ * - Child components are mocked to isolate this "orchestrator" component.
+ * - We avoid brittle assertions on React's second argument to function components.
  */
 
+import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import AppearanceMenuSection from '../../../app/HamburgerMenu/AppearanceMenuSection';
 
-// Hoisted mocks
+// -----------------------------------------------------------------------------
+// Minimal types needed for wiring assertions
+// -----------------------------------------------------------------------------
+type ThemeMode = 'light' | 'dark';
+type TableDensity = 'comfortable' | 'compact';
+type Locale = 'en' | 'de';
+
+type ThemeToggleProps = {
+  themeMode: ThemeMode;
+  onThemeModeChange: () => void;
+};
+
+type TableDensitySettingProps = {
+  tableDensity: TableDensity;
+  onChange: (next: TableDensity) => void;
+};
+
+// -----------------------------------------------------------------------------
+// Mocks
+// -----------------------------------------------------------------------------
 const mockSetUserPreferences = vi.hoisted(() => vi.fn());
 const mockUseSettings = vi.hoisted(() => vi.fn());
 const mockUseTranslation = vi.hoisted(() => vi.fn());
-const mockThemeToggle = vi.hoisted(() => vi.fn(() => <div>Theme Toggle</div>));
-const mockTableDensitySetting = vi.hoisted(() => vi.fn(() => <div>Density Setting</div>));
 
-// Mock hooks
+// Child components are mocked to isolate the unit under test.
+// IMPORTANT: Vitest generics are <ArgsTuple, ReturnType>, not <FunctionType>
+const mockThemeToggle = vi.hoisted(() =>
+  vi.fn<[ThemeToggleProps], React.ReactElement>(() => <div>Theme Toggle</div>),
+);
+
+const mockTableDensitySetting = vi.hoisted(() =>
+  vi.fn<[TableDensitySettingProps], React.ReactElement>(() => <div>Density Setting</div>),
+);
+
 vi.mock('../../../hooks/useSettings', () => ({
   useSettings: mockUseSettings,
 }));
@@ -24,140 +67,140 @@ vi.mock('react-i18next', () => ({
   useTranslation: mockUseTranslation,
 }));
 
-// Mock appearance settings components
 vi.mock('../../../app/HamburgerMenu/AppearanceSettings', () => ({
   ThemeToggle: mockThemeToggle,
   TableDensitySetting: mockTableDensitySetting,
 }));
 
+type Props = {
+  themeMode: ThemeMode;
+  onThemeModeChange: () => void;
+};
+
 describe('AppearanceMenuSection', () => {
   const mockOnThemeModeChange = vi.fn();
 
-  const defaultProps = {
-    themeMode: 'light' as const,
+  const defaultProps: Props = {
+    themeMode: 'light',
     onThemeModeChange: mockOnThemeModeChange,
   };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockUseTranslation.mockReturnValue({
-      t: (_key: string, defaultValue: string) => defaultValue,
-      i18n: { changeLanguage: vi.fn() },
-    });
+  /**
+   * Helper: configure Settings hook return value.
+   */
+  const setSettings = (tableDensity: TableDensity) => {
     mockUseSettings.mockReturnValue({
       userPreferences: {
-        tableDensity: 'comfortable',
+        tableDensity,
         dateFormat: 'DD.MM.YYYY',
         numberFormat: 'DE',
       },
       setUserPreferences: mockSetUserPreferences,
     });
-    mockThemeToggle.mockReturnValue(<div>Theme Toggle</div>);
-    mockTableDensitySetting.mockReturnValue(<div>Density Setting</div>);
+  };
+
+  /**
+   * Arrange helper: render with defaults + optional prop overrides.
+   */
+  const arrange = (overrides?: Partial<Props>) =>
+    render(<AppearanceMenuSection {...defaultProps} {...overrides} />);
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockUseTranslation.mockReturnValue({
+      t: (_key: string, defaultValue: string) => defaultValue,
+      i18n: { changeLanguage: vi.fn(), language: 'en' as Locale },
+    });
+
+    setSettings('comfortable');
   });
 
-  it('renders appearance section title', () => {
-    render(<AppearanceMenuSection {...defaultProps} />);
+  // ---------------------------------------------------------------------------
+  // Rendering: title + children
+  // ---------------------------------------------------------------------------
+  it('renders the appearance section title', () => {
+    arrange();
     expect(screen.getByText('Erscheinungsbild / Appearance')).toBeInTheDocument();
   });
 
-  it('renders ThemeToggle component', () => {
-    render(<AppearanceMenuSection {...defaultProps} />);
+  it('renders ThemeToggle and TableDensitySetting', () => {
+    arrange();
     expect(screen.getByText('Theme Toggle')).toBeInTheDocument();
-  });
-
-  it('renders TableDensitySetting component', () => {
-    render(<AppearanceMenuSection {...defaultProps} />);
     expect(screen.getByText('Density Setting')).toBeInTheDocument();
   });
 
-  it('passes themeMode to ThemeToggle', () => {
-    render(<AppearanceMenuSection {...defaultProps} />);
-    expect(mockThemeToggle).toHaveBeenCalledWith(
-      expect.objectContaining({
-        themeMode: 'light',
-        onThemeModeChange: mockOnThemeModeChange,
-      }),
-      undefined
-    );
+  // ---------------------------------------------------------------------------
+  // Prop wiring: ThemeToggle
+  // ---------------------------------------------------------------------------
+  it('passes themeMode and handler to ThemeToggle', () => {
+    arrange();
+
+    const themeToggleProps = mockThemeToggle.mock.calls[0]?.[0];
+    expect(themeToggleProps).toBeDefined();
+    expect(themeToggleProps).toMatchObject({
+      themeMode: 'light',
+      onThemeModeChange: mockOnThemeModeChange,
+    });
   });
 
-  it('passes dark themeMode to ThemeToggle', () => {
-    render(<AppearanceMenuSection {...defaultProps} themeMode="dark" />);
-    expect(mockThemeToggle).toHaveBeenCalledWith(
-      expect.objectContaining({
-        themeMode: 'dark',
-      }),
-      undefined
-    );
+  it('passes dark themeMode to ThemeToggle when provided', () => {
+    arrange({ themeMode: 'dark' });
+
+    const themeToggleProps = mockThemeToggle.mock.calls[0]?.[0];
+    expect(themeToggleProps).toBeDefined();
+    expect(themeToggleProps).toMatchObject({ themeMode: 'dark' });
   });
 
-  it('passes tableDensity to TableDensitySetting', () => {
-    render(<AppearanceMenuSection {...defaultProps} />);
-    expect(mockTableDensitySetting).toHaveBeenCalledWith(
-      expect.objectContaining({
-        tableDensity: 'comfortable',
-      }),
-      undefined
-    );
+  // ---------------------------------------------------------------------------
+  // Prop wiring: TableDensitySetting
+  // ---------------------------------------------------------------------------
+  it('passes current tableDensity to TableDensitySetting', () => {
+    arrange();
+
+    const tableDensityProps = mockTableDensitySetting.mock.calls[0]?.[0];
+    expect(tableDensityProps).toBeDefined();
+    expect(tableDensityProps).toMatchObject({ tableDensity: 'comfortable' });
   });
 
   it('passes compact tableDensity to TableDensitySetting', () => {
-    mockUseSettings.mockReturnValue({
-      userPreferences: {
-        tableDensity: 'compact',
-        dateFormat: 'DD.MM.YYYY',
-        numberFormat: 'DE',
-      },
-      setUserPreferences: mockSetUserPreferences,
-    });
+    setSettings('compact');
+    arrange();
 
-    render(<AppearanceMenuSection {...defaultProps} />);
-    expect(mockTableDensitySetting).toHaveBeenCalledWith(
-      expect.objectContaining({
-        tableDensity: 'compact',
-      }),
-      undefined
-    );
-  });
-
-  it('passes onChange handler to TableDensitySetting', () => {
-    render(<AppearanceMenuSection {...defaultProps} />);
-    expect(mockTableDensitySetting).toHaveBeenCalledWith(
-      expect.objectContaining({
-        onChange: expect.any(Function),
-      }),
-      undefined
-    );
+    const tableDensityProps = mockTableDensitySetting.mock.calls[0]?.[0];
+    expect(tableDensityProps).toBeDefined();
+    expect(tableDensityProps).toMatchObject({ tableDensity: 'compact' });
   });
 
   it('calls setUserPreferences when density changes', () => {
-    render(<AppearanceMenuSection {...defaultProps} />);
-    
-    // Get the onChange callback that was passed to TableDensitySetting
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const lastCall = mockTableDensitySetting.mock.lastCall as any;
-    expect(lastCall).toBeDefined();
-    const propsPassedToMock = lastCall[0];
-    expect(propsPassedToMock.onChange).toBeDefined();
-    
-    // Call the onChange handler
-    propsPassedToMock.onChange('compact');
+    arrange();
+
+    // Typed because mockTableDensitySetting uses ArgsTuple typing.
+    const lastProps = mockTableDensitySetting.mock.calls.at(-1)?.[0];
+    expect(lastProps).toBeDefined();
+
+    lastProps!.onChange('compact');
 
     expect(mockSetUserPreferences).toHaveBeenCalledWith({ tableDensity: 'compact' });
   });
 
-  it('uses translation for title', () => {
-    const mockT = vi.fn((_key: string, defaultValue: string) => {
-      if (_key === 'appearance.title') return 'Apparence';
+  // ---------------------------------------------------------------------------
+  // i18n wiring
+  // ---------------------------------------------------------------------------
+  it('renders translated title when provided by i18n', () => {
+    const mockT = vi.fn((key: string, defaultValue: string) => {
+      if (key === 'appearance.title') return 'Apparence';
       return defaultValue;
     });
+
     mockUseTranslation.mockReturnValue({
       t: mockT,
-      i18n: { changeLanguage: vi.fn() },
+      i18n: { changeLanguage: vi.fn(), language: 'en' as Locale },
     });
 
-    render(<AppearanceMenuSection {...defaultProps} />);
+    arrange();
+
     expect(screen.getByText('Apparence')).toBeInTheDocument();
+    expect(mockT).toHaveBeenCalledWith('appearance.title', 'Erscheinungsbild / Appearance');
   });
 });

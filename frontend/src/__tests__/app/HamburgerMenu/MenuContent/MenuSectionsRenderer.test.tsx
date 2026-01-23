@@ -1,14 +1,31 @@
 /**
  * @file MenuSectionsRenderer.test.tsx
- * @module __tests__/app/HamburgerMenu/MenuContent/MenuSectionsRenderer
- * @description Tests for menu sections renderer component.
+ * @module __tests__/app/HamburgerMenu/MenuContent
+ *
+ * @description
+ * Unit tests for <MenuSectionsRenderer /> — composition component that renders all
+ * hamburger menu sections and wires props to the sections that need them.
+ *
+ * Test strategy:
+ * - Render verification: all sections appear in the DOM.
+ * - Prop wiring verification:
+ *   - AppearanceMenuSection receives theme props.
+ *   - LanguageRegionMenuSection receives locale props.
+ *   - Other sections receive no props.
+ * - Order verification: sections are rendered in the expected sequence.
+ *
+ * Notes:
+ * - We mock each section component as a simple functional component that renders a unique
+ *   marker text. This isolates the renderer from the section implementations.
  */
-
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import MenuSectionsRenderer from '../../../../app/HamburgerMenu/MenuContent/MenuSectionsRenderer';
 
-// Hoisted mocks
+// -----------------------------------------------------------------------------
+// Section component mocks
+// -----------------------------------------------------------------------------
+// Hoisted so mocks exist before vi.mock factory evaluation.
 const mockProfileMenuSection = vi.hoisted(() => vi.fn(() => <div>Profile Section</div>));
 const mockAppearanceMenuSection = vi.hoisted(() => vi.fn(() => <div>Appearance Section</div>));
 const mockLanguageRegionMenuSection = vi.hoisted(() => vi.fn(() => <div>Language Section</div>));
@@ -16,7 +33,6 @@ const mockNotificationsMenuSection = vi.hoisted(() => vi.fn(() => <div>Notificat
 const mockHelpDocsMenuSection = vi.hoisted(() => vi.fn(() => <div>Help Section</div>));
 const mockSystemInfoMenuSection = vi.hoisted(() => vi.fn(() => <div>System Info Section</div>));
 
-// Mock menu section components
 vi.mock('../../../../app/HamburgerMenu/ProfileMenuSection', () => ({
   default: mockProfileMenuSection,
 }));
@@ -41,32 +57,46 @@ vi.mock('../../../../app/HamburgerMenu/SystemInfoMenuSection', () => ({
   default: mockSystemInfoMenuSection,
 }));
 
+type ThemeMode = 'light' | 'dark';
+type Locale = 'en' | 'de';
+
+type Props = {
+  themeMode: ThemeMode;
+  onThemeModeChange: () => void;
+  locale: Locale;
+  onLocaleChange: () => void;
+  onClose: () => void;
+};
+
 describe('MenuSectionsRenderer', () => {
   const mockOnThemeModeChange = vi.fn();
   const mockOnLocaleChange = vi.fn();
   const mockOnClose = vi.fn();
 
-  const defaultProps = {
-    themeMode: 'light' as const,
+  const defaultProps: Props = {
+    themeMode: 'light',
     onThemeModeChange: mockOnThemeModeChange,
-    locale: 'en' as const,
+    locale: 'en',
     onLocaleChange: mockOnLocaleChange,
     onClose: mockOnClose,
   };
 
+  /**
+   * Arrange helper: renders with defaults + optional overrides.
+   */
+  const arrange = (overrides?: Partial<Props>) =>
+    render(<MenuSectionsRenderer {...defaultProps} {...overrides} />);
+
   beforeEach(() => {
     vi.clearAllMocks();
-    mockProfileMenuSection.mockReturnValue(<div>Profile Section</div>);
-    mockAppearanceMenuSection.mockReturnValue(<div>Appearance Section</div>);
-    mockLanguageRegionMenuSection.mockReturnValue(<div>Language Section</div>);
-    mockNotificationsMenuSection.mockReturnValue(<div>Notifications Section</div>);
-    mockHelpDocsMenuSection.mockReturnValue(<div>Help Section</div>);
-    mockSystemInfoMenuSection.mockReturnValue(<div>System Info Section</div>);
   });
 
+  // ---------------------------------------------------------------------------
+  // Rendering: all sections appear
+  // ---------------------------------------------------------------------------
   it('renders all menu sections', () => {
-    render(<MenuSectionsRenderer {...defaultProps} />);
-    
+    arrange();
+
     expect(screen.getByText('Profile Section')).toBeInTheDocument();
     expect(screen.getByText('Appearance Section')).toBeInTheDocument();
     expect(screen.getByText('Language Section')).toBeInTheDocument();
@@ -75,96 +105,91 @@ describe('MenuSectionsRenderer', () => {
     expect(screen.getByText('System Info Section')).toBeInTheDocument();
   });
 
+  // ---------------------------------------------------------------------------
+  // Prop wiring: sections that require props
+  // ---------------------------------------------------------------------------
   it('passes theme props to AppearanceMenuSection', () => {
-    render(<MenuSectionsRenderer {...defaultProps} />);
-    
+    arrange();
+
     expect(mockAppearanceMenuSection).toHaveBeenCalledWith(
       expect.objectContaining({
         themeMode: 'light',
         onThemeModeChange: mockOnThemeModeChange,
       }),
-      undefined
+      undefined,
     );
   });
 
   it('passes locale props to LanguageRegionMenuSection', () => {
-    render(<MenuSectionsRenderer {...defaultProps} />);
-    
+    arrange();
+
     expect(mockLanguageRegionMenuSection).toHaveBeenCalledWith(
       expect.objectContaining({
         locale: 'en',
         onLocaleChange: mockOnLocaleChange,
       }),
-      undefined
+      undefined,
     );
   });
 
-  it('passes dark theme mode correctly', () => {
-    render(<MenuSectionsRenderer {...defaultProps} themeMode="dark" />);
-    
+  it('supports dark theme mode', () => {
+    arrange({ themeMode: 'dark' });
+
     expect(mockAppearanceMenuSection).toHaveBeenCalledWith(
-      expect.objectContaining({
-        themeMode: 'dark',
-      }),
-      undefined
+      expect.objectContaining({ themeMode: 'dark' }),
+      undefined,
     );
   });
 
-  it('passes German locale correctly', () => {
-    render(<MenuSectionsRenderer {...defaultProps} locale="de" />);
-    
+  it('supports German locale', () => {
+    arrange({ locale: 'de' });
+
     expect(mockLanguageRegionMenuSection).toHaveBeenCalledWith(
-      expect.objectContaining({
-        locale: 'de',
-      }),
-      undefined
+      expect.objectContaining({ locale: 'de' }),
+      undefined,
     );
   });
 
+  // ---------------------------------------------------------------------------
+  // Prop wiring: sections that should receive no props
+  // ---------------------------------------------------------------------------
   it('renders ProfileMenuSection without props', () => {
-    render(<MenuSectionsRenderer {...defaultProps} />);
-    
-    expect(mockProfileMenuSection).toHaveBeenCalledWith(
-      {},
-      undefined
-    );
+    arrange();
+    expect(mockProfileMenuSection).toHaveBeenCalledWith({}, undefined);
   });
 
   it('renders NotificationsMenuSection without props', () => {
-    render(<MenuSectionsRenderer {...defaultProps} />);
-    
-    expect(mockNotificationsMenuSection).toHaveBeenCalledWith(
-      {},
-      undefined
-    );
+    arrange();
+    expect(mockNotificationsMenuSection).toHaveBeenCalledWith({}, undefined);
   });
 
   it('renders HelpDocsMenuSection without props', () => {
-    render(<MenuSectionsRenderer {...defaultProps} />);
-    
-    expect(mockHelpDocsMenuSection).toHaveBeenCalledWith(
-      {},
-      undefined
-    );
+    arrange();
+    expect(mockHelpDocsMenuSection).toHaveBeenCalledWith({}, undefined);
   });
 
   it('renders SystemInfoMenuSection without props', () => {
-    render(<MenuSectionsRenderer {...defaultProps} />);
-    
-    expect(mockSystemInfoMenuSection).toHaveBeenCalledWith(
-      {},
-      undefined
-    );
+    arrange();
+    expect(mockSystemInfoMenuSection).toHaveBeenCalledWith({}, undefined);
   });
 
-  it('renders sections in correct order', () => {
-    render(<MenuSectionsRenderer {...defaultProps} />);
-    
-    expect(mockProfileMenuSection).toHaveBeenCalled();
-    expect(mockAppearanceMenuSection).toHaveBeenCalled();
-    expect(mockLanguageRegionMenuSection).toHaveBeenCalled();
-    expect(mockNotificationsMenuSection).toHaveBeenCalled();
-    expect(mockHelpDocsMenuSection).toHaveBeenCalled();
-    expect(mockSystemInfoMenuSection).toHaveBeenCalled();
+  // ---------------------------------------------------------------------------
+  // Order verification
+  // ---------------------------------------------------------------------------
+  it('renders sections in the expected order', () => {
+    arrange();
+
+    // "Called" alone does not prove order. Vitest exposes call order numbers per mock.
+    const order = [
+      mockProfileMenuSection.mock.invocationCallOrder[0],
+      mockAppearanceMenuSection.mock.invocationCallOrder[0],
+      mockLanguageRegionMenuSection.mock.invocationCallOrder[0],
+      mockNotificationsMenuSection.mock.invocationCallOrder[0],
+      mockHelpDocsMenuSection.mock.invocationCallOrder[0],
+      mockSystemInfoMenuSection.mock.invocationCallOrder[0],
+    ];
+
+    // Assert strict increasing order of invocation.
+    expect(order).toEqual([...order].sort((a, b) => a - b));
   });
 });
