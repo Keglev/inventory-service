@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.15% </span>
+                <span class="strong">95.45% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>250/260</span>
+                <span class='fraction'>252/264</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">46.15% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/13</span>
+                <span class='fraction'>6/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.15% </span>
+                <span class="strong">95.45% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>250/260</span>
+                <span class='fraction'>252/264</span>
             </div>
         
             
@@ -323,7 +323,11 @@
 <a name='L258'></a><a href='#L258'>258</a>
 <a name='L259'></a><a href='#L259'>259</a>
 <a name='L260'></a><a href='#L260'>260</a>
-<a name='L261'></a><a href='#L261'>261</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L261'></a><a href='#L261'>261</a>
+<a name='L262'></a><a href='#L262'>262</a>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -442,6 +446,10 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -698,19 +706,23 @@ export default function AppShell() {
   const theme = React.useMemo(() =&gt; buildTheme(locale, themeMode), [locale, themeMode]);
 &nbsp;
   /**
-   * Toggle theme mode between light and dark.
-   * Persists choice to localStorage and shows toast notification.
+   * Apply a specific theme mode.
+   * Persists choice to localStorage and shows toast notification when mode changes.
    */
-  const toggleThemeMode = () =&gt; {
+  const handleThemeModeChange = (nextMode: 'light' | 'dark') =&gt; {
     setThemeMode((prev) =&gt; {
-      const next = prev === 'light' ? <span class="branch-0 cbranch-no" title="branch not covered" >'dark' : 'light';</span>
-      localStorage.setItem(LS_THEME_KEY, next);
+      if (prev === nextMode) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
+<span class="cstat-no" title="statement not covered" >        return prev;</span>
+<span class="cstat-no" title="statement not covered" >      }</span>
+&nbsp;
+      localStorage.setItem(LS_THEME_KEY, nextMode);
       setToast({
         open: true,
-        msg: next === 'dark' ? <span class="branch-0 cbranch-no" title="branch not covered" >'Dark mode enabled' : 'Light mode enabled',</span>
+        msg: nextMode === 'dark' ? <span class="branch-0 cbranch-no" title="branch not covered" >'Dark mode enabled' : 'Light mode enabled',</span>
         severity: 'info',
       });
-      return next;
+&nbsp;
+      return nextMode;
     });
   };
 &nbsp;
@@ -790,7 +802,7 @@ export default function AppShell() {
         {/* Application Header (fixed) */}
         &lt;AppHeader
           themeMode={themeMode}
-          onThemeModeChange={toggleThemeMode}
+          onThemeModeChange={handleThemeModeChange}
           locale={locale}
           onLocaleChange={handleLocaleChange}
           onLogout={handleLogout}
@@ -813,9 +825,9 @@ export default function AppShell() {
             mobileOpen={mobileOpen}
             onMobileClose={<span class="fstat-no" title="function not covered" >() =&gt; setMobileOpen(false)}</span>
             themeMode={themeMode}
-            onThemeModeChange={toggleThemeMode}
+            onThemeModeChange={handleThemeModeChange}
             locale={locale}
-            onLocaleChange={<span class="fstat-no" title="function not covered" >() =&gt; handleLocaleChange(locale === 'de' ? 'en' : 'de')}</span>
+            onLocaleChange={handleLocaleChange}
             onLogout={handleLogout}
             onSettingsOpen={<span class="fstat-no" title="function not covered" >() =&gt; setSettingsOpen(true)}</span>
             user={<span class="branch-0 cbranch-no" title="branch not covered" >user || undefined}</span>
@@ -850,7 +862,7 @@ export default function AppShell() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-23T17:00:28.227Z
+                at 2026-01-26T16:17:09.365Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
