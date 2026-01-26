@@ -1,159 +1,135 @@
 /**
  * @file HealthBadge.test.tsx
+ * @module __tests__/app/layout/header/HealthBadge
+ * @description
+ * Tests for the HealthBadge header component.
  *
- * @what_is_under_test HealthBadge component
- * @responsibility Displays real-time system health status (backend and database) with color-coded badges
- * @out_of_scope Health check API implementation, health polling logic, tooltip click actions
+ * Scope:
+ * - Renders the correct health label based on backend + database status.
+ * - Applies the expected MUI Chip color variant (success/warning/error).
+ *
+ * Out of scope:
+ * - Health check polling/timers
+ * - API implementation details
+ * - Tooltip interactions
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import HealthBadge from '../../../app/layout/header/HealthBadge';
 
-// Mock useHealthCheck hook
-const mockHealthCheck = vi.fn();
+type BackendStatus = 'online' | 'offline';
+type DbStatus = 'online' | 'offline';
 
-// Mock react-i18next
+type HealthHookReturn = {
+  health: {
+    status: BackendStatus;
+    database: DbStatus;
+    responseTime: number;
+  };
+};
+
+/**
+ * Hoisted mocks:
+ * Keep hook + i18n deterministic and isolate state between tests.
+ */
+const mockUseTranslation = vi.hoisted(() => vi.fn());
+const mockUseHealthCheck = vi.hoisted(() => vi.fn<[], HealthHookReturn>());
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (_key: string, defaultValue: string) => defaultValue,
-  }),
+  useTranslation: mockUseTranslation,
 }));
 
-// Mock health check feature
 vi.mock('../../../features/health', () => ({
-  useHealthCheck: () => mockHealthCheck(),
+  useHealthCheck: () => mockUseHealthCheck(),
 }));
+
+/** Helpers */
+function renderWithHealth(backend: BackendStatus, db: DbStatus) {
+  mockUseHealthCheck.mockReturnValue({
+    health: {
+      status: backend,
+      database: db,
+      responseTime: backend === 'online' ? 50 : 0,
+    },
+  });
+
+  return render(<HealthBadge />);
+}
+
+function expectChipColor(container: HTMLElement, color: 'success' | 'warning' | 'error') {
+  // Note: This assertion intentionally couples to MUI Chip class names.
+  const colorClass = color.charAt(0).toUpperCase() + color.slice(1);
+  const chip = container.querySelector(`.MuiChip-color${colorClass}`);
+  expect(chip).toBeInTheDocument();
+}
 
 describe('HealthBadge', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
 
-  describe('System online state', () => {
-    it('renders "System OK" when backend and database are online', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'online', database: 'online', responseTime: 45 },
-      });
-
-      render(<HealthBadge />);
-      expect(screen.getByText('System OK')).toBeInTheDocument();
-    });
-
-    it('renders success color when all systems online', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'online', database: 'online', responseTime: 45 },
-      });
-
-      const { container } = render(<HealthBadge />);
-      const chip = container.querySelector('.MuiChip-colorSuccess');
-      expect(chip).toBeInTheDocument();
+    // Return the provided default value to keep assertions independent of translation files.
+    mockUseTranslation.mockReturnValue({
+      t: (_key: string, defaultValue: string) => defaultValue,
     });
   });
 
-  describe('Degraded state', () => {
-    // Business rule: Backend is online but database connectivity has issues
-    it('renders "Degraded" when backend is online but database is offline', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'online', database: 'offline', responseTime: 120 },
-      });
-
-      render(<HealthBadge />);
-      expect(screen.getByText('Degraded')).toBeInTheDocument();
-    });
-
-    it('renders warning color when system is degraded', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'online', database: 'offline', responseTime: 120 },
-      });
-
-      const { container } = render(<HealthBadge />);
-      const chip = container.querySelector('.MuiChip-colorWarning');
-      expect(chip).toBeInTheDocument();
-    });
-  });
-
-  describe('Offline state', () => {
-    it('renders "Offline" when backend is offline', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'offline', database: 'offline', responseTime: 0 },
-      });
-
-      render(<HealthBadge />);
-      expect(screen.getByText('Offline')).toBeInTheDocument();
-    });
-
-    it('renders error color when backend is offline', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'offline', database: 'offline', responseTime: 0 },
-      });
-
-      const { container } = render(<HealthBadge />);
-      const chip = container.querySelector('.MuiChip-colorError');
-      expect(chip).toBeInTheDocument();
-    });
-
-    it('renders "Offline" even if database status is unknown', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'offline', database: 'online', responseTime: 0 },
-      });
-
-      render(<HealthBadge />);
-      expect(screen.getByText('Offline')).toBeInTheDocument();
-    });
-  });
-
-  describe('Translation integration', () => {
-    it('uses app.health.okLabel translation key', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'online', database: 'online', responseTime: 45 },
-      });
-
-      render(<HealthBadge />);
-      expect(screen.getByText('System OK')).toBeInTheDocument();
-    });
-
-    it('uses app.health.degradedLabel translation key', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'online', database: 'offline', responseTime: 120 },
-      });
-
-      render(<HealthBadge />);
-      expect(screen.getByText('Degraded')).toBeInTheDocument();
-    });
-
-    it('uses app.health.downLabel translation key', () => {
-      mockHealthCheck.mockReturnValue({
-        health: { status: 'offline', database: 'offline', responseTime: 0 },
-      });
-
-      render(<HealthBadge />);
-      expect(screen.getByText('Offline')).toBeInTheDocument();
-    });
-  });
-
-  describe('Health status combinations', () => {
-    // Testing all possible backend/database combinations
-    const testCases = [
-      { backend: 'online', db: 'online', expected: 'System OK', color: 'success' },
-      { backend: 'online', db: 'offline', expected: 'Degraded', color: 'warning' },
-      { backend: 'offline', db: 'online', expected: 'Offline', color: 'error' },
-      { backend: 'offline', db: 'offline', expected: 'Offline', color: 'error' },
+  describe('Status rendering (label + color)', () => {
+    const cases: Array<{
+      backend: BackendStatus;
+      db: DbStatus;
+      expectedLabel: 'System OK' | 'Degraded' | 'Offline';
+      expectedColor: 'success' | 'warning' | 'error';
+      note: string;
+    }> = [
+      {
+        backend: 'online',
+        db: 'online',
+        expectedLabel: 'System OK',
+        expectedColor: 'success',
+        note: 'All dependencies reachable.',
+      },
+      {
+        backend: 'online',
+        db: 'offline',
+        expectedLabel: 'Degraded',
+        expectedColor: 'warning',
+        note: 'Backend up, database connectivity impacted.',
+      },
+      {
+        backend: 'offline',
+        db: 'online',
+        expectedLabel: 'Offline',
+        expectedColor: 'error',
+        note: 'Backend is authoritative; offline overrides DB status.',
+      },
+      {
+        backend: 'offline',
+        db: 'offline',
+        expectedLabel: 'Offline',
+        expectedColor: 'error',
+        note: 'Total outage scenario.',
+      },
     ];
 
-    testCases.forEach(({ backend, db, expected, color }) => {
-      it(`renders "${expected}" with ${color} color when backend is ${backend} and db is ${db}`, () => {
-        mockHealthCheck.mockReturnValue({
-          health: { status: backend, database: db, responseTime: backend === 'online' ? 50 : 0 },
-        });
+    cases.forEach(({ backend, db, expectedLabel, expectedColor }) => {
+      it(`renders "${expectedLabel}" (${expectedColor}) when backend=${backend} and db=${db}`, () => {
+        // This table test covers the full state matrix for backend/database availability.
+        // Note: ${note}
+        const { container } = renderWithHealth(backend, db);
 
-        const { container } = render(<HealthBadge />);
-        expect(screen.getByText(expected)).toBeInTheDocument();
-        
-        const colorClass = color.charAt(0).toUpperCase() + color.slice(1);
-        const chip = container.querySelector(`.MuiChip-color${colorClass}`);
-        expect(chip).toBeInTheDocument();
+        expect(screen.getByText(expectedLabel)).toBeInTheDocument();
+        expectChipColor(container, expectedColor);
       });
+    });
+  });
+
+  describe('Offline precedence rule', () => {
+    it('renders "Offline" even when the database reports online but backend is offline', () => {
+      // Business rule: backend status determines overall availability (DB cannot be trusted if backend is down).
+      renderWithHealth('offline', 'online');
+
+      expect(screen.getByText('Offline')).toBeInTheDocument();
     });
   });
 });

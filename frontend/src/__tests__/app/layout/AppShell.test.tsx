@@ -1,22 +1,54 @@
+/**
+ * @file AppShell.test.tsx
+ * @module __tests__/app/layout/AppShell
+ * @description
+ * Orchestration tests for the AppShell layout component.
+ *
+ * AppShell responsibilities (in scope):
+ * - Compose header, sidebar, and main layout regions.
+ * - Wire navigation help topic into header.
+ * - Manage mobile drawer open/close state.
+ * - Handle user actions (logout, locale change, theme toggle) and persist relevant preferences.
+ *
+ * Out of scope:
+ * - Visual correctness of child components (AppHeader/AppSidebar/AppMain).
+ * - MUI theme internals beyond "a theme is provided".
+ */
+
 import { render, act, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createTheme } from '@mui/material/styles';
 import AppShell from '@/app/layout/AppShell';
 
-// Track props handed to child components for assertions.
-let lastHeaderProps: Record<string, unknown> | undefined;
-let lastSidebarProps: Record<string, unknown> | undefined;
+/**
+ * Child props capture:
+ * We stub child components and capture the props AppShell passes down.
+ * This allows us to validate orchestration and wiring without coupling to child internals.
+ */
+type HeaderProps = {
+  helpTopic: string;
+  onDrawerToggle: () => void;
+  onLogout: () => void;
+  onLocaleChange: (locale: 'de' | 'en') => void;
+  onThemeModeChange: (mode: 'light' | 'dark') => void;
+};
 
-// Stub subcomponents so we can inspect the orchestrated props.
+type SidebarProps = {
+  mobileOpen: boolean;
+};
+
+let lastHeaderProps: Partial<HeaderProps> | undefined;
+let lastSidebarProps: Partial<SidebarProps> | undefined;
+
 vi.mock('@/app/layout/AppHeader', () => ({
-  default: (props: Record<string, unknown>) => {
+  default: (props: Partial<HeaderProps>) => {
     lastHeaderProps = props;
     return <div data-testid="app-header" />;
   },
 }));
 
 vi.mock('@/app/layout/AppSidebar', () => ({
-  default: (props: Record<string, unknown>) => {
+  default: (props: Partial<SidebarProps>) => {
     lastSidebarProps = props;
     return <div data-testid="app-sidebar" />;
   },
@@ -32,35 +64,44 @@ vi.mock('@/app/settings', () => ({
   ),
 }));
 
-// Mock theme builder to return a valid MUI theme.
+/**
+ * Theme:
+ * AppShell depends on a theme builder. We return a valid MUI theme instance.
+ */
 vi.mock('@/theme', () => ({
   buildTheme: () => createTheme(),
 }));
 
-// Mock nav help lookup to a fixed topic.
+/**
+ * Navigation help topic:
+ * Provide a deterministic topic for assertions.
+ */
 vi.mock('@/app/layout/navConfig', () => ({
   getHelpTopicForRoute: () => 'test-topic',
 }));
 
-// Mock translation with minimal i18n implementation.
-const listeners: Record<string, Array<(lng: string) => void>> = { languageChanged: [] };
+/**
+ * i18n:
+ * Keep translation stable by returning the key. Locale changes should call i18n.changeLanguage.
+ */
 const fakeI18n = {
   resolvedLanguage: 'de',
   changeLanguage: vi.fn(),
-  on: (event: string, cb: (lng: string) => void) => {
-    listeners[event] = listeners[event] || [];
-    listeners[event].push(cb);
-  },
-  off: (event: string, cb: (lng: string) => void) => {
-    listeners[event] = (listeners[event] || []).filter((fn) => fn !== cb);
-  },
+  on: vi.fn(),
+  off: vi.fn(),
 } as const;
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k: string) => k, i18n: fakeI18n }),
 }));
 
-// Router hooks and auth/query mocks.
+/**
+ * Router + query + auth wiring.
+ * - useNavigate: verify navigation after logout
+ * - useLocation: deterministic route for help-topic lookup
+ * - query client: verify cache clearing on logout
+ * - auth: demo user + logout function
+ */
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
@@ -85,60 +126,82 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: { isDemo: true }, logout: mockLogout }),
 }));
 
-// Silence API_BASE usage in logout form (not executed in our demo logout path).
+// Prevent accidental access to real config in logout code paths.
 vi.mock('@/api/httpClient', () => ({ API_BASE: '/api' }));
+
+/** Test helpers */
+function renderAppShell() {
+  return render(<AppShell />);
+}
+
+function getHeader(): HeaderProps {
+  // Fail fast with a clear error if the header did not render / props not captured.
+  if (!lastHeaderProps) throw new Error('Expected AppHeader to be rendered and capture props.');
+  return lastHeaderProps as HeaderProps;
+}
+
+function getSidebar(): SidebarProps {
+  if (!lastSidebarProps) throw new Error('Expected AppSidebar to be rendered and capture props.');
+  return lastSidebarProps as SidebarProps;
+}
 
 describe('AppShell', () => {
   beforeEach(() => {
+    // Ensure test isolation across rerenders and storage mutations.
     vi.clearAllMocks();
     localStorage.clear();
     lastHeaderProps = undefined;
     lastSidebarProps = undefined;
   });
 
-  it('renders header, sidebar, and main sections', () => {
-    render(<AppShell />);
+  it('renders the composed layout regions (header, sidebar, main)', () => {
+    // Verifies AppShell composes the main layout building blocks.
+    renderAppShell();
 
     expect(screen.getByTestId('app-header')).toBeInTheDocument();
     expect(screen.getByTestId('app-sidebar')).toBeInTheDocument();
     expect(screen.getByTestId('app-main')).toHaveTextContent('main');
   });
 
-  it('passes help topic and state handlers to header and sidebar', () => {
-    render(<AppShell />);
+  it('wires help topic and drawer state handlers into header and sidebar', () => {
+    // Validates the orchestration contract between AppShell and its children.
+    renderAppShell();
 
-    expect(lastHeaderProps?.helpTopic).toBe('test-topic');
-    expect(typeof lastHeaderProps?.onDrawerToggle).toBe('function');
-    expect(lastSidebarProps?.mobileOpen).toBe(false);
+    expect(getHeader().helpTopic).toBe('test-topic');
+    expect(typeof getHeader().onDrawerToggle).toBe('function');
+    expect(getSidebar().mobileOpen).toBe(false);
   });
 
-  it('toggles mobile drawer when header drawer toggle is invoked', () => {
-    render(<AppShell />);
+  it('toggles the mobile drawer when the header menu toggle is invoked', () => {
+    // Simulates the header "hamburger" action and ensures state flows to the sidebar.
+    renderAppShell();
 
     act(() => {
-      (lastHeaderProps?.onDrawerToggle as () => void)();
+      getHeader().onDrawerToggle();
     });
 
-    expect(lastSidebarProps?.mobileOpen).toBe(true);
+    expect(getSidebar().mobileOpen).toBe(true);
   });
 
-  it('handles demo logout by clearing query cache and navigating to success page', () => {
-    render(<AppShell />);
+  it('handles demo logout by clearing query cache and navigating to the success page', () => {
+    // Demo logout path: clear client cache, call logout, and redirect.
+    renderAppShell();
 
     act(() => {
-      (lastHeaderProps?.onLogout as () => void)();
+      getHeader().onLogout();
     });
 
-    expect(mockQueryClient.clear).toHaveBeenCalled();
-    expect(mockLogout).toHaveBeenCalled();
+    expect(mockQueryClient.clear).toHaveBeenCalledTimes(1);
+    expect(mockLogout).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('/logout-success', { replace: true });
   });
 
-  it('changes locale and shows toast message', () => {
-    render(<AppShell />);
+  it('changes locale, persists selection, and shows a confirmation toast', () => {
+    // Locale changes should persist in localStorage and display a user-facing confirmation.
+    renderAppShell();
 
     act(() => {
-      (lastHeaderProps?.onLocaleChange as (l: 'en' | 'de') => void)('en');
+      getHeader().onLocaleChange('en');
     });
 
     expect(fakeI18n.changeLanguage).toHaveBeenCalledWith('en');
@@ -146,11 +209,12 @@ describe('AppShell', () => {
     expect(screen.getByText('Language: English')).toBeInTheDocument();
   });
 
-  it('toggles theme mode and persists preference', () => {
-    render(<AppShell />);
+  it('toggles theme mode and persists the preference', () => {
+    // Theme changes should persist and provide immediate feedback.
+    renderAppShell();
 
     act(() => {
-      (lastHeaderProps?.onThemeModeChange as (m: 'light' | 'dark') => void)('dark');
+      getHeader().onThemeModeChange('dark');
     });
 
     expect(localStorage.getItem('themeMode')).toBe('dark');

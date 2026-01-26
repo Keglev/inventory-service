@@ -113,19 +113,23 @@ export default function AppShell() {
   const theme = React.useMemo(() => buildTheme(locale, themeMode), [locale, themeMode]);
 
   /**
-   * Toggle theme mode between light and dark.
-   * Persists choice to localStorage and shows toast notification.
+   * Apply a specific theme mode.
+   * Persists choice to localStorage and shows toast notification when mode changes.
    */
-  const toggleThemeMode = () => {
+  const handleThemeModeChange = (nextMode: 'light' | 'dark') => {
     setThemeMode((prev) => {
-      const next = prev === 'light' ? 'dark' : 'light';
-      localStorage.setItem(LS_THEME_KEY, next);
+      if (prev === nextMode) {
+        return prev;
+      }
+
+      localStorage.setItem(LS_THEME_KEY, nextMode);
       setToast({
         open: true,
-        msg: next === 'dark' ? 'Dark mode enabled' : 'Light mode enabled',
+        msg: nextMode === 'dark' ? 'Dark mode enabled' : 'Light mode enabled',
         severity: 'info',
       });
-      return next;
+
+      return nextMode;
     });
   };
 
@@ -205,7 +209,7 @@ export default function AppShell() {
         {/* Application Header (fixed) */}
         <AppHeader
           themeMode={themeMode}
-          onThemeModeChange={toggleThemeMode}
+          onThemeModeChange={handleThemeModeChange}
           locale={locale}
           onLocaleChange={handleLocaleChange}
           onLogout={handleLogout}
@@ -228,9 +232,9 @@ export default function AppShell() {
             mobileOpen={mobileOpen}
             onMobileClose={() => setMobileOpen(false)}
             themeMode={themeMode}
-            onThemeModeChange={toggleThemeMode}
+            onThemeModeChange={handleThemeModeChange}
             locale={locale}
-            onLocaleChange={() => handleLocaleChange(locale === 'de' ? 'en' : 'de')}
+            onLocaleChange={handleLocaleChange}
             onLogout={handleLogout}
             onSettingsOpen={() => setSettingsOpen(true)}
             user={user || undefined}

@@ -1,9 +1,16 @@
 /**
  * @file AppMain.test.tsx
+ * @module __tests__/app/layout/AppMain
+ * @description
+ * Tests for the AppMain layout container.
  *
- * @what_is_under_test AppMain component
- * @responsibility Renders main content area with optional demo mode banner and router outlet
- * @out_of_scope Route configuration, page component logic, authentication
+ * Scope:
+ * - Renders the main content area.
+ * - Conditionally renders a demo-mode informational banner.
+ *
+ * Out of scope:
+ * - Route configuration and page logic.
+ * - Authentication/authorization flows.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -11,125 +18,113 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AppMain from '../../../app/layout/AppMain';
 
-// Mock react-i18next
+/**
+ * i18n mock:
+ * AppMain provides a default translation value. Returning that default value keeps
+ * tests stable regardless of translation JSON changes.
+ */
+const mockUseTranslation = vi.hoisted(() => vi.fn());
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (_key: string, defaultValue: string) => defaultValue,
-  }),
+  useTranslation: mockUseTranslation,
 }));
+
+/**
+ * Test render helper:
+ * Wraps AppMain in a router because the component renders an Outlet / routing content.
+ */
+function renderAppMain(isDemo: boolean) {
+  return render(
+    <MemoryRouter>
+      <AppMain isDemo={isDemo} />
+    </MemoryRouter>,
+  );
+}
 
 describe('AppMain', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockUseTranslation.mockReturnValue({
+      // Keep signature aligned with typical i18n usage: (key, defaultValue) => string
+      t: (_key: string, defaultValue: string) => defaultValue,
+    });
   });
 
   describe('Demo mode banner', () => {
-    // Business rule: Demo users must see a non-blocking information banner
-    it('renders demo banner when isDemo is true', () => {
-      render(
-        <MemoryRouter>
-          <AppMain isDemo={true} />
-        </MemoryRouter>
-      );
+    it('renders an informational demo banner when isDemo=true', () => {
+      // Business rule: demo users must see a non-blocking information banner.
+      renderAppMain(true);
+
       expect(screen.getByText(/demo mode/i)).toBeInTheDocument();
     });
 
-    it('does not render demo banner when isDemo is false', () => {
-      render(
-        <MemoryRouter>
-          <AppMain isDemo={false} />
-        </MemoryRouter>
-      );
+    it('does not render the demo banner when isDemo=false', () => {
+      // Ensures demo messaging is not shown for regular users.
+      renderAppMain(false);
+
       expect(screen.queryByText(/demo mode/i)).not.toBeInTheDocument();
     });
 
-    it('renders demo banner as info alert', () => {
-      const { container } = render(
-        <MemoryRouter>
-          <AppMain isDemo={true} />
-        </MemoryRouter>
-      );
-      const alert = container.querySelector('.MuiAlert-standardInfo');
-      expect(alert).toBeInTheDocument();
+    it('renders the demo banner using the MUI "info" alert variant', () => {
+      // Verifies the banner is styled as an informational alert (not warning/error).
+      const { container } = renderAppMain(true);
+
+      // Note: this assertion is intentionally tied to MUI's class naming.
+      // If you later replace MUI Alert or change its variant, update this test accordingly.
+      const infoAlert = container.querySelector('.MuiAlert-standardInfo');
+      expect(infoAlert).toBeInTheDocument();
     });
   });
 
-  describe('Content area rendering', () => {
-    it('renders main content container', () => {
-      const { container } = render(
-        <MemoryRouter>
-          <AppMain isDemo={false} />
-        </MemoryRouter>
-      );
+  describe('Layout structure', () => {
+    it('renders a semantic <main> region as the primary content container', () => {
+      // Ensures the page has a clear, accessible main region.
+      const { container } = renderAppMain(false);
+
       const main = container.querySelector('main');
       expect(main).toBeInTheDocument();
     });
 
-    it('renders router outlet for page content', () => {
-      render(
-        <MemoryRouter>
-          <AppMain isDemo={false} />
-        </MemoryRouter>
-      );
-      // Outlet is rendered (even if empty in test)
-      const { container } = render(
-        <MemoryRouter>
-          <AppMain isDemo={false} />
-        </MemoryRouter>
-      );
-      expect(container).toBeInTheDocument();
+    it('uses a flex container for the main layout', () => {
+      // Verifies base layout expectations for consistent page composition.
+      const { container } = renderAppMain(false);
+
+      const main = container.querySelector('main');
+      expect(main).toHaveStyle({ display: 'flex' });
+    });
+
+    it('enables vertical scrolling for overflowing content', () => {
+      // Ensures the main container supports long pages without breaking layout.
+      const { container } = renderAppMain(false);
+
+      const main = container.querySelector('main');
+      expect(main).toHaveStyle({ overflowY: 'auto' });
     });
   });
 
-  describe('Props variations', () => {
-    it('toggles demo banner visibility based on isDemo prop', () => {
-      const { rerender } = render(
-        <MemoryRouter>
-          <AppMain isDemo={false} />
-        </MemoryRouter>
-      );
+  describe('Prop behavior', () => {
+    it('toggles demo banner visibility when isDemo changes', () => {
+      // Validates rerender behavior and guards against stale state / memoization bugs.
+      const { rerender } = renderAppMain(false);
       expect(screen.queryByText(/demo mode/i)).not.toBeInTheDocument();
 
       rerender(
         <MemoryRouter>
           <AppMain isDemo={true} />
-        </MemoryRouter>
+        </MemoryRouter>,
       );
+
       expect(screen.getByText(/demo mode/i)).toBeInTheDocument();
     });
   });
 
   describe('Translation integration', () => {
-    it('uses auth namespace for demo message', () => {
-      render(
-        <MemoryRouter>
-          <AppMain isDemo={true} />
-        </MemoryRouter>
-      );
-      // Translation mock returns default value
+    it('renders the demo message using the default translation value', () => {
+      // Ensures AppMain is wired to i18n and renders the expected default string.
+      renderAppMain(true);
+
       expect(screen.getByText(/demo mode/i)).toBeInTheDocument();
-    });
-  });
-
-  describe('Layout structure', () => {
-    it('uses flexbox layout for content area', () => {
-      const { container } = render(
-        <MemoryRouter>
-          <AppMain isDemo={false} />
-        </MemoryRouter>
-      );
-      const main = container.querySelector('main');
-      expect(main).toHaveStyle({ display: 'flex' });
-    });
-
-    it('enables vertical scrolling', () => {
-      const { container } = render(
-        <MemoryRouter>
-          <AppMain isDemo={false} />
-        </MemoryRouter>
-      );
-      const main = container.querySelector('main');
-      expect(main).toHaveStyle({ overflowY: 'auto' });
     });
   });
 });

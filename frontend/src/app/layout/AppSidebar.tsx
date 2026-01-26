@@ -46,13 +46,13 @@ interface AppSidebarProps {
   themeMode: 'light' | 'dark';
 
   /** Callback when theme mode changes */
-  onThemeModeChange: () => void;
+  onThemeModeChange: (mode: 'light' | 'dark') => void;
 
   /** Current locale */
   locale: SupportedLocale;
 
   /** Callback when locale changes */
-  onLocaleChange: () => void;
+  onLocaleChange: (locale: SupportedLocale) => void;
 
   /** Callback for logout */
   onLogout: () => void;

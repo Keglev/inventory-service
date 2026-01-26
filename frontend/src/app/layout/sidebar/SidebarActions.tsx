@@ -35,13 +35,13 @@ interface SidebarActionsProps {
   themeMode: 'light' | 'dark';
 
   /** Callback when theme mode changes */
-  onThemeModeChange: () => void;
+  onThemeModeChange: (mode: 'light' | 'dark') => void;
 
   /** Current locale */
   locale: SupportedLocale;
 
   /** Callback when locale changes */
-  onLocaleChange: () => void;
+  onLocaleChange: (locale: SupportedLocale) => void;
 
   /** Callback to open settings dialog */
   onSettingsOpen: () => void;
@@ -80,6 +80,8 @@ export default function SidebarActions({
   helpTopic,
 }: SidebarActionsProps) {
   const { t } = useTranslation(['common']);
+  const nextThemeMode = themeMode === 'light' ? 'dark' : 'light';
+  const nextLocale = locale === 'de' ? 'en' : 'de';
 
   return (
     <>
@@ -97,7 +99,7 @@ export default function SidebarActions({
         <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
           <IconButton
             size="small"
-            onClick={onThemeModeChange}
+            onClick={() => onThemeModeChange(nextThemeMode)}
             sx={{
               color: themeMode === 'light' ? 'warning.main' : 'info.main',
               transition: 'color 0.3s ease',
@@ -113,7 +115,7 @@ export default function SidebarActions({
 
         {/* Language Toggle */}
         <Tooltip title={t('actions.toggleLanguage', 'Toggle language')}>
-          <IconButton size="small" onClick={onLocaleChange}>
+          <IconButton size="small" onClick={() => onLocaleChange(nextLocale)}>
             <img
               src={locale === 'de' ? DE_FLAG : US_FLAG}
               alt={locale === 'de' ? 'Deutsch' : 'English'}

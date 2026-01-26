@@ -1,61 +1,81 @@
 /**
  * @file HeaderDemoBadge.test.tsx
+ * @module __tests__/app/layout/header/HeaderDemoBadge
+ * @description
+ * Tests for HeaderDemoBadge.
  *
- * @what_is_under_test HeaderDemoBadge component
- * @responsibility Displays a prominent DEMO badge in the header when user is on a demo account
- * @out_of_scope Badge click interactions, routing, authentication logic
+ * Scope:
+ * - Renders a DEMO indicator when the user is on a demo account.
+ * - Ensures the badge uses the expected visual variant (MUI Chip styling).
+ *
+ * Out of scope:
+ * - Click interactions (if any)
+ * - Routing/authentication logic
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import HeaderDemoBadge from '../../../app/layout/header/HeaderDemoBadge';
 
-// Mock react-i18next
+/**
+ * i18n mock:
+ * Return default translation values to keep tests independent of translation JSON files.
+ */
+const mockUseTranslation = vi.hoisted(() => vi.fn());
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (_key: string, defaultValue: string) => defaultValue,
-  }),
+  useTranslation: mockUseTranslation,
 }));
 
 describe('HeaderDemoBadge', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseTranslation.mockReturnValue({
+      t: (_key: string, defaultValue: string) => defaultValue,
+    });
   });
 
+  function renderBadge(isDemo: boolean) {
+    return render(<HeaderDemoBadge isDemo={isDemo} />);
+  }
+
   describe('Demo mode active', () => {
-    it('renders DEMO badge when isDemo is true', () => {
-      render(<HeaderDemoBadge isDemo={true} />);
+    it('renders the DEMO badge when isDemo=true', () => {
+      // Primary user-facing contract: demo accounts must be clearly marked.
+      renderBadge(true);
+
       expect(screen.getByText('DEMO')).toBeInTheDocument();
     });
 
-    it('renders as a warning-colored chip', () => {
-      const { container } = render(<HeaderDemoBadge isDemo={true} />);
-      const chip = container.querySelector('.MuiChip-colorWarning');
-      expect(chip).toBeInTheDocument();
-    });
+    it('renders as a warning-colored, outlined MUI Chip', () => {
+      // Visual contract: prominent but non-blocking badge styling.
+      // Note: These assertions intentionally couple to MUI classnames.
+      const { container } = renderBadge(true);
 
-    it('renders with outlined variant', () => {
-      const { container } = render(<HeaderDemoBadge isDemo={true} />);
-      const chip = container.querySelector('.MuiChip-outlined');
-      expect(chip).toBeInTheDocument();
+      expect(container.querySelector('.MuiChip-colorWarning')).toBeInTheDocument();
+      expect(container.querySelector('.MuiChip-outlined')).toBeInTheDocument();
     });
   });
 
   describe('Demo mode inactive', () => {
-    it('renders nothing when isDemo is false', () => {
-      const { container } = render(<HeaderDemoBadge isDemo={false} />);
+    it('renders nothing when isDemo=false', () => {
+      // Ensures the badge does not occupy layout space for non-demo users.
+      const { container } = renderBadge(false);
+
       expect(container.firstChild).toBeNull();
     });
 
-    it('does not render DEMO text when isDemo is false', () => {
-      render(<HeaderDemoBadge isDemo={false} />);
+    it('does not render the DEMO label when isDemo=false', () => {
+      // Defensive assertion for consumer-facing text.
+      renderBadge(false);
+
       expect(screen.queryByText('DEMO')).not.toBeInTheDocument();
     });
   });
 
-  describe('Props variations', () => {
-    it('toggles visibility based on isDemo prop', () => {
-      const { rerender } = render(<HeaderDemoBadge isDemo={false} />);
+  describe('Prop behavior', () => {
+    it('toggles visibility when isDemo changes', () => {
+      // Guards against stale props in memoized components.
+      const { rerender } = renderBadge(false);
       expect(screen.queryByText('DEMO')).not.toBeInTheDocument();
 
       rerender(<HeaderDemoBadge isDemo={true} />);
@@ -64,9 +84,10 @@ describe('HeaderDemoBadge', () => {
   });
 
   describe('Translation integration', () => {
-    it('uses auth:demoBadge translation key', () => {
-      render(<HeaderDemoBadge isDemo={true} />);
-      // Translation mock returns the default value "DEMO"
+    it('renders the default demo badge label from i18n', () => {
+      // Translation mock returns the default value ("DEMO").
+      renderBadge(true);
+
       expect(screen.getByText('DEMO')).toBeInTheDocument();
     });
   });
