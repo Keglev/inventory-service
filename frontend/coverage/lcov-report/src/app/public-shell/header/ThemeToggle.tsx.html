@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>53/53</span>
+                <span class='fraction'>61/61</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">87.5% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>7/8</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>53/53</span>
+                <span class='fraction'>61/61</span>
             </div>
         
             
@@ -116,7 +116,15 @@
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -155,18 +163,26 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
@@ -197,8 +213,10 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 interface ThemeToggleProps {
   /** Current theme mode: 'light' or 'dark' */
   themeMode: 'light' | 'dark';
-  /** Callback when toggle is clicked */
-  onToggle: () =&gt; void;
+  /** Preferred callback when toggle is clicked */
+  onToggle?: () =&gt; void;
+  /** Backwards-compat callback name used by orchestrator components */
+  onThemeToggle?: () =&gt; void;
 }
 &nbsp;
 /**
@@ -207,19 +225,25 @@ interface ThemeToggleProps {
  * @param onToggle - Callback function to toggle theme
  * @returns Theme toggle button with appropriate icon
  */
-const ThemeToggle: React.FC&lt;ThemeToggleProps&gt; = ({ themeMode, onToggle }) =&gt; (
-  &lt;Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}&gt;
-    &lt;IconButton
-      onClick={onToggle}
-      sx={{
-        color: themeMode === 'light' ? 'warning.main' : 'info.main',
-        transition: 'color 0.3s ease',
-      }}
-    &gt;
-      {themeMode === 'light' ? &lt;LightModeIcon /&gt; : &lt;DarkModeIcon /&gt;}
-    &lt;/IconButton&gt;
-  &lt;/Tooltip&gt;
-);
+const ThemeToggle: React.FC&lt;ThemeToggleProps&gt; = ({ themeMode, onToggle, onThemeToggle }) =&gt; {
+  const label = themeMode === 'light' ? 'Dark mode' : 'Light mode';
+  const handleToggle = <span class="branch-0 cbranch-no" title="branch not covered" >onToggle ?? onThemeToggle;</span>
+&nbsp;
+  return (
+    &lt;Tooltip title={label}&gt;
+      &lt;IconButton
+        aria-label={label}
+        onClick={handleToggle}
+        sx={{
+          color: themeMode === 'light' ? 'warning.main' : 'info.main',
+          transition: 'color 0.3s ease',
+        }}
+      &gt;
+        {themeMode === 'light' ? &lt;LightModeIcon /&gt; : &lt;DarkModeIcon /&gt;}
+      &lt;/IconButton&gt;
+    &lt;/Tooltip&gt;
+  );
+};
 &nbsp;
 export default ThemeToggle;
 &nbsp;</pre></td></tr></table></pre>
@@ -229,7 +253,7 @@ export default ThemeToggle;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-26T16:17:09.365Z
+                at 2026-01-27T14:39:35.850Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
