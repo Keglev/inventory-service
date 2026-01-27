@@ -26,8 +26,10 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 interface ThemeToggleProps {
   /** Current theme mode: 'light' or 'dark' */
   themeMode: 'light' | 'dark';
-  /** Callback when toggle is clicked */
-  onToggle: () => void;
+  /** Preferred callback when toggle is clicked */
+  onToggle?: () => void;
+  /** Backwards-compat callback name used by orchestrator components */
+  onThemeToggle?: () => void;
 }
 
 /**
@@ -36,18 +38,24 @@ interface ThemeToggleProps {
  * @param onToggle - Callback function to toggle theme
  * @returns Theme toggle button with appropriate icon
  */
-const ThemeToggle: React.FC<ThemeToggleProps> = ({ themeMode, onToggle }) => (
-  <Tooltip title={themeMode === 'light' ? 'Dark mode' : 'Light mode'}>
-    <IconButton
-      onClick={onToggle}
-      sx={{
-        color: themeMode === 'light' ? 'warning.main' : 'info.main',
-        transition: 'color 0.3s ease',
-      }}
-    >
-      {themeMode === 'light' ? <LightModeIcon /> : <DarkModeIcon />}
-    </IconButton>
-  </Tooltip>
-);
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ themeMode, onToggle, onThemeToggle }) => {
+  const label = themeMode === 'light' ? 'Dark mode' : 'Light mode';
+  const handleToggle = onToggle ?? onThemeToggle;
+
+  return (
+    <Tooltip title={label}>
+      <IconButton
+        aria-label={label}
+        onClick={handleToggle}
+        sx={{
+          color: themeMode === 'light' ? 'warning.main' : 'info.main',
+          transition: 'color 0.3s ease',
+        }}
+      >
+        {themeMode === 'light' ? <LightModeIcon /> : <DarkModeIcon />}
+      </IconButton>
+    </Tooltip>
+  );
+};
 
 export default ThemeToggle;

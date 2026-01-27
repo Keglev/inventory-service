@@ -71,7 +71,7 @@ const PublicShellHeader: React.FC<PublicShellHeaderProps> = ({
       {/* Control buttons container */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
         {/* Theme toggle */}
-        <ThemeToggle themeMode={themeMode} onToggle={onThemeToggle} />
+        <ThemeToggle themeMode={themeMode} onToggle={onThemeToggle} onThemeToggle={onThemeToggle} />
 
         {/* Language toggle */}
         <LanguageToggle locale={locale} onToggle={onLocaleToggle} tooltip={languageTooltip} />

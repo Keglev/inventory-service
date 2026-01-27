@@ -1,9 +1,18 @@
 /**
  * @file AppPublicShell.test.tsx
+ * @module __tests__/app/public-shell/AppPublicShell
+ * @description
+ * Tests for AppPublicShell.
  *
- * @what_is_under_test AppPublicShell component
- * @responsibility Orchestrates theme, locale, and toast management for public shell
- * @out_of_scope Theme application to nested components, actual language switching implementation
+ * Scope:
+ * - Renders the public shell structure (header, content, toast container)
+ * - Orchestrates theme, locale, and toast state via custom hooks
+ * - Wires handler callbacks into the header and toast container props
+ *
+ * Out of scope:
+ * - Actual theme palette generation / ThemeProvider internals
+ * - i18next implementation details and resource loading
+ * - Nested route/page behavior in PublicShellContent
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -11,59 +20,58 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AppPublicShell from '../../../app/public-shell/AppPublicShell';
 
-// Mock i18next
+/* ----------------------------- i18n stub ----------------------------- */
+// Keep translation deterministic; component only needs i18n object presence.
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     i18n: {
       language: 'en',
       changeLanguage: vi.fn(),
     },
-    t: vi.fn((key) => key),
+    t: (key: string) => key,
   }),
 }));
 
-// Mock custom hooks
+/* ------------------------- Hook orchestration ------------------------- */
 const mockToggleThemeMode = vi.hoisted(() => vi.fn());
 const mockToggleLocale = vi.hoisted(() => vi.fn());
 const mockShowToast = vi.hoisted(() => vi.fn());
 const mockHideToast = vi.hoisted(() => vi.fn());
 
+const mockUseThemeMode = vi.hoisted(() => vi.fn());
+const mockUseLocale = vi.hoisted(() => vi.fn());
+const mockUsePublicShellToast = vi.hoisted(() => vi.fn());
+
 vi.mock('../../../app/public-shell/hooks', () => ({
-  useThemeMode: () => ({
-    themeMode: 'light',
-    toggleThemeMode: mockToggleThemeMode(),
-  }),
-  useLocale: () => ({
-    locale: 'en',
-    toggleLocale: mockToggleLocale(),
-  }),
-  usePublicShellToast: () => ({
-    toast: null,
-    showToast: mockShowToast(),
-    hideToast: mockHideToast(),
-    setToast: vi.fn(),
-  }),
+  useThemeMode: () => mockUseThemeMode(),
+  useLocale: () => mockUseLocale(),
+  usePublicShellToast: () => mockUsePublicShellToast(),
 }));
 
-// Mock child components
+/* ----------------------- Child component stubs ------------------------ */
+// Capture props passed into header and toast container for wiring assertions.
+let lastHeaderProps: Record<string, unknown> | undefined;
+let lastToastProps: Record<string, unknown> | undefined;
+
 vi.mock('../../../app/public-shell/header', () => ({
-  PublicShellHeader: vi.fn(() => (
-    <header data-testid="public-shell-header">Header</header>
-  )),
+  PublicShellHeader: (props: Record<string, unknown>) => {
+    lastHeaderProps = props;
+    return <header data-testid="public-shell-header">Header</header>;
+  },
 }));
 
 vi.mock('../../../app/public-shell/PublicShellContent', () => ({
-  default: vi.fn(() => <main data-testid="public-shell-content">Content</main>),
+  default: () => <main data-testid="public-shell-content">Content</main>,
 }));
 
 vi.mock('../../../app/public-shell/PublicShellToastContainer', () => ({
-  default: vi.fn(({ toast }) => (
-    <div data-testid="toast-container">
-      {toast?.message && <span>{toast.message}</span>}
-    </div>
-  )),
+  default: (props: Record<string, unknown>) => {
+    lastToastProps = props;
+    return <div data-testid="toast-container" />;
+  },
 }));
 
+// Theme builder is not under test here; it just needs to return a valid object.
 vi.mock('../../theme', () => ({
   buildTheme: () => ({}),
 }));
@@ -71,124 +79,85 @@ vi.mock('../../theme', () => ({
 describe('AppPublicShell', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
+    lastHeaderProps = undefined;
+    lastToastProps = undefined;
 
-  describe('Component structure', () => {
-    it('renders PublicShellHeader component', () => {
-      render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
-
-      const header = screen.getByTestId('public-shell-header');
-      expect(header).toBeInTheDocument();
+    // Default hook return values for most tests.
+    mockUseThemeMode.mockReturnValue({
+      themeMode: 'light',
+      toggleThemeMode: mockToggleThemeMode,
     });
-
-    it('renders PublicShellContent component', () => {
-      render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
-
-      const content = screen.getByTestId('public-shell-content');
-      expect(content).toBeInTheDocument();
+    mockUseLocale.mockReturnValue({
+      locale: 'en',
+      toggleLocale: mockToggleLocale,
     });
-
-    it('renders PublicShellToastContainer component', () => {
-      render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
-
-      const toast = screen.getByTestId('toast-container');
-      expect(toast).toBeInTheDocument();
+    mockUsePublicShellToast.mockReturnValue({
+      toast: null,
+      showToast: mockShowToast,
+      hideToast: mockHideToast,
+      setToast: vi.fn(),
     });
   });
 
-  describe('Theme management', () => {
-    it('initializes with default theme', () => {
-      render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
+  function renderShell() {
+    return render(
+      <BrowserRouter>
+        <AppPublicShell />
+      </BrowserRouter>,
+    );
+  }
 
-      expect(screen.getByTestId('public-shell-header')).toBeInTheDocument();
-    });
+  it('renders header, content, and toast container', () => {
+    // Smoke test: public shell composes all primary regions.
+    renderShell();
 
-    it('renders with CssBaseline and ThemeProvider', () => {
-      const { container } = render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
-
-      expect(container.firstChild).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('public-shell-header')).toBeInTheDocument();
+    expect(screen.getByTestId('public-shell-content')).toBeInTheDocument();
+    expect(screen.getByTestId('toast-container')).toBeInTheDocument();
   });
 
-  describe('Locale management', () => {
-    it('initializes with default locale', () => {
-      render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
-
-      expect(screen.getByTestId('public-shell-header')).toBeInTheDocument();
+  it('wires theme and locale state into the header', () => {
+    // Orchestration contract: header receives the current theme + locale values.
+    mockUseThemeMode.mockReturnValue({
+      themeMode: 'dark',
+      toggleThemeMode: mockToggleThemeMode,
+    });
+    mockUseLocale.mockReturnValue({
+      locale: 'de',
+      toggleLocale: mockToggleLocale,
     });
 
-    it('renders all shell components', () => {
-      render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
+    renderShell();
 
-      expect(screen.getByTestId('public-shell-header')).toBeInTheDocument();
-      expect(screen.getByTestId('public-shell-content')).toBeInTheDocument();
-      expect(screen.getByTestId('toast-container')).toBeInTheDocument();
+    expect(lastHeaderProps).toMatchObject({
+      themeMode: 'dark',
+      locale: 'de',
     });
+
+    // Handler props are delegated from hook outputs.
+    expect(typeof lastHeaderProps?.onThemeToggle).toBe('function');
+    expect(typeof lastHeaderProps?.onLocaleToggle).toBe('function');
   });
 
-  describe('Toast management', () => {
-    it('renders toast container', () => {
-      render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
-
-      const toast = screen.getByTestId('toast-container');
-      expect(toast).toBeInTheDocument();
+  it('wires toast state into the toast container', () => {
+    // Orchestration contract: toast container receives the current toast object.
+    const toast = { open: true, msg: 'Saved', severity: 'success' };
+    mockUsePublicShellToast.mockReturnValue({
+      toast,
+      showToast: mockShowToast,
+      hideToast: mockHideToast,
+      setToast: vi.fn(),
     });
+
+    renderShell();
+
+    expect(lastToastProps).toMatchObject({ toast });
   });
 
-  describe('Complete shell rendering', () => {
-    it('renders with all required components', () => {
-      render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
+  it('provides the expected MUI layout container', () => {
+    // Layout contract: outer shell uses MUI Box root for consistent spacing/layout.
+    const { container } = renderShell();
 
-      expect(screen.getByTestId('public-shell-header')).toBeInTheDocument();
-      expect(screen.getByTestId('public-shell-content')).toBeInTheDocument();
-      expect(screen.getByTestId('toast-container')).toBeInTheDocument();
-    });
-
-    it('provides proper container structure', () => {
-      const { container } = render(
-        <BrowserRouter>
-          <AppPublicShell />
-        </BrowserRouter>
-      );
-
-      const box = container.querySelector('.MuiBox-root');
-      expect(box).toBeInTheDocument();
-    });
+    expect(container.querySelector('.MuiBox-root')).toBeInTheDocument();
   });
 });

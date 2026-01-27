@@ -1,138 +1,133 @@
 /**
  * @file ThemeToggle.test.tsx
+ * @module __tests__/app/public-shell/header/ThemeToggle
+ * @description
+ * Tests for ThemeToggle.
  *
- * @what_is_under_test ThemeToggle component
- * @responsibility Theme mode toggle button (light/dark) with icon and tooltip
- * @out_of_scope Theme persistence, i18next integration, actual theme application
+ * Scope:
+ * - Indicates the next theme action via accessible label and tooltip ("Dark mode" / "Light mode")
+ * - Delegates interactions to onToggle
+ * - Preserves basic accessibility and expected MUI IconButton styling
+ *
+ * Out of scope:
+ * - Theme persistence (localStorage, settings)
+ * - Theme application (ThemeProvider / palette changes)
+ * - i18n integration
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ThemeToggle from '../../../../app/public-shell/header/ThemeToggle';
 
+type Props = React.ComponentProps<typeof ThemeToggle>;
+type ThemeMode = 'light' | 'dark';
+
 describe('ThemeToggle', () => {
-  describe('Icon display', () => {
-    it('indicates Dark mode when themeMode is light', () => {
-      render(<ThemeToggle themeMode="light" onToggle={() => {}} />);
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-      const button = screen.getByLabelText(/dark mode/i);
-      expect(button).toBeInTheDocument();
+  function renderToggle(themeMode: ThemeMode, onToggle: Props['onToggle'] = vi.fn()) {
+    return render(<ThemeToggle themeMode={themeMode} onToggle={onToggle} />);
+  }
+
+  describe('Accessible label contract', () => {
+    it('indicates "Dark mode" action when themeMode=light', () => {
+      // UX/accessibility contract: label describes the action (switch to dark).
+      renderToggle('light');
+
+      expect(screen.getByLabelText(/dark mode/i)).toBeInTheDocument();
     });
 
-    it('indicates Light mode when themeMode is dark', () => {
-      render(<ThemeToggle themeMode="dark" onToggle={() => {}} />);
+    it('indicates "Light mode" action when themeMode=dark', () => {
+      // UX/accessibility contract: label describes the action (switch to light).
+      renderToggle('dark');
 
-      const button = screen.getByLabelText(/light mode/i);
-      expect(button).toBeInTheDocument();
+      expect(screen.getByLabelText(/light mode/i)).toBeInTheDocument();
     });
 
-    it('updates tooltip text when themeMode prop changes', () => {
-      const { rerender } = render(<ThemeToggle themeMode="light" onToggle={() => {}} />);
+    it('updates the label when themeMode prop changes', () => {
+      // Guards against stale props in memoized components.
+      const { rerender } = renderToggle('light');
 
       expect(screen.getByLabelText(/dark mode/i)).toBeInTheDocument();
 
-      rerender(<ThemeToggle themeMode="dark" onToggle={() => {}} />);
+      rerender(<ThemeToggle themeMode="dark" onToggle={vi.fn()} />);
 
       expect(screen.getByLabelText(/light mode/i)).toBeInTheDocument();
     });
   });
 
-  describe('Tooltip display', () => {
-    it('displays "Dark mode" tooltip when in light mode', async () => {
+  describe('Tooltip behavior', () => {
+    it('shows "Dark mode" tooltip on hover when themeMode=light', async () => {
+      // Tooltip should match the action described by the label.
       const user = userEvent.setup();
-      render(<ThemeToggle themeMode="light" onToggle={() => {}} />);
+      renderToggle('light');
 
-      const button = screen.getByRole('button');
-      await user.hover(button);
+      await user.hover(screen.getByRole('button'));
 
-      const tooltip = await screen.findByText('Dark mode');
-      expect(tooltip).toBeInTheDocument();
+      expect(await screen.findByText('Dark mode')).toBeInTheDocument();
     });
 
-    it('displays "Light mode" tooltip when in dark mode', async () => {
+    it('shows "Light mode" tooltip on hover when themeMode=dark', async () => {
       const user = userEvent.setup();
-      render(<ThemeToggle themeMode="dark" onToggle={() => {}} />);
+      renderToggle('dark');
 
-      const button = screen.getByRole('button');
-      await user.hover(button);
+      await user.hover(screen.getByRole('button'));
 
-      const tooltip = await screen.findByText('Light mode');
-      expect(tooltip).toBeInTheDocument();
+      expect(await screen.findByText('Light mode')).toBeInTheDocument();
     });
   });
 
-  describe('Click behavior', () => {
-    it('calls onToggle when button is clicked', async () => {
+  describe('Interaction wiring', () => {
+    it('calls onToggle when clicked', async () => {
+      // Primary behavior: user click triggers the toggle callback.
       const user = userEvent.setup();
-      const mockOnToggle = vi.fn();
+      const onToggle = vi.fn();
 
-      render(<ThemeToggle themeMode="light" onToggle={mockOnToggle} />);
+      renderToggle('light', onToggle);
+
+      await user.click(screen.getByRole('button'));
+
+      expect(onToggle).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls onToggle for each click (repeatable interaction)', async () => {
+      // Ensures repeated interactions remain responsive.
+      const user = userEvent.setup();
+      const onToggle = vi.fn();
+
+      renderToggle('light', onToggle);
 
       const button = screen.getByRole('button');
       await user.click(button);
+      await user.click(button);
+      await user.click(button);
 
-      expect(mockOnToggle).toHaveBeenCalledTimes(1);
+      expect(onToggle).toHaveBeenCalledTimes(3);
     });
 
-    it('calls onToggle multiple times on multiple clicks', async () => {
+    it('is keyboard accessible (Enter triggers onToggle)', async () => {
+      // Accessibility: keyboard activation should behave like click.
       const user = userEvent.setup();
-      const mockOnToggle = vi.fn();
+      const onToggle = vi.fn();
 
-      render(<ThemeToggle themeMode="light" onToggle={mockOnToggle} />);
-
-      const button = screen.getByRole('button');
-      await user.click(button);
-      await user.click(button);
-      await user.click(button);
-
-      expect(mockOnToggle).toHaveBeenCalledTimes(3);
-    });
-  });
-
-  describe('Icon button styling', () => {
-    it('renders as IconButton component', () => {
-      const { container } = render(<ThemeToggle themeMode="light" onToggle={() => {}} />);
-
-      const button = container.querySelector('.MuiIconButton-root');
-      expect(button).toBeInTheDocument();
-    });
-
-    it('applies color styling based on theme mode', () => {
-      const { container: lightContainer } = render(
-        <ThemeToggle themeMode="light" onToggle={() => {}} />
-      );
-
-      const lightButton = lightContainer.querySelector('button');
-      expect(lightButton?.className).toContain('MuiIconButton-root');
-
-      const { container: darkContainer } = render(
-        <ThemeToggle themeMode="dark" onToggle={() => {}} />
-      );
-
-      const darkButton = darkContainer.querySelector('button');
-      expect(darkButton?.className).toContain('MuiIconButton-root');
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('renders as a button element', () => {
-      render(<ThemeToggle themeMode="light" onToggle={() => {}} />);
-
-      const button = screen.getByRole('button');
-      expect(button).toBeInTheDocument();
-    });
-
-    it('is keyboard accessible', async () => {
-      const user = userEvent.setup();
-      const mockOnToggle = vi.fn();
-
-      render(<ThemeToggle themeMode="light" onToggle={mockOnToggle} />);
+      renderToggle('light', onToggle);
 
       await user.tab();
       await user.keyboard('{Enter}');
 
-      expect(mockOnToggle).toHaveBeenCalled();
+      expect(onToggle).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Styling integration', () => {
+    it('renders as an MUI IconButton (root class present)', () => {
+      // Design contract: ThemeToggle uses IconButton for consistent header styling.
+      const { container } = renderToggle('light');
+
+      expect(container.querySelector('.MuiIconButton-root')).toBeInTheDocument();
     });
   });
 });

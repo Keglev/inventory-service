@@ -20,6 +20,7 @@
  */
 import * as React from 'react';
 import { Snackbar, Alert } from '@mui/material';
+import type { SnackbarCloseReason } from '@mui/material/Snackbar';
 import type { Toast } from './hooks';
 
 interface PublicShellToastContainerProps {
@@ -35,17 +36,36 @@ interface PublicShellToastContainerProps {
  * @param onClose - Close callback
  * @returns Snackbar with Alert notification
  */
-const PublicShellToastContainer: React.FC<PublicShellToastContainerProps> = ({ toast, onClose }) => (
-  <Snackbar
-    open={!!toast?.open}
-    onClose={onClose}
-    autoHideDuration={2500}
-    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-  >
-    <Alert severity={toast?.severity || 'success'} elevation={1} variant="filled">
-      {toast?.msg}
-    </Alert>
-  </Snackbar>
-);
+const PublicShellToastContainer: React.FC<PublicShellToastContainerProps> = ({ toast, onClose }) => {
+  const handleClose = React.useCallback(
+    (_event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+
+      onClose();
+    },
+    [onClose],
+  );
+
+  return (
+    <Snackbar
+      open={!!toast?.open}
+      onClose={handleClose}
+      autoHideDuration={2500}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+    >
+      <Alert
+        severity={toast?.severity || 'success'}
+        elevation={1}
+        variant="filled"
+        onClose={handleClose}
+        closeText="Close notification"
+      >
+        {toast?.msg}
+      </Alert>
+    </Snackbar>
+  );
+};
 
 export default PublicShellToastContainer;

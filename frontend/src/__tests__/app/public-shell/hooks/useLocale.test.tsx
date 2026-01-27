@@ -1,70 +1,109 @@
+/**
+ * @file useLocale.test.ts
+ * @module __tests__/app/public-shell/hooks/useLocale
+ * @description
+ * Tests for the useLocale hook.
+ *
+ * Scope:
+ * - Initializes locale from localStorage or i18n resolved language
+ * - Normalizes locales (e.g., "en-US" -> "en")
+ * - Exposes changeLocale and toggleLocale helpers
+ * - Subscribes/unsubscribes to i18n "languageChanged" events
+ *
+ * Out of scope:
+ * - i18next internal behavior and return types of changeLanguage()
+ * - toast/UI side effects
+ */
+
 import { renderHook, act } from '@testing-library/react';
 import type { i18n } from 'i18next';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useLocale } from '@/app/public-shell/hooks/useLocale';
 
-// Covers locale persistence, normalization, and i18n event wiring.
-type FakeI18n = Pick<i18n, 'resolvedLanguage' | 'changeLanguage' | 'on' | 'off' | 't'> & {
+type Listener = (lng: string) => void;
+
+/**
+ * Minimal i18n surface used by the hook.
+ * We avoid binding to the full i18next types because changeLanguage()
+ * can be typed differently depending on i18next/react-i18next versions.
+ */
+type LocaleI18n = {
+  resolvedLanguage?: string;
+  changeLanguage: (lng?: string) => Promise<unknown>;
+  on: (event: string, cb: Listener) => void;
+  off: (event: string, cb: Listener) => void;
+};
+
+/**
+ * Test double that can emit i18n events.
+ */
+type FakeI18n = LocaleI18n & {
   emit: (event: string, lng: string) => void;
 };
 
-const createFakeI18n = (resolvedLanguage = 'de'): i18n & { emit: (event: string, lng: string) => void } => {
-  const listeners: Record<string, Array<(lng: string) => void>> = { languageChanged: [] };
+function createFakeI18n(resolvedLanguage = 'de'): FakeI18n {
+  const listeners: Record<string, Listener[]> = { languageChanged: [] };
 
   const api: FakeI18n = {
     resolvedLanguage,
-    // Minimal t impl to satisfy typing; returns key unchanged
-    t: vi.fn((key: string) => key) as unknown as FakeI18n['t'],
-    changeLanguage: (vi.fn(async (lng?: string) => {
+
+    changeLanguage: vi.fn(async (lng?: string) => {
       const next = lng ?? 'de';
       api.resolvedLanguage = next;
+
+      // i18n usually emits languageChanged; we simulate that behavior.
       listeners.languageChanged.forEach((fn) => fn(next));
-      return api.t as unknown as ReturnType<NonNullable<i18n['changeLanguage']>>;
-    }) as unknown) as FakeI18n['changeLanguage'],
-    on: (vi.fn((event: string, cb: (lng: string) => void) => {
+
+      // Hook does not consume the resolved return type, so unknown is sufficient.
+      return undefined;
+    }),
+
+    on: vi.fn((event: string, cb: Listener) => {
       listeners[event] = listeners[event] || [];
       listeners[event].push(cb);
-    }) as unknown) as FakeI18n['on'],
-    off: (vi.fn((event: string, cb: (lng: string) => void) => {
+    }),
+
+    off: vi.fn((event: string, cb: Listener) => {
       listeners[event] = (listeners[event] || []).filter((fn) => fn !== cb);
-    }) as unknown) as FakeI18n['off'],
+    }),
+
     emit(event: string, lng: string) {
       (listeners[event] || []).forEach((fn) => fn(lng));
     },
   };
 
-  return api as unknown as i18n & { emit: (event: string, lng: string) => void };
-};
+  return api;
+}
 
 describe('useLocale', () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   it('initializes from localStorage when present', () => {
-    // Ensure stored choice wins over resolved language.
+    // Business rule: persisted user choice wins over i18n resolved language.
     localStorage.setItem('i18nextLng', 'en');
-    const i18n = createFakeI18n('de');
+    const fake = createFakeI18n('de');
 
-    const { result } = renderHook(() => useLocale(i18n));
+    const { result } = renderHook(() => useLocale(fake as unknown as i18n));
 
     expect(result.current.locale).toBe('en');
   });
 
   it('normalizes resolved language when storage is empty', () => {
-    // Should derive "en" from en-US fallback.
-    const i18n = createFakeI18n('en-US');
+    // Example: "en-US" should be normalized to "en" for the app locale.
+    const fake = createFakeI18n('en-US');
 
-    const { result } = renderHook(() => useLocale(i18n));
+    const { result } = renderHook(() => useLocale(fake as unknown as i18n));
 
     expect(result.current.locale).toBe('en');
   });
 
-  it('changeLocale updates state, storage, and i18n', () => {
-    // Verify downstream side effects fire together.
-    const i18n = createFakeI18n('de');
-    const { result } = renderHook(() => useLocale(i18n));
+  it('changeLocale updates state, storage, and calls i18n.changeLanguage', () => {
+    // Contract: changeLocale updates UI state + persistence + underlying i18n engine.
+    const fake = createFakeI18n('de');
+    const { result } = renderHook(() => useLocale(fake as unknown as i18n));
 
     act(() => {
       result.current.changeLocale('en');
@@ -72,13 +111,13 @@ describe('useLocale', () => {
 
     expect(result.current.locale).toBe('en');
     expect(localStorage.getItem('i18nextLng')).toBe('en');
-    expect(i18n.changeLanguage).toHaveBeenCalledWith('en');
+    expect(fake.changeLanguage).toHaveBeenCalledWith('en');
   });
 
-  it('toggleLocale flips and persists', () => {
-    // Toggle should move de -> en and persist the new value.
-    const i18n = createFakeI18n('de');
-    const { result } = renderHook(() => useLocale(i18n));
+  it('toggleLocale flips between supported locales and persists', () => {
+    // Contract: toggleLocale flips de <-> en and persists the resulting value.
+    const fake = createFakeI18n('de');
+    const { result } = renderHook(() => useLocale(fake as unknown as i18n));
 
     act(() => {
       result.current.toggleLocale();
@@ -89,14 +128,27 @@ describe('useLocale', () => {
   });
 
   it('updates when i18n emits languageChanged', () => {
-    // React to external language changes.
-    const i18n = createFakeI18n('de');
-    const { result } = renderHook(() => useLocale(i18n));
+    // Hook must react to external language changes.
+    const fake = createFakeI18n('de');
+    const { result } = renderHook(() => useLocale(fake as unknown as i18n));
 
     act(() => {
-      i18n.emit('languageChanged', 'en');
+      fake.emit('languageChanged', 'en');
     });
 
     expect(result.current.locale).toBe('en');
+  });
+
+  it('subscribes on mount and unsubscribes on unmount', () => {
+    // Resource contract: no listener leaks across hook lifecycles.
+    const fake = createFakeI18n('de');
+
+    const { unmount } = renderHook(() => useLocale(fake as unknown as i18n));
+
+    expect(fake.on).toHaveBeenCalledWith('languageChanged', expect.any(Function));
+
+    unmount();
+
+    expect(fake.off).toHaveBeenCalledWith('languageChanged', expect.any(Function));
   });
 });

@@ -1,152 +1,103 @@
 /**
  * @file PublicShellToastContainer.test.tsx
+ * @module __tests__/app/public-shell/PublicShellToastContainer
+ * @description
+ * Tests for PublicShellToastContainer.
  *
- * @what_is_under_test PublicShellToastContainer component
- * @responsibility Toast notification display with Snackbar and Alert components
- * @out_of_scope Toast event handling, persistence, animation details
+ * Scope:
+ * - Renders a toast message via MUI Snackbar + Alert when toast.open=true
+ * - Displays the correct severity styling for success/info/warning/error
+ * - Delegates close interaction to onClose callback
+ *
+ * Out of scope:
+ * - Snackbar animation timing / auto-hide behavior (MUI internal)
+ * - Precise anchorOrigin positioning (MUI internal)
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PublicShellToastContainer from '../../../app/public-shell/PublicShellToastContainer';
 
+type Severity = 'success' | 'info' | 'warning' | 'error';
+type Toast = { open: boolean; msg: string; severity: Severity };
+
 describe('PublicShellToastContainer', () => {
-  describe('Toast visibility', () => {
-    it('renders Snackbar when toast is open', () => {
-      const toast = { open: true, msg: 'Test message', severity: 'success' as const };
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={() => {}} />
-      );
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-      expect(screen.getByText('Test message')).toBeInTheDocument();
-      const snackbar = container.querySelector('.MuiSnackbar-root');
-      expect(snackbar).toBeInTheDocument();
+  function renderToast(toast: Toast, onClose: () => void = vi.fn()) {
+    return render(<PublicShellToastContainer toast={toast} onClose={onClose} />);
+  }
+
+  it('renders Snackbar/Alert content when toast is open', () => {
+    // Primary contract: open toast must be visible and show its message.
+    const toast: Toast = { open: true, msg: 'Test message', severity: 'success' };
+
+    const { container } = renderToast(toast);
+
+    expect(screen.getByText('Test message')).toBeInTheDocument();
+    expect(container.querySelector('.MuiSnackbar-root')).toBeInTheDocument();
+    expect(container.querySelector('.MuiAlert-root')).toBeInTheDocument();
+  });
+
+  it('updates the displayed message when toast props change', () => {
+    // Regression guard: UI should reflect the latest toast state.
+    const { rerender } = renderToast({ open: true, msg: 'First', severity: 'info' });
+
+    expect(screen.getByText('First')).toBeInTheDocument();
+
+    rerender(
+      <PublicShellToastContainer
+        toast={{ open: true, msg: 'Second', severity: 'warning' }}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Second')).toBeInTheDocument();
+    expect(screen.queryByText('First')).not.toBeInTheDocument();
+  });
+
+  describe('Severity styling', () => {
+    const cases: Array<{ severity: Severity; expectedClassFragment: string }> = [
+      { severity: 'success', expectedClassFragment: 'filledSuccess' },
+      { severity: 'info', expectedClassFragment: 'filledInfo' },
+      { severity: 'warning', expectedClassFragment: 'filledWarning' },
+      { severity: 'error', expectedClassFragment: 'filledError' },
+    ];
+
+    cases.forEach(({ severity, expectedClassFragment }) => {
+      it(`renders "${severity}" severity with corresponding filled styling`, () => {
+        // Visual contract: Alert variant is "filled" and reflects severity in its classes.
+        const { container } = renderToast({ open: true, msg: 'Msg', severity });
+
+        const alert = container.querySelector('.MuiAlert-root');
+        expect(alert).toBeInTheDocument();
+        expect(alert?.className).toContain(expectedClassFragment);
+
+        // Ensure we are using the filled variant (component-level styling contract).
+        expect(container.querySelector('.MuiAlert-filled')).toBeInTheDocument();
+      });
     });
   });
 
-  describe('Toast message display', () => {
-    it('displays toast message text', () => {
-      const toast = { open: true, msg: 'Success notification', severity: 'success' as const };
-      render(<PublicShellToastContainer toast={toast} onClose={() => {}} />);
+  it('calls onClose when the user clicks the close action (when present)', async () => {
+    // Interaction contract: closing the toast delegates to the provided callback.
+    const user = userEvent.setup();
+    const onClose = vi.fn();
 
-      expect(screen.getByText('Success notification')).toBeInTheDocument();
-    });
+    const { container } = renderToast({ open: true, msg: 'Closable', severity: 'success' }, onClose);
 
-    it('displays different messages for different toasts', () => {
-      const { rerender } = render(
-        <PublicShellToastContainer
-          toast={{ open: true, msg: 'First message', severity: 'info' as const }}
-          onClose={() => {}}
-        />
-      );
+    // MUI Alert renders an action button when close handler is wired by the component.
+    const closeButton = container.querySelector('.MuiAlert-action button');
 
-      expect(screen.getByText('First message')).toBeInTheDocument();
+    // If the component renders a close action, it must call onClose.
+    // If it doesn't render one, this test would be flaky; so we assert existence first.
+    expect(closeButton).toBeTruthy();
 
-      rerender(
-        <PublicShellToastContainer
-          toast={{ open: true, msg: 'Second message', severity: 'warning' as const }}
-          onClose={() => {}}
-        />
-      );
+    await user.click(closeButton as Element);
 
-      expect(screen.getByText('Second message')).toBeInTheDocument();
-      expect(screen.queryByText('First message')).not.toBeInTheDocument();
-    });
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
-
-  describe('Alert severity levels', () => {
-    it('renders success severity Alert', () => {
-      const toast = { open: true, msg: 'Success!', severity: 'success' as const };
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={() => {}} />
-      );
-
-      const alert = container.querySelector('.MuiAlert-root');
-      expect(alert?.className).toContain('filledSuccess');
-    });
-
-    it('renders info severity Alert', () => {
-      const toast = { open: true, msg: 'Info', severity: 'info' as const };
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={() => {}} />
-      );
-
-      const alert = container.querySelector('.MuiAlert-root');
-      expect(alert?.className).toContain('filledInfo');
-    });
-
-    it('renders warning severity Alert', () => {
-      const toast = { open: true, msg: 'Warning', severity: 'warning' as const };
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={() => {}} />
-      );
-
-      const alert = container.querySelector('.MuiAlert-root');
-      expect(alert?.className).toContain('filledWarning');
-    });
-
-    it('renders error severity Alert', () => {
-      const toast = { open: true, msg: 'Error', severity: 'error' as const };
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={() => {}} />
-      );
-
-      const alert = container.querySelector('.MuiAlert-root');
-      expect(alert?.className).toContain('filledError');
-    });
-  });
-
-  describe('Close callback', () => {
-    it('calls onClose when toast should close', async () => {
-      const user = userEvent.setup();
-      const mockOnClose = vi.fn();
-      const toast = { open: true, msg: 'Test', severity: 'success' as const };
-
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={mockOnClose} />
-      );
-
-      // Find close button in alert
-      const closeButton = container.querySelector('.MuiAlert-action button');
-      if (closeButton) {
-        await user.click(closeButton);
-        expect(mockOnClose).toHaveBeenCalled();
-      }
-    });
-  });
-
-  describe('Positioning and styling', () => {
-    it('renders Snackbar with bottom-right anchor', () => {
-      const toast = { open: true, msg: 'Test', severity: 'success' as const };
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={() => {}} />
-      );
-
-      const snackbar = container.querySelector('.MuiSnackbar-root');
-      expect(snackbar).toBeInTheDocument();
-    });
-
-    it('renders Alert with filled variant', () => {
-      const toast = { open: true, msg: 'Test', severity: 'success' as const };
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={() => {}} />
-      );
-
-      const alert = container.querySelector('.MuiAlert-filled');
-      expect(alert).toBeInTheDocument();
-    });
-  });
-
-  describe('Auto-hide duration', () => {
-    it('sets auto-hide duration to 2500ms', () => {
-      const toast = { open: true, msg: 'Auto-hide test', severity: 'success' as const };
-      const { container } = render(
-        <PublicShellToastContainer toast={toast} onClose={() => {}} />
-      );
-
-      const snackbar = container.querySelector('.MuiSnackbar-root');
-      expect(snackbar).toBeInTheDocument();
-    });
-  });
-}); 
+});

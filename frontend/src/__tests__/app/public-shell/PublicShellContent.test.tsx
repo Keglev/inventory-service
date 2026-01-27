@@ -1,19 +1,32 @@
 /**
  * @file PublicShellContent.test.tsx
+ * @module __tests__/app/public-shell/PublicShellContent
+ * @description
+ * Tests for PublicShellContent.
  *
- * @what_is_under_test PublicShellContent component
- * @responsibility Main content area with Suspense fallback and outlet for unauthenticated routes
- * @out_of_scope Route rendering, Suspense behavior beyond fallback display, specific page content
+ * Scope:
+ * - Renders semantic <main> container for public routes
+ * - Includes Toolbar spacer for a fixed AppBar
+ * - Provides an Outlet for nested unauthenticated routes
+ * - Wraps route outlet with a Suspense boundary (verified indirectly via outlet rendering)
+ *
+ * Out of scope:
+ * - Route configuration and page rendering logic
+ * - Suspense loading UX details beyond basic presence
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import PublicShellContent from '../../../app/public-shell/PublicShellContent';
 
-// Mock react-router-dom Outlet
+/**
+ * Router stub:
+ * We replace Outlet to keep this test focused on layout composition,
+ * not on route definitions or nested page components.
+ */
 vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
     ...actual,
     Outlet: () => <div data-testid="outlet">Outlet Content</div>,
@@ -21,88 +34,43 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('PublicShellContent', () => {
-  describe('Layout structure', () => {
-    it('renders main content area with flex: 1', () => {
-      const { container } = render(
-        <MemoryRouter>
-          <PublicShellContent />
-        </MemoryRouter>
-      );
-
-      const main = container.querySelector('main');
-      expect(main).toBeInTheDocument();
-      expect(main?.className).toMatch(/MuiBox-root/);
-    });
-
-    it('renders Toolbar for spacing below fixed AppBar', () => {
-      const { container } = render(
-        <MemoryRouter>
-          <PublicShellContent />
-        </MemoryRouter>
-      );
-
-      const toolbar = container.querySelector('.MuiToolbar-root');
-      expect(toolbar).toBeInTheDocument();
-    });
-
-    it('renders outlet for route content', () => {
-      render(
-        <MemoryRouter>
-          <PublicShellContent />
-        </MemoryRouter>
-      );
-
-      expect(screen.getByTestId('outlet')).toBeInTheDocument();
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  describe('Suspense fallback', () => {
-    it('renders Suspense boundary', () => {
-      render(
-        <MemoryRouter>
-          <PublicShellContent />
-        </MemoryRouter>
-      );
+  function renderContent() {
+    return render(
+      <MemoryRouter>
+        <PublicShellContent />
+      </MemoryRouter>,
+    );
+  }
 
-      // Suspense is rendered implicitly, outlet should be visible
-      expect(screen.getByTestId('outlet')).toBeInTheDocument();
-    });
+  it('renders a semantic main region for the page content', () => {
+    // Accessibility/structure contract: primary content lives in <main>.
+    renderContent();
+
+    expect(screen.getByRole('main')).toBeInTheDocument();
   });
 
-  describe('Responsive spacing', () => {
-    it('applies responsive padding (xs: 2, md: 3)', () => {
-      render(
-        <MemoryRouter>
-          <PublicShellContent />
-        </MemoryRouter>
-      );
+  it('renders a Toolbar spacer below a fixed header', () => {
+    // Layout contract: Toolbar provides top spacing equal to the AppBar height.
+    const { container } = renderContent();
 
-      const main = screen.getByRole('main');
-      expect(main?.className).toContain('MuiBox-root');
-    });
-
-    it('enables vertical overflow scrolling', () => {
-      const { container } = render(
-        <MemoryRouter>
-          <PublicShellContent />
-        </MemoryRouter>
-      );
-
-      const main = container.querySelector('main');
-      expect(main).toBeInTheDocument();
-    });
+    expect(container.querySelector('.MuiToolbar-root')).toBeInTheDocument();
   });
 
-  describe('Content rendering', () => {
-    it('renders with proper semantic main element', () => {
-      const { container } = render(
-        <MemoryRouter>
-          <PublicShellContent />
-        </MemoryRouter>
-      );
+  it('renders the router outlet for nested public routes', () => {
+    // Composition contract: content area must provide an Outlet to render route children.
+    renderContent();
 
-      const main = container.querySelector('main');
-      expect(main?.tagName).toBe('MAIN');
-    });
+    expect(screen.getByTestId('outlet')).toBeInTheDocument();
+  });
+
+  it('keeps the outlet visible inside the Suspense boundary in the steady state', () => {
+    // We don’t test Suspense internals; we only ensure it does not block normal rendering.
+    renderContent();
+
+    expect(screen.getByTestId('outlet')).toBeInTheDocument();
   });
 });
