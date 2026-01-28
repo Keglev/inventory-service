@@ -1,75 +1,55 @@
 /**
  * @file NotificationsSettingsSection.test.tsx
+ * @module __tests__/app/settings/sections/NotificationsSettingsSection
+ * @description
+ * Tests for NotificationsSettingsSection.
  *
- * @what_is_under_test NotificationsSettingsSection component
- * @responsibility Display placeholder for future notifications settings
- * @out_of_scope Notification preferences, notification delivery, preferences persistence
+ * Scope:
+ * - Verifies the placeholder section renders (feature stub for future work)
+ * - Ensures user-visible placeholder text is present
+ *
+ * Out of scope:
+ * - Notification preference controls and persistence
+ * - Notification delivery / runtime behavior
+ * - Detailed styling (MUI classnames) beyond basic rendering
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import NotificationsSettingsSection from '../../../../app/settings/sections/NotificationsSettingsSection';
 
-// Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
+    // Deterministic translations for stable assertions.
     t: (key: string, fallback?: string) => fallback || key,
   }),
 }));
 
 describe('NotificationsSettingsSection', () => {
-  describe('Component rendering', () => {
-    it('renders the notifications section', () => {
-      const { container } = render(<NotificationsSettingsSection />);
-
-      const box = container.querySelector('.MuiBox-root');
-      expect(box).toBeInTheDocument();
-    });
-
-    it('renders placeholder text', () => {
-      render(<NotificationsSettingsSection />);
-
-      const text = screen.queryByText(/notification|placeholder|coming/i);
-      expect(text || screen.queryByRole('heading')).toBeInTheDocument();
-    });
-
-    it('renders with proper MUI styling', () => {
-      const { container } = render(<NotificationsSettingsSection />);
-
-      const muiContainer = container.querySelector('[class*="MuiBox"]');
-      expect(muiContainer).toBeInTheDocument();
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  describe('Accessibility', () => {
-    it('is navigable with keyboard', () => {
-      const { container } = render(<NotificationsSettingsSection />);
+  function renderSection() {
+    return render(<NotificationsSettingsSection />);
+  }
 
-      const section = container.querySelector('.MuiBox-root');
-      expect(section).toBeInTheDocument();
-    });
+  it('renders without crashing', () => {
+    // Baseline contract for placeholder sections: safe to mount in settings dialog.
+    renderSection();
 
-    it('has semantic HTML structure', () => {
-      const { container } = render(<NotificationsSettingsSection />);
-
-      const typographyElement = container.querySelector('[class*="MuiTypography"]');
-      expect(typographyElement).toBeInTheDocument();
-    });
+    // We expect at least one visible text node (heading or message).
+    expect(screen.queryByRole('heading') ?? screen.queryByText(/notification/i)).toBeTruthy();
   });
 
-  describe('Component structure', () => {
-    it('renders Typography component', () => {
-      const { container } = render(<NotificationsSettingsSection />);
+  it('displays user-facing placeholder content', () => {
+    // UX contract: section communicates that notifications settings are not yet available.
+    renderSection();
 
-      const typography = container.querySelector('.MuiTypography-root');
-      expect(typography).toBeInTheDocument();
-    });
+    // Match broad placeholder wording without coupling to exact copy.
+    const placeholder =
+      screen.queryByText(/coming|soon|placeholder|notification/i) ?? screen.queryByRole('heading');
 
-    it('renders Box wrapper', () => {
-      const { container } = render(<NotificationsSettingsSection />);
-
-      const box = container.querySelector('.MuiBox-root');
-      expect(box).toBeInTheDocument();
-    });
+    expect(placeholder).toBeInTheDocument();
   });
 });

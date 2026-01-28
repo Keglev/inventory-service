@@ -40,17 +40,18 @@ export const useInventoryColumns = (): GridColDef[] => {
         field: 'code',
         headerName: t('inventory:table.code', 'Code / SKU'),
         width: 140,
-        valueGetter: (_value: unknown, row: InventoryRow) => row.code ?? '—',
+        valueGetter: ({ row }: { row: InventoryRow }) => row.code ?? '—',
       },
       {
         field: 'onHand',
         headerName: t('inventory:table.onHand', 'On-hand'),
         type: 'number',
         width: 140,
-        valueGetter: (
-          _value: unknown,
-          row: InventoryRow & { quantity?: number | null },
-        ) => {
+        valueGetter: ({
+          row,
+        }: {
+          row: InventoryRow & { quantity?: number | null };
+        }) => {
           const fromNormalized =
             typeof row.onHand === 'number' && Number.isFinite(row.onHand)
               ? row.onHand
@@ -61,7 +62,7 @@ export const useInventoryColumns = (): GridColDef[] => {
               : undefined;
           return fromNormalized ?? fromBackend ?? 0;
         },
-        valueFormatter: (value: unknown) => {
+        valueFormatter: ({ value }: { value: unknown }) => {
           const numeric =
             typeof value === 'number' && Number.isFinite(value) ? value : 0;
           return formatNumber(numeric, userPreferences.numberFormat);
@@ -72,10 +73,11 @@ export const useInventoryColumns = (): GridColDef[] => {
         headerName: t('inventory:table.minQty', 'Min. Qty'),
         type: 'number',
         width: 140,
-        valueGetter: (
-          _value: unknown,
-          row: InventoryRow & { minimumQuantity?: number | string | null },
-        ) => {
+        valueGetter: ({
+          row,
+        }: {
+          row: InventoryRow & { minimumQuantity?: number | string | null };
+        }) => {
           const raw = row.minQty ?? row.minimumQuantity ?? 0;
           if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
           if (typeof raw === 'string' && raw.trim() !== '') {
@@ -84,7 +86,7 @@ export const useInventoryColumns = (): GridColDef[] => {
           }
           return 0;
         },
-        valueFormatter: (value: unknown) => {
+        valueFormatter: ({ value }: { value: unknown }) => {
           const numeric =
             typeof value === 'number'
               ? value
@@ -101,22 +103,31 @@ export const useInventoryColumns = (): GridColDef[] => {
         field: 'updatedAt',
         headerName: t('inventory:table.updated', 'Updated'),
         width: 190,
-        valueGetter: (
-          _value: unknown,
+        valueGetter: ({
+          row,
+        }: {
           row: InventoryRow & {
             createdAt?: string | null;
             created_at?: string | null;
-          },
-        ) => {
+          };
+        }) => {
           return row.updatedAt ?? row.createdAt ?? row.created_at ?? null;
         },
-        valueFormatter: (value: unknown) => {
-          if (!value) return '—';
+        valueFormatter: ({ value }: { value: unknown }) => {
+          if (value === null || value === undefined || value === '') {
+            return '—';
+          }
+
           const str = String(value);
+          const date = new Date(str);
+          if (Number.isNaN(date.getTime())) {
+            return '—';
+          }
+
           try {
-            return formatDate(new Date(str), userPreferences.dateFormat);
+            return formatDate(date, userPreferences.dateFormat);
           } catch {
-            return str;
+            return '—';
           }
         },
       },

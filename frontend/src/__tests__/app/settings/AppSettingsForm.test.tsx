@@ -1,46 +1,57 @@
 /**
  * @file AppSettingsForm.test.tsx
- *
- * @what_is_under_test AppSettingsForm component
- * @responsibility Settings form layout orchestrating all settings sections
- * @out_of_scope Individual section behavior, settings persistence
+ * @module __tests__/app/settings/AppSettingsForm
+ * @description
+ * Tests for AppSettingsForm orchestration:
+ * - Composition: all settings sections render
+ * - Wiring: props are forwarded to the correct sections
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import AppSettingsForm from '../../../app/settings/AppSettingsForm';
 
-// Mock settings sections
+// --- Captured props to validate orchestration ---
+let appearanceProps: unknown;
+let languageProps: unknown;
+let systemProps: unknown;
+let notificationsProps: unknown;
+
 vi.mock('../../../app/settings/sections', () => ({
-  AppearanceSettingsSection: vi.fn(() => (
-    <div data-testid="appearance-section">Appearance</div>
-  )),
-  LanguageRegionSettingsSection: vi.fn(() => (
-    <div data-testid="language-section">Language</div>
-  )),
-  SystemPreferencesSection: vi.fn(() => (
-    <div data-testid="system-section">System</div>
-  )),
-  NotificationsSettingsSection: vi.fn(() => (
-    <div data-testid="notifications-section">Notifications</div>
-  )),
+  AppearanceSettingsSection: (props: unknown) => {
+    appearanceProps = props;
+    return <div data-testid="appearance-section">Appearance</div>;
+  },
+  LanguageRegionSettingsSection: (props: unknown) => {
+    languageProps = props;
+    return <div data-testid="language-section">Language</div>;
+  },
+  SystemPreferencesSection: (props: unknown) => {
+    systemProps = props;
+    return <div data-testid="system-section">System</div>;
+  },
+  NotificationsSettingsSection: (props: unknown) => {
+    notificationsProps = props;
+    return <div data-testid="notifications-section">Notifications</div>;
+  },
 }));
 
-// Mock formatters
 vi.mock('../../../utils/formatters', () => ({
-  formatDate: vi.fn((date) => date),
-  formatNumber: vi.fn((num) => num),
+  formatDate: vi.fn((date: unknown) => date),
+  formatNumber: vi.fn((num: unknown) => num),
 }));
 
-// Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback: string) => fallback || key,
+    t: (key: string, fallback?: string) => fallback || key,
   }),
 }));
 
+type AppSettingsFormProps = React.ComponentProps<typeof AppSettingsForm>;
+
 describe('AppSettingsForm', () => {
-  const mockSystemInfo = {
+  const systemInfo: AppSettingsFormProps['systemInfo'] = {
     database: 'Oracle',
     environment: 'production',
     version: '1.0.0',
@@ -48,188 +59,83 @@ describe('AppSettingsForm', () => {
     buildDate: '2025-12-22',
   };
 
-  describe('Form structure', () => {
-    it('renders form with all settings sections', () => {
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
+  const baseProps: AppSettingsFormProps = {
+    dateFormat: 'DD.MM.YYYY',
+    onDateFormatChange: vi.fn(),
+    numberFormat: 'DE',
+    onNumberFormatChange: vi.fn(),
+    tableDensity: 'comfortable',
+    onTableDensityChange: vi.fn(),
+    systemInfo,
+    isLoading: false,
+  };
 
-      expect(screen.getByTestId('appearance-section')).toBeInTheDocument();
-      expect(screen.getByTestId('language-section')).toBeInTheDocument();
-      expect(screen.getByTestId('system-section')).toBeInTheDocument();
-      expect(screen.getByTestId('notifications-section')).toBeInTheDocument();
-    });
-
-    it('renders with Box container', () => {
-      const { container } = render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
-
-      const box = container.querySelector('.MuiBox-root');
-      expect(box).toBeInTheDocument();
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    appearanceProps = undefined;
+    languageProps = undefined;
+    systemProps = undefined;
+    notificationsProps = undefined;
   });
 
-  describe('Section rendering', () => {
-    it('renders appearance settings section', () => {
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
+  function renderForm(overrides: Partial<AppSettingsFormProps> = {}) {
+    const props: AppSettingsFormProps = { ...baseProps, ...overrides };
+    return render(<AppSettingsForm {...props} />);
+  }
 
-      expect(screen.getByTestId('appearance-section')).toBeInTheDocument();
-    });
+  it('renders all settings sections', () => {
+    // Composition contract: form includes all settings sections.
+    renderForm();
 
-    it('renders language and region settings section', () => {
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
-
-      expect(screen.getByTestId('language-section')).toBeInTheDocument();
-    });
-
-    it('renders system preferences section', () => {
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
-
-      expect(screen.getByTestId('system-section')).toBeInTheDocument();
-    });
-
-    it('renders notifications settings section', () => {
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
-
-      expect(screen.getByTestId('notifications-section')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('appearance-section')).toBeInTheDocument();
+    expect(screen.getByTestId('language-section')).toBeInTheDocument();
+    expect(screen.getByTestId('system-section')).toBeInTheDocument();
+    expect(screen.getByTestId('notifications-section')).toBeInTheDocument();
   });
 
-  describe('Props passing', () => {
-    it('passes appearance props to section', () => {
-      const mockChange = vi.fn();
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={mockChange}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
+  it('delegates the correct props to each section', () => {
+    // Wiring contract: callbacks and values are forwarded to the correct child section.
+    const onDateFormatChange: NonNullable<AppSettingsFormProps['onDateFormatChange']> = vi.fn();
+    const onNumberFormatChange: NonNullable<AppSettingsFormProps['onNumberFormatChange']> = vi.fn();
+    const onTableDensityChange: NonNullable<AppSettingsFormProps['onTableDensityChange']> = vi.fn();
 
-      expect(screen.getByTestId('appearance-section')).toBeInTheDocument();
+    renderForm({
+      dateFormat: 'MM/DD/YYYY',
+      onDateFormatChange,
+      numberFormat: 'EN_US',
+      onNumberFormatChange,
+      tableDensity: 'compact',
+      onTableDensityChange,
     });
 
-    it('passes language and region props to section', () => {
-      const mockDateChange = vi.fn();
-      const mockNumberChange = vi.fn();
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={mockDateChange}
-          numberFormat="DE"
-          onNumberFormatChange={mockNumberChange}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
-
-      expect(screen.getByTestId('language-section')).toBeInTheDocument();
+    expect(appearanceProps).toMatchObject({
+      tableDensity: 'compact',
+      onTableDensityChange,
     });
 
-    it('passes system info to system preferences section', () => {
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
-
-      expect(screen.getByTestId('system-section')).toBeInTheDocument();
+    expect(languageProps).toMatchObject({
+      dateFormat: 'MM/DD/YYYY',
+      onDateFormatChange,
+      numberFormat: 'EN_US',
+      onNumberFormatChange,
     });
+
+    expect(systemProps).toMatchObject({
+      systemInfo,
+      isLoading: false,
+    });
+
+    // Currently no props expected, but we assert render + stable wiring point.
+    expect(notificationsProps).toBeDefined();
   });
 
-  describe('Loading state', () => {
-    it('renders form when isLoading is false', () => {
-      render(
-        <AppSettingsForm
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-          tableDensity="comfortable"
-          onTableDensityChange={() => {}}
-          systemInfo={mockSystemInfo}
-          isLoading={false}
-        />
-      );
+  it('forwards loading state to the system preferences section', () => {
+    // UX contract: system section can render a loading state when data is unavailable.
+    renderForm({ isLoading: true, systemInfo: null });
 
-      expect(screen.getByTestId('system-section')).toBeInTheDocument();
+    expect(systemProps).toMatchObject({
+      isLoading: true,
+      systemInfo: null,
     });
   });
 });

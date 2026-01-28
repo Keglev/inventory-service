@@ -1,25 +1,46 @@
 /**
  * @file useInventoryState.test.ts
- * @module pages/inventory/hooks/useInventoryState.test
- * 
- * Unit tests for useInventoryState hook.
- * Tests state initialization, setter functions, and state updates.
+ * @module __tests__/components/hooks/useInventoryState
+ * @description
+ * Enterprise unit tests for `useInventoryState`.
+ *
+ * This hook owns UI state for Inventory page controls:
+ * - filters/search, pagination, sorting
+ * - selected row id
+ * - dialog open/close flags
+ *
+ * These tests validate:
+ * - default state contract (initial UX configuration)
+ * - setters update only the intended slice of state
+ * - state updates can be applied in batches (typical UI interactions)
  */
 
-import { describe, it, expect } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
 import { useInventoryState } from '@/pages/inventory/hooks/useInventoryState';
 
-describe('useInventoryState', () => {
-  it('should initialize with default values', () => {
-    const { result } = renderHook(() => useInventoryState());
+// -----------------------------------------------------------------------------
+// Test helpers
+// -----------------------------------------------------------------------------
 
+function setup() {
+  return renderHook(() => useInventoryState());
+}
+
+describe('useInventoryState', () => {
+  it('initializes with the expected default values', () => {
+    const { result } = setup();
+
+    // Defaults are part of the UX contract (initial view on first load).
     expect(result.current.q).toBe('');
     expect(result.current.supplierId).toBeNull();
     expect(result.current.belowMinOnly).toBe(false);
+
     expect(result.current.paginationModel).toEqual({ page: 0, pageSize: 10 });
     expect(result.current.sortModel).toEqual([{ field: 'name', sort: 'asc' }]);
+
     expect(result.current.selectedId).toBeNull();
+
     expect(result.current.openNew).toBe(false);
     expect(result.current.openEdit).toBe(false);
     expect(result.current.openEditName).toBe(false);
@@ -28,8 +49,8 @@ describe('useInventoryState', () => {
     expect(result.current.openPrice).toBe(false);
   });
 
-  it('should update search query', () => {
-    const { result } = renderHook(() => useInventoryState());
+  it('updates q via setQ', () => {
+    const { result } = setup();
 
     act(() => {
       result.current.setQ('test search');
@@ -38,46 +59,31 @@ describe('useInventoryState', () => {
     expect(result.current.q).toBe('test search');
   });
 
-  it('should update supplierId', () => {
-    const { result } = renderHook(() => useInventoryState());
+  it('updates supplierId via setSupplierId (string | number | null)', () => {
+    const { result } = setup();
 
-    act(() => {
-      result.current.setSupplierId('SUPP123');
-    });
-
+    act(() => result.current.setSupplierId('SUPP123'));
     expect(result.current.supplierId).toBe('SUPP123');
 
-    act(() => {
-      result.current.setSupplierId(456);
-    });
-
+    act(() => result.current.setSupplierId(456));
     expect(result.current.supplierId).toBe(456);
 
-    act(() => {
-      result.current.setSupplierId(null);
-    });
-
+    act(() => result.current.setSupplierId(null));
     expect(result.current.supplierId).toBeNull();
   });
 
-  it('should update belowMinOnly filter', () => {
-    const { result } = renderHook(() => useInventoryState());
+  it('updates belowMinOnly via setBelowMinOnly', () => {
+    const { result } = setup();
 
-    act(() => {
-      result.current.setBelowMinOnly(true);
-    });
-
+    act(() => result.current.setBelowMinOnly(true));
     expect(result.current.belowMinOnly).toBe(true);
 
-    act(() => {
-      result.current.setBelowMinOnly(false);
-    });
-
+    act(() => result.current.setBelowMinOnly(false));
     expect(result.current.belowMinOnly).toBe(false);
   });
 
-  it('should update pagination model', () => {
-    const { result } = renderHook(() => useInventoryState());
+  it('updates paginationModel via setPaginationModel', () => {
+    const { result } = setup();
 
     act(() => {
       result.current.setPaginationModel({ page: 2, pageSize: 25 });
@@ -86,8 +92,8 @@ describe('useInventoryState', () => {
     expect(result.current.paginationModel).toEqual({ page: 2, pageSize: 25 });
   });
 
-  it('should update sort model', () => {
-    const { result } = renderHook(() => useInventoryState());
+  it('updates sortModel via setSortModel', () => {
+    const { result } = setup();
 
     act(() => {
       result.current.setSortModel([{ field: 'onHand', sort: 'desc' }]);
@@ -96,93 +102,62 @@ describe('useInventoryState', () => {
     expect(result.current.sortModel).toEqual([{ field: 'onHand', sort: 'desc' }]);
   });
 
-  it('should update selectedId', () => {
-    const { result } = renderHook(() => useInventoryState());
+  it('updates selectedId via setSelectedId', () => {
+    const { result } = setup();
 
-    act(() => {
-      result.current.setSelectedId('ITEM123');
-    });
-
+    act(() => result.current.setSelectedId('ITEM123'));
     expect(result.current.selectedId).toBe('ITEM123');
 
-    act(() => {
-      result.current.setSelectedId(null);
-    });
-
+    act(() => result.current.setSelectedId(null));
     expect(result.current.selectedId).toBeNull();
   });
 
-  it('should toggle dialog states independently', () => {
-    const { result } = renderHook(() => useInventoryState());
+  it('toggles each dialog flag independently', () => {
+    const { result } = setup();
 
-    // Test openNew
+    type DialogKey =
+      | 'openNew'
+      | 'openEdit'
+      | 'openEditName'
+      | 'openDelete'
+      | 'openAdjust'
+      | 'openPrice';
+
+    const openSetters: Record<DialogKey, (open: boolean) => void> = {
+      openNew: result.current.setOpenNew,
+      openEdit: result.current.setOpenEdit,
+      openEditName: result.current.setOpenEditName,
+      openDelete: result.current.setOpenDelete,
+      openAdjust: result.current.setOpenAdjust,
+      openPrice: result.current.setOpenPrice,
+    };
+
+    const keys: DialogKey[] = Object.keys(openSetters) as DialogKey[];
+
+    // Open one dialog at a time and ensure it doesn't implicitly close others.
     act(() => {
-      result.current.setOpenNew(true);
+      openSetters.openNew(true);
     });
     expect(result.current.openNew).toBe(true);
     expect(result.current.openEdit).toBe(false);
 
-    // Test openEdit
     act(() => {
-      result.current.setOpenEdit(true);
+      openSetters.openEdit(true);
     });
-    expect(result.current.openEdit).toBe(true);
     expect(result.current.openNew).toBe(true);
-
-    // Test openDelete
-    act(() => {
-      result.current.setOpenDelete(true);
-    });
-    expect(result.current.openDelete).toBe(true);
-
-    // Test openAdjust
-    act(() => {
-      result.current.setOpenAdjust(true);
-    });
-    expect(result.current.openAdjust).toBe(true);
-
-    // Test openPrice
-    act(() => {
-      result.current.setOpenPrice(true);
-    });
-    expect(result.current.openPrice).toBe(true);
-
-    // Test openEditName
-    act(() => {
-      result.current.setOpenEditName(true);
-    });
-    expect(result.current.openEditName).toBe(true);
-  });
-
-  it('should close dialogs independently', () => {
-    const { result } = renderHook(() => useInventoryState());
-
-    // Open all dialogs
-    act(() => {
-      result.current.setOpenNew(true);
-      result.current.setOpenEdit(true);
-      result.current.setOpenDelete(true);
-      result.current.setOpenAdjust(true);
-      result.current.setOpenPrice(true);
-      result.current.setOpenEditName(true);
-    });
-
-    // Close each dialog independently
-    act(() => {
-      result.current.setOpenNew(false);
-    });
-    expect(result.current.openNew).toBe(false);
     expect(result.current.openEdit).toBe(true);
 
+    // Close all and confirm all flags are false (no shared coupling).
     act(() => {
-      result.current.setOpenEdit(false);
+      for (const key of keys) openSetters[key](false);
     });
-    expect(result.current.openEdit).toBe(false);
-    expect(result.current.openDelete).toBe(true);
+    for (const key of keys) {
+      expect(result.current[key]).toBe(false);
+    }
   });
 
-  it('should handle multiple state updates in sequence', () => {
-    const { result } = renderHook(() => useInventoryState());
+  it('supports batching multiple state updates (typical UI interaction sequence)', () => {
+    const { result } = setup();
 
     act(() => {
       result.current.setQ('widget');
@@ -191,13 +166,17 @@ describe('useInventoryState', () => {
       result.current.setPaginationModel({ page: 1, pageSize: 20 });
       result.current.setSortModel([{ field: 'minQty', sort: 'desc' }]);
       result.current.setSelectedId('ITEM999');
+      result.current.setOpenNew(true);
     });
 
     expect(result.current.q).toBe('widget');
     expect(result.current.supplierId).toBe('S100');
     expect(result.current.belowMinOnly).toBe(true);
+
     expect(result.current.paginationModel).toEqual({ page: 1, pageSize: 20 });
     expect(result.current.sortModel).toEqual([{ field: 'minQty', sort: 'desc' }]);
+
     expect(result.current.selectedId).toBe('ITEM999');
+    expect(result.current.openNew).toBe(true);
   });
 });

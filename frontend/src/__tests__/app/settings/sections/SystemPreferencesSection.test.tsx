@@ -1,24 +1,38 @@
 /**
  * @file SystemPreferencesSection.test.tsx
+ * @module __tests__/app/settings/sections/SystemPreferencesSection
+ * @description
+ * Tests for SystemPreferencesSection.
  *
- * @what_is_under_test SystemPreferencesSection component
- * @responsibility Display system information and environment details
- * @out_of_scope System info fetching, environment configuration, data persistence
+ * Scope:
+ * - Renders system information values when provided
+ * - Shows a loading indicator while data is being fetched
+ * - Handles null systemInfo gracefully (empty/fallback state)
+ * - Reacts to prop updates (systemInfo and isLoading)
+ *
+ * Out of scope:
+ * - Fetching system info (network/query logic)
+ * - Environment configuration / build pipeline logic
+ * - Persistence of settings
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import SystemPreferencesSection from '../../../../app/settings/sections/SystemPreferencesSection';
 
-// Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
+    // Deterministic translation behavior for tests.
     t: (key: string, fallback?: string) => fallback || key,
   }),
 }));
 
 describe('SystemPreferencesSection', () => {
-  const mockSystemInfo = {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const systemInfo = {
     database: 'Oracle',
     environment: 'production',
     version: '1.0.0',
@@ -26,168 +40,72 @@ describe('SystemPreferencesSection', () => {
     buildDate: '2025-12-22',
   };
 
-  describe('System info display', () => {
-    it('renders system information when provided', () => {
-      render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
+  function renderSection(params?: {
+    info?: typeof systemInfo | null;
+    isLoading?: boolean;
+  }) {
+    const info = params && 'info' in params ? params.info ?? null : systemInfo;
+    const isLoading = params?.isLoading ?? false;
 
-      expect(screen.getByText(/Oracle/)).toBeInTheDocument();
-    });
+    return render(<SystemPreferencesSection systemInfo={info} isLoading={isLoading} />);
+  }
 
-    it('displays database information', () => {
-      render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
+  it('renders system information values when systemInfo is provided', () => {
+    // UI contract: the section exposes environment metadata to the user.
+    renderSection({ info: systemInfo, isLoading: false });
 
-      const dbInfo = screen.queryByText(/oracle/i);
-      expect(dbInfo).toBeInTheDocument();
-    });
+    expect(screen.getByText(/oracle/i)).toBeInTheDocument();
+    expect(screen.getByText(/production/i)).toBeInTheDocument();
+    expect(screen.getByText(/1\.0\.0/i)).toBeInTheDocument();
 
-    it('displays environment information', () => {
-      render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
-
-      const envInfo = screen.queryByText(/production/i);
-      expect(envInfo).toBeInTheDocument();
-    });
-
-    it('displays version information', () => {
-      render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
-
-      expect(screen.getByText(/1\.0\.0/)).toBeInTheDocument();
-    });
-
-    it('displays build date information', () => {
-      render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
-
-      const dateInfo = screen.queryByText(/2025-12-22|buildDate/i);
-      expect(dateInfo || screen.getByText(/oracle/i)).toBeInTheDocument();
-    });
+    // Build date may be displayed as raw value or within a labeled row.
+    expect(screen.getByText(/2025-12-22/i)).toBeInTheDocument();
   });
 
-  describe('Loading state', () => {
-    it('renders loading spinner when isLoading is true', () => {
-      const { container } = render(
-        <SystemPreferencesSection systemInfo={null} isLoading={true} />
-      );
+  it('shows a loading spinner when isLoading is true', () => {
+    // UX contract: while system info is loading, we show an explicit progress indicator.
+    const { container } = renderSection({ info: null, isLoading: true });
 
-      const spinner = container.querySelector('.MuiCircularProgress-root');
-      expect(spinner).toBeInTheDocument();
-    });
-
-    it('renders system info when isLoading is false', () => {
-      render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
-
-      expect(screen.getByText(/oracle/i)).toBeInTheDocument();
-    });
-
-    it('does not show spinner when data is loaded', () => {
-      const { container } = render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
-
-      const spinner = container.querySelector('.MuiCircularProgress-root');
-      expect(spinner).not.toBeInTheDocument();
-    });
+    expect(container.querySelector('.MuiCircularProgress-root')).toBeInTheDocument();
   });
 
-  describe('Null/empty state', () => {
-    it('renders gracefully when systemInfo is null', () => {
-      render(
-        <SystemPreferencesSection systemInfo={null} isLoading={false} />
-      );
+  it('does not show a spinner when isLoading is false', () => {
+    const { container } = renderSection({ info: systemInfo, isLoading: false });
 
-      expect(screen.queryByRole('heading') || document.body).toBeInTheDocument();
-    });
-
-    it('displays fallback message when systemInfo is not available', () => {
-      render(
-        <SystemPreferencesSection systemInfo={null} isLoading={false} />
-      );
-
-      const content = screen.queryByText(/unavailable|loading|error/i);
-      expect(content || screen.queryByRole('heading')).toBeInTheDocument();
-    });
+    expect(container.querySelector('.MuiCircularProgress-root')).not.toBeInTheDocument();
   });
 
-  describe('Component structure', () => {
-    it('renders Box container', () => {
-      const { container } = render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
+  it('renders a safe fallback when systemInfo is null', () => {
+    // Resilience contract: component must not crash without system info.
+    renderSection({ info: null, isLoading: false });
 
-      const box = container.querySelector('.MuiBox-root');
-      expect(box).toBeInTheDocument();
-    });
-
-    it('uses Typography for text display', () => {
-      const { container } = render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
-
-      const typography = container.querySelector('.MuiTypography-root');
-      expect(typography).toBeInTheDocument();
-    });
+    const fallback = screen.getByText(/system information unavailable/i);
+    expect(fallback).toBeInTheDocument();
   });
 
-  describe('Environment badge', () => {
-    it('renders production environment', () => {
-      render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
+  it('updates when systemInfo prop changes', () => {
+    // Controlled rendering contract: UI reflects updated props.
+    const { rerender } = renderSection({ info: systemInfo, isLoading: false });
 
-      const envInfo = screen.queryByText(/production/i);
-      expect(envInfo).toBeInTheDocument();
-    });
+    expect(screen.getByText(/oracle/i)).toBeInTheDocument();
 
-    it('renders different environment', () => {
-      const testInfo = { ...mockSystemInfo, environment: 'development' };
-      render(
-        <SystemPreferencesSection systemInfo={testInfo} isLoading={false} />
-      );
+    const updated = { ...systemInfo, database: 'PostgreSQL', environment: 'development' };
 
-      const envInfo = screen.queryByText(/development/i);
-      expect(envInfo).toBeInTheDocument();
-    });
+    rerender(<SystemPreferencesSection systemInfo={updated} isLoading={false} />);
+
+    expect(screen.getByText(/postgresql/i)).toBeInTheDocument();
+    expect(screen.getByText(/development/i)).toBeInTheDocument();
   });
 
-  describe('Props updates', () => {
-    it('updates display when systemInfo prop changes', () => {
-      const { rerender } = render(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
+  it('toggles loading state from true to false', () => {
+    // Regression guard: spinner disappears and content appears when loading completes.
+    const { container, rerender } = renderSection({ info: null, isLoading: true });
 
-      expect(screen.getByText(/oracle/i)).toBeInTheDocument();
+    expect(container.querySelector('.MuiCircularProgress-root')).toBeInTheDocument();
 
-      const newInfo = { ...mockSystemInfo, database: 'PostgreSQL' };
-      rerender(
-        <SystemPreferencesSection systemInfo={newInfo} isLoading={false} />
-      );
+    rerender(<SystemPreferencesSection systemInfo={systemInfo} isLoading={false} />);
 
-      expect(screen.queryByText(/postgresql/i)).toBeInTheDocument();
-    });
-
-    it('toggles loading state', () => {
-      const { container, rerender } = render(
-        <SystemPreferencesSection systemInfo={null} isLoading={true} />
-      );
-
-      expect(container.querySelector('.MuiCircularProgress-root')).toBeInTheDocument();
-
-      rerender(
-        <SystemPreferencesSection systemInfo={mockSystemInfo} isLoading={false} />
-      );
-
-      expect(container.querySelector('.MuiCircularProgress-root')).not.toBeInTheDocument();
-      expect(screen.getByText(/oracle/i)).toBeInTheDocument();
-    });
+    expect(container.querySelector('.MuiCircularProgress-root')).not.toBeInTheDocument();
+    expect(screen.getByText(/oracle/i)).toBeInTheDocument();
   });
 });

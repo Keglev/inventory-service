@@ -1,3 +1,20 @@
+/**
+ * @file useAppSettingsForm.test.ts
+ * @module __tests__/app/settings/hooks/useAppSettingsForm
+ * @description
+ * Tests for useAppSettingsForm.
+ *
+ * Scope:
+ * - Derives initial form state from SettingsContext.userPreferences
+ * - Delegates user changes to SettingsContext.setUserPreferences with partial updates
+ * - Delegates reset action to SettingsContext.resetToDefaults
+ * - Passes through systemInfo and isLoading from SettingsContext
+ *
+ * Out of scope:
+ * - Validation rules and UI rendering of settings sections
+ * - Persistence implementation of settings (storage/backend)
+ */
+
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, type MockedFunction } from 'vitest';
 import { useAppSettingsForm } from '@/app/settings/hooks/useAppSettingsForm';
@@ -14,10 +31,11 @@ vi.mock('@/hooks/useSettings', () => ({
   useSettings: vi.fn(),
 }));
 
-// Ensures form state and callbacks delegate correctly to settings context.
-
 const mockUseSettings = useSettings as MockedFunction<typeof useSettings>;
 
+/**
+ * Stable defaults used across tests to avoid repeating fixtures.
+ */
 const basePreferences: UserPreferences = {
   dateFormat: 'DD.MM.YYYY',
   numberFormat: 'DE',
@@ -34,9 +52,17 @@ const baseSystemInfo: SystemInfo = {
   status: 'ONLINE',
 };
 
-const setupMock = (overrides: Partial<UserPreferences> = {}, isLoading = false) => {
+/**
+ * Helper: configures SettingsContext values returned from useSettings().
+ * Returning spies allows each test to assert correct delegation.
+ */
+function setupMock(params?: { overrides?: Partial<UserPreferences>; isLoading?: boolean }) {
   const setUserPreferences = vi.fn();
   const resetToDefaults = vi.fn();
+
+  const overrides = params?.overrides ?? {};
+  const isLoading = params?.isLoading ?? false;
+
   mockUseSettings.mockReturnValue({
     userPreferences: { ...basePreferences, ...overrides },
     systemInfo: baseSystemInfo,
@@ -44,15 +70,17 @@ const setupMock = (overrides: Partial<UserPreferences> = {}, isLoading = false) 
     resetToDefaults,
     isLoading,
   });
+
   return { setUserPreferences, resetToDefaults };
-};
+}
 
 describe('useAppSettingsForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('exposes form state derived from user preferences', () => {
+  it('exposes formState derived from userPreferences', () => {
+    // Contract: hook mirrors settings context into a UI-friendly formState object.
     setupMock();
 
     const { result } = renderHook(() => useAppSettingsForm());
@@ -60,7 +88,8 @@ describe('useAppSettingsForm', () => {
     expect(result.current.formState).toStrictEqual(basePreferences);
   });
 
-  it('handles date format changes by delegating to setUserPreferences', () => {
+  it('delegates date format changes via setUserPreferences', () => {
+    // Contract: only the updated field is sent (partial update).
     const { setUserPreferences } = setupMock();
 
     const { result } = renderHook(() => useAppSettingsForm());
@@ -69,10 +98,12 @@ describe('useAppSettingsForm', () => {
       result.current.handleDateFormatChange('MM/DD/YYYY');
     });
 
-    expect(setUserPreferences).toHaveBeenCalledWith({ dateFormat: 'MM/DD/YYYY' as DateFormat });
+    expect(setUserPreferences).toHaveBeenCalledWith({
+      dateFormat: 'MM/DD/YYYY' as DateFormat,
+    });
   });
 
-  it('handles number format changes', () => {
+  it('delegates number format changes via setUserPreferences', () => {
     const { setUserPreferences } = setupMock();
 
     const { result } = renderHook(() => useAppSettingsForm());
@@ -81,10 +112,12 @@ describe('useAppSettingsForm', () => {
       result.current.handleNumberFormatChange('EN_US');
     });
 
-    expect(setUserPreferences).toHaveBeenCalledWith({ numberFormat: 'EN_US' as NumberFormat });
+    expect(setUserPreferences).toHaveBeenCalledWith({
+      numberFormat: 'EN_US' as NumberFormat,
+    });
   });
 
-  it('handles table density changes', () => {
+  it('delegates table density changes via setUserPreferences', () => {
     const { setUserPreferences } = setupMock();
 
     const { result } = renderHook(() => useAppSettingsForm());
@@ -93,10 +126,13 @@ describe('useAppSettingsForm', () => {
       result.current.handleTableDensityChange('compact');
     });
 
-    expect(setUserPreferences).toHaveBeenCalledWith({ tableDensity: 'compact' as TableDensity });
+    expect(setUserPreferences).toHaveBeenCalledWith({
+      tableDensity: 'compact' as TableDensity,
+    });
   });
 
   it('resets preferences to defaults via resetToDefaults', () => {
+    // Contract: reset action is delegated to the context-level reset implementation.
     const { resetToDefaults } = setupMock();
 
     const { result } = renderHook(() => useAppSettingsForm());
@@ -108,8 +144,9 @@ describe('useAppSettingsForm', () => {
     expect(resetToDefaults).toHaveBeenCalledTimes(1);
   });
 
-  it('passes through system info and loading state', () => {
-    setupMock({}, true);
+  it('passes through systemInfo and loading state', () => {
+    // Contract: UI can show read-only system info and loading spinners based on context values.
+    setupMock({ isLoading: true });
 
     const { result } = renderHook(() => useAppSettingsForm());
 

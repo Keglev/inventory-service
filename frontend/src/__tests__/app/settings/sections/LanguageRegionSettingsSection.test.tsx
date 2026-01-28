@@ -1,23 +1,32 @@
 /**
  * @file LanguageRegionSettingsSection.test.tsx
+ * @module __tests__/app/settings/sections/LanguageRegionSettingsSection
+ * @description
+ * Tests for LanguageRegionSettingsSection.
  *
- * @what_is_under_test LanguageRegionSettingsSection component
- * @responsibility Date and number format selectors with preview examples
- * @out_of_scope Format application, actual locale changes, formatter implementation
+ * Scope:
+ * - Renders selectable date and number format options
+ * - Shows preview examples (via formatter utilities)
+ * - Delegates changes to the provided callbacks
+ *
+ * Out of scope:
+ * - Applying these formats globally to the application
+ * - i18n locale switching / persistence
+ * - Real formatter correctness (covered by formatter unit tests)
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LanguageRegionSettingsSection from '../../../../app/settings/sections/LanguageRegionSettingsSection';
+import { formatDate, formatNumber } from '../../../../utils/formatters';
+import type { DateFormat, NumberFormat } from '@/context/settings/SettingsContext.types';
 
-// Mock formatters
 vi.mock('../../../../utils/formatters', () => ({
-  formatDate: vi.fn((_date, format) => `${format}: 22.12.2025`),
-  formatNumber: vi.fn((_num, format) => `${format}: 1.234,56`),
+  formatDate: vi.fn((_date: Date, format: string) => `${format}: 22.12.2025`),
+  formatNumber: vi.fn((_num: number, format: string) => `${format}: 1.234,56`),
 }));
 
-// Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string) => fallback || key,
@@ -25,218 +34,116 @@ vi.mock('react-i18next', () => ({
 }));
 
 describe('LanguageRegionSettingsSection', () => {
-  describe('Date format options', () => {
-    it('renders date format radio group', () => {
-      const { container } = render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
-
-      const radioGroups = container.querySelectorAll('.MuiRadioGroup-root');
-      expect(radioGroups.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it('displays date format options', () => {
-      render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
-
-      const radios = screen.getAllByRole('radio');
-      expect(radios.length).toBeGreaterThanOrEqual(2);
-    });
-
-    it('selects current date format', () => {
-      render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
-
-      const dateRadios = screen.getAllByRole('radio');
-      const selectedRadio = dateRadios.find((radio) =>
-        (radio as HTMLInputElement).checked
-      );
-      expect(selectedRadio).toBeInTheDocument();
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  describe('Number format options', () => {
-    it('renders number format radio group', () => {
-      const { container } = render(
+  function renderSection(params?: {
+    dateFormat?: DateFormat;
+    numberFormat?: NumberFormat;
+    onDateChange?: (v: DateFormat) => void;
+    onNumberChange?: (v: NumberFormat) => void;
+  }) {
+    const dateFormat = params?.dateFormat ?? ('DD.MM.YYYY' as DateFormat);
+    const numberFormat = params?.numberFormat ?? ('DE' as NumberFormat);
+    const onDateFormatChange = params?.onDateChange ?? vi.fn();
+    const onNumberFormatChange = params?.onNumberChange ?? vi.fn();
+
+    return {
+      ...render(
         <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
+          dateFormat={dateFormat}
+          onDateFormatChange={onDateFormatChange}
+          numberFormat={numberFormat}
+          onNumberFormatChange={onNumberFormatChange}
+        />,
+      ),
+      onDateFormatChange,
+      onNumberFormatChange,
+    };
+  }
 
-      const radioGroups = container.querySelectorAll('.MuiRadioGroup-root');
-      expect(radioGroups.length).toBeGreaterThanOrEqual(2);
-    });
+  it('renders radio inputs for date and number formats', () => {
+    // Accessibility contract: user can choose among multiple format options.
+    renderSection();
 
-    it('selects current number format', () => {
-      render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
-
-      const radios = screen.getAllByRole('radio');
-      expect(radios.length).toBeGreaterThanOrEqual(2);
-    });
+    const radios = screen.getAllByRole('radio');
+    expect(radios.length).toBeGreaterThanOrEqual(2);
   });
 
-  describe('Preview examples', () => {
-    it('displays date format preview', () => {
-      render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
-
-      const datePreview = screen.queryAllByText(/22\.12\.2025/i);
-      expect(datePreview.length).toBeGreaterThan(0);
+  it('renders preview examples using formatter utilities', () => {
+    // UI contract: previews are computed via the formatter helpers.
+    renderSection({
+      dateFormat: 'DD.MM.YYYY' as DateFormat,
+      numberFormat: 'DE' as NumberFormat,
     });
 
-    it('displays number format preview', () => {
-      render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
+    expect(formatDate).toHaveBeenCalled();
+    expect(formatNumber).toHaveBeenCalled();
 
-      const numberPreview = screen.queryAllByText(/1\.234|234/i);
-      expect(numberPreview.length).toBeGreaterThan(0);
-    });
+    const datePreviews = screen.getAllByText(/22\.12\.2025/i);
+    expect(datePreviews.length).toBeGreaterThan(0);
+
+    const numberPreviews = screen.getAllByText(/1\.234,56/i);
+    expect(numberPreviews.length).toBeGreaterThan(0);
   });
 
-  describe('Change handling', () => {
-    it('calls onDateFormatChange when date format is selected', async () => {
-      const user = userEvent.setup();
-      const mockDateChange = vi.fn();
+  it('calls onDateFormatChange when a different date format is selected', async () => {
+    const user = userEvent.setup();
+    const onDateChange = vi.fn();
 
-      render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={mockDateChange}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
+    renderSection({ dateFormat: 'DD.MM.YYYY' as DateFormat, onDateChange });
 
-      const radios = screen.getAllByRole('radio');
-      if (radios.length > 1) {
-        await user.click(radios[1]);
-        expect(mockDateChange).toHaveBeenCalled();
-      }
-    });
+    // Click the option preview (mocked as "<FORMAT>: 22.12.2025").
+    const mmPreview = screen.getByText(/MM\/DD\/YYYY: 22\.12\.2025/i);
+    await user.click(mmPreview);
 
-    it('calls onNumberFormatChange when number format is selected', async () => {
-      const user = userEvent.setup();
-      const mockNumberChange = vi.fn();
-
-      render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={mockNumberChange}
-        />
-      );
-
-      const radios = screen.getAllByRole('radio');
-      if (radios.length > 1) {
-        await user.click(radios[radios.length - 1]);
-        expect(mockNumberChange).toHaveBeenCalled();
-      }
-    });
+    expect(onDateChange).toHaveBeenCalledWith('MM/DD/YYYY' as DateFormat);
   });
 
-  describe('Props updates', () => {
-    it('updates date format when prop changes', () => {
-      const { rerender } = render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
+  it('calls onNumberFormatChange when a different number format is selected', async () => {
+    const user = userEvent.setup();
+    const onNumberChange = vi.fn();
 
-      expect(screen.getAllByRole('radio').length).toBeGreaterThan(0);
+    renderSection({ numberFormat: 'DE' as NumberFormat, onNumberChange });
 
-      rerender(
-        <LanguageRegionSettingsSection
-          dateFormat="MM/DD/YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
+    const enPreview = screen.getByText(/EN_US: 1\.234,56/i);
+    await user.click(enPreview);
 
-      expect(screen.getAllByRole('radio').length).toBeGreaterThan(0);
-    });
-
-    it('updates number format when prop changes', () => {
-      const { rerender } = render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
-
-      expect(screen.getAllByRole('radio').length).toBeGreaterThan(0);
-
-      rerender(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="EN_US"
-          onNumberFormatChange={() => {}}
-        />
-      );
-
-      expect(screen.getAllByRole('radio').length).toBeGreaterThan(0);
-    });
+    expect(onNumberChange).toHaveBeenCalledWith('EN_US' as NumberFormat);
   });
 
-  describe('Accessibility', () => {
-    it('renders radio buttons with accessible labels', () => {
-      render(
-        <LanguageRegionSettingsSection
-          dateFormat="DD.MM.YYYY"
-          onDateFormatChange={() => {}}
-          numberFormat="DE"
-          onNumberFormatChange={() => {}}
-        />
-      );
+  it('updates date preview when dateFormat prop changes', () => {
+    const { rerender } = renderSection({ dateFormat: 'DD.MM.YYYY' as DateFormat });
 
-      const radios = screen.getAllByRole('radio');
-      expect(radios.length).toBeGreaterThanOrEqual(2);
-    });
+    expect(screen.getByText(/DD\.MM\.YYYY: 22\.12\.2025/i)).toBeInTheDocument();
+
+    rerender(
+      <LanguageRegionSettingsSection
+        dateFormat={'MM/DD/YYYY' as DateFormat}
+        onDateFormatChange={vi.fn()}
+        numberFormat={'DE' as NumberFormat}
+        onNumberFormatChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/MM\/DD\/YYYY: 22\.12\.2025/i)).toBeInTheDocument();
+  });
+
+  it('updates number preview when numberFormat prop changes', () => {
+    const { rerender } = renderSection({ numberFormat: 'DE' as NumberFormat });
+
+    expect(screen.getByText(/DE: 1\.234,56/i)).toBeInTheDocument();
+
+    rerender(
+      <LanguageRegionSettingsSection
+        dateFormat={'DD.MM.YYYY' as DateFormat}
+        onDateFormatChange={vi.fn()}
+        numberFormat={'EN_US' as NumberFormat}
+        onNumberFormatChange={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/EN_US: 1\.234,56/i)).toBeInTheDocument();
   });
 });

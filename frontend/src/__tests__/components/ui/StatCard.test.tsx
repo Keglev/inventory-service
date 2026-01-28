@@ -1,91 +1,96 @@
 /**
  * @file StatCard.test.tsx
+ * @module __tests__/components/ui/StatCard
  * @description
- * Test suite for StatCard component.
- * Verifies rendering, loading states, value display, and null/undefined handling.
+ * Enterprise test suite for StatCard.
+ *
+ * Contract:
+ * - Always renders the title.
+ * - Renders a numeric value (including 0) or a placeholder ("—") for nullish values.
+ * - When `loading` is true, shows a skeleton and hides the value.
+ * - Uses outlined Card styling and full-height layout for dashboard grid alignment.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
 import StatCard from '@/components/ui/StatCard';
 import type { StatCardProps } from '@/components/ui/StatCard';
 
-describe('StatCard', () => {
-  // Helper function to render StatCard with props
-  const renderStatCard = (props: Partial<StatCardProps> = {}) => {
-    const defaultProps: StatCardProps = {
-      title: 'Test KPI',
-      value: 100,
-      ...props,
-    };
-    return render(<StatCard {...defaultProps} />);
+// -----------------------------------------------------------------------------
+// Test helpers
+// -----------------------------------------------------------------------------
+
+function setup(overrides: Partial<StatCardProps> = {}) {
+  const props: StatCardProps = {
+    title: 'Test KPI',
+    value: 100,
+    ...overrides,
   };
 
-  it('renders card with title', () => {
-    // Verify that the component renders the provided title text
-    renderStatCard({ title: 'Total Items' });
+  return render(<StatCard {...props} />);
+}
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
+
+describe('StatCard', () => {
+  it('renders the provided title', () => {
+    setup({ title: 'Total Items' });
     expect(screen.getByText('Total Items')).toBeInTheDocument();
   });
 
-  it('renders numeric value', () => {
-    // Verify that numeric values are displayed correctly
-    renderStatCard({ value: 42 });
+  it('renders a numeric value (including 0) as-is', () => {
+    const { rerender } = setup({ value: 42 });
     expect(screen.getByTestId('stat-value')).toHaveTextContent('42');
-  });
 
-  it('renders zero as valid value', () => {
-    // Verify that zero is displayed (not treated as falsy/null)
-    renderStatCard({ value: 0 });
+    rerender(<StatCard title="Test KPI" value={0} />);
     expect(screen.getByTestId('stat-value')).toHaveTextContent('0');
   });
 
-  it('renders dash for null value', () => {
-    // Verify that null values show fallback dash character
-    renderStatCard({ value: null });
+  it('renders a placeholder dash for nullish values', () => {
+    const { rerender } = setup({ value: null });
+    expect(screen.getByTestId('stat-value')).toHaveTextContent('—');
+
+    rerender(<StatCard title="Test KPI" value={undefined} />);
     expect(screen.getByTestId('stat-value')).toHaveTextContent('—');
   });
 
-  it('renders dash for undefined value', () => {
-    // Verify that undefined values show fallback dash character
-    renderStatCard({ value: undefined });
-    expect(screen.getByTestId('stat-value')).toHaveTextContent('—');
-  });
+  it('shows a skeleton and hides the value when loading is true', () => {
+    const { container } = setup({ loading: true });
 
-  it('shows skeleton when loading is true', () => {
-    // Verify that Skeleton component renders when loading state is true
-    renderStatCard({ loading: true });
+    // User-facing contract: value is not shown while loading.
     expect(screen.queryByTestId('stat-value')).not.toBeInTheDocument();
-    // Skeleton component renders variant="text"
-    const skeletons = document.querySelectorAll('.MuiSkeleton-root');
-    expect(skeletons.length).toBeGreaterThan(0);
+
+    // MUI Skeleton often lacks stable roles/labels; class presence is a pragmatic check.
+    expect(container.querySelectorAll('.MuiSkeleton-root').length).toBeGreaterThan(0);
   });
 
-  it('shows value when loading is false', () => {
-    // Verify that value displays when loading is explicitly false
-    renderStatCard({ loading: false, value: 123 });
+  it('shows the value when loading is false or undefined', () => {
+    const { container, rerender } = setup({ loading: false, value: 123 });
     expect(screen.getByTestId('stat-value')).toHaveTextContent('123');
-    // Verify no skeleton is present
-    const skeletons = document.querySelectorAll('.MuiSkeleton-root');
-    expect(skeletons.length).toBe(0);
-  });
+    expect(container.querySelectorAll('.MuiSkeleton-root').length).toBe(0);
 
-  it('shows value when loading is undefined', () => {
-    // Verify that value displays when loading prop is not provided (defaults to falsy)
-    renderStatCard({ value: 456 });
+    rerender(<StatCard title="Test KPI" value={456} />); // loading omitted → treated as not loading
     expect(screen.getByTestId('stat-value')).toHaveTextContent('456');
+    expect(container.querySelectorAll('.MuiSkeleton-root').length).toBe(0);
   });
 
-  it('renders outlined card variant', () => {
-    // Verify that MUI Card uses outlined variant (applies MuiPaper-outlined class)
-    renderStatCard();
-    const card = document.querySelector('.MuiCard-root');
+  it('uses outlined Card styling (dashboard visual consistency)', () => {
+    const { container } = setup();
+
+    // This is a style contract for a cohesive KPI grid appearance.
+    const card = container.querySelector('.MuiCard-root');
+    expect(card).toBeTruthy();
     expect(card).toHaveClass('MuiPaper-outlined');
   });
 
-  it('renders with full height', () => {
-    // Verify that card has height: 100% for layout flexibility
-    renderStatCard();
-    const card = document.querySelector('.MuiCardContent-root')?.parentElement;
-    expect(card).toHaveStyle({ height: '100%' });
+  it('renders with full height (layout contract for equal-sized KPI tiles)', () => {
+    const { container } = setup();
+
+    const card = container.querySelector('.MuiCardContent-root')?.parentElement;
+    expect(card).toBeTruthy();
+    expect(card as HTMLElement).toHaveStyle({ height: '100%' });
   });
 });
