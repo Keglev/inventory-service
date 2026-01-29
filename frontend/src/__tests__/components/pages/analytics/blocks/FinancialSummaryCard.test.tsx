@@ -1,18 +1,26 @@
 /**
  * @file FinancialSummaryCard.test.tsx
- * @module __tests__/pages/analytics/FinancialSummaryCard
- * 
- * @summary
- * Tests for FinancialSummaryCard component.
- * Tests supplier requirement, data fetching, KPI rendering, and empty states.
+ * @module __tests__/components/pages/analytics/blocks/FinancialSummaryCard
+ * @description
+ * Enterprise tests for FinancialSummaryCard:
+ * - Supplier requirement gate (no fetch without supplier)
+ * - Query parameters passed to API
+ * - Loading state, KPI/chart rendering, and empty state
+ * - Refetch behavior when supplierId changes
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ReactNode } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { FinancialSummary } from '../../../../../api/analytics/finance';
-import type { ReactNode } from 'react';
-import type { MockedFunction } from 'vitest';
+
+import type { FinancialSummary } from '@/api/analytics/finance';
+import { getFinancialSummary } from '@/api/analytics/finance';
+import FinancialSummaryCard from '@/pages/analytics/blocks/FinancialSummaryCard';
+
+// -----------------------------------------------------------------------------
+// Mocks
+// -----------------------------------------------------------------------------
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -21,11 +29,11 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../api/analytics/finance', () => ({
+vi.mock('@/api/analytics/finance', () => ({
   getFinancialSummary: vi.fn(),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: {
       dateFormat: 'MM/DD/YYYY',
@@ -35,7 +43,9 @@ vi.mock('../../../../../hooks/useSettings', () => ({
 }));
 
 vi.mock('recharts', () => ({
-  ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div data-testid="chart-container">{children}</div>,
+  ResponsiveContainer: ({ children }: { children?: ReactNode }) => (
+    <div data-testid="chart-container">{children}</div>
+  ),
   BarChart: ({ children }: { children?: ReactNode }) => <div data-testid="bar-chart">{children}</div>,
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   XAxis: () => <div data-testid="x-axis" />,
@@ -45,50 +55,69 @@ vi.mock('recharts', () => ({
   Cell: () => <div data-testid="cell" />,
 }));
 
-const { getFinancialSummary } = await import('../../../../../api/analytics/finance');
-const FinancialSummaryCard = (await import('../../../../../pages/analytics/blocks/FinancialSummaryCard')).default;
-const mockedGetFinancialSummary = getFinancialSummary as MockedFunction<typeof getFinancialSummary>;
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+function createClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+}
+
+function setup(
+  client: QueryClient,
+  props: Partial<React.ComponentProps<typeof FinancialSummaryCard>> = {},
+) {
+  return render(
+    <QueryClientProvider client={client}>
+      <FinancialSummaryCard {...props} />
+    </QueryClientProvider>,
+  );
+}
+
+const nonZeroSummary: FinancialSummary = {
+  openingValue: 1000,
+  endingValue: 1200,
+  purchases: 500,
+  cogs: 300,
+  writeOffs: 50,
+  returns: 20,
+};
+
+const zeroSummary: FinancialSummary = {
+  openingValue: 0,
+  endingValue: 0,
+  purchases: 0,
+  cogs: 0,
+  writeOffs: 0,
+  returns: 0,
+};
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
 describe('FinancialSummaryCard', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
     vi.clearAllMocks();
+    queryClient = createClient();
   });
 
-  const renderCard = (props = {}) => {
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <FinancialSummaryCard {...props} />
-      </QueryClientProvider>
-    );
-  };
+  it('renders title and prompts to select a supplier when supplierId is missing', () => {
+    setup(queryClient);
 
-  it('shows select supplier message when no supplier provided', () => {
-    renderCard();
+    expect(screen.getByText('analytics:finance.title')).toBeInTheDocument();
     expect(screen.getByText('analytics:frequency.selectSupplier')).toBeInTheDocument();
-  });
-
-  it('does not fetch data when no supplier provided', () => {
-    renderCard();
     expect(getFinancialSummary).not.toHaveBeenCalled();
   });
 
-  it('fetches data when supplier is provided', async () => {
-    const mockData: FinancialSummary = {
-      openingValue: 1000,
-      endingValue: 1200,
-      purchases: 500,
-      cogs: 300,
-      writeOffs: 50,
-      returns: 20,
-    };
-    mockedGetFinancialSummary.mockResolvedValue(mockData);
+  it('fetches data when supplier is provided (passes query params)', async () => {
+    vi.mocked(getFinancialSummary).mockResolvedValue(nonZeroSummary);
 
-    renderCard({ supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
+    setup(queryClient, { supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
 
     await waitFor(() => {
       expect(getFinancialSummary).toHaveBeenCalledWith({
@@ -99,97 +128,50 @@ describe('FinancialSummaryCard', () => {
     });
   });
 
-  it('renders loading skeleton when fetching data', () => {
-    mockedGetFinancialSummary.mockReturnValue(new Promise(() => {}));
-    renderCard({ supplierId: 'sup-123' });
-    const skeleton = document.querySelector('.MuiSkeleton-root');
-    expect(skeleton).toBeInTheDocument();
+  it('renders loading skeleton while fetching data', () => {
+    vi.mocked(getFinancialSummary).mockReturnValue(new Promise(() => {}) as Promise<FinancialSummary>);
+
+    const { container } = setup(queryClient, { supplierId: 'sup-123' });
+
+    expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
   });
 
-  it('renders KPIs when data is available', async () => {
-    const mockData: FinancialSummary = {
-      openingValue: 1000,
-      endingValue: 1200,
-      purchases: 500,
-      cogs: 300,
-      writeOffs: 50,
-      returns: 20,
-    };
-    mockedGetFinancialSummary.mockResolvedValue(mockData);
+  it('renders KPIs and chart when data is available', async () => {
+    vi.mocked(getFinancialSummary).mockResolvedValue(nonZeroSummary);
 
-    renderCard({ supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
+    setup(queryClient, { supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
 
     await waitFor(() => {
+      // We keep these assertions intentionally broad (text contract may vary by i18n/layout).
       expect(screen.getByText(/opening/i)).toBeInTheDocument();
       expect(screen.getByText(/ending/i)).toBeInTheDocument();
-    });
-  });
-
-  it('renders bar chart when data is available', async () => {
-    const mockData: FinancialSummary = {
-      openingValue: 1000,
-      endingValue: 1200,
-      purchases: 500,
-      cogs: 300,
-      writeOffs: 50,
-      returns: 20,
-    };
-    mockedGetFinancialSummary.mockResolvedValue(mockData);
-
-    renderCard({ supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
-
-    await waitFor(() => {
       expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
     });
   });
 
   it('shows empty state when all financial values are zero', async () => {
-    const mockData: FinancialSummary = {
-      openingValue: 0,
-      endingValue: 0,
-      purchases: 0,
-      cogs: 0,
-      writeOffs: 0,
-      returns: 0,
-    };
-    mockedGetFinancialSummary.mockResolvedValue(mockData);
+    vi.mocked(getFinancialSummary).mockResolvedValue(zeroSummary);
 
-    renderCard({ supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
+    setup(queryClient, { supplierId: 'sup-123', from: '2025-01-01', to: '2025-12-31' });
 
     await waitFor(() => {
       expect(screen.getByText('analytics:finance.empty')).toBeInTheDocument();
     });
   });
 
-  it('renders title', () => {
-    renderCard();
-    expect(screen.getByText('analytics:finance.title')).toBeInTheDocument();
-  });
-
   it('refetches when supplierId changes', async () => {
-    vi.mocked(getFinancialSummary).mockResolvedValue({
-      openingValue: 1000,
-      endingValue: 1200,
-      purchases: 500,
-      cogs: 300,
-      writeOffs: 50,
-      returns: 20,
-    });
+    vi.mocked(getFinancialSummary).mockResolvedValue(nonZeroSummary);
 
-    const { rerender } = renderCard({ supplierId: 'sup-1', from: '2025-01-01', to: '2025-12-31' });
+    const view = setup(queryClient, { supplierId: 'sup-1', from: '2025-01-01', to: '2025-12-31' });
 
-    await waitFor(() => {
-      expect(getFinancialSummary).toHaveBeenCalledTimes(1);
-    });
+    await waitFor(() => expect(getFinancialSummary).toHaveBeenCalledTimes(1));
 
-    rerender(
+    view.rerender(
       <QueryClientProvider client={queryClient}>
         <FinancialSummaryCard supplierId="sup-2" from="2025-01-01" to="2025-12-31" />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
-    await waitFor(() => {
-      expect(getFinancialSummary).toHaveBeenCalledTimes(2);
-    });
+    await waitFor(() => expect(getFinancialSummary).toHaveBeenCalledTimes(2));
   });
 });

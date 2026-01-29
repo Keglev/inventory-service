@@ -1,167 +1,112 @@
 /**
  * @file SupplierFilter.test.tsx
- * @module __tests__/pages/analytics/SupplierFilter
- * 
- * @summary
- * Tests for SupplierFilter component.
- * Tests supplier dropdown rendering and selection.
+ * @module __tests__/components/pages/analytics/components/filters/SupplierFilter
+ * @description
+ * Enterprise tests for SupplierFilter:
+ * - Renders supplier dropdown and options (including "All suppliers")
+ * - Reflects current selection via `value.supplierId`
+ * - Emits `onChange` with updated supplierId (or undefined for "All suppliers")
+ * - Honors disabled state
+ * - Handles empty supplier lists safely
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { SupplierRef } from '../../../../api/analytics/types';
-import type { AnalyticsFilters } from '../../../../pages/analytics/components/filters/Filters.types';
 
-const { SupplierFilter } = await import('../../../../pages/analytics/components/filters/SupplierFilter');
+import type { SupplierRef } from '@/api/analytics/types';
+import type { AnalyticsFilters } from '@/pages/analytics/components/filters/Filters.types';
+import { SupplierFilter } from '@/pages/analytics/components/filters/SupplierFilter';
+
+// -----------------------------------------------------------------------------
+// Test data
+// -----------------------------------------------------------------------------
+
+const suppliers: SupplierRef[] = [
+  { id: 'sup-1', name: 'Supplier A' },
+  { id: 'sup-2', name: 'Supplier B' },
+  { id: 'sup-3', name: 'Supplier C' },
+];
+
+const baseValue: AnalyticsFilters = {
+  from: '2025-01-01',
+  to: '2025-12-31',
+  supplierId: undefined,
+  quick: '180',
+};
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
 describe('SupplierFilter', () => {
-  const mockOnChange = vi.fn();
-
-  const mockSuppliers: SupplierRef[] = [
-    { id: 'sup-1', name: 'Supplier A' },
-    { id: 'sup-2', name: 'Supplier B' },
-    { id: 'sup-3', name: 'Supplier C' },
-  ];
-
-  const mockValue: AnalyticsFilters = {
-    from: '2025-01-01',
-    to: '2025-12-31',
-    supplierId: undefined,
-    quick: '180',
-  };
+  const onChange = vi.fn();
 
   beforeEach(() => {
-    mockOnChange.mockClear();
+    vi.clearAllMocks();
   });
 
-  it('renders supplier dropdown', () => {
-    render(
-      <SupplierFilter
-        value={mockValue}
-        suppliers={mockSuppliers}
-        onChange={mockOnChange}
-      />
-    );
-    const select = screen.getByRole('combobox');
-    expect(select).toBeInTheDocument();
+  it('renders a supplier dropdown', () => {
+    render(<SupplierFilter value={baseValue} suppliers={suppliers} onChange={onChange} />);
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
   });
 
-  it('renders all supplier options', () => {
-    render(
-      <SupplierFilter
-        value={mockValue}
-        suppliers={mockSuppliers}
-        onChange={mockOnChange}
-      />
-    );
+  it('renders "All suppliers" plus all supplier options', () => {
+    render(<SupplierFilter value={baseValue} suppliers={suppliers} onChange={onChange} />);
+
+    // Native select exposes options directly.
     const options = screen.getAllByRole('option');
-    // +1 for "All Suppliers" option
-    expect(options).toHaveLength(mockSuppliers.length + 1);
-  });
+    expect(options).toHaveLength(suppliers.length + 1);
 
-  it('renders "All Suppliers" as default option', () => {
-    render(
-      <SupplierFilter
-        value={mockValue}
-        suppliers={mockSuppliers}
-        onChange={mockOnChange}
-      />
-    );
-    const allOption = screen.getByRole('option', { name: /all suppliers/i });
-    expect(allOption).toBeInTheDocument();
-  });
-
-  it('displays selected supplier correctly', () => {
-    const valueWithSupplier = { ...mockValue, supplierId: 'sup-2' };
-    render(
-      <SupplierFilter
-        value={valueWithSupplier}
-        suppliers={mockSuppliers}
-        onChange={mockOnChange}
-      />
-    );
-    const select = screen.getByRole('combobox') as HTMLSelectElement;
-    expect(select.value).toBe('sup-2');
-  });
-
-  it('calls onChange when supplier is selected', async () => {
-    const user = userEvent.setup();
-    render(
-      <SupplierFilter
-        value={mockValue}
-        suppliers={mockSuppliers}
-        onChange={mockOnChange}
-      />
-    );
-    
-    const select = screen.getByRole('combobox');
-    await user.selectOptions(select, 'sup-1');
-    
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        supplierId: 'sup-1',
-      })
-    );
-  });
-
-  it('calls onChange with undefined when "All Suppliers" is selected', async () => {
-    const user = userEvent.setup();
-    const valueWithSupplier = { ...mockValue, supplierId: 'sup-1' };
-    render(
-      <SupplierFilter
-        value={valueWithSupplier}
-        suppliers={mockSuppliers}
-        onChange={mockOnChange}
-      />
-    );
-    
-    const select = screen.getByRole('combobox');
-    await user.selectOptions(select, '');
-    
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        supplierId: undefined,
-      })
-    );
-  });
-
-  it('disables dropdown when disabled prop is true', () => {
-    render(
-      <SupplierFilter
-        value={mockValue}
-        suppliers={mockSuppliers}
-        onChange={mockOnChange}
-        disabled={true}
-      />
-    );
-    const select = screen.getByRole('combobox');
-    expect(select).toBeDisabled();
-  });
-
-  it('renders empty suppliers list gracefully', () => {
-    render(
-      <SupplierFilter
-        value={mockValue}
-        suppliers={[]}
-        onChange={mockOnChange}
-      />
-    );
-    const options = screen.getAllByRole('option');
-    // Only "All Suppliers" option
-    expect(options).toHaveLength(1);
-  });
-
-  it('displays supplier names correctly', () => {
-    render(
-      <SupplierFilter
-        value={mockValue}
-        suppliers={mockSuppliers}
-        onChange={mockOnChange}
-      />
-    );
+    expect(screen.getByRole('option', { name: /all suppliers/i })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Supplier A' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Supplier B' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Supplier C' })).toBeInTheDocument();
+  });
+
+  it('reflects the selected supplier from props', () => {
+    render(
+      <SupplierFilter
+        value={{ ...baseValue, supplierId: 'sup-2' }}
+        suppliers={suppliers}
+        onChange={onChange}
+      />,
+    );
+
+    expect(screen.getByRole('combobox')).toHaveValue('sup-2');
+  });
+
+  it('emits onChange with the selected supplierId', async () => {
+    const user = userEvent.setup();
+    render(<SupplierFilter value={baseValue} suppliers={suppliers} onChange={onChange} />);
+
+    await user.selectOptions(screen.getByRole('combobox'), 'sup-1');
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ supplierId: 'sup-1' }));
+  });
+
+  it('emits onChange with supplierId=undefined when "All suppliers" is selected', async () => {
+    const user = userEvent.setup();
+    render(
+      <SupplierFilter
+        value={{ ...baseValue, supplierId: 'sup-1' }}
+        suppliers={suppliers}
+        onChange={onChange}
+      />,
+    );
+
+    // Conventional "all" option uses empty string.
+    await user.selectOptions(screen.getByRole('combobox'), '');
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ supplierId: undefined }));
+  });
+
+  it('disables the dropdown when disabled', () => {
+    render(<SupplierFilter value={baseValue} suppliers={suppliers} onChange={onChange} disabled />);
+    expect(screen.getByRole('combobox')).toBeDisabled();
+  });
+
+  it('handles an empty suppliers list', () => {
+    render(<SupplierFilter value={baseValue} suppliers={[]} onChange={onChange} />);
+    expect(screen.getAllByRole('option')).toHaveLength(1);
+    expect(screen.getByRole('option', { name: /all suppliers/i })).toBeInTheDocument();
   });
 });

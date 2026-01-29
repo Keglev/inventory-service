@@ -1,14 +1,24 @@
 /**
  * @file StockPerSupplier.test.tsx
- * @module __tests__/pages/analytics/StockPerSupplier
+ * @module __tests__/components/pages/analytics/blocks/StockPerSupplier
+ * @description
+ * Enterprise tests for StockPerSupplier:
+ * - Empty state when API returns no rows
+ * - Chart renders when supplier rows exist
  */
 
 import type { ReactNode } from 'react';
-import type { MockedFunction } from 'vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { StockPerSupplierPoint } from '../../../../../api/analytics';
+
+import type { StockPerSupplierPoint } from '@/api/analytics';
+import { getStockPerSupplier } from '@/api/analytics';
+import StockPerSupplier from '@/pages/analytics/blocks/StockPerSupplier';
+
+// -----------------------------------------------------------------------------
+// Mocks
+// -----------------------------------------------------------------------------
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -16,7 +26,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: {
       numberFormat: 'en-US',
@@ -41,7 +51,9 @@ vi.mock('recharts', () => ({
     <div data-testid="responsive-container">{children}</div>
   ),
   BarChart: ({ children, data }: { children?: ReactNode; data: unknown[] }) => (
-    <div data-testid="bar-chart" data-length={Array.isArray(data) ? data.length : 0}>{children}</div>
+    <div data-testid="bar-chart" data-length={Array.isArray(data) ? data.length : 0}>
+      {children}
+    </div>
   ),
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   XAxis: () => <div data-testid="x-axis" />,
@@ -50,36 +62,44 @@ vi.mock('recharts', () => ({
   Bar: () => <div data-testid="bar" />,
 }));
 
-vi.mock('../../../../../api/analytics', () => ({
+vi.mock('@/api/analytics', () => ({
   getStockPerSupplier: vi.fn(),
 }));
 
-const { getStockPerSupplier } = await import('../../../../../api/analytics');
-const StockPerSupplier = (await import('../../../../../pages/analytics/blocks/StockPerSupplier')).default;
-const mockedGetStockPerSupplier = getStockPerSupplier as MockedFunction<typeof getStockPerSupplier>;
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+function createClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+}
+
+function setup(client: QueryClient) {
+  return render(
+    <QueryClientProvider client={client}>
+      <StockPerSupplier />
+    </QueryClientProvider>,
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
 describe('StockPerSupplier', () => {
   let queryClient: QueryClient;
 
-  const renderCard = () => {
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <StockPerSupplier />
-      </QueryClientProvider>
-    );
-  };
-
   beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
     vi.clearAllMocks();
+    queryClient = createClient();
   });
 
-  it('shows empty state when no data returned', async () => {
-    mockedGetStockPerSupplier.mockResolvedValue([]);
+  it('shows empty state when no data is returned', async () => {
+    vi.mocked(getStockPerSupplier).mockResolvedValue([]);
 
-    renderCard();
+    setup(queryClient);
 
     await waitFor(() => {
       expect(screen.getByText('analytics:stockPerSupplier.empty')).toBeInTheDocument();
@@ -91,12 +111,13 @@ describe('StockPerSupplier', () => {
       { supplierName: 'Alpha Supplies', totalQuantity: 120 },
       { supplierName: 'Beta Traders', totalQuantity: 80 },
     ];
-    mockedGetStockPerSupplier.mockResolvedValue(mockData);
 
-    renderCard();
+    vi.mocked(getStockPerSupplier).mockResolvedValue(mockData);
+
+    setup(queryClient);
 
     await waitFor(() => {
-      expect(mockedGetStockPerSupplier).toHaveBeenCalled();
+      expect(getStockPerSupplier).toHaveBeenCalled();
     });
 
     await waitFor(() => {

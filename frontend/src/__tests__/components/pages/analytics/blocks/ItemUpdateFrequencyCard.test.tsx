@@ -1,17 +1,26 @@
 /**
  * @file ItemUpdateFrequencyCard.test.tsx
- * @module __tests__/pages/analytics/ItemUpdateFrequencyCard
- *
- * @summary
- * Tests ItemUpdateFrequencyCard states for missing supplier, loading, and populated data.
+ * @module __tests__/components/pages/analytics/blocks/ItemUpdateFrequencyCard
+ * @description
+ * Enterprise tests for ItemUpdateFrequencyCard:
+ * - Supplier requirement gate (no fetch without supplier)
+ * - Loading state
+ * - Chart rendering when data resolves
+ * - Verifies supplierId is passed to the API
  */
 
 import type { ReactNode } from 'react';
-import type { MockedFunction } from 'vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import type { ItemUpdateFrequencyPoint } from '../../../../../api/analytics/frequency';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import type { ItemUpdateFrequencyPoint } from '@/api/analytics/frequency';
+import { getItemUpdateFrequency } from '@/api/analytics/frequency';
+import ItemUpdateFrequencyCard from '@/pages/analytics/blocks/ItemUpdateFrequencyCard';
+
+// -----------------------------------------------------------------------------
+// Mocks
+// -----------------------------------------------------------------------------
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -19,7 +28,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: {
       numberFormat: 'en-US',
@@ -44,45 +53,55 @@ vi.mock('recharts', () => ({
   Cell: ({ fill }: { fill?: string }) => <div data-testid="bar-cell" data-fill={fill} />,
 }));
 
-vi.mock('../../../../../api/analytics/frequency', () => ({
+vi.mock('@/api/analytics/frequency', () => ({
   getItemUpdateFrequency: vi.fn(),
 }));
 
-const { getItemUpdateFrequency } = await import('../../../../../api/analytics/frequency');
-const ItemUpdateFrequencyCard = (
-  await import('../../../../../pages/analytics/blocks/ItemUpdateFrequencyCard')
-).default;
-const mockedGetItemUpdateFrequency = getItemUpdateFrequency as MockedFunction<typeof getItemUpdateFrequency>;
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+function createClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+}
+
+function setup(client: QueryClient, supplierId?: string | null) {
+  return render(
+    <QueryClientProvider client={client}>
+      <ItemUpdateFrequencyCard supplierId={supplierId} />
+    </QueryClientProvider>,
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
 describe('ItemUpdateFrequencyCard', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
     vi.clearAllMocks();
+    queryClient = createClient();
   });
 
-  const renderCard = (supplierId?: string | null) => {
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <ItemUpdateFrequencyCard supplierId={supplierId} />
-      </QueryClientProvider>
-    );
-  };
+  it('renders empty state when supplier is not selected and does not fetch', () => {
+    setup(queryClient, null);
 
-  it('renders empty state when supplier is not selected', () => {
-    renderCard(null);
     expect(screen.getByText('Select a supplier to view')).toBeInTheDocument();
     expect(getItemUpdateFrequency).not.toHaveBeenCalled();
   });
 
   it('shows loading skeleton while fetching', () => {
-    mockedGetItemUpdateFrequency.mockReturnValue(new Promise(() => {}));
-    renderCard('sup-123');
-    const skeleton = document.querySelector('.MuiSkeleton-root');
-    expect(skeleton).toBeInTheDocument();
+    vi.mocked(getItemUpdateFrequency).mockReturnValue(
+      new Promise(() => {}) as Promise<ItemUpdateFrequencyPoint[]>,
+    );
+
+    const { container } = setup(queryClient, 'sup-123');
+
+    expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
   });
 
   it('renders bar chart when data resolves', async () => {
@@ -91,21 +110,23 @@ describe('ItemUpdateFrequencyCard', () => {
       { id: 'b', name: 'Item B', updates: 8 },
       { id: 'c', name: 'Item C', updates: 5 },
     ];
-    mockedGetItemUpdateFrequency.mockResolvedValue(mockData);
 
-    renderCard('sup-123');
+    vi.mocked(getItemUpdateFrequency).mockResolvedValue(mockData);
+
+    setup(queryClient, 'sup-123');
 
     await waitFor(() => {
       expect(screen.getByTestId('bar-chart')).toHaveAttribute('data-length', '3');
     });
 
+    // One cell per bar item.
     expect(screen.getAllByTestId('bar-cell')).toHaveLength(mockData.length);
   });
 
   it('requests data for the provided supplier', async () => {
-    mockedGetItemUpdateFrequency.mockResolvedValue([]);
+    vi.mocked(getItemUpdateFrequency).mockResolvedValue([]);
 
-    renderCard('supplier-42');
+    setup(queryClient, 'supplier-42');
 
     await waitFor(() => {
       expect(getItemUpdateFrequency).toHaveBeenCalledWith('supplier-42');

@@ -1,14 +1,25 @@
 /**
  * @file StockPerSupplierDonut.test.tsx
- * @module __tests__/pages/analytics/StockPerSupplierDonut
+ * @module __tests__/components/pages/analytics/blocks/StockPerSupplierDonut
+ * @description
+ * Enterprise tests for StockPerSupplierDonut:
+ * - Loading state (skeleton)
+ * - Empty helper when API returns no rows
+ * - Donut renders one segment per supplier row
  */
 
 import type { ReactNode } from 'react';
-import type { MockedFunction } from 'vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { StockPerSupplierPoint } from '../../../../../api/analytics';
+
+import type { StockPerSupplierPoint } from '@/api/analytics';
+import { getStockPerSupplier } from '@/api/analytics';
+import StockPerSupplierDonut from '@/pages/analytics/blocks/StockPerSupplierDonut';
+
+// -----------------------------------------------------------------------------
+// Mocks
+// -----------------------------------------------------------------------------
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -16,7 +27,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: {
       numberFormat: 'en-US',
@@ -47,70 +58,84 @@ vi.mock('recharts', () => ({
   ),
   PieChart: ({ children }: { children?: ReactNode }) => <div data-testid="pie-chart">{children}</div>,
   Pie: ({ children, data }: { children?: ReactNode; data: unknown[] }) => (
-    <div data-testid="pie" data-length={Array.isArray(data) ? data.length : 0}>{children}</div>
+    <div data-testid="pie" data-length={Array.isArray(data) ? data.length : 0}>
+      {children}
+    </div>
   ),
   Tooltip: () => <div data-testid="tooltip" />,
   Legend: () => <div data-testid="legend" />,
   Cell: ({ fill }: { fill?: string }) => <div data-testid="pie-cell" data-fill={fill} />,
 }));
 
-vi.mock('../../../../../api/analytics', () => ({
+vi.mock('@/api/analytics', () => ({
   getStockPerSupplier: vi.fn(),
 }));
 
-const { getStockPerSupplier } = await import('../../../../../api/analytics');
-const StockPerSupplierDonut = (await import('../../../../../pages/analytics/blocks/StockPerSupplierDonut')).default;
-const mockedGetStockPerSupplier = getStockPerSupplier as MockedFunction<typeof getStockPerSupplier>;
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+function createClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+}
+
+function setup(client: QueryClient) {
+  return render(
+    <QueryClientProvider client={client}>
+      <StockPerSupplierDonut />
+    </QueryClientProvider>,
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
 describe('StockPerSupplierDonut', () => {
   let queryClient: QueryClient;
 
-  const renderCard = () => {
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <StockPerSupplierDonut />
-      </QueryClientProvider>
-    );
-  };
-
   beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
     vi.clearAllMocks();
+    queryClient = createClient();
   });
 
   it('renders loading skeleton while query is in flight', () => {
-    mockedGetStockPerSupplier.mockReturnValue(new Promise(() => {}));
-    renderCard();
-    const skeleton = document.querySelector('.MuiSkeleton-root');
-    expect(skeleton).toBeInTheDocument();
+    vi.mocked(getStockPerSupplier).mockReturnValue(
+      new Promise(() => {}) as Promise<StockPerSupplierPoint[]>,
+    );
+
+    const { container } = setup(queryClient);
+
+    expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
   });
 
   it('shows empty helper when dataset is empty', async () => {
-    mockedGetStockPerSupplier.mockResolvedValue([]);
-    renderCard();
+    vi.mocked(getStockPerSupplier).mockResolvedValue([]);
+
+    setup(queryClient);
 
     await waitFor(() => {
       expect(screen.getByText('No supplier data for the current filters.')).toBeInTheDocument();
     });
   });
 
-  it('renders donut segments when data exists', async () => {
+  it('renders one donut segment per supplier when data exists', async () => {
     const points: StockPerSupplierPoint[] = [
       { supplierName: 'Alpha Supplies', totalQuantity: 120 },
       { supplierName: 'Beta Traders', totalQuantity: 80 },
       { supplierName: 'Gamma Goods', totalQuantity: 40 },
     ];
-    mockedGetStockPerSupplier.mockResolvedValue(points);
 
-    renderCard();
+    vi.mocked(getStockPerSupplier).mockResolvedValue(points);
+
+    setup(queryClient);
 
     await waitFor(() => {
       expect(screen.getByTestId('pie')).toHaveAttribute('data-length', '3');
     });
 
-    const cells = screen.getAllByTestId('pie-cell');
-    expect(cells).toHaveLength(points.length);
+    expect(screen.getAllByTestId('pie-cell')).toHaveLength(points.length);
   });
 });

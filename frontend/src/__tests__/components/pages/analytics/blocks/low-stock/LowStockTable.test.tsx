@@ -1,25 +1,43 @@
 /**
  * @file LowStockTable.test.tsx
- * @module __tests__/pages/analytics/LowStockTable
+ * @module __tests__/components/pages/analytics/blocks/low-stock/LowStockTable
+ * @description
+ * Enterprise tests for LowStockTable:
+ * - Empty state when supplierId is missing
+ * - Loading skeleton during fetch
+ * - Error state on query failure
+ * - Data rendering: filtering to deficit rows, sorting, and status chips
+ * - "limit" notice when more rows exist than displayed
+ * - API call contract: passes date filters
  *
- * @summary
- * Tests LowStockTable data states, formatting, and query parameters.
+ * Notes:
+ * - We provide a dedicated QueryClient per test to avoid cache cross-talk.
+ * - We mock i18n to return fallback strings (stable assertions).
+ * - Theme is mocked because the component uses palette colors for status visuals.
  */
 
 import type { ComponentProps } from 'react';
-import type { MockedFunction } from 'vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import type { LowStockRow } from '@/api/analytics';
+import LowStockTable from '@/pages/analytics/blocks/low-stock/LowStockTable';
+import { getLowStockItems } from '@/api/analytics';
+
+// -----------------------------------------------------------------------------
+// Hoisted mocks
+// -----------------------------------------------------------------------------
+
+const mockGetLowStockItems = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string, params?: Record<string, string | number>) => {
       const template = fallback ?? key;
       if (!params) return template;
-      return template.replace(/{{\s*(\w+)\s*}}/g, (_, token: string) =>
-        Object.prototype.hasOwnProperty.call(params, token) ? String(params[token]) : `{{${token}}}`
+      return template.replace(/{{\s*(\w+)\s*}}/g, (_m: string, token: string) =>
+        Object.prototype.hasOwnProperty.call(params, token) ? String(params[token]) : `{{${token}}}`,
       );
     },
   }),
@@ -49,84 +67,104 @@ vi.mock('@mui/material/styles', async () => {
 });
 
 vi.mock('@/api/analytics', () => ({
-  getLowStockItems: vi.fn(),
+  getLowStockItems: mockGetLowStockItems,
 }));
 
-const { getLowStockItems } = await import('@/api/analytics');
-const LowStockTable = (await import('@/pages/analytics/blocks/low-stock/LowStockTable')).default;
-const mockedGetLowStockItems = getLowStockItems as MockedFunction<typeof getLowStockItems>;
+// -----------------------------------------------------------------------------
+// Test helpers
+// -----------------------------------------------------------------------------
+
+function createQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: { 
+        retry: false, // deterministic tests
+      },
+    },
+  });
+}
+
+function renderWithQueryClient(props: ComponentProps<typeof LowStockTable>, client: QueryClient) {
+  return render(
+    <QueryClientProvider client={client}>
+      <LowStockTable {...props} />
+    </QueryClientProvider>,
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
 describe('LowStockTable', () => {
   let queryClient: QueryClient;
 
-  const renderTable = (props: ComponentProps<typeof LowStockTable>) =>
-    render(
-      <QueryClientProvider client={queryClient}>
-        <LowStockTable {...props} />
-      </QueryClientProvider>
-    );
-
   beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
     vi.clearAllMocks();
+
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    
+    queryClient = createQueryClient();
   });
 
-  it('shows supplier prompt when supplierId is missing', () => {
-    renderTable({ supplierId: '' });
+  it('shows a supplier prompt when supplierId is missing and does not call the API', () => {
+    renderWithQueryClient({ supplierId: '' }, queryClient);
+
     expect(screen.getByText('Select a supplier to see low stock')).toBeInTheDocument();
-    expect(getLowStockItems).not.toHaveBeenCalled();
+    expect(mockGetLowStockItems).not.toHaveBeenCalled();
   });
 
-  it('renders loading skeleton while fetching data', () => {
-    mockedGetLowStockItems.mockReturnValue(new Promise(() => {}));
-    renderTable({ supplierId: 'sup-1' });
-    const skeleton = document.querySelector('.MuiSkeleton-root');
-    expect(skeleton).toBeInTheDocument();
+  it('renders a loading skeleton while fetching data', () => {
+    vi.mocked(getLowStockItems).mockReturnValue(new Promise(() => {}) as Promise<LowStockRow[]>);
+
+    const { container } = renderWithQueryClient({ supplierId: 'sup-1' }, queryClient);
+
+    // MUI Skeleton may not expose accessible roles/names; class check is pragmatic here.
+    expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
   });
 
-  it('renders error state on query failure', async () => {
-    mockedGetLowStockItems.mockRejectedValue(new Error('boom'));
-    renderTable({ supplierId: 'sup-1' });
+  it('renders an error state when the query fails', async () => {
+    vi.mocked(getLowStockItems).mockRejectedValue(new Error('boom'));
+
+    renderWithQueryClient({ supplierId: 'sup-1' }, queryClient);
 
     await waitFor(() => {
       expect(screen.getByText('Error')).toBeInTheDocument();
     });
   });
 
-  it('filters, sorts, and renders deficit rows with status chips', async () => {
+  it('filters to deficit rows, sorts them, and renders status chips', async () => {
     const rows: LowStockRow[] = [
-      { itemName: 'Item A', quantity: 5, minimumQuantity: 10 },
-      { itemName: 'Item B', quantity: 7, minimumQuantity: 10 },
-      { itemName: 'Item C', quantity: 12, minimumQuantity: 10 },
+      { itemName: 'Item A', quantity: 5, minimumQuantity: 10 },  // deficit 5 → critical
+      { itemName: 'Item B', quantity: 7, minimumQuantity: 10 },  // deficit 3 → warning
+      { itemName: 'Item C', quantity: 12, minimumQuantity: 10 }, // deficit 0 → should be excluded
     ];
-    mockedGetLowStockItems.mockResolvedValue(rows);
+    vi.mocked(getLowStockItems).mockResolvedValue(rows);
 
-    renderTable({ supplierId: 'sup-1' });
+    renderWithQueryClient({ supplierId: 'sup-1' }, queryClient);
 
-    await waitFor(() => {
-      expect(screen.getByRole('table')).toBeInTheDocument();
-    });
+    const table = await screen.findByRole('table');
+    const bodyRows = within(table).getAllByRole('row').slice(1); // drop header row
 
-    const table = screen.getByRole('table');
-    const bodyRows = within(table).getAllByRole('row').slice(1);
-
+    // Only deficit rows appear (C excluded). Highest deficit first.
     expect(bodyRows).toHaveLength(2);
+
     expect(within(bodyRows[0]).getByText('Item A')).toBeInTheDocument();
     expect(within(bodyRows[0]).getByText('Critical')).toBeInTheDocument();
+
     expect(within(bodyRows[1]).getByText('Item B')).toBeInTheDocument();
     expect(within(bodyRows[1]).getByText('Warning')).toBeInTheDocument();
   });
 
-  it('shows limited notice when more rows exist than limit', async () => {
+  it('shows a limit notice when more rows exist than displayed', async () => {
     const rows: LowStockRow[] = [
       { itemName: 'Item A', quantity: 1, minimumQuantity: 10 },
       { itemName: 'Item B', quantity: 2, minimumQuantity: 10 },
     ];
-    mockedGetLowStockItems.mockResolvedValue(rows);
+    vi.mocked(getLowStockItems).mockResolvedValue(rows);
 
-    renderTable({ supplierId: 'sup-1', limit: 1 });
+    renderWithQueryClient({ supplierId: 'sup-1', limit: 1 }, queryClient);
 
     await waitFor(() => {
       expect(screen.getByText('Showing 1 of 2 items')).toBeInTheDocument();
@@ -134,9 +172,9 @@ describe('LowStockTable', () => {
   });
 
   it('passes date filters to the API call', async () => {
-    mockedGetLowStockItems.mockResolvedValue([]);
+    vi.mocked(getLowStockItems).mockResolvedValue([]);
 
-    renderTable({ supplierId: 'sup-1', from: '2025-01-01', to: '2025-01-31' });
+    renderWithQueryClient({ supplierId: 'sup-1', from: '2025-01-01', to: '2025-01-31' }, queryClient);
 
     await waitFor(() => {
       expect(getLowStockItems).toHaveBeenCalledWith('sup-1', {

@@ -1,45 +1,56 @@
 /**
  * @file LowStockStatusCell.test.tsx
- * @module __tests__/pages/analytics/low-stock/LowStockStatusCell
+ * @module __tests__/components/pages/analytics/blocks/low-stock/LowStockStatusCell
+ * @description
+ * Enterprise unit tests for LowStockStatusCell.
  *
- * @summary
- * Tests for LowStockStatusCell covering visual state per deficit level.
+ * Contract:
+ * - Renders a status Chip whose label and semantic color reflect the deficit.
+ * - We treat Chip color classes as a UX contract (status must be visually scannable).
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { LowStockStatusCell } from '../../../../../../pages/analytics/blocks/low-stock/LowStockStatusCell';
+
+import { LowStockStatusCell } from '@/pages/analytics/blocks/low-stock/LowStockStatusCell';
+
+// -----------------------------------------------------------------------------
+// Mocks
+// -----------------------------------------------------------------------------
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
+    // Use fallback when provided to keep assertions language-agnostic.
     t: (_key: string, fallback?: string) => fallback ?? _key,
   }),
 }));
 
+// -----------------------------------------------------------------------------
+// Test helpers
+// -----------------------------------------------------------------------------
+
+function setup(deficit: number) {
+  return render(<LowStockStatusCell deficit={deficit} />);
+}
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
+
 describe('LowStockStatusCell', () => {
-  const renderCell = (deficit: number) => render(<LowStockStatusCell deficit={deficit} />);
+  it('renders the expected label and semantic color per deficit level', () => {
+    const cases: Array<{ deficit: number; label: string; chipColorClass: string }> = [
+      { deficit: 7, label: 'Critical', chipColorClass: 'MuiChip-colorError' },
+      { deficit: 2, label: 'Warning', chipColorClass: 'MuiChip-colorWarning' },
+      { deficit: 0, label: 'OK', chipColorClass: 'MuiChip-colorSuccess' },
+    ];
 
-  it('renders critical status for large deficits', () => {
-    renderCell(7);
+    for (const c of cases) {
+      setup(c.deficit);
 
-    const chip = screen.getByText('Critical').closest('.MuiChip-root');
-    expect(chip).not.toBeNull();
-    expect(chip).toHaveClass('MuiChip-colorError');
-  });
-
-  it('renders warning status for moderate deficits', () => {
-    renderCell(2);
-
-    const chip = screen.getByText('Warning').closest('.MuiChip-root');
-    expect(chip).not.toBeNull();
-    expect(chip).toHaveClass('MuiChip-colorWarning');
-  });
-
-  it('renders ok status when there is no deficit', () => {
-    renderCell(0);
-
-    const chip = screen.getByText('OK').closest('.MuiChip-root');
-    expect(chip).not.toBeNull();
-    expect(chip).toHaveClass('MuiChip-colorSuccess');
+      const chip = screen.getByText(c.label).closest('.MuiChip-root');
+      expect(chip, `Chip should render for label "${c.label}"`).not.toBeNull();
+      expect(chip as HTMLElement).toHaveClass(c.chipColorClass);
+    }
   });
 });

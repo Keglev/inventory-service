@@ -1,111 +1,91 @@
 /**
  * @file AnalyticsNav.test.tsx
- * @module __tests__/pages/analytics/AnalyticsNav
- * 
- * @summary
- * Tests for AnalyticsNav component.
- * Tests tab rendering, navigation, and active section highlighting.
+ * @module __tests__/components/pages/analytics/components/AnalyticsNav
+ * @description
+ * Enterprise tests for AnalyticsNav:
+ * - Renders the full tab set
+ * - Marks the active tab based on the `section` prop
+ * - Navigates to the expected route when a tab is clicked
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
-// Mock useNavigate
+// -----------------------------------------------------------------------------
+// Router mock: isolate navigation side-effects while keeping the component renderable.
+// -----------------------------------------------------------------------------
+
 const mockNavigate = vi.fn();
+
 vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
   };
 });
 
-const AnalyticsNav = (await import('../../../../pages/analytics/components/AnalyticsNav')).default;
+const AnalyticsNav = (await import('@/pages/analytics/components/AnalyticsNav')).default;
+
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+type Section = 'overview' | 'pricing' | 'inventory' | 'finance';
+
+function setup(section: Section = 'overview') {
+  return render(
+    <MemoryRouter>
+      <AnalyticsNav section={section} />
+    </MemoryRouter>,
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
 describe('AnalyticsNav', () => {
   beforeEach(() => {
-    mockNavigate.mockClear();
+    vi.clearAllMocks();
   });
 
-  const renderNav = (section: 'overview' | 'pricing' | 'inventory' | 'finance' = 'overview') => {
-    return render(
-      <MemoryRouter>
-        <AnalyticsNav section={section} />
-      </MemoryRouter>
-    );
-  };
+  it('renders all tabs', () => {
+    setup();
 
-  it('renders all four tabs', () => {
-    renderNav();
     expect(screen.getByRole('tab', { name: /overview/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /pricing/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /inventory/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /finance/i })).toBeInTheDocument();
   });
 
-  it('highlights overview tab when section is overview', () => {
-    renderNav('overview');
-    const overviewTab = screen.getByRole('tab', { name: /overview/i });
-    expect(overviewTab).toHaveAttribute('aria-selected', 'true');
+  it('marks the active tab based on the current section', () => {
+    setup('inventory');
+
+    expect(screen.getByRole('tab', { name: /inventory/i })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: /overview/i })).toHaveAttribute('aria-selected', 'false');
   });
 
-  it('highlights pricing tab when section is pricing', () => {
-    renderNav('pricing');
-    const pricingTab = screen.getByRole('tab', { name: /pricing/i });
-    expect(pricingTab).toHaveAttribute('aria-selected', 'true');
-  });
-
-  it('highlights inventory tab when section is inventory', () => {
-    renderNav('inventory');
-    const inventoryTab = screen.getByRole('tab', { name: /inventory/i });
-    expect(inventoryTab).toHaveAttribute('aria-selected', 'true');
-  });
-
-  it('highlights finance tab when section is finance', () => {
-    renderNav('finance');
-    const financeTab = screen.getByRole('tab', { name: /finance/i });
-    expect(financeTab).toHaveAttribute('aria-selected', 'true');
-  });
-
-  it('navigates to /analytics/pricing when pricing tab is clicked', async () => {
+  it('navigates to the correct route when a tab is clicked', async () => {
     const user = userEvent.setup();
-    renderNav('overview');
-    
-    const pricingTab = screen.getByRole('tab', { name: /pricing/i });
-    await user.click(pricingTab);
-    
+
+    setup('overview');
+
+    await user.click(screen.getByRole('tab', { name: /pricing/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/analytics/pricing');
-  });
 
-  it('navigates to /analytics/inventory when inventory tab is clicked', async () => {
-    const user = userEvent.setup();
-    renderNav('overview');
-    
-    const inventoryTab = screen.getByRole('tab', { name: /inventory/i });
-    await user.click(inventoryTab);
-    
-    expect(mockNavigate).toHaveBeenCalledWith('/analytics/inventory');
-  });
-
-  it('navigates to /analytics/finance when finance tab is clicked', async () => {
-    const user = userEvent.setup();
-    renderNav('overview');
-    
-    const financeTab = screen.getByRole('tab', { name: /finance/i });
-    await user.click(financeTab);
-    
+    await user.click(screen.getByRole('tab', { name: /finance/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/analytics/finance');
   });
 
-  it('navigates to /analytics/overview when overview tab is clicked', async () => {
+  it('navigates back to overview when overview tab is clicked from another section', async () => {
     const user = userEvent.setup();
-    renderNav('pricing');
-    
-    const overviewTab = screen.getByRole('tab', { name: /overview/i });
-    await user.click(overviewTab);
-    
+
+    setup('pricing');
+
+    await user.click(screen.getByRole('tab', { name: /overview/i }));
     expect(mockNavigate).toHaveBeenCalledWith('/analytics/overview');
   });
 });

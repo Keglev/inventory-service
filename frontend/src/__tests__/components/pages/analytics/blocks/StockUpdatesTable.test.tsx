@@ -1,13 +1,25 @@
 /**
  * @file StockUpdatesTable.test.tsx
- * @module __tests__/pages/analytics/StockUpdatesTable
+ * @module __tests__/components/pages/analytics/blocks/StockUpdatesTable
+ * @description
+ * Enterprise tests for StockUpdatesTable:
+ * - Loading state (skeleton)
+ * - Empty helper when no rows exist
+ * - Renders rows and formats fields (date, delta, reason, user fallback)
+ * - Verifies API query parameters (supplierId/from/to/limit)
  */
 
-import type { MockedFunction } from 'vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { StockUpdateRow } from '../../../../../api/analytics/updates';
+
+import type { StockUpdateRow } from '@/api/analytics/updates';
+import { getStockUpdates } from '@/api/analytics/updates';
+import StockUpdatesTable from '@/pages/analytics/blocks/StockUpdatesTable';
+
+// -----------------------------------------------------------------------------
+// Mocks
+// -----------------------------------------------------------------------------
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -15,7 +27,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../../../../hooks/useSettings', () => ({
+vi.mock('@/hooks/useSettings', () => ({
   useSettings: () => ({
     userPreferences: {
       dateFormat: 'MM/dd/yyyy',
@@ -24,49 +36,61 @@ vi.mock('../../../../../hooks/useSettings', () => ({
   }),
 }));
 
-vi.mock('../../../../../utils/formatters', () => ({
-  formatDate: (date: Date) => date.toISOString().slice(0, 10),
+vi.mock('@/utils/formatters', () => ({
+  // Keep formatter behavior deterministic for assertions.
+  formatDate: (value: Date) => value.toISOString().slice(0, 10),
   formatNumber: (value: number, _format: string, decimals = 0) => value.toFixed(decimals),
 }));
 
-vi.mock('../../../../../api/analytics/updates', () => ({
+vi.mock('@/api/analytics/updates', () => ({
   getStockUpdates: vi.fn(),
 }));
 
-const { getStockUpdates } = await import('../../../../../api/analytics/updates');
-const StockUpdatesTable = (await import('../../../../../pages/analytics/blocks/StockUpdatesTable')).default;
-const mockedGetStockUpdates = getStockUpdates as MockedFunction<typeof getStockUpdates>;
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+function createClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+}
+
+function setup(
+  client: QueryClient,
+  props: React.ComponentProps<typeof StockUpdatesTable>,
+) {
+  return render(
+    <QueryClientProvider client={client}>
+      <StockUpdatesTable {...props} />
+    </QueryClientProvider>,
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Tests
+// -----------------------------------------------------------------------------
 
 describe('StockUpdatesTable', () => {
   let queryClient: QueryClient;
 
-  const renderTable = (props: React.ComponentProps<typeof StockUpdatesTable>) => (
-    render(
-      <QueryClientProvider client={queryClient}>
-        <StockUpdatesTable {...props} />
-      </QueryClientProvider>
-    )
-  );
-
   beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
     vi.clearAllMocks();
+    queryClient = createClient();
   });
 
   it('renders loading skeleton while fetching updates', () => {
-    mockedGetStockUpdates.mockReturnValue(new Promise(() => {}));
-    renderTable({ supplierId: 'sup-1' });
+    vi.mocked(getStockUpdates).mockReturnValue(new Promise(() => {}) as Promise<StockUpdateRow[]>);
 
-    const skeleton = document.querySelector('.MuiSkeleton-root');
-    expect(skeleton).toBeInTheDocument();
+    const { container } = setup(queryClient, { supplierId: 'sup-1' });
+
+    expect(container.querySelector('.MuiSkeleton-root')).toBeInTheDocument();
   });
 
   it('shows empty helper when there are no updates', async () => {
-    mockedGetStockUpdates.mockResolvedValue([]);
+    vi.mocked(getStockUpdates).mockResolvedValue([]);
 
-    renderTable({ supplierId: 'sup-1' });
+    setup(queryClient, { supplierId: 'sup-1' });
 
     await waitFor(() => {
       expect(screen.getByText('No updates in this period.')).toBeInTheDocument();
@@ -90,12 +114,13 @@ describe('StockUpdatesTable', () => {
         user: undefined,
       },
     ];
-    mockedGetStockUpdates.mockResolvedValue(rows);
 
-    renderTable({ supplierId: 'sup-9', from: '2025-02-01', to: '2025-02-28' });
+    vi.mocked(getStockUpdates).mockResolvedValue(rows);
+
+    setup(queryClient, { supplierId: 'sup-9', from: '2025-02-01', to: '2025-02-28' });
 
     await waitFor(() => {
-      expect(mockedGetStockUpdates).toHaveBeenCalledWith({
+      expect(getStockUpdates).toHaveBeenCalledWith({
         from: '2025-02-01',
         to: '2025-02-28',
         supplierId: 'sup-9',
@@ -104,7 +129,7 @@ describe('StockUpdatesTable', () => {
     });
 
     const table = await screen.findByRole('table');
-    const bodyRows = within(table).getAllByRole('row').slice(1); // skip header
+    const bodyRows = within(table).getAllByRole('row').slice(1); // skip header row
     expect(bodyRows).toHaveLength(rows.length);
 
     const firstRowCells = within(bodyRows[0]).getAllByRole('cell');
