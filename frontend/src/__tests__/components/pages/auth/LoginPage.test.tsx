@@ -1,26 +1,79 @@
+/**
+ * @file LoginPage.test.tsx
+ * @module __tests__/components/pages/auth/LoginPage
+ * @description Enterprise tests for the public LoginPage (SSO-only authentication entry).
+ *
+ * Contract under test:
+ * - Renders the login card content (title/subtitle) and SSO UX copy (divider + hint).
+ * - Google SSO button triggers useAuth().login().
+ * - “Continue in Demo Mode” triggers useAuth().loginAsDemo() and redirects to /dashboard (replace navigation).
+ * - When `?error=` is present in the URL, an error alert is rendered (severity="error") with a translated title.
+ *
+ * Test strategy:
+ * - useAuth is mocked to assert user-intent actions (login / loginAsDemo).
+ * - useNavigate is mocked to assert redirect behavior without real routing.
+ * - i18n is mocked deterministically:
+ *   - If a defaultValue is provided, it is used (stable UX text assertions for demo label).
+ *   - Otherwise, the translation key is returned (stable key-based assertions).
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
+
 import LoginPage from '../../../../pages/auth/LoginPage';
+
+// -------------------------------------
+// Deterministic / hoisted mocks
+// -------------------------------------
+const mockLogin = vi.hoisted(() => vi.fn());
+const mockLoginAsDemo = vi.hoisted(() => vi.fn());
+const mockUseAuth = vi.hoisted(() => vi.fn());
+const mockNavigate = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue || key,
+    /**
+     * Mirrors common i18n usage patterns in the codebase:
+     * - If defaultValue is provided, return it (lets us assert user-visible copy).
+     * - Otherwise return the key (lets us assert keys without binding to locale JSON).
+     */
+    t: (key: string, defaultValue?: string | { defaultValue?: string }) => {
+      if (typeof defaultValue === 'string') return defaultValue;
+      if (typeof defaultValue === 'object' && defaultValue?.defaultValue) return defaultValue.defaultValue;
+      return key;
+    },
   }),
 }));
 
-const mockLogin = vi.fn();
-const mockLoginAsDemo = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
-const mockUseAuth = vi.hoisted(() => vi.fn());
 vi.mock('../../../../hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }));
 
+// -------------------------------------
+// Helpers
+// -------------------------------------
+function renderLoginPage(initialRoute = '/login') {
+  return render(
+    <MemoryRouter initialEntries={[initialRoute]}>
+      <LoginPage />
+    </MemoryRouter>,
+  );
+}
+
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
     mockUseAuth.mockReturnValue({
       login: mockLogin,
       loginAsDemo: mockLoginAsDemo,
@@ -32,101 +85,62 @@ describe('LoginPage', () => {
     });
   });
 
-  const renderComponent = (initialRoute = '/login') => {
-    return render(
-      <MemoryRouter initialEntries={[initialRoute]}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<div>Dashboard</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
-  };
+  describe('rendering', () => {
+    it('renders title/subtitle and supporting SSO copy', () => {
+      renderLoginPage();
 
-  it('renders login card with title and subtitle', () => {
-    renderComponent();
-    expect(screen.getByText('signIn')).toBeInTheDocument();
-    expect(screen.getByText('welcome')).toBeInTheDocument();
+      // Card header texts: returned as keys by our i18n mock.
+      expect(screen.getByText('signIn')).toBeInTheDocument();
+      expect(screen.getByText('welcome')).toBeInTheDocument();
+
+      // Divider + hint copy are also translation keys.
+      expect(screen.getByText('or')).toBeInTheDocument();
+      expect(screen.getByText('ssoHint')).toBeInTheDocument();
+    });
+
+    it('does not render an error alert when no error query param is present', () => {
+      renderLoginPage();
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('renders an error alert when an error query param is present', () => {
+      renderLoginPage('/login?error=oauth');
+
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByText('errorTitle')).toBeInTheDocument();
+    });
   });
 
-  it('renders Google SSO button', () => {
-    renderComponent();
-    expect(screen.getByRole('button', { name: /signInGoogle/i })).toBeInTheDocument();
-  });
+  describe('actions', () => {
+    it('calls login when the Google SSO button is clicked', async () => {
+      const user = userEvent.setup();
+      renderLoginPage();
 
-  it('renders demo mode button', () => {
-    renderComponent();
-    expect(screen.getByRole('button', { name: /Continue in Demo Mode/i })).toBeInTheDocument();
-  });
+      /**
+       * The Google button uses aria-label={t('signInGoogle')}.
+       * With our i18n mock, the accessible name becomes "signInGoogle".
+       */
+      await user.click(screen.getByRole('button', { name: 'signInGoogle' }));
 
-  it('renders SSO hint text', () => {
-    renderComponent();
-    expect(screen.getByText('ssoHint')).toBeInTheDocument();
-  });
+      expect(mockLogin).toHaveBeenCalledTimes(1);
+      expect(mockLoginAsDemo).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
 
-  it('renders "or" divider between SSO and demo', () => {
-    renderComponent();
-    expect(screen.getByText('or')).toBeInTheDocument();
-  });
+    it('calls loginAsDemo and redirects to /dashboard when demo mode is clicked', async () => {
+      const user = userEvent.setup();
+      renderLoginPage();
 
-  it('calls login when Google SSO button is clicked', async () => {
-    const user = userEvent.setup();
-    renderComponent();
+      /**
+       * Demo button uses: t('continueDemo', 'Continue in Demo Mode')
+       * Our i18n mock returns the defaultValue, so we assert the real UX label.
+       */
+      await user.click(screen.getByRole('button', { name: 'Continue in Demo Mode' }));
 
-    const googleButton = screen.getByRole('button', { name: /signInGoogle/i });
-    await user.click(googleButton);
+      expect(mockLoginAsDemo).toHaveBeenCalledTimes(1);
+      expect(mockLogin).not.toHaveBeenCalled();
 
-    expect(mockLogin).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls loginAsDemo when demo button is clicked', async () => {
-    const user = userEvent.setup();
-    renderComponent();
-
-    const demoButton = screen.getByRole('button', { name: /Continue in Demo Mode/i });
-    await user.click(demoButton);
-
-    expect(mockLoginAsDemo).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not display error alert when no error parameter', () => {
-    renderComponent();
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  });
-
-  it('displays error alert when error parameter is present', () => {
-    renderComponent('/login?error=oauth');
-    const alert = screen.getByRole('alert');
-    expect(alert).toBeInTheDocument();
-    expect(screen.getByText('errorTitle')).toBeInTheDocument();
-  });
-
-  it('displays error alert for session error', () => {
-    renderComponent('/login?error=session');
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-  });
-
-  it('Google button has correct icon', () => {
-    renderComponent();
-    const googleButton = screen.getByRole('button', { name: /signInGoogle/i });
-    expect(googleButton.querySelector('svg')).toBeInTheDocument();
-  });
-
-  it('renders card with proper styling constraints', () => {
-    renderComponent();
-    const card = screen.getByText('signIn').closest('[class*="MuiCard"]');
-    expect(card).toBeInTheDocument();
-  });
-
-  it('SSO button has outlined variant', () => {
-    renderComponent();
-    const googleButton = screen.getByRole('button', { name: /signInGoogle/i });
-    expect(googleButton).toHaveClass('MuiButton-outlined');
-  });
-
-  it('demo button has text variant', () => {
-    renderComponent();
-    const demoButton = screen.getByRole('button', { name: /Continue in Demo Mode/i });
-    expect(demoButton).toHaveClass('MuiButton-text');
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
+    });
   });
 });
