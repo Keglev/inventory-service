@@ -286,42 +286,42 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -422,13 +422,13 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         - Autocomplete with 2+ character minimum search requirement
         - Filters items to selected supplier using search API
       */}
-      {state.selectedSupplier &amp;&amp; (
-        &lt;StepSection
-          title={t('inventory:deleteFlow.step2', 'Step 2: Select Item')}
-          number={2}
-        &gt;
-          &lt;ItemSelectField state={state} /&gt;
-        &lt;/StepSection&gt;
+      {state.<span class="branch-0 cbranch-no" title="branch not covered" >selectedSupplier &amp;&amp; (</span>
+<span class="cstat-no" title="statement not covered" >        &lt;StepSection</span>
+<span class="cstat-no" title="statement not covered" >          title={t('inventory:deleteFlow.step2', 'Step 2: Select Item')}</span>
+<span class="cstat-no" title="statement not covered" >          number={2}</span>
+<span class="cstat-no" title="statement not covered" >        &gt;</span>
+<span class="cstat-no" title="statement not covered" >          &lt;ItemSelectField state={state} /&gt;</span>
+<span class="cstat-no" title="statement not covered" >        &lt;/StepSection&gt;</span>
       )}
 &nbsp;
       {/* 
@@ -452,13 +452,13 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
         - Shows name and on-hand quantity for final confirmation
         - Helps user verify they're deleting the correct item
       */}
-      {state.selectedItem &amp;&amp; state.itemDetailsQuery.<span class="branch-0 cbranch-no" title="branch not covered" >data &amp;&amp; (</span>
-<span class="cstat-no" title="statement not covered" >        &lt;StepSection</span>
-<span class="cstat-no" title="statement not covered" >          title={t('inventory:deleteFlow.step4', 'Step 4: Item Information')}</span>
-<span class="cstat-no" title="statement not covered" >          number={4}</span>
-<span class="cstat-no" title="statement not covered" >        &gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;ItemInfoDisplay state={state} /&gt;</span>
-<span class="cstat-no" title="statement not covered" >        &lt;/StepSection&gt;</span>
+      {state.selectedItem &amp;&amp; state.itemDetailsQuery.data &amp;&amp; (
+        &lt;StepSection
+          title={t('inventory:deleteFlow.step4', 'Step 4: Item Information')}
+          number={4}
+        &gt;
+          &lt;ItemInfoDisplay state={state} /&gt;
+        &lt;/StepSection&gt;
       )}
 &nbsp;
       {/* 
@@ -481,7 +481,7 @@ export function DeleteFormView({ state }: { state: UseDeleteItemDialogReturn }) 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-30T13:50:16.808Z
+                at 2026-02-16T18:57:23.767Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
