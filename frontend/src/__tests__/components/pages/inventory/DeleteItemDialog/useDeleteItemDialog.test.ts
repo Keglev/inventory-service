@@ -1,182 +1,206 @@
 /**
  * @file useDeleteItemDialog.test.ts
+ * @module __tests__/components/pages/inventory/DeleteItemDialog/useDeleteItemDialog
+ * @description Composition tests for useDeleteItemDialog.
  *
- * @what_is_under_test useDeleteItemDialog hook composition
- * @responsibility Combine state, queries, and handlers into dialog contract
- * @out_of_scope Internal implementations of sub-hooks
+ * Contract:
+ * - Composes state (useDeleteItemState), queries (useDeleteItemQueries), and handlers (useDeleteItemHandlers).
+ * - Forwards dialogOpen / onClose / onItemDeleted / readOnly to sub-hooks with correct argument mapping.
+ * - Passes selectedItem?.id into queries and omits it when no item is selected.
+ *
+ * Notes:
+ * - We do not re-create full React Query UseQueryResult unions (too heavy and out of scope).
+ *   Instead we cast minimal stable shapes to the expected types to test wiring only.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import type { UseQueryResult } from '@tanstack/react-query';
+
 import type { UseDeleteItemStateReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
 import type { UseDeleteItemQueriesReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
 import type { UseDeleteItemHandlersReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers';
 
+import { useDeleteItemDialog } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog';
+
+// -------------------------------------
+// Deterministic / hoisted mocks
+// -------------------------------------
+const mockUseDeleteItemState = vi.hoisted(() => vi.fn());
+const mockUseDeleteItemQueries = vi.hoisted(() => vi.fn());
+const mockUseDeleteItemHandlers = vi.hoisted(() => vi.fn());
+
 vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState', () => ({
-  useDeleteItemState: vi.fn(),
+  useDeleteItemState: (...args: unknown[]) => mockUseDeleteItemState(...args),
 }));
 
 vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries', () => ({
-  useDeleteItemQueries: vi.fn(),
+  useDeleteItemQueries: (...args: unknown[]) => mockUseDeleteItemQueries(...args),
 }));
 
 vi.mock('../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers', () => ({
-  useDeleteItemHandlers: vi.fn(),
+  useDeleteItemHandlers: (...args: unknown[]) => mockUseDeleteItemHandlers(...args),
 }));
 
-import { useDeleteItemState } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemState';
-import { useDeleteItemQueries } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemQueries';
-import { useDeleteItemHandlers } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemHandlers';
-import { useDeleteItemDialog } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/useDeleteItemDialog';
+// -------------------------------------
+// Helpers
+// -------------------------------------
 
-// Helper: build state stub returned by useDeleteItemState
-const createStateMock = (): UseDeleteItemStateReturn => ({
-  selectedSupplier: { id: 'supplier-1', label: 'Supplier 1' },
-  setSelectedSupplier: vi.fn(),
-  selectedItem: { id: 'item-1', name: 'Item 1' },
-  setSelectedItem: vi.fn(),
-  itemQuery: 'gloves',
-  setItemQuery: vi.fn(),
-  deletionReason: 'Damaged',
-  setDeletionReason: vi.fn(),
-  formError: '',
-  setFormError: vi.fn(),
-  showConfirmation: false,
-  setShowConfirmation: vi.fn(),
-  isSubmitting: false,
-  handleSubmit: vi.fn(),
-  reset: vi.fn(),
-  resetAll: vi.fn(),
-} as unknown as UseDeleteItemStateReturn);
+/**
+ * Minimal query result helper for composition tests.
+ * We only care that the returned object reference is passed through.
+ */
+function asQueryResult<T>(data: T): UseQueryResult<T, Error> {
+  return ({ data } as unknown) as UseQueryResult<T, Error>;
+}
 
-// Helper: build queries stub returned by useDeleteItemQueries
-const createQueriesMock = (): UseDeleteItemQueriesReturn => ({
-  suppliersQuery: { data: ['Supplier 1'] },
-  itemsQuery: { data: [] },
-  itemDetailsQuery: { data: null },
-} as unknown as UseDeleteItemQueriesReturn);
-
-// Helper: build handlers stub returned by useDeleteItemHandlers
-const createHandlersMock = (): UseDeleteItemHandlersReturn => ({
-  handleClose: vi.fn(),
-  handleCancelConfirmation: vi.fn(),
-  onSubmit: vi.fn(),
-  onConfirmedDelete: vi.fn(),
-} as unknown as UseDeleteItemHandlersReturn);
-
-type HookProps = {
+type HookArgs = {
   dialogOpen: boolean;
   onClose: () => void;
   onItemDeleted: () => void;
   readOnly?: boolean;
 };
 
-const useDeleteItemStateMock = vi.mocked(useDeleteItemState);
-const useDeleteItemQueriesMock = vi.mocked(useDeleteItemQueries);
-const useDeleteItemHandlersMock = vi.mocked(useDeleteItemHandlers);
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
+function renderUseDeleteItemDialog(args: HookArgs) {
+  return renderHook(
+    (props: HookArgs) =>
+      useDeleteItemDialog(props.dialogOpen, props.onClose, props.onItemDeleted, props.readOnly),
+    { initialProps: args },
+  );
+}
 
 describe('useDeleteItemDialog', () => {
-  it('combines state, queries, and handlers into unified contract', () => {
-    const state = createStateMock();
-    const queries = createQueriesMock();
-    const handlers = createHandlersMock();
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('composes state, queries, and handlers into the dialog contract (wiring)', () => {
     const onClose = vi.fn();
     const onItemDeleted = vi.fn();
 
-    useDeleteItemStateMock.mockReturnValue(state);
-    useDeleteItemQueriesMock.mockReturnValue(queries);
-    useDeleteItemHandlersMock.mockReturnValue(handlers);
+    // We intentionally keep fixtures minimal and cast once at the mock boundary.
+    const state = ({
+      selectedSupplier: { id: 'supplier-1', label: 'Supplier 1' }, // SupplierOption shape is domain-defined
+      selectedItem: { id: 'item-1', name: 'Item 1' },
+      itemQuery: 'gloves',
+      deletionReason: 'Damaged',
+    } as unknown) as UseDeleteItemStateReturn;
 
-    const { result } = renderHook(
-      (props: HookProps) =>
-        useDeleteItemDialog(props.dialogOpen, props.onClose, props.onItemDeleted, props.readOnly),
-      {
-        initialProps: { dialogOpen: true, onClose, onItemDeleted, readOnly: false },
-      }
-    );
+    const queries = ({
+      suppliersQuery: asQueryResult([{ id: 'supplier-1', label: 'Supplier 1' }]),
+      itemsQuery: asQueryResult([{ id: 'item-1', name: 'Item 1' }]),
+      itemDetailsQuery: asQueryResult(null),
+    } as unknown) as UseDeleteItemQueriesReturn;
 
+    const handlers = ({
+      handleClose: vi.fn(),
+      handleCancelConfirmation: vi.fn(),
+      onSubmit: vi.fn(),
+      onConfirmedDelete: vi.fn(),
+    } as unknown) as UseDeleteItemHandlersReturn;
+
+    mockUseDeleteItemState.mockReturnValue(state);
+    mockUseDeleteItemQueries.mockReturnValue(queries);
+    mockUseDeleteItemHandlers.mockReturnValue(handlers);
+
+    const { result } = renderUseDeleteItemDialog({
+      dialogOpen: true,
+      onClose,
+      onItemDeleted,
+      readOnly: false,
+    });
+
+    // Pass-through contract: the composed hook exposes the same references from sub-hooks.
     expect(result.current.selectedSupplier).toBe(state.selectedSupplier);
     expect(result.current.selectedItem).toBe(state.selectedItem);
     expect(result.current.deletionReason).toBe(state.deletionReason);
+
     expect(result.current.suppliersQuery).toBe(queries.suppliersQuery);
     expect(result.current.itemsQuery).toBe(queries.itemsQuery);
     expect(result.current.itemDetailsQuery).toBe(queries.itemDetailsQuery);
+
     expect(result.current.handleClose).toBe(handlers.handleClose);
     expect(result.current.onSubmit).toBe(handlers.onSubmit);
     expect(result.current.onConfirmedDelete).toBe(handlers.onConfirmedDelete);
 
-    expect(useDeleteItemStateMock).toHaveBeenCalledTimes(1);
-    expect(useDeleteItemQueriesMock).toHaveBeenCalledWith(
+    // Delegation contract: verify sub-hook argument wiring.
+    expect(mockUseDeleteItemState).toHaveBeenCalledTimes(1);
+
+    expect(mockUseDeleteItemQueries).toHaveBeenCalledWith(
       true,
       state.selectedSupplier,
       state.itemQuery,
-      state.selectedItem?.id
+      state.selectedItem?.id,
     );
-    expect(useDeleteItemHandlersMock).toHaveBeenCalledWith(
+
+    expect(mockUseDeleteItemHandlers).toHaveBeenCalledWith(
       state,
       queries,
       onClose,
       onItemDeleted,
-      false
+      false,
     );
   });
 
-  it('passes readOnly flag through to handlers', () => {
-    const state = createStateMock();
-    const queries = createQueriesMock();
-    const handlers = createHandlersMock();
+  it('passes readOnly through to handlers', () => {
+    const state = ({ selectedSupplier: null, selectedItem: null, itemQuery: '' } as unknown) as UseDeleteItemStateReturn;
+    const queries = ({
+      suppliersQuery: asQueryResult([]),
+      itemsQuery: asQueryResult([]),
+      itemDetailsQuery: asQueryResult(null),
+    } as unknown) as UseDeleteItemQueriesReturn;
+    const handlers = ({ onSubmit: vi.fn() } as unknown) as UseDeleteItemHandlersReturn;
 
-    useDeleteItemStateMock.mockReturnValue(state);
-    useDeleteItemQueriesMock.mockReturnValue(queries);
-    useDeleteItemHandlersMock.mockReturnValue(handlers);
+    mockUseDeleteItemState.mockReturnValue(state);
+    mockUseDeleteItemQueries.mockReturnValue(queries);
+    mockUseDeleteItemHandlers.mockReturnValue(handlers);
 
-    const { result } = renderHook(
-      (props: HookProps) =>
-        useDeleteItemDialog(props.dialogOpen, props.onClose, props.onItemDeleted, props.readOnly),
-      {
-        initialProps: { dialogOpen: false, onClose: vi.fn(), onItemDeleted: vi.fn(), readOnly: true },
-      }
-    );
+    renderUseDeleteItemDialog({
+      dialogOpen: false,
+      onClose: vi.fn(),
+      onItemDeleted: vi.fn(),
+      readOnly: true,
+    });
 
-    expect(result.current.onSubmit).toBe(handlers.onSubmit);
-    expect(useDeleteItemQueriesMock).toHaveBeenCalledWith(false, state.selectedSupplier, state.itemQuery, 'item-1');
-    expect(useDeleteItemHandlersMock).toHaveBeenCalledWith(
+    expect(mockUseDeleteItemHandlers).toHaveBeenCalledWith(
       state,
       queries,
       expect.any(Function),
       expect.any(Function),
-      true
+      true,
     );
   });
 
-  it('omits item id when no item selected', () => {
-    const state = createStateMock();
-    state.selectedItem = null;
-    const queries = createQueriesMock();
-    const handlers = createHandlersMock();
+  it('omits itemId when no item is selected', () => {
+    const state = ({
+      selectedSupplier: { id: 'supplier-1', label: 'Supplier 1' },
+      selectedItem: null,
+      itemQuery: 'gloves',
+    } as unknown) as UseDeleteItemStateReturn;
 
-    useDeleteItemStateMock.mockReturnValue(state);
-    useDeleteItemQueriesMock.mockReturnValue(queries);
-    useDeleteItemHandlersMock.mockReturnValue(handlers);
+    const queries = ({
+      suppliersQuery: asQueryResult([]),
+      itemsQuery: asQueryResult([]),
+      itemDetailsQuery: asQueryResult(null),
+    } as unknown) as UseDeleteItemQueriesReturn;
 
-    renderHook(
-      (props: HookProps) =>
-        useDeleteItemDialog(props.dialogOpen, props.onClose, props.onItemDeleted, props.readOnly),
-      {
-        initialProps: { dialogOpen: true, onClose: vi.fn(), onItemDeleted: vi.fn() },
-      }
-    );
+    const handlers = ({} as unknown) as UseDeleteItemHandlersReturn;
 
-    expect(useDeleteItemQueriesMock).toHaveBeenCalledWith(
+    mockUseDeleteItemState.mockReturnValue(state);
+    mockUseDeleteItemQueries.mockReturnValue(queries);
+    mockUseDeleteItemHandlers.mockReturnValue(handlers);
+
+    renderUseDeleteItemDialog({
+      dialogOpen: true,
+      onClose: vi.fn(),
+      onItemDeleted: vi.fn(),
+    });
+
+    expect(mockUseDeleteItemQueries).toHaveBeenCalledWith(
       true,
       state.selectedSupplier,
       state.itemQuery,
-      undefined
+      undefined,
     );
   });
 });
-

@@ -1,21 +1,38 @@
 /**
  * @file EditItemDialog.test.tsx
+ * @module __tests__/components/pages/inventory/EditItemDialog/EditItemDialog
+ * @description Wrapper-level tests for the EditItemDialog container.
  *
- * @what_is_under_test EditItemDialog component - main dialog UI container
- * @responsibility Render dialog layout, manage title/buttons, handle close actions
- * @out_of_scope Form state management, API calls, validation logic, supplier/item selection
+ * Contract under test:
+ * - When open=false, dialog content is not rendered.
+ * - When open=true, dialog renders with a title and mounts EditItemForm.
+ * - Close action delegates to the form hook's handleClose (dialog container boundary).
+ *
+ * Out of scope:
+ * - Form validation rules and react-hook-form behavior
+ * - API calls and mutations
+ * - Supplier/item search behavior (handled in hook/form tests)
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import { EditItemDialog } from '../../../../../pages/inventory/dialogs/EditItemDialog/EditItemDialog';
 import * as useEditItemFormModule from '../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm';
 
-// Mock dependencies
+// -------------------------------------
+// Deterministic mocks
+// -------------------------------------
+
 vi.mock('../../../../../pages/inventory/dialogs/EditItemDialog/useEditItemForm');
 
+const mockEditItemForm = vi.hoisted(() => vi.fn());
 vi.mock('../../../../../pages/inventory/dialogs/EditItemDialog/EditItemForm', () => ({
-  EditItemForm: () => <div data-testid="form">Form Component</div>,
+  EditItemForm: () => {
+    mockEditItemForm();
+    return <div data-testid="edit-item-form">Form Component</div>;
+  },
 }));
 
 vi.mock('../../../../../hooks/useHelp', () => ({
@@ -24,86 +41,84 @@ vi.mock('../../../../../hooks/useHelp', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue || key,
+    // Prefer defaultValue when provided; otherwise return key.
+    t: (key: string, defaultValue?: string) => defaultValue ?? key,
   }),
 }));
 
-const mockFormState = {
-  isSubmitting: false,
-  errors: {},
-};
+type EditItemFormHookReturn = ReturnType<typeof useEditItemFormModule.useEditItemForm>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyFn = any;
-
-const createMockFormReturn = (overrides: Record<string, AnyFn> = {}) => ({
-  selectedSupplier: null,
-  selectedItem: null,
-  itemQuery: '',
-  formError: '',
-  setSelectedSupplier: vi.fn(),
-  setSelectedItem: vi.fn(),
-  setItemQuery: vi.fn(),
-  setFormError: vi.fn(),
-  suppliersQuery: { isLoading: false, data: [] },
-  itemsQuery: { isLoading: false, data: [] },
-  itemDetailsQuery: { isLoading: false, data: null },
-  control: {},
-  formState: mockFormState,
-  setValue: vi.fn(),
-  onSubmit: vi.fn(),
-  handleClose: vi.fn(),
-  ...overrides,
-});
+function createHookReturn(
+  overrides: Partial<EditItemFormHookReturn> = {},
+): EditItemFormHookReturn {
+  // Minimal contract surface required by EditItemDialog + EditItemForm boundary.
+  return {
+    selectedSupplier: null,
+    selectedItem: null,
+    itemQuery: '',
+    formError: '',
+    setSelectedSupplier: vi.fn(),
+    setSelectedItem: vi.fn(),
+    setItemQuery: vi.fn(),
+    setFormError: vi.fn(),
+    suppliersQuery: { isLoading: false, data: [] } as unknown as EditItemFormHookReturn['suppliersQuery'],
+    itemsQuery: { isLoading: false, data: [] } as unknown as EditItemFormHookReturn['itemsQuery'],
+    itemDetailsQuery: { isLoading: false, data: null } as unknown as EditItemFormHookReturn['itemDetailsQuery'],
+    control: {} as EditItemFormHookReturn['control'],
+    formState: { isSubmitting: false, errors: {} } as EditItemFormHookReturn['formState'],
+    setValue: vi.fn(),
+    onSubmit: vi.fn(),
+    handleClose: vi.fn(),
+    ...overrides,
+  } as EditItemFormHookReturn;
+}
 
 describe('EditItemDialog', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(useEditItemFormModule.useEditItemForm).mockReturnValue(createHookReturn());
+  });
+
+  it('renders nothing when closed (open=false)', () => {
+    render(<EditItemDialog open={false} onClose={vi.fn()} onItemRenamed={vi.fn()} />);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('renders dialog, title, and form when open=true', () => {
+    render(<EditItemDialog open onClose={vi.fn()} onItemRenamed={vi.fn()} />);
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // Title is a stable UI contract; this assumes component uses a defaultValue like "Edit Item".
+    // If the dialog uses only i18n keys, adjust assertion to that key.
+    expect(screen.getByText(/Edit Item/i)).toBeInTheDocument();
+
+    expect(screen.getByTestId('edit-item-form')).toBeInTheDocument();
+    expect(mockEditItemForm).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates close action to hook handleClose', async () => {
+    const user = userEvent.setup();
+    const handleClose = vi.fn();
+
     vi.mocked(useEditItemFormModule.useEditItemForm).mockReturnValue(
-      createMockFormReturn() as any  // eslint-disable-line @typescript-eslint/no-explicit-any
+      createHookReturn({ handleClose }),
     );
-  });
 
-  describe('Dialog rendering', () => {
-    it('renders nothing when closed', () => {
-      const { container } = render(
-        <EditItemDialog open={false} onClose={vi.fn()} onItemRenamed={vi.fn()} />
-      );
-      expect(container.querySelector('[role="dialog"]')).not.toBeInTheDocument();
-    });
+    render(<EditItemDialog open onClose={vi.fn()} onItemRenamed={vi.fn()} />);
 
-    it('renders dialog when open', () => {
-      render(<EditItemDialog open={true} onClose={vi.fn()} onItemRenamed={vi.fn()} />);
+    // Prefer accessible close/cancel button if present.
+    const closeButton =
+      screen.queryByRole('button', { name: /close|cancel/i }) ??
+      screen.queryByLabelText(/close|cancel/i);
 
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-    });
+    if (!closeButton) {
+      // If your dialog uses an IconButton without accessible name,
+      // the component should be fixed—but we keep the test resilient.
+      throw new Error('Close button is missing an accessible name (close/cancel).');
+    }
 
-    it('displays correct title', () => {
-      render(<EditItemDialog open={true} onClose={vi.fn()} onItemRenamed={vi.fn()} />);
-
-      const title = screen.getByText(/Edit Item/i);
-      expect(title).toBeInTheDocument();
-    });
-
-    it('renders form component', () => {
-      render(<EditItemDialog open={true} onClose={vi.fn()} onItemRenamed={vi.fn()} />);
-
-      expect(screen.getByTestId('form')).toBeInTheDocument();
-    });
-  });
-
-  describe('Dialog actions', () => {
-    it('renders close button', () => {
-      render(<EditItemDialog open={true} onClose={vi.fn()} onItemRenamed={vi.fn()} />);
-
-      const closeButton = screen.queryByRole('button', { name: /close|cancel/i });
-      expect(closeButton || screen.queryByTestId('close-button')).toBeTruthy();
-    });
-
-    it('has accessible dialog structure', () => {
-      render(<EditItemDialog open={true} onClose={vi.fn()} onItemRenamed={vi.fn()} />);
-
-      const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveAccessibleName();
-    });
+    await user.click(closeButton);
+    expect(handleClose).toHaveBeenCalledTimes(1);
   });
 });

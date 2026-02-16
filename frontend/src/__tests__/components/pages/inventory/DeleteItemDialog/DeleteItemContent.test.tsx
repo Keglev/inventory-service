@@ -1,19 +1,27 @@
 /**
  * @file DeleteItemContent.test.tsx
+ * @module __tests__/components/pages/inventory/DeleteItemDialog/DeleteItemContent
+ * @description Unit tests for DeleteItemContent rendering logic.
  *
- * @what_is_under_test DeleteItemContent component
- * @responsibility Render form or confirmation view
- * @out_of_scope State management, hooks
+ * Contract under test:
+ * - Renders the form view by default (showConfirmation=false).
+ * - Renders the confirmation view when showConfirmation=true.
+ * - Surfaces a validation/error message when state.formError is provided.
+ *
+ * Out of scope:
+ * - Hook/state orchestration (handled by the dialog container/hook tests).
+ * - Network/React Query behavior (this component is render-only).
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+
 import { DeleteItemContent } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemContent';
 import type { UseDeleteItemDialogReturn } from '../../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog.types';
 
-vi.mock('../../../../../api/inventory/hooks/useInventoryData.ts');
-
-const createMockState = (overrides: Partial<UseDeleteItemDialogReturn> = {}): UseDeleteItemDialogReturn => {
+const createMockState = (
+  overrides: Partial<UseDeleteItemDialogReturn> = {},
+): UseDeleteItemDialogReturn => {
   const baseState: UseDeleteItemDialogReturn = {
     selectedSupplier: null,
     selectedItem: null,
@@ -22,9 +30,9 @@ const createMockState = (overrides: Partial<UseDeleteItemDialogReturn> = {}): Us
     itemQuery: '',
     showConfirmation: false,
     isSubmitting: false,
-    suppliersQuery: {} as unknown as UseDeleteItemDialogReturn['suppliersQuery'],
-    itemsQuery: {} as unknown as UseDeleteItemDialogReturn['itemsQuery'],
-    itemDetailsQuery: {} as unknown as UseDeleteItemDialogReturn['itemDetailsQuery'],
+    suppliersQuery: ({ data: [], isLoading: false } as unknown) as UseDeleteItemDialogReturn['suppliersQuery'],
+    itemsQuery: ({ data: [], isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemsQuery'],
+    itemDetailsQuery: ({ data: null, isLoading: false } as unknown) as UseDeleteItemDialogReturn['itemDetailsQuery'],
     setItemQuery: vi.fn(),
     setSelectedSupplier: vi.fn(),
     setSelectedItem: vi.fn(),
@@ -36,52 +44,67 @@ const createMockState = (overrides: Partial<UseDeleteItemDialogReturn> = {}): Us
     onSubmit: vi.fn(),
     onConfirmedDelete: vi.fn(),
   };
+
   return { ...baseState, ...overrides };
 };
 
+function renderDeleteItemContent(
+  opts: { showConfirmation: boolean; state?: UseDeleteItemDialogReturn } = { showConfirmation: false },
+) {
+  const state = opts.state ?? createMockState();
+  return render(<DeleteItemContent state={state} showConfirmation={opts.showConfirmation} />);
+}
+
 describe('DeleteItemContent', () => {
-  it('renders form view', () => {
-    const state = createMockState();
-    const { container } = render(
-      <DeleteItemContent state={state} showConfirmation={false} />
-    );
-    expect(container).toBeTruthy();
+  it('renders the form view when showConfirmation is false', () => {
+    renderDeleteItemContent({ showConfirmation: false });
+
+    expect(screen.getByText('Step 1: Select Supplier')).toBeInTheDocument();
+    expect(screen.queryByText('Are you sure you want to proceed?')).not.toBeInTheDocument();
   });
 
-  it('renders confirmation view', () => {
+  it('renders the confirmation view when showConfirmation is true', () => {
     const state = createMockState({
-      selectedSupplier: { id: '1', label: 'Supplier A' },
-      selectedItem: { id: 'item1', name: 'Item 1' },
+      selectedItem: { id: 'item1', name: 'Item 1' } as UseDeleteItemDialogReturn['selectedItem'],
+      itemDetailsQuery: ({
+        data: { name: 'Item 1', onHand: 3 },
+        isLoading: false,
+      } as unknown) as UseDeleteItemDialogReturn['itemDetailsQuery'],
     });
-    const { container } = render(
-      <DeleteItemContent state={state} showConfirmation={true} />
-    );
-    expect(container).toBeTruthy();
+
+    renderDeleteItemContent({ showConfirmation: true, state });
+
+    expect(screen.getByText('This action cannot be undone!')).toBeInTheDocument();
+    expect(screen.getByText('Are you sure you want to proceed?')).toBeInTheDocument();
+    expect(screen.getByText('Item being deleted:')).toBeInTheDocument();
+    expect(screen.getByText('Item 1')).toBeInTheDocument();
   });
 
-  it('displays form error message', () => {
+  it('renders a form error message when state.formError is present', () => {
     const state = createMockState({ formError: 'Test error' });
-    const { container } = render(
-      <DeleteItemContent state={state} showConfirmation={false} />
-    );
-    expect(container.textContent).toContain('Test error');
+
+    renderDeleteItemContent({ showConfirmation: false, state });
+
+    expect(screen.getByText('Test error')).toBeInTheDocument();
   });
 
-  it('switches between form and confirmation', () => {
+  it('switches between views based on showConfirmation', () => {
     const state = createMockState({
-      selectedSupplier: { id: '1', label: 'Supplier A' },
-      selectedItem: { id: 'item1', name: 'Item 1' },
+      selectedItem: { id: 'item1', name: 'Item 1' } as UseDeleteItemDialogReturn['selectedItem'],
+      itemDetailsQuery: ({
+        data: { name: 'Item 1', onHand: 3 },
+        isLoading: false,
+      } as unknown) as UseDeleteItemDialogReturn['itemDetailsQuery'],
     });
-    const { rerender, container } = render(
-      <DeleteItemContent state={state} showConfirmation={false} />
-    );
-    const formHTML = container.innerHTML;
 
-    rerender(
-      <DeleteItemContent state={state} showConfirmation={true} />
-    );
-    const confirmHTML = container.innerHTML;
+    const { rerender } = render(<DeleteItemContent state={state} showConfirmation={false} />);
 
-    expect(formHTML).not.toEqual(confirmHTML);
+    expect(screen.getByText('Step 1: Select Supplier')).toBeInTheDocument();
+    expect(screen.queryByText('Are you sure you want to proceed?')).not.toBeInTheDocument();
+
+    rerender(<DeleteItemContent state={state} showConfirmation />);
+
+    expect(screen.queryByText('Step 1: Select Supplier')).not.toBeInTheDocument();
+    expect(screen.getByText('Are you sure you want to proceed?')).toBeInTheDocument();
   });
 });

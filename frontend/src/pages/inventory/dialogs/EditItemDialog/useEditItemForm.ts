@@ -128,7 +128,6 @@ export function useEditItemForm(
     setValue('newName', '');
     setFormError('');
   }, [selectedSupplier, setValue]);
-
   /**
    * Pre-fill new name with current item name when details load
    * Uses fetched data (not search placeholder)

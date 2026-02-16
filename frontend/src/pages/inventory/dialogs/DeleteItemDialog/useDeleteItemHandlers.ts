@@ -54,14 +54,14 @@ export function useDeleteItemHandlers(
    */
   const onSubmit = state.handleSubmit(
     React.useCallback(async () => {
-      if (!state.selectedItem) {
-        state.setFormError(
-          t('errors:inventory.selection.noItemSelected', 'Please select an item.')
-        );
-        return;
-      }
-      // Validation passed: show confirmation dialog
-      state.setShowConfirmation(true);
+    if (!state.selectedItem) {
+      state.setFormError(
+        t('errors:inventory.selection.noItemSelected', 'Please select an item.')
+      );
+      return;
+    }
+    // Validation passed: show confirmation dialog
+    state.setShowConfirmation(true);
     }, [state, t])
   );
 
