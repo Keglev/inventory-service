@@ -1,24 +1,36 @@
 /**
  * @file usePriceChangeForm.test.ts
+ * @module __tests__/pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm
+ * @description
+ * Contract tests for usePriceChangeForm hook:
+ * - Initializes with default state when opened
+ * - Exposes RHF contract surface required by the dialog/form components
  *
- * @what_is_under_test usePriceChangeForm hook
- * @responsibility Manage form state, item queries, and submission handlers
- * @out_of_scope Component rendering, API layer
+ * Notes:
+ * - We mock inventory queries and RHF to keep the hook deterministic.
+ * - We do not test API implementation details or component rendering here.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import * as inventoryHooksModule from '../../../../../api/inventory/hooks/useInventoryData';
 
-// Mock dependencies - must be before import
+import type { UseSuppliersQueryResult, UseItemSearchQueryResult, UseItemDetailsQueryResult } from './usePriceChangeForm.test.types';
+
+/**
+ * Hoisted mocks ensure deterministic module initialization.
+ */
+const mockUseSuppliersQuery = vi.hoisted(() => vi.fn());
+const mockUseItemSearchQuery = vi.hoisted(() => vi.fn());
+const mockUseItemDetailsQuery = vi.hoisted(() => vi.fn());
+
 vi.mock('../../../../../api/inventory/mutations.ts', () => ({
   changePrice: vi.fn(),
 }));
 
 vi.mock('../../../../../api/inventory/hooks/useInventoryData.ts', () => ({
-  useSuppliersQuery: vi.fn(),
-  useItemSearchQuery: vi.fn(),
-  useItemDetailsQuery: vi.fn(),
+  useSuppliersQuery: mockUseSuppliersQuery,
+  useItemSearchQuery: mockUseItemSearchQuery,
+  useItemDetailsQuery: mockUseItemDetailsQuery,
 }));
 
 vi.mock('../../../../../context/toast.ts', () => ({
@@ -27,18 +39,21 @@ vi.mock('../../../../../context/toast.ts', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue || key,
+    t: (key: string, defaultValue?: string) => defaultValue ?? key,
   }),
 }));
 
-vi.mock('react-hook-form', () => {
-  const actual = vi.importActual('react-hook-form');
+/**
+ * react-hook-form is a dependency; we only need a stable subset for this hook’s contract.
+ * handleSubmit(fn) returns a callable submit handler.
+ */
+vi.mock('react-hook-form', async () => {
+  const actual = await vi.importActual<typeof import('react-hook-form')>('react-hook-form');
   return {
     ...actual,
     useForm: () => ({
       control: {},
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handleSubmit: (fn: any) => fn,
+      handleSubmit: (fn: unknown) => fn as () => void,
       formState: { errors: {}, isSubmitting: false },
       reset: vi.fn(),
       setValue: vi.fn(),
@@ -51,38 +66,37 @@ vi.mock('react-hook-form', () => {
 
 import { usePriceChangeForm } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
 
+const defaultArgs = () => ({
+  isOpen: true,
+  onClose: vi.fn(),
+  onPriceChanged: vi.fn(),
+});
+
 describe('usePriceChangeForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(inventoryHooksModule.useSuppliersQuery).mockReturnValue({ isLoading: false, data: [] } as any);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(inventoryHooksModule.useItemSearchQuery).mockReturnValue({ isLoading: false, data: [] } as any);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(inventoryHooksModule.useItemDetailsQuery).mockReturnValue({ isLoading: false, data: null } as any);
+    const suppliersResult: UseSuppliersQueryResult = { isLoading: false, data: [] };
+    const searchResult: UseItemSearchQueryResult = { isLoading: false, data: [] };
+    const detailsResult: UseItemDetailsQueryResult = { isLoading: false, data: null };
+
+    mockUseSuppliersQuery.mockReturnValue(suppliersResult);
+    mockUseItemSearchQuery.mockReturnValue(searchResult);
+    mockUseItemDetailsQuery.mockReturnValue(detailsResult);
   });
 
   it('initializes with default state', () => {
-    const { result } = renderHook(() =>
-      usePriceChangeForm({
-        isOpen: true,
-        onClose: vi.fn(),
-        onPriceChanged: vi.fn(),
-      })
-    );
+    const { result } = renderHook(() => usePriceChangeForm(defaultArgs()));
+
     expect(result.current).toBeDefined();
     expect(result.current.selectedItem).toBeNull();
   });
 
-  it('provides form register method', () => {
-    const { result } = renderHook(() =>
-      usePriceChangeForm({
-        isOpen: true,
-        onClose: vi.fn(),
-        onPriceChanged: vi.fn(),
-      })
-    );
-    expect(result.current.register).toBeDefined();
+  it('exposes react-hook-form contract surface', () => {
+    const { result } = renderHook(() => usePriceChangeForm(defaultArgs()));
+
+    expect(result.current.register).toBeTypeOf('function');
+    expect(result.current.handleSubmit).toBeTypeOf('function');
+    expect(result.current.formState).toBeDefined();
   });
 });

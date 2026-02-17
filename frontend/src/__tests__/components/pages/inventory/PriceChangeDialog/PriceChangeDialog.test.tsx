@@ -1,76 +1,84 @@
 /**
  * @file PriceChangeDialog.test.tsx
+ * @module __tests__/pages/inventory/dialogs/PriceChangeDialog
+ * @description
+ * Contract tests for the PriceChangeDialog wrapper component:
+ * - renders conditionally based on `open`
+ * - exposes the dialog actions (Cancel / Apply / Help)
+ * - delegates lifecycle actions to the orchestration hook (usePriceChangeForm)
+ * - renders the form container component
  *
- * @what_is_under_test PriceChangeDialog component
- * @responsibility Render dialog wrapper and manage dialog lifecycle
- * @scope Dialog rendering, UI elements, user interactions
+ * Notes:
+ * - We mock translations to avoid coupling tests to i18n runtime setup.
+ * - We test behavior/contract, not MUI internals.
  */
 
-import type { ReactNode } from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-import i18n from 'i18next';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import { PriceChangeDialog } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog';
 import type { PriceChangeDialogProps } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeDialog.types';
 import type { UsePriceChangeFormReturn } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
 import type { ItemOption } from '../../../../../api/analytics/types';
 import { usePriceChangeForm } from '../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm';
 
+/**
+ * Translation is treated as infrastructure.
+ * We keep tests deterministic by returning keys directly.
+ */
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
+/**
+ * Toast is an integration concern; not part of this wrapper contract.
+ */
 vi.mock('../../../../../context/toast', () => ({
   useToast: () => vi.fn(),
 }));
 
+/**
+ * The dialog delegates orchestration to this hook; we control its return value.
+ */
 vi.mock('../../../../../pages/inventory/dialogs/PriceChangeDialog/usePriceChangeForm', () => ({
   usePriceChangeForm: vi.fn(),
 }));
 
+/**
+ * Form rendering is tested separately; here we only assert it is mounted.
+ */
 vi.mock('../../../../../pages/inventory/dialogs/PriceChangeDialog/PriceChangeForm', () => ({
   PriceChangeForm: () => <div data-testid="price-change-form" />,
 }));
 
-// Initialize i18n for tests
-if (!i18n.isInitialized) {
-  i18n.init({
-    lng: 'en',
-    fallbackLng: 'en',
-    ns: ['common', 'inventory', 'errors'],
-    defaultNS: 'common',
-    resources: {
-      en: {
-        common: {
-          'actions.cancel': 'Cancel',
-          help: 'Help',
-          saving: 'Saving...',
-        },
-        inventory: {
-          'toolbar.changePrice': 'Change Price',
-          'buttons.applyPriceChange': 'Apply Price Change',
-          'steps.selectSupplier': 'Step 1: Select Supplier',
-          'steps.selectItem': 'Step 2: Search and Select Item',
-          'steps.changePrice': 'Step 3: Enter New Price',
-          'table.supplier': 'Supplier',
-          'search.searchSelectItem': 'Search and select item...',
-          'search.selectSupplierFirst': 'Select supplier first',
-          'search.typeToSearch': 'Type at least 2 characters to search',
-          'search.noItemsFound': 'No items found',
-          'price.newPrice': 'New Price',
-          'price.priceChange': 'Change from {{from}} to {{to}}',
-        },
-        errors: {},
-      },
-    },
-  });
-}
-
-const createWrapper = () => ({ children }: { children: ReactNode }) => (
-  <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
-);
-
 const usePriceChangeFormMock = vi.mocked(usePriceChangeForm);
 
-const createMockFormState = (): UsePriceChangeFormReturn => {
-  const state = {
+type FormStateOverrides = Partial<
+  Pick<UsePriceChangeFormReturn, 'selectedItem' | 'handleClose' | 'formState'>
+>;
+
+/**
+ * Creates an ItemOption test double.
+ * Only fields used by the dialog contract are populated.
+ */
+const makeItem = (overrides: Partial<ItemOption> = {}): ItemOption => ({
+  id: '1',
+  name: 'Sample Item',
+  onHand: 10,
+  price: 12,
+  supplierId: 'supplier-1',
+  ...overrides,
+});
+
+/**
+ * Minimal hook return value sufficient for the dialog wrapper tests.
+ * We avoid "any" by typing only the parts used in these tests.
+ */
+const makeFormState = (overrides: FormStateOverrides = {}): UsePriceChangeFormReturn => {
+  const base = {
     selectedSupplier: null,
     selectedItem: null,
     itemQuery: '',
@@ -86,6 +94,8 @@ const createMockFormState = (): UsePriceChangeFormReturn => {
     itemDetailsLoading: false,
     effectiveCurrentPrice: 0,
     effectiveCurrentQty: 0,
+
+    // react-hook-form API surface used by the dialog/form components.
     register: vi.fn() as UsePriceChangeFormReturn['register'],
     control: {} as UsePriceChangeFormReturn['control'],
     formState: {
@@ -104,205 +114,117 @@ const createMockFormState = (): UsePriceChangeFormReturn => {
     clearErrors: vi.fn() as UsePriceChangeFormReturn['clearErrors'],
     handleSubmit: vi.fn() as UsePriceChangeFormReturn['handleSubmit'],
     onSubmit: vi.fn(async () => {}) as UsePriceChangeFormReturn['onSubmit'],
-    handleClose: vi.fn(),
-  } as unknown as UsePriceChangeFormReturn;
 
-  return state;
+    handleClose: vi.fn(),
+  } satisfies Partial<UsePriceChangeFormReturn>;
+
+  // The full hook type is larger; for wrapper tests we only need a stable object.
+  return { ...(base as unknown as UsePriceChangeFormReturn), ...overrides };
 };
 
-const createMockItem = (overrides: Partial<ItemOption> = {}): ItemOption => ({
-  id: '1',
-  name: 'Sample Item',
-  onHand: 10,
-  price: 12,
-  supplierId: 'supplier-1',
-  ...overrides,
+const defaultProps = (): PriceChangeDialogProps => ({
+  open: true,
+  onClose: vi.fn(),
+  onPriceChanged: vi.fn(),
+  readOnly: false,
 });
 
 describe('PriceChangeDialog', () => {
-  let mockOnClose: ReturnType<typeof vi.fn>;
-  let mockOnPriceChanged: ReturnType<typeof vi.fn>;
-
   beforeEach(() => {
-    mockOnClose = vi.fn();
-    mockOnPriceChanged = vi.fn();
     usePriceChangeFormMock.mockReset();
-    usePriceChangeFormMock.mockReturnValue(createMockFormState());
+    usePriceChangeFormMock.mockReturnValue(makeFormState());
   });
 
-  it('renders dialog when open prop is true', () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+  it('renders when open=true', () => {
+    render(<PriceChangeDialog {...defaultProps()} />);
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
-
-    expect(screen.getByText('Change Price')).toBeInTheDocument();
+    // We assert against translation keys (stable) rather than translated strings.
+    expect(screen.getByText('inventory:toolbar.changePrice')).toBeInTheDocument();
   });
 
-  it('does not render dialog when open prop is false', () => {
-    const props: PriceChangeDialogProps = {
-      open: false,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+  it('does not render when open=false', () => {
+    render(<PriceChangeDialog {...defaultProps()} open={false} />);
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
-
-    // Dialog should not be in the DOM when closed
-    expect(screen.queryByText('Change Price')).not.toBeInTheDocument();
+    expect(screen.queryByText('inventory:toolbar.changePrice')).not.toBeInTheDocument();
   });
 
-  it('renders Cancel button', () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+  it('renders Cancel and Apply actions', () => {
+    render(<PriceChangeDialog {...defaultProps()} />);
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
-
-    expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'common:actions.cancel' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'inventory:buttons.applyPriceChange' }),
+    ).toBeInTheDocument();
   });
 
-  it('renders Apply Price Change button', () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+  it('renders Help action', () => {
+    render(<PriceChangeDialog {...defaultProps()} />);
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
-
-    expect(screen.getByRole('button', { name: /apply price change/i })).toBeInTheDocument();
+    // Contract: icon button labeled for accessibility.
+    expect(screen.getByLabelText('help')).toBeInTheDocument();
   });
 
-  it('renders Help button with tooltip', () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
-
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
-
-    const helpButton = screen.getByLabelText('help');
-    expect(helpButton).toBeInTheDocument();
-  });
-
-  it('calls onClose when Cancel button is clicked', async () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+  it('delegates close to the orchestration hook when Cancel is clicked', async () => {
+    const user = userEvent.setup();
 
     const handleClose = vi.fn();
-    const state = createMockFormState();
-    state.handleClose = handleClose;
-    usePriceChangeFormMock.mockReturnValue(state);
+    usePriceChangeFormMock.mockReturnValue(makeFormState({ handleClose }));
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
+    render(<PriceChangeDialog {...defaultProps()} />);
 
-    const cancelButton = screen.getByRole('button', { name: /cancel/i });
-    fireEvent.click(cancelButton);
+    await user.click(screen.getByRole('button', { name: 'common:actions.cancel' }));
 
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
-  it('opens help link in new window when Help button is clicked', () => {
-    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+  it('opens help link in a new window when Help is clicked', async () => {
+    const user = userEvent.setup();
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
 
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+    render(<PriceChangeDialog {...defaultProps()} />);
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
+    await user.click(screen.getByLabelText('help'));
 
-    const helpButton = screen.getByLabelText('help');
-    fireEvent.click(helpButton);
+    expect(openSpy).toHaveBeenCalledWith('#/help?section=inventory.changePrice', '_blank');
 
-    expect(windowOpenSpy).toHaveBeenCalledWith('#/help?section=inventory.changePrice', '_blank');
-
-    windowOpenSpy.mockRestore();
+    openSpy.mockRestore();
   });
 
-  it('renders PriceChangeForm component', () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
-
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
+  it('renders the PriceChangeForm container', () => {
+    render(<PriceChangeDialog {...defaultProps()} />);
 
     expect(screen.getByTestId('price-change-form')).toBeInTheDocument();
   });
 
-  it('disables Apply button when form is submitting', async () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+  it('disables Apply when the form is submitting', () => {
+    usePriceChangeFormMock.mockReturnValue(
+      makeFormState({
+        selectedItem: makeItem(),
+        formState: {
+          ...makeFormState().formState,
+          isSubmitting: true,
+        },
+      }),
+    );
 
-    const state = createMockFormState();
-    state.formState = { ...state.formState, isSubmitting: true };
-    state.selectedItem = createMockItem();
-    usePriceChangeFormMock.mockReturnValue(state);
+    render(<PriceChangeDialog {...defaultProps()} />);
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
-
-    const applyButton = screen.getByTestId('apply-price-change-button') as HTMLButtonElement;
-    expect(applyButton.disabled).toBe(true);
+    expect(screen.getByTestId('apply-price-change-button')).toBeDisabled();
   });
 
-  it('disables Apply button when no item selected', () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+  it('disables Apply when no item is selected', () => {
+    usePriceChangeFormMock.mockReturnValue(makeFormState({ selectedItem: null }));
 
-    const state = createMockFormState();
-    state.selectedItem = null;
-    usePriceChangeFormMock.mockReturnValue(state);
+    render(<PriceChangeDialog {...defaultProps()} />);
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
-
-    const applyButton = screen.getByTestId('apply-price-change-button') as HTMLButtonElement;
-    expect(applyButton.disabled).toBe(true);
+    expect(screen.getByTestId('apply-price-change-button')).toBeDisabled();
   });
 
-  it('enables Apply button when item selected and not submitting', () => {
-    const props: PriceChangeDialogProps = {
-      open: true,
-      onClose: mockOnClose,
-      onPriceChanged: mockOnPriceChanged,
-      readOnly: false,
-    };
+  it('enables Apply when an item is selected and not submitting', () => {
+    usePriceChangeFormMock.mockReturnValue(makeFormState({ selectedItem: makeItem() }));
 
-    const state = createMockFormState();
-    state.selectedItem = createMockItem();
-    usePriceChangeFormMock.mockReturnValue(state);
+    render(<PriceChangeDialog {...defaultProps()} />);
 
-    render(<PriceChangeDialog {...props} />, { wrapper: createWrapper() });
-
-    const applyButton = screen.getByTestId('apply-price-change-button') as HTMLButtonElement;
-    expect(applyButton.disabled).toBe(false);
+    expect(screen.getByTestId('apply-price-change-button')).toBeEnabled();
   });
 });
