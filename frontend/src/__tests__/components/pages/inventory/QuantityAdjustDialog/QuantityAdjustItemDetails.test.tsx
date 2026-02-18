@@ -1,16 +1,26 @@
 /**
  * @file QuantityAdjustItemDetails.test.tsx
+ * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustItemDetails
+ * @description Contract tests for QuantityAdjustItemDetails:
+ * - Renders nothing when no item is selected.
+ * - Displays item name, quantity, and price.
+ * - Shows loading indicators for quantity/price while loading.
+ * - Falls back to the item's price when currentPrice is missing.
  *
- * @what_is_under_test QuantityAdjustItemDetails component
- * @responsibility Display selected item details with loading and fallback logic
- * @out_of_scope Query hooks, dialog orchestration
+ * Out of scope:
+ * - Query orchestration (supplied by parent orchestrator).
+ * - MUI layout/styling details.
  */
+
+// Shared deterministic mocks (i18n + toast) for this folder.
+import './testSetup';
 
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QuantityAdjustItemDetails } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemDetails';
 import type { ItemOption } from '../../../../../api/analytics/types';
 
+// Stable item fixture for deterministic formatting assertions.
 const item: ItemOption = {
   id: 'item-9',
   name: 'Hand Sanitizer',

@@ -1,16 +1,28 @@
 /**
  * @file QuantityAdjustDialog.test.tsx
+ * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustDialog
+ * @description Contract tests for QuantityAdjustDialog:
+ * - Wires dialog props into useQuantityAdjustForm.
+ * - Passes orchestrator state into QuantityAdjustForm.
+ * - Enables/disables primary action based on selection + submitting state.
+ * - Opens the correct contextual help topic.
  *
- * @what_is_under_test QuantityAdjustDialog component
- * @responsibility Render dialog wrapper and manage dialog lifecycle
- * @out_of_scope QuantityAdjustForm internals
+ * Out of scope:
+ * - QuantityAdjustForm internals (covered by QuantityAdjustForm.test.tsx).
+ * - Hook internals (covered by useQuantityAdjustForm.test.ts).
+ * - MUI rendering details.
  */
+
+// Shared deterministic mocks (i18n + toast) for this folder.
+import './testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { UseQuantityAdjustFormReturn } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
+import { makeQuantityAdjustForm } from './fixtures';
 
+// Spies for contract assertions (prop wiring + help topic routing).
 const useQuantityAdjustFormMock = vi.fn();
 const quantityFormPropsSpy = vi.fn();
 const helpButtonPropsSpy = vi.fn();
@@ -22,6 +34,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useQuantity
 
 vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustForm', () => ({
   QuantityAdjustForm: (props: { form: UseQuantityAdjustFormReturn }) => {
+    // Keep this test focused on the dialog contract (not form internals).
     quantityFormPropsSpy(props);
     return <div data-testid="quantity-adjust-form">QuantityAdjustForm</div>;
   },
@@ -29,6 +42,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
 
 vi.mock('../../../../../features/help', () => ({
   HelpIconButton: (props: { topicId: string; tooltip?: string }) => {
+    // Replace implementation with a stable button we can click.
     helpButtonPropsSpy(props);
     return (
       <button
@@ -42,37 +56,7 @@ vi.mock('../../../../../features/help', () => ({
   },
 }));
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
-}));
-
 import { QuantityAdjustDialog } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustDialog';
-
-const createFormState = (
-  overrides: Partial<UseQuantityAdjustFormReturn> = {}
-): UseQuantityAdjustFormReturn => ({
-  selectedSupplier: null,
-  selectedItem: null,
-  itemQuery: '',
-  formError: '',
-  setSelectedSupplier: vi.fn(),
-  setSelectedItem: vi.fn(),
-  setItemQuery: vi.fn(),
-  setFormError: vi.fn(),
-  suppliers: [],
-  suppliersLoading: false,
-  items: [],
-  itemsLoading: false,
-  effectiveCurrentQty: 0,
-  effectiveCurrentPrice: null,
-  itemDetailsLoading: false,
-  control: {} as UseQuantityAdjustFormReturn['control'],
-  formState: { errors: {}, isSubmitting: false } as UseQuantityAdjustFormReturn['formState'],
-  setValue: vi.fn(),
-  onSubmit: vi.fn(),
-  handleClose: vi.fn(),
-  ...overrides,
-});
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -81,7 +65,7 @@ beforeEach(() => {
 
 describe('QuantityAdjustDialog', () => {
   it('initializes orchestrator hook and renders heading with help button', () => {
-    const formState = createFormState();
+    const formState = makeQuantityAdjustForm();
     const onClose = vi.fn();
     const onAdjusted = vi.fn();
     useQuantityAdjustFormMock.mockReturnValue(formState);
@@ -100,7 +84,7 @@ describe('QuantityAdjustDialog', () => {
 
   it('delegates cancel action to handleClose', async () => {
     const user = userEvent.setup();
-    const formState = createFormState();
+    const formState = makeQuantityAdjustForm();
     useQuantityAdjustFormMock.mockReturnValue(formState);
 
     render(<QuantityAdjustDialog open={true} onClose={vi.fn()} onAdjusted={vi.fn()} />);
@@ -110,7 +94,7 @@ describe('QuantityAdjustDialog', () => {
   });
 
   it('disables apply button when no item selected', () => {
-    const formState = createFormState({ selectedItem: null });
+    const formState = makeQuantityAdjustForm({ selectedItem: null });
     useQuantityAdjustFormMock.mockReturnValue(formState);
 
     render(<QuantityAdjustDialog open={true} onClose={vi.fn()} onAdjusted={vi.fn()} />);
@@ -120,8 +104,8 @@ describe('QuantityAdjustDialog', () => {
 
   it('invokes onSubmit when apply button clicked with selected item', async () => {
     const user = userEvent.setup();
-    const formState = createFormState({
-      selectedItem: { id: 'item-1', name: 'Item 1', onHand: 5 } as UseQuantityAdjustFormReturn['selectedItem'],
+    const formState = makeQuantityAdjustForm({
+      selectedItem: { id: 'item-1', name: 'Item 1', onHand: 5 },
     });
     useQuantityAdjustFormMock.mockReturnValue(formState);
 
@@ -132,8 +116,8 @@ describe('QuantityAdjustDialog', () => {
   });
 
   it('shows submitting state with loader and disabled actions', () => {
-    const formState = createFormState({
-      selectedItem: { id: 'item-1', name: 'Item 1', onHand: 5 } as UseQuantityAdjustFormReturn['selectedItem'],
+    const formState = makeQuantityAdjustForm({
+      selectedItem: { id: 'item-1', name: 'Item 1', onHand: 5 },
       formState: { errors: {}, isSubmitting: true } as UseQuantityAdjustFormReturn['formState'],
     });
     useQuantityAdjustFormMock.mockReturnValue(formState);
@@ -149,7 +133,7 @@ describe('QuantityAdjustDialog', () => {
 
   it('opens contextual help topic when help button clicked', async () => {
     const user = userEvent.setup();
-    const formState = createFormState();
+    const formState = makeQuantityAdjustForm();
     useQuantityAdjustFormMock.mockReturnValue(formState);
 
     render(<QuantityAdjustDialog open={true} onClose={vi.fn()} onAdjusted={vi.fn()} />);

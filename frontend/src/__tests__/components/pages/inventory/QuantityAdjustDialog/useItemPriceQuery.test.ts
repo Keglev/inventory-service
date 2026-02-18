@@ -1,10 +1,19 @@
 /**
  * @file useItemPriceQuery.test.ts
+ * @module __tests__/components/pages/inventory/QuantityAdjustDialog/useItemPriceQuery
+ * @description Contract tests for useItemPriceQuery:
+ * - Returns the latest price from trend data when available.
+ * - Falls back to the item's current price when trend is empty.
+ * - Recovers from errors by logging and returning the fallback price.
+ * - Does not execute when no item is selected.
  *
- * @what_is_under_test useItemPriceQuery hook
- * @responsibility Fetch the most recent item price with sensible fallbacks
- * @out_of_scope React Query internals, analytics API transport
+ * Out of scope:
+ * - React Query internals (we only assert observable hook outputs).
+ * - Transport implementation of the analytics API.
  */
+
+// Shared deterministic mocks (i18n + toast) for this folder.
+import './testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -13,6 +22,7 @@ import { createElement, type ReactNode } from 'react';
 import type { ItemOption } from '../../../../../api/analytics/types';
 import { useItemPriceQuery } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useItemPriceQuery';
 
+// Deterministic API mock; each test controls resolved/rejected values.
 vi.mock('../../../../../api/analytics/priceTrend', () => ({
   getPriceTrend: vi.fn(),
 }));
@@ -21,6 +31,7 @@ import { getPriceTrend } from '../../../../../api/analytics/priceTrend';
 
 const getPriceTrendMock = vi.mocked(getPriceTrend);
 
+// React Query wrapper with retry disabled for deterministic unit tests.
 const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: {

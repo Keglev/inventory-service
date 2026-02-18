@@ -1,37 +1,38 @@
 /**
  * @file InventoryFilters.test.tsx
- * @description
- * Test suite for InventoryFilters component.
- * Verifies supplier selection, search functionality, loading states, and conditional disabling.
+ * @module __tests__/components/pages/inventory/InventoryFilters
+ * @description Contract tests for InventoryFilters:
+ * - Emits `onQChange` and `onSupplierChange` callbacks.
+ * - Disables supplier select while loading.
+ *
+ * Out of scope:
+ * - MUI menu implementation details.
+ * - i18n translation correctness (keys are stabilized via testSetup).
  */
+
+import './testSetup';
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import type { ComponentProps } from 'react';
 import { InventoryFilters } from '@/pages/inventory/InventoryFilters';
 import type { SupplierOption } from '@/pages/inventory/InventoryFilters';
 
-// Mock react-i18next for translations
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue || key,
-  }),
-}));
-
 describe('InventoryFilters', () => {
-  // Mock callback functions
+  // Contract spies for callback wiring.
   const mockOnQChange = vi.fn();
   const mockOnSupplierChange = vi.fn();
 
-  // Sample supplier data
+  // Stable test fixtures.
   const suppliers: SupplierOption[] = [
     { id: '1', label: 'Supplier A' },
     { id: '2', label: 'Supplier B' },
     { id: '3', label: 'Supplier C' },
   ];
 
-  // Helper function to render component with default props
-  const renderFilters = (props = {}) => {
-    const defaultProps = {
+  // Render helper: keeps tests focused on assertions.
+  const renderFilters = (props: Partial<ComponentProps<typeof InventoryFilters>> = {}) => {
+    const defaultProps: ComponentProps<typeof InventoryFilters> = {
       q: '',
       onQChange: mockOnQChange,
       supplierId: '',
@@ -44,26 +45,17 @@ describe('InventoryFilters', () => {
   };
 
   beforeEach(() => {
-    // Clear all mocks before each test
+    // Ensure isolation between tests.
     vi.clearAllMocks();
   });
 
-  it('renders supplier select dropdown', () => {
-    // Verify that the supplier selection dropdown is rendered
+  it('renders the supplier select and search input', () => {
     renderFilters();
-    const supplierSelect = screen.getByRole('combobox');
-    expect(supplierSelect).toBeInTheDocument();
-  });
-
-  it('renders search input field', () => {
-    // Verify that search input for filtering items is rendered
-    renderFilters();
-    const searchInput = screen.getByLabelText('Search items...');
-    expect(searchInput).toBeInTheDocument();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(screen.getByLabelText('Search items...')).toBeInTheDocument();
   });
 
   it('displays all supplier options in dropdown', () => {
-    // Verify that all suppliers are available in the dropdown menu
     renderFilters();
     const supplierSelect = screen.getByRole('combobox');
     fireEvent.mouseDown(supplierSelect);
@@ -86,7 +78,6 @@ describe('InventoryFilters', () => {
   });
 
   it('calls onSupplierChange when supplier is selected', () => {
-    // Verify that supplier change callback is triggered on selection
     renderFilters();
     const supplierSelect = screen.getByRole('combobox');
     fireEvent.mouseDown(supplierSelect);
@@ -98,9 +89,9 @@ describe('InventoryFilters', () => {
   });
 
   it('calls onQChange when search text is entered', () => {
-    // Verify that search change callback is triggered on input
     renderFilters();
     const searchInput = screen.getByLabelText('Search items...');
+
     fireEvent.change(searchInput, { target: { value: 'test item' } });
     
     expect(mockOnQChange).toHaveBeenCalledWith('test item');
@@ -114,21 +105,17 @@ describe('InventoryFilters', () => {
   });
 
   it('displays selected supplier value', () => {
-    // Verify that selected supplier ID is reflected in dropdown
     renderFilters({ supplierId: '1' });
     const supplierSelect = screen.getByRole('combobox');
     expect(supplierSelect).toHaveTextContent('Supplier A');
   });
 
   it('shows loading spinner when suppliers are loading', () => {
-    // Verify that loading indicator appears while suppliers are being fetched
     renderFilters({ supplierLoading: true });
-    const spinner = document.querySelector('.MuiCircularProgress-root');
-    expect(spinner).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
   it('disables supplier select when loading', () => {
-    // Verify that supplier dropdown is disabled during loading
     renderFilters({ supplierLoading: true });
     const supplierSelect = screen.getByRole('combobox');
     // MUI Select uses aria-disabled instead of the disabled attribute on the div wrapper
@@ -136,7 +123,6 @@ describe('InventoryFilters', () => {
   });
 
   it('disables search input when disableSearchUntilSupplier is true and no supplier selected', () => {
-    // Verify that search is disabled until a supplier is selected
     renderFilters({
       disableSearchUntilSupplier: true,
       supplierId: '',
@@ -146,19 +132,11 @@ describe('InventoryFilters', () => {
   });
 
   it('enables search input when supplier is selected', () => {
-    // Verify that search becomes enabled once a supplier is selected
     renderFilters({
       disableSearchUntilSupplier: true,
-      supplierId: 1,
+      supplierId: '1',
     });
     const searchInput = screen.getByLabelText('Search items...') as HTMLInputElement;
     expect(searchInput).not.toBeDisabled();
-  });
-
-  it('renders layout container', () => {
-    // Verify that layout container (Stack) is rendered
-    renderFilters();
-    const stack = document.querySelector('.MuiStack-root');
-    expect(stack).toBeInTheDocument();
   });
 });

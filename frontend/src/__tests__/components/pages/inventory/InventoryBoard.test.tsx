@@ -1,27 +1,26 @@
 /**
  * @file InventoryBoard.test.tsx
- * @description
- * Test suite for InventoryBoard orchestrator component.
- * Verifies state management, data fetching integration, dialog management, and handler integration.
+ * @module __tests__/components/pages/inventory/InventoryBoard
+ * @description Contract tests for InventoryBoard orchestration:
+ * - Composes toolbar, filters, table, and dialogs.
+ * - Wires inventory state + handlers into child components.
+ *
+ * Out of scope:
+ * - Child component internals (tested in their own suites).
+ * - MUI rendering details.
  */
+
+import './testSetup';
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import InventoryBoard from '@/pages/inventory/InventoryBoard';
 
-// Mock useAuth hook
+// Mock external dependencies: keep assertions focused on composition.
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({ user: null })),
 }));
 
-// Mock react-i18next for translations
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => defaultValue || key,
-  }),
-}));
-
-// Mock HelpIconButton component
 vi.mock('@/features/help', () => ({
   HelpIconButton: ({ tooltip }: { tooltip: string }) => (
     <button data-testid="help-button" title={tooltip}>
@@ -30,7 +29,6 @@ vi.mock('@/features/help', () => ({
   ),
 }));
 
-// Mock inventory state hook
 vi.mock('@/pages/inventory/hooks/useInventoryState', () => ({
   useInventoryState: vi.fn(() => ({
     q: '',
@@ -73,24 +71,24 @@ vi.mock('@/pages/inventory/components/InventoryDialogs', () => ({
 // Mock handlers
 vi.mock('@/pages/inventory/handlers', () => ({
   useToolbarHandlers: () => ({
-    handleAddNew: vi.fn(),
-    handleEdit: vi.fn(),
-    handleDelete: vi.fn(),
-    handleAdjustQty: vi.fn(),
-    handleChangePrice: vi.fn(),
+    handleAddNew: () => undefined,
+    handleEdit: () => undefined,
+    handleDelete: () => undefined,
+    handleAdjustQty: () => undefined,
+    handleChangePrice: () => undefined,
   }),
   useFilterHandlers: () => ({
-    handleSearchChange: vi.fn(),
-    handleSupplierChange: vi.fn(),
-    handleBelowMinChange: vi.fn(),
+    handleSearchChange: () => undefined,
+    handleSupplierChange: () => undefined,
+    handleBelowMinChange: () => undefined,
   }),
   useTableHandlers: () => ({
-    handleRowClick: vi.fn(),
-    handlePaginationChange: vi.fn(),
-    handleSortChange: vi.fn(),
+    handleRowClick: () => undefined,
+    handlePaginationChange: () => undefined,
+    handleSortChange: () => undefined,
   }),
   useRefreshHandler: () => ({
-    handleReload: vi.fn(),
+    handleReload: () => undefined,
   }),
   useDataFetchingLogic: vi.fn(() => ({
     server: {
@@ -112,69 +110,18 @@ vi.mock('@/pages/inventory/handlers', () => ({
 
 describe('InventoryBoard', () => {
   beforeEach(() => {
-    // Clear all mocks before each test
     vi.clearAllMocks();
   });
 
-  it('renders inventory board main container', () => {
-    // Verify that the main board container renders
+  it('renders title and composed children', () => {
     render(<InventoryBoard />);
-    // Check that top-level box exists
-    const container = document.querySelector('.MuiBox-root');
-    expect(container).not.toBeNull();
-  });
 
-  it('renders page title', () => {
-    // Verify that the inventory management title is displayed
-    render(<InventoryBoard />);
     expect(screen.getByText('Inventory Management')).toBeInTheDocument();
-  });
-
-  it('renders help icon button', () => {
-    // Verify that help button is rendered for user assistance
-    render(<InventoryBoard />);
     const helpButton = screen.getByTestId('help-button');
     expect(helpButton).toBeInTheDocument();
-  });
-
-  it('renders toolbar component', () => {
-    // Verify that the toolbar with action buttons is rendered
-    render(<InventoryBoard />);
     expect(screen.getByTestId('toolbar-add')).toBeInTheDocument();
-  });
-
-  it('renders filter panel component', () => {
-    // Verify that the filter panel for search and supplier selection is rendered
-    render(<InventoryBoard />);
     expect(screen.getByTestId('filter-search')).toBeInTheDocument();
-  });
-
-  it('renders inventory table component', () => {
-    // Verify that the main inventory table is rendered
-    render(<InventoryBoard />);
     expect(screen.getByTestId('inventory-table')).toBeInTheDocument();
-  });
-
-  it('renders inventory dialogs component', () => {
-    // Verify that dialog management component is rendered
-    render(<InventoryBoard />);
     expect(screen.getByTestId('inventory-dialogs')).toBeInTheDocument();
-  });
-
-  it('renders with proper paper wrapper styling', () => {
-    // Verify that Paper component is used for card layout
-    render(<InventoryBoard />);
-    const papers = document.querySelectorAll('.MuiPaper-root');
-    // Should have at least the main paper + filter paper + table paper
-    expect(papers.length).toBeGreaterThanOrEqual(3);
-  });
-
-  it('composes multiple hooks for state management', () => {
-    // Verify that the component uses the inventory state hook
-    // This is verified by the fact that the component renders without errors
-    // and all child components receive the expected props
-    render(<InventoryBoard />);
-    expect(screen.getByTestId('filter-search')).toBeInTheDocument();
-    expect(screen.getByTestId('inventory-table')).toBeInTheDocument();
   });
 });

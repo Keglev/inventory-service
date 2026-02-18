@@ -1,10 +1,19 @@
 /**
  * @file QuantityAdjustQuantityInput.test.tsx
+ * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustQuantityInput
+ * @description Contract tests for QuantityAdjustQuantityInput:
+ * - Renders quantity + reason fields.
+ * - Shows a user-facing hint describing the change.
+ * - Surfaces validation messages from formState.
+ * - Disables controls when form is locked.
  *
- * @what_is_under_test QuantityAdjustQuantityInput component
- * @responsibility Render quantity change and reason fields with validation messaging
- * @out_of_scope Form schema logic, submission side effects
+ * Out of scope:
+ * - Zod schema rules (only display behavior is tested here).
+ * - Submission side effects.
  */
+
+// Shared deterministic mocks (i18n + toast) for this folder.
+import './testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -12,27 +21,16 @@ import { useForm, type FieldErrors } from 'react-hook-form';
 import { QuantityAdjustQuantityInput } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput';
 import type { QuantityAdjustForm } from '../../../../../api/inventory/validation';
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, fallbackOrOptions?: unknown, maybeOptions?: Record<string, unknown>) => {
-      const fallback = typeof fallbackOrOptions === 'string' ? fallbackOrOptions : undefined;
-      const options = (typeof fallbackOrOptions === 'object' && fallbackOrOptions !== null
-        ? (fallbackOrOptions as Record<string, unknown>)
-        : maybeOptions) ?? {};
-
-      const template = fallback ?? key;
-      return Object.entries(options).reduce((acc, [optionKey, value]) =>
-        acc.replace(new RegExp(`{{${optionKey}}}`, 'g'), String(value)), template);
-    },
-  }),
-}));
-
 type HarnessProps = {
   disabled?: boolean;
   errors?: FieldErrors<QuantityAdjustForm>;
   currentQty?: number;
 };
 
+/**
+ * Test harness so useForm() is invoked legally (Rules of Hooks).
+ * The component under test only requires control + errors + flags.
+ */
 const TestHarness = ({ disabled = false, errors = {}, currentQty = 20 }: HarnessProps) => {
   const form = useForm<QuantityAdjustForm>({
     defaultValues: {

@@ -1,10 +1,19 @@
 /**
  * @file QuantityAdjustItemSelect.test.tsx
+ * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustItemSelect
+ * @description Contract tests for QuantityAdjustItemSelect:
+ * - Disabled until a supplier is selected.
+ * - Calls onSearchChange as the user types.
+ * - Calls onItemChange when an item option is chosen.
+ * - Shows a loading indicator when loading.
  *
- * @what_is_under_test QuantityAdjustItemSelect component
- * @responsibility Provide searchable autocomplete for item selection
- * @out_of_scope Data fetching, supplier synchronization
+ * Out of scope:
+ * - Item search query orchestration.
+ * - MUI Autocomplete popup behavior (we assert on user-visible contract only).
  */
+
+// Shared deterministic mocks (i18n + toast) for this folder.
+import './testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -12,11 +21,9 @@ import userEvent from '@testing-library/user-event';
 import { QuantityAdjustItemSelect } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect';
 import type { ItemOption, SupplierOption } from '../../../../../api/analytics/types';
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
-}));
-
 const supplier: SupplierOption = { id: 'sup-1', label: 'Supplier One' };
+
+// Stable item options keep tests deterministic.
 const items: ItemOption[] = [
   { id: 'item-1', name: 'Surgical Gloves', supplierId: 'sup-1', onHand: 10 },
   { id: 'item-2', name: 'Face Mask', supplierId: 'sup-1', onHand: 50 },

@@ -1,17 +1,28 @@
 /**
  * @file QuantityAdjustForm.test.tsx
+ * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustForm
+ * @description Contract tests for QuantityAdjustForm:
+ * - Forwards orchestrator state to step subcomponents.
+ * - Surfaces disabled/enabled behavior required by the dialog workflow.
+ * - Shows and dismisses form-level errors.
  *
- * @what_is_under_test QuantityAdjustForm component
- * @responsibility Render form steps and surface orchestrator props to child components
- * @out_of_scope Child component internals and form submission
+ * Out of scope:
+ * - Subcomponent rendering (SupplierSelect/ItemSelect/Details/QuantityInput).
+ * - react-hook-form validation schema behavior.
+ * - MUI internals.
  */
+
+// Shared deterministic mocks (i18n + toast) for this folder.
+import './testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { UseQuantityAdjustFormReturn } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/useQuantityAdjustForm';
 import type { SupplierOption, ItemOption } from '../../../../../api/analytics/types';
+import { itemOption, makeQuantityAdjustForm, supplierOption } from './fixtures';
 
+// Spies capture the props passed to each step component.
 const supplierSelectSpy = vi.fn();
 const itemSelectSpy = vi.fn();
 const itemDetailsSpy = vi.fn();
@@ -19,6 +30,7 @@ const quantityInputSpy = vi.fn();
 
 vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect', () => ({
   QuantityAdjustSupplierSelect: (props: unknown) => {
+    // Stub leaf component to keep this test focused on orchestration/prop wiring.
     supplierSelectSpy(props);
     return <div data-testid="supplier-select">Supplier Select</div>;
   },
@@ -26,6 +38,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
 
 vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemSelect', () => ({
   QuantityAdjustItemSelect: (props: unknown) => {
+    // Stub leaf component to keep this test focused on orchestration/prop wiring.
     itemSelectSpy(props);
     return <div data-testid="item-select">Item Select</div>;
   },
@@ -33,6 +46,7 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
 
 vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustItemDetails', () => ({
   QuantityAdjustItemDetails: (props: unknown) => {
+    // Stub leaf component to keep this test focused on orchestration/prop wiring.
     itemDetailsSpy(props);
     return <div data-testid="item-details">Item Details</div>;
   },
@@ -40,45 +54,13 @@ vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdj
 
 vi.mock('../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustQuantityInput', () => ({
   QuantityAdjustQuantityInput: (props: unknown) => {
+    // Stub leaf component to keep this test focused on orchestration/prop wiring.
     quantityInputSpy(props);
     return <div data-testid="quantity-input">Quantity Input</div>;
   },
 }));
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
-}));
-
 import { QuantityAdjustForm } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustForm';
-
-const supplierOption: SupplierOption = { id: 'sup-1', label: 'Supplier One' };
-const itemOption: ItemOption = { id: 'item-1', name: 'Item One', onHand: 5, price: 9.99 };
-
-const createForm = (
-  overrides: Partial<UseQuantityAdjustFormReturn> = {}
-): UseQuantityAdjustFormReturn => ({
-  selectedSupplier: null,
-  selectedItem: null,
-  itemQuery: '',
-  formError: '',
-  setSelectedSupplier: vi.fn(),
-  setSelectedItem: vi.fn(),
-  setItemQuery: vi.fn(),
-  setFormError: vi.fn(),
-  suppliers: [],
-  suppliersLoading: false,
-  items: [],
-  itemsLoading: false,
-  effectiveCurrentQty: 0,
-  effectiveCurrentPrice: null,
-  itemDetailsLoading: false,
-  control: {} as UseQuantityAdjustFormReturn['control'],
-  formState: { errors: {}, isSubmitting: false } as UseQuantityAdjustFormReturn['formState'],
-  setValue: vi.fn(),
-  onSubmit: vi.fn(),
-  handleClose: vi.fn(),
-  ...overrides,
-});
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -86,7 +68,7 @@ beforeEach(() => {
 
 describe('QuantityAdjustForm', () => {
   it('passes supplier props to QuantityAdjustSupplierSelect', () => {
-    const form = createForm({
+    const form = makeQuantityAdjustForm({
       selectedSupplier: supplierOption,
       suppliers: [supplierOption],
       suppliersLoading: true,
@@ -108,7 +90,7 @@ describe('QuantityAdjustForm', () => {
   });
 
   it('forwards item selection props with supplier context', () => {
-    const form = createForm({
+    const form = makeQuantityAdjustForm({
       selectedSupplier: supplierOption,
       selectedItem: itemOption,
       itemQuery: 'widget',
@@ -138,7 +120,7 @@ describe('QuantityAdjustForm', () => {
   });
 
   it('provides current quantity and price to item details panel', () => {
-    const form = createForm({
+    const form = makeQuantityAdjustForm({
       selectedItem: itemOption,
       effectiveCurrentQty: 12,
       effectiveCurrentPrice: 14.5,
@@ -161,7 +143,7 @@ describe('QuantityAdjustForm', () => {
   });
 
   it('disables quantity input until item selected', () => {
-    const form = createForm({ selectedItem: null, effectiveCurrentQty: 0 });
+    const form = makeQuantityAdjustForm({ selectedItem: null, effectiveCurrentQty: 0 });
 
     render(<QuantityAdjustForm form={form} />);
 
@@ -171,7 +153,7 @@ describe('QuantityAdjustForm', () => {
   });
 
   it('enables quantity input once item exists and shares control props', () => {
-    const form = createForm({
+    const form = makeQuantityAdjustForm({
       selectedItem: itemOption,
       effectiveCurrentQty: 8,
       control: { mock: true } as unknown as UseQuantityAdjustFormReturn['control'],
@@ -194,7 +176,7 @@ describe('QuantityAdjustForm', () => {
 
   it('renders alert with error message and clears on close', async () => {
     const user = userEvent.setup();
-    const form = createForm({ formError: 'Quantity update failed' });
+    const form = makeQuantityAdjustForm({ formError: 'Quantity update failed' });
 
     render(<QuantityAdjustForm form={form} />);
 

@@ -1,10 +1,18 @@
 /**
  * @file QuantityAdjustSupplierSelect.test.tsx
+ * @module __tests__/components/pages/inventory/QuantityAdjustDialog/QuantityAdjustSupplierSelect
+ * @description Contract tests for QuantityAdjustSupplierSelect:
+ * - Renders the supplier step UI.
+ * - Emits the selected supplier via callback.
+ * - Disables selection while suppliers are loading.
  *
- * @what_is_under_test QuantityAdjustSupplierSelect component
- * @responsibility Render supplier dropdown and surface selection callbacks
- * @out_of_scope Query orchestration, supplier fetching
+ * Out of scope:
+ * - Supplier fetching (react-query).
+ * - MUI Select implementation details.
  */
+
+// Shared deterministic mocks (i18n + toast) for this folder.
+import './testSetup';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -12,10 +20,7 @@ import userEvent from '@testing-library/user-event';
 import { QuantityAdjustSupplierSelect } from '../../../../../pages/inventory/dialogs/QuantityAdjustDialog/QuantityAdjustSupplierSelect';
 import type { SupplierOption } from '../../../../../api/analytics/types';
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
-}));
-
+// Stable options for deterministic UI assertions.
 const suppliers: SupplierOption[] = [
   { id: 'sup-1', label: 'Supplier One' },
   { id: 'sup-2', label: 'Supplier Two' },
