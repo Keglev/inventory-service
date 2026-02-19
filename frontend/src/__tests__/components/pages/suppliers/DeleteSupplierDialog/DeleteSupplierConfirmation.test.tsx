@@ -1,17 +1,33 @@
 /**
  * @file DeleteSupplierConfirmation.test.tsx
+ * @module __tests__/components/pages/suppliers/DeleteSupplierDialog/DeleteSupplierConfirmation
+ * @description Contract tests for the DeleteSupplierConfirmation step component.
  *
- * @what_is_under_test DeleteSupplierConfirmation component
- * @responsibility Render supplier details, warnings, and handle confirmation actions
- * @out_of_scope Backend deletion API calls
+ * Contract under test:
+ * - Renders a warning prompt requiring explicit confirmation.
+ * - Displays supplier name and any available optional details (contactName, email, phone).
+ * - Hides optional detail rows when values are null/empty.
+ * - Displays a backend error banner when `error` is provided.
+ * - While deleting, disables actions and shows progress with a "Deleting..." label.
+ * - Delegates user intent via `onConfirm` / `onCancel` callbacks.
+ *
+ * Out of scope:
+ * - Backend delete API orchestration (tested at workflow hook level).
+ * - MUI internals; assertions are against visible text/roles and callback wiring.
+ *
+ * Test strategy:
+ * - i18n is mocked to return fallback/defaultValue for deterministic strings.
+ * - Use a centralized render helper to keep tests concise and consistent.
  */
 
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ComponentProps } from 'react';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 vi.mock('react-i18next', () => ({
+  // Prefer fallback/defaultValue so assertions don't depend on translation files.
   useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
 }));
 
@@ -25,17 +41,28 @@ const supplier: SupplierRow = {
   email: 'alice@acme.com',
 };
 
+// -------------------------------------
+// Test helpers
+// -------------------------------------
+const renderConfirmation = (
+  overrides?: Partial<ComponentProps<typeof DeleteSupplierConfirmation>>
+) => {
+  const props: ComponentProps<typeof DeleteSupplierConfirmation> = {
+    supplier,
+    error: null,
+    isDeleting: false,
+    onConfirm: vi.fn(async () => undefined),
+    onCancel: vi.fn(),
+    ...overrides,
+  };
+
+  render(<DeleteSupplierConfirmation {...props} />);
+  return props;
+};
+
 describe('DeleteSupplierConfirmation', () => {
   it('renders warning message and supplier details', () => {
-    render(
-      <DeleteSupplierConfirmation
-        supplier={supplier}
-        error={null}
-        isDeleting={false}
-        onConfirm={vi.fn()}
-        onCancel={vi.fn()}
-      />
-    );
+    renderConfirmation();
 
     expect(screen.getByText('Confirm Deletion')).toBeInTheDocument();
     expect(
@@ -48,17 +75,15 @@ describe('DeleteSupplierConfirmation', () => {
   });
 
   it('hides optional fields when data missing', () => {
-    const minimalSupplier: SupplierRow = { id: '2', name: 'No Contact Inc', contactName: null, phone: null, email: null };
+    const minimalSupplier: SupplierRow = {
+      id: '2',
+      name: 'No Contact Inc',
+      contactName: null,
+      phone: null,
+      email: null,
+    };
 
-    render(
-      <DeleteSupplierConfirmation
-        supplier={minimalSupplier}
-        error={null}
-        isDeleting={false}
-        onConfirm={vi.fn()}
-        onCancel={vi.fn()}
-      />
-    );
+    renderConfirmation({ supplier: minimalSupplier });
 
     expect(screen.getByText('No Contact Inc')).toBeInTheDocument();
     expect(screen.queryByText('Contact Name')).not.toBeInTheDocument();
@@ -67,50 +92,31 @@ describe('DeleteSupplierConfirmation', () => {
   });
 
   it('displays backend error message when provided', () => {
-    render(
-      <DeleteSupplierConfirmation
-        supplier={supplier}
-        error={'Cannot delete supplier with linked items'}
-        isDeleting={false}
-        onConfirm={vi.fn()}
-        onCancel={vi.fn()}
-      />
-    );
+    const message = 'Cannot delete supplier with linked items';
+    renderConfirmation({ error: message });
 
-    expect(screen.getAllByRole('alert')[1]).toHaveTextContent('Cannot delete supplier with linked items');
+    // Avoid brittle alert indexing: assert the message is present and lives inside an alert.
+    const textNode = screen.getByText(message);
+    expect(textNode.closest('[role="alert"]')).not.toBeNull();
   });
 
   it('disables buttons and shows progress when deleting', () => {
-    render(
-      <DeleteSupplierConfirmation
-        supplier={supplier}
-        error={null}
-        isDeleting={true}
-        onConfirm={vi.fn()}
-        onCancel={vi.fn()}
-      />
-    );
+    renderConfirmation({ isDeleting: true });
 
     expect(screen.getByRole('button', { name: 'No' })).toBeDisabled();
     const deletingButton = screen.getByRole('button', { name: 'Deleting...' });
     expect(deletingButton).toBeDisabled();
+
+    // `CircularProgress` exposes `role=progressbar`.
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
   it('invokes callbacks on confirm and cancel actions', async () => {
     const user = userEvent.setup();
-    const onConfirm = vi.fn();
+    const onConfirm = vi.fn(async () => undefined);
     const onCancel = vi.fn();
 
-    render(
-      <DeleteSupplierConfirmation
-        supplier={supplier}
-        error={null}
-        isDeleting={false}
-        onConfirm={onConfirm}
-        onCancel={onCancel}
-      />
-    );
+    renderConfirmation({ onConfirm, onCancel });
 
     await user.click(screen.getByRole('button', { name: 'Yes' }));
     await user.click(screen.getByRole('button', { name: 'No' }));

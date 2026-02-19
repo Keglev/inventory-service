@@ -1,9 +1,26 @@
 /**
  * @file EditSupplierDialog.test.tsx
+ * @module __tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierDialog
+ * @description Contract tests for the `EditSupplierDialog` container.
  *
- * @what_is_under_test EditSupplierDialog component
- * @responsibility Render dialog wrapper and delegate workflow to hook
- * @out_of_scope useEditSupplierForm internal implementation
+ * Contract under test:
+ * - Initializes `useEditSupplierForm(onUpdated)` once per render.
+ * - Wires child step components using the hook's public contract.
+ * - Implements dialog lifecycle: cancel → `resetForm()` + `onClose()`.
+ * - Implements review action: uses `handleSubmit` callback to populate pending changes and open confirmation.
+ * - Shows/clears error alert via `formError` + `setFormError('')`.
+ * - When `useEditSupplierForm` invokes the provided success callback:
+ *   - shows success toast,
+ *   - calls `onSupplierUpdated()`,
+ *   - and closes/reset the dialog.
+ *
+ * Out of scope:
+ * - `useEditSupplierForm` internal logic (covered by hook tests).
+ * - UI implementation details of step components and MUI layout.
+ *
+ * Test strategy:
+ * - Deterministic mocks for hook/toast/help and child step components.
+ * - Assert only against the container's observable wiring and callback behavior.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -13,172 +30,141 @@ import type { EditSupplierForm } from '../../../../../api/suppliers';
 import type { UseEditSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
-const useEditSupplierFormMock = vi.fn();
-const searchStepSpy = vi.fn();
-const infoStepSpy = vi.fn();
-const confirmationSpy = vi.fn();
-const openHelpMock = vi.fn();
-const toastMock = vi.fn();
+import { editSupplierChanges, supplierRow } from './fixtures';
+import { createEditSupplierDialogForm } from './testHelpers';
+
+const mocks = vi.hoisted(() => ({
+  // Hoisted to guarantee deterministic instance identity across tests and module mocks.
+  // This prevents subtle issues where a mock function is captured before `beforeEach` runs.
+  useEditSupplierForm: vi.fn(),
+  openHelp: vi.fn(),
+  toast: vi.fn(),
+  searchStep: vi.fn(),
+  infoStep: vi.fn(),
+  confirmation: vi.fn(),
+}));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
 }));
 
 vi.mock('../../../../../context/toast', () => ({
-  useToast: () => toastMock,
+  useToast: () => mocks.toast,
 }));
 
 vi.mock('../../../../../hooks/useHelp', () => ({
-  useHelp: () => ({ openHelp: openHelpMock }),
+  useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
 vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/useEditSupplierForm', () => ({
-  useEditSupplierForm: (...args: unknown[]) => useEditSupplierFormMock(...args),
+  // The real hook is tested separately; the dialog container is tested here as a wiring unit.
+  useEditSupplierForm: (onUpdated: () => void) => mocks.useEditSupplierForm(onUpdated),
 }));
 
+type SearchStepProps = {
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => Promise<void>;
+  searchResults: SupplierRow[];
+  searchLoading: boolean;
+  onSelectSupplier: (supplier: SupplierRow) => void;
+};
+
+type InfoStepProps = {
+  selectedSupplier: SupplierRow | null;
+  control: UseEditSupplierFormReturn['control'];
+  errors: UseEditSupplierFormReturn['formState']['errors'];
+  isSubmitting: boolean;
+};
+
+type ConfirmationProps = {
+  open: boolean;
+  supplier: SupplierRow | null;
+  changes: EditSupplierForm | null;
+  formError: string;
+  isSubmitting: boolean;
+  onConfirm: () => Promise<void>;
+  onCancel: () => void;
+};
+
 vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep', () => ({
-  EditSupplierSearchStep: (props: unknown) => {
-    searchStepSpy(props);
+  EditSupplierSearchStep: (props: SearchStepProps) => {
+    // Treat step components as black boxes; assert only the contract-level props.
+    mocks.searchStep(props);
     return <div data-testid="search-step">search-step</div>;
   },
 }));
 
 vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierInfoStep', () => ({
-  EditSupplierInfoStep: (props: unknown) => {
-    infoStepSpy(props);
+  EditSupplierInfoStep: (props: InfoStepProps) => {
+    // Contract spy: capture the props the container wires into the step.
+    mocks.infoStep(props);
     return <div data-testid="info-step">info-step</div>;
   },
 }));
 
 vi.mock('../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation', () => ({
-  EditSupplierConfirmation: (props: unknown) => {
-    confirmationSpy(props);
+  EditSupplierConfirmation: (props: ConfirmationProps) => {
+    // Contract spy: confirmation is rendered from container state, not tested for UI internals here.
+    mocks.confirmation(props);
     return <div data-testid="confirmation-step">confirmation</div>;
   },
 }));
 
 import { EditSupplierDialog } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierDialog';
 
-type FormStateOverrides = Partial<UseEditSupplierFormReturn> & {
-  formState?: UseEditSupplierFormReturn['formState'];
-  selectedSupplier?: SupplierRow | null;
-  showConfirmation?: boolean;
-  pendingChanges?: EditSupplierForm | null;
-  formError?: string;
-};
-
-type MockFn = ReturnType<typeof vi.fn>;
-
-interface FormStateFactoryResult {
-  form: UseEditSupplierFormReturn;
-  mocks: {
-    handleSearchQueryChange: MockFn;
-    handleSelectSupplier: MockFn;
-    handleSubmit: MockFn;
-    setValue: MockFn;
-    setShowConfirmation: MockFn;
-    setPendingChanges: MockFn;
-    setFormError: MockFn;
-    handleConfirmChanges: MockFn;
-    resetForm: MockFn;
-    onSelectSupplierAndLoadForm: MockFn;
-  };
-}
-
-const baseSupplier: SupplierRow = {
-  id: 'supplier-1',
-  name: 'Acme Corp',
+const baseSupplier: SupplierRow = supplierRow({
   contactName: 'John Smith',
   phone: '555-1000',
   email: 'john@acme.com',
-  createdBy: 'owner@example.com',
-  createdAt: '2023-01-01',
+});
+
+type RenderOverrides = Partial<{
+  open: boolean;
+  onClose: () => void;
+  onSupplierUpdated: () => void;
+}>;
+
+const renderDialog = (form: UseEditSupplierFormReturn, overrides: RenderOverrides = {}) => {
+  // Helper to keep tests focused on contract assertions, not repeated render plumbing.
+  const onClose = overrides.onClose ?? vi.fn();
+  const onSupplierUpdated = overrides.onSupplierUpdated ?? vi.fn();
+  const open = overrides.open ?? true;
+
+  mocks.useEditSupplierForm.mockReturnValue(form);
+  render(<EditSupplierDialog open={open} onClose={onClose} onSupplierUpdated={onSupplierUpdated} />);
+
+  return { onClose, onSupplierUpdated };
 };
 
-const createFormState = (overrides: FormStateOverrides = {}): FormStateFactoryResult => {
-  const handleSearchQueryChangeFn =
-    overrides.handleSearchQueryChange ?? (vi.fn() as UseEditSupplierFormReturn['handleSearchQueryChange']);
-  const handleSelectSupplierFn =
-    overrides.handleSelectSupplier ?? (vi.fn() as UseEditSupplierFormReturn['handleSelectSupplier']);
-  const handleSubmitFn =
-    overrides.handleSubmit ?? (vi.fn(() => vi.fn()) as UseEditSupplierFormReturn['handleSubmit']);
-  const setValueFn = overrides.setValue ?? (vi.fn() as UseEditSupplierFormReturn['setValue']);
-  const setShowConfirmationFn =
-    overrides.setShowConfirmation ?? (vi.fn() as UseEditSupplierFormReturn['setShowConfirmation']);
-  const setPendingChangesFn =
-    overrides.setPendingChanges ?? (vi.fn() as UseEditSupplierFormReturn['setPendingChanges']);
-  const setFormErrorFn = overrides.setFormError ?? (vi.fn() as UseEditSupplierFormReturn['setFormError']);
-  const handleConfirmChangesFn =
-    overrides.handleConfirmChanges ?? (vi.fn() as UseEditSupplierFormReturn['handleConfirmChanges']);
-  const resetFormFn = overrides.resetForm ?? (vi.fn() as UseEditSupplierFormReturn['resetForm']);
-  const onSelectSupplierAndLoadFormFn =
-    overrides.onSelectSupplierAndLoadForm ?? (vi.fn() as UseEditSupplierFormReturn['onSelectSupplierAndLoadForm']);
-
-  const form: UseEditSupplierFormReturn = {
-    searchQuery: overrides.searchQuery ?? '',
-    searchResults: overrides.searchResults ?? [],
-    searchLoading: overrides.searchLoading ?? false,
-    handleSearchQueryChange: handleSearchQueryChangeFn,
-    selectedSupplier: overrides.selectedSupplier ?? null,
-    handleSelectSupplier: handleSelectSupplierFn,
-    register: overrides.register ?? (vi.fn() as unknown as UseEditSupplierFormReturn['register']),
-    control: overrides.control ?? ({} as UseEditSupplierFormReturn['control']),
-    formState: {
-      ...(overrides.formState ?? ({ errors: {}, isSubmitting: false } as UseEditSupplierFormReturn['formState'])),
-    },
-    handleSubmit: handleSubmitFn,
-    setValue: setValueFn,
-    showConfirmation: overrides.showConfirmation ?? false,
-    setShowConfirmation: setShowConfirmationFn,
-    pendingChanges: overrides.pendingChanges ?? null,
-    setPendingChanges: setPendingChangesFn,
-    formError: overrides.formError ?? '',
-    setFormError: setFormErrorFn,
-    handleConfirmChanges: handleConfirmChangesFn,
-    resetForm: resetFormFn,
-    onSelectSupplierAndLoadForm: onSelectSupplierAndLoadFormFn,
-  };
-
-  return {
-    form,
-    mocks: {
-      handleSearchQueryChange: handleSearchQueryChangeFn as unknown as MockFn,
-      handleSelectSupplier: handleSelectSupplierFn as unknown as MockFn,
-      handleSubmit: handleSubmitFn as unknown as MockFn,
-      setValue: setValueFn as unknown as MockFn,
-      setShowConfirmation: setShowConfirmationFn as unknown as MockFn,
-      setPendingChanges: setPendingChangesFn as unknown as MockFn,
-      setFormError: setFormErrorFn as unknown as MockFn,
-      handleConfirmChanges: handleConfirmChangesFn as unknown as MockFn,
-      resetForm: resetFormFn as unknown as MockFn,
-      onSelectSupplierAndLoadForm: onSelectSupplierAndLoadFormFn as unknown as MockFn,
-    },
-  };
-};
+/**
+ * Creates a deterministic `handleSubmit` mock that invokes the provided `onValid` callback.
+ *
+ * Why the cast exists:
+ * - React Hook Form's `handleSubmit` type includes event parameters and optional invalid callbacks.
+ * - For container wiring tests we only need the happy-path shape used by the dialog.
+ */
+const createHandleSubmitMock = (
+  impl: (onValid: (values: EditSupplierForm) => Promise<void> | void) => Promise<void> | void
+): UseEditSupplierFormReturn['handleSubmit'] =>
+  vi.fn((onValid) => async () => {
+    await impl(onValid as (values: EditSupplierForm) => Promise<void> | void);
+  }) as unknown as UseEditSupplierFormReturn['handleSubmit'];
 
 beforeEach(() => {
   vi.clearAllMocks();
-  searchStepSpy.mockClear();
-  infoStepSpy.mockClear();
-  confirmationSpy.mockClear();
-  openHelpMock.mockClear();
-  toastMock.mockClear();
 });
 
 describe('EditSupplierDialog', () => {
   it('initializes hook, renders steps, and wires help button', async () => {
     const user = userEvent.setup();
-    const onClose = vi.fn();
-    const onSupplierUpdated = vi.fn();
-    const { form } = createFormState();
-    useEditSupplierFormMock.mockReturnValue(form);
+    // Build a full `useEditSupplierForm` contract so the container can wire props safely.
+    const form = createEditSupplierDialogForm();
+    renderDialog(form);
 
-    render(<EditSupplierDialog open={true} onClose={onClose} onSupplierUpdated={onSupplierUpdated} />);
-
-    expect(useEditSupplierFormMock).toHaveBeenCalledTimes(1);
+    expect(mocks.useEditSupplierForm).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('heading', { name: 'Edit Supplier' })).toBeInTheDocument();
 
-    expect(searchStepSpy).toHaveBeenCalledWith(
+    expect(mocks.searchStep).toHaveBeenCalledWith(
       expect.objectContaining({
         searchQuery: form.searchQuery,
         onSearchQueryChange: form.handleSearchQueryChange,
@@ -188,7 +174,7 @@ describe('EditSupplierDialog', () => {
       })
     );
 
-    expect(infoStepSpy).toHaveBeenCalledWith(
+    expect(mocks.infoStep).toHaveBeenCalledWith(
       expect.objectContaining({
         selectedSupplier: form.selectedSupplier,
         control: form.control,
@@ -198,9 +184,9 @@ describe('EditSupplierDialog', () => {
     );
 
     await user.click(screen.getByRole('button', { name: 'Help' }));
-    expect(openHelpMock).toHaveBeenCalledWith('suppliers.manage');
+    expect(mocks.openHelp).toHaveBeenCalledWith('suppliers.manage');
 
-    expect(confirmationSpy).toHaveBeenCalledWith(
+    expect(mocks.confirmation).toHaveBeenCalledWith(
       expect.objectContaining({
         open: form.showConfirmation,
         supplier: form.selectedSupplier,
@@ -214,129 +200,109 @@ describe('EditSupplierDialog', () => {
 
   it('submits for review when a supplier is selected', async () => {
     const user = userEvent.setup();
-    const onClose = vi.fn();
-    const onSupplierUpdated = vi.fn();
-    const submittedValues: EditSupplierForm = {
+    const submittedValues = editSupplierChanges({
       supplierId: baseSupplier.id,
       contactName: 'Jane Doe',
       phone: '555-2000',
       email: 'jane@acme.com',
-    };
+    });
 
-    const { form, mocks } = createFormState({
+    const form = createEditSupplierDialogForm({
       selectedSupplier: baseSupplier,
-      handleSubmit: vi.fn((cb) => async () => {
-        await cb(submittedValues);
+      handleSubmit: createHandleSubmitMock(async (onValid) => {
+        await onValid(submittedValues);
       }),
     });
 
-    useEditSupplierFormMock.mockReturnValue(form);
-
-    render(<EditSupplierDialog open={true} onClose={onClose} onSupplierUpdated={onSupplierUpdated} />);
+    renderDialog(form);
 
     await user.click(screen.getByRole('button', { name: 'Review Changes' }));
 
-    expect(mocks.handleSubmit).toHaveBeenCalledTimes(1);
-    expect(mocks.setFormError).toHaveBeenCalledWith('');
-    expect(mocks.setPendingChanges).toHaveBeenCalledWith(submittedValues);
+    expect(form.handleSubmit).toHaveBeenCalledTimes(1);
+    expect(form.setFormError).toHaveBeenCalledWith('');
+    expect(form.setPendingChanges).toHaveBeenCalledWith(submittedValues);
     await waitFor(() => {
-      expect(mocks.setShowConfirmation).toHaveBeenCalledWith(true);
+      expect(form.setShowConfirmation).toHaveBeenCalledWith(true);
     });
-    expect(mocks.setFormError).toHaveBeenCalledTimes(1);
+    expect(form.setFormError).toHaveBeenCalledTimes(1);
   });
 
   it('shows validation error when review is requested without supplier selected', async () => {
     const user = userEvent.setup();
-    const { form, mocks } = createFormState({
+    const form = createEditSupplierDialogForm({
+      // Keep the button enabled at render time, then simulate a mid-flight deselection.
+      // This exercises the dialog's defensive validation inside the submit callback.
       selectedSupplier: baseSupplier,
-      handleSubmit: vi.fn((cb) => async () => {
-        (form as { selectedSupplier: SupplierRow | null }).selectedSupplier = null;
-        await cb({
-          supplierId: '',
-          contactName: '',
-          phone: '',
-          email: '',
-        });
+      handleSubmit: createHandleSubmitMock(async (onValid) => {
+        form.selectedSupplier = null;
+        await onValid({ supplierId: '', contactName: '', phone: '', email: '' });
       }),
     });
-    useEditSupplierFormMock.mockReturnValue(form);
 
-    render(<EditSupplierDialog open={true} onClose={vi.fn()} onSupplierUpdated={vi.fn()} />);
+    renderDialog(form);
 
     await user.click(screen.getByRole('button', { name: 'Review Changes' }));
 
-    expect(mocks.setFormError).toHaveBeenCalledWith('Please select a supplier.');
-    expect(mocks.setPendingChanges).not.toHaveBeenCalled();
-    expect(mocks.setShowConfirmation).not.toHaveBeenCalled();
+    expect(form.setFormError).toHaveBeenCalledWith('Please select a supplier.');
+    expect(form.setPendingChanges).not.toHaveBeenCalled();
+    expect(form.setShowConfirmation).not.toHaveBeenCalled();
   });
 
   it('resets form and closes when cancel is pressed', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
-    const { form, mocks } = createFormState();
-    useEditSupplierFormMock.mockReturnValue(form);
-
-    render(<EditSupplierDialog open={true} onClose={onClose} onSupplierUpdated={vi.fn()} />);
+    const form = createEditSupplierDialogForm();
+    renderDialog(form, { onClose });
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(mocks.resetForm).toHaveBeenCalledTimes(1);
+    expect(form.resetForm).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('clears error when alert close is clicked', async () => {
     const user = userEvent.setup();
-    const { form, mocks } = createFormState({ formError: 'Failed to update' });
-    useEditSupplierFormMock.mockReturnValue(form);
-
-    render(<EditSupplierDialog open={true} onClose={vi.fn()} onSupplierUpdated={vi.fn()} />);
+    const form = createEditSupplierDialogForm({ formError: 'Failed to update' });
+    renderDialog(form);
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent('Failed to update');
     await user.click(screen.getByLabelText('Close'));
-    expect(mocks.setFormError).toHaveBeenCalledWith('');
+    expect(form.setFormError).toHaveBeenCalledWith('');
   });
 
   it('disables actions while submitting', () => {
-    const { form } = createFormState({
+    const form = createEditSupplierDialogForm({
       selectedSupplier: baseSupplier,
-      formState: { errors: {}, isSubmitting: true } as UseEditSupplierFormReturn['formState'],
+      formState: { errors: {}, isSubmitting: true },
     });
-    useEditSupplierFormMock.mockReturnValue(form);
-
-    render(<EditSupplierDialog open={true} onClose={vi.fn()} onSupplierUpdated={vi.fn()} />);
+    renderDialog(form);
 
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Review Changes' })).toBeDisabled();
   });
 
   it('shows confirmation view when review dialog is active', () => {
-    const { form } = createFormState({ showConfirmation: true, selectedSupplier: baseSupplier });
-    useEditSupplierFormMock.mockReturnValue(form);
-
-    render(<EditSupplierDialog open={true} onClose={vi.fn()} onSupplierUpdated={vi.fn()} />);
+    const form = createEditSupplierDialogForm({ showConfirmation: true, selectedSupplier: baseSupplier });
+    renderDialog(form);
 
     expect(screen.queryByRole('heading', { name: 'Edit Supplier' })).not.toBeInTheDocument();
-    expect(confirmationSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ open: true })
-    );
+    expect(mocks.confirmation).toHaveBeenCalledWith(expect.objectContaining({ open: true }));
   });
 
   it('invokes success callback returned to form hook', () => {
     const onClose = vi.fn();
     const onSupplierUpdated = vi.fn();
-    const { form, mocks } = createFormState();
-    useEditSupplierFormMock.mockReturnValue(form);
+    const form = createEditSupplierDialogForm();
+    renderDialog(form, { onClose, onSupplierUpdated });
 
-    render(<EditSupplierDialog open={true} onClose={onClose} onSupplierUpdated={onSupplierUpdated} />);
-
-    const successCallback = useEditSupplierFormMock.mock.calls[0][0] as () => void;
+    const successCallback = mocks.useEditSupplierForm.mock.calls[0][0] as () => void;
     act(() => {
       successCallback();
     });
 
-    expect(toastMock).toHaveBeenCalledWith('Supplier information updated successfully!', 'success');
+    expect(mocks.toast).toHaveBeenCalledWith('Supplier information updated successfully!', 'success');
     expect(onSupplierUpdated).toHaveBeenCalledTimes(1);
-    expect(mocks.resetForm).toHaveBeenCalledTimes(1);
+    expect(form.resetForm).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

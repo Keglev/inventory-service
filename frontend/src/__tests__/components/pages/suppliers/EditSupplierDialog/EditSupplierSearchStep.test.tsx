@@ -1,9 +1,22 @@
 /**
  * @file EditSupplierSearchStep.test.tsx
+ * @module __tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierSearchStep
+ * @description Contract tests for the `EditSupplierSearchStep` presentation component.
  *
- * @what_is_under_test EditSupplierSearchStep component
- * @responsibility Display search input, loading state, and search results list
- * @out_of_scope API integration, debouncing logic
+ * Contract under test:
+ * - Renders heading + a controlled search input.
+ * - Delegates query changes via `onSearchQueryChange(query)`.
+ * - Disables input and shows a progress indicator while loading.
+ * - Renders result buttons and delegates selection via `onSelectSupplier(supplier)`.
+ * - Shows helper text when query length is sufficient but no results are returned.
+ * - Shows guidance alert when query is non-empty but too short (< 2).
+ *
+ * Out of scope:
+ * - API integration and debouncing mechanics (handled by the orchestration hook).
+ * - MUI layout/styling beyond roles/labels/text.
+ *
+ * Test strategy:
+ * - Use a small state harness to model a controlled input without duplicating business logic.
  */
 
 import * as React from 'react';
@@ -13,21 +26,19 @@ import userEvent from '@testing-library/user-event';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 import { EditSupplierSearchStep } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierSearchStep';
+import { supplierRow } from './fixtures';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
 }));
 
-const defaultSupplier = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
-  id: 'supplier-1',
-  name: 'Acme Corp',
-  contactName: 'Jane Smith',
-  phone: '555-3000',
-  email: 'jane@acme.com',
-  createdBy: 'owner@example.com',
-  createdAt: '2023-01-01',
-  ...overrides,
-});
+const defaultSupplier = (overrides: Partial<SupplierRow> = {}): SupplierRow =>
+  supplierRow({
+    contactName: 'Jane Smith',
+    phone: '555-3000',
+    email: 'jane@acme.com',
+    ...overrides,
+  });
 
 describe('EditSupplierSearchStep', () => {
   it('renders heading and placeholder text', () => {
@@ -49,7 +60,7 @@ describe('EditSupplierSearchStep', () => {
     const onSearchQueryChange = vi.fn().mockResolvedValue(undefined);
     const user = userEvent.setup();
 
-    const Harness: React.FC = () => {
+    function Harness() {
       const [query, setQuery] = React.useState('');
       return (
         <EditSupplierSearchStep
@@ -63,7 +74,7 @@ describe('EditSupplierSearchStep', () => {
           onSelectSupplier={vi.fn()}
         />
       );
-    };
+    }
 
     render(<Harness />);
 

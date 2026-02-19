@@ -1,9 +1,24 @@
 /**
  * @file DeleteSupplierDialog.test.tsx
+ * @module __tests__/components/pages/suppliers/DeleteSupplierDialog/DeleteSupplierDialog
+ * @description Wrapper-level contract tests for the DeleteSupplierDialog container.
  *
- * @what_is_under_test DeleteSupplierDialog component
- * @responsibility Manage deletion workflow and orchestrate search/confirmation steps
- * @out_of_scope useDeleteSupplierForm internal logic
+ * Contract under test:
+ * - Initializes the workflow hook with an `onDeleted` callback.
+ * - Renders search step by default and wires Help to `openHelp('suppliers.delete')`.
+ * - Switches to confirmation step when `showConfirmation` and `selectedSupplier` are set.
+ * - Dialog close (via search cancel) resets the workflow unless deletion is in progress.
+ * - Confirmation cancel resets selection/confirmation/error state.
+ * - Confirmation confirm delegates to `handleConfirmDelete`.
+ *
+ * Out of scope:
+ * - `useDeleteSupplierForm` internal deletion logic (covered by hook-level tests).
+ * - MUI Dialog implementation details.
+ *
+ * Test strategy:
+ * - Deterministic, hoisted module mocks (no implicit globals).
+ * - Child steps are mocked as spy boundaries; we assert prop wiring and callback delegation.
+ * - i18n returns fallback/defaultValue to keep assertions stable across locales.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -12,24 +27,43 @@ import userEvent from '@testing-library/user-event';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 import type { UseDeleteSupplierFormReturn } from '../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm';
 
-const useDeleteSupplierFormMock = vi.fn();
-const searchComponentSpy = vi.fn();
-const confirmationComponentSpy = vi.fn();
-const openHelpMock = vi.fn();
-const toastMock = vi.fn();
+type DeleteSupplierSearchProps = {
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => Promise<void>;
+  searchResults: SupplierRow[];
+  searchLoading: boolean;
+  onSelectSupplier: (supplier: SupplierRow) => void;
+  onCancel: () => void;
+  onHelp: () => void;
+};
+
+type DeleteSupplierConfirmationProps = {
+  supplier: SupplierRow;
+  error: string | null;
+  isDeleting: boolean;
+  onConfirm: () => void | Promise<void>;
+  onCancel: () => void;
+};
+
+// -------------------------------------
+// Deterministic / hoisted mocks
+// -------------------------------------
+const mocks = vi.hoisted(() => ({
+  useDeleteSupplierForm: vi.fn(),
+  searchSpy: vi.fn(),
+  confirmationSpy: vi.fn(),
+  openHelp: vi.fn(),
+  toast: vi.fn(),
+}));
 
 vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/useDeleteSupplierForm', () => ({
-  useDeleteSupplierForm: (...args: unknown[]) => useDeleteSupplierFormMock(...args),
+  useDeleteSupplierForm: (...args: [onDeleted: () => void]) => mocks.useDeleteSupplierForm(...args),
 }));
 
 vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierSearch', () => ({
-  DeleteSupplierSearch: (props: unknown) => {
-    searchComponentSpy(props);
-    const { onCancel, onHelp, onSelectSupplier } = props as {
-      onCancel: () => void;
-      onHelp: () => void;
-      onSelectSupplier: () => void;
-    };
+  DeleteSupplierSearch: (props: DeleteSupplierSearchProps) => {
+    mocks.searchSpy(props);
+    const { onCancel, onHelp, onSelectSupplier } = props;
     return (
       <div>
         <button type="button" onClick={onCancel}>
@@ -38,7 +72,7 @@ vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSuppl
         <button type="button" onClick={onHelp}>
           Help
         </button>
-        <button type="button" onClick={onSelectSupplier}>
+        <button type="button" onClick={() => onSelectSupplier(supplier)}>
           Select Supplier
         </button>
       </div>
@@ -47,9 +81,9 @@ vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSuppl
 }));
 
 vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSupplierConfirmation', () => ({
-  DeleteSupplierConfirmation: (props: unknown) => {
-    confirmationComponentSpy(props);
-    const { onCancel, onConfirm } = props as { onCancel: () => void; onConfirm: () => void };
+  DeleteSupplierConfirmation: (props: DeleteSupplierConfirmationProps) => {
+    mocks.confirmationSpy(props);
+    const { onCancel, onConfirm } = props;
     return (
       <div>
         <button type="button" onClick={onCancel}>
@@ -64,11 +98,11 @@ vi.mock('../../../../../pages/suppliers/dialogs/DeleteSupplierDialog/DeleteSuppl
 }));
 
 vi.mock('../../../../../hooks/useHelp', () => ({
-  useHelp: () => ({ openHelp: openHelpMock }),
+  useHelp: () => ({ openHelp: mocks.openHelp }),
 }));
 
 vi.mock('../../../../../context/toast', () => ({
-  useToast: () => toastMock,
+  useToast: () => mocks.toast,
 }));
 
 vi.mock('react-i18next', () => ({
@@ -85,14 +119,13 @@ const supplier: SupplierRow = {
   email: 'jane@example.com',
 };
 
-const createFormState = (
-  overrides: Partial<UseDeleteSupplierFormReturn> = {}
-): UseDeleteSupplierFormReturn => ({
+// Minimal hook contract surface required by the dialog.
+const baseFormState = (): UseDeleteSupplierFormReturn => ({
   searchQuery: '',
   setSearchQuery: vi.fn(),
   searchResults: [],
   searchLoading: false,
-  handleSearchQueryChange: vi.fn(),
+  handleSearchQueryChange: vi.fn(async () => undefined),
   selectedSupplier: null,
   setSelectedSupplier: vi.fn(),
   handleSelectSupplier: vi.fn(),
@@ -101,32 +134,48 @@ const createFormState = (
   isDeleting: false,
   error: null,
   setError: vi.fn(),
-  handleConfirmDelete: vi.fn(),
+  handleConfirmDelete: vi.fn(async () => undefined),
   resetForm: vi.fn(),
+});
+
+const createFormState = (overrides: Partial<UseDeleteSupplierFormReturn> = {}): UseDeleteSupplierFormReturn => ({
+  ...baseFormState(),
   ...overrides,
 });
 
+const renderDialog = (overrides?: {
+  open?: boolean;
+  onClose?: () => void;
+  onSupplierDeleted?: () => void;
+  formState?: UseDeleteSupplierFormReturn;
+}) => {
+  const props = {
+    open: overrides?.open ?? true,
+    onClose: overrides?.onClose ?? vi.fn(),
+    onSupplierDeleted: overrides?.onSupplierDeleted ?? vi.fn(),
+  };
+
+  mocks.useDeleteSupplierForm.mockReturnValue(overrides?.formState ?? createFormState());
+  render(<DeleteSupplierDialog {...props} />);
+  return props;
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
-  openHelpMock.mockClear();
-  toastMock.mockClear();
+  mocks.useDeleteSupplierForm.mockReturnValue(createFormState());
 });
 
 describe('DeleteSupplierDialog', () => {
   it('initializes workflow hook and renders search step with help action', async () => {
     const user = userEvent.setup();
-    const onClose = vi.fn();
-    const onSupplierDeleted = vi.fn();
-    const formState = createFormState();
-    useDeleteSupplierFormMock.mockReturnValue(formState);
+    renderDialog();
 
-    render(<DeleteSupplierDialog open={true} onClose={onClose} onSupplierDeleted={onSupplierDeleted} />);
-
-    expect(useDeleteSupplierFormMock).toHaveBeenCalled();
-    expect(searchComponentSpy).toHaveBeenCalledTimes(1);
+    // Hook is initialized with an onDeleted callback.
+    expect(mocks.useDeleteSupplierForm).toHaveBeenCalledWith(expect.any(Function));
+    expect(mocks.searchSpy).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole('button', { name: 'Help' }));
-    expect(openHelpMock).toHaveBeenCalledWith('suppliers.delete');
+    expect(mocks.openHelp).toHaveBeenCalledWith('suppliers.delete');
   });
 
   it('renders confirmation step when showConfirmation is true', () => {
@@ -134,22 +183,17 @@ describe('DeleteSupplierDialog', () => {
       showConfirmation: true,
       selectedSupplier: supplier,
     });
-    useDeleteSupplierFormMock.mockReturnValue(formState);
+    renderDialog({ formState });
 
-    render(<DeleteSupplierDialog open={true} onClose={vi.fn()} onSupplierDeleted={vi.fn()} />);
-
-    expect(confirmationComponentSpy).toHaveBeenCalledTimes(1);
-    const props = confirmationComponentSpy.mock.calls[0][0] as { supplier: SupplierRow };
-    expect(props.supplier).toEqual(supplier);
+    expect(mocks.confirmationSpy).toHaveBeenCalledTimes(1);
+    expect(mocks.confirmationSpy).toHaveBeenCalledWith(expect.objectContaining({ supplier }));
   });
 
   it('resets form and closes dialog when cancel invoked during search', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     const formState = createFormState();
-    useDeleteSupplierFormMock.mockReturnValue(formState);
-
-    render(<DeleteSupplierDialog open={true} onClose={onClose} onSupplierDeleted={vi.fn()} />);
+    renderDialog({ onClose, formState });
 
     await user.click(screen.getByRole('button', { name: 'Cancel Search' }));
     expect(formState.resetForm).toHaveBeenCalledTimes(1);
@@ -159,21 +203,17 @@ describe('DeleteSupplierDialog', () => {
   it('delegates supplier selection to workflow handler', async () => {
     const user = userEvent.setup();
     const formState = createFormState({ handleSelectSupplier: vi.fn() });
-    useDeleteSupplierFormMock.mockReturnValue(formState);
-
-    render(<DeleteSupplierDialog open={true} onClose={vi.fn()} onSupplierDeleted={vi.fn()} />);
+    renderDialog({ formState });
 
     await user.click(screen.getByRole('button', { name: 'Select Supplier' }));
-    expect(formState.handleSelectSupplier).toHaveBeenCalledTimes(1);
+    expect(formState.handleSelectSupplier).toHaveBeenCalledWith(supplier);
   });
 
   it('prevents close while deletion is in progress', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     const formState = createFormState({ isDeleting: true });
-    useDeleteSupplierFormMock.mockReturnValue(formState);
-
-    render(<DeleteSupplierDialog open={true} onClose={onClose} onSupplierDeleted={vi.fn()} />);
+    renderDialog({ onClose, formState });
 
     await user.click(screen.getByRole('button', { name: 'Cancel Search' }));
     expect(formState.resetForm).not.toHaveBeenCalled();
@@ -186,9 +226,7 @@ describe('DeleteSupplierDialog', () => {
       showConfirmation: true,
       selectedSupplier: supplier,
     });
-    useDeleteSupplierFormMock.mockReturnValue(formState);
-
-    render(<DeleteSupplierDialog open={true} onClose={vi.fn()} onSupplierDeleted={vi.fn()} />);
+    renderDialog({ formState });
 
     await user.click(screen.getByRole('button', { name: 'Cancel Confirmation' }));
     expect(formState.setShowConfirmation).toHaveBeenCalledWith(false);
@@ -203,9 +241,7 @@ describe('DeleteSupplierDialog', () => {
       selectedSupplier: supplier,
       handleConfirmDelete: vi.fn(),
     });
-    useDeleteSupplierFormMock.mockReturnValue(formState);
-
-    render(<DeleteSupplierDialog open={true} onClose={vi.fn()} onSupplierDeleted={vi.fn()} />);
+    renderDialog({ formState });
 
     await user.click(screen.getByRole('button', { name: 'Confirm Delete' }));
     expect(formState.handleConfirmDelete).toHaveBeenCalledTimes(1);

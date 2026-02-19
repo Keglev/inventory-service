@@ -1,9 +1,18 @@
 /**
  * @file useEditSupplierConfirmation.test.ts
+ * @module __tests__/components/pages/suppliers/EditSupplierDialog/useEditSupplierConfirmation
+ * @description Orchestration tests for `useEditSupplierConfirmation`.
  *
- * @what_is_under_test useEditSupplierConfirmation hook
- * @responsibility Manage confirmation modal visibility and pending change payload
- * @out_of_scope API submission implementation
+ * Contract under test:
+ * - Exposes `showConfirmation` and `pendingChanges` state.
+ * - Allows toggling confirmation visibility.
+ * - Allows setting pending changes and resetting back to defaults.
+ *
+ * Out of scope:
+ * - API submission (handled by `useEditSupplierForm`).
+ *
+ * Test strategy:
+ * - Treat this hook as a small state machine: mutate via public setters and assert observable state.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

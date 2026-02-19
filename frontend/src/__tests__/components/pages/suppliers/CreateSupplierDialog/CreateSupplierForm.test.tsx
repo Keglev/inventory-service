@@ -1,50 +1,80 @@
 /**
  * @file CreateSupplierForm.test.tsx
+ * @module __tests__/components/pages/suppliers/CreateSupplierDialog/CreateSupplierForm
+ * @description Contract tests for the `SupplierFormFields` presentation component.
  *
- * @what_is_under_test SupplierFormFields component
- * @responsibility Render supplier creation fields and surface validation state
- * @out_of_scope React Hook Form internals
+ * Contract under test:
+ * - Renders the four expected inputs (name, contactName, phone, email) with stable labels.
+ * - Binds each field via the provided `register` function.
+ * - Surfaces per-field validation errors as helper text.
+ * - Disables all fields while submitting.
+ * - Surfaces a top-level banner error when `formError` is present.
+ *
+ * Out of scope:
+ * - React Hook Form behavior (we only assert that `register` is called and props flow through).
+ * - MUI implementation details (we assert accessible labels/roles, not internal structure).
+ *
+ * Test strategy:
+ * - i18n `t()` is mocked to return the fallback/defaultValue for deterministic text.
+ * - `register` is a small typed fake that mimics the minimum RHF contract used by MUI TextField.
  */
 
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import type { UseFormRegister } from 'react-hook-form';
+import type { ComponentProps } from 'react';
+import type { FieldError, FieldErrors, UseFormRegister } from 'react-hook-form';
 import type { CreateSupplierForm as CreateSupplierFormData } from '../../../../../api/suppliers';
 
 vi.mock('react-i18next', () => ({
+  // Prefer fallback/defaultValue to keep assertions stable across locales.
   useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
 }));
 
 import { SupplierFormFields } from '../../../../../pages/suppliers/dialogs/CreateSupplierDialog/CreateSupplierForm';
 
-const createRegister = () => {
-  const register: UseFormRegister<CreateSupplierFormData> = vi.fn((field: keyof CreateSupplierFormData) => ({
+// -------------------------------------
+// Test helpers
+// -------------------------------------
+
+// Typed, minimal RHF register stub.
+// Note: RHF's `UseFormRegister` has a rich return type; this fake only implements what MUI consumes.
+const createRegister = (): UseFormRegister<CreateSupplierFormData> =>
+  vi.fn((field: keyof CreateSupplierFormData) => ({
     name: field,
     onBlur: vi.fn(),
     onChange: vi.fn(),
     ref: vi.fn(),
   })) as unknown as UseFormRegister<CreateSupplierFormData>;
-  return register;
+
+// Convenience factory to keep error setup compact and consistent.
+const fieldError = (message: string): FieldError => ({
+  type: 'manual',
+  message,
+});
+
+// Centralized render helper so each test only specifies the contract inputs it cares about.
+const renderFields = (overrides?: Partial<ComponentProps<typeof SupplierFormFields>>) => {
+  const props: ComponentProps<typeof SupplierFormFields> = {
+    register: createRegister(),
+    errors: {} as FieldErrors<CreateSupplierFormData>,
+    isSubmitting: false,
+    formError: null,
+    ...overrides,
+  };
+
+  render(<SupplierFormFields {...props} />);
+  return props;
 };
 
 describe('SupplierFormFields', () => {
   it('renders all supplier input fields and binds register calls', () => {
-    const register = createRegister();
+    const { register } = renderFields();
 
-    render(
-      <SupplierFormFields
-        register={register}
-        errors={{}}
-        isSubmitting={false}
-        formError={null}
-      />
-    );
+    // Contract: the component must bind all fields via `register`.
+    (['name', 'contactName', 'phone', 'email'] as const satisfies Array<keyof CreateSupplierFormData>)
+      .forEach((field) => expect(register).toHaveBeenCalledWith(field));
 
-    expect(register).toHaveBeenCalledWith('name');
-    expect(register).toHaveBeenCalledWith('contactName');
-    expect(register).toHaveBeenCalledWith('phone');
-    expect(register).toHaveBeenCalledWith('email');
-
+    // Contract: stable labels are present (drives accessibility and test resilience).
     expect(screen.getByLabelText(/Supplier Name/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Contact Person/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Phone/)).toBeInTheDocument();
@@ -52,58 +82,33 @@ describe('SupplierFormFields', () => {
   });
 
   it('displays validation helper text for each invalid field', () => {
-    const register = createRegister();
+    renderFields({
+      errors: {
+        name: fieldError('Name required'),
+        contactName: fieldError('Invalid contact'),
+        phone: fieldError('Phone required'),
+        email: fieldError('Invalid email'),
+      } as FieldErrors<CreateSupplierFormData>,
+    });
 
-    render(
-      <SupplierFormFields
-        register={register}
-        errors={{
-          name: { type: 'manual', message: 'Name required' },
-          contactName: { type: 'manual', message: 'Invalid contact' },
-          phone: { type: 'manual', message: 'Phone required' },
-          email: { type: 'manual', message: 'Invalid email' },
-        }}
-        isSubmitting={false}
-        formError={null}
-      />
-    );
-
-    expect(screen.getByText('Name required')).toBeInTheDocument();
-    expect(screen.getByText('Invalid contact')).toBeInTheDocument();
-    expect(screen.getByText('Phone required')).toBeInTheDocument();
-    expect(screen.getByText('Invalid email')).toBeInTheDocument();
+    ['Name required', 'Invalid contact', 'Phone required', 'Invalid email'].forEach((msg) => {
+      expect(screen.getByText(msg)).toBeInTheDocument();
+    });
   });
 
   it('disables all fields while submitting', () => {
-    const register = createRegister();
+    renderFields({ isSubmitting: true });
 
-    render(
-      <SupplierFormFields
-        register={register}
-        errors={{}}
-        isSubmitting={true}
-        formError={null}
-      />
-    );
-
-    expect(screen.getByLabelText(/Supplier Name/)).toBeDisabled();
-    expect(screen.getByLabelText(/Contact Person/)).toBeDisabled();
-    expect(screen.getByLabelText(/Phone/)).toBeDisabled();
-    expect(screen.getByLabelText(/Email/)).toBeDisabled();
+    // Contract: all inputs are disabled while `isSubmitting` is true.
+    [/Supplier Name/, /Contact Person/, /Phone/, /Email/].forEach((label) => {
+      expect(screen.getByLabelText(label)).toBeDisabled();
+    });
   });
 
   it('shows top-level error alert with message when present', () => {
-    const register = createRegister();
+    renderFields({ formError: 'Server error occurred' });
 
-    render(
-      <SupplierFormFields
-        register={register}
-        errors={{}}
-        isSubmitting={false}
-        formError={'Server error occurred'}
-      />
-    );
-
+    // Banner error should be discoverable via `role=alert`.
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent('Server error occurred');
   });

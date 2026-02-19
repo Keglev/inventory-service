@@ -1,9 +1,21 @@
 /**
  * @file EditSupplierConfirmation.test.tsx
+ * @module __tests__/components/pages/suppliers/EditSupplierDialog/EditSupplierConfirmation
+ * @description Contract tests for the `EditSupplierConfirmation` presentation component.
  *
- * @what_is_under_test EditSupplierConfirmation component
- * @responsibility Confirm pending supplier changes before submission
- * @out_of_scope updateSupplier API interaction
+ * Contract under test:
+ * - Renders a confirmation dialog with supplier identity (name) and a summary of changed fields.
+ * - Delegates user intent via callbacks: `onCancel` and `onConfirm`.
+ * - Reflects submission state by disabling actions and showing a progress indicator.
+ * - Surfaces `formError` in an alert and delegates alert close to `onCancel`.
+ *
+ * Out of scope:
+ * - API interaction (handled by the orchestration hook).
+ * - MUI styling/structure beyond accessible roles and text.
+ *
+ * Test strategy:
+ * - Assert observable text and a11y roles.
+ * - Verify callbacks, not internal layout.
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -13,41 +25,34 @@ import type { EditSupplierForm } from '../../../../../api/suppliers';
 import type { SupplierRow } from '../../../../../api/suppliers/types';
 
 import { EditSupplierConfirmation } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/EditSupplierConfirmation';
+import { editSupplierChanges, supplierRow } from './fixtures';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
 }));
 
-const supplier: SupplierRow = {
-  id: 'supplier-1',
-  name: 'Acme Corp',
-  contactName: 'Old Contact',
-  phone: '555-5000',
-  email: 'old@acme.com',
-  createdBy: 'owner@example.com',
-  createdAt: '2023-01-01',
-};
+const supplier: SupplierRow = supplierRow();
+const changes: EditSupplierForm = editSupplierChanges();
 
-const changes: EditSupplierForm = {
-  supplierId: 'supplier-1',
-  contactName: 'New Contact',
-  phone: '555-6000',
-  email: 'new@acme.com',
-};
+type RenderOverrides = Partial<React.ComponentProps<typeof EditSupplierConfirmation>>;
+
+const renderConfirmation = (overrides: RenderOverrides = {}) =>
+  render(
+    <EditSupplierConfirmation
+      open={true}
+      supplier={supplier}
+      changes={changes}
+      formError=""
+      isSubmitting={false}
+      onConfirm={vi.fn()}
+      onCancel={vi.fn()}
+      {...overrides}
+    />
+  );
 
 describe('EditSupplierConfirmation', () => {
   it('renders supplier details and change summary when open', () => {
-    render(
-      <EditSupplierConfirmation
-        open={true}
-        supplier={supplier}
-        changes={changes}
-        formError=""
-        isSubmitting={false}
-        onConfirm={vi.fn()}
-        onCancel={vi.fn()}
-      />
-    );
+    renderConfirmation();
 
     expect(screen.getByRole('heading', { name: 'Confirm Changes' })).toBeInTheDocument();
     expect(screen.getByText('Supplier Name')).toBeInTheDocument();
@@ -65,17 +70,7 @@ describe('EditSupplierConfirmation', () => {
     const onCancel = vi.fn();
     const onConfirm = vi.fn().mockResolvedValue(undefined);
 
-    render(
-      <EditSupplierConfirmation
-        open={true}
-        supplier={supplier}
-        changes={changes}
-        formError=""
-        isSubmitting={false}
-        onConfirm={onConfirm}
-        onCancel={onCancel}
-      />
-    );
+    renderConfirmation({ onConfirm, onCancel });
 
     await user.click(screen.getByRole('button', { name: 'No' }));
     expect(onCancel).toHaveBeenCalledTimes(1);
@@ -88,43 +83,19 @@ describe('EditSupplierConfirmation', () => {
     const user = userEvent.setup();
     const onCancel = vi.fn();
 
-    render(
-      <EditSupplierConfirmation
-        open={true}
-        supplier={supplier}
-        changes={changes}
-        formError="Failed to update supplier"
-        isSubmitting={false}
-        onConfirm={vi.fn()}
-        onCancel={onCancel}
-      />
-    );
+    renderConfirmation({ formError: 'Failed to update supplier', onCancel });
 
-    const alerts = screen.getAllByRole('alert');
-    const errorAlert = alerts.find((alert) =>
-      within(alert).queryByText('Failed to update supplier')
-    );
+    const message = screen.getByText('Failed to update supplier');
+    const errorAlert = message.closest('[role="alert"]');
+    expect(errorAlert).not.toBeNull();
 
-    expect(errorAlert).toBeDefined();
-    expect(within(errorAlert!).getByText('Failed to update supplier')).toBeInTheDocument();
-
-    const closeButton = within(errorAlert!).getByLabelText('Close');
+    const closeButton = within(errorAlert as HTMLElement).getByLabelText('Close');
     await user.click(closeButton);
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it('disables confirm action and shows saving indicator while submitting', () => {
-    render(
-      <EditSupplierConfirmation
-        open={true}
-        supplier={supplier}
-        changes={changes}
-        formError=""
-        isSubmitting={true}
-        onConfirm={vi.fn()}
-        onCancel={vi.fn()}
-      />
-    );
+    renderConfirmation({ isSubmitting: true });
 
     const confirmButton = screen.getByRole('button', { name: 'Saving...' });
     expect(confirmButton).toBeDisabled();
@@ -139,17 +110,7 @@ describe('EditSupplierConfirmation', () => {
       email: supplier.email ?? '',
     };
 
-    render(
-      <EditSupplierConfirmation
-        open={true}
-        supplier={supplier}
-        changes={unchanged}
-        formError=""
-        isSubmitting={false}
-        onConfirm={vi.fn()}
-        onCancel={vi.fn()}
-      />
-    );
+    renderConfirmation({ changes: unchanged });
 
     expect(screen.queryByText('Old Contact →')).not.toBeInTheDocument();
     expect(screen.queryByText('555-5000 →')).not.toBeInTheDocument();

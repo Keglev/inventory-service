@@ -1,12 +1,22 @@
 /**
  * @file mapSupplierErrors.test.ts
+ * @module __tests__/components/pages/suppliers/EditSupplierDialog/mapSupplierErrors
+ * @description Contract tests for the `mapSupplierError` utility.
  *
- * @what_is_under_test mapSupplierError utility
- * @responsibility Translate backend error messages into localized user-facing text
- * @out_of_scope Rendering logic, toast presentation
+ * Contract under test:
+ * - Converts raw backend error strings into user-facing, localized messages.
+ * - Falls back to a generic message when the input is absent or unrecognized.
+ *
+ * Out of scope:
+ * - Toast presentation and UI rendering.
+ * - Backend error format guarantees (we validate representative inputs only).
+ *
+ * Test strategy:
+ * - Use a deterministic `t()` implementation returning `fallback ?? key`.
+ * - Assert stable strings (fallback values) rather than i18n keys.
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { TFunction } from 'i18next';
 
 import { mapSupplierError } from '../../../../../pages/suppliers/dialogs/EditSupplierDialog/mapSupplierErrors';
