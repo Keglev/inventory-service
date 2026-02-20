@@ -1,14 +1,38 @@
+/**
+ * @file useSearchHandlers.test.ts
+ * @module __tests__/components/pages/suppliers/handlers/useSearchHandlers
+ * @description Contract tests for `useSearchHandlers`.
+ *
+ * Contract under test:
+ * - `handleSearchChange(query)`:
+ *   - updates search query
+ *   - clears selection (search result + row id)
+ *   - resets pagination to first page while preserving pageSize
+ * - `handleSearchResultSelect(supplier)`:
+ *   - sets selected supplier and selectedId
+ *   - sets searchQuery to the supplier's name (string)
+ *   - resets pagination to first page while preserving pageSize
+ * - `handleClearSearchSelection()` clears selection and search query.
+ *
+ * Out of scope:
+ * - Search dropdown rendering, debouncing, or API integration.
+ * - Edge cases not representable by the current domain types.
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useSearchHandlers } from '../../../../../pages/suppliers/handlers/useSearchHandlers';
 import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
+import type { SupplierRow } from '../../../../../api/suppliers';
 
 describe('useSearchHandlers', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+  const supplierRow = (overrides: Partial<SupplierRow> = {}): SupplierRow => ({
+    id: 'supplier-1',
+    name: 'Acme Corp',
+    ...overrides,
   });
 
-  const createMockState = (): UseSuppliersBoardStateReturn => ({
+  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
     paginationModel: { page: 0, pageSize: 10 },
     sortModel: [],
     searchQuery: '',
@@ -27,34 +51,36 @@ describe('useSearchHandlers', () => {
     setPaginationModel: vi.fn(),
     setSortModel: vi.fn(),
     setShowAllSuppliers: vi.fn(),
+    ...overrides,
+  });
+
+  const renderHandlers = (state: UseSuppliersBoardStateReturn) =>
+    renderHook(() => useSearchHandlers(state)).result.current;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   it('should return handler functions', () => {
-    // Arrange
-    const state = createMockState();
-
-    // Act
-    const { result } = renderHook(() => useSearchHandlers(state));
-
-    // Assert
-    expect(result.current).toHaveProperty('handleSearchChange');
-    expect(result.current).toHaveProperty('handleSearchResultSelect');
-    expect(result.current).toHaveProperty('handleClearSearchSelection');
-    expect(typeof result.current.handleSearchChange).toBe('function');
-    expect(typeof result.current.handleSearchResultSelect).toBe('function');
-    expect(typeof result.current.handleClearSearchSelection).toBe('function');
+    const handlers = renderHandlers(createState());
+    expect(handlers).toEqual(
+      expect.objectContaining({
+        handleSearchChange: expect.any(Function),
+        handleSearchResultSelect: expect.any(Function),
+        handleClearSearchSelection: expect.any(Function),
+      })
+    );
   });
 
   it('handleSearchChange should update search query and reset selection', () => {
-    // Arrange
-    const state = createMockState();
-    state.paginationModel = { page: 2, pageSize: 10 };
-    state.selectedId = '123';
+    const state = createState({
+      paginationModel: { page: 2, pageSize: 10 },
+      selectedId: '123',
+      selectedSearchResult: supplierRow({ id: '123', name: 'Acme Corp' }),
+    });
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useSearchHandlers(state));
-
-    // Act
-    result.current.handleSearchChange('acme');
+    handlers.handleSearchChange('acme');
 
     // Assert
     expect(state.setSearchQuery).toHaveBeenCalledWith('acme');
@@ -64,16 +90,12 @@ describe('useSearchHandlers', () => {
   });
 
   it('handleSearchResultSelect should select result and update query', () => {
-    // Arrange
-    const supplier = { id: '123', name: 'Acme Corp' };
-    const state = createMockState();
-    state.paginationModel = { page: 1, pageSize: 10 };
+    const supplier = supplierRow({ id: '123', name: 'Acme Corp' });
+    const state = createState({ paginationModel: { page: 1, pageSize: 10 } });
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useSearchHandlers(state));
-
-    // Act
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result.current.handleSearchResultSelect(supplier as any);
+    // Orchestration-only: verify setters receive the correct supplier-derived values.
+    handlers.handleSearchResultSelect(supplier);
 
     // Assert
     expect(state.setSelectedSearchResult).toHaveBeenCalledWith(supplier);
@@ -83,16 +105,14 @@ describe('useSearchHandlers', () => {
   });
 
   it('handleClearSearchSelection should clear all search state', () => {
-    // Arrange
-    const state = createMockState();
-    state.selectedId = '123';
-    state.searchQuery = 'acme';
-    state.selectedSearchResult = { id: '123', name: 'Acme Corp' };
+    const state = createState({
+      selectedId: '123',
+      searchQuery: 'acme',
+      selectedSearchResult: supplierRow({ id: '123', name: 'Acme Corp' }),
+    });
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useSearchHandlers(state));
-
-    // Act
-    result.current.handleClearSearchSelection();
+    handlers.handleClearSearchSelection();
 
     // Assert
     expect(state.setSelectedSearchResult).toHaveBeenCalledWith(null);
@@ -100,53 +120,24 @@ describe('useSearchHandlers', () => {
     expect(state.setSearchQuery).toHaveBeenCalledWith('');
   });
 
-  it('handleSearchChange should handle empty search query', () => {
-    // Arrange
-    const state = createMockState();
-    state.paginationModel = { page: 1, pageSize: 10 };
-    state.selectedId = '123';
-    state.searchQuery = 'test';
+  it('handleSearchChange supports empty query', () => {
+    const state = createState({ paginationModel: { page: 1, pageSize: 10 }, selectedId: '123', searchQuery: 'test' });
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useSearchHandlers(state));
+    handlers.handleSearchChange('');
 
-    // Act
-    result.current.handleSearchChange('');
-
-    // Assert
     expect(state.setSearchQuery).toHaveBeenCalledWith('');
     expect(state.setSelectedSearchResult).toHaveBeenCalledWith(null);
     expect(state.setSelectedId).toHaveBeenCalledWith(null);
   });
 
-  it('handleSearchResultSelect should handle supplier with empty name', () => {
-    // Arrange
-    const supplier = { id: '456', name: '' };
-    const state = createMockState();
+  it('handleSearchResultSelect supports supplier with empty name', () => {
+    const state = createState();
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useSearchHandlers(state));
+    handlers.handleSearchResultSelect(supplierRow({ id: '456', name: '' }));
 
-    // Act
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result.current.handleSearchResultSelect(supplier as any);
-
-    // Assert
     expect(state.setSelectedId).toHaveBeenCalledWith('456');
-    expect(state.setSearchQuery).toHaveBeenCalledWith('');
-  });
-
-  it('handleSearchResultSelect should handle supplier with null name', () => {
-    // Arrange
-    const supplier = { id: '789', name: null };
-    const state = createMockState();
-
-    const { result } = renderHook(() => useSearchHandlers(state));
-
-    // Act
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result.current.handleSearchResultSelect(supplier as any);
-
-    // Assert
-    expect(state.setSelectedId).toHaveBeenCalledWith('789');
     expect(state.setSearchQuery).toHaveBeenCalledWith('');
   });
 });

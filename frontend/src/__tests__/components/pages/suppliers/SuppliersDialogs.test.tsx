@@ -1,91 +1,123 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { SuppliersDialogs } from '../../../../pages/suppliers/components/SuppliersDialogs';
+/**
+ * @file SuppliersDialogs.test.tsx
+ * @module __tests__/components/pages/suppliers/SuppliersDialogs
+ * @description Contract tests for the `SuppliersDialogs` composition component.
+ *
+ * Contract under test:
+ * - Renders the Create/Edit/Delete dialog components.
+ * - Wires the board-level props to the correct child-dialog prop names.
+ *
+ * Out of scope:
+ * - The internal rendering/behavior of each dialog (those are tested in their own suites).
+ *
+ * Test strategy:
+ * - Replace each dialog with a spy-only test double and assert on the props it receives.
+ * - Keep dialog prop capture typed as `unknown` so this test does not depend on dialog internals.
+ */
 
-// Mock all dialog components
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render } from '@testing-library/react';
+import {
+  SuppliersDialogs,
+  type SuppliersDialogsProps,
+} from '../../../../pages/suppliers/components/SuppliersDialogs';
+
+const mocks = vi.hoisted(() => ({
+  CreateSupplierDialog: vi.fn<[unknown], void>(),
+  EditSupplierDialog: vi.fn<[unknown], void>(),
+  DeleteSupplierDialog: vi.fn<[unknown], void>(),
+}));
+
 vi.mock('../../../../pages/suppliers/dialogs/CreateSupplierDialog', () => ({
-  CreateSupplierDialog: vi.fn(({ open }) => 
-    open ? <div data-testid="create-supplier-dialog">Create Dialog</div> : null
-  ),
+  CreateSupplierDialog: (props: unknown) => {
+    // We don't render dialog UI here; we only capture the props the composition layer passes down.
+    mocks.CreateSupplierDialog(props);
+    return null;
+  },
 }));
 
 vi.mock('../../../../pages/suppliers/dialogs/EditSupplierDialog', () => ({
-  EditSupplierDialog: vi.fn(({ open }) => 
-    open ? <div data-testid="edit-supplier-dialog">Edit Dialog</div> : null
-  ),
+  EditSupplierDialog: (props: unknown) => {
+    mocks.EditSupplierDialog(props);
+    return null;
+  },
 }));
 
 vi.mock('../../../../pages/suppliers/dialogs/DeleteSupplierDialog', () => ({
-  DeleteSupplierDialog: vi.fn(({ open }) => 
-    open ? <div data-testid="delete-supplier-dialog">Delete Dialog</div> : null
-  ),
+  DeleteSupplierDialog: (props: unknown) => {
+    mocks.DeleteSupplierDialog(props);
+    return null;
+  },
 }));
 
-describe('SuppliersDialogs', () => {
-  const defaultProps = {
-    openCreate: false,
-    onCloseCreate: vi.fn(),
-    onCreated: vi.fn(),
-    openEdit: false,
-    onCloseEdit: vi.fn(),
-    onUpdated: vi.fn(),
-    openDelete: false,
-    onCloseDelete: vi.fn(),
-    onDeleted: vi.fn(),
-  };
+// Props builder: keeps tests focused on one contract variation at a time.
+const createProps = (overrides: Partial<SuppliersDialogsProps> = {}): SuppliersDialogsProps => ({
+  openCreate: false,
+  onCloseCreate: vi.fn(),
+  onCreated: vi.fn(),
+  openEdit: false,
+  onCloseEdit: vi.fn(),
+  onUpdated: vi.fn(),
+  openDelete: false,
+  onCloseDelete: vi.fn(),
+  onDeleted: vi.fn(),
+  ...overrides,
+});
 
+const renderDialogs = (props: SuppliersDialogsProps) => render(<SuppliersDialogs {...props} />);
+
+describe('SuppliersDialogs', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('does not render any dialog when all are closed', () => {
-    render(<SuppliersDialogs {...defaultProps} />);
-    expect(screen.queryByTestId('create-supplier-dialog')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('edit-supplier-dialog')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('delete-supplier-dialog')).not.toBeInTheDocument();
-  });
+  it('wires props to dialog components', () => {
+    const props = createProps({ openCreate: true, openEdit: true, openDelete: true });
 
-  it('renders create dialog when openCreate is true', () => {
-    render(<SuppliersDialogs {...defaultProps} openCreate={true} />);
-    expect(screen.getByTestId('create-supplier-dialog')).toBeInTheDocument();
-  });
+    renderDialogs(props);
 
-  it('does not render create dialog when openCreate is false', () => {
-    render(<SuppliersDialogs {...defaultProps} openCreate={false} />);
-    expect(screen.queryByTestId('create-supplier-dialog')).not.toBeInTheDocument();
-  });
-
-  it('renders edit dialog when openEdit is true', () => {
-    render(<SuppliersDialogs {...defaultProps} openEdit={true} />);
-    expect(screen.getByTestId('edit-supplier-dialog')).toBeInTheDocument();
-  });
-
-  it('does not render edit dialog when openEdit is false', () => {
-    render(<SuppliersDialogs {...defaultProps} openEdit={false} />);
-    expect(screen.queryByTestId('edit-supplier-dialog')).not.toBeInTheDocument();
-  });
-
-  it('renders delete dialog when openDelete is true', () => {
-    render(<SuppliersDialogs {...defaultProps} openDelete={true} />);
-    expect(screen.getByTestId('delete-supplier-dialog')).toBeInTheDocument();
-  });
-
-  it('does not render delete dialog when openDelete is false', () => {
-    render(<SuppliersDialogs {...defaultProps} openDelete={false} />);
-    expect(screen.queryByTestId('delete-supplier-dialog')).not.toBeInTheDocument();
-  });
-
-  it('can render multiple dialogs simultaneously', () => {
-    render(
-      <SuppliersDialogs
-        {...defaultProps}
-        openCreate={true}
-        openEdit={true}
-        openDelete={true}
-      />
+    expect(mocks.CreateSupplierDialog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        open: true,
+        onClose: props.onCloseCreate,
+        onCreated: props.onCreated,
+      })
     );
-    expect(screen.getByTestId('create-supplier-dialog')).toBeInTheDocument();
-    expect(screen.getByTestId('edit-supplier-dialog')).toBeInTheDocument();
-    expect(screen.getByTestId('delete-supplier-dialog')).toBeInTheDocument();
+
+    expect(mocks.EditSupplierDialog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        open: true,
+        onClose: props.onCloseEdit,
+        onSupplierUpdated: props.onUpdated,
+      })
+    );
+
+    expect(mocks.DeleteSupplierDialog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        open: true,
+        onClose: props.onCloseDelete,
+        onSupplierDeleted: props.onDeleted,
+      })
+    );
+  });
+
+  it.each([
+    { name: 'all closed', openCreate: false, openEdit: false, openDelete: false },
+    { name: 'create open', openCreate: true, openEdit: false, openDelete: false },
+    { name: 'edit open', openCreate: false, openEdit: true, openDelete: false },
+    { name: 'delete open', openCreate: false, openEdit: false, openDelete: true },
+    { name: 'all open', openCreate: true, openEdit: true, openDelete: true },
+  ])('passes open flags ($name)', ({ openCreate, openEdit, openDelete }) => {
+    renderDialogs(createProps({ openCreate, openEdit, openDelete }));
+
+    expect(mocks.CreateSupplierDialog).toHaveBeenCalledWith(
+      expect.objectContaining({ open: openCreate })
+    );
+    expect(mocks.EditSupplierDialog).toHaveBeenCalledWith(
+      expect.objectContaining({ open: openEdit })
+    );
+    expect(mocks.DeleteSupplierDialog).toHaveBeenCalledWith(
+      expect.objectContaining({ open: openDelete })
+    );
   });
 });

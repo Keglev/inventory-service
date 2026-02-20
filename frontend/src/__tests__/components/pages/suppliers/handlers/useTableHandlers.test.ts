@@ -1,10 +1,16 @@
 /**
  * @file useTableHandlers.test.ts
  * @module __tests__/components/pages/suppliers/handlers/useTableHandlers
+ * @description Contract tests for `useTableHandlers`.
  *
- * @summary
- * Test suite for useTableHandlers hook.
- * Tests: row click selection, pagination changes, sort changes.
+ * Contract under test:
+ * - `handleRowClick({ id })` delegates to `setSelectedId(String(id))`.
+ * - `handlePaginationChange(model)` delegates to `setPaginationModel(model)`.
+ * - `handleSortChange(model)` delegates to `setSortModel(model)`.
+ *
+ * Out of scope:
+ * - MUI DataGrid rendering/integration and event binding.
+ * - Any derived logic (this hook is a pure delegator).
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -13,11 +19,7 @@ import { useTableHandlers } from '../../../../../pages/suppliers/handlers/useTab
 import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
 
 describe('useTableHandlers', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  const createMockState = (): UseSuppliersBoardStateReturn => ({
+  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
     paginationModel: { page: 0, pageSize: 10 },
     sortModel: [],
     searchQuery: '',
@@ -36,115 +38,71 @@ describe('useTableHandlers', () => {
     setPaginationModel: vi.fn(),
     setSortModel: vi.fn(),
     setShowAllSuppliers: vi.fn(),
+    ...overrides,
+  });
+
+  const renderHandlers = (state: UseSuppliersBoardStateReturn) =>
+    renderHook(() => useTableHandlers(state)).result.current;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   it('should return handler functions', () => {
-    // Arrange
-    const state = createMockState();
-
-    // Act
-    const { result } = renderHook(() => useTableHandlers(state));
-
-    // Assert
-    expect(result.current).toHaveProperty('handleRowClick');
-    expect(result.current).toHaveProperty('handlePaginationChange');
-    expect(result.current).toHaveProperty('handleSortChange');
-    expect(typeof result.current.handleRowClick).toBe('function');
-    expect(typeof result.current.handlePaginationChange).toBe('function');
-    expect(typeof result.current.handleSortChange).toBe('function');
+    const handlers = renderHandlers(createState());
+    expect(handlers).toEqual(
+      expect.objectContaining({
+        handleRowClick: expect.any(Function),
+        handlePaginationChange: expect.any(Function),
+        handleSortChange: expect.any(Function),
+      })
+    );
   });
 
-  it('handleRowClick should select row by id', () => {
-    // Arrange
-    const state = createMockState();
+  it.each([
+    {
+      name: 'row click uses string id',
+      run: (handlers: ReturnType<typeof renderHandlers>) => handlers.handleRowClick({ id: '123' }),
+      assert: (state: UseSuppliersBoardStateReturn) => {
+        expect(state.setSelectedId).toHaveBeenCalledWith('123');
+      },
+    },
+    {
+      name: 'row click normalizes numeric id',
+      run: (handlers: ReturnType<typeof renderHandlers>) => handlers.handleRowClick({ id: 456 }),
+      assert: (state: UseSuppliersBoardStateReturn) => {
+        expect(state.setSelectedId).toHaveBeenCalledWith('456');
+      },
+    },
+    {
+      name: 'pagination change delegates model',
+      run: (handlers: ReturnType<typeof renderHandlers>) =>
+        handlers.handlePaginationChange({ page: 2, pageSize: 25 }),
+      assert: (state: UseSuppliersBoardStateReturn) => {
+        expect(state.setPaginationModel).toHaveBeenCalledWith({ page: 2, pageSize: 25 });
+      },
+    },
+    {
+      name: 'sort change delegates model',
+      run: (handlers: ReturnType<typeof renderHandlers>) =>
+        handlers.handleSortChange([{ field: 'name', sort: 'desc' }]),
+      assert: (state: UseSuppliersBoardStateReturn) => {
+        expect(state.setSortModel).toHaveBeenCalledWith([{ field: 'name', sort: 'desc' }]);
+      },
+    },
+    {
+      name: 'sort change supports empty model',
+      run: (handlers: ReturnType<typeof renderHandlers>) => handlers.handleSortChange([]),
+      assert: (state: UseSuppliersBoardStateReturn) => {
+        expect(state.setSortModel).toHaveBeenCalledWith([]);
+      },
+    },
+  ])('$name', ({ run, assert }) => {
+    const state = createState();
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useTableHandlers(state));
-
-    // Act
-    result.current.handleRowClick({ id: '123' });
-
-    // Assert
-    expect(state.setSelectedId).toHaveBeenCalledWith('123');
-  });
-
-  it('handleRowClick should convert numeric id to string', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useTableHandlers(state));
-
-    // Act
-    result.current.handleRowClick({ id: 456 });
-
-    // Assert
-    expect(state.setSelectedId).toHaveBeenCalledWith('456');
-  });
-
-  it('handlePaginationChange should update pagination model', () => {
-    // Arrange
-    const state = createMockState();
-
-    const newPaginationModel = { page: 2, pageSize: 25 };
-    const { result } = renderHook(() => useTableHandlers(state));
-
-    // Act
-    result.current.handlePaginationChange(newPaginationModel);
-
-    // Assert
-    expect(state.setPaginationModel).toHaveBeenCalledWith(newPaginationModel);
-  });
-
-  it('handleSortChange should update sort model', () => {
-    // Arrange
-    const state = createMockState();
-
-    const newSortModel = [{ field: 'name', sort: 'desc' as const }];
-    const { result } = renderHook(() => useTableHandlers(state));
-
-    // Act
-    result.current.handleSortChange(newSortModel);
-
-    // Assert
-    expect(state.setSortModel).toHaveBeenCalledWith(newSortModel);
-  });
-
-  it('handlePaginationChange should handle pageSize change', () => {
-    // Arrange
-    const state = createMockState();
-
-    const newPaginationModel = { page: 0, pageSize: 50 };
-    const { result } = renderHook(() => useTableHandlers(state));
-
-    // Act
-    result.current.handlePaginationChange(newPaginationModel);
-
-    // Assert
-    expect(state.setPaginationModel).toHaveBeenCalledWith(newPaginationModel);
-  });
-
-  it('handleSortChange should handle empty sort model', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useTableHandlers(state));
-
-    // Act
-    result.current.handleSortChange([]);
-
-    // Assert
-    expect(state.setSortModel).toHaveBeenCalledWith([]);
-  });
-
-  it('should accept state parameter and use its setters', () => {
-    // Arrange
-    const state = createMockState();
-
-    // Act
-    const { result } = renderHook(() => useTableHandlers(state));
-
-    // Assert
-    expect(result.current).toBeDefined();
-    result.current.handleRowClick({ id: '1' });
-    expect(state.setSelectedId).toHaveBeenCalled();
+    // Orchestration-only: handler delegates, state holds the behavior.
+    run(handlers);
+    assert(state);
   });
 });

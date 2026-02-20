@@ -1,10 +1,19 @@
 /**
  * @file useFilterHandlers.test.ts
  * @module __tests__/components/pages/suppliers/handlers/useFilterHandlers
+ * @description Contract tests for `useFilterHandlers`.
  *
- * @summary
- * Test suite for useFilterHandlers hook.
- * Tests: filter toggle handler.
+ * Contract under test:
+ * - Exposes `handleToggleShowAll(show)`.
+ * - Delegates directly to `state.setShowAllSuppliers(show)`.
+ *
+ * Out of scope:
+ * - Filter UI rendering/event binding.
+ * - Any derived filtering logic (this hook is a thin orchestrator).
+ *
+ * Test strategy:
+ * - Provide a fully-typed `UseSuppliersBoardStateReturn` with a spy setter.
+ * - Assert only on delegation and arguments (no duplication of production logic).
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -13,11 +22,7 @@ import { useFilterHandlers } from '../../../../../pages/suppliers/handlers/useFi
 import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
 
 describe('useFilterHandlers', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  const createMockState = (): UseSuppliersBoardStateReturn => ({
+  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
     paginationModel: { page: 0, pageSize: 10 },
     sortModel: [],
     searchQuery: '',
@@ -36,74 +41,30 @@ describe('useFilterHandlers', () => {
     setPaginationModel: vi.fn(),
     setSortModel: vi.fn(),
     setShowAllSuppliers: vi.fn(),
+    ...overrides,
+  });
+
+  const renderHandlers = (state: UseSuppliersBoardStateReturn) =>
+    renderHook(() => useFilterHandlers(state)).result.current;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   it('should return handler functions', () => {
-    // Arrange
-    const state = createMockState();
-
-    // Act
-    const { result } = renderHook(() => useFilterHandlers(state));
-
-    // Assert
-    expect(result.current).toHaveProperty('handleToggleShowAll');
-    expect(typeof result.current.handleToggleShowAll).toBe('function');
+    const handlers = renderHandlers(createState());
+    expect(handlers).toEqual(expect.objectContaining({ handleToggleShowAll: expect.any(Function) }));
   });
 
-  it('handleToggleShowAll should update showAllSuppliers state to true', () => {
-    // Arrange
-    const state = createMockState();
+  it.each([
+    { show: true },
+    { show: false },
+  ])('delegates showAllSuppliers toggle: $show', ({ show }) => {
+    const state = createState();
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useFilterHandlers(state));
-
-    // Act
-    result.current.handleToggleShowAll(true);
-
-    // Assert
-    expect(state.setShowAllSuppliers).toHaveBeenCalledWith(true);
-  });
-
-  it('handleToggleShowAll should update showAllSuppliers state to false', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useFilterHandlers(state));
-
-    // Act
-    result.current.handleToggleShowAll(false);
-
-    // Assert
-    expect(state.setShowAllSuppliers).toHaveBeenCalledWith(false);
-  });
-
-  it('should accept state parameter and use its setters', () => {
-    // Arrange
-    const state = createMockState();
-
-    // Act
-    const { result } = renderHook(() => useFilterHandlers(state));
-
-    // Assert
-    expect(result.current).toBeDefined();
-    result.current.handleToggleShowAll(true);
-    expect(state.setShowAllSuppliers).toHaveBeenCalled();
-  });
-
-  it('should call setShowAllSuppliers with correct value', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useFilterHandlers(state));
-
-    // Act
-    result.current.handleToggleShowAll(true);
-    result.current.handleToggleShowAll(false);
-    result.current.handleToggleShowAll(true);
-
-    // Assert
-    expect(state.setShowAllSuppliers).toHaveBeenCalledTimes(3);
-    expect(state.setShowAllSuppliers).toHaveBeenNthCalledWith(1, true);
-    expect(state.setShowAllSuppliers).toHaveBeenNthCalledWith(2, false);
-    expect(state.setShowAllSuppliers).toHaveBeenNthCalledWith(3, true);
+    // Orchestration-only: this hook should be a thin delegator.
+    handlers.handleToggleShowAll(show);
+    expect(state.setShowAllSuppliers).toHaveBeenCalledWith(show);
   });
 });

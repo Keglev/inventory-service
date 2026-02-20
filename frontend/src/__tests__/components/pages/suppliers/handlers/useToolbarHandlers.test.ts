@@ -1,10 +1,23 @@
 /**
  * @file useToolbarHandlers.test.ts
  * @module __tests__/components/pages/suppliers/handlers/useToolbarHandlers
+ * @description Contract tests for `useToolbarHandlers`.
  *
- * @summary
- * Test suite for useToolbarHandlers hook.
- * Tests: Create, Edit, Delete button click handlers.
+ * Contract under test:
+ * - Exposes three toolbar handlers: create, edit, delete.
+ * - Each handler is a pure orchestration function that delegates to a single state setter.
+ *   - Add New → `setOpenCreate(true)`
+ *   - Edit → `setOpenEdit(true)`
+ *   - Delete → `setOpenDelete(true)`
+ * - Handlers must not trigger unrelated setters.
+ *
+ * Out of scope:
+ * - Button rendering and UI event binding (component-level tests).
+ * - State shape semantics beyond the setters this hook touches.
+ *
+ * Test strategy:
+ * - Provide a fully typed `UseSuppliersBoardStateReturn` with spy setters.
+ * - Assert on observable orchestration only (calls + arguments).
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -13,11 +26,7 @@ import { useToolbarHandlers } from '../../../../../pages/suppliers/handlers/useT
 import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
 
 describe('useToolbarHandlers', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  const createMockState = (): UseSuppliersBoardStateReturn => ({
+  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
     paginationModel: { page: 0, pageSize: 10 },
     sortModel: [],
     searchQuery: '',
@@ -36,137 +45,73 @@ describe('useToolbarHandlers', () => {
     setPaginationModel: vi.fn(),
     setSortModel: vi.fn(),
     setShowAllSuppliers: vi.fn(),
+    ...overrides,
+  });
+
+  const renderHandlers = (state: UseSuppliersBoardStateReturn) =>
+    renderHook(() => useToolbarHandlers(state)).result.current;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   it('should return handler functions', () => {
-    // Arrange
-    const state = createMockState();
+    const handlers = renderHandlers(createState());
 
-    // Act
-    const { result } = renderHook(() => useToolbarHandlers(state));
-
-    // Assert
-    expect(result.current).toHaveProperty('handleAddNew');
-    expect(result.current).toHaveProperty('handleEdit');
-    expect(result.current).toHaveProperty('handleDelete');
-    expect(typeof result.current.handleAddNew).toBe('function');
-    expect(typeof result.current.handleEdit).toBe('function');
-    expect(typeof result.current.handleDelete).toBe('function');
+    // Keep this assertion shallow: the behavioral contract is covered below.
+    expect(handlers).toEqual(
+      expect.objectContaining({
+        handleAddNew: expect.any(Function),
+        handleEdit: expect.any(Function),
+        handleDelete: expect.any(Function),
+      })
+    );
   });
 
-  it('handleAddNew should open create dialog', () => {
-    // Arrange
-    const state = createMockState();
+  it.each([
+    {
+      name: 'Add New opens create dialog only',
+      invoke: (h: ReturnType<typeof renderHandlers>) => h.handleAddNew(),
+      expectedSetter: 'setOpenCreate' as const,
+    },
+    {
+      name: 'Edit opens edit dialog only',
+      invoke: (h: ReturnType<typeof renderHandlers>) => h.handleEdit(),
+      expectedSetter: 'setOpenEdit' as const,
+    },
+    {
+      name: 'Delete opens delete dialog only',
+      invoke: (h: ReturnType<typeof renderHandlers>) => h.handleDelete(),
+      expectedSetter: 'setOpenDelete' as const,
+    },
+  ])('$name', ({ invoke, expectedSetter }) => {
+    const state = createState({ selectedId: 'supplier-123' });
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useToolbarHandlers(state));
+    // Each handler should only flip its corresponding dialog flag.
+    invoke(handlers);
+    expect(state[expectedSetter]).toHaveBeenCalledWith(true);
 
-    // Act
-    result.current.handleAddNew();
-
-    // Assert
-    expect(state.setOpenCreate).toHaveBeenCalledWith(true);
+    const otherSetters = (['setOpenCreate', 'setOpenEdit', 'setOpenDelete'] as const).filter(
+      (s) => s !== expectedSetter
+    );
+    for (const setterName of otherSetters) {
+      expect(state[setterName]).not.toHaveBeenCalled();
+    }
   });
 
-  it('handleEdit should open edit dialog', () => {
-    // Arrange
-    const state = createMockState();
+  it('supports multiple calls without hidden side effects', () => {
+    const state = createState();
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useToolbarHandlers(state));
+    // Intentional repetition: ensures handler callbacks are stable and only delegate.
+    handlers.handleAddNew();
+    handlers.handleAddNew();
+    handlers.handleEdit();
+    handlers.handleDelete();
 
-    // Act
-    result.current.handleEdit();
-
-    // Assert
-    expect(state.setOpenEdit).toHaveBeenCalledWith(true);
-  });
-
-  it('handleDelete should open delete dialog', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useToolbarHandlers(state));
-
-    // Act
-    result.current.handleDelete();
-
-    // Assert
-    expect(state.setOpenDelete).toHaveBeenCalledWith(true);
-  });
-
-  it('should handle multiple calls to handlers', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useToolbarHandlers(state));
-
-    // Act
-    result.current.handleAddNew();
-    result.current.handleAddNew();
-    result.current.handleEdit();
-    result.current.handleDelete();
-
-    // Assert
     expect(state.setOpenCreate).toHaveBeenCalledTimes(2);
     expect(state.setOpenEdit).toHaveBeenCalledTimes(1);
     expect(state.setOpenDelete).toHaveBeenCalledTimes(1);
-  });
-
-  it('should accept state parameter and use its setters', () => {
-    // Arrange
-    const state = createMockState();
-    state.selectedId = '123';
-
-    // Act
-    const { result } = renderHook(() => useToolbarHandlers(state));
-
-    // Assert
-    expect(result.current).toBeDefined();
-    result.current.handleAddNew();
-    expect(state.setOpenCreate).toHaveBeenCalledWith(true);
-  });
-
-  it('handleAddNew should only call setOpenCreate, not other setters', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useToolbarHandlers(state));
-
-    // Act
-    result.current.handleAddNew();
-
-    // Assert
-    expect(state.setOpenCreate).toHaveBeenCalledWith(true);
-    expect(state.setOpenEdit).not.toHaveBeenCalled();
-    expect(state.setOpenDelete).not.toHaveBeenCalled();
-  });
-
-  it('handleEdit should only call setOpenEdit, not other setters', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useToolbarHandlers(state));
-
-    // Act
-    result.current.handleEdit();
-
-    // Assert
-    expect(state.setOpenEdit).toHaveBeenCalledWith(true);
-    expect(state.setOpenCreate).not.toHaveBeenCalled();
-    expect(state.setOpenDelete).not.toHaveBeenCalled();
-  });
-
-  it('handleDelete should only call setOpenDelete, not other setters', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useToolbarHandlers(state));
-
-    // Act
-    result.current.handleDelete();
-
-    // Assert
-    expect(state.setOpenDelete).toHaveBeenCalledWith(true);
-    expect(state.setOpenCreate).not.toHaveBeenCalled();
-    expect(state.setOpenEdit).not.toHaveBeenCalled();
   });
 });

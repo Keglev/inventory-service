@@ -1,10 +1,22 @@
 /**
  * @file useDialogHandlers.test.ts
  * @module __tests__/components/pages/suppliers/handlers/useDialogHandlers
+ * @description Contract tests for `useDialogHandlers`.
  *
- * @summary
- * Test suite for useDialogHandlers hook.
- * Tests: dialog operation callbacks, toast notifications, cache invalidation.
+ * Contract under test:
+ * - Exposes CRUD dialog callbacks: created/updated/deleted.
+ * - Each callback orchestrates three responsibilities:
+ *   1) User feedback via toast (translated message + `success`).
+ *   2) React Query cache invalidation for the suppliers list.
+ *   3) Local UI state updates (close dialog; clear selection where applicable).
+ *
+ * Out of scope:
+ * - React Query internals and network activity.
+ * - i18n translation correctness (we return fallback strings deterministically).
+ *
+ * Test strategy:
+ * - Deterministic hoisted spies for toast + query invalidation.
+ * - Table-driven scenarios to keep coverage while reducing repetition.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -12,29 +24,26 @@ import { renderHook } from '@testing-library/react';
 import { useDialogHandlers } from '../../../../../pages/suppliers/handlers/useDialogHandlers';
 import type { UseSuppliersBoardStateReturn } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
 
-// Mock dependencies
+const mocks = vi.hoisted(() => ({
+  toast: vi.fn(),
+  invalidateQueries: vi.fn(),
+}));
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
+  // Prefer fallback/defaultValue so assertions remain stable across locales.
+  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
 }));
 
 vi.mock('../../../../../context/toast', () => ({
-  useToast: () => vi.fn(),
+  useToast: () => mocks.toast,
 }));
 
 vi.mock('@tanstack/react-query', () => ({
-  useQueryClient: () => ({
-    invalidateQueries: vi.fn(),
-  }),
+  useQueryClient: () => ({ invalidateQueries: mocks.invalidateQueries }),
 }));
 
 describe('useDialogHandlers', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  const createMockState = (): UseSuppliersBoardStateReturn => ({
+  const createState = (overrides: Partial<UseSuppliersBoardStateReturn> = {}): UseSuppliersBoardStateReturn => ({
     paginationModel: { page: 0, pageSize: 10 },
     sortModel: [],
     searchQuery: '',
@@ -53,87 +62,68 @@ describe('useDialogHandlers', () => {
     setPaginationModel: vi.fn(),
     setSortModel: vi.fn(),
     setShowAllSuppliers: vi.fn(),
+    ...overrides,
+  });
+
+  const renderHandlers = (state: UseSuppliersBoardStateReturn) =>
+    renderHook(() => useDialogHandlers(state)).result.current;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   it('should return handler functions', () => {
-    // Arrange
-    const state = createMockState();
+    const handlers = renderHandlers(createState());
 
-    // Act
-    const { result } = renderHook(() => useDialogHandlers(state));
-
-    // Assert
-    expect(result.current).toHaveProperty('handleSupplierCreated');
-    expect(result.current).toHaveProperty('handleSupplierUpdated');
-    expect(result.current).toHaveProperty('handleSupplierDeleted');
-    expect(typeof result.current.handleSupplierCreated).toBe('function');
-    expect(typeof result.current.handleSupplierUpdated).toBe('function');
-    expect(typeof result.current.handleSupplierDeleted).toBe('function');
+    // Keep this assertion shallow: behavioral contracts are covered below.
+    expect(handlers).toEqual(
+      expect.objectContaining({
+        handleSupplierCreated: expect.any(Function),
+        handleSupplierUpdated: expect.any(Function),
+        handleSupplierDeleted: expect.any(Function),
+      })
+    );
   });
 
-  it('handleSupplierCreated should close create dialog', () => {
-    // Arrange
-    const state = createMockState();
+  it.each([
+    {
+      name: 'created: toasts, invalidates cache, closes create dialog',
+      invoke: (h: ReturnType<typeof renderHandlers>) => h.handleSupplierCreated(),
+      expectedToast: 'Supplier created successfully',
+      expectedOpenSetter: 'setOpenCreate' as const,
+      clearsSelection: false,
+    },
+    {
+      name: 'updated: toasts, invalidates cache, closes edit dialog, clears selection',
+      invoke: (h: ReturnType<typeof renderHandlers>) => h.handleSupplierUpdated(),
+      expectedToast: 'Supplier updated successfully',
+      expectedOpenSetter: 'setOpenEdit' as const,
+      clearsSelection: true,
+    },
+    {
+      name: 'deleted: toasts, invalidates cache, closes delete dialog, clears selection',
+      invoke: (h: ReturnType<typeof renderHandlers>) => h.handleSupplierDeleted(),
+      expectedToast: 'Supplier deleted successfully',
+      expectedOpenSetter: 'setOpenDelete' as const,
+      clearsSelection: true,
+    },
+  ])('$name', ({ invoke, expectedToast, expectedOpenSetter, clearsSelection }) => {
+    const state = createState({ selectedId: 'supplier-123' });
+    const handlers = renderHandlers(state);
 
-    const { result } = renderHook(() => useDialogHandlers(state));
+    // Execute the callback under test.
+    invoke(handlers);
 
-    // Act
-    result.current.handleSupplierCreated();
+    // User feedback and cache freshness are always part of the contract.
+    expect(mocks.toast).toHaveBeenCalledWith(expectedToast, 'success');
+    expect(mocks.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['suppliers'] });
 
-    // Assert
-    expect(state.setOpenCreate).toHaveBeenCalledWith(false);
-  });
-
-  it('handleSupplierUpdated should close edit dialog and clear selection', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useDialogHandlers(state));
-
-    // Act
-    result.current.handleSupplierUpdated();
-
-    // Assert
-    expect(state.setOpenEdit).toHaveBeenCalledWith(false);
-    expect(state.setSelectedId).toHaveBeenCalledWith(null);
-  });
-
-  it('handleSupplierDeleted should close delete dialog and clear selection', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useDialogHandlers(state));
-
-    // Act
-    result.current.handleSupplierDeleted();
-
-    // Assert
-    expect(state.setOpenDelete).toHaveBeenCalledWith(false);
-    expect(state.setSelectedId).toHaveBeenCalledWith(null);
-  });
-
-  it('should invalidate suppliers cache on creation', () => {
-    // Arrange
-    const state = createMockState();
-
-    const { result } = renderHook(() => useDialogHandlers(state));
-
-    // Act
-    result.current.handleSupplierCreated();
-
-    // Assert - cache invalidation happens internally
-    expect(state.setOpenCreate).toHaveBeenCalledWith(false);
-  });
-
-  it('should accept state parameter and use its setters', () => {
-    // Arrange
-    const state = createMockState();
-
-    // Act
-    const { result } = renderHook(() => useDialogHandlers(state));
-
-    // Assert - ensure state is being used
-    expect(result.current).toBeDefined();
-    expect(typeof result.current.handleSupplierCreated).toBe('function');
+    // UI state updates are operation-specific.
+    expect(state[expectedOpenSetter]).toHaveBeenCalledWith(false);
+    if (clearsSelection) {
+      expect(state.setSelectedId).toHaveBeenCalledWith(null);
+    } else {
+      expect(state.setSelectedId).not.toHaveBeenCalled();
+    }
   });
 });

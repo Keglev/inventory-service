@@ -1,188 +1,144 @@
 /**
  * @file useSuppliersBoardState.test.ts
- * @module __tests__/pages/suppliers/hooks/useSuppliersBoardState
+ * @module __tests__/components/pages/suppliers/hooks/useSuppliersBoardState
+ * @description Contract tests for the `useSuppliersBoardState` orchestration hook.
  *
- * @summary
- * Test suite for useSuppliersBoardState hook.
- * Tests: state initialization, setters, pagination, sorting, search, dialogs.
+ * Contract under test:
+ * - Exposes stable default state for the suppliers board.
+ * - Updates state via the public setter functions (search, pagination, sorting, selection, dialogs).
+ *
+ * Out of scope:
+ * - React state implementation details (we treat React as a trusted dependency).
+ *
+ * Test strategy:
+ * - Assert defaults and observable state transitions after calling setters.
+ * - Use table-driven cases to keep coverage clear and non-duplicative.
  */
 
-import { describe, it, expect } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useSuppliersBoardState } from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
+import { describe, expect, it } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import {
+  useSuppliersBoardState,
+  type UseSuppliersBoardStateReturn,
+} from '../../../../../pages/suppliers/hooks/useSuppliersBoardState';
 import type { GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 
+// Rendering helper: keeps the tests focused on state transitions, not hook setup ceremony.
+const renderState = () => renderHook(() => useSuppliersBoardState());
+
 describe('useSuppliersBoardState', () => {
-  it('should initialize with default values', () => {
-    // Act
-    const { result } = renderHook(() => useSuppliersBoardState());
+  it('initializes with default values', () => {
+    const { result } = renderState();
 
-    // Assert
-    expect(result.current.searchQuery).toBe('');
-    expect(result.current.showAllSuppliers).toBe(false);
-    expect(result.current.paginationModel).toEqual({ page: 0, pageSize: 6 });
-    expect(result.current.sortModel).toEqual([{ field: 'name', sort: 'asc' }]);
-    expect(result.current.selectedId).toBeNull();
-    expect(result.current.selectedSearchResult).toBeNull();
-    expect(result.current.openCreate).toBe(false);
-    expect(result.current.openEdit).toBe(false);
-    expect(result.current.openDelete).toBe(false);
+    expect(result.current).toMatchObject({
+      searchQuery: '',
+      showAllSuppliers: false,
+      paginationModel: { page: 0, pageSize: 6 },
+      sortModel: [{ field: 'name', sort: 'asc' }],
+      selectedId: null,
+      selectedSearchResult: null,
+      openCreate: false,
+      openEdit: false,
+      openDelete: false,
+    });
   });
 
-  it('should update search query', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
+  it.each([
+    {
+      name: 'search query',
+      perform: (state: UseSuppliersBoardStateReturn) => state.setSearchQuery('acme corp'),
+      assert: (state: UseSuppliersBoardStateReturn) =>
+        expect(state.searchQuery).toBe('acme corp'),
+    },
+    {
+      name: 'showAllSuppliers flag',
+      perform: (state: UseSuppliersBoardStateReturn) => state.setShowAllSuppliers(true),
+      assert: (state: UseSuppliersBoardStateReturn) =>
+        expect(state.showAllSuppliers).toBe(true),
+    },
+    {
+      name: 'pagination model',
+      perform: (state: UseSuppliersBoardStateReturn) => {
+        const next: GridPaginationModel = { page: 2, pageSize: 15 };
+        state.setPaginationModel(next);
+      },
+      assert: (state: UseSuppliersBoardStateReturn) =>
+        expect(state.paginationModel).toEqual({ page: 2, pageSize: 15 }),
+    },
+    {
+      name: 'sort model',
+      perform: (state: UseSuppliersBoardStateReturn) => {
+        const next: GridSortModel = [{ field: 'lastContact', sort: 'desc' }];
+        state.setSortModel(next);
+      },
+      assert: (state: UseSuppliersBoardStateReturn) =>
+        expect(state.sortModel).toEqual([{ field: 'lastContact', sort: 'desc' }]),
+    },
+    {
+      name: 'selected id',
+      perform: (state: UseSuppliersBoardStateReturn) => state.setSelectedId('supplier-123'),
+      assert: (state: UseSuppliersBoardStateReturn) =>
+        expect(state.selectedId).toBe('supplier-123'),
+    },
+  ])('updates $name', ({ perform, assert }) => {
+    const { result } = renderState();
 
-    // Act
     act(() => {
-      result.current.setSearchQuery('acme corp');
+      perform(result.current);
     });
 
-    // Assert
-    expect(result.current.searchQuery).toBe('acme corp');
+    assert(result.current);
   });
 
-  it('should update showAllSuppliers flag', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
+  it('allows clearing the selected id', () => {
+    const { result } = renderState();
 
-    // Act
-    act(() => {
-      result.current.setShowAllSuppliers(true);
-    });
-
-    // Assert
-    expect(result.current.showAllSuppliers).toBe(true);
-  });
-
-  it('should update pagination model', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
-    const newPaginationModel: GridPaginationModel = { page: 2, pageSize: 15 };
-
-    // Act
-    act(() => {
-      result.current.setPaginationModel(newPaginationModel);
-    });
-
-    // Assert
-    expect(result.current.paginationModel).toEqual(newPaginationModel);
-  });
-
-  it('should update sort model', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
-    const newSortModel: GridSortModel = [{ field: 'lastContact', sort: 'desc' }];
-
-    // Act
-    act(() => {
-      result.current.setSortModel(newSortModel);
-    });
-
-    // Assert
-    expect(result.current.sortModel).toEqual(newSortModel);
-  });
-
-  it('should update selected ID', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
-    const testId = 'supplier-123';
-
-    // Act
-    act(() => {
-      result.current.setSelectedId(testId);
-    });
-
-    // Assert
-    expect(result.current.selectedId).toBe(testId);
-  });
-
-  it('should clear selected ID', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
-
-    // Act
     act(() => {
       result.current.setSelectedId('supplier-123');
-    });
-    act(() => {
       result.current.setSelectedId(null);
     });
 
-    // Assert
     expect(result.current.selectedId).toBeNull();
   });
 
-  it('should toggle create dialog', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
+  it.each([
+    {
+      name: 'create dialog',
+      open: (state: UseSuppliersBoardStateReturn) => state.setOpenCreate(true),
+      close: (state: UseSuppliersBoardStateReturn) => state.setOpenCreate(false),
+      isOpen: (state: UseSuppliersBoardStateReturn) => state.openCreate,
+    },
+    {
+      name: 'edit dialog',
+      open: (state: UseSuppliersBoardStateReturn) => state.setOpenEdit(true),
+      close: (state: UseSuppliersBoardStateReturn) => state.setOpenEdit(false),
+      isOpen: (state: UseSuppliersBoardStateReturn) => state.openEdit,
+    },
+    {
+      name: 'delete dialog',
+      open: (state: UseSuppliersBoardStateReturn) => state.setOpenDelete(true),
+      close: (state: UseSuppliersBoardStateReturn) => state.setOpenDelete(false),
+      isOpen: (state: UseSuppliersBoardStateReturn) => state.openDelete,
+    },
+  ])('toggles $name', ({ open, close, isOpen }) => {
+    const { result } = renderState();
 
-    // Act
     act(() => {
-      result.current.setOpenCreate(true);
+      open(result.current);
     });
+    expect(isOpen(result.current)).toBe(true);
 
-    // Assert
-    expect(result.current.openCreate).toBe(true);
-
-    // Act
     act(() => {
-      result.current.setOpenCreate(false);
+      close(result.current);
     });
-
-    // Assert
-    expect(result.current.openCreate).toBe(false);
+    expect(isOpen(result.current)).toBe(false);
   });
 
-  it('should toggle edit dialog', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
-
-    // Act
-    act(() => {
-      result.current.setOpenEdit(true);
-    });
-
-    // Assert
-    expect(result.current.openEdit).toBe(true);
-
-    // Act
-    act(() => {
-      result.current.setOpenEdit(false);
-    });
-
-    // Assert
-    expect(result.current.openEdit).toBe(false);
-  });
-
-  it('should toggle delete dialog', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
-
-    // Act
-    act(() => {
-      result.current.setOpenDelete(true);
-    });
-
-    // Assert
-    expect(result.current.openDelete).toBe(true);
-
-    // Act
-    act(() => {
-      result.current.setOpenDelete(false);
-    });
-
-    // Assert
-    expect(result.current.openDelete).toBe(false);
-  });
-
-  it('should update multiple state properties independently', () => {
-    // Arrange
-    const { result } = renderHook(() => useSuppliersBoardState());
+  it('updates multiple state properties independently', () => {
+    const { result } = renderState();
     const newPaginationModel: GridPaginationModel = { page: 1, pageSize: 20 };
     const newSortModel: GridSortModel = [{ field: 'name', sort: 'desc' }];
 
-    // Act
     act(() => {
       result.current.setSearchQuery('test query');
       result.current.setPaginationModel(newPaginationModel);
@@ -190,11 +146,12 @@ describe('useSuppliersBoardState', () => {
       result.current.setOpenCreate(true);
     });
 
-    // Assert
-    expect(result.current.searchQuery).toBe('test query');
-    expect(result.current.paginationModel).toEqual(newPaginationModel);
-    expect(result.current.sortModel).toEqual(newSortModel);
-    expect(result.current.openCreate).toBe(true);
-    expect(result.current.showAllSuppliers).toBe(false); // unchanged
+    expect(result.current).toMatchObject({
+      searchQuery: 'test query',
+      paginationModel: newPaginationModel,
+      sortModel: newSortModel,
+      openCreate: true,
+      showAllSuppliers: false,
+    });
   });
 });
