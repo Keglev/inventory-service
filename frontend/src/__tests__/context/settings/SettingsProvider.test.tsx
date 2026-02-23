@@ -1,284 +1,137 @@
 /**
  * @file SettingsProvider.test.tsx
+ * @module __tests__/context/settings/SettingsProvider
+ * @description Compact integration tests for the `SettingsProvider`.
  *
- * @what_is_under_test SettingsProvider component - manages application settings and system info
- * @responsibility Provide settings context with user prefs, system info, and preference updates
- * @out_of_scope i18n language detection, localStorage serialization, system info API format
+ * Contract under test:
+ * - Renders children and provides settings via context.
+ * - Hydrates user preferences from localStorage (or falls back to defaults on corruption).
+ * - Fetches system info on mount; failure path provides stable fallback and logs a warning.
+ *
+ * Out of scope:
+ * - Storage helper implementation details (covered by `SettingsStorage.test.ts`).
+ * - Detailed i18n sync behavior (covered by `SettingsContext.test.tsx`).
+ *
+ * Test strategy:
+ * - Use a probe component that consumes the context via `useSettings` (real consumer path).
+ * - Stub `localStorage` explicitly for determinism.
+ * - Mock `getSystemInfo` to avoid network.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import { SettingsProvider } from '../../../context/settings/SettingsContext';
+import { useSettings } from '../../../context/settings/useSettings';
 
-// Mock useTranslation hook to prevent i18n initialization during tests
+const i18nMock = vi.hoisted(() => ({ language: 'en' }));
+const getSystemInfoMock = vi.hoisted(() => vi.fn());
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback || key,
-    i18n: {
-      language: 'en',
-      on: vi.fn(),
-      off: vi.fn(),
-    },
-  }),
+  useTranslation: () => ({ i18n: i18nMock }),
 }));
 
-// Mock system info utility to prevent actual API calls
-vi.mock('../../../utils/systemInfo', () => ({
-  getSystemInfo: vi.fn(() =>
-    Promise.resolve({
-      database: 'Oracle',
-      version: '1.0.0',
-      environment: 'production',
-      apiVersion: 'v1',
-      buildDate: '2025-12-22',
-      uptime: '100h',
-      status: 'ONLINE',
-    })
-  ),
+// Match the provider's runtime module resolution.
+vi.mock('../../../utils/systemInfo.js', () => ({
+  getSystemInfo: getSystemInfoMock,
 }));
+
+function SettingsProbe() {
+  const { userPreferences, systemInfo, isLoading } = useSettings();
+  return (
+    <div data-testid="probe">
+      <div data-testid="loading">{String(isLoading)}</div>
+      <div data-testid="date">{userPreferences.dateFormat}</div>
+      <div data-testid="number">{userPreferences.numberFormat}</div>
+      <div data-testid="density">{userPreferences.tableDensity}</div>
+      <div data-testid="db">{systemInfo?.database ?? ''}</div>
+    </div>
+  );
+}
+
+function renderProvider(children?: React.ReactNode) {
+  return render(
+    <SettingsProvider>
+      {children ?? <SettingsProbe />}
+    </SettingsProvider>
+  );
+}
 
 describe('SettingsProvider', () => {
+  const getItem = vi.fn();
+  const setItem = vi.fn();
+  const removeItem = vi.fn();
+
   beforeEach(() => {
-    // Clear localStorage before each test
-    localStorage.clear();
+    vi.clearAllMocks();
+    i18nMock.language = 'en';
+
+    // Deterministic localStorage stub for all tests in this file.
+    vi.stubGlobal('localStorage', {
+      get length() {
+        return 0;
+      },
+      clear: vi.fn(),
+      key: vi.fn(),
+      getItem: getItem as Storage['getItem'],
+      setItem: setItem as Storage['setItem'],
+      removeItem: removeItem as Storage['removeItem'],
+    } satisfies Partial<Storage>);
   });
 
-  describe('Provider rendering', () => {
-    it('renders children correctly', () => {
-      render(
-        <SettingsProvider>
-          <div data-testid="test-child">Settings Available</div>
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
-
-    it('renders multiple children', () => {
-      render(
-        <SettingsProvider>
-          <div data-testid="child-1">Child 1</div>
-          <div data-testid="child-2">Child 2</div>
-          <div data-testid="child-3">Child 3</div>
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('child-1')).toBeInTheDocument();
-      expect(screen.getByTestId('child-2')).toBeInTheDocument();
-      expect(screen.getByTestId('child-3')).toBeInTheDocument();
-    });
-
-    it('renders without errors with no children', () => {
-      const { container } = render(
-        <SettingsProvider>
-          <div />
-        </SettingsProvider>
-      );
-      expect(container).toBeInTheDocument();
-    });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
-  describe('Context provision', () => {
-    it('provides SettingsContext to children', () => {
-      const TestComponent = () => {
-        return <div data-testid="context-test">Settings context available</div>;
-      };
-
-      render(
-        <SettingsProvider>
-          <TestComponent />
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('context-test')).toBeInTheDocument();
-    });
+  it('renders children', () => {
+    getSystemInfoMock.mockResolvedValue({});
+    renderProvider(<div data-testid="child">child</div>);
+    expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
-  describe('Preferences loading', () => {
-    it('loads preferences from localStorage on mount', () => {
-      const mockPrefs = {
-        dateFormat: 'DD.MM.YYYY',
-        numberFormat: 'DE',
-        tableDensity: 'comfortable',
-      };
+  it('hydrates preferences from localStorage when present', () => {
+    getSystemInfoMock.mockResolvedValue({});
+    getItem.mockReturnValue(
+      JSON.stringify({ dateFormat: 'YYYY-MM-DD', numberFormat: 'EN_US', tableDensity: 'compact' })
+    );
 
-      localStorage.setItem('ssp.settings', JSON.stringify(mockPrefs));
-
-      render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
-
-    it('uses default preferences when localStorage is empty', () => {
-      render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
-
-    it('handles corrupted localStorage gracefully', () => {
-      localStorage.setItem('ssp.settings', 'invalid json {');
-
-      expect(() => {
-        render(
-          <SettingsProvider>
-            <div data-testid="test-child">Test</div>
-          </SettingsProvider>
-        );
-      }).not.toThrow();
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
+    renderProvider();
+    expect(screen.getByTestId('date')).toHaveTextContent('YYYY-MM-DD');
+    expect(screen.getByTestId('density')).toHaveTextContent('compact');
   });
 
-  describe('System info fetching', () => {
-    it('fetches system info on mount', async () => {
-      render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
+  it('falls back to defaults when stored preferences are corrupted', () => {
+    getSystemInfoMock.mockResolvedValue({});
+    getItem.mockReturnValue('not-json');
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      // System info is fetched asynchronously
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
+    renderProvider();
 
-    it('provides fallback values when system info fetch fails', async () => {
-      vi.resetModules();
-
-      render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
-
-    it('continues operation when API is unavailable', async () => {
-      render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      // Should render despite potential API errors
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
+    // Defaults for English locale.
+    expect(screen.getByTestId('date')).toHaveTextContent('MM/DD/YYYY');
+    expect(screen.getByTestId('number')).toHaveTextContent('EN_US');
   });
 
-  describe('i18n synchronization', () => {
-    it('syncs preferences with language changes', () => {
-      render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
+  it('fetches system info on mount (success)', async () => {
+    getSystemInfoMock.mockResolvedValue({ database: 'Oracle ADB', status: 'ONLINE' });
+    getItem.mockReturnValue(null);
 
-      // Provider listens to i18n changes
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
+    renderProvider();
 
-    it('updates defaults when language changes', () => {
-      const { rerender } = render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      // Simulate language change
-      rerender(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
+    expect(screen.getByTestId('db')).toHaveTextContent('Oracle ADB');
   });
 
-  describe('Component structure', () => {
-    it('wraps children with context provider', () => {
-      const { container } = render(
-        <SettingsProvider>
-          <span className="wrapped">Content</span>
-        </SettingsProvider>
-      );
+  it('uses fallback system info and logs a warning on fetch failure', async () => {
+    getSystemInfoMock.mockRejectedValue(new Error('offline'));
+    getItem.mockReturnValue(null);
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      expect(container.querySelector('.wrapped')).toBeInTheDocument();
-    });
+    renderProvider();
 
-    it('maintains component hierarchy', () => {
-      render(
-        <SettingsProvider>
-          <div className="outer">
-            <div className="inner" data-testid="inner">Nested</div>
-          </div>
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('inner')).toBeInTheDocument();
-    });
-  });
-
-  describe('Storage handling', () => {
-    it('saves preferences changes to localStorage', () => {
-      render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
-
-    it('handles localStorage unavailability gracefully', () => {
-      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
-        throw new Error('Storage unavailable');
-      });
-
-      expect(() => {
-        render(
-          <SettingsProvider>
-            <div data-testid="test-child">Test</div>
-          </SettingsProvider>
-        );
-      }).not.toThrow();
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
-  });
-
-  describe('Cleanup', () => {
-    it('cleans up event listeners on unmount', () => {
-      const { unmount } = render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      expect(() => {
-        unmount();
-      }).not.toThrow();
-    });
-
-    it('cancels pending API requests on unmount', () => {
-      const { unmount } = render(
-        <SettingsProvider>
-          <div data-testid="test-child">Test</div>
-        </SettingsProvider>
-      );
-
-      expect(() => {
-        unmount();
-      }).not.toThrow();
-    });
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
+    expect(warnSpy).toHaveBeenCalledWith('Failed to fetch system info:', expect.any(Error));
+    expect(screen.getByTestId('db')).toHaveTextContent('Oracle ADB');
   });
 });

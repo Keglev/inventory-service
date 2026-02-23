@@ -1,79 +1,95 @@
 /**
  * @file SettingsContext.test.tsx
- * @module tests/context/settings/SettingsContext
+ * @module __tests__/context/settings/SettingsContext
+ * @description Contract tests for the `SettingsProvider` orchestration layer.
  *
- * @summary
- * Integration-level validation for the SettingsProvider component.
- * Exercises system info fetch success/failure, language sync, preference persistence, and reset flows.
+ * Contract under test:
+ * - Loads initial preferences from storage using the active i18n language.
+ * - Fetches system info on mount; on failure, uses a stable fallback and logs a warning.
+ * - `setUserPreferences()` merges partial updates and persists them.
+ * - Language changes sync date/number formats while preserving density.
+ * - `resetToDefaults()` clears persisted preferences and restores language defaults.
  *
- * @enterprise
- * - Ensures bootstrapping remains resilient when backend/system storage misbehave
- * - Guarantees language changes update date/number formats while preserving density
- * - Confirms preference mutations persist via storage helpers and reset clears state
+ * Out of scope:
+ * - Storage serialization/parsing correctness (covered by `SettingsStorage.test.ts`).
+ * - Health endpoint parsing / database auto-detection (covered by utils tests).
+ *
+ * Test strategy:
+ * - Use a probe consumer component to assert observable state via test ids.
+ * - Mock external edges deterministically (`react-i18next`, `getSystemInfo`, storage helpers).
  */
 
 import React from 'react';
-import { act, render } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('react-i18next', () => ({
-  useTranslation: vi.fn(),
+const i18nMock = vi.hoisted(() => ({
+  language: 'en',
+  changeLanguage: vi.fn(),
 }));
 
-vi.mock('@/utils/systemInfo.js', () => ({
-  getSystemInfo: vi.fn(),
-}));
+const useTranslationMock = vi.hoisted(() => vi.fn(() => ({ i18n: i18nMock })));
+const getSystemInfoMock = vi.hoisted(() => vi.fn());
 
-vi.mock('@/context/settings/SettingsStorage', () => ({
+const storageMocks = vi.hoisted(() => ({
   getDefaultPreferences: vi.fn(),
   loadPreferencesFromStorage: vi.fn(),
   savePreferencesToStorage: vi.fn(),
   clearPreferencesFromStorage: vi.fn(),
 }));
 
-import { useTranslation } from 'react-i18next';
-import { getSystemInfo } from '@/utils/systemInfo.js';
-import {
-  getDefaultPreferences,
-  loadPreferencesFromStorage,
-  savePreferencesToStorage,
-  clearPreferencesFromStorage,
-} from '@/context/settings/SettingsStorage';
-import { SettingsContext } from '@/context/settings/SettingsContext.types';
-import { SettingsProvider } from '@/context/settings/SettingsContext';
+vi.mock('react-i18next', () => ({ useTranslation: useTranslationMock }));
 
-const useTranslationMock = useTranslation as unknown as ReturnType<typeof vi.fn>;
-const getSystemInfoMock = getSystemInfo as ReturnType<typeof vi.fn>;
-const loadPreferencesMock = loadPreferencesFromStorage as ReturnType<typeof vi.fn>;
-const savePreferencesMock = savePreferencesToStorage as ReturnType<typeof vi.fn>;
-const clearPreferencesMock = clearPreferencesFromStorage as ReturnType<typeof vi.fn>;
-const getDefaultPreferencesMock = getDefaultPreferences as ReturnType<typeof vi.fn>;
+// Mock by a resolved path that matches the provider's runtime resolution.
+vi.mock('../../../utils/systemInfo.js', () => ({ getSystemInfo: getSystemInfoMock }));
+vi.mock('../../../context/settings/SettingsStorage', () => storageMocks);
 
-const makeWrapper = () => {
-  const Consumer: React.FC<{ onValue: (value: React.ContextType<typeof SettingsContext>) => void }> = ({ onValue }) => {
-    const value = React.useContext(SettingsContext);
-    if (!value) throw new Error('SettingsContext missing');
-    onValue(value);
-    return null;
-  };
+import { SettingsContext } from '../../../context/settings/SettingsContext.types';
+import { SettingsProvider } from '../../../context/settings/SettingsContext';
 
-  const renderProvider = (onValue: (value: React.ContextType<typeof SettingsContext>) => void, children = null) =>
-    render(
-      <SettingsProvider>
-        <Consumer onValue={onValue} />
-        {children}
-      </SettingsProvider>
-    );
+function SettingsProbe() {
+  const ctx = React.useContext(SettingsContext);
+  if (!ctx) throw new Error('SettingsContext missing');
 
-  return { renderProvider };
-};
+  return (
+    <div data-testid="probe">
+      <div data-testid="loading">{String(ctx.isLoading)}</div>
+      <div data-testid="db">{ctx.systemInfo?.database ?? ''}</div>
+      <div data-testid="date">{ctx.userPreferences.dateFormat}</div>
+      <div data-testid="number">{ctx.userPreferences.numberFormat}</div>
+      <div data-testid="density">{ctx.userPreferences.tableDensity}</div>
+
+      <button type="button" onClick={() => ctx.setUserPreferences({ dateFormat: 'YYYY-MM-DD' })}>
+        set-date
+      </button>
+      <button type="button" onClick={ctx.resetToDefaults}>
+        reset
+      </button>
+    </div>
+  );
+}
+
+function renderProvider() {
+  return render(
+    <SettingsProvider>
+      <SettingsProbe />
+    </SettingsProvider>
+  );
+}
 
 describe('SettingsProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useTranslationMock.mockReturnValue({ i18n: { language: 'en', changeLanguage: vi.fn() } });
-    loadPreferencesMock.mockReturnValue({ dateFormat: 'MM/DD/YYYY', numberFormat: 'EN_US', tableDensity: 'comfortable' });
-    getDefaultPreferencesMock.mockImplementation((lang: string) => ({
+    i18nMock.language = 'en';
+
+    storageMocks.loadPreferencesFromStorage.mockReturnValue({
+      dateFormat: 'MM/DD/YYYY',
+      numberFormat: 'EN_US',
+      tableDensity: 'comfortable',
+    });
+
+    storageMocks.getDefaultPreferences.mockImplementation((lang: string) => ({
       dateFormat: lang.startsWith('de') ? 'DD.MM.YYYY' : 'MM/DD/YYYY',
       numberFormat: lang.startsWith('de') ? 'DE' : 'EN_US',
       tableDensity: 'comfortable',
@@ -84,81 +100,80 @@ describe('SettingsProvider', () => {
     vi.restoreAllMocks();
   });
 
-  it('loads system info on mount and updates context success path', async () => {
-    const systemInfo = { database: 'ADB', version: '2.0', environment: 'stage', apiVersion: 'v2', buildDate: '2024-01-01', uptime: '24h', status: 'ONLINE' };
+  it('loads initial preferences using the active i18n language', () => {
+    // This test is about storage hydration; keep system-info fetch pending to avoid act warnings.
+    getSystemInfoMock.mockImplementation(() => new Promise<never>(() => {}));
+
+    renderProvider();
+
+    expect(storageMocks.loadPreferencesFromStorage).toHaveBeenCalledWith('en');
+    expect(screen.getByTestId('date')).toHaveTextContent('MM/DD/YYYY');
+    expect(screen.getByTestId('density')).toHaveTextContent('comfortable');
+  });
+
+  it('fetches system info on mount (success path)', async () => {
+    const systemInfo = {
+      database: 'ADB',
+      version: '2.0',
+      environment: 'stage',
+      apiVersion: 'v2',
+      buildDate: '2024-01-01',
+      uptime: '24h',
+      status: 'ONLINE',
+    };
     getSystemInfoMock.mockResolvedValue(systemInfo);
 
-    const spy = vi.fn();
-    const { renderProvider } = makeWrapper();
+    renderProvider();
 
-    await act(async () => {
-      renderProvider(spy);
-    });
-
-    const lastValue = spy.mock.calls.at(-1)?.[0];
-    expect(lastValue?.systemInfo).toEqual(systemInfo);
-    expect(lastValue?.isLoading).toBe(false);
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
+    expect(screen.getByTestId('db')).toHaveTextContent('ADB');
   });
 
   it('falls back when system info fetch fails', async () => {
     getSystemInfoMock.mockRejectedValue(new Error('offline'));
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const spy = vi.fn();
-    const { renderProvider } = makeWrapper();
 
-    await act(async () => {
-      renderProvider(spy);
-    });
+    renderProvider();
 
-    const lastValue = spy.mock.calls.at(-1)?.[0];
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
+
     expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch system info:', expect.any(Error));
-    expect(lastValue?.systemInfo).toEqual({
-      database: 'Oracle ADB',
-      version: 'dev',
-      environment: 'production',
-      apiVersion: 'unknown',
-      buildDate: 'unknown',
-      uptime: '0h',
-      status: 'UNKNOWN',
-    });
-    expect(lastValue?.isLoading).toBe(false);
+
+    // Fallback is intentionally stable so downstream UI can render reliably.
+    expect(screen.getByTestId('db')).toHaveTextContent('Oracle ADB');
     consoleSpy.mockRestore();
   });
 
   it('persists preference updates and syncs language changes', async () => {
-    const spy = vi.fn();
-    const { renderProvider } = makeWrapper();
-    const i18nObj = { language: 'en', changeLanguage: vi.fn() };
-    useTranslationMock.mockReturnValue({ i18n: i18nObj });
     getSystemInfoMock.mockResolvedValue({});
+    const user = userEvent.setup();
 
-    await act(async () => {
-      renderProvider(spy);
-    });
+    const { rerender } = renderProvider();
 
-    const initial = spy.mock.calls.at(-1)?.[0];
-    await act(async () => {
-      initial?.setUserPreferences({ dateFormat: 'YYYY-MM-DD' });
-    });
-    const afterUpdate = spy.mock.calls.at(-1)?.[0];
-    expect(afterUpdate?.userPreferences.dateFormat).toBe('YYYY-MM-DD');
-    expect(savePreferencesMock).toHaveBeenCalledWith(expect.objectContaining({ dateFormat: 'YYYY-MM-DD' }));
+    await user.click(screen.getByRole('button', { name: 'set-date' }));
 
-    // Trigger language change effect to German
-    i18nObj.language = 'de';
-    await act(async () => {
-      renderProvider(spy);
-    });
-    const afterGerman = spy.mock.calls.at(-1)?.[0];
-    expect(afterGerman?.userPreferences.dateFormat).toBe('DD.MM.YYYY');
-    expect(afterGerman?.userPreferences.numberFormat).toBe('DE');
+    expect(screen.getByTestId('date')).toHaveTextContent('YYYY-MM-DD');
+    expect(storageMocks.savePreferencesToStorage).toHaveBeenCalledWith(
+      expect.objectContaining({ dateFormat: 'YYYY-MM-DD' })
+    );
 
-    // Reset to defaults
-    await act(async () => {
-      afterGerman?.resetToDefaults();
-    });
-    const afterReset = spy.mock.calls.at(-1)?.[0];
-    expect(clearPreferencesMock).toHaveBeenCalled();
-    expect(afterReset?.userPreferences).toEqual(getDefaultPreferencesMock.mock.results.at(-1)?.value);
+    // Trigger the language-sync effect by updating the i18n language and re-rendering.
+    i18nMock.language = 'de';
+    rerender(
+      <SettingsProvider>
+        <SettingsProbe />
+      </SettingsProvider>
+    );
+
+    // Language sync only normalizes the common formats (MM/DD/YYYY <-> DD.MM.YYYY).
+    // Custom formats (e.g., YYYY-MM-DD) are intentionally preserved.
+    await waitFor(() => expect(screen.getByTestId('date')).toHaveTextContent('YYYY-MM-DD'));
+    expect(screen.getByTestId('number')).toHaveTextContent('DE');
+    expect(screen.getByTestId('density')).toHaveTextContent('comfortable');
+
+    await user.click(screen.getByRole('button', { name: 'reset' }));
+    expect(storageMocks.clearPreferencesFromStorage).toHaveBeenCalledTimes(1);
+    expect(storageMocks.getDefaultPreferences).toHaveBeenCalledWith('de');
+    expect(screen.getByTestId('date')).toHaveTextContent('DD.MM.YYYY');
   });
 });

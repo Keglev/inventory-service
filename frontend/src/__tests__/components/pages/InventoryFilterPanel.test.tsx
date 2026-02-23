@@ -1,22 +1,27 @@
 /**
  * @file InventoryFilterPanel.test.tsx
  * @module __tests__/components/pages/InventoryFilterPanel
- * @description
- * Enterprise unit tests for InventoryFilterPanel.
+ * @description Contract tests for the `InventoryFilterPanel` presentation component.
  *
- * Contract:
- * - Renders all filter controls (search, supplier select, below-min checkbox).
- * - Search input is controlled and emits updates via `setQ`.
+ * Contract under test:
+ * - Renders the three filter controls: supplier select, search input, below-min checkbox.
+ * - Search input is controlled and emits updates via `setQ(next)`.
  * - Supplier select includes an "All suppliers" option and emits supplier id changes.
  * - Checkbox reflects `belowMinOnly` and emits boolean updates.
  * - Supplier select is disabled while supplier data is loading.
  *
- * Notes:
- * - We use test-utils render to ensure required providers (theme/router/i18n) are present.
- * - For MUI Select, we open the listbox before interacting with options.
+ * Out of scope:
+ * - MUI Select/TextField implementation details and styling.
+ * - Any data fetching or debouncing (owned by inventory orchestration).
+ *
+ * Test strategy:
+ * - Use the shared test-utils `render` for required providers.
+ * - Use deterministic i18n fallbacks for stable accessible names.
+ * - Use a controlled harness where needed to accurately simulate controlled inputs.
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import * as React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen, within } from '@testing-library/react';
 
@@ -28,9 +33,9 @@ import type { SupplierOption } from '@/api/analytics/types';
 // Hoisted mocks
 // -----------------------------------------------------------------------------
 
-const mockSetQ = vi.hoisted(() => vi.fn());
-const mockSetSupplierId = vi.hoisted(() => vi.fn());
-const mockSetBelowMinOnly = vi.hoisted(() => vi.fn());
+const mockSetQ = vi.fn();
+const mockSetSupplierId = vi.fn();
+const mockSetBelowMinOnly = vi.fn();
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -73,10 +78,35 @@ function setup(overrides: Partial<Props> = {}) {
 }
 
 async function openSupplierSelect(user: ReturnType<typeof userEvent.setup>) {
+  // MUI Select renders a combobox button; opening it makes the listbox/options available.
   const select = screen.getByRole('combobox');
   await user.click(select);
   return screen.getByRole('listbox');
 }
+
+/**
+ * Controlled harness:
+ * `InventoryFilterPanel` is fully controlled via props; tests that type should update `q`
+ * to reflect what React would do in real usage.
+ */
+const ControlledHarness: React.FC<
+  Omit<Props, 'q' | 'setQ'> & {
+    initialQ?: string;
+  }
+> = ({ initialQ = '', ...rest }) => {
+  const [q, setQ] = React.useState(initialQ);
+
+  return (
+    <InventoryFilterPanel
+      {...rest}
+      q={q}
+      setQ={(next) => {
+        setQ(next);
+        mockSetQ(next);
+      }}
+    />
+  );
+};
 
 // -----------------------------------------------------------------------------
 // Tests
@@ -97,35 +127,30 @@ describe('InventoryFilterPanel', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders the search field with the current q value', () => {
-    setup({ q: 'test search' });
-
-    expect(screen.getByRole('textbox', { name: /search/i })).toHaveValue('test search');
-  });
-
-  it('calls setQ with the updated value when the user types', async () => {
+  it('projects the current q value and emits updates (controlled)', async () => {
     const user = userEvent.setup();
-    const { rerenderWith } = setup();
+
+    render(
+      <ControlledHarness
+        initialQ="initial"
+        supplierId={null}
+        setSupplierId={mockSetSupplierId}
+        belowMinOnly={false}
+        setBelowMinOnly={mockSetBelowMinOnly}
+        suppliers={suppliersFixture}
+        supplierLoading={false}
+      />
+    );
 
     const input = screen.getByRole('textbox', { name: /search/i });
-    let composed = '';
+    expect(input).toHaveValue('initial');
 
-    for (const char of 'widget') {
-      await user.type(input, char);
-      composed += char;
-      expect(mockSetQ).toHaveBeenLastCalledWith(composed);
-      rerenderWith({ q: composed });
-    }
-  });
-
-  it('calls setQ with an empty string when the user clears the search', async () => {
-    const user = userEvent.setup();
-    setup({ q: 'initial' });
-
-    const input = screen.getByRole('textbox', { name: /search/i });
     await user.clear(input);
+    expect(mockSetQ).toHaveBeenLastCalledWith('');
 
-    expect(mockSetQ).toHaveBeenCalledWith('');
+    await user.type(input, 'widget');
+    expect(mockSetQ).toHaveBeenCalled();
+    expect(mockSetQ).toHaveBeenLastCalledWith('widget');
   });
 
   it('renders supplier dropdown options including "All suppliers"', async () => {
@@ -140,14 +165,18 @@ describe('InventoryFilterPanel', () => {
     expect(within(listbox).getByRole('option', { name: 'Supplier C' })).toBeInTheDocument();
   });
 
-  it('calls setSupplierId with the supplier id when a supplier is selected', async () => {
+  it.each([
+    { label: 'Supplier A', expectedId: '1' },
+    { label: 'Supplier B', expectedId: '2' },
+    { label: 'Supplier C', expectedId: '3' },
+  ])('calls setSupplierId when a supplier is selected ($label)', async ({ label, expectedId }) => {
     const user = userEvent.setup();
     setup();
 
     await openSupplierSelect(user);
-    await user.click(screen.getByRole('option', { name: 'Supplier A' }));
+    await user.click(screen.getByRole('option', { name: label }));
 
-    expect(mockSetSupplierId).toHaveBeenCalledWith('1');
+    expect(mockSetSupplierId).toHaveBeenCalledWith(expectedId);
   });
 
   it('calls setSupplierId with null when "All suppliers" is selected', async () => {
@@ -160,16 +189,17 @@ describe('InventoryFilterPanel', () => {
     expect(mockSetSupplierId).toHaveBeenCalledWith(null);
   });
 
-  it('reflects belowMinOnly as unchecked by default and checked when true', () => {
-    const { rerenderWith } = setup();
-    expect(
-      screen.getByRole('checkbox', { name: /below minimum quantity only/i }),
-    ).not.toBeChecked();
-
-    rerenderWith({ belowMinOnly: true });
-    expect(
-      screen.getByRole('checkbox', { name: /below minimum quantity only/i }),
-    ).toBeChecked();
+  it.each([
+    { belowMinOnly: false, expectedChecked: false },
+    { belowMinOnly: true, expectedChecked: true },
+  ])('projects belowMinOnly (belowMinOnly=$belowMinOnly)', ({ belowMinOnly, expectedChecked }) => {
+    setup({ belowMinOnly });
+    const checkbox = screen.getByRole('checkbox', { name: /below minimum quantity only/i });
+    if (expectedChecked) {
+      expect(checkbox).toBeChecked();
+    } else {
+      expect(checkbox).not.toBeChecked();
+    }
   });
 
   it('calls setBelowMinOnly with the next value when the checkbox is toggled', async () => {

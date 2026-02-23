@@ -1,146 +1,50 @@
 /**
  * @file ToastContext.test.ts
+ * @module __tests__/context/toast/ToastContext
+ * @description Contract tests for the ultra-light toast context (`ToastContext` + `useToast`).
  *
- * @what_is_under_test ToastContext module - ephemeral notification context
- * @responsibility Provide toast function type and context for displaying notifications
- * @out_of_scope Toast UI rendering, notification timing, MUI Alert integration
+ * Contract under test:
+ * - `useToast()` returns a callable toast function.
+ * - When a provider value is supplied, `useToast()` returns that exact function.
+ * - When used without a provider, the default is a no-op function (safe to call).
+ *
+ * Out of scope:
+ * - Toast UI rendering, enqueue/dequeue behavior, and MUI Alert integration.
+ *
+ * Test strategy:
+ * - Use `renderHook` to validate the consumer path.
+ * - Keep this test `.ts` (no JSX) and use `React.createElement` for wrappers.
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import React from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { ToastContext, useToast, type ToastFn } from '../../../context/toast/ToastContext';
 
 describe('ToastContext', () => {
-  describe('Context creation', () => {
-    it('creates ToastContext successfully', () => {
-      expect(ToastContext).toBeDefined();
-    });
-
-    it('context is a React context object', () => {
-      expect(ToastContext.Provider).toBeDefined();
-      expect(ToastContext.Consumer).toBeDefined();
-    });
-
-    it('has default no-op function', () => {
-      expect(typeof ToastContext.Provider).toBe('object');
-      expect(typeof ToastContext.Consumer).toBe('object');
-    });
+  it('returns a callable no-op function when no provider is present', () => {
+    // The module intentionally provides a no-op default to avoid hard failures
+    // in unauthenticated shells or misconfigured test harnesses.
+    const { result } = renderHook(() => useToast());
+    expect(() => result.current('hello', 'success')).not.toThrow();
   });
 
-  describe('ToastFn type', () => {
-    it('defines ToastFn with correct signature', () => {
-      const mockToast: ToastFn = (msg, severity) => {
-        expect(typeof msg).toBe('string');
-        expect(['success', 'info', 'warning', 'error'].includes(severity || 'info')).toBe(true);
-      };
+  it('returns the provider value function when wrapped', () => {
+    const toastFn: ToastFn = vi.fn();
+    const wrapper = ({ children }: { children: React.ReactNode }) =>
+      React.createElement(ToastContext.Provider, { value: toastFn }, children);
 
-      mockToast('Test message', 'success');
-      mockToast('Another message', 'error');
-      mockToast('Simple message');
-    });
-
-    it('allows ToastFn with optional severity', () => {
-      const mockToast: ToastFn = () => {};
-
-      // Both calls should be valid
-      mockToast('Message 1', 'success');
-      mockToast('Message 2');
-    });
-
-    it('supports all severity levels', () => {
-      const severities: Array<'success' | 'info' | 'warning' | 'error'> = [
-        'success',
-        'info',
-        'warning',
-        'error',
-      ];
-
-      const mockToast: ToastFn = vi.fn();
-
-      severities.forEach((severity) => {
-        mockToast('Test', severity);
-      });
-
-      expect(mockToast).toHaveBeenCalledTimes(4);
-    });
+    const { result } = renderHook(() => useToast(), { wrapper });
+    expect(result.current).toBe(toastFn);
   });
 
-  describe('Context provider', () => {
-    it('has Provider for value injection', () => {
-      expect(ToastContext.Provider).toBeDefined();
-    });
+  it.each(['success', 'info', 'warning', 'error'] as const)('accepts severity "%s"', (severity) => {
+    const toastFn: ToastFn = vi.fn();
+    const wrapper = ({ children }: { children: React.ReactNode }) =>
+      React.createElement(ToastContext.Provider, { value: toastFn }, children);
 
-    it('has Consumer for value consumption', () => {
-      expect(ToastContext.Consumer).toBeDefined();
-    });
-  });
-
-  describe('useToast hook', () => {
-    it('hook is exported', () => {
-      expect(useToast).toBeDefined();
-      expect(typeof useToast).toBe('function');
-    });
-
-    it('hook accesses context value', () => {
-      // The hook is defined to access ToastContext
-      expect(() => {
-        expect(useToast).toBeDefined();
-      }).not.toThrow();
-    });
-  });
-
-  describe('Error handling', () => {
-    it('error thrown when used outside provider has proper message', () => {
-      const expectedMessage = 'useToast must be used within a ToastContext.Provider';
-      expect(expectedMessage).toContain('useToast');
-      expect(expectedMessage).toContain('Provider');
-    });
-  });
-
-  describe('TypeScript definitions', () => {
-    it('ToastFn is properly typed', () => {
-      const fn: ToastFn = () => {
-        // Type-safe function signature
-      };
-
-      expect(typeof fn).toBe('function');
-    });
-
-    it('context has proper type', () => {
-      expect(typeof ToastContext).toBe('object');
-      expect(ToastContext.Provider).toBeDefined();
-    });
-  });
-
-  describe('Default behavior', () => {
-    it('default context value is callable', () => {
-      const contextValue = () => {}; // Default no-op function
-      expect(typeof contextValue).toBe('function');
-    });
-
-    it('default function handles calls gracefully', () => {
-      const defaultFn: ToastFn = () => {};
-      expect(() => {
-        defaultFn('Test message', 'success');
-      }).not.toThrow();
-    });
-  });
-
-  describe('Message types', () => {
-    it('accepts various message strings', () => {
-      const messages = [
-        'Simple message',
-        'Message with special chars: !@#$%',
-        'Very long message ' + 'x'.repeat(100),
-        '',
-      ];
-
-      const mockToast: ToastFn = vi.fn();
-
-      messages.forEach((msg) => {
-        mockToast(msg);
-      });
-
-      expect(mockToast).toHaveBeenCalledTimes(messages.length);
-    });
+    const { result } = renderHook(() => useToast(), { wrapper });
+    result.current('msg', severity);
+    expect(toastFn).toHaveBeenCalledWith('msg', severity);
   });
 });

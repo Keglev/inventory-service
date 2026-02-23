@@ -1,51 +1,63 @@
 /**
  * @file AuthContext.test.ts
+ * @module __tests__/context/auth/AuthContext
+ * @description Contract tests for the `AuthContext` object.
  *
- * @what_is_under_test AuthContext module - authentication state management
- * @responsibility Provide auth state (user, loading) and actions (login, logout, loginAsDemo)
- * @out_of_scope HTTP client implementation, OAuth provider configuration, routing logic
+ * Contract under test:
+ * - The context default value is `undefined` (consumers must be wrapped).
+ * - When wrapped with a provider, consumers receive the supplied value.
+ *
+ * Out of scope:
+ * - `AuthProvider` session hydration and side-effects (covered in `AuthProvider.test.tsx`).
+ * - HTTP client behavior and OAuth redirect wiring.
+ *
+ * Test strategy:
+ * - Validate React Context behavior via `useContext` instead of checking implementation details
+ *   like `Provider`/`Consumer` properties.
  */
 
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import type { AuthContextType } from '../../../context/auth/authTypes';
 import { AuthContext } from '../../../context/auth/AuthContext';
 
+function ContextProbe() {
+  const value = React.useContext(AuthContext);
+
+  // This file is intentionally `.ts` (no JSX). Use `createElement` to keep the test portable.
+  return React.createElement(
+    'div',
+    { 'data-testid': 'ctx', 'data-has-value': value ? 'true' : 'false' },
+    value ? 'present' : 'missing'
+  );
+}
+
 describe('AuthContext', () => {
-  describe('Context creation', () => {
-    it('creates AuthContext successfully', () => {
-      expect(AuthContext).toBeDefined();
-    });
-
-    it('context is a React context object', () => {
-      expect(AuthContext.Provider).toBeDefined();
-      expect(AuthContext.Consumer).toBeDefined();
-    });
+  it('is undefined outside the provider', () => {
+    render(React.createElement(ContextProbe));
+    expect(screen.getByTestId('ctx')).toHaveTextContent('missing');
   });
 
-  describe('Context type', () => {
-    it('has Provider component in context', () => {
-      const hasProvider = 'Provider' in AuthContext;
-      expect(hasProvider).toBe(true);
-    });
+  it('provides the supplied value to consumers', () => {
+    const value: AuthContextType = {
+      user: null,
+      setUser: vi.fn(),
+      login: vi.fn(),
+      loginAsDemo: vi.fn(),
+      logout: vi.fn(),
+      loading: false,
+      logoutInProgress: false,
+    };
 
-    it('has Consumer component in context', () => {
-      const hasConsumer = 'Consumer' in AuthContext;
-      expect(hasConsumer).toBe(true);
-    });
+    render(
+      React.createElement(
+        AuthContext.Provider,
+        { value },
+        React.createElement(ContextProbe)
+      )
+    );
 
-    it('context exports are accessible', () => {
-      const context = AuthContext;
-      expect(context).toBeTruthy();
-    });
-  });
-
-  describe('TypeScript definitions', () => {
-    it('context is defined with proper type', () => {
-      expect(typeof AuthContext).toBe('object');
-    });
-
-    it('AuthContext has required properties', () => {
-      const contextKeys = Object.keys(AuthContext);
-      expect(contextKeys.length).toBeGreaterThan(0);
-    });
+    expect(screen.getByTestId('ctx')).toHaveTextContent('present');
   });
 });

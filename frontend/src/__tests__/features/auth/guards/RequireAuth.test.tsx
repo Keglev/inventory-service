@@ -1,206 +1,131 @@
 /**
  * @file RequireAuth.test.tsx
  * @module __tests__/features/auth/guards/RequireAuth
+ * @description Contract tests for the `RequireAuth` route guard.
  *
- * @summary
- * Test suite for RequireAuth authorization guard component.
- * Tests: authenticated/unauthenticated routing, demo user handling, loading state, fallback UI.
+ * Contract under test:
+ * - While auth is loading, renders `fallback` if provided, otherwise shows a progress indicator.
+ * - If unauthenticated, redirects to `/login`.
+ * - If logout is in progress and user is null, treats it as a loading state.
+ * - DEMO users are allowed only when `allowDemo` is true; otherwise redirected to `/dashboard`.
+ * - Authenticated non-demo users see the protected content.
+ *
+ * Out of scope:
+ * - Detailed router behavior (React Router is assumed correct).
+ * - `useAuth` implementation details (tested elsewhere).
+ *
+ * Test strategy:
+ * - Use a small MemoryRouter + Routes harness so redirects are observable as rendered routes.
+ * - Mock `useAuth` deterministically (no `any` casts).
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import RequireAuth from '../../../../features/auth/guards/RequireAuth';
 import { useAuth } from '../../../../hooks/useAuth';
+import type { AuthContextType } from '../../../../context/auth/authTypes';
 
 // Mock the useAuth hook
 vi.mock('../../../../hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }));
 
+const useAuthMock = vi.mocked(useAuth);
+
+function renderRoute(ui: React.ReactElement) {
+  return render(
+    <MemoryRouter initialEntries={['/protected']}>
+      <Routes>
+        <Route path="/login" element={<div>Login Page</div>} />
+        <Route path="/dashboard" element={<div>Dashboard</div>} />
+        <Route path="/protected" element={ui} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
+function setAuth(overrides: Partial<AuthContextType>) {
+  // `RequireAuth` only depends on these three fields.
+  useAuthMock.mockReturnValue({
+    user: null,
+    loading: false,
+    logoutInProgress: false,
+    setUser: vi.fn(),
+    login: vi.fn(),
+    loginAsDemo: vi.fn(),
+    logout: vi.fn(),
+    ...overrides,
+  });
+}
+
 describe('RequireAuth', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should render loading state when auth is loading', () => {
-    // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({
-      user: null,
-      loading: true,
-      logoutInProgress: false,
-    });
-
-    // Act
-    render(
-      <BrowserRouter>
-        <RequireAuth>
-          <div>Protected Content</div>
-        </RequireAuth>
-      </BrowserRouter>
+  it('renders fallback while loading', () => {
+    setAuth({ loading: true });
+    renderRoute(
+      <RequireAuth fallback={<div>Custom Loading</div>}>
+        <div>Protected</div>
+      </RequireAuth>
     );
-
-    // Assert
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+    expect(screen.getByText('Custom Loading')).toBeInTheDocument();
+    expect(screen.queryByText('Protected')).not.toBeInTheDocument();
   });
 
-  it('should render children when user is authenticated', () => {
-    // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({
-      user: { id: '123', email: 'test@example.com', isDemo: false },
-      loading: false,
-      logoutInProgress: false,
-    });
-
-    // Act
-    render(
-      <BrowserRouter>
-        <RequireAuth>
-          <div>Protected Content</div>
-        </RequireAuth>
-      </BrowserRouter>
+  it('uses the default loading indicator when loading and no fallback is provided', () => {
+    setAuth({ loading: true });
+    renderRoute(
+      <RequireAuth>
+        <div>Protected</div>
+      </RequireAuth>
     );
-
-    // Assert
-    expect(screen.getByText('Protected Content')).toBeInTheDocument();
-  });
-
-  it('should show loading when logout is in progress', () => {
-    // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({
-      user: null,
-      loading: false,
-      logoutInProgress: true,
-    });
-
-    // Act
-    render(
-      <BrowserRouter>
-        <RequireAuth>
-          <div>Protected Content</div>
-        </RequireAuth>
-      </BrowserRouter>
-    );
-
-    // Assert
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
-  });
-
-  it('should allow demo users when allowDemo is true', () => {
-    // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({
-      user: { id: 'demo-123', email: 'demo@example.com', isDemo: true },
-      loading: false,
-      logoutInProgress: false,
-    });
-
-    // Act
-    render(
-      <BrowserRouter>
-        <RequireAuth allowDemo={true}>
-          <div>Protected Content</div>
-        </RequireAuth>
-      </BrowserRouter>
-    );
-
-    // Assert
-    expect(screen.getByText('Protected Content')).toBeInTheDocument();
-  });
-
-  it('should redirect demo users when allowDemo is false or not set', () => {
-    // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({
-      user: { id: 'demo-123', email: 'demo@example.com', isDemo: true },
-      loading: false,
-      logoutInProgress: false,
-    });
-
-    // Act
-    render(
-      <BrowserRouter>
-        <RequireAuth allowDemo={false}>
-          <div>Protected Content</div>
-        </RequireAuth>
-      </BrowserRouter>
-    );
-
-    // Assert
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
-  });
-
-  it('should use custom fallback UI when loading', () => {
-    // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({
-      user: null,
-      loading: true,
-      logoutInProgress: false,
-    });
-
-    const customFallback = <div>Custom Loading...</div>;
-
-    // Act
-    render(
-      <BrowserRouter>
-        <RequireAuth fallback={customFallback}>
-          <div>Protected Content</div>
-        </RequireAuth>
-      </BrowserRouter>
-    );
-
-    // Assert
-    expect(screen.getByText('Custom Loading...')).toBeInTheDocument();
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
-  });
-
-  it('should use default fallback UI when loading and no custom fallback provided', () => {
-    // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({
-      user: null,
-      loading: true,
-      logoutInProgress: false,
-    });
-
-    // Act
-    render(
-      <BrowserRouter>
-        <RequireAuth>
-          <div>Protected Content</div>
-        </RequireAuth>
-      </BrowserRouter>
-    );
-
-    // Assert
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
-  it('should render children for authenticated regular users', () => {
-    // Arrange
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (useAuth as any).mockReturnValue({
-      user: { id: '456', email: 'user@example.com', isDemo: false, name: 'John' },
-      loading: false,
-      logoutInProgress: false,
-    });
-
-    // Act
-    render(
-      <BrowserRouter>
-        <RequireAuth>
-          <div>Protected Content for John</div>
-        </RequireAuth>
-      </BrowserRouter>
+  it('treats logoutInProgress with no user as a loading state (prevents login flash)', () => {
+    setAuth({ user: null, loading: false, logoutInProgress: true });
+    renderRoute(
+      <RequireAuth>
+        <div>Protected</div>
+      </RequireAuth>
     );
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
 
-    // Assert
-    expect(screen.getByText('Protected Content for John')).toBeInTheDocument();
+  it('redirects unauthenticated users to /login', () => {
+    setAuth({ user: null, loading: false, logoutInProgress: false });
+    renderRoute(
+      <RequireAuth>
+        <div>Protected</div>
+      </RequireAuth>
+    );
+    expect(screen.getByText('Login Page')).toBeInTheDocument();
+  });
+
+  it.each([
+    { name: 'regular authenticated user', user: { email: 'u@test.com', fullName: 'U', role: 'USER', isDemo: false } as const, allowDemo: undefined, expected: 'Protected' },
+    { name: 'demo user allowed', user: { email: 'd@test.com', fullName: 'D', role: 'DEMO', isDemo: true } as const, allowDemo: true, expected: 'Protected' },
+  ])('renders children for $name', ({ user, allowDemo, expected }) => {
+    setAuth({ user, loading: false });
+    renderRoute(
+      <RequireAuth allowDemo={allowDemo}>
+        <div>{expected}</div>
+      </RequireAuth>
+    );
+    expect(screen.getByText(expected)).toBeInTheDocument();
+  });
+
+  it('redirects demo users to /dashboard when allowDemo is false', () => {
+    setAuth({ user: { email: 'd@test.com', fullName: 'D', role: 'DEMO', isDemo: true } });
+    renderRoute(
+      <RequireAuth allowDemo={false}>
+        <div>Protected</div>
+      </RequireAuth>
+    );
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 });

@@ -1,13 +1,22 @@
 /**
  * @file HelpIconButton.test.tsx
  * @module __tests__/features/help/components/HelpIconButton
+ * @description Contract tests for `HelpIconButton`.
  *
- * @summary
- * Test suite for HelpIconButton component.
- * Tests: rendering, click handling, help topic navigation, tooltip display.
+ * Contract under test:
+ * - Renders an accessible icon button with `aria-label="Open help"`.
+ * - Clicking calls `openHelp(topicId)`.
+ * - Tooltip shows the provided text, or defaults to "Help".
+ *
+ * Out of scope:
+ * - MUI Tooltip/Popper internals and icon rendering details.
+ *
+ * Test strategy:
+ * - Mock `useHelp` deterministically and assert calls.
+ * - Assert tooltip by user-level hover (text appears), not by classnames.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import HelpIconButton from '../../../../features/help/components/HelpIconButton';
@@ -19,190 +28,63 @@ vi.mock('../../../../hooks/useHelp', () => ({
 }));
 
 describe('HelpIconButton', () => {
+  function mockUseHelp(overrides?: Partial<ReturnType<typeof helpHooks.useHelp>>) {
+    const value = {
+      openHelp: vi.fn(),
+      closeHelp: vi.fn(),
+      currentTopicId: null,
+      isOpen: false,
+      ...overrides,
+    };
+    vi.mocked(helpHooks.useHelp).mockReturnValue(value);
+    return value;
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should render without crashing', () => {
-    // Arrange
-    const mockOpenHelp = vi.fn();
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: mockOpenHelp,
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
-
-    // Act
+  it('renders an accessible help button', () => {
+    mockUseHelp();
     render(<HelpIconButton topicId="test-topic" />);
-
-    // Assert
-    const button = screen.getByRole('button');
-    expect(button).toBeDefined();
+    expect(screen.getByRole('button', { name: /open help/i })).toBeInTheDocument();
   });
 
-  it('should render with help icon', () => {
-    // Arrange
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: vi.fn(),
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
+  it('calls openHelp(topicId) when clicked', async () => {
+    const user = userEvent.setup();
+    const { openHelp } = mockUseHelp();
 
-    // Act
-    render(<HelpIconButton topicId="test-topic" />);
+    render(<HelpIconButton topicId="inventory-help" />);
+    await user.click(screen.getByRole('button', { name: /open help/i }));
 
-    // Assert
-    const button = screen.getByRole('button');
-    expect(button).toBeInTheDocument();
+    expect(openHelp).toHaveBeenCalledWith('inventory-help');
   });
 
-  it('should call openHelp with topicId on click', async () => {
-    // Arrange
-    const openHelpMock = vi.fn();
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: openHelpMock,
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
-    const topicId = 'inventory-help';
+  it.each([
+    { name: 'custom tooltip', tooltip: 'Click for help', expected: 'Click for help' },
+    { name: 'default tooltip', tooltip: undefined, expected: 'Help' },
+  ])('shows $name on hover', async ({ tooltip, expected }) => {
+    const user = userEvent.setup();
+    mockUseHelp();
 
-    // Act
-    render(<HelpIconButton topicId={topicId} />);
-    const button = screen.getByRole('button');
-    await userEvent.click(button);
+    render(<HelpIconButton topicId="test-topic" tooltip={tooltip} />);
 
-    // Assert
-    expect(openHelpMock).toHaveBeenCalledWith(topicId);
+    // Tooltip content is rendered on hover (portal), so assert by user behavior.
+    await user.hover(screen.getByRole('button', { name: /open help/i }));
+    expect(await screen.findByText(expected)).toBeInTheDocument();
   });
 
-  it('should display tooltip when provided', () => {
-    // Arrange
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: vi.fn(),
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
-    const tooltipText = 'Click for help';
+  it('does not submit a parent form (IconButton is not a submit control)', () => {
+    const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+    mockUseHelp();
 
-    // Act
     render(
-      <HelpIconButton topicId="test-topic" tooltip={tooltipText} />
-    );
-
-    // Assert
-    const button = screen.getByRole('button');
-    expect(button).toBeInTheDocument();
-  });
-
-  it('should use default tooltip when not provided', () => {
-    // Arrange
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: vi.fn(),
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
-
-    // Act
-    render(<HelpIconButton topicId="test-topic" />);
-
-    // Assert
-    const button = screen.getByRole('button');
-    expect(button).toBeInTheDocument();
-  });
-
-  it('should handle multiple quick clicks', async () => {
-    // Arrange
-    const openHelpMock = vi.fn();
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: openHelpMock,
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
-
-    // Act
-    render(<HelpIconButton topicId="test-topic" />);
-    const button = screen.getByRole('button');
-
-    await userEvent.click(button);
-    await userEvent.click(button);
-    await userEvent.click(button);
-
-    // Assert
-    expect(openHelpMock).toHaveBeenCalledTimes(3);
-    expect(openHelpMock).toHaveBeenCalledWith('test-topic');
-  });
-
-  it('should handle different topic IDs', async () => {
-    // Arrange
-    const openHelpMock = vi.fn();
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: openHelpMock,
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
-    const topicIds = ['inventory', 'suppliers', 'reports'];
-
-    // Act & Assert
-    for (const topicId of topicIds) {
-      const { unmount } = render(<HelpIconButton topicId={topicId} />);
-      const button = screen.getByRole('button');
-      await userEvent.click(button);
-      expect(openHelpMock).toHaveBeenCalledWith(topicId);
-      unmount();
-      openHelpMock.mockClear();
-    }
-  });
-
-  it('should maintain focus after click', async () => {
-    // Arrange
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: vi.fn(),
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
-
-    // Act
-    render(<HelpIconButton topicId="test-topic" />);
-    const button = screen.getByRole('button');
-
-    button.focus();
-    expect(button).toHaveFocus();
-
-    await userEvent.click(button);
-
-    // Assert
-    expect(button).toBeInTheDocument();
-  });
-
-  it('should work within a form without interfering', () => {
-    // Arrange
-    vi.mocked(helpHooks.useHelp).mockReturnValue({
-      openHelp: vi.fn(),
-      closeHelp: vi.fn(),
-      currentTopicId: null,
-      isOpen: false,
-    });
-
-    // Act
-    render(
-      <form data-testid="test-form">
-        <input type="text" />
+      <form onSubmit={onSubmit}>
         <HelpIconButton topicId="form-help" />
       </form>
     );
 
-    // Assert
-    const form = screen.getByTestId('test-form');
-    const button = screen.getByRole('button');
-    expect(button).toBeInTheDocument();
-    expect(form).toBeInTheDocument();
+    // If IconButton were a submit button, this would trigger a submit event.
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

@@ -1,15 +1,20 @@
 /**
  * @file SettingsStorage.test.ts
- * @module tests/context/settings/SettingsStorage
+ * @module __tests__/context/settings/SettingsStorage
+ * @description Contract tests for the `SettingsStorage` persistence helpers.
  *
- * @summary
- * Validates the localStorage-backed settings persistence helpers.
- * Covers language-specific defaults, save/load/clear flows, and error handling branches.
+ * Contract under test:
+ * - Defaults are language-aware (`de*` → German formats; otherwise English formats).
+ * - Load returns stored preferences when present; otherwise returns defaults.
+ * - Save and clear interact with localStorage using the unified storage key.
+ * - Storage failures never throw; they log a warning and fall back safely.
  *
- * @enterprise
- * - Protects startup defaults so locale switching stays predictable
- * - Ensures storage failures degrade gracefully without crashing the app
- * - Confirms mutation helpers interact with localStorage using the unified key
+ * Out of scope:
+ * - Any consumer/provider behavior (covered by SettingsProvider tests).
+ *
+ * Test strategy:
+ * - Stub `localStorage` explicitly (no implicit globals) and assert calls + returned values.
+ * - Validate error branches via throwing stubs and `console.warn` capture.
  */
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
@@ -54,20 +59,19 @@ describe('SettingsStorage', () => {
   });
 
   describe('getDefaultPreferences', () => {
-    it('returns German defaults when language starts with de', () => {
-      expect(getDefaultPreferences('de')).toEqual({
-        dateFormat: 'DD.MM.YYYY',
-        numberFormat: 'DE',
-        tableDensity: 'comfortable',
-      });
-    });
-
-    it('returns English defaults otherwise', () => {
-      expect(getDefaultPreferences('en')).toEqual({
-        dateFormat: 'MM/DD/YYYY',
-        numberFormat: 'EN_US',
-        tableDensity: 'comfortable',
-      });
+    it.each([
+      {
+        name: 'German defaults for de* languages',
+        language: 'de-DE',
+        expected: { dateFormat: 'DD.MM.YYYY', numberFormat: 'DE', tableDensity: 'comfortable' },
+      },
+      {
+        name: 'English defaults for non-de languages',
+        language: 'en',
+        expected: { dateFormat: 'MM/DD/YYYY', numberFormat: 'EN_US', tableDensity: 'comfortable' },
+      },
+    ])('$name', ({ language, expected }) => {
+      expect(getDefaultPreferences(language)).toEqual(expected);
     });
   });
 
@@ -85,22 +89,27 @@ describe('SettingsStorage', () => {
       expect(result).toEqual(stored);
     });
 
-    it('falls back to defaults when storage missing or parse fails', () => {
+    it('returns defaults when nothing is stored', () => {
       getItem.mockReturnValue(null);
-
       expect(loadPreferencesFromStorage('de')).toEqual({
         dateFormat: 'DD.MM.YYYY',
         numberFormat: 'DE',
         tableDensity: 'comfortable',
       });
+      expect(console.warn).not.toHaveBeenCalled();
+    });
 
+    it('returns defaults and logs a warning when stored data is invalid', () => {
       getItem.mockReturnValue('invalid json');
       expect(loadPreferencesFromStorage('en')).toEqual({
         dateFormat: 'MM/DD/YYYY',
         numberFormat: 'EN_US',
         tableDensity: 'comfortable',
       });
-      expect(console.warn).toHaveBeenCalledWith('Failed to load settings from localStorage:', expect.any(SyntaxError));
+      expect(console.warn).toHaveBeenCalledWith(
+        'Failed to load settings from localStorage:',
+        expect.any(SyntaxError)
+      );
     });
   });
 

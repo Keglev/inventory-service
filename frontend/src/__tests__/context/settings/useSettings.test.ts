@@ -1,15 +1,18 @@
 /**
  * @file useSettings.test.ts
- * @module tests/context/settings/useSettings
+ * @module __tests__/context/settings/useSettings
+ * @description Contract tests for the `useSettings` hook.
  *
- * @summary
- * Verifies the defensive behaviour of the useSettings hook.
- * Confirms provider presence requirement and proper context passthrough.
+ * Contract under test:
+ * - Throws a helpful error when used outside of `SettingsProvider`.
+ * - Returns the exact context object when a provider is present.
  *
- * @enterprise
- * - Prevents silent failures when developers forget the provider wrapper
- * - Guarantees downstream consumers receive the exact context object
- * - Protects against regressions during refactors of the settings provider
+ * Out of scope:
+ * - Provider initialization logic (system info fetch, persistence, i18n sync).
+ *
+ * Test strategy:
+ * - Use `renderHook` and a minimal Provider wrapper.
+ * - Keep this file `.ts` (no JSX) to align with strict TS configs.
  */
 
 import React from 'react';

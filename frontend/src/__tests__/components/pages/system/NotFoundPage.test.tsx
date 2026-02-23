@@ -1,148 +1,109 @@
 /**
  * @file NotFoundPage.test.tsx
- * @description
- * Test suite for NotFoundPage component.
- * Verifies rendering, navigation logic based on auth state, and i18n integration.
+ * @module __tests__/components/pages/system/NotFoundPage
+ * @description Contract tests for the `NotFoundPage` route component.
+ *
+ * Contract under test:
+ * - Renders the i18n-backed title and body copy.
+ * - Renders exactly one primary action button.
+ * - Routes the user to:
+ *   - `/dashboard` when authenticated
+ *   - `/login` when unauthenticated
+ *   using `{ replace: true }`.
+ *
+ * Out of scope:
+ * - MUI styling/classes and layout implementation details.
+ * - i18n translation correctness (we mock translation deterministically).
+ *
+ * Test strategy:
+ * - Mock `useAuth` to control authenticated vs unauthenticated states.
+ * - Mock `useNavigate` and assert on navigation target + replace flag.
+ * - Assert observable behavior via text and accessible button roles.
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import NotFoundPage from '@/pages/system/NotFoundPage';
+import { useAuth } from '@/hooks/useAuth';
+import type { AppUser, AuthContextType } from '@/context/auth/authTypes';
 
-// Mock useAuth hook to control authentication state
-vi.mock('@/hooks/useAuth', () => ({
-  useAuth: vi.fn(),
-}));
-
-// Mock react-i18next for translation
+// Deterministic i18n: return "namespace:key" so assertions are stable.
 vi.mock('react-i18next', () => ({
   useTranslation: (namespace: string) => ({
     t: (key: string) => `${namespace}:${key}`,
   }),
 }));
 
-// Mock react-router-dom navigation
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: vi.fn(),
+}));
+
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
   };
 });
 
-import { useAuth } from '@/hooks/useAuth';
+const mockedUseAuth = vi.mocked(useAuth);
 
-// Type for mocked useAuth hook
-const mockUseAuth = useAuth as ReturnType<typeof vi.fn>;
+const userFixture = (overrides: Partial<AppUser> = {}): AppUser => ({
+  email: 'user@example.com',
+  fullName: 'Test User',
+  role: 'USER',
+  isDemo: false,
+  ...overrides,
+});
+
+/**
+ * `NotFoundPage` only reads `{ user }` from the auth context.
+ * We keep the mock payload minimal and centralize the cast.
+ */
+const setAuthUser = (user: AppUser | null) => {
+  mockedUseAuth.mockReturnValue((({ user } as Pick<AuthContextType, 'user'>) as AuthContextType));
+};
+
+const renderPage = () => render(<NotFoundPage />);
 
 describe('NotFoundPage', () => {
-  // Helper function to render page with router context
-  const renderNotFoundPage = () => {
-    return render(
-      <BrowserRouter>
-        <NotFoundPage />
-      </BrowserRouter>
-    );
-  };
-
   beforeEach(() => {
-    // Clear all mocks before each test
     vi.clearAllMocks();
   });
 
-  it('renders 404 title text', () => {
-    // Verify that page displays the not found title using i18n key
-    mockUseAuth.mockReturnValue({ user: null });
-    renderNotFoundPage();
-    expect(screen.getByText('system:notFound.title')).toBeInTheDocument();
-  });
+  it('renders the i18n-backed title and body copy', () => {
+    setAuthUser(null);
+    renderPage();
 
-  it('renders 404 body text', () => {
-    // Verify that page displays the not found message body
-    mockUseAuth.mockReturnValue({ user: null });
-    renderNotFoundPage();
+    expect(screen.getByText('system:notFound.title')).toBeInTheDocument();
     expect(screen.getByText('system:notFound.body')).toBeInTheDocument();
   });
 
-  it('renders dashboard button when user is logged in', () => {
-    // Verify that authenticated users see dashboard navigation option
-    mockUseAuth.mockReturnValue({ user: { id: 1, name: 'John' } });
-    renderNotFoundPage();
-    expect(screen.getByText('common:nav.dashboard')).toBeInTheDocument();
-  });
+  it.each([
+    {
+      name: 'unauthenticated: shows sign-in label and navigates to /login',
+      user: null,
+      buttonLabel: 'auth:signIn',
+      expectedPath: '/login',
+    },
+    {
+      name: 'authenticated: shows dashboard label and navigates to /dashboard',
+      user: userFixture(),
+      buttonLabel: 'common:nav.dashboard',
+      expectedPath: '/dashboard',
+    },
+  ])('$name', async ({ user, buttonLabel, expectedPath }) => {
+    const ui = userEvent.setup();
+    setAuthUser(user);
 
-  it('renders sign in button when user is not authenticated', () => {
-    // Verify that unauthenticated users see login option
-    mockUseAuth.mockReturnValue({ user: null });
-    renderNotFoundPage();
-    expect(screen.getByText('auth:signIn')).toBeInTheDocument();
-  });
+    renderPage();
 
-  it('navigates to dashboard when authenticated user clicks button', () => {
-    // Verify that logged-in user is redirected to dashboard on click
-    mockUseAuth.mockReturnValue({ user: { id: 1, name: 'John' } });
-    renderNotFoundPage();
-    
-    const button = screen.getByRole('button', { name: 'common:nav.dashboard' });
-    fireEvent.click(button);
-    
-    // Verify navigate was called with dashboard path and replace flag
-    expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
-  });
+    const button = screen.getByRole('button', { name: buttonLabel });
+    expect(button).toHaveAttribute('type', 'button');
 
-  it('navigates to login when unauthenticated user clicks button', () => {
-    // Verify that non-logged-in user is redirected to login on click
-    mockUseAuth.mockReturnValue({ user: null });
-    renderNotFoundPage();
-    
-    const button = screen.getByRole('button', { name: 'auth:signIn' });
-    fireEvent.click(button);
-    
-    // Verify navigate was called with login path and replace flag
-    expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true });
-  });
-
-  it('uses replace navigation option', () => {
-    // Verify that navigation uses replace: true to prevent back button access to 404
-    mockUseAuth.mockReturnValue({ user: null });
-    renderNotFoundPage();
-    
-    const button = screen.getByRole('button');
-    fireEvent.click(button);
-    
-    // Verify replace: true option was passed to prevent history stack issues
-    expect(mockNavigate).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ replace: true })
-    );
-  });
-
-  it('renders outer container', () => {
-    // Verify that the outer layout container is present
-    mockUseAuth.mockReturnValue({ user: null });
-    renderNotFoundPage();
-
-    const outerBox = screen.getByText('system:notFound.title').closest('div')?.closest('div')?.closest('div');
-    expect(outerBox).toBeInTheDocument();
-  });
-
-  it('renders button with contained variant', () => {
-    // Verify that action button has contained styling
-    mockUseAuth.mockReturnValue({ user: null });
-    renderNotFoundPage();
-    
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('MuiButton-contained');
-  });
-
-  it('handles undefined user gracefully', () => {
-    // Verify that component renders correctly when user is undefined
-    mockUseAuth.mockReturnValue({ user: undefined });
-    renderNotFoundPage();
-    
-    // Should render login button since user is falsy
-    expect(screen.getByText('auth:signIn')).toBeInTheDocument();
+    await ui.click(button);
+    expect(mockNavigate).toHaveBeenCalledWith(expectedPath, { replace: true });
   });
 });

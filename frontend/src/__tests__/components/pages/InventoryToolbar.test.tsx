@@ -1,50 +1,64 @@
 /**
  * @file InventoryToolbar.test.tsx
  * @module __tests__/components/pages/InventoryToolbar
- * @description
- * Enterprise unit tests for InventoryToolbar.
+ * @description Contract tests for the `InventoryToolbar` presentation component.
  *
- * Contract:
- * - Renders all action buttons.
- * - Clicking a button triggers exactly its corresponding handler.
- * - The primary action ("Add new item") uses contained styling.
+ * Contract under test:
+ * - Renders the five action buttons.
+ * - Delegates user intent via callbacks: `onAddNew`, `onEdit`, `onDelete`, `onAdjustQty`, `onChangePrice`.
+ * - Clicking one action triggers exactly its corresponding handler.
+ *
+ * Out of scope:
+ * - MUI styling and class names (variant implementation details).
+ * - Any orchestration/business rules (owned by the inventory board/orchestrator).
+ *
+ * Test strategy:
+ * - Mock i18n to always use fallback strings so button labels are stable.
+ * - Assert accessible button roles/names and handler delegation only.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
+import type { ComponentProps } from 'react';
 
 import { render } from '@/__tests__/test/test-utils';
 import { InventoryToolbar } from '@/pages/inventory/components/InventoryToolbar';
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (_key: string, fallback?: string) => fallback ?? _key }),
+}));
 
 // -----------------------------------------------------------------------------
 // Hoisted mocks
 // -----------------------------------------------------------------------------
 
-const mockOnAddNew = vi.hoisted(() => vi.fn());
-const mockOnEdit = vi.hoisted(() => vi.fn());
-const mockOnDelete = vi.hoisted(() => vi.fn());
-const mockOnAdjustQty = vi.hoisted(() => vi.fn());
-const mockOnChangePrice = vi.hoisted(() => vi.fn());
+const mockOnAddNew = vi.fn();
+const mockOnEdit = vi.fn();
+const mockOnDelete = vi.fn();
+const mockOnAdjustQty = vi.fn();
+const mockOnChangePrice = vi.fn();
 
 // -----------------------------------------------------------------------------
 // Test helpers
 // -----------------------------------------------------------------------------
 
-type Props = React.ComponentProps<typeof InventoryToolbar>;
+type Props = ComponentProps<typeof InventoryToolbar>;
 
-function setup() {
-  const props: Props = {
-    onAddNew: mockOnAddNew,
-    onEdit: mockOnEdit,
-    onDelete: mockOnDelete,
-    onAdjustQty: mockOnAdjustQty,
-    onChangePrice: mockOnChangePrice,
-  };
+// Props builder: keeps test setup consistent and minimizes duplication.
+const createProps = (): Props => ({
+  onAddNew: mockOnAddNew,
+  onEdit: mockOnEdit,
+  onDelete: mockOnDelete,
+  onAdjustQty: mockOnAdjustQty,
+  onChangePrice: mockOnChangePrice,
+});
 
+const renderToolbar = () => {
+  const props = createProps();
   render(<InventoryToolbar {...props} />);
   return { props };
-}
+};
 
 const buttons = {
   add: /add new item/i,
@@ -64,7 +78,7 @@ describe('InventoryToolbar', () => {
   });
 
   it('renders all action buttons', () => {
-    setup();
+    renderToolbar();
 
     expect(screen.getByRole('button', { name: buttons.add })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: buttons.edit })).toBeInTheDocument();
@@ -74,9 +88,9 @@ describe('InventoryToolbar', () => {
   });
 
   it('does not trigger any handlers on initial render', () => {
-    setup();
+    renderToolbar();
 
-    // Regression guard: ensures no side effects fire on mount.
+    // Regression guard: presentation components should not fire side effects on mount.
     expect(mockOnAddNew).not.toHaveBeenCalled();
     expect(mockOnEdit).not.toHaveBeenCalled();
     expect(mockOnDelete).not.toHaveBeenCalled();
@@ -84,41 +98,37 @@ describe('InventoryToolbar', () => {
     expect(mockOnChangePrice).not.toHaveBeenCalled();
   });
 
-  it('calls the correct handler when each button is clicked', async () => {
+  it.each([
+    { name: 'Add new item', buttonName: buttons.add, expectedHandler: mockOnAddNew },
+    { name: 'Edit', buttonName: buttons.edit, expectedHandler: mockOnEdit },
+    { name: 'Delete', buttonName: buttons.delete, expectedHandler: mockOnDelete },
+    { name: 'Adjust quantity', buttonName: buttons.adjust, expectedHandler: mockOnAdjustQty },
+    { name: 'Change price', buttonName: buttons.price, expectedHandler: mockOnChangePrice },
+  ])('delegates click intent ($name)', async ({ buttonName, expectedHandler }) => {
     const user = userEvent.setup();
-    setup();
+    renderToolbar();
 
-    const cases: Array<{
-      buttonName: RegExp;
-      handler: ReturnType<typeof vi.fn>;
-      handlerLabel: string;
-    }> = [
-      { buttonName: buttons.add, handler: mockOnAddNew, handlerLabel: 'onAddNew' },
-      { buttonName: buttons.edit, handler: mockOnEdit, handlerLabel: 'onEdit' },
-      { buttonName: buttons.delete, handler: mockOnDelete, handlerLabel: 'onDelete' },
-      { buttonName: buttons.adjust, handler: mockOnAdjustQty, handlerLabel: 'onAdjustQty' },
-      { buttonName: buttons.price, handler: mockOnChangePrice, handlerLabel: 'onChangePrice' },
+    await user.click(screen.getByRole('button', { name: buttonName }));
+    expect(expectedHandler).toHaveBeenCalledTimes(1);
+
+    // Clicking one action must not trigger any other handler.
+    const allHandlers = [
+      mockOnAddNew,
+      mockOnEdit,
+      mockOnDelete,
+      mockOnAdjustQty,
+      mockOnChangePrice,
     ];
-
-    for (const c of cases) {
-      await user.click(screen.getByRole('button', { name: c.buttonName }));
-      expect(c.handler, c.handlerLabel).toHaveBeenCalledTimes(1);
-
-      // Reset between iterations so each case asserts the single-click contract cleanly.
-      vi.clearAllMocks();
+    for (const h of allHandlers) {
+      if (h !== expectedHandler) {
+        expect(h).not.toHaveBeenCalled();
+      }
     }
-  });
-
-  it('uses contained styling for the primary action button', () => {
-    setup();
-
-    // Styling contract: primary action is visually emphasized in the toolbar.
-    expect(screen.getByRole('button', { name: buttons.add })).toHaveClass('MuiButton-contained');
   });
 
   it('supports multiple clicks on the same action', async () => {
     const user = userEvent.setup();
-    setup();
+    renderToolbar();
 
     const addButton = screen.getByRole('button', { name: buttons.add });
     await user.click(addButton);
@@ -126,20 +136,5 @@ describe('InventoryToolbar', () => {
     await user.click(addButton);
 
     expect(mockOnAddNew).toHaveBeenCalledTimes(3);
-  });
-
-  it('handles clicks on different buttons independently', async () => {
-    const user = userEvent.setup();
-    setup();
-
-    await user.click(screen.getByRole('button', { name: buttons.add }));
-    await user.click(screen.getByRole('button', { name: buttons.edit }));
-    await user.click(screen.getByRole('button', { name: buttons.delete }));
-
-    expect(mockOnAddNew).toHaveBeenCalledTimes(1);
-    expect(mockOnEdit).toHaveBeenCalledTimes(1);
-    expect(mockOnDelete).toHaveBeenCalledTimes(1);
-    expect(mockOnAdjustQty).not.toHaveBeenCalled();
-    expect(mockOnChangePrice).not.toHaveBeenCalled();
   });
 });

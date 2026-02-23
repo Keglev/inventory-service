@@ -1,198 +1,129 @@
 /**
- * @file HelpContext.test.tsx
+ * @file HelpProvider.test.tsx
+ * @module __tests__/context/help/HelpProvider
+ * @description Contract tests for the `HelpProvider` global help state manager.
  *
- * @what_is_under_test HelpProvider component - manages help panel state
- * @responsibility Provide help context with open/close actions and Escape key handling
- * @out_of_scope Help content rendering, help topic database, animation details
+ * Contract under test:
+ * - Renders children and exposes help state via context.
+ * - `openHelp(topicId)` opens help and sets the current topic.
+ * - `closeHelp()` closes help immediately but clears the topic after the animation delay.
+ * - When open, pressing Escape closes the help panel.
+ *
+ * Out of scope:
+ * - Help content rendering and topic registry.
+ * - Visual animation details beyond the delayed topic clear.
+ *
+ * Test strategy:
+ * - Use a probe component to drive context actions through user interactions.
+ * - Use fake timers only where the provider explicitly uses `setTimeout`.
+ * - Assert behavior (open/closed + topic) rather than implementation details.
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { HelpContext } from '../../../context/help/HelpContext';
 import { HelpProvider } from '../../../context/help/HelpContext';
 
+function HelpProbe() {
+  const ctx = React.useContext(HelpContext);
+
+  if (!ctx) {
+    return <div data-testid="help-probe">missing-provider</div>;
+  }
+
+  return (
+    <div data-testid="help-probe">
+      <div data-testid="is-open">{String(ctx.isOpen)}</div>
+      <div data-testid="topic">{ctx.currentTopicId ?? ''}</div>
+      <button type="button" onClick={() => ctx.openHelp('topic-1')}>
+        open
+      </button>
+      <button type="button" onClick={ctx.closeHelp}>
+        close
+      </button>
+    </div>
+  );
+}
+
+function renderHelp(ui?: React.ReactNode) {
+  return render(<HelpProvider>{ui ?? <HelpProbe />}</HelpProvider>);
+}
+
+beforeEach(() => {
+  // Deterministic listener assertions.
+  vi.spyOn(document, 'addEventListener');
+  vi.spyOn(document, 'removeEventListener');
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
+
 describe('HelpProvider', () => {
-  describe('Provider rendering', () => {
-    it('renders children correctly', () => {
-      render(
-        <HelpProvider>
-          <div data-testid="test-child">Help Content</div>
-        </HelpProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
-
-    it('renders multiple children', () => {
-      render(
-        <HelpProvider>
-          <div data-testid="child-1">Child 1</div>
-          <div data-testid="child-2">Child 2</div>
-        </HelpProvider>
-      );
-
-      expect(screen.getByTestId('child-1')).toBeInTheDocument();
-      expect(screen.getByTestId('child-2')).toBeInTheDocument();
-    });
-
-    it('renders without errors with no children', () => {
-      const { container } = render(
-        <HelpProvider>
-          <div />
-        </HelpProvider>
-      );
-      expect(container).toBeInTheDocument();
-    });
+  it('renders children', () => {
+    renderHelp(<div data-testid="child">child</div>);
+    expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
-  describe('Context provision', () => {
-    it('provides HelpContext to children', () => {
-      const TestComponent = () => {
-        return <div data-testid="context-test">Provider active</div>;
-      };
+  it('openHelp(topicId) opens help and sets topic', async () => {
+    const user = userEvent.setup();
+    renderHelp();
 
-      render(
-        <HelpProvider>
-          <TestComponent />
-        </HelpProvider>
-      );
+    expect(screen.getByTestId('is-open')).toHaveTextContent('false');
+    expect(screen.getByTestId('topic')).toHaveTextContent('');
 
-      expect(screen.getByTestId('context-test')).toBeInTheDocument();
-    });
+    await user.click(screen.getByRole('button', { name: 'open' }));
+
+    expect(screen.getByTestId('is-open')).toHaveTextContent('true');
+    expect(screen.getByTestId('topic')).toHaveTextContent('topic-1');
+
+    // Listener is only registered while the panel is open.
+    expect(document.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
   });
 
-  describe('State management', () => {
-    it('initializes with help closed', () => {
-      render(
-        <HelpProvider>
-          <div data-testid="test-child">Test</div>
-        </HelpProvider>
-      );
+  it('closeHelp() closes immediately and clears topic after the animation delay', async () => {
+    vi.useFakeTimers();
+    renderHelp();
 
-      // Help should be closed on mount
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'open' }));
+    expect(screen.getByTestId('is-open')).toHaveTextContent('true');
+    expect(screen.getByTestId('topic')).toHaveTextContent('topic-1');
+
+    fireEvent.click(screen.getByRole('button', { name: 'close' }));
+
+    // Close is immediate.
+    expect(screen.getByTestId('is-open')).toHaveTextContent('false');
+    // Topic is kept briefly to allow a fade-out animation.
+    expect(screen.getByTestId('topic')).toHaveTextContent('topic-1');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300);
     });
 
-    it('tracks help open/close state', () => {
-      const { container } = render(
-        <HelpProvider>
-          <div data-testid="test-child">Test</div>
-        </HelpProvider>
-      );
-
-      expect(container).toBeInTheDocument();
-    });
-
-    it('maintains current topic ID', () => {
-      render(
-        <HelpProvider>
-          <div data-testid="test-child">Test</div>
-        </HelpProvider>
-      );
-
-      // Topic ID is maintained internally
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
+    expect(screen.getByTestId('topic')).toHaveTextContent('');
+    expect(document.removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
   });
 
-  describe('Keyboard handling', () => {
-    it('sets up Escape key listener', () => {
-      const eventListenerSpy = vi.spyOn(document, 'addEventListener');
+  it('pressing Escape closes help when open', async () => {
+    vi.useFakeTimers();
+    renderHelp();
 
-      render(
-        <HelpProvider>
-          <div data-testid="test-child">Test</div>
-        </HelpProvider>
-      );
-
-      // Event listener is only added when help is open, so check setup capability
-      // Since we're testing the provider can setup listeners, this test verifies structure
-      expect(eventListenerSpy).toBeDefined();
-      eventListenerSpy.mockRestore();
+    fireEvent.click(screen.getByRole('button', { name: 'open' }));
+    await act(async () => {
+      // Ensure the keydown listener effect is committed.
+      await Promise.resolve();
     });
+    expect(screen.getByTestId('is-open')).toHaveTextContent('true');
 
-    it('cleans up event listener on unmount', () => {
-      const eventRemovalSpy = vi.spyOn(document, 'removeEventListener');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.getByTestId('is-open')).toHaveTextContent('false');
 
-      const { unmount } = render(
-        <HelpProvider>
-          <div data-testid="test-child">Test</div>
-        </HelpProvider>
-      );
-
-      unmount();
-
-      // Event listener cleanup verification happens when provider unmounts
-      expect(eventRemovalSpy).toBeDefined();
-      eventRemovalSpy.mockRestore();
-    });
-  });
-
-  describe('Animation handling', () => {
-    it('uses setTimeout for topic clearing animation', () => {
-      vi.useFakeTimers();
-
-      render(
-        <HelpProvider>
-          <div data-testid="test-child">Test</div>
-        </HelpProvider>
-      );
-
-      expect(vi.getTimerCount()).toBeGreaterThanOrEqual(0);
-
-      vi.useRealTimers();
-    });
-
-    it('clears timeout on unmount', () => {
-      vi.useFakeTimers();
-
-      const { unmount } = render(
-        <HelpProvider>
-          <div data-testid="test-child">Test</div>
-        </HelpProvider>
-      );
-
-      unmount();
-
-      // Timeouts should be cleared
-      expect(vi.getTimerCount()).toBe(0);
-
-      vi.useRealTimers();
-    });
-  });
-
-  describe('Component structure', () => {
-    it('maintains component hierarchy', () => {
-      render(
-        <HelpProvider>
-          <div className="wrapper">
-            <div className="inner" data-testid="inner">Content</div>
-          </div>
-        </HelpProvider>
-      );
-
-      expect(screen.getByTestId('inner')).toBeInTheDocument();
-    });
-
-    it('does not modify child structure', () => {
-      const { container } = render(
-        <HelpProvider>
-          <div className="original">Original</div>
-        </HelpProvider>
-      );
-
-      expect(container.querySelector('.original')).toBeInTheDocument();
-    });
-  });
-
-  describe('Error handling', () => {
-    it('handles missing children gracefully', () => {
-      const { container } = render(<HelpProvider>{null}</HelpProvider>);
-      expect(container).toBeInTheDocument();
-    });
-
-    it('renders with undefined children', () => {
-      const { container } = render(<HelpProvider>{undefined}</HelpProvider>);
-      expect(container).toBeInTheDocument();
+    // Ensure we flush the delayed topic clear so the test doesn't leak timers.
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
     });
   });
 });

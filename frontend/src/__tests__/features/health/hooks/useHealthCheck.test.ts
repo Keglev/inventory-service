@@ -1,324 +1,156 @@
 /**
  * @file useHealthCheck.test.ts
  * @module __tests__/features/health/hooks/useHealthCheck
+ * @description Contract tests for the `useHealthCheck` hook.
  *
- * @summary
- * Test suite for useHealthCheck hook.
+ * Contract under test:
+ * - Performs an initial `/api/health` request on mount.
+ * - Requires JSON content-type; non-JSON responses transition to offline.
+ * - Validates response shape at runtime; invalid shapes transition to offline.
+ * - Polls every 15 minutes.
+ * - Exposes `refetch()` to manually trigger a check.
+ *
+ * Out of scope:
+ * - The UI that consumes health state.
+ * - Full fidelity of the `Response` object; only the consumed surface is mocked.
+ *
+ * Test strategy:
+ * - Deterministic `fetch`, `performance.now`, `Date.now`, and console spies.
+ * - Fake timers only for the polling interval contract.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import type { ReactNode } from 'react';
-import { createElement } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { MockInstance } from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useHealthCheck } from '../../../../features/health/hooks/useHealthCheck';
-import { useAuth } from '../../../../hooks/useAuth';
-import type { AuthContextType } from '../../../../context/auth/authTypes';
 
-vi.mock('../../../../hooks/useAuth');
-
-const mockUseAuth = vi.mocked(useAuth);
-
-function Wrapper({ children }: { children: ReactNode }) {
-  return createElement(BrowserRouter, {}, children);
+function makeResponse(options: {
+  contentType: string;
+  json?: unknown;
+  text?: string;
+}): Response {
+  return {
+    headers: new Headers({ 'content-type': options.contentType }),
+    json: vi.fn(async () => options.json),
+    text: vi.fn(async () => options.text ?? ''),
+  } as unknown as Response;
 }
 
 describe('useHealthCheck', () => {
+  const fetchMock = vi.fn<[RequestInfo | URL, RequestInit?], Promise<Response>>();
+  let warnMock: MockInstance<Parameters<typeof console.warn>, void>;
+  let errorMock: MockInstance<Parameters<typeof console.error>, void>;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
-    const authMock: AuthContextType = {
-      user: null,
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    global.fetch = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
+    // Keep console output deterministic and avoid polluting test logs.
+    warnMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    errorMock = vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
+
+    warnMock.mockRestore();
+    errorMock.mockRestore();
+    vi.restoreAllMocks();
   });
 
-  it('should skip health check for demo users', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'demo@test.local', fullName: 'Demo User', role: 'DEMO', isDemo: true },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
+  it('calls /api/health on mount and transitions to online on a valid JSON response', async () => {
+    // Stub `performance.now()` deterministically; `spyOn(performance, 'now')` is flaky across environments.
+    const now = vi.fn().mockReturnValueOnce(100).mockReturnValueOnce(155);
+    vi.stubGlobal('performance', { now } as unknown as Performance);
+    fetchMock.mockResolvedValue(
+      makeResponse({
+        contentType: 'application/json',
+        json: { status: 'ok', database: 'ok', timestamp: 123 },
+      })
+    );
 
-    renderHook(() => useHealthCheck(), { wrapper: Wrapper });
+    const { result, unmount } = renderHook(() => useHealthCheck());
 
-    // Hook does not check isDemo, it always polls
-    // This test documents actual behavior
-    expect(fetch).toHaveBeenCalled();
-  });
-
-  it('should setup health check for non-demo users', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => ({ status: 'ok', database: 'ok', timestamp: Date.now() }),
-    } as Response);
-
-    const { result } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-
-    expect(result.current.health).toBeDefined();
-    expect(result.current.health.status).toBe('offline');
-  });
-
-  it('should use default polling interval of 15 minutes', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => ({ status: 'ok', database: 'ok', timestamp: Date.now() }),
-    } as Response);
-
-    renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-
-    vi.advanceTimersByTime(900000);
-    expect(fetch).toHaveBeenCalled();
-  });
-
-  it('should track response time on successful health check', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => ({ status: 'ok', database: 'ok', timestamp: Date.now() }),
-    } as Response);
-
-    const { result } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-
-    expect(result.current.health.responseTime).toBeGreaterThanOrEqual(0);
-  });
-
-  it('should set status to online on successful response', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => ({ status: 'ok', database: 'ok', timestamp: Date.now() }),
-    } as Response);
-
-    const { result } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-
-    // Hook initializes state, actual status update happens asynchronously
-    expect(result.current.health).toBeDefined();
-  });
-
-  it('should set status to offline on failed response', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: false,
-      status: 500,
-      json: async () => ({}),
-    } as Response);
-
-    const { result } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-
-    // Hook initializes state, actual status update happens asynchronously
-    expect(result.current.health).toBeDefined();
-  });
-
-  it('should handle network errors gracefully', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockRejectedValue(new Error('Network error'));
-
-    const { result } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-
-    // Hook initializes state, error handling happens asynchronously
-    expect(result.current.health).toBeDefined();
-  });
-
-  it('should validate response type structure', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => ({ status: 'ok', database: 'ok', timestamp: Date.now() }),
-    } as Response);
-
-    const { result } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-
-    // Validate that health object has required properties
-    expect(result.current.health).toBeDefined();
-    expect(typeof result.current.health.responseTime).toBe('number');
-    expect(typeof result.current.health.status).toBe('string');
-    expect(['online', 'offline']).toContain(result.current.health.status);
-  });
-
-  it('should use standard health endpoint', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => ({ status: 'ok', database: 'ok', timestamp: Date.now() }),
-    } as Response);
-
-    renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-
-    expect(fetch).toHaveBeenCalledWith('/api/health', expect.any(Object));
-  });
-
-  it('should return refetch function to manually trigger health check', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => ({ status: 'ok', database: 'ok', timestamp: Date.now() }),
-    } as Response);
-
-    const { result } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-    const initialCallCount = vi.mocked(fetch).mock.calls.length;
-
-    result.current.refetch();
-
-    expect(vi.mocked(fetch).mock.calls.length).toBeGreaterThan(initialCallCount);
-  });
-
-  it('should cleanup polling interval on unmount', () => {
-    const authMock: AuthContextType = {
-      user: { email: 'user@test.com', fullName: 'Test User', role: 'USER', isDemo: false },
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: async () => ({ status: 'ok', database: 'ok', timestamp: Date.now() }),
-    } as Response);
-
-    const { unmount } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
-    const initialCallCount = vi.mocked(fetch).mock.calls.length;
+    expect(fetchMock).toHaveBeenCalledWith('/api/health', { credentials: 'include' });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.health).toEqual({
+      status: 'online',
+      database: 'online',
+      responseTime: 55,
+      timestamp: 123,
+    });
 
     unmount();
-
-    vi.advanceTimersByTime(900000);
-
-    expect(vi.mocked(fetch).mock.calls.length).toBeLessThanOrEqual(initialCallCount + 1);
   });
 
-  it('should handle null user gracefully', () => {
-    const authMock: AuthContextType = {
-      user: null,
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
+  it('treats non-JSON content-type as offline and logs a warning', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(9_999);
+    fetchMock.mockResolvedValue(makeResponse({ contentType: 'text/plain', text: 'ok' }));
 
-    const { rerender } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
+    const { result, unmount } = renderHook(() => useHealthCheck());
 
-    expect(rerender).toBeDefined();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(warnMock).toHaveBeenCalled();
+    expect(result.current.health.status).toBe('offline');
+    expect(result.current.health.timestamp).toBe(9_999);
+
+    unmount();
   });
 
-  it('should handle missing user in auth context', () => {
-    const authMock: AuthContextType = {
-      user: null,
-      setUser: vi.fn(),
-      login: vi.fn(),
-      loginAsDemo: vi.fn(),
-      logout: vi.fn(),
-      loading: false,
-      logoutInProgress: false,
-    };
-    mockUseAuth.mockReturnValue(authMock);
+  it('treats invalid JSON shape as offline and logs an error', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(12_345);
+    fetchMock.mockResolvedValue(makeResponse({ contentType: 'application/json', json: { nope: true } }));
 
-    const { rerender } = renderHook(() => useHealthCheck(), { wrapper: Wrapper });
+    const { result, unmount } = renderHook(() => useHealthCheck());
 
-    expect(rerender).toBeDefined();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(errorMock).toHaveBeenCalled();
+    expect(result.current.health.status).toBe('offline');
+    expect(result.current.health.timestamp).toBe(12_345);
+
+    unmount();
+  });
+
+  it('polls every 15 minutes', async () => {
+    vi.useFakeTimers();
+    fetchMock.mockResolvedValue(
+      makeResponse({
+        contentType: 'application/json',
+        json: { status: 'ok', database: 'ok', timestamp: 1 },
+      })
+    );
+
+    const { unmount } = renderHook(() => useHealthCheck());
+    await act(async () => {
+      // Flush the initial `useEffect` run.
+      await Promise.resolve();
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15 * 60 * 1000);
+      await Promise.resolve();
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    unmount();
+  });
+
+  it('exposes refetch() to trigger an immediate check', async () => {
+    fetchMock.mockResolvedValue(
+      makeResponse({
+        contentType: 'application/json',
+        json: { status: 'ok', database: 'ok', timestamp: 1 },
+      })
+    );
+
+    const { result, unmount } = renderHook(() => useHealthCheck());
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    await result.current.refetch();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    unmount();
   });
 });

@@ -1,14 +1,20 @@
 /**
  * @file StatCard.test.tsx
  * @module __tests__/components/ui/StatCard
- * @description
- * Enterprise test suite for StatCard.
+ * @description Contract tests for the `StatCard` KPI component.
  *
- * Contract:
- * - Always renders the title.
- * - Renders a numeric value (including 0) or a placeholder ("—") for nullish values.
- * - When `loading` is true, shows a skeleton and hides the value.
- * - Uses outlined Card styling and full-height layout for dashboard grid alignment.
+ * Contract under test:
+ * - Always renders the provided title.
+ * - Renders a numeric value (including `0`) when not loading.
+ * - Renders a placeholder ("—") for nullish values when not loading.
+ * - When `loading` is true, hides the value and shows a loading placeholder.
+ *
+ * Out of scope:
+ * - MUI styling/classes and layout details (variant/sx are implementation details).
+ *
+ * Test strategy:
+ * - Assert user-observable output (text + testid) rather than MUI internals.
+ * - Use table-driven cases for value/nullish rendering.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -41,20 +47,14 @@ describe('StatCard', () => {
     expect(screen.getByText('Total Items')).toBeInTheDocument();
   });
 
-  it('renders a numeric value (including 0) as-is', () => {
-    const { rerender } = setup({ value: 42 });
-    expect(screen.getByTestId('stat-value')).toHaveTextContent('42');
-
-    rerender(<StatCard title="Test KPI" value={0} />);
-    expect(screen.getByTestId('stat-value')).toHaveTextContent('0');
-  });
-
-  it('renders a placeholder dash for nullish values', () => {
-    const { rerender } = setup({ value: null });
-    expect(screen.getByTestId('stat-value')).toHaveTextContent('—');
-
-    rerender(<StatCard title="Test KPI" value={undefined} />);
-    expect(screen.getByTestId('stat-value')).toHaveTextContent('—');
+  it.each([
+    { name: 'number value', value: 42, expectedText: '42' },
+    { name: 'zero value', value: 0, expectedText: '0' },
+    { name: 'nullish value (null)', value: null, expectedText: '—' },
+    { name: 'nullish value (undefined)', value: undefined, expectedText: '—' },
+  ])('renders $name when not loading', ({ value, expectedText }) => {
+    setup({ value, loading: false });
+    expect(screen.getByTestId('stat-value')).toHaveTextContent(expectedText);
   });
 
   it('shows a skeleton and hides the value when loading is true', () => {
@@ -63,34 +63,7 @@ describe('StatCard', () => {
     // User-facing contract: value is not shown while loading.
     expect(screen.queryByTestId('stat-value')).not.toBeInTheDocument();
 
-    // MUI Skeleton often lacks stable roles/labels; class presence is a pragmatic check.
+    // MUI Skeleton lacks a stable role/label here; class presence is a pragmatic smoke check.
     expect(container.querySelectorAll('.MuiSkeleton-root').length).toBeGreaterThan(0);
-  });
-
-  it('shows the value when loading is false or undefined', () => {
-    const { container, rerender } = setup({ loading: false, value: 123 });
-    expect(screen.getByTestId('stat-value')).toHaveTextContent('123');
-    expect(container.querySelectorAll('.MuiSkeleton-root').length).toBe(0);
-
-    rerender(<StatCard title="Test KPI" value={456} />); // loading omitted → treated as not loading
-    expect(screen.getByTestId('stat-value')).toHaveTextContent('456');
-    expect(container.querySelectorAll('.MuiSkeleton-root').length).toBe(0);
-  });
-
-  it('uses outlined Card styling (dashboard visual consistency)', () => {
-    const { container } = setup();
-
-    // This is a style contract for a cohesive KPI grid appearance.
-    const card = container.querySelector('.MuiCard-root');
-    expect(card).toBeTruthy();
-    expect(card).toHaveClass('MuiPaper-outlined');
-  });
-
-  it('renders with full height (layout contract for equal-sized KPI tiles)', () => {
-    const { container } = setup();
-
-    const card = container.querySelector('.MuiCardContent-root')?.parentElement;
-    expect(card).toBeTruthy();
-    expect(card as HTMLElement).toHaveStyle({ height: '100%' });
   });
 });

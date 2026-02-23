@@ -1,150 +1,192 @@
 /**
  * @file AuthProvider.test.tsx
+ * @module __tests__/context/auth/AuthProvider
+ * @description Contract tests for the `AuthProvider` implementation (session hydration + auth actions).
  *
- * @what_is_under_test AuthProvider component - wraps app with authentication context
- * @responsibility Provide AuthContext to children and manage session hydration
- * @out_of_scope useAuth hook implementation, actual API calls, OAuth flow
+ * Contract under test:
+ * - Renders children while hydrating session state.
+ * - If a DEMO session exists in localStorage, restores it and skips the `/api/me` request.
+ * - Otherwise, hydrates from `/api/me` and settles `loading` to false (success or failure).
+ * - `loginAsDemo()` sets a demo user and persists it.
+ * - `logout()` clears user state, broadcasts cross-tab logout, clears demo persistence, and toggles `logoutInProgress`.
+ *
+ * Out of scope:
+ * - HTTP client behavior beyond "called / not called" (covered by API layer tests).
+ * - OAuth server configuration; redirect destinations are treated as integration details.
+ *
+ * Test strategy:
+ * - Use a probe component that consumes the context and exposes observable state via test ids.
+ * - Mock `httpClient.get` and localStorage deterministically (no implicit globals).
+ * - Use fake timers only for the explicit logout safety timer.
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { AppUser } from '../../../context/auth/authTypes';
+import { AuthContext } from '../../../context/auth/AuthContext';
 import AuthProvider from '../../../context/auth/AuthProvider';
 
-// Mock httpClient to prevent actual API calls during testing
+const DEMO_KEY = 'ssp.demo.session';
+const STORAGE_FLAG = 'ssp:forceLogout';
+
+const httpClientMock = vi.hoisted(() => ({
+  get: vi.fn(),
+}));
+
 vi.mock('../../../api/httpClient', () => ({
-  default: {
-    get: vi.fn(() => Promise.resolve({ data: { email: 'test@example.com', fullName: 'Test User', role: 'USER' } })),
-  },
+  default: httpClientMock,
   API_BASE: 'http://api.example.com',
 }));
 
+function AuthProbe() {
+  const ctx = React.useContext(AuthContext);
+
+  if (!ctx) {
+    return <div data-testid="auth-probe">missing-provider</div>;
+  }
+
+  return (
+    <div data-testid="auth-probe">
+      <div data-testid="loading">{String(ctx.loading)}</div>
+      <div data-testid="logout-in-progress">{String(ctx.logoutInProgress)}</div>
+      <div data-testid="user-email">{ctx.user?.email ?? ''}</div>
+      <div data-testid="user-role">{ctx.user?.role ?? ''}</div>
+      <div data-testid="user-is-demo">{String(Boolean(ctx.user?.isDemo))}</div>
+
+      <button type="button" onClick={ctx.loginAsDemo}>
+        loginAsDemo
+      </button>
+      <button type="button" onClick={ctx.logout}>
+        logout
+      </button>
+    </div>
+  );
+}
+
+function renderAuth(ui?: React.ReactNode) {
+  return render(<AuthProvider>{ui ?? <AuthProbe />}</AuthProvider>);
+}
+
+function demoUserJson(overrides: Partial<AppUser> = {}) {
+  const demo: AppUser = {
+    email: 'demo@smartsupplypro.local',
+    fullName: 'Demo User',
+    role: 'DEMO',
+    isDemo: true,
+    ...overrides,
+  };
+  return JSON.stringify(demo);
+}
+
+beforeEach(() => {
+  httpClientMock.get.mockReset();
+
+  // Explicitly stub localStorage primitives to keep tests deterministic.
+  vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+  vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => undefined);
+  vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => undefined);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
+
 describe('AuthProvider', () => {
-  describe('Provider rendering', () => {
-    it('renders children correctly', () => {
-      render(
-        <AuthProvider>
-          <div data-testid="test-child">Test Content</div>
-        </AuthProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
-
-    it('renders multiple children', () => {
-      render(
-        <AuthProvider>
-          <div data-testid="child-1">Child 1</div>
-          <div data-testid="child-2">Child 2</div>
-          <div data-testid="child-3">Child 3</div>
-        </AuthProvider>
-      );
-
-      expect(screen.getByTestId('child-1')).toBeInTheDocument();
-      expect(screen.getByTestId('child-2')).toBeInTheDocument();
-      expect(screen.getByTestId('child-3')).toBeInTheDocument();
-    });
-
-    it('renders without children', () => {
-      const { container } = render(<AuthProvider></AuthProvider>);
-      expect(container).toBeInTheDocument();
-    });
+  it('renders children while session hydration runs', () => {
+    // Keep hydration pending so the test only covers the "children render immediately" contract.
+    httpClientMock.get.mockImplementation(() => new Promise<never>(() => {}));
+    renderAuth(<div data-testid="child">content</div>);
+    expect(screen.getByTestId('child')).toBeInTheDocument();
   });
 
-  describe('Context provision', () => {
-    it('provides AuthContext to children', () => {
-      const TestComponent = () => {
-        const context = expect.any(Object);
-        return <div>{context ? 'Context available' : 'No context'}</div>;
-      };
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      expect(screen.getByText(/Context|No context/i)).toBeInTheDocument();
+  it('restores demo session from localStorage and skips /api/me', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => (key === DEMO_KEY ? demoUserJson() : null));
+    httpClientMock.get.mockResolvedValue({
+      data: { email: 'server@example.com', fullName: 'Server User', role: 'USER' },
     });
+
+    renderAuth();
+
+    // Demo restore is synchronous (no network) and should settle loading quickly.
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
+    expect(screen.getByTestId('user-role')).toHaveTextContent('DEMO');
+    expect(httpClientMock.get).not.toHaveBeenCalled();
   });
 
-  describe('Session hydration', () => {
-    it('initializes with loading state', () => {
-      render(
-        <AuthProvider>
-          <div data-testid="test-child">Test</div>
-        </AuthProvider>
-      );
-
-      // AuthProvider hydrates on mount - verify it doesn't break rendering
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
+  it('hydrates from /api/me when no demo session exists (success)', async () => {
+    httpClientMock.get.mockResolvedValue({
+      data: { email: 'test@example.com', fullName: 'Test User', role: 'USER' },
     });
 
-    it('supports localStorage for demo sessions', () => {
-      const { container } = render(
-        <AuthProvider>
-          <div data-testid="test-child">Test</div>
-        </AuthProvider>
-      );
+    renderAuth();
 
-      expect(container).toBeInTheDocument();
-    });
-
-    it('handles DEMO_KEY localStorage key', () => {
-      // AuthProvider checks localStorage for DEMO_KEY
-      // Verify it handles localStorage gracefully
-      const { container } = render(
-        <AuthProvider>
-          <div>Test</div>
-        </AuthProvider>
-      );
-
-      expect(container).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
+    expect(httpClientMock.get).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
+    expect(screen.getByTestId('user-role')).toHaveTextContent('USER');
   });
 
-  describe('Error handling', () => {
-    it('handles localStorage unavailability gracefully', () => {
-      render(
-        <AuthProvider>
-          <div data-testid="test-child">Test</div>
-        </AuthProvider>
-      );
+  it('hydrates from /api/me when no demo session exists (failure)', async () => {
+    httpClientMock.get.mockRejectedValue(new Error('network'));
 
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
+    renderAuth();
 
-    it('handles malformed JSON in localStorage', () => {
-      render(
-        <AuthProvider>
-          <div data-testid="test-child">Test</div>
-        </AuthProvider>
-      );
-
-      expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('false'));
+    expect(screen.getByTestId('user-email')).toHaveTextContent('');
+    expect(screen.getByTestId('user-role')).toHaveTextContent('');
   });
 
-  describe('Component structure', () => {
-    it('wraps children with context provider', () => {
-      const { container } = render(
-        <AuthProvider>
-          <span>Content</span>
-        </AuthProvider>
-      );
+  it('loginAsDemo() sets demo user and persists it', async () => {
+    httpClientMock.get.mockResolvedValue({
+      data: { email: 'test@example.com', fullName: 'Test User', role: 'USER' },
+    });
+    const user = userEvent.setup();
 
-      expect(container.querySelector('span')).toBeInTheDocument();
+    renderAuth();
+    await user.click(screen.getByRole('button', { name: 'loginAsDemo' }));
+
+    expect(screen.getByTestId('user-role')).toHaveTextContent('DEMO');
+    expect(screen.getByTestId('user-is-demo')).toHaveTextContent('true');
+
+    // Persistence is a key part of the demo/deep-link contract.
+    expect(Storage.prototype.setItem).toHaveBeenCalledWith(DEMO_KEY, expect.any(String));
+  });
+
+  it('logout() clears user, broadcasts cross-tab flag, and resets logoutInProgress after the safety timeout', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => (key === DEMO_KEY ? demoUserJson() : null));
+
+    renderAuth();
+
+    // Demo restore happens inside an effect; flush it explicitly so we don't rely on real timers.
+    await act(async () => {
+      await Promise.resolve();
     });
 
-    it('maintains component hierarchy', () => {
-      render(
-        <AuthProvider>
-          <div className="outer">
-            <div className="inner">Nested</div>
-          </div>
-        </AuthProvider>
-      );
+    expect(screen.getByTestId('loading')).toHaveTextContent('false');
+    expect(screen.getByTestId('user-role')).toHaveTextContent('DEMO');
 
-      expect(screen.getByText('Nested')).toBeInTheDocument();
+    // Under fake timers, `userEvent` can hang depending on environment. `fireEvent` is sufficient here
+    // because we're verifying provider contracts (state + timers), not pointer/keyboard semantics.
+    fireEvent.click(screen.getByRole('button', { name: 'logout' }));
+
+    // Immediately after logout, user is cleared and logout is marked in-progress.
+    expect(screen.getByTestId('user-role')).toHaveTextContent('');
+    expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('true');
+
+    // Cross-tab broadcast uses a set/remove toggle pattern.
+    expect(Storage.prototype.setItem).toHaveBeenCalledWith(STORAGE_FLAG, '1');
+    expect(Storage.prototype.removeItem).toHaveBeenCalledWith(STORAGE_FLAG);
+    expect(Storage.prototype.removeItem).toHaveBeenCalledWith(DEMO_KEY);
+
+    // Safety valve: reset the flag after the timer elapses.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4000);
     });
+
+    expect(screen.getByTestId('logout-in-progress')).toHaveTextContent('false');
   });
 });
