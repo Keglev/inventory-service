@@ -40,13 +40,13 @@ const providerValue: SettingsContextType = {
 };
 
 describe('useSettings', () => {
-  it('throws helpful error when provider is missing', () => {
+  it('throws when used outside SettingsProvider (src/context/settings)', () => {
     expect(() => renderHook(() => useSettings())).toThrowError(
       'useSettings must be used within a SettingsProvider',
     );
   });
 
-  it('returns context value when wrapped by provider', () => {
+  it('returns SettingsContext value when wrapped by provider (src/context/settings)', () => {
     const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       React.createElement(SettingsContext.Provider, { value: providerValue, children });
 

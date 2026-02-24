@@ -1,1 +1,15 @@
-/* Empty CSS stub used during Vitest runs to avoid loading DataGrid styles */
+/*
+ * File: empty.css
+ * Description: Empty CSS stub used by the test environment.
+ *
+ * Purpose:
+ * - Some components import CSS (e.g., DataGrid styles). In Vitest/jsdom runs, we map those
+ *   imports to this file to avoid bundler/style-loader complexity.
+ *
+ * Contract under test:
+ * - Must exist and be importable as a CSS module.
+ * - Intentionally contains no rules.
+ *
+ * Out of scope:
+ * - Any styling or layout.
+ */

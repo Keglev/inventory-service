@@ -1,265 +1,140 @@
 /**
  * @file AppRouter.test.tsx
  * @module __tests__/routes/AppRouter
+ * @description Contract tests for `AppRouter`.
  *
- * @summary
- * Test suite for AppRouter component.
- * Tests: route rendering, public/authenticated route separation, loading state, 404 handling.
+ * Contract under test:
+ * - While auth is bootstrapping (`useAuth().loading === true`), render a progress indicator and do not render routes.
+ * - Public routes render under `AppPublicShell` (no `AppShell`).
+ * - `/logout` is intentionally public (outside both shells) to avoid guard races during cleanup.
+ * - Authenticated routes render under `AppShell` and are wrapped by `RequireAuth`.
+ * - Unknown routes fall back to the 404 page.
+ *
+ * Out of scope:
+ * - The internal implementation of `RequireAuth` and the shells.
+ * - Page-level behavior (each page has its own tests).
+ *
+ * Test strategy:
+ * - Mock `useAuth` deterministically and render at concrete paths using `MemoryRouter`.
+ * - Mock pages/shells as thin components with stable `data-testid` markers.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Outlet } from 'react-router-dom';
+import type { AuthContextType } from '../../context/auth/authTypes';
 import AppRouter from '../../routes/AppRouter';
-import { useAuth } from '../../hooks/useAuth';
 
-// Mock the auth hook
-vi.mock('../../hooks/useAuth', () => ({
-  useAuth: vi.fn(),
-}));
+const useAuthMock = vi.hoisted(() => vi.fn());
+vi.mock('../../hooks/useAuth', () => ({ useAuth: useAuthMock }));
 
-// Mock all page components
-vi.mock('../../pages/home/Home', () => ({
-  default: () => <div>Home Page</div>,
-}));
+// Vitest hoists `vi.mock()` calls, so any helper referenced by mock factories must
+// also be hoisted to avoid TDZ ("Cannot access before initialization") errors.
+const page = vi.hoisted(() => (label: string) => () => <div>{label}</div>);
 
-vi.mock('../../pages/auth/LoginPage', () => ({
-  default: () => <div>Login Page</div>,
-}));
+// Pages are mocked as static labels; routing behavior is what we care about here.
+vi.mock('../../pages/home/Home', () => ({ default: page('Home Page') }));
+vi.mock('../../pages/auth/LoginPage', () => ({ default: page('Login Page') }));
+vi.mock('../../pages/auth/AuthCallback', () => ({ default: page('Auth Callback') }));
+vi.mock('../../pages/auth/LogoutSuccess', () => ({ default: page('Logout Success') }));
+vi.mock('../../pages/auth/LogoutPage', () => ({ default: page('Logout Page') }));
+vi.mock('../../pages/system/NotFoundPage', () => ({ default: page('404 Not Found') }));
 
-vi.mock('../../pages/auth/AuthCallback', () => ({
-  default: () => <div>Auth Callback</div>,
-}));
-
-vi.mock('../../pages/auth/LogoutSuccess', () => ({
-  default: () => <div>Logout Success</div>,
-}));
-
-vi.mock('../../pages/auth/LogoutPage', () => ({
-  default: () => <div>Logout Page</div>,
-}));
-
-vi.mock('../../pages/system/NotFoundPage', () => ({
-  default: () => <div>404 Not Found</div>,
-}));
-
-vi.mock('../../pages/dashboard/Dashboard', () => ({
-  default: () => <div>Dashboard</div>,
-}));
-
-vi.mock('../../pages/inventory/InventoryBoard', () => ({
-  default: () => <div>Inventory Board</div>,
-}));
-
-vi.mock('../../pages/suppliers/SuppliersBoard', () => ({
-  default: () => <div>Suppliers Board</div>,
-}));
-
-vi.mock('../../pages/analytics/Analytics', () => ({
-  default: () => <div>Analytics</div>,
-}));
+vi.mock('../../pages/dashboard/Dashboard', () => ({ default: page('Dashboard') }));
+vi.mock('../../pages/inventory/InventoryBoard', () => ({ default: page('Inventory Board') }));
+vi.mock('../../pages/suppliers/SuppliersBoard', () => ({ default: page('Suppliers Board') }));
+vi.mock('../../pages/analytics/Analytics', () => ({ default: page('Analytics') }));
 
 vi.mock('../../app/layout/AppShell', () => ({
   default: () => (
-    <div>
-      AppShell: <Outlet />
+    <div data-testid="app-shell">
+      <Outlet />
     </div>
   ),
 }));
 
 vi.mock('../../app/public-shell', () => ({
   AppPublicShell: () => (
-    <div>
-      PublicShell: <Outlet />
+    <div data-testid="public-shell">
+      <Outlet />
     </div>
   ),
 }));
 
 vi.mock('../../features/auth', () => ({
   RequireAuth: ({ children }: { children: React.ReactNode }) => (
-    <div>RequireAuth: {children}</div>
+    <div data-testid="require-auth">{children}</div>
   ),
 }));
 
-const mockUseAuth = useAuth as unknown as { mockReturnValue: (value: unknown) => void };
+function setAuth(overrides: Partial<AuthContextType>) {
+  useAuthMock.mockReturnValue({
+    user: null,
+    setUser: vi.fn(),
+    login: vi.fn(),
+    loginAsDemo: vi.fn(),
+    logout: vi.fn(),
+    loading: false,
+    logoutInProgress: false,
+    ...overrides,
+  } satisfies AuthContextType);
+}
 
-const renderAt = (path: string) =>
-  render(
+function renderAt(path: string) {
+  return render(
     <MemoryRouter initialEntries={[path]}>
       <AppRouter />
     </MemoryRouter>
   );
-
-const setAuthLoading = (loading: boolean) => {
-  mockUseAuth.mockReturnValue({ loading });
-};
+}
 
 describe('AppRouter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setAuth({ loading: false });
   });
 
-  it('should render loading screen when auth is loading', () => {
-    // Arrange
-    setAuthLoading(true);
-
-    // Act
+  it('renders a progress indicator while auth is loading', () => {
+    setAuth({ loading: true });
     renderAt('/');
-
-    // Assert
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
-  it('should render routes when auth is not loading', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/');
-
-    // Assert
-    expect(screen.getByText(/PublicShell:/)).toBeInTheDocument();
-    expect(screen.getByText('Home Page')).toBeInTheDocument();
+  it.each([
+    ['/', 'Home Page'],
+    ['/login', 'Login Page'],
+    ['/auth', 'Auth Callback'],
+    ['/logout-success', 'Logout Success'],
+  ])('renders public route %s under PublicShell', (path, label) => {
+    renderAt(path);
+    expect(screen.getByTestId('public-shell')).toBeInTheDocument();
+    expect(screen.queryByTestId('app-shell')).not.toBeInTheDocument();
+    expect(screen.getByText(label)).toBeInTheDocument();
   });
 
-  it('should render home page on root path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/');
-
-    // Assert
-    expect(screen.getByText('Home Page')).toBeInTheDocument();
-  });
-
-  it('should render login page on /login path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/login');
-
-    // Assert
-    expect(screen.getByText('Login Page')).toBeInTheDocument();
-  });
-
-  it('should render auth callback on /auth path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/auth');
-
-    // Assert
-    expect(screen.getByText('Auth Callback')).toBeInTheDocument();
-  });
-
-  it('should render logout success on /logout-success path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/logout-success');
-
-    // Assert
-    expect(screen.getByText('Logout Success')).toBeInTheDocument();
-  });
-
-  it('should render logout page on /logout path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
+  it('treats /logout as a public route (outside both shells)', () => {
     renderAt('/logout');
-
-    // Assert
     expect(screen.getByText('Logout Page')).toBeInTheDocument();
+    expect(screen.queryByTestId('public-shell')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('app-shell')).not.toBeInTheDocument();
   });
 
-  it('should render dashboard in AppShell on /dashboard path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/dashboard');
-
-    // Assert
-    expect(screen.getByText(/AppShell:/)).toBeInTheDocument();
-    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+  it.each([
+    ['/dashboard', 'Dashboard'],
+    ['/inventory', 'Inventory Board'],
+    ['/suppliers', 'Suppliers Board'],
+    ['/analytics', 'Analytics'],
+    ['/analytics/overview', 'Analytics'],
+  ])('renders authenticated route %s under AppShell and RequireAuth', (path, label) => {
+    renderAt(path);
+    expect(screen.getByTestId('app-shell')).toBeInTheDocument();
+    expect(screen.getByTestId('require-auth')).toBeInTheDocument();
+    expect(screen.getByText(label)).toBeInTheDocument();
   });
 
-  it('should render inventory board in AppShell on /inventory path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/inventory');
-
-    // Assert
-    expect(screen.getByText(/AppShell:/)).toBeInTheDocument();
-    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
-    expect(screen.getByText('Inventory Board')).toBeInTheDocument();
-  });
-
-  it('should render suppliers board in AppShell on /suppliers path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/suppliers');
-
-    // Assert
-    expect(screen.getByText(/AppShell:/)).toBeInTheDocument();
-    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
-    expect(screen.getByText('Suppliers Board')).toBeInTheDocument();
-  });
-
-  it('should render analytics in AppShell on /analytics path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/analytics');
-
-    // Assert
-    expect(screen.getByText(/AppShell:/)).toBeInTheDocument();
-    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
-    expect(screen.getByText('Analytics')).toBeInTheDocument();
-  });
-
-  it('should render 404 not found on unknown path', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
+  it('renders 404 on unknown paths', () => {
     renderAt('/unknown-path');
-
-    // Assert
     expect(screen.getByText('404 Not Found')).toBeInTheDocument();
-  });
-
-  it('should wrap authenticated routes with RequireAuth', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/dashboard');
-
-    // Assert
-    expect(screen.getByText(/RequireAuth:/)).toBeInTheDocument();
-  });
-
-  it('should render public routes outside AppShell', () => {
-    // Arrange
-    setAuthLoading(false);
-
-    // Act
-    renderAt('/');
-
-    // Assert
-    expect(screen.getByText(/PublicShell:/)).toBeInTheDocument();
-    expect(screen.queryByText(/AppShell:/)).not.toBeInTheDocument();
   });
 });

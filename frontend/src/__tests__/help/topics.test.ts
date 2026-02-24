@@ -1,112 +1,74 @@
-import { describe, it, expect } from 'vitest';
-import {
-  HELP_TOPICS,
-  getHelpTopic,
-  getTopicsByCategory,
-  getAllCategories,
-} from '@/help/topics';
+/**
+ * @file topics.test.ts
+ * @module __tests__/help/topics
+ * @description Contract tests for the help topics registry and public helpers.
+ *
+ * Contract under test:
+ * - `HELP_TOPICS` entries are internally consistent (key === topic.id) and contain valid i18n keys.
+ * - `getHelpTopic(id)` returns the registry entry for known IDs and `undefined` otherwise.
+ * - `getTopicsByCategory(category)` returns only topics in that category and is non-empty for all supported categories.
+ * - `getAllCategories()` returns the supported categories in sorted order (unique).
+ * - Backward-compat alias: `inventory.manage` intentionally maps to the same i18n keys as `inventory.overview`.
+ *
+ * Out of scope:
+ * - i18n resource presence (translation files).
+ * - UI rendering of help content.
+ *
+ * Test strategy:
+ * - Treat this as a data + pure-function contract.
+ * - Use table-driven assertions and only pin IDs that are explicit compatibility contracts.
+ */
 
-// Verifies help topic registry structure, lookup functions, and category filtering.
+import { describe, expect, it } from 'vitest';
+import { HELP_TOPICS, getAllCategories, getHelpTopic, getTopicsByCategory } from '@/help/topics';
 
-describe('Help Topics Registry', () => {
-  it('contains all expected topics with valid metadata', () => {
-    // Each topic should have required fields: id, titleKey, bodyKey, category.
-    Object.entries(HELP_TOPICS).forEach(([key, topic]) => {
+// Categories are treated as stable navigation buckets.
+// The public helper contract is that `getAllCategories()` returns them in sorted order.
+const CATEGORIES = ['analytics', 'general', 'inventory', 'settings', 'suppliers'] as const;
+
+describe('help topic registry', () => {
+  it('keeps registry keys and topic metadata consistent', () => {
+    // This protects against accidental drift when adding/removing topics.
+    for (const [key, topic] of Object.entries(HELP_TOPICS)) {
       expect(topic.id).toBe(key);
-      expect(topic.titleKey).toBeTruthy();
-      expect(topic.bodyKey).toBeTruthy();
-      expect(topic.category).toMatch(/^(general|inventory|suppliers|analytics|settings)$/);
-    });
+      expect(topic.titleKey).toMatch(/^help:/);
+      expect(topic.bodyKey).toMatch(/^help:/);
+      expect(CATEGORIES).toContain(topic.category);
+    }
   });
 
-  it('defines at least one general, inventory, suppliers, analytics, and settings topic', () => {
-    // Ensure coverage across all major categories.
-    const categories = new Set(Object.values(HELP_TOPICS).map((t) => t.category));
-    expect(categories.has('general')).toBe(true);
-    expect(categories.has('inventory')).toBe(true);
-    expect(categories.has('suppliers')).toBe(true);
-    expect(categories.has('analytics')).toBe(true);
-    expect(categories.has('settings')).toBe(true);
+  it('exposes all supported categories via getAllCategories() (sorted, unique)', () => {
+    // The app treats these categories as stable navigation buckets.
+    expect(getAllCategories()).toEqual([...CATEGORIES]);
   });
 });
 
-describe('getHelpTopic()', () => {
-  it('returns topic for known ID', () => {
+describe('getHelpTopic(id)', () => {
+  it('returns the registry entry for known IDs (by reference)', () => {
     const topic = getHelpTopic('app.main');
-
-    expect(topic).toBeDefined();
-    expect(topic?.id).toBe('app.main');
-    expect(topic?.titleKey).toBe('help:app.main.title');
-    expect(topic?.bodyKey).toBe('help:app.main.body');
+    expect(topic).toBe(HELP_TOPICS['app.main']);
   });
 
-  it('returns undefined for unknown ID', () => {
-    const topic = getHelpTopic('nonexistent.topic');
-
-    expect(topic).toBeUndefined();
+  it('returns undefined for unknown IDs', () => {
+    expect(getHelpTopic('nonexistent.topic')).toBeUndefined();
   });
 
-  it('handles inventory topics correctly', () => {
-    // Verify inventory topics are retrievable and aliased correctly.
+  it('preserves the inventory alias compatibility contract', () => {
+    // `inventory.manage` is an alias to keep older deep-links and references working.
     const overview = getHelpTopic('inventory.overview');
     const manage = getHelpTopic('inventory.manage');
 
     expect(overview).toBeDefined();
     expect(manage).toBeDefined();
     expect(manage?.titleKey).toBe(overview?.titleKey);
+    expect(manage?.bodyKey).toBe(overview?.bodyKey);
   });
 });
 
-describe('getTopicsByCategory()', () => {
-  it('returns all topics for a given category', () => {
-    // Filter by inventory category.
-    const inventoryTopics = getTopicsByCategory('inventory');
-
-    expect(inventoryTopics.length).toBeGreaterThan(0);
-    inventoryTopics.forEach((topic) => {
-      expect(topic.category).toBe('inventory');
-    });
-  });
-
-  it('returns empty array for empty category', () => {
-    // If a category has no topics, return empty (won't happen with current data, but good practice).
-    const topics = getTopicsByCategory('general');
-
-    expect(Array.isArray(topics)).toBe(true);
-  });
-
-  it('returns different sets for different categories', () => {
-    // Topics in inventory and suppliers should differ.
-    const inventoryTopics = getTopicsByCategory('inventory');
-    const supplierTopics = getTopicsByCategory('suppliers');
-
-    expect(inventoryTopics.length).toBeGreaterThan(0);
-    expect(supplierTopics.length).toBeGreaterThan(0);
-    expect(inventoryTopics).not.toEqual(supplierTopics);
-  });
-});
-
-describe('getAllCategories()', () => {
-  it('returns all unique categories in sorted order', () => {
-    const categories = getAllCategories();
-
-    // Should contain all five categories.
-    expect(categories).toContain('general');
-    expect(categories).toContain('inventory');
-    expect(categories).toContain('suppliers');
-    expect(categories).toContain('analytics');
-    expect(categories).toContain('settings');
-
-    // Should be sorted.
-    const sortedCategories = [...categories].sort();
-    expect(categories).toEqual(sortedCategories);
-  });
-
-  it('returns only unique categories even if topics share categories', () => {
-    // Topics may belong to same category; getAllCategories should deduplicate.
-    const categories = getAllCategories();
-    const uniqueCount = new Set(categories).size;
-
-    expect(categories.length).toBe(uniqueCount);
+describe('getTopicsByCategory(category)', () => {
+  it.each(CATEGORIES)('returns only %s topics (and the set is non-empty)', (category) => {
+    const topics = getTopicsByCategory(category);
+    expect(topics.length).toBeGreaterThan(0);
+    expect(topics.every((t) => t.category === category)).toBe(true);
   });
 });

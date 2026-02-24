@@ -1,27 +1,33 @@
 /**
  * @file App.test.tsx
  * @module __tests__/App
+ * @description Contract tests for the root `App` component.
  *
- * @summary
- * Test suite for App component.
- * Tests the root application component including routing, error boundary, and layout.
+ * Contract under test:
+ * - Renders the global layout: AppRouter, footer, and help panel.
+ * - Keeps a deterministic DOM order (router -> footer -> help panel) to match the flex-column layout.
  *
- * @what_is_under_test App component - root application with routing and global layout
- * @responsibility Render AppRouter, Footer, and HelpPanel; handle render errors gracefully
- * @out_of_scope Specific route implementations, individual page content, Router configuration
+ * Out of scope:
+ * - MUI implementation details (e.g., `Box` class names / generated styles).
+ * - Router configuration and page behavior (tested elsewhere).
+ *
+ * Test strategy:
+ * - Mock leaf components as stable `data-testid` markers.
+ * - Assert presence and basic ordering only.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ReactNode } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 // Mock providers
 vi.mock('../context/settings/SettingsContext', () => ({
-  SettingsProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  SettingsProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock('../context/help/HelpContext', () => ({
-  HelpProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  HelpProvider: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock('../routes/AppRouter', () => ({
@@ -38,62 +44,34 @@ vi.mock('../components/help/HelpPanel', () => ({
 
 import App from '../App';
 
+function renderSubject() {
+  return render(
+    <MemoryRouter>
+      <App />
+    </MemoryRouter>
+  );
+}
+
 describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
   });
 
-  it('renders the application', () => {
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByTestId('app-router')).toBeInTheDocument();
-  });
-
-  it('renders the footer', () => {
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByTestId('app-footer')).toBeInTheDocument();
-  });
-
-  it('renders the help panel', () => {
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByTestId('help-panel')).toBeInTheDocument();
-  });
-
-  it('renders all main layout components', () => {
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
-    );
-
+  it('renders the global layout components', () => {
+    renderSubject();
     expect(screen.getByTestId('app-router')).toBeInTheDocument();
     expect(screen.getByTestId('app-footer')).toBeInTheDocument();
     expect(screen.getByTestId('help-panel')).toBeInTheDocument();
   });
 
-  it('has proper flex layout container', () => {
-    const { container } = render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
-    );
+  it('renders components in router -> footer -> help order', () => {
+    renderSubject();
+    const router = screen.getByTestId('app-router');
+    const footer = screen.getByTestId('app-footer');
+    const helpPanel = screen.getByTestId('help-panel');
 
-    const mainBox = container.querySelector('[class*="MuiBox"]');
-    expect(mainBox).toBeInTheDocument();
+    expect(router.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(footer.compareDocumentPosition(helpPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
