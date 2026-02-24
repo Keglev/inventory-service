@@ -156,6 +156,15 @@ jobs:
         with:
           node-version: '20'
 
+      # Keep npm deterministic across environments.
+      # This pipeline runs `npm ci` inside `frontend/` for TypeDoc.
+      - name: Pin npm version
+        run: |
+          set -euo pipefail
+          echo "Before: $(npm --version)"
+          npm install -g npm@11.10.1
+          echo "After:  $(npm --version)"
+
       - name: Install ReDoc CLI
         run: npm install -g @redocly/cli
 

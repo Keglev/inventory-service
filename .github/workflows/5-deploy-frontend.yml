@@ -1,3 +1,32 @@
+#+#+#+#+---------------------------------------------------------------------
+# Smart Supply Pro – Frontend (React + Vite + Nginx) Production Deployment
+#
+# PIPELINE ROLE: Continuous deployment (CD) to Koyeb for the frontend service.
+#
+# PURPOSE:
+# - Trigger automatically after the frontend CI workflow succeeds on main
+# - Or allow a manual deployment run via workflow_dispatch
+# - Deploy a deterministic container image reference pinned by digest
+# - Enforce a health gate via the platform’s authoritative status
+# - Perform a lightweight public URL smoke test after HEALTHY
+#
+# TRIGGERS:
+# - workflow_run: on successful completion of "4️⃣ Frontend CI - Build & Test" on main
+# - workflow_dispatch: manual run (useful for redeploy / incident response)
+#
+# DESIGN PRINCIPLES:
+# - Immutable deployments: Deploy by image digest (sha256) rather than mutable tags
+# - Eventual consistency aware: Docker Hub manifest lookup includes retries
+# - Least-privilege: Repository contents are read-only; secrets used only where needed
+# - Observability-first: Emit grouped diagnostics on health timeouts and failures
+#
+# TROUBLESHOOTING:
+# - If digest resolution fails: Confirm image was pushed for the commit SHA
+# - If deploy fails: Verify Koyeb secrets (token/app/service) and registry secret exists
+# - If health gate times out: Inspect Koyeb deployments/instances and backend reachability
+# - If smoke test fails but HEALTHY: Suspect CDN/edge routing, SPA base path, or CORS
+#+#+#+#+---------------------------------------------------------------------
+
 name: 5️⃣ Deploy Frontend to production (Koyeb)
 
 on:
@@ -22,10 +51,24 @@ jobs:
       FRONTEND_URL: https://inventory-service.koyeb.app
 
     steps:
+      # ----------------------------------------------------------------------
+      # 1) Source checkout
+      # ----------------------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Reuse your existing Docker tag logic, or simply use SHA:
+      # ----------------------------------------------------------------------
+      # 2) Resolve immutable image reference (tag -> digest)
+      #
+      # Why:
+      # - CI produces images tagged by commit SHA.
+      # - Deploying by digest ensures deterministic rollouts and safe rollback.
+      # - Docker Hub can be eventually consistent; retries reduce flakiness.
+      #
+      # Notes:
+      # - Works for both workflow_run (head_sha) and workflow_dispatch (github.sha).
+      # - Uses anonymous pull token for public registry manifest reads.
+      # ----------------------------------------------------------------------
       - name: Resolve image reference (tag -> digest)
         id: img
         run: |
@@ -108,12 +151,14 @@ jobs:
           echo "✅ Resolved: ${IMAGE_REF}"
           echo "image_ref=${IMAGE_REF}" >> "$GITHUB_OUTPUT"
 
-      # (Optional) Validate image exists, similar to backend 3-deploy-fly.yml 
+          # (Optional) Validate image exists, similar to backend 3-deploy-fly.yml
 
       # ----------------------------------------------------------------------
-      # 5) Install Koyeb CLI (latest, with retry)
-      #    - Fetches the latest release from GitHub with basic retry logic.
-      #    - Installs to $HOME/.koyeb/bin and exports PATH.
+      # 3) Install Koyeb CLI (latest, with retry)
+      #
+      # Why:
+      # - Use the platform CLI as the source of truth for service status.
+      # - Install latest by default; keep a fallback pin to avoid breakage.
       # ----------------------------------------------------------------------
       - name: Install Koyeb CLI
         run: |
@@ -135,13 +180,16 @@ jobs:
           rm /tmp/koyeb.tgz
           echo "$HOME/.koyeb/bin" >> "$GITHUB_PATH"
 
-
+      # Basic diagnostic: confirms CLI is available on PATH.
       - name: Koyeb CLI version
         run: koyeb version
 
       # ----------------------------------------------------------------------
-      # 6) Authenticate Koyeb (non-interactive CI)
-      #    - Write token to ~/.koyeb.yaml with strict perms (no shell history/env leaks).
+      # 4) Authenticate Koyeb (non-interactive CI)
+      #
+      # Security notes:
+      # - Avoid echoing secrets; write token to file with restrictive perms.
+      # - Keep token scope minimal and rotate regularly.
       # ----------------------------------------------------------------------
       - name: Authenticate Koyeb (CI mode)
         env:
@@ -153,6 +201,12 @@ jobs:
           printf "token: %s\n" "$KOYEB_TOKEN" > "$HOME/.koyeb.yaml"
           chmod 600 "$HOME/.koyeb.yaml"
 
+      # ----------------------------------------------------------------------
+      # 5) Validate the resolved image reference is well-formed
+      #
+      # Why:
+      # - Fail fast on malformed output before calling the deployment API.
+      # ----------------------------------------------------------------------
       - name: Validate image ref
         run: |
           set -euo pipefail
@@ -174,9 +228,12 @@ jobs:
           exit 1
 
       # ----------------------------------------------------------------------
-      # 7) Deploy to Koyeb (pin by digest + keep ports pinned)
-      #    - Pins by content digest for deterministic rollouts and safe rollback.
-      #    - Always pass --ports to prevent accidental port config drift.
+      # 6) Deploy to Koyeb (pin by digest + keep ports pinned)
+      #
+      # Why:
+      # - Digest pinning: deterministic rollouts and rollbacks.
+      # - Passing --ports every time prevents accidental config drift.
+      # - Retries: Koyeb <-> registry connectivity can be flaky.
       # ----------------------------------------------------------------------
       - name: Deploy to Koyeb (pin by digest + keep ports)
         run: |
@@ -201,10 +258,13 @@ jobs:
 
           echo "❌ All deploy attempts failed"
           exit 1   
+
       # ----------------------------------------------------------------------
-      # 8) Post-deploy health gate (authoritative platform status)
-      #    - Wait for service status=HEALTHY via Koyeb CLI (not public curl).
-      #    - On timeout, emit diagnostics to aid triage.
+      # 7) Post-deploy health gate (authoritative platform status)
+      #
+      # Why:
+      # - Prefer platform status over public curl to avoid transient edge noise.
+      # - On timeout, emit Koyeb diagnostics to speed up incident triage.
       # ----------------------------------------------------------------------
       - name: Wait for Koyeb service to be HEALTHY
         run: |
@@ -228,9 +288,11 @@ jobs:
           exit 1
 
       # ----------------------------------------------------------------------
-      # 9) (Optional) Public URL smoke test
-      #    - After platform reports healthy, verify the public endpoint returns 200.
-      #    - This catches CDN/edge/route misconfig independent of container health.
+      # 8) (Optional) Public URL smoke test
+      #
+      # Why:
+      # - After HEALTHY, verify the public endpoint returns 200.
+      # - Catches CDN/edge/routing issues independent of container health.
       # ----------------------------------------------------------------------
       - name: Smoke test public URL
         if: ${{ success() }}
