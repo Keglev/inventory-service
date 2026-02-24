@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/25</span>
+                <span class='fraction'>25/25</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/25</span>
+                <span class='fraction'>25/25</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -88,56 +88,56 @@
 <a name='L23'></a><a href='#L23'>23</a>
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
-<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >/**<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-<span class="cstat-no" title="statement not covered" > * @file useSettings.ts</span>
-<span class="cstat-no" title="statement not covered" > * @description</span>
-<span class="cstat-no" title="statement not covered" > * Custom hook for accessing global settings context.</span>
-<span class="cstat-no" title="statement not covered" > * Provides type-safe access to user preferences and system info throughout the app.</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @usage</span>
-<span class="cstat-no" title="statement not covered" > * import { useSettings } from '../hooks/useSettings'</span>
-<span class="cstat-no" title="statement not covered" > * const { userPreferences, systemInfo } = useSettings()</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >import { SettingsContext, type SettingsContextType } from '../context/settings/SettingsContext';</span>
-<span class="cstat-no" title="statement not covered" >import { createContextHook } from './createContextHook';</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >/**</span>
-<span class="cstat-no" title="statement not covered" > * Access global settings context from anywhere in the component tree.</span>
-<span class="cstat-no" title="statement not covered" > * Must be used within a component wrapped by SettingsProvider.</span>
-<span class="cstat-no" title="statement not covered" > * @returns Settings context with preferences, system info, and utility functions</span>
-<span class="cstat-no" title="statement not covered" > * @throws Error if used outside SettingsProvider</span>
-<span class="cstat-no" title="statement not covered" > * @example</span>
-<span class="cstat-no" title="statement not covered" > * const { userPreferences, systemInfo, setUserPreferences } = useSettings()</span>
-<span class="cstat-no" title="statement not covered" > * console.log(userPreferences.dateFormat)  // → 'DD.MM.YYYY'</span>
-<span class="cstat-no" title="statement not covered" > * console.log(systemInfo.database)         // → 'Oracle ADB'</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" >export const useSettings = createContextHook&lt;SettingsContextType&gt;(SettingsContext, 'useSettings');</span>
+<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file useSettings.ts
+ * @description
+ * Custom hook for accessing global settings context.
+ * Provides type-safe access to user preferences and system info throughout the app.
+ *
+ * @usage
+ * import { useSettings } from '../hooks/useSettings'
+ * const { userPreferences, systemInfo } = useSettings()
+ */
+&nbsp;
+import { SettingsContext, type SettingsContextType } from '../context/settings/SettingsContext';
+import { createContextHook } from './createContextHook';
+&nbsp;
+/**
+ * Access global settings context from anywhere in the component tree.
+ * Must be used within a component wrapped by SettingsProvider.
+ * @returns Settings context with preferences, system info, and utility functions
+ * @throws Error if used outside SettingsProvider
+ * @example
+ * const { userPreferences, systemInfo, setUserPreferences } = useSettings()
+ * console.log(userPreferences.dateFormat)  // → 'DD.MM.YYYY'
+ * console.log(systemInfo.database)         // → 'Oracle ADB'
+ */
+export const useSettings = createContextHook&lt;SettingsContextType&gt;(SettingsContext, 'useSettings');
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -145,7 +145,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-23T16:25:03.932Z
+                at 2026-02-24T14:36:33.197Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/36</span>
+                <span class='fraction'>36/36</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/36</span>
+                <span class='fraction'>36/36</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -99,78 +99,78 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >/**<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-<span class="cstat-no" title="statement not covered" > * @file useDebounced.ts</span>
-<span class="cstat-no" title="statement not covered" > * @description</span>
-<span class="cstat-no" title="statement not covered" > * Generic debounce hook for delaying value updates.</span>
-<span class="cstat-no" title="statement not covered" > * Useful for debouncing search queries, text input, or any value type.</span>
-<span class="cstat-no" title="statement not covered" > * Reduces server chatter and UI updates while user is typing.</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * @usage</span>
-<span class="cstat-no" title="statement not covered" > * const debouncedSearchTerm = useDebounced(searchTerm, 350)</span>
-<span class="cstat-no" title="statement not covered" > * const debouncedQuery = useDebounced(itemQuery, 250)</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >import * as React from 'react';</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >/**</span>
-<span class="cstat-no" title="statement not covered" > * Debounce a value by a specified delay in milliseconds.</span>
-<span class="cstat-no" title="statement not covered" > * @template T - The type of value to debounce</span>
-<span class="cstat-no" title="statement not covered" > * @param value - The value to debounce</span>
-<span class="cstat-no" title="statement not covered" > * @param delayMs - Delay in milliseconds (default: 250)</span>
-<span class="cstat-no" title="statement not covered" > * @returns The debounced value</span>
-<span class="cstat-no" title="statement not covered" > * @example</span>
-<span class="cstat-no" title="statement not covered" > * const debouncedSearch = useDebounced(searchInput, 500)</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" >export function useDebounced&lt;T&gt;(value: T, delayMs: number = 250): T {</span>
-<span class="cstat-no" title="statement not covered" >  const [debouncedValue, setDebouncedValue] = React.useState(value);</span>
-<span class="cstat-no" title="statement not covered" >  // Update debounced value after delay</span>
-<span class="cstat-no" title="statement not covered" >  React.useEffect(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    const handler = setTimeout(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      setDebouncedValue(value);</span>
-<span class="cstat-no" title="statement not covered" >    }, delayMs);</span>
-<span class="cstat-no" title="statement not covered" >    // Cleanup timeout if value or delay changes</span>
-<span class="cstat-no" title="statement not covered" >    return () =&gt; clearTimeout(handler);</span>
-<span class="cstat-no" title="statement not covered" >  }, [value, delayMs]);</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  return debouncedValue;</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @file useDebounced.ts
+ * @description
+ * Generic debounce hook for delaying value updates.
+ * Useful for debouncing search queries, text input, or any value type.
+ * Reduces server chatter and UI updates while user is typing.
+ *
+ * @usage
+ * const debouncedSearchTerm = useDebounced(searchTerm, 350)
+ * const debouncedQuery = useDebounced(itemQuery, 250)
+ */
+&nbsp;
+import * as React from 'react';
+&nbsp;
+/**
+ * Debounce a value by a specified delay in milliseconds.
+ * @template T - The type of value to debounce
+ * @param value - The value to debounce
+ * @param delayMs - Delay in milliseconds (default: 250)
+ * @returns The debounced value
+ * @example
+ * const debouncedSearch = useDebounced(searchInput, 500)
+ */
+export function useDebounced&lt;T&gt;(value: T, delayMs: number = 250): T {
+  const [debouncedValue, setDebouncedValue] = React.useState(value);
+  // Update debounced value after delay
+  React.useEffect(() =&gt; {
+    const handler = setTimeout(() =&gt; {
+      setDebouncedValue(value);
+    }, delayMs);
+    // Cleanup timeout if value or delay changes
+    return () =&gt; clearTimeout(handler);
+  }, [value, delayMs]);
+&nbsp;
+  return debouncedValue;
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -178,7 +178,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-23T16:25:04.041Z
+                at 2026-02-24T14:36:33.312Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
