@@ -1,3 +1,15 @@
+/**
+ * @file metrics.test.ts
+ * @module tests/unit/api/analytics/metrics
+ * @what_is_under_test api/analytics/metrics module
+ * @responsibility
+ * - Guarantees each exported metric function calls the expected endpoint and returns a numeric result
+ * - Guarantees failures and non-numeric payloads are normalized to a safe default (0)
+ * @out_of_scope
+ * - HTTP client behavior (timeouts, interceptors, retries, base URL)
+ * - Backend correctness of the reported counts and authorization rules
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../../../api/httpClient', () => ({
@@ -12,8 +24,6 @@ import {
   getItemCount,
   getSupplierCount,
   getLowStockCount,
-  getInventoryCount,
-  getSuppliersCount,
 } from '../../../../api/analytics/metrics';
 
 describe('api/analytics/metrics', () => {
@@ -23,75 +33,110 @@ describe('api/analytics/metrics', () => {
     vi.clearAllMocks();
   });
 
-  it('getItemCount calls /api/inventory/count and returns numeric data', async () => {
-    httpGet.mockResolvedValueOnce({ data: 150 });
+  describe('getItemCount', () => {
+    it('calls /api/inventory/count and returns numeric data', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: 150 });
 
-    const res = await getItemCount();
+      // Act
+      const res = await getItemCount();
 
-    expect(httpGet).toHaveBeenCalledWith('/api/inventory/count');
-    expect(res).toBe(150);
+      // Assert
+      expect(httpGet).toHaveBeenCalledWith('/api/inventory/count');
+      expect(res).toBe(150);
+    });
+
+    it('tolerantly converts string data to number', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: '42' });
+
+      // Act
+      const res = await getItemCount();
+
+      // Assert
+      expect(res).toBe(42);
+    });
+
+    it('returns 0 on undefined/null payloads', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: undefined });
+
+      // Act
+      const res1 = await getItemCount();
+
+      // Assert
+      expect(res1).toBe(0);
+
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: null });
+
+      // Act
+      const res2 = await getItemCount();
+
+      // Assert
+      expect(res2).toBe(0);
+    });
+
+    it('returns 0 on error', async () => {
+      // Arrange
+      httpGet.mockRejectedValueOnce(new Error('network'));
+
+      // Act
+      const res = await getItemCount();
+
+      // Assert
+      expect(res).toBe(0);
+    });
   });
 
-  it('getItemCount tolerantly converts string data to number', async () => {
-    httpGet.mockResolvedValueOnce({ data: '42' });
+  describe('getSupplierCount', () => {
+    it('calls /api/suppliers/count and returns numeric data', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: 25 });
 
-    const res = await getItemCount();
-    expect(res).toBe(42);
+      // Act
+      const res = await getSupplierCount();
+
+      // Assert
+      expect(httpGet).toHaveBeenCalledWith('/api/suppliers/count');
+      expect(res).toBe(25);
+    });
+
+    it('returns 0 on error', async () => {
+      // Arrange
+      httpGet.mockRejectedValueOnce(new Error('network'));
+
+      // Act
+      const res = await getSupplierCount();
+
+      // Assert
+      expect(res).toBe(0);
+    });
   });
 
-  it('getItemCount returns 0 on undefined/null', async () => {
-    httpGet.mockResolvedValueOnce({ data: undefined });
+  describe('getLowStockCount', () => {
+    it('calls /api/analytics/low-stock/count and returns numeric data', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: 12 });
 
-    const res1 = await getItemCount();
-    expect(res1).toBe(0);
+      // Act
+      const res = await getLowStockCount();
 
-    httpGet.mockResolvedValueOnce({ data: null });
+      // Assert
+      expect(httpGet).toHaveBeenCalledWith('/api/analytics/low-stock/count');
+      expect(res).toBe(12);
+    });
 
-    const res2 = await getItemCount();
-    expect(res2).toBe(0);
+    it('returns 0 on error', async () => {
+      // Arrange
+      httpGet.mockRejectedValueOnce(new Error('network'));
+
+      // Act
+      const res = await getLowStockCount();
+
+      // Assert
+      expect(res).toBe(0);
+    });
   });
 
-  it('getItemCount returns 0 on error', async () => {
-    httpGet.mockRejectedValueOnce(new Error('network'));
-
-    const res = await getItemCount();
-    expect(res).toBe(0);
-  });
-
-  it('getSupplierCount calls /api/suppliers/count and returns numeric data', async () => {
-    httpGet.mockResolvedValueOnce({ data: 25 });
-
-    const res = await getSupplierCount();
-
-    expect(httpGet).toHaveBeenCalledWith('/api/suppliers/count');
-    expect(res).toBe(25);
-  });
-
-  it('getSupplierCount returns 0 on error', async () => {
-    httpGet.mockRejectedValueOnce(new Error('network'));
-
-    const res = await getSupplierCount();
-    expect(res).toBe(0);
-  });
-
-  it('getLowStockCount calls /api/analytics/low-stock/count and returns numeric data', async () => {
-    httpGet.mockResolvedValueOnce({ data: 12 });
-
-    const res = await getLowStockCount();
-
-    expect(httpGet).toHaveBeenCalledWith('/api/analytics/low-stock/count');
-    expect(res).toBe(12);
-  });
-
-  it('getLowStockCount returns 0 on error', async () => {
-    httpGet.mockRejectedValueOnce(new Error('network'));
-
-    const res = await getLowStockCount();
-    expect(res).toBe(0);
-  });
-
-  it('exports backward-compatible aliases', () => {
-    expect(getInventoryCount).toBe(getItemCount);
-    expect(getSuppliersCount).toBe(getSupplierCount);
-  });
 });

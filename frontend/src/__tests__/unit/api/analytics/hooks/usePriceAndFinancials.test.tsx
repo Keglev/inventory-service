@@ -1,19 +1,19 @@
 /**
- * @file usePriceAndFinancials.test.ts
+ * @file usePriceAndFinancials.test.tsx
  * @module __tests__/unit/api/analytics/hooks/usePriceAndFinancials
- *
- * @summary
- * Test suite for usePriceAndFinancials hook.
- * Tests price tracking and financial metrics calculation.
- *
- * @what_is_under_test usePriceAndFinancials hook - tracks pricing and financial data
- * @responsibility Fetch and calculate price trends, margins, and revenue metrics
- * @out_of_scope Market price APIs, currency conversions, financial report generation
+ * @what_is_under_test usePriceTrendQuery and useFinancialSummaryQuery hooks
+ * @responsibility
+ * - Delegates to the analytics API with the expected params contract
+ * - Gates data fetching behind an explicit enabled flag
+ * - Exposes React Query success state when dependencies resolve
+ * @out_of_scope
+ * - Financial correctness (margins/revenue math) and backend aggregation semantics
+ * - Currency conversion, rounding rules, and date parsing/validation behavior
  */
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
 
 import type { PriceTrendParams, FinancialSummaryParams } from '../../../../../api/analytics/validation';
 
@@ -29,27 +29,16 @@ import {
   useFinancialSummaryQuery,
 } from '../../../../../api/analytics/hooks/usePriceAndFinancials';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-    },
-  });
-
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  };
-}
-
 describe('usePriceAndFinancials hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('usePriceTrendQuery calls getPriceTrend with itemId + params', async () => {
+    // Arrange
     vi.mocked(getPriceTrend).mockResolvedValue([] as never);
 
-    const wrapper = createWrapper();
+    const wrapper = createReactQueryWrapper({ retry: false });
 
     const params: PriceTrendParams = {
       itemId: 'ITEM-123',
@@ -58,18 +47,21 @@ describe('usePriceAndFinancials hooks', () => {
       supplierId: 'SUP-001',
     };
 
+    // Act
     const { result } = renderHook(() => usePriceTrendQuery(params, true), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
+    // Assert
     expect(getPriceTrend).toHaveBeenCalledTimes(1);
     expect(getPriceTrend).toHaveBeenCalledWith('ITEM-123', params);
   });
 
   it('useFinancialSummaryQuery calls getFinancialSummary with params', async () => {
+    // Arrange
     vi.mocked(getFinancialSummary).mockResolvedValue({} as never);
 
-    const wrapper = createWrapper();
+    const wrapper = createReactQueryWrapper({ retry: false });
 
     const params: FinancialSummaryParams = {
       from: '2025-10-01',
@@ -77,16 +69,19 @@ describe('usePriceAndFinancials hooks', () => {
       supplierId: 'SUP-001',
     };
 
+    // Act
     const { result } = renderHook(() => useFinancialSummaryQuery(params, true), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
+    // Assert
     expect(getFinancialSummary).toHaveBeenCalledTimes(1);
     expect(getFinancialSummary).toHaveBeenCalledWith(params);
   });
 
   it('does not fetch when enabled=false', async () => {
-    const wrapper = createWrapper();
+    // Arrange
+    const wrapper = createReactQueryWrapper({ retry: false });
 
     const priceParams: PriceTrendParams = {
       itemId: 'ITEM-123',
@@ -99,11 +94,13 @@ describe('usePriceAndFinancials hooks', () => {
       to: '2025-10-31',
     };
 
+    // Act
     renderHook(() => usePriceTrendQuery(priceParams, false), { wrapper });
     renderHook(() => useFinancialSummaryQuery(finParams, false), { wrapper });
 
     await Promise.resolve();
 
+    // Assert
     expect(getPriceTrend).not.toHaveBeenCalled();
     expect(getFinancialSummary).not.toHaveBeenCalled();
   });

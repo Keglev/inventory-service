@@ -1,19 +1,19 @@
 /**
- * @file useStockAnalytics.test.ts
+ * @file useStockAnalytics.test.tsx
  * @module __tests__/unit/api/analytics/hooks/useStockAnalytics
- *
- * @summary
- * Test suite for useStockAnalytics hook.
- * Tests stock analysis and inventory metrics calculation.
- *
- * @what_is_under_test useStockAnalytics hook - analyzes inventory levels and stock performance
- * @responsibility Calculate stock turnover, movement rate, reorder points, and inventory health
- * @out_of_scope Demand forecasting, supplier APIs, warehouse locations
+ * @what_is_under_test useStockValueQuery, useMonthlyMovementQuery, useStockPerSupplierQuery hooks
+ * @responsibility
+ * - Delegates to analytics API functions with the expected params contract
+ * - Gates fetch behavior behind an explicit enabled flag
+ * - Exposes React Query success state when dependencies resolve
+ * @out_of_scope
+ * - Stock-health calculations and business logic correctness (turnover/reorder rules)
+ * - Backend aggregation semantics, warehouse/location constraints, and forecasting
  */
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
 
 import type { AnalyticsParams, StockMovementParams } from '../../../../../api/analytics/validation';
 
@@ -35,28 +35,16 @@ import {
   useStockPerSupplierQuery,
 } from '../../../../../api/analytics/hooks/useStockAnalytics';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-    },
-  });
-
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  };
-}
-
 describe('useStockAnalytics hooks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('useStockValueQuery calls getStockValueOverTime with AnalyticsParams', async () => {
-    // Return type depends on your API; we only care that the hook resolves.
+    // Arrange
     vi.mocked(getStockValueOverTime).mockResolvedValue([] as never);
 
-    const wrapper = createWrapper();
+    const wrapper = createReactQueryWrapper({ retry: false });
 
     const params: AnalyticsParams = {
       from: '2025-10-01',
@@ -64,18 +52,21 @@ describe('useStockAnalytics hooks', () => {
       supplierId: 'SUP-001',
     };
 
+    // Act
     const { result } = renderHook(() => useStockValueQuery(params, true), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
+    // Assert
     expect(getStockValueOverTime).toHaveBeenCalledTimes(1);
     expect(getStockValueOverTime).toHaveBeenCalledWith(params);
   });
 
   it('useMonthlyMovementQuery calls getMonthlyStockMovement with StockMovementParams', async () => {
+    // Arrange
     vi.mocked(getMonthlyStockMovement).mockResolvedValue([] as never);
 
-    const wrapper = createWrapper();
+    const wrapper = createReactQueryWrapper({ retry: false });
 
     const params: StockMovementParams = {
       start: '2025-10-01',
@@ -83,38 +74,46 @@ describe('useStockAnalytics hooks', () => {
       supplierId: 'SUP-001',
     };
 
+    // Act
     const { result } = renderHook(() => useMonthlyMovementQuery(params, true), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
+    // Assert
     expect(getMonthlyStockMovement).toHaveBeenCalledTimes(1);
     expect(getMonthlyStockMovement).toHaveBeenCalledWith(params);
   });
 
   it('useStockPerSupplierQuery calls getStockPerSupplier', async () => {
+    // Arrange
     vi.mocked(getStockPerSupplier).mockResolvedValue([] as never);
 
-    const wrapper = createWrapper();
+    const wrapper = createReactQueryWrapper({ retry: false });
 
+    // Act
     const { result } = renderHook(() => useStockPerSupplierQuery(true), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
+    // Assert
     expect(getStockPerSupplier).toHaveBeenCalledTimes(1);
   });
 
   it('does not fetch when enabled=false', async () => {
-    const wrapper = createWrapper();
+    // Arrange
+    const wrapper = createReactQueryWrapper({ retry: false });
 
     const valueParams: AnalyticsParams = { from: '2025-10-01', to: '2025-10-31' };
     const moveParams: StockMovementParams = { start: '2025-10-01', end: '2025-10-31' };
 
+    // Act
     renderHook(() => useStockValueQuery(valueParams, false), { wrapper });
     renderHook(() => useMonthlyMovementQuery(moveParams, false), { wrapper });
     renderHook(() => useStockPerSupplierQuery(false), { wrapper });
 
     await Promise.resolve();
 
+    // Assert
     expect(getStockValueOverTime).not.toHaveBeenCalled();
     expect(getMonthlyStockMovement).not.toHaveBeenCalled();
     expect(getStockPerSupplier).not.toHaveBeenCalled();

@@ -1,12 +1,20 @@
 /**
  * @file useDashboardMetrics.test.tsx
  * @module __tests__/unit/api/analytics/hooks/useDashboardMetrics
+ * @what_is_under_test useDashboardMetrics hook
+ * @responsibility
+ * - Aggregates KPI counts into a single query result when enabled
+ * - Prevents any network-facing calls when disabled
+ * - Surfaces an error state when a dependency fails
+ * @out_of_scope
+ * - Backend response semantics (HTTP, serialization, auth)
+ * - React Query cache invalidation and retry strategies beyond deterministic test settings
  */
 
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import { createReactQueryWrapper } from '../../../utils/reactQueryTestUtils';
 
 // ✅ Mock what the hook imports: ../index from hooks => api/analytics/index.ts
 vi.mock('../../../../../api/analytics', () => ({
@@ -23,38 +31,27 @@ import {
 
 import { useDashboardMetrics } from '../../../../../api/analytics/hooks/useDashboardMetrics';
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false, // fail fast in tests
-      },
-    },
-  });
-
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  };
-}
-
 describe('useDashboardMetrics', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('fetches and returns KPI metrics', async () => {
+    // Arrange
     vi.mocked(getItemCount).mockResolvedValue(1000);
     vi.mocked(getSupplierCount).mockResolvedValue(25);
     vi.mocked(getLowStockCount).mockResolvedValue(50);
 
-    const wrapper = createWrapper();
+    const wrapper = createReactQueryWrapper({ retry: false });
 
+    // Act
     const { result } = renderHook(() => useDashboardMetrics(true), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
 
+    // Assert
     expect(result.current.data).toEqual({
       inventoryCount: 1000,
       suppliersCount: 25,
@@ -67,31 +64,37 @@ describe('useDashboardMetrics', () => {
   });
 
   it('does not fetch when enabled is false', async () => {
-    const wrapper = createWrapper();
+    // Arrange
+    const wrapper = createReactQueryWrapper({ retry: false });
 
+    // Act
     renderHook(() => useDashboardMetrics(false), { wrapper });
 
     // allow microtasks/react-query scheduling
     await Promise.resolve();
 
+    // Assert
     expect(getItemCount).not.toHaveBeenCalled();
     expect(getSupplierCount).not.toHaveBeenCalled();
     expect(getLowStockCount).not.toHaveBeenCalled();
   });
 
   it('exposes error state when a dependency rejects', async () => {
+    // Arrange
     vi.mocked(getItemCount).mockRejectedValue(new Error('boom'));
     vi.mocked(getSupplierCount).mockResolvedValue(25);
     vi.mocked(getLowStockCount).mockResolvedValue(50);
 
-    const wrapper = createWrapper();
+    const wrapper = createReactQueryWrapper({ retry: false });
 
+    // Act
     const { result } = renderHook(() => useDashboardMetrics(true), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true);
     });
 
+    // Assert
     expect(result.current.error).toBeDefined();
   });
 });

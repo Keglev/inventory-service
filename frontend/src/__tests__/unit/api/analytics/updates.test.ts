@@ -1,14 +1,14 @@
 /**
  * @file updates.test.ts
- * @module __tests__/unit/api/analytics/updates
- *
- * @summary
- * Test suite for analytics update handling utility functions.
- * Tests data refresh, synchronization, and update processing.
- *
- * @what_is_under_test Update handling functions - refresh logic, sync status, cache management
- * @responsibility Track update timestamps, manage refresh cycles, handle data synchronization
- * @out_of_scope Real-time streaming, push notifications, change detection
+ * @module tests/unit/api/analytics/updates
+ * @what_is_under_test getStockUpdates (api/analytics/updates)
+ * @responsibility
+ * - Guarantees the request contract (endpoint + parameter mapping) for date range queries
+ * - Guarantees tolerant parsing/filtering of supported row shapes into a stable DTO list
+ * - Guarantees transport failures or unsupported payload shapes return a safe empty list
+ * @out_of_scope
+ * - Backend pagination, ordering guarantees, and audit semantics
+ * - Real-time streaming, push notifications, and cache invalidation strategies
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -28,111 +28,136 @@ describe('api/analytics/updates.getStockUpdates', () => {
     vi.clearAllMocks();
   });
 
-  it('builds default params (limit=50) and adds day boundaries to dates', async () => {
-    httpGet.mockResolvedValueOnce({ data: [] });
+  describe('request contract', () => {
+    it('builds default params (limit=50) and applies day boundaries to dates', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: [] });
 
-    await getStockUpdates({
-      from: '2025-10-01',
-      to: '2025-10-31',
-      supplierId: 'SUP-001',
-      itemName: 'Widget',
-    });
-
-    expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates', {
-      params: {
-        startDate: '2025-10-01T00:00:00',
-        endDate: '2025-10-31T23:59:59',
+      // Act
+      await getStockUpdates({
+        from: '2025-10-01',
+        to: '2025-10-31',
         supplierId: 'SUP-001',
         itemName: 'Widget',
-        limit: 50,
-      },
-    });
-  });
+      });
 
-  it('uses provided limit and omits empty optional fields', async () => {
-    httpGet.mockResolvedValueOnce({ data: [] });
-
-    await getStockUpdates({
-      from: '2025-10-01',
-      to: '2025-10-02',
-      supplierId: '',
-      itemName: '',
-      limit: 10,
+      // Assert
+      expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates', {
+        params: {
+          startDate: '2025-10-01T00:00:00',
+          endDate: '2025-10-31T23:59:59',
+          supplierId: 'SUP-001',
+          itemName: 'Widget',
+          limit: 50,
+        },
+      });
     });
 
-    expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates', {
-      params: {
-        startDate: '2025-10-01T00:00:00',
-        endDate: '2025-10-02T23:59:59',
-        supplierId: undefined,
-        itemName: undefined,
+    it('uses provided limit and omits empty optional fields', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: [] });
+
+      // Act
+      await getStockUpdates({
+        from: '2025-10-01',
+        to: '2025-10-02',
+        supplierId: '',
+        itemName: '',
         limit: 10,
-      },
+      });
+
+      // Assert
+      expect(httpGet).toHaveBeenCalledWith('/api/analytics/stock-updates', {
+        params: {
+          startDate: '2025-10-01T00:00:00',
+          endDate: '2025-10-02T23:59:59',
+          supplierId: undefined,
+          itemName: undefined,
+          limit: 10,
+        },
+      });
     });
   });
 
-  it('returns [] when backend data is not an array of records', async () => {
-    httpGet.mockResolvedValueOnce({ data: { nope: true } });
+  describe('response parsing contract', () => {
+    it('returns [] when backend data is not an array of records', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: { nope: true } });
 
-    const res = await getStockUpdates({ from: '2025-10-01', to: '2025-10-31' });
-    expect(res).toEqual([]);
-  });
+      // Act
+      const res = await getStockUpdates({ from: '2025-10-01', to: '2025-10-31' });
 
-  it('maps tolerant fields and filters rows missing timestamp or itemName', async () => {
-    httpGet.mockResolvedValueOnce({
-      data: [
-        // good, uses tolerant keys: createdAt + name + change + note + performedBy
-        { createdAt: '2025-10-01T12:00:00', name: 'Item A', change: '5', note: 'restock', performedBy: 'carlos' },
-
-        // good, uses timestamp + itemName + delta + reason + user
-        { timestamp: '2025-10-02T12:00:00', itemName: 'Item B', delta: -2, reason: 'sale', user: 'system' },
-
-        // filtered: missing timestamp
-        { itemName: 'No time', delta: 1 },
-
-        // filtered: missing itemName/name
-        { timestamp: '2025-10-03T12:00:00', delta: 1 },
-      ],
+      // Assert
+      expect(res).toEqual([]);
     });
 
-    const res = await getStockUpdates();
+    it('maps tolerant fields and filters rows missing required identifiers', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({
+        data: [
+          { createdAt: '2025-10-01T12:00:00', name: 'Item A', change: '5', note: 'restock', performedBy: 'carlos' },
+          { timestamp: '2025-10-02T12:00:00', itemName: 'Item B', delta: -2, reason: 'sale', user: 'system' },
+          { itemName: 'No time', delta: 1 },
+          { timestamp: '2025-10-03T12:00:00', delta: 1 },
+        ],
+      });
 
-    expect(res).toEqual([
-      {
-        timestamp: '2025-10-01T12:00:00',
-        itemName: 'Item A',
-        delta: 5,
-        reason: 'restock',
-        user: 'carlos',
-      },
-      {
-        timestamp: '2025-10-02T12:00:00',
-        itemName: 'Item B',
-        delta: -2,
-        reason: 'sale',
-        user: 'system',
-      },
-    ]);
-  });
+      // Act
+      const res = await getStockUpdates();
 
-  it('sets optional fields to undefined when empty', async () => {
-    httpGet.mockResolvedValueOnce({
-      data: [
-        { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', delta: 1, reason: '', user: '' },
-      ],
+      // Assert
+      expect(res).toEqual([
+        {
+          timestamp: '2025-10-01T12:00:00',
+          itemName: 'Item A',
+          delta: 5,
+          reason: 'restock',
+          user: 'carlos',
+        },
+        {
+          timestamp: '2025-10-02T12:00:00',
+          itemName: 'Item B',
+          delta: -2,
+          reason: 'sale',
+          user: 'system',
+        },
+      ]);
     });
 
-    const res = await getStockUpdates();
+    it('normalizes empty optional fields to undefined', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({
+        data: [
+          { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', delta: 1, reason: '', user: '' },
+        ],
+      });
 
-    expect(res).toEqual([
-      { timestamp: '2025-10-01T12:00:00', itemName: 'Item A', delta: 1, reason: undefined, user: undefined },
-    ]);
+      // Act
+      const res = await getStockUpdates();
+
+      // Assert
+      expect(res).toEqual([
+        {
+          timestamp: '2025-10-01T12:00:00',
+          itemName: 'Item A',
+          delta: 1,
+          reason: undefined,
+          user: undefined,
+        },
+      ]);
+    });
   });
 
-  it('returns [] when http throws', async () => {
-    httpGet.mockRejectedValueOnce(new Error('network'));
+  describe('transport failures', () => {
+    it('returns [] when http throws', async () => {
+      // Arrange
+      httpGet.mockRejectedValueOnce(new Error('network'));
 
-    const res = await getStockUpdates({ from: '2025-10-01', to: '2025-10-31' });
-    expect(res).toEqual([]);
+      // Act
+      const res = await getStockUpdates({ from: '2025-10-01', to: '2025-10-31' });
+
+      // Assert
+      expect(res).toEqual([]);
+    });
   });
 });

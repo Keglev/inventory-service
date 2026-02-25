@@ -1,14 +1,14 @@
 /**
  * @file priceTrend.test.ts
- * @module __tests__/unit/api/analytics/priceTrend
- *
- * @summary
- * Test suite for price trend analysis utility functions.
- * Tests price trend calculation and direction analysis.
- *
- * @what_is_under_test Price trend functions - trend direction, slope calculation, momentum
- * @responsibility Analyze price movements, identify trends, calculate rate of change
- * @out_of_scope Market prediction, external API integration, statistical modeling
+ * @module tests/unit/api/analytics/priceTrend
+ * @what_is_under_test getPriceTrend (api/analytics/priceTrend)
+ * @responsibility
+ * - Guarantees itemId is required for an HTTP call (empty itemId short-circuits)
+ * - Guarantees the request contract (endpoint + cleaned date params) when inputs are provided
+ * - Guarantees tolerant parsing/sorting of supported response shapes into a stable time-series
+ * @out_of_scope
+ * - Trend interpretation, forecasting, or any statistical inference derived from the series
+ * - HTTP client behavior (timeouts, retries, base URL, interceptors)
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -29,52 +29,90 @@ describe('api/analytics/priceTrend.getPriceTrend', () => {
     vi.clearAllMocks();
   });
 
-  it('returns [] when itemId is empty (no http call)', async () => {
-    const res = await getPriceTrend('');
-    expect(res).toEqual([]);
-    expect(httpGet).not.toHaveBeenCalled();
-  });
+  describe('input gating', () => {
+    it('returns [] when itemId is empty (no http call)', async () => {
+      // Arrange
+      const itemId = '';
 
-  it('calls endpoint with itemId + cleaned params', async () => {
-    httpGet.mockResolvedValueOnce({ data: [] });
+      // Act
+      const res = await getPriceTrend(itemId);
 
-    const params: AnalyticsParams = { from: '2025-09-01', to: '2025-11-30', supplierId: 'SUP-001' };
-    await getPriceTrend('ITEM-123', params);
-
-    expect(httpGet).toHaveBeenCalledWith('/api/analytics/price-trend', {
-      params: { itemId: 'ITEM-123', start: '2025-09-01', end: '2025-11-30', supplierId: 'SUP-001' },
+      // Assert
+      expect(res).toEqual([]);
+      expect(httpGet).not.toHaveBeenCalled();
     });
   });
 
-  it('returns [] when backend data is not an array', async () => {
-    httpGet.mockResolvedValueOnce({ data: { nope: true } });
+  describe('request contract', () => {
+    it('calls endpoint with itemId + cleaned params', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: [] });
 
-    const res = await getPriceTrend('ITEM-123');
-    expect(res).toEqual([]);
+      const params: AnalyticsParams = {
+        from: '2025-09-01',
+        to: '2025-11-30',
+        supplierId: 'SUP-001',
+      };
+
+      // Act
+      await getPriceTrend('ITEM-123', params);
+
+      // Assert
+      expect(httpGet).toHaveBeenCalledWith('/api/analytics/price-trend', {
+        params: {
+          itemId: 'ITEM-123',
+          start: '2025-09-01',
+          end: '2025-11-30',
+          supplierId: 'SUP-001',
+        },
+      });
+    });
   });
 
-  it('maps rows (timestamp->date, price->number) and sorts by date asc', async () => {
-    httpGet.mockResolvedValueOnce({
-      data: [
-        { timestamp: '2025-10-03', price: '12.5' },
-        { timestamp: '2025-10-01', price: 10 },
-        { timestamp: '2025-10-02', price: null }, // asNumber(null) should become 0
-      ],
+  describe('response parsing contract', () => {
+    it('returns [] when backend data is not an array', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({ data: { nope: true } });
+
+      // Act
+      const res = await getPriceTrend('ITEM-123');
+
+      // Assert
+      expect(res).toEqual([]);
     });
 
-    const res = await getPriceTrend('ITEM-123');
+    it('maps rows (timestamp->date, price->number) and sorts by date asc', async () => {
+      // Arrange
+      httpGet.mockResolvedValueOnce({
+        data: [
+          { timestamp: '2025-10-03', price: '12.5' },
+          { timestamp: '2025-10-01', price: 10 },
+          { timestamp: '2025-10-02', price: null },
+        ],
+      });
 
-    expect(res).toEqual([
-      { date: '2025-10-01', price: 10 },
-      { date: '2025-10-02', price: 0 },
-      { date: '2025-10-03', price: 12.5 },
-    ]);
+      // Act
+      const res = await getPriceTrend('ITEM-123');
+
+      // Assert
+      expect(res).toEqual([
+        { date: '2025-10-01', price: 10 },
+        { date: '2025-10-02', price: 0 },
+        { date: '2025-10-03', price: 12.5 },
+      ]);
+    });
   });
 
-  it('returns [] when http throws', async () => {
-    httpGet.mockRejectedValueOnce(new Error('network'));
+  describe('transport failures', () => {
+    it('returns [] when http throws', async () => {
+      // Arrange
+      httpGet.mockRejectedValueOnce(new Error('network'));
 
-    const res = await getPriceTrend('ITEM-123');
-    expect(res).toEqual([]);
+      // Act
+      const res = await getPriceTrend('ITEM-123');
+
+      // Assert
+      expect(res).toEqual([]);
+    });
   });
 });
