@@ -15,10 +15,13 @@
  * - Nested route/page behavior in PublicShellContent
  */
 
+import * as React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import AppPublicShell from '../../../app/public-shell/AppPublicShell';
+import { ToastContext } from '../../../context/toast';
 
 /* ----------------------------- i18n stub ----------------------------- */
 // Keep translation deterministic; component only needs i18n object presence.
@@ -37,6 +40,7 @@ const mockToggleThemeMode = vi.hoisted(() => vi.fn());
 const mockToggleLocale = vi.hoisted(() => vi.fn());
 const mockShowToast = vi.hoisted(() => vi.fn());
 const mockHideToast = vi.hoisted(() => vi.fn());
+const mockSetToast = vi.hoisted(() => vi.fn());
 
 const mockUseThemeMode = vi.hoisted(() => vi.fn());
 const mockUseLocale = vi.hoisted(() => vi.fn());
@@ -61,7 +65,17 @@ vi.mock('../../../app/public-shell/header', () => ({
 }));
 
 vi.mock('../../../app/public-shell/PublicShellContent', () => ({
-  default: () => <main data-testid="public-shell-content">Content</main>,
+  default: function PublicShellContentMock() {
+    const toast = React.useContext(ToastContext);
+
+    return (
+      <main data-testid="public-shell-content">
+        <button type="button" data-testid="trigger-toast" onClick={() => toast('Hi')}>
+          Trigger toast
+        </button>
+      </main>
+    );
+  },
 }));
 
 vi.mock('../../../app/public-shell/PublicShellToastContainer', () => ({
@@ -95,7 +109,7 @@ describe('AppPublicShell', () => {
       toast: null,
       showToast: mockShowToast,
       hideToast: mockHideToast,
-      setToast: vi.fn(),
+      setToast: mockSetToast,
     });
   });
 
@@ -137,6 +151,59 @@ describe('AppPublicShell', () => {
     // Handler props are delegated from hook outputs.
     expect(typeof lastHeaderProps?.onThemeToggle).toBe('function');
     expect(typeof lastHeaderProps?.onLocaleToggle).toBe('function');
+  });
+
+  it.each([
+    { locale: 'en', expectedMsg: 'Language: English' },
+    { locale: 'de', expectedMsg: 'Sprache: Deutsch' },
+  ])('invokes the locale toggle handler (locale=$locale)', ({ locale, expectedMsg }) => {
+    mockUseLocale.mockReturnValue({
+      locale,
+      toggleLocale: mockToggleLocale,
+    });
+
+    renderShell();
+
+    const onLocaleToggle = lastHeaderProps?.onLocaleToggle as undefined | (() => void);
+    expect(typeof onLocaleToggle).toBe('function');
+
+    onLocaleToggle?.();
+
+    expect(mockToggleLocale).toHaveBeenCalledTimes(1);
+    expect(mockShowToast).toHaveBeenCalledWith(expectedMsg, 'info');
+  });
+
+  it.each([
+    { themeMode: 'light', expectedMsg: 'Dark mode enabled' },
+    { themeMode: 'dark', expectedMsg: 'Light mode enabled' },
+  ])('invokes the theme toggle handler (themeMode=$themeMode)', ({ themeMode, expectedMsg }) => {
+    mockUseThemeMode.mockReturnValue({
+      themeMode,
+      toggleThemeMode: mockToggleThemeMode,
+    });
+
+    renderShell();
+
+    const onThemeToggle = lastHeaderProps?.onThemeToggle as undefined | (() => void);
+    expect(typeof onThemeToggle).toBe('function');
+
+    onThemeToggle?.();
+
+    expect(mockToggleThemeMode).toHaveBeenCalledTimes(1);
+    expect(mockShowToast).toHaveBeenCalledWith(expectedMsg, 'info');
+  });
+
+  it('invokes the ToastContext callback (default severity)', async () => {
+    const user = userEvent.setup();
+    renderShell();
+
+    await user.click(screen.getByTestId('trigger-toast'));
+
+    expect(mockSetToast).toHaveBeenCalledWith({
+      open: true,
+      msg: 'Hi',
+      severity: 'success',
+    });
   });
 
   it('wires toast state into the toast container', () => {
