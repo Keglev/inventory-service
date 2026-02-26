@@ -1,15 +1,14 @@
 /**
  * @file useSuppliersData.test.ts
- * @module tests/api/suppliers/hooks/useSuppliersData
- *
- * @summary
- * Verifies the supplier hook barrel maintains backwards-compatible re-exports.
- * Ensures legacy aliases and canonical names both reference the underlying hook implementations.
- *
- * @enterprise
- * - Protects public hook entry points from accidental regressions during refactors
- * - Confirms legacy import paths continue to work for downstream consumers
- * - Keeps coordination layer behavior explicit for auditability
+ * @module tests/unit/api/suppliers/hooks/useSuppliersData
+ * @what_is_under_test useSuppliersData barrel (re-exports)
+ * @responsibility
+ * Guarantees the module’s public surface remains stable by re-exporting canonical supplier hooks
+ * and preserving legacy aliases expected by downstream consumers.
+ * @out_of_scope
+ * Behavior of the underlying hooks (covered by their dedicated unit tests).
+ * @out_of_scope
+ * React Query behavior and network interactions (not exercised by barrel modules).
  */
 
 import { describe, expect, it, vi } from 'vitest';

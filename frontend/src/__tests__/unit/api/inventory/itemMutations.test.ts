@@ -1,3 +1,16 @@
+/**
+ * @file itemMutations.test.ts
+ * @module tests/unit/api/inventory/itemMutations
+ * @what_is_under_test upsertItem / renameItem / deleteItem
+ * @responsibility
+ * Guarantees the inventory mutation contracts: correct HTTP verb + route encoding, normalization
+ * of successful responses, and stable error surfaces (via `errorMessage`) on failures.
+ * @out_of_scope
+ * Normalizer implementation details (covered by normalizer unit tests; here it is treated as a dependency).
+ * @out_of_scope
+ * HTTP client behavior (interceptors, headers, auth, retries, and transport-layer concerns).
+ */
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../../../api/httpClient', () => ({

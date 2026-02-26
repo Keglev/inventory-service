@@ -1,214 +1,154 @@
 /**
  * @file systemInfo.test.ts
- * @module utils/systemInfo.test
- * 
- * Unit tests for system information utilities.
- * Tests getSystemInfo, isProduction, and formatUptime functions with mocked fetch.
+ * @module tests/unit/utils/systemInfo
+ * @what_is_under_test getSystemInfo / isProduction / formatUptime
+ * @responsibility
+ * Guarantees system info helpers translate the health endpoint response into a stable UI-friendly
+ * contract (database name, environment, version, and status), with safe fallbacks on failures.
+ * @out_of_scope
+ * Backend health endpoint correctness and schema stability.
+ * @out_of_scope
+ * Real network behavior (timeouts, CORS, caching, and proxy/CDN effects).
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getSystemInfo, isProduction, formatUptime } from '@/utils/systemInfo';
 
-describe('getSystemInfo', () => {
+function arrangeFetchStub() {
+  vi.stubGlobal('fetch', vi.fn());
+}
+
+function mockFetchOk(payload: unknown) {
+  vi.mocked(fetch).mockResolvedValueOnce({
+    ok: true,
+    json: async () => payload,
+  } as Response);
+}
+
+function mockFetchNotOk(status: number) {
+  vi.mocked(fetch).mockResolvedValueOnce({ ok: false, status } as Response);
+}
+
+function mockFetchReject(error: unknown) {
+  vi.mocked(fetch).mockRejectedValueOnce(error);
+}
+
+describe('systemInfo', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
+    arrangeFetchStub();
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it('should detect Oracle ADB from health response', async () => {
-    const mockResponse = {
-      status: 'UP',
-      components: {
-        db: {
-          status: 'UP',
-          details: {
-            database: 'Oracle Database 19c',
+  describe('getSystemInfo', () => {
+    describe('success paths', () => {
+      it.each([
+        [
+          'detects Oracle ADB from a health response',
+          {
+            status: 'UP',
+            components: {
+              db: {
+                status: 'UP',
+                details: { database: 'Oracle Database 19c' },
+              },
+            },
           },
-        },
-      },
-    };
-
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    } as Response);
-
-    const info = await getSystemInfo();
-
-    expect(info.database).toBe('Oracle ADB');
-    expect(info.environment).toBe('production');
-    expect(info.status).toBe('UP');
-  });
-
-  it('should detect Local H2 for non-Oracle databases', async () => {
-    const mockResponse = {
-      status: 'UP',
-      components: {
-        db: {
-          status: 'UP',
-          details: {
-            database: 'H2',
+          { database: 'Oracle ADB', environment: 'production', status: 'UP' },
+        ],
+        [
+          'detects Local H2 for non-Oracle databases',
+          {
+            status: 'UP',
+            components: {
+              db: {
+                status: 'UP',
+                details: { database: 'H2' },
+              },
+            },
           },
-        },
-      },
-    };
+          { database: 'Local H2', environment: 'development' },
+        ],
+        [
+          'extracts version and normalizes it with a v-prefix',
+          { status: 'UP', version: '2.5.0' },
+          { version: 'v2.5.0' },
+        ],
+        [
+          'accepts app-version and adds v-prefix when missing',
+          { status: 'UP', 'app-version': '1.0.0' },
+          { version: 'v1.0.0' },
+        ],
+        [
+          'detects Oracle from any string containing "ORACLE"',
+          { status: 'UP', message: 'Connected to ORACLE database' },
+          { database: 'Oracle ADB' },
+        ],
+      ])('%s', async (_name, payload, expectedPartial) => {
+        mockFetchOk(payload);
 
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    } as Response);
+        const info = await getSystemInfo();
 
-    const info = await getSystemInfo();
+        expect(info).toMatchObject(expectedPartial);
+      });
+    });
 
-    expect(info.database).toBe('Local H2');
-    expect(info.environment).toBe('development');
+    describe('failure paths', () => {
+      it('returns fallback values when fetch rejects', async () => {
+        mockFetchReject(new Error('Network error'));
+
+        const info = await getSystemInfo();
+
+        expect(info.database).toBe('Local H2');
+        expect(info.version).toBe('dev');
+        expect(info.environment).toBe('development');
+        expect(info.status).toBe('unknown');
+      });
+
+      it('returns fallback values when the health endpoint is not ok', async () => {
+        mockFetchNotOk(500);
+
+        const info = await getSystemInfo();
+
+        expect(info.database).toBe('Local H2');
+        expect(info.environment).toBe('development');
+      });
+    });
   });
 
-  it('should return fallback on fetch error', async () => {
-    vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+  describe('isProduction', () => {
+    it.each([
+      [
+        'returns true when the database is Oracle ADB',
+        { status: 'UP', components: { db: { details: { database: 'Oracle' } } } },
+        true,
+      ],
+      [
+        'returns false when the database is Local H2',
+        { status: 'UP', components: { db: { details: { database: 'H2' } } } },
+        false,
+      ],
+    ])('%s', async (_name, payload, expected) => {
+      mockFetchOk(payload);
 
-    const info = await getSystemInfo();
+      const result = await isProduction();
 
-    expect(info.database).toBe('Local H2');
-    expect(info.version).toBe('dev');
-    expect(info.environment).toBe('development');
-    expect(info.status).toBe('unknown');
+      expect(result).toBe(expected);
+    });
   });
 
-  it('should return fallback when health endpoint returns non-ok status', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-    } as Response);
-
-    const info = await getSystemInfo();
-
-    expect(info.database).toBe('Local H2');
-    expect(info.environment).toBe('development');
-  });
-
-  it('should extract version from response', async () => {
-    const mockResponse = {
-      status: 'UP',
-      version: '2.5.0',
-    };
-
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    } as Response);
-
-    const info = await getSystemInfo();
-
-    expect(info.version).toBe('v2.5.0');
-  });
-
-  it('should add v prefix to version if missing', async () => {
-    const mockResponse = {
-      status: 'UP',
-      'app-version': '1.0.0',
-    };
-
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    } as Response);
-
-    const info = await getSystemInfo();
-
-    expect(info.version).toBe('v1.0.0');
-  });
-
-  it('should detect Oracle from any string containing "ORACLE"', async () => {
-    const mockResponse = {
-      status: 'UP',
-      message: 'Connected to ORACLE database',
-    };
-
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    } as Response);
-
-    const info = await getSystemInfo();
-
-    expect(info.database).toBe('Oracle ADB');
-  });
-});
-
-describe('isProduction', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it('should return true when database is Oracle ADB', async () => {
-    const mockResponse = {
-      status: 'UP',
-      components: {
-        db: {
-          details: { database: 'Oracle' },
-        },
-      },
-    };
-
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    } as Response);
-
-    const result = await isProduction();
-    expect(result).toBe(true);
-  });
-
-  it('should return false when database is Local H2', async () => {
-    const mockResponse = {
-      status: 'UP',
-      components: {
-        db: {
-          details: { database: 'H2' },
-        },
-      },
-    };
-
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockResponse,
-    } as Response);
-
-    const result = await isProduction();
-    expect(result).toBe(false);
-  });
-});
-
-describe('formatUptime', () => {
-  it('should format hours, minutes, and seconds', () => {
-    expect(formatUptime(3661)).toBe('1h 1m 1s');
-  });
-
-  it('should format only minutes and seconds', () => {
-    expect(formatUptime(125)).toBe('2m 5s');
-  });
-
-  it('should format only seconds', () => {
-    expect(formatUptime(45)).toBe('45s');
-  });
-
-  it('should handle zero', () => {
-    expect(formatUptime(0)).toBe('0s');
-  });
-
-  it('should format exact hours', () => {
-    expect(formatUptime(7200)).toBe('2h');
-  });
-
-  it('should format large values', () => {
-    expect(formatUptime(86461)).toBe('24h 1m 1s');
+  describe('formatUptime', () => {
+    it.each([
+      [3661, '1h 1m 1s'],
+      [125, '2m 5s'],
+      [45, '45s'],
+      [0, '0s'],
+      [7200, '2h'],
+      [86461, '24h 1m 1s'],
+    ])('formats %s seconds as %s', (seconds, expected) => {
+      expect(formatUptime(seconds)).toBe(expected);
+    });
   });
 });

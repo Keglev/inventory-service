@@ -1,15 +1,14 @@
 /**
  * @file responseExtraction.test.ts
- * @module tests/api/inventory/responseExtraction
- *
- * @summary
- * Validates the response parsing utilities that sanitize API envelopes before normalization.
- * ResDataOrEmpty and extractArray are exercised across raw data, Axios responses, and malformed payloads.
- *
- * @enterprise
- * - Prevents future regressions that could surface undefined/null data in critical inventory lists
- * - Confirms tolerance for Spring-style envelopes and custom item arrays
- * - Reinforces the contract that helpers never throw and always yield deterministic defaults
+ * @module tests/unit/api/inventory/responseExtraction
+ * @what_is_under_test resDataOrEmpty / extractArray
+ * @responsibility
+ * Guarantees safe response-shape extraction contracts used by inventory fetchers: helpers must
+ * tolerate unknown inputs, never throw, and return deterministic empty fallbacks when data is absent.
+ * @out_of_scope
+ * HTTP client semantics (Axios response typing, interceptors, and transport-layer behavior).
+ * @out_of_scope
+ * Downstream normalization behavior (handled by row/DTO normalizer unit tests).
  */
 
 import { describe, expect, it } from 'vitest';

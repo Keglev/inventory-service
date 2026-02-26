@@ -1,187 +1,157 @@
 /**
  * @file validation.test.ts
- * @module api/suppliers/validation.test
- * 
- * Unit tests for supplier validation schemas.
- * Tests createSupplierSchema and editSupplierSchema with valid/invalid data.
+ * @module tests/unit/api/suppliers/validation
+ * @what_is_under_test createSupplierSchema / editSupplierSchema
+ * @responsibility
+ * Guarantees supplier validation schema contracts for form submissions: required fields,
+ * normalization rules (trim/empty-to-null), and deterministic acceptance/rejection behavior.
+ * @out_of_scope
+ * UI form integration (error rendering, field-level touch/blur behavior, and submission flows).
+ * @out_of_scope
+ * Backend validation and persistence rules (server-side constraints may be stricter or differ).
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { createSupplierSchema, editSupplierSchema } from '@/api/suppliers/validation';
 
+type SafeParseSuccess<T> = { success: true; data: T };
+type SafeParseFailure = { success: false; error: { issues: Array<{ message: string }> } };
+
+function expectParseSuccess<T>(schema: { safeParse: (input: unknown) => SafeParseSuccess<T> | SafeParseFailure }, input: unknown) {
+  const result = schema.safeParse(input);
+  expect(result.success).toBe(true);
+  if (!result.success) {
+    throw new Error('Expected schema parse to succeed.');
+  }
+  return result.data;
+}
+
+function expectParseFailure(schema: { safeParse: (input: unknown) => SafeParseSuccess<unknown> | SafeParseFailure }, input: unknown) {
+  const result = schema.safeParse(input);
+  expect(result.success).toBe(false);
+  if (result.success) {
+    throw new Error('Expected schema parse to fail.');
+  }
+  return result.error;
+}
+
 describe('createSupplierSchema', () => {
-  it('should validate supplier with name only', () => {
-    const data = { name: 'Acme Corp' };
-    const result = createSupplierSchema.safeParse(data);
+  describe('success paths', () => {
+    it('accepts name-only input and applies default nulls', () => {
+      const data = expectParseSuccess(createSupplierSchema, { name: 'Acme Corp' });
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.name).toBe('Acme Corp');
-      expect(result.data.contactName).toBeNull();
-      expect(result.data.phone).toBeNull();
-      expect(result.data.email).toBeNull();
-    }
-  });
+      expect(data.name).toBe('Acme Corp');
+      expect(data.contactName).toBeNull();
+      expect(data.phone).toBeNull();
+      expect(data.email).toBeNull();
+    });
 
-  it('should validate supplier with all fields', () => {
-    const data = {
-      name: 'Beta Inc',
-      contactName: 'John Doe',
-      phone: '+1234567890',
-      email: 'john@beta.com',
-    };
-    const result = createSupplierSchema.safeParse(data);
-
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data).toEqual({
+    it('accepts all optional contact fields when provided', () => {
+      const input = {
         name: 'Beta Inc',
         contactName: 'John Doe',
         phone: '+1234567890',
         email: 'john@beta.com',
+      };
+
+      expect(expectParseSuccess(createSupplierSchema, input)).toEqual(input);
+    });
+
+    it('trims surrounding whitespace from name', () => {
+      const data = expectParseSuccess(createSupplierSchema, { name: '  Gamma Ltd  ' });
+
+      expect(data.name).toBe('Gamma Ltd');
+    });
+
+    it('normalizes empty strings to null for selected optional fields', () => {
+      const data = expectParseSuccess(createSupplierSchema, {
+        name: 'Delta Co',
+        contactName: '',
+        phone: '',
       });
-    }
+
+      expect(data.contactName).toBeNull();
+      expect(data.phone).toBeNull();
+      expect(data.email).toBeNull();
+    });
   });
 
-  it('should trim whitespace from name', () => {
-    const data = { name: '  Gamma Ltd  ' };
-    const result = createSupplierSchema.safeParse(data);
+  describe('failure paths', () => {
+    it('rejects empty string for email', () => {
+      const error = expectParseFailure(createSupplierSchema, { name: 'Email Test', email: '' });
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.name).toBe('Gamma Ltd');
-    }
+      expect(error.issues[0].message).toBe('Invalid email format');
+    });
+
+    it('rejects missing name', () => {
+      expectParseFailure(createSupplierSchema, { contactName: 'John' });
+    });
+
+    it('rejects invalid email format', () => {
+      const error = expectParseFailure(createSupplierSchema, { name: 'Invalid Email Co', email: 'not-an-email' });
+
+      expect(error.issues[0].message).toBe('Invalid email format');
+    });
   });
 
-  it('should transform empty string to null for contactName and phone', () => {
-    const data = {
-      name: 'Delta Co',
-      contactName: '',
-      phone: '',
-    };
-    const result = createSupplierSchema.safeParse(data);
+  describe('edge cases', () => {
+    it('accepts whitespace-only name and normalizes it to an empty string', () => {
+      const data = expectParseSuccess(createSupplierSchema, { name: '   ' });
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.contactName).toBeNull();
-      expect(result.data.phone).toBeNull();
-      expect(result.data.email).toBeNull();
-    }
-  });
-
-  it('should reject empty string for email field', () => {
-    const data = {
-      name: 'Email Test',
-      email: '',
-    };
-    const result = createSupplierSchema.safeParse(data);
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Invalid email format');
-    }
-  });
-
-  it('should reject missing name', () => {
-    const data = { contactName: 'John' };
-    const result = createSupplierSchema.safeParse(data);
-
-    expect(result.success).toBe(false);
-  });
-
-  it('should allow whitespace-only name but trim to empty', () => {
-    const data = { name: '   ' };
-    const result = createSupplierSchema.safeParse(data);
-
-    // Note: Zod's min(1) checks BEFORE trim(), so '   ' passes length check
-    // Then trim() converts it to '', which is technically valid but semantically wrong
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.name).toBe('');
-    }
-  });
-
-  it('should reject invalid email', () => {
-    const data = {
-      name: 'Invalid Email Co',
-      email: 'not-an-email',
-    };
-    const result = createSupplierSchema.safeParse(data);
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Invalid email format');
-    }
+      expect(data.name).toBe('');
+    });
   });
 });
 
 describe('editSupplierSchema', () => {
-  it('should validate edit with supplierId and contact fields', () => {
-    const data = {
-      supplierId: '123',
-      contactName: 'Jane Doe',
-      phone: '+9876543210',
-      email: 'jane@example.com',
-    };
-    const result = editSupplierSchema.safeParse(data);
+  describe('success paths', () => {
+    it('accepts supplierId and contact fields', () => {
+      const input = {
+        supplierId: '123',
+        contactName: 'Jane Doe',
+        phone: '+9876543210',
+        email: 'jane@example.com',
+      };
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data).toEqual(data);
-    }
+      expect(expectParseSuccess(editSupplierSchema, input)).toEqual(input);
+    });
+
+    it('accepts explicit nulls for optional contact fields', () => {
+      const input = {
+        supplierId: '456',
+        contactName: null,
+        phone: null,
+        email: null,
+      };
+
+      expect(expectParseSuccess(editSupplierSchema, input)).toEqual(input);
+    });
+
+    it('coerces invalid email to null instead of rejecting the edit payload', () => {
+      const data = expectParseSuccess(editSupplierSchema, {
+        supplierId: '789',
+        contactName: 'Test User',
+        phone: '555-1234',
+        email: 'bad-email',
+      });
+
+      expect(data.email).toBeNull();
+    });
   });
 
-  it('should accept null values for contact fields', () => {
-    const data = {
-      supplierId: '456',
-      contactName: null,
-      phone: null,
-      email: null,
-    };
-    const result = editSupplierSchema.safeParse(data);
+  describe('failure paths', () => {
+    it('rejects missing supplierId', () => {
+      expectParseFailure(editSupplierSchema, {
+        contactName: 'No ID',
+        phone: '123',
+        email: 'test@test.com',
+      });
+    });
 
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data).toEqual(data);
-    }
-  });
+    it('rejects empty supplierId with a stable error message', () => {
+      const error = expectParseFailure(editSupplierSchema, { supplierId: '', contactName: 'Test' });
 
-  it('should reject missing supplierId', () => {
-    const data = {
-      contactName: 'No ID',
-      phone: '123',
-      email: 'test@test.com',
-    };
-    const result = editSupplierSchema.safeParse(data);
-
-    expect(result.success).toBe(false);
-  });
-
-  it('should reject empty supplierId', () => {
-    const data = {
-      supplierId: '',
-      contactName: 'Test',
-    };
-    const result = editSupplierSchema.safeParse(data);
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Supplier ID is required');
-    }
-  });
-
-  it('should catch invalid email and set to null in edit', () => {
-    const data = {
-      supplierId: '789',
-      contactName: 'Test User',
-      phone: '555-1234',
-      email: 'bad-email',
-    };
-    const result = editSupplierSchema.safeParse(data);
-
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.email).toBeNull();
-    }
+      expect(error.issues[0].message).toBe('Supplier ID is required');
+    });
   });
 });

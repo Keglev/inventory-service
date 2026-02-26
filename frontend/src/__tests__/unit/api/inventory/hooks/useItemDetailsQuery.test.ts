@@ -1,15 +1,14 @@
 /**
  * @file useItemDetailsQuery.test.ts
- * @module tests/api/inventory/hooks/useItemDetailsQuery
- *
- * @summary
- * Exercises the full item details hook to guarantee accurate normalization and resiliency.
- * Validates encoded routing, numeric coercion, early exits, and error handling semantics.
- *
- * @enterprise
- * - Protects mission-critical forms that rely on precise quantity/price data
- * - Ensures defensive parsing keeps dialogs functional even when backend drifts
- * - Verifies logging paths so operational visibility remains intact on failures
+ * @module tests/unit/api/inventory/hooks/useItemDetailsQuery
+ * @what_is_under_test useItemDetailsQuery
+ * @responsibility
+ * Guarantees the hook’s public contract: query configuration, URL encoding, DTO normalization,
+ * and resilience (safe null returns + logging) when the fetch path fails.
+ * @out_of_scope
+ * React Query cache behavior (retries, background refetching, observer lifecycles).
+ * @out_of_scope
+ * Network layer correctness (axios/fetch implementation, interceptors, headers, timeouts).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -31,17 +30,17 @@ import { useItemDetailsQuery } from '@/api/inventory/hooks/useItemDetailsQuery';
 const useQueryMock = useQuery as unknown as ReturnType<typeof vi.fn>;
 const httpMock = http as unknown as { get: ReturnType<typeof vi.fn> };
 
+function arrangeUseQueryConfigCapture() {
+  useQueryMock.mockImplementation(() => ({ data: undefined }));
+}
+
 describe('useItemDetailsQuery', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('fetches and normalizes complete item details', async () => {
-    const mockQuery = vi.fn();
-    useQueryMock.mockImplementation((config) => {
-      mockQuery(config);
-      return { data: undefined };
-    });
+    arrangeUseQueryConfigCapture();
     httpMock.get.mockResolvedValue({
       data: {
         id: 'ITEM-1',
@@ -55,13 +54,13 @@ describe('useItemDetailsQuery', () => {
 
     const result = useItemDetailsQuery('ITEM 1');
 
-    expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({
+    expect(useQueryMock).toHaveBeenCalledWith(expect.objectContaining({
       queryKey: ['itemDetails', 'ITEM 1'],
       enabled: true,
       staleTime: 30_000,
     }));
 
-    const cfg = mockQuery.mock.calls[0][0];
+    const cfg = useQueryMock.mock.calls[0][0];
     const details = await cfg.queryFn();
 
     expect(httpMock.get).toHaveBeenCalledWith('/api/inventory/ITEM%201');
@@ -77,33 +76,25 @@ describe('useItemDetailsQuery', () => {
   });
 
   it('returns null immediately when item id is missing', async () => {
-    const mockQuery = vi.fn();
-    useQueryMock.mockImplementation((config) => {
-      mockQuery(config);
-      return { data: undefined };
-    });
+    arrangeUseQueryConfigCapture();
 
     useItemDetailsQuery(null);
 
-    expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
-    const cfg = mockQuery.mock.calls[0][0];
+    expect(useQueryMock).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
+    const cfg = useQueryMock.mock.calls[0][0];
     await expect(cfg.queryFn()).resolves.toBeNull();
     expect(httpMock.get).not.toHaveBeenCalled();
   });
 
   it('logs errors and returns null when fetch fails', async () => {
-    const mockQuery = vi.fn();
-    useQueryMock.mockImplementation((config) => {
-      mockQuery(config);
-      return { data: undefined };
-    });
+    arrangeUseQueryConfigCapture();
     const failure = new Error('Request failed');
     httpMock.get.mockRejectedValue(failure);
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     useItemDetailsQuery('ITEM-ERR');
 
-    const cfg = mockQuery.mock.calls[0][0];
+    const cfg = useQueryMock.mock.calls[0][0];
     await expect(cfg.queryFn()).resolves.toBeNull();
     expect(errorSpy).toHaveBeenCalledWith('Failed to fetch item details:', failure);
     errorSpy.mockRestore();

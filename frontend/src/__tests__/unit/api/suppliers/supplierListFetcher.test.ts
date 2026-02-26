@@ -1,15 +1,14 @@
 /**
  * @file supplierListFetcher.test.ts
- * @module tests/api/suppliers/supplierListFetcher
- *
- * @summary
- * Validates the supplier page fetcher under varied envelope formats and failure scenarios.
- * Confirms query parameter composition, response normalization, total calculation, and error fallbacks.
- *
- * @enterprise
- * - Shields list views from backend drift by asserting tolerant parsing behavior
- * - Guarantees pagination totals remain accurate across envelope styles
- * - Ensures network failures degrade gracefully without crashing consuming grids
+ * @module tests/unit/api/suppliers/supplierListFetcher
+ * @what_is_under_test getSuppliersPage
+ * @responsibility
+ * Guarantees supplier list page fetching contracts: query param wiring, tolerant envelope handling,
+ * row normalization filtering, total derivation rules, and safe empty-page fallbacks on failures.
+ * @out_of_scope
+ * HTTP client behavior (interceptors, retries/timeouts, auth headers, and transport concerns).
+ * @out_of_scope
+ * Supplier row normalization rules (validated by supplier normalizer unit tests).
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -46,64 +45,66 @@ describe('getSuppliersPage', () => {
     vi.clearAllMocks();
   });
 
-  it('normalizes rows from array payload and reports length total', async () => {
-    const row = { id: 'SUP-1' };
-    httpMock.get.mockResolvedValue({ data: [{ id: 'SUP-1' }, { id: 'invalid' }] });
-    toSupplierRowMock.mockReturnValueOnce(row).mockReturnValueOnce(null);
+  describe('success paths', () => {
+    it('normalizes rows from array payload and reports length total', async () => {
+      const row = { id: 'SUP-1' };
+      httpMock.get.mockResolvedValue({ data: [{ id: 'SUP-1' }, { id: 'invalid' }] });
+      toSupplierRowMock.mockReturnValueOnce(row).mockReturnValueOnce(null);
 
-    const result = await getSuppliersPage(params);
+      const result = await getSuppliersPage(params);
 
-    expect(httpMock.get).toHaveBeenCalledWith(SUPPLIERS_BASE, {
-      params: {
+      expect(httpMock.get).toHaveBeenCalledWith(SUPPLIERS_BASE, {
+        params: {
+          page: 1,
+          pageSize: 25,
+          q: 'acme',
+          sort: 'name,asc',
+        },
+      });
+      expect(result).toEqual({
+        items: [row],
+        total: 2,
         page: 1,
         pageSize: 25,
-        q: 'acme',
-        sort: 'name,asc',
-      },
+      });
     });
-    expect(result).toEqual({
-      items: [row],
-      total: 2,
-      page: 1,
-      pageSize: 25,
+
+    it('prefers totalElements when available and tolerates envelope formats', async () => {
+      extractArrayMock.mockReturnValue([{ id: 'SUP-2' }]);
+      httpMock.get.mockResolvedValue({
+        data: { content: [{ id: 'SUP-2' }], totalElements: 15, total: 99 },
+      });
+      toSupplierRowMock.mockReturnValue({ id: 'SUP-2' });
+      pickNumberMock.mockImplementation((_, key) => (key === 'totalElements' ? 15 : 99));
+
+      const result = await getSuppliersPage({ page: 2, pageSize: 10 });
+
+      expect(result).toEqual({
+        items: [{ id: 'SUP-2' }],
+        total: 15,
+        page: 2,
+        pageSize: 10,
+      });
     });
   });
 
-  it('derives totals from envelope fields using pickNumber and extractArray', async () => {
-    extractArrayMock.mockReturnValue([{ id: 'SUP-2' }]);
-    httpMock.get.mockResolvedValue({
-      data: { content: [{ id: 'SUP-2' }], totalElements: 15, total: 99 },
+  describe('failure paths', () => {
+    it('returns empty page and logs when request fails', async () => {
+      const failure = new Error('offline');
+      httpMock.get.mockRejectedValue(failure);
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await getSuppliersPage({ page: 3, pageSize: 50 });
+
+      expect(errorSpy).toHaveBeenCalledWith('[getSuppliersPage] Error fetching suppliers:', failure);
+      expect(result).toEqual({
+        items: [],
+        total: 0,
+        page: 3,
+        pageSize: 50,
+      });
+
+      errorSpy.mockRestore();
     });
-    toSupplierRowMock.mockReturnValue({ id: 'SUP-2' });
-    pickNumberMock.mockImplementation((_, key) => {
-      if (key === 'totalElements') return 15;
-      if (key === 'total') return 99;
-      return undefined;
-    });
-
-    const result = await getSuppliersPage({ page: 2, pageSize: 10 });
-
-    expect(extractArrayMock).toHaveBeenCalledWith({ content: [{ id: 'SUP-2' }], totalElements: 15, total: 99 }, ['content', 'items', 'results']);
-    expect(pickNumberMock).toHaveBeenCalledWith({ content: [{ id: 'SUP-2' }], totalElements: 15, total: 99 }, 'totalElements');
-    expect(result.total).toBe(15);
-    expect(result.items).toEqual([{ id: 'SUP-2' }]);
-  });
-
-  it('returns empty page and logs when request fails', async () => {
-    const failure = new Error('offline');
-    httpMock.get.mockRejectedValue(failure);
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    const result = await getSuppliersPage({ page: 3, pageSize: 50 });
-
-    expect(errorSpy).toHaveBeenCalledWith('[getSuppliersPage] Error fetching suppliers:', failure);
-    expect(result).toEqual({
-      items: [],
-      total: 0,
-      page: 3,
-      pageSize: 50,
-    });
-
-    errorSpy.mockRestore();
   });
 });

@@ -1,3 +1,16 @@
+/**
+ * @file list.test.ts
+ * @module tests/unit/api/inventory/list
+ * @what_is_under_test inventory list barrel (re-exports)
+ * @responsibility
+ * Guarantees the module’s public surface remains stable by re-exporting the canonical fetcher
+ * and normalizer bindings consumed by the rest of the inventory domain.
+ * @out_of_scope
+ * Behavior of `getInventoryPage` (covered by listFetcher tests).
+ * @out_of_scope
+ * Behavior of `toInventoryRow` (covered by row normalizer tests).
+ */
+
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../../../api/inventory/listFetcher', () => ({

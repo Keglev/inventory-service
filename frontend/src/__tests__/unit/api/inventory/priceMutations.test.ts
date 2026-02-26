@@ -1,3 +1,16 @@
+/**
+ * @file priceMutations.test.ts
+ * @module tests/unit/api/inventory/priceMutations
+ * @what_is_under_test changePrice
+ * @responsibility
+ * Guarantees the price mutation contract: correct URL encoding + route composition for the
+ * PATCH request, and a boolean success/failure surface for callers.
+ * @out_of_scope
+ * Server-side validation rules and error payload semantics (this unit only asserts boolean results).
+ * @out_of_scope
+ * HTTP client behavior (interceptors, retries, auth headers, and transport concerns).
+ */
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../../../api/httpClient', () => ({
@@ -20,24 +33,28 @@ describe('changePrice', () => {
     vi.clearAllMocks();
   });
 
-  it('updates price via encoded PATCH request', async () => {
-    httpMock.patch.mockResolvedValue({});
+  describe('success paths', () => {
+    it('updates price via encoded PATCH request', async () => {
+      httpMock.patch.mockResolvedValue({});
 
-    const result = await changePrice({ id: 'ITEM 1', price: 29.99 });
+      const result = await changePrice({ id: 'ITEM 1', price: 29.99 });
 
-    expect(httpMock.patch).toHaveBeenCalledWith(
-      `${INVENTORY_BASE}/ITEM%201/price`,
-      null,
-      { params: { price: 29.99 } }
-    );
-    expect(result).toBe(true);
+      expect(httpMock.patch).toHaveBeenCalledWith(
+        `${INVENTORY_BASE}/ITEM%201/price`,
+        null,
+        { params: { price: 29.99 } }
+      );
+      expect(result).toBe(true);
+    });
   });
 
-  it('returns false when backend rejects update', async () => {
-    httpMock.patch.mockRejectedValue(new Error('denied'));
+  describe('failure paths', () => {
+    it('returns false when backend rejects update', async () => {
+      httpMock.patch.mockRejectedValue(new Error('denied'));
 
-    const result = await changePrice({ id: 'ITEM-1', price: 10 });
+      const result = await changePrice({ id: 'ITEM-1', price: 10 });
 
-    expect(result).toBe(false);
+      expect(result).toBe(false);
+    });
   });
 });

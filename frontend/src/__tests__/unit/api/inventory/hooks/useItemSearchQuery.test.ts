@@ -1,18 +1,17 @@
 /**
  * @file useItemSearchQuery.test.ts
- * @module tests/api/inventory/hooks/useItemSearchQuery
- *
- * @summary
- * Validates the supplier-scoped inventory search hook behavior under backend limitations.
- * Confirms query wiring, client-side supplier filtering, and gating logic for type-ahead UX.
- *
- * @enterprise
- * - Protects cache key semantics that drive query deduplication and revalidation
- * - Ensures supplier isolation remains enforced even if backend regresses
- * - Keeps short-query throttling intact to prevent unnecessary API pressure
+ * @module tests/unit/api/inventory/hooks/useItemSearchQuery
+ * @what_is_under_test useItemSearchQuery
+ * @responsibility
+ * Guarantees the hook’s public contract: queryKey composition, enabled gating for type-ahead UX,
+ * and supplier isolation via client-side filtering when upstream results are broader than expected.
+ * @out_of_scope
+ * Backend search relevance/ranking correctness (server-side implementation and scoring).
+ * @out_of_scope
+ * React Query cache mechanics (retry/backoff, background refetching, observer subscription).
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@tanstack/react-query', () => ({
   useQuery: vi.fn(),
@@ -32,17 +31,17 @@ const searchItemsForSupplierMock = searchItemsForSupplier as ReturnType<typeof v
 
 const supplier: SupplierOption = { id: 'SUP-1', label: 'Acme' };
 
+function arrangeUseQueryConfigCapture() {
+  useQueryMock.mockImplementation(() => ({ data: undefined }));
+}
+
 describe('useItemSearchQuery', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('filters results client-side and maps to item options', async () => {
-    const mockQuery = vi.fn();
-    useQueryMock.mockImplementation((config) => {
-      mockQuery(config);
-      return { data: undefined };
-    });
+    arrangeUseQueryConfigCapture();
     searchItemsForSupplierMock.mockResolvedValue([
       { id: 'ITEM-1', name: 'Widget', supplierId: 'SUP-1' },
       { id: 'ITEM-2', name: 'Other', supplierId: 'SUP-2' },
@@ -50,12 +49,12 @@ describe('useItemSearchQuery', () => {
 
     const result = useItemSearchQuery(supplier, 'bolt');
 
-    expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({
+    expect(useQueryMock).toHaveBeenCalledWith(expect.objectContaining({
       queryKey: ['inventory', 'search', 'SUP-1', 'bolt'],
       enabled: true,
       staleTime: 30_000,
     }));
-    const cfg = mockQuery.mock.calls[0][0];
+    const cfg = useQueryMock.mock.calls[0][0];
     expect(await cfg.queryFn()).toEqual([
       { id: 'ITEM-1', name: 'Widget' },
     ]);
@@ -64,29 +63,21 @@ describe('useItemSearchQuery', () => {
   });
 
   it('short-circuits when supplier is missing', async () => {
-    const mockQuery = vi.fn();
-    useQueryMock.mockImplementation((config) => {
-      mockQuery(config);
-      return { data: undefined };
-    });
+    arrangeUseQueryConfigCapture();
 
     useItemSearchQuery(null, 'bolt');
 
-    expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
-    const cfg = mockQuery.mock.calls[0][0];
+    expect(useQueryMock).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
+    const cfg = useQueryMock.mock.calls[0][0];
     expect(await cfg.queryFn()).toEqual([]);
     expect(searchItemsForSupplierMock).not.toHaveBeenCalled();
   });
 
   it('disables search when query length is below threshold', () => {
-    const mockQuery = vi.fn();
-    useQueryMock.mockImplementation((config) => {
-      mockQuery(config);
-      return { data: undefined };
-    });
+    arrangeUseQueryConfigCapture();
 
     useItemSearchQuery(supplier, 'a');
 
-    expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
+    expect(useQueryMock).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
   });
 });
