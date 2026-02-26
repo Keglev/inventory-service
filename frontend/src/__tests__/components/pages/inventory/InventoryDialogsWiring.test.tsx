@@ -48,6 +48,11 @@ vi.mock('../../../../pages/inventory/dialogs/PriceChangeDialog', () => ({
 
 // Import after mocks (ESM): the component should observe the mocked modules.
 import { InventoryDialogs } from '../../../../pages/inventory/components/InventoryDialogs';
+import { ItemFormDialog } from '../../../../pages/inventory/dialogs/ItemFormDialog';
+import { EditItemDialog } from '../../../../pages/inventory/dialogs/EditItemDialog';
+import DeleteItemDialog from '../../../../pages/inventory/dialogs/DeleteItemDialog/DeleteItemDialog';
+import { QuantityAdjustDialog } from '../../../../pages/inventory/dialogs/QuantityAdjustDialog';
+import { PriceChangeDialog } from '../../../../pages/inventory/dialogs/PriceChangeDialog';
 
 type Props = ComponentProps<typeof InventoryDialogs>;
 
@@ -82,6 +87,55 @@ describe('InventoryDialogs', () => {
 
   const renderDialogs = (props: Partial<typeof baseProps> = {}) =>
     render(<InventoryDialogs {...baseProps} {...props} />);
+
+  it('wires each dialog onClose to the corresponding setter', () => {
+    renderDialogs({
+      openNew: true,
+      openEditName: true,
+      openDelete: true,
+      openAdjust: true,
+      openPrice: true,
+    });
+
+    const itemFormDialogMock = vi.mocked(ItemFormDialog);
+    const editItemDialogMock = vi.mocked(EditItemDialog);
+    const deleteItemDialogMock = vi.mocked(DeleteItemDialog);
+    const quantityAdjustDialogMock = vi.mocked(QuantityAdjustDialog);
+    const priceChangeDialogMock = vi.mocked(PriceChangeDialog);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (itemFormDialogMock.mock.calls[0]?.[0] as any).onClose();
+    expect(baseProps.setOpenNew).toHaveBeenCalledWith(false);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (editItemDialogMock.mock.calls[0]?.[0] as any).onClose();
+    expect(baseProps.setOpenEditName).toHaveBeenCalledWith(false);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (deleteItemDialogMock.mock.calls[0]?.[0] as any).onClose();
+    expect(baseProps.setOpenDelete).toHaveBeenCalledWith(false);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (quantityAdjustDialogMock.mock.calls[0]?.[0] as any).onClose();
+    expect(baseProps.setOpenAdjust).toHaveBeenCalledWith(false);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (priceChangeDialogMock.mock.calls[0]?.[0] as any).onClose();
+    expect(baseProps.setOpenPrice).toHaveBeenCalledWith(false);
+  });
+
+  it('wires the edit ItemFormDialog onClose to setOpenEdit(false) when selectedRow is present', () => {
+    renderDialogs({ openEdit: true, selectedRow: mockSelectedRow });
+
+    const itemFormDialogMock = vi.mocked(ItemFormDialog);
+    const editCall = itemFormDialogMock.mock.calls.find(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (call) => Boolean((call?.[0] as any)?.initial),
+    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (editCall?.[0] as any).onClose();
+    expect(baseProps.setOpenEdit).toHaveBeenCalledWith(false);
+  });
 
   it('renders no dialogs when all are closed', () => {
     const { queryByTestId } = renderDialogs();
