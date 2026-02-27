@@ -29,9 +29,9 @@ Jedes Thema verlinkt auf:
 - den **Diagramm-Einstiegspunkt** (zentral unter `./diagrams/`).
 
 ### App Shell
-- Docs: [App Shell](./app-shell/)
+- Docs: [App Shell](./app-shell/index.md)
 - Diagramme: [Architektur-Diagramme](./diagrams/)
-- Beschreibung: wird implementiert
+- Beschreibung: Einstiegspunkt für Shell-Varianten (öffentlich vs. authentifiziert), Layout-Komposition, Preferences (Theme/Locale), Toasts, Settings-Einstiegspunkte und Help-Integration
 
 ### Routing
 - Docs: [Routing](./routing/)

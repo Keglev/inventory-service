@@ -29,9 +29,9 @@ Each topic links to:
 - the **diagrams entry point** (centralized under `./diagrams/`).
 
 ### App Shell
-- Docs: [App Shell](./app-shell/)
+- Docs: [App Shell](./app-shell/index.md)
 - Diagrams: [Architectural Diagrams](./diagrams/)
-- Description: to be implemented
+- Description: Entry point for shell variants (public vs authenticated), layout composition, preference handling (theme/locale), toasts, settings entry points, and help integration
 
 ### Routing
 - Docs: [Routing](./routing/)

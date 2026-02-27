@@ -8,8 +8,8 @@ The frontend is a **React + TypeScript** single-page application built with **Vi
 
 ## Start Here
 
-- **[High-level Overview (English)](./overview.md)** *(to be added)*
-- **[Überblick (German)](./overview-de.md)** *(wird später ergänzt)*
+- **[High-level Overview (English)](./overview.md)** - High-level introduction to the frontend architecture, scope of this documentation, and links to the main topics
+- **[Überblick (German)](./overview-de.md)** - Deutschsprachiger Überblick über die Frontend-Architektur, Umfang der Dokumentation und Einstiegspunkte zu den Hauptthemen
 
 ## What’s inside (map)
 
@@ -25,7 +25,7 @@ The frontend is a **React + TypeScript** single-page application built with **Vi
 ## Major sections
 
 - **[Architectural Diagrams](./diagrams/)** *(diagram pages will be added incrementally)*
-- **[App Shell](./app-shell/)**
+- **[App Shell](./app-shell/index.md)**
 - **[Routing](./routing/)**
 - **[State](./state/)**
 - **[Data Access](./data-access/)**
