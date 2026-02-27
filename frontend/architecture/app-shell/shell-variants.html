@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+app-shell/shell-variants · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#shell-variants-public-vs-authenticated"
+        id="toc-shell-variants-public-vs-authenticated">Shell Variants
+        (Public vs Authenticated)</a>
+        <ul>
+        <li><a href="#why-two-shells" id="toc-why-two-shells">Why two
+        shells?</a></li>
+        <li><a href="#shells-at-a-glance"
+        id="toc-shells-at-a-glance">Shells at a glance</a>
+        <ul>
+        <li><a href="#public-shell" id="toc-public-shell">Public
+        Shell</a></li>
+        <li><a href="#authenticated-shell"
+        id="toc-authenticated-shell">Authenticated Shell</a></li>
+        </ul></li>
+        <li><a href="#conceptual-routing-to-shell-mapping"
+        id="toc-conceptual-routing-to-shell-mapping">Conceptual
+        routing-to-shell mapping</a></li>
+        <li><a href="#shared-cross-cutting-concerns-owned-by-the-shell"
+        id="toc-shared-cross-cutting-concerns-owned-by-the-shell">Shared
+        cross-cutting concerns (owned by the shell)</a></li>
+        <li><a href="#not-covered-here" id="toc-not-covered-here">Not
+        covered here</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to App Shell Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="shell-variants-public-vs-authenticated">Shell Variants
+        (Public vs Authenticated)</h1>
+        <p>The frontend uses two shell variants to keep the user
+        experience consistent while separating concerns for
+        <strong>unauthenticated</strong> and
+        <strong>authenticated</strong> areas.</p>
+        <h2 id="why-two-shells">Why two shells?</h2>
+        <ul>
+        <li>Public pages (e.g., home/login/logout success) should be
+        lightweight: minimal chrome, no sidebar, no profile.</li>
+        <li>Authenticated pages need full navigation and global tooling
+        (sidebar navigation, settings entry points, context help,
+        session handling).</li>
+        <li>Splitting the shells prevents feature creep into public
+        pages and keeps the authenticated layout predictable.</li>
+        </ul>
+        <h2 id="shells-at-a-glance">Shells at a glance</h2>
+        <h3 id="public-shell">Public Shell</h3>
+        <ul>
+        <li>Purpose: Wraps unauthenticated pages with a minimal header
+        and shared preferences.</li>
+        <li>Typical elements: header + content area + toast
+        notifications.</li>
+        <li>Rendering model: public routes render inside a content
+        wrapper.</li>
+        </ul>
+        <h3 id="authenticated-shell">Authenticated Shell</h3>
+        <ul>
+        <li>Purpose: Wraps authenticated routes with full application
+        chrome and global orchestration.</li>
+        <li>Typical elements: fixed header, responsive sidebar/drawer,
+        main content with outlet, settings dialog, toast
+        notifications.</li>
+        <li>Rendering model: authenticated routes render inside the main
+        content outlet.</li>
+        </ul>
+        <h2 id="conceptual-routing-to-shell-mapping">Conceptual
+        routing-to-shell mapping</h2>
+        <div class="mermaid">
+        graph TB
+          Router["Router"] --> PublicRoutes["Public routes"]
+          Router --> AuthRoutes["Authenticated routes"]
+
+          PublicRoutes --> PublicShell["AppPublicShell"]
+          AuthRoutes --> AppShell["AppShell"]
+
+          PublicShell --> PublicOutlet["Public Outlet"]
+          AppShell --> AuthOutlet["<Outlet />"]
+        </div>
+        <h2 id="shared-cross-cutting-concerns-owned-by-the-shell">Shared
+        cross-cutting concerns (owned by the shell)</h2>
+        <p>Both shells are responsible for applying and/or hosting:</p>
+        <ul>
+        <li>Theme + locale as user preferences</li>
+        <li>A toast notification API via a shared toast context</li>
+        </ul>
+        <p>The goal is that leaf components can trigger user feedback
+        (toasts) without needing to know which shell is currently
+        active.</p>
+        <h2 id="not-covered-here">Not covered here</h2>
+        <ul>
+        <li>Exact route definitions and guards (see <a
+        href="../routing/">Routing</a>)</li>
+        <li>Page-level concerns and domain organization (see <a
+        href="../domains/">Domains</a>)</li>
+        </ul>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+app-shell/layout-composition · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#layout-composition-header-sidebar-main"
+        id="toc-layout-composition-header-sidebar-main">Layout
+        Composition (Header / Sidebar / Main)</a>
+        <ul>
+        <li><a href="#composition-principles"
+        id="toc-composition-principles">Composition principles</a></li>
+        <li><a href="#authenticated-app-shell-layout"
+        id="toc-authenticated-app-shell-layout">Authenticated App Shell
+        layout</a>
+        <ul>
+        <li><a href="#header" id="toc-header">Header</a></li>
+        <li><a href="#sidebar" id="toc-sidebar">Sidebar</a></li>
+        <li><a href="#main-content" id="toc-main-content">Main
+        content</a></li>
+        </ul></li>
+        <li><a href="#public-shell-layout-contrast"
+        id="toc-public-shell-layout-contrast">Public shell layout
+        (contrast)</a></li>
+        <li><a href="#not-covered-here" id="toc-not-covered-here">Not
+        covered here</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to App Shell Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="layout-composition-header-sidebar-main">Layout
+        Composition (Header / Sidebar / Main)</h1>
+        <p>This document explains the high-level layout composition of
+        the authenticated App Shell and how it stays responsive and
+        predictable.</p>
+        <h2 id="composition-principles">Composition principles</h2>
+        <ul>
+        <li>The shell acts as a <strong>thin orchestrator</strong>: it
+        coordinates state and delegates rendering.</li>
+        <li>Layout is split into focused sub-components:
+        <ul>
+        <li>header (top bar actions and global status)</li>
+        <li>sidebar (navigation and footer actions)</li>
+        <li>main (page rendering via <code>&lt;Outlet /&gt;</code>)</li>
+        </ul></li>
+        </ul>
+        <h2 id="authenticated-app-shell-layout">Authenticated App Shell
+        layout</h2>
+        <div class="mermaid">
+        graph TB
+          AppShell["AppShell"] --> Theme["ThemeProvider + CssBaseline"]
+          AppShell --> Toast["ToastContext Provider"]
+
+          AppShell --> Header["AppHeader (fixed)"]
+          AppShell --> Body["Body container"]
+
+          Body --> Sidebar["AppSidebar (Drawer)"]
+          Body --> Main["AppMain"]
+
+          Main --> Outlet["<Outlet /> (pages)"]
+          AppShell --> Settings["AppSettingsDialog"]
+        </div>
+        <h3 id="header">Header</h3>
+        <p>The header is responsible for: - app branding/title - global
+        status indicators (e.g., health/demo indicators) - global
+        actions (language toggle, theme toggle, help, hamburger
+        menu)</p>
+        <h3 id="sidebar">Sidebar</h3>
+        <p>The sidebar is responsible for: - navigation entry points
+        (route list) - user/profile and environment info display -
+        footer actions (theme/locale toggles, settings entry points,
+        help)</p>
+        <p>The sidebar is responsive: typically temporary on small
+        screens and permanent on larger screens.</p>
+        <h3 id="main-content">Main content</h3>
+        <p>The main area: - accounts for the fixed header height -
+        optionally displays a demo-mode banner - renders the current
+        route content using React Router’s
+        <code>&lt;Outlet /&gt;</code></p>
+        <h2 id="public-shell-layout-contrast">Public shell layout
+        (contrast)</h2>
+        <p>Public pages use a simpler layout: header + content + toast
+        container.</p>
+        <div class="mermaid">
+        graph TB
+          PublicShell["AppPublicShell"] --> Header["PublicShellHeader"]
+          PublicShell --> Content["PublicShellContent"]
+          PublicShell --> Outlet["Public <Outlet />"]
+          PublicShell --> Toast["PublicShellToastContainer"]
+        </div>
+        <h2 id="not-covered-here">Not covered here</h2>
+        <ul>
+        <li>Navigation structure details (see <a
+        href="../routing/">Routing</a>)</li>
+        <li>UI component design system conventions (see <a
+        href="../ui/">UI Components</a>)</li>
+        </ul>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

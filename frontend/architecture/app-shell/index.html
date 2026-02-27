@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · app-shell/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#app-shell" id="toc-app-shell">App Shell</a>
+        <ul>
+        <li><a href="#section-purpose" id="toc-section-purpose">1️⃣
+        Section Purpose</a></li>
+        <li><a href="#scope-boundaries" id="toc-scope-boundaries">2️⃣
+        Scope &amp; Boundaries</a></li>
+        <li><a href="#high-level-diagram" id="toc-high-level-diagram">3️⃣
+        High-Level Diagram</a></li>
+        <li><a href="#section-map-links-to-nested-docs"
+        id="toc-section-map-links-to-nested-docs">4️⃣ Section Map (Links
+        to nested docs)</a></li>
+        <li><a href="#contents" id="toc-contents">Contents</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Frontend Architecture
+        Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="app-shell">App Shell</h1>
+        <h2 id="section-purpose">1️⃣ Section Purpose</h2>
+        <p>This section documents the <strong>App Shell</strong>: the
+        top-level UI structure that wraps pages and provides shared
+        layout, global UI state, and cross-cutting user
+        interactions.</p>
+        <p>It exists to keep application-wide concerns consistent
+        (navigation chrome, header/sidebar, settings entry points,
+        notifications) and to ensure the UI has a single, predictable
+        place where these concerns are orchestrated.</p>
+        <p>Design decisions captured here include the “thin
+        orchestrator” approach (shell coordinates, sub-components
+        render), separation between authenticated vs. public shells, and
+        how user preferences like theme and locale are applied
+        consistently across the app.</p>
+        <h2 id="scope-boundaries">2️⃣ Scope &amp; Boundaries</h2>
+        <p>Included: - Shell composition and responsibilities
+        (authenticated shell vs. public shell) - Layout coordination
+        (header / sidebar / main content orchestration) - Global UI
+        state owned by the shell (drawer open/close, settings dialog
+        visibility) - Cross-cutting UI capabilities surfaced through the
+        shell (theme mode, locale switching, toast notifications) -
+        Preference persistence at shell level (e.g., theme and locale
+        stored in browser storage)</p>
+        <p>Excluded: - Feature/domain page structure (documented under
+        <a href="../domains/">Domains</a>) - API/data-fetching
+        implementation details (documented under <a
+        href="../data-access/">Data Access</a>) - Component-level UI
+        patterns (documented under <a href="../ui/">UI Components</a>) -
+        Detailed routing rules and route guards (documented under <a
+        href="../routing/">Routing</a>) - Authentication implementation
+        (documented under the relevant auth sections)</p>
+        <h2 id="high-level-diagram">3️⃣ High-Level Diagram</h2>
+        <div class="mermaid">
+        graph TB
+          Routes["Routes"] -->|public| PublicShell["Public Shell\n(header + content + toast)"]
+          Routes -->|authenticated| AppShell["App Shell\n(header + sidebar + main)"]
+
+          PublicShell --> Theme["Theme + Locale"]
+          AppShell --> Theme
+
+          PublicShell --> Toast["Toast Notifications"]
+          AppShell --> Toast
+
+          AppShell --> Settings["Settings Entry Points"]
+          AppShell --> Help["Context Help (route → topic)"]
+        </div>
+        <h2 id="section-map-links-to-nested-docs">4️⃣ Section Map (Links
+        to nested docs)</h2>
+        <h2 id="contents">Contents</h2>
+        <ul>
+        <li><a href="shell-variants.html">Shell Variants (Public vs
+        Authenticated)</a> - When the frontend uses the public shell
+        vs. the authenticated shell and what each one is responsible
+        for</li>
+        <li><a href="layout-composition.html">Layout Composition (Header
+        / Sidebar / Main)</a> - High-level layout structure and
+        responsibilities of the main shell building blocks</li>
+        <li><a href="preference-persistence.html">Preference Persistence
+        (Theme + Locale)</a> - Where theme/locale live, why the shell
+        owns them, and how preference behavior stays consistent</li>
+        <li><a href="toast-notifications.html">Toast Notifications</a> -
+        Shell-provided toast API for ephemeral feedback, with boundaries
+        and usage intent</li>
+        <li><a href="settings-entry-points.html">Settings Entry
+        Points</a> - How global settings are exposed from application
+        chrome and owned by the shell lifecycle</li>
+        <li><a href="help-integration.html">Help Integration (Route →
+        Help Topic)</a> - Route-based context help model and how the
+        shell surfaces help entry points</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Frontend Architecture
+        Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

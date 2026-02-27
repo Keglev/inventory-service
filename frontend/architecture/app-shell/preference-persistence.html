@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+app-shell/preference-persistence · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#preference-persistence-theme-locale"
+        id="toc-preference-persistence-theme-locale">Preference
+        Persistence (Theme + Locale)</a>
+        <ul>
+        <li><a href="#what-is-persisted" id="toc-what-is-persisted">What
+        is persisted?</a></li>
+        <li><a href="#where-preferences-live"
+        id="toc-where-preferences-live">Where preferences live</a></li>
+        <li><a href="#persistence-mechanism-conceptual"
+        id="toc-persistence-mechanism-conceptual">Persistence mechanism
+        (conceptual)</a></li>
+        <li><a href="#architectural-decisions"
+        id="toc-architectural-decisions">Architectural
+        decisions</a></li>
+        <li><a href="#not-covered-here" id="toc-not-covered-here">Not
+        covered here</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to App Shell Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="preference-persistence-theme-locale">Preference
+        Persistence (Theme + Locale)</h1>
+        <p>The App Shell owns user preference application for
+        <strong>theme mode</strong> and <strong>locale</strong>, so the
+        application behaves consistently across routes and
+        refreshes.</p>
+        <h2 id="what-is-persisted">What is persisted?</h2>
+        <ul>
+        <li>Theme mode: light/dark</li>
+        <li>Locale: German/English</li>
+        </ul>
+        <p>Persisting these preferences at the shell level ensures: - a
+        single “source of truth” for UI chrome - consistent theming for
+        pages, dialogs, and global components</p>
+        <h2 id="where-preferences-live">Where preferences live</h2>
+        <ul>
+        <li>Preferences are owned by the active shell (public or
+        authenticated).</li>
+        <li>Downstream components receive the current values and
+        callbacks via props.</li>
+        <li>Internationalization is synchronized with the i18n
+        runtime.</li>
+        </ul>
+        <h2 id="persistence-mechanism-conceptual">Persistence mechanism
+        (conceptual)</h2>
+        <div class="mermaid">
+        graph LR
+          User["User action"] --> Shell["Shell state"]
+          Shell --> Storage["Browser storage"]
+          Shell --> Theme["Theme build"]
+          Shell --> I18n["i18n language"]
+          Theme --> UI["All UI"]
+          I18n --> UI
+        </div>
+        <h2 id="architectural-decisions">Architectural decisions</h2>
+        <ul>
+        <li>Preference persistence happens <strong>in the
+        shell</strong>, not in feature code.</li>
+        <li>Theme and locale are treated as <strong>cross-cutting UI
+        concerns</strong>, so they are not reimplemented per page.</li>
+        <li>The authenticated shell and public shell may differ in UI
+        chrome, but preference behavior is consistent.</li>
+        </ul>
+        <h2 id="not-covered-here">Not covered here</h2>
+        <ul>
+        <li>Theme token design and component styling conventions (see <a
+        href="../theming/">Theming</a>)</li>
+        <li>Date/number formatting strategies (documented with i18n and
+        UI conventions)</li>
+        </ul>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
