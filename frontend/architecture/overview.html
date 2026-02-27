@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · overview · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#frontend-architecture-overview"
+        id="toc-frontend-architecture-overview">Frontend Architecture
+        Overview</a>
+        <ul>
+        <li><a href="#introduction"
+        id="toc-introduction">Introduction</a></li>
+        <li><a href="#system-context-high-level"
+        id="toc-system-context-high-level">System Context
+        (high-level)</a></li>
+        <li><a href="#documentation-scope"
+        id="toc-documentation-scope">Documentation Scope</a></li>
+        <li><a href="#topics-and-where-to-find-diagrams"
+        id="toc-topics-and-where-to-find-diagrams">Topics (and where to
+        find diagrams)</a>
+        <ul>
+        <li><a href="#app-shell" id="toc-app-shell">App Shell</a></li>
+        <li><a href="#routing" id="toc-routing">Routing</a></li>
+        <li><a href="#state" id="toc-state">State</a></li>
+        <li><a href="#data-access" id="toc-data-access">Data
+        Access</a></li>
+        <li><a href="#domains" id="toc-domains">Domains</a></li>
+        <li><a href="#ui-components" id="toc-ui-components">UI
+        Components</a></li>
+        <li><a href="#theming" id="toc-theming">Theming</a></li>
+        <li><a href="#internationalization-i18n"
+        id="toc-internationalization-i18n">Internationalization
+        (i18n)</a></li>
+        <li><a href="#performance"
+        id="toc-performance">Performance</a></li>
+        <li><a href="#testing" id="toc-testing">Testing</a></li>
+        <li><a href="#architectural-decision-records-adrs"
+        id="toc-architectural-decision-records-adrs">Architectural
+        Decision Records (ADRs)</a></li>
+        </ul></li>
+        <li><a href="#next-steps" id="toc-next-steps">Next
+        Steps</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="./index.html">⬅️ Back to Architecture Index</a></p>
+        <h1 id="frontend-architecture-overview">Frontend Architecture
+        Overview</h1>
+        <h2 id="introduction">Introduction</h2>
+        <p>Smart Supply Pro’s frontend is a React single-page
+        application (SPA) that provides the user experience for
+        inventory management, supplier workflows, and analytics. The
+        architecture documentation focuses on <strong>clarity</strong>,
+        <strong>consistency</strong>, and
+        <strong>maintainability</strong> by describing how the
+        application is organized into topics (routing, state, data
+        access, UI, etc.) and how those topics fit together.</p>
+        <blockquote>
+        <p>For diagrams and visual references, start at <strong><a
+        href="./diagrams/">Architectural Diagrams</a></strong>.</p>
+        </blockquote>
+        <h2 id="system-context-high-level">System Context
+        (high-level)</h2>
+        <div class="mermaid">
+        graph LR
+            User["User"] --> Browser["Browser"]
+            Browser --> SPA["Frontend SPA (React)"]
+            SPA --> API["Backend API"]
+            API --> DB["Database"]
+        </div>
+        <h2 id="documentation-scope">Documentation Scope</h2>
+        <p>This overview intentionally avoids implementation details.
+        Each topic below links to its dedicated section where patterns,
+        decisions, and examples will be documented.</p>
+        <h2 id="topics-and-where-to-find-diagrams">Topics (and where to
+        find diagrams)</h2>
+        <p>Each topic links to: - the <strong>topic documentation
+        folder</strong>, and - the <strong>diagrams entry point</strong>
+        (centralized under <code>./diagrams/</code>).</p>
+        <h3 id="app-shell">App Shell</h3>
+        <ul>
+        <li>Docs: <a href="./app-shell/">App Shell</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="routing">Routing</h3>
+        <ul>
+        <li>Docs: <a href="./routing/">Routing</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="state">State</h3>
+        <ul>
+        <li>Docs: <a href="./state/">State</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="data-access">Data Access</h3>
+        <ul>
+        <li>Docs: <a href="./data-access/">Data Access</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="domains">Domains</h3>
+        <ul>
+        <li>Docs: <a href="./domains/">Domains</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="ui-components">UI Components</h3>
+        <ul>
+        <li>Docs: <a href="./ui/">UI Components</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="theming">Theming</h3>
+        <ul>
+        <li>Docs: <a href="./theming/">Theming</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="internationalization-i18n">Internationalization
+        (i18n)</h3>
+        <ul>
+        <li>Docs: <a href="./i18n/">i18n</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="performance">Performance</h3>
+        <ul>
+        <li>Docs: <a href="./performance/">Performance</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="testing">Testing</h3>
+        <ul>
+        <li>Docs: <a href="./testing/">Testing</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h3 id="architectural-decision-records-adrs">Architectural
+        Decision Records (ADRs)</h3>
+        <ul>
+        <li>Docs: <a href="./adr/">ADRs</a></li>
+        <li>Diagrams: <a href="./diagrams/">Architectural
+        Diagrams</a></li>
+        <li>Description: to be implemented</li>
+        </ul>
+        <h2 id="next-steps">Next Steps</h2>
+        <ol type="1">
+        <li>Read the topic that matches your current task
+        (routing/state/data-access/ui).</li>
+        <li>Use <a href="./diagrams/">Architectural Diagrams</a> as the
+        single entry point for visuals.</li>
+        <li>Update each topic’s short description as the documentation
+        evolves.</li>
+        </ol>
+        <hr />
+        <p><a href="./index.html">⬅️ Back to Architecture Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

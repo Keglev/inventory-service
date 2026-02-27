@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#frontend-architecture-index"
+        id="toc-frontend-architecture-index">Frontend Architecture
+        Index</a>
+        <ul>
+        <li><a href="#overview" id="toc-overview">Overview</a></li>
+        <li><a href="#start-here" id="toc-start-here">Start
+        Here</a></li>
+        <li><a href="#whats-inside-map" id="toc-whats-inside-map">What’s
+        inside (map)</a></li>
+        <li><a href="#major-sections" id="toc-major-sections">Major
+        sections</a></li>
+        <li><a href="#high-level-diagrams-links"
+        id="toc-high-level-diagrams-links">High-level diagrams
+        (links)</a></li>
+        <li><a href="#key-architectural-principles"
+        id="toc-key-architectural-principles">Key architectural
+        principles</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1 id="frontend-architecture-index">Frontend Architecture
+        Index</h1>
+        <p>Welcome to the Smart Supply Pro frontend architecture
+        documentation. This section explains how the React application
+        is structured, how it communicates with the backend, and the
+        conventions used to keep the UI maintainable as the product
+        grows.</p>
+        <h2 id="overview">Overview</h2>
+        <p>The frontend is a <strong>React + TypeScript</strong>
+        single-page application built with <strong>Vite</strong>. It
+        uses <strong>React Router</strong> for navigation,
+        <strong>TanStack React Query</strong> for server-state,
+        <strong>Axios</strong> for HTTP, <strong>MUI + Emotion</strong>
+        for UI/theming, <strong>i18next</strong> for localization, and
+        <strong>Vitest/Testing Library</strong> for tests.</p>
+        <h2 id="start-here">Start Here</h2>
+        <ul>
+        <li><strong><a href="./overview.html">High-level Overview
+        (English)</a></strong> <em>(to be added)</em></li>
+        <li><strong><a href="./overview-de.html">Überblick
+        (German)</a></strong> <em>(wird später ergänzt)</em></li>
+        </ul>
+        <h2 id="whats-inside-map">What’s inside (map)</h2>
+        <ol type="1">
+        <li>App shell layout and global composition (providers, error
+        boundaries, navigation)</li>
+        <li>Routing patterns (route tree, guards, lazy loading,
+        navigation conventions)</li>
+        <li>State model (server-state vs client-state; when to use
+        which)</li>
+        <li>Data access (API client, request/response shapes, caching,
+        retries, error handling)</li>
+        <li>Domains/features (how business areas are split into modules
+        and pages)</li>
+        <li>UI system (shared components, forms, tables, charts,
+        accessibility conventions)</li>
+        <li>Theming &amp; styling (MUI theme tokens, Emotion usage, CSS
+        conventions)</li>
+        <li>i18n (translation files, language detection, formatting,
+        testing)</li>
+        </ol>
+        <h2 id="major-sections">Major sections</h2>
+        <ul>
+        <li><strong><a href="./diagrams/">Architectural
+        Diagrams</a></strong> <em>(diagram pages will be added
+        incrementally)</em></li>
+        <li><strong><a href="./app-shell/">App Shell</a></strong></li>
+        <li><strong><a href="./routing/">Routing</a></strong></li>
+        <li><strong><a href="./state/">State</a></strong></li>
+        <li><strong><a href="./data-access/">Data
+        Access</a></strong></li>
+        <li><strong><a href="./domains/">Domains</a></strong></li>
+        <li><strong><a href="./ui/">UI Components</a></strong></li>
+        <li><strong><a href="./theming/">Theming</a></strong></li>
+        <li><strong><a href="./i18n/">i18n</a></strong></li>
+        <li><strong><a
+        href="./performance/">Performance</a></strong></li>
+        <li><strong><a href="./testing/">Testing</a></strong></li>
+        <li><strong><a href="./adr/">ADRs</a></strong></li>
+        </ul>
+        <h2 id="high-level-diagrams-links">High-level diagrams
+        (links)</h2>
+        <ul>
+        <li><strong><a href="./diagrams/">Diagrams
+        directory</a></strong></li>
+        <li><strong><a href="./diagrams/system-overview.html">System
+        overview</a></strong> <em>(planned)</em></li>
+        <li><strong><a href="./diagrams/module-map.html">Frontend module
+        map</a></strong> <em>(planned)</em></li>
+        <li><strong><a href="./diagrams/routing-flow.html">Routing
+        flow</a></strong> <em>(planned)</em></li>
+        <li><strong><a href="./diagrams/data-fetching-flow.html">Data
+        fetching flow (React Query)</a></strong> <em>(planned)</em></li>
+        </ul>
+        <h2 id="key-architectural-principles">Key architectural
+        principles</h2>
+        <ol type="1">
+        <li><strong>Feature-first structure</strong> where it helps
+        (pages/features), with shared UI and utilities kept
+        explicit.</li>
+        <li><strong>Clear separation of concerns</strong> between view
+        components, data access, and domain logic.</li>
+        <li><strong>Predictable data flow</strong> with React Query for
+        backend data and minimal ad-hoc global state.</li>
+        <li><strong>Design-system alignment</strong> via MUI theming and
+        reusable components.</li>
+        <li><strong>Testability</strong> through small units, stable
+        selectors, and realistic integration tests.</li>
+        </ol>
+        <hr />
+        <p><em>Last updated: February 2026</em></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
