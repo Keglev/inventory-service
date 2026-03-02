@@ -24,12 +24,12 @@ The frontend is a **React + TypeScript** single-page application built with **Vi
 
 ## Major sections
 
-- **[Architectural Diagrams](./diagrams/)** *(diagram pages will be added incrementally)*
+- **[Architectural Diagrams](./diagrams/index.md)**
 - **[App Shell](./app-shell/index.md)**
-- **[Routing](./routing/)**
-- **[State](./state/)**
-- **[Data Access](./data-access/)**
-- **[Domains](./domains/)**
+- **[Routing](./routing/index.md)**
+- **[State](./state/index.md)**
+- **[Data Access](./data-access/index.md)**
+- **[Domains](./domains/index.md)**
 - **[UI Components](./ui/)**
 - **[Theming](./theming/)**
 - **[i18n](./i18n/)**
@@ -39,11 +39,16 @@ The frontend is a **React + TypeScript** single-page application built with **Vi
 
 ## High-level diagrams (links)
 
-- **[Diagrams directory](./diagrams/)**
+- **[Diagrams directory](./diagrams/index.md)**
 - **[System overview](./diagrams/system-overview.md)** *(planned)*
 - **[Frontend module map](./diagrams/module-map.md)** *(planned)*
 - **[Routing flow](./diagrams/routing-flow.md)** *(planned)*
-- **[Data fetching flow (React Query)](./diagrams/data-fetching-flow.md)** *(planned)*
+- **[Data fetching flow (React Query)](./diagrams/data-fetching-flow.md)**
+- **[HTTP client 401 redirect flow](./diagrams/http-client-401-redirect-flow.md)**
+- **[List fetching + normalization](./diagrams/list-fetching-and-normalization-flow.md)**
+- **[Connectivity + session probes](./diagrams/connectivity-and-session-probes-flow.md)**
+- **[Dashboard metrics parallel fetching](./diagrams/dashboard-metrics-parallel-flow.md)**
+- **[Supplier-scoped item search](./diagrams/supplier-scoped-item-search-flow.md)**
 
 ## Key architectural principles
 

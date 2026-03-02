@@ -55,7 +55,7 @@ The goal is that leaf components can trigger user feedback (toasts) without need
 ## Not covered here
 
 - Exact route definitions and guards (see [Routing](../routing/))
-- Page-level concerns and domain organization (see [Domains](../domains/))
+- Page-level concerns and domain organization (see [Domains](../domains/index.md))
 
 ---
 

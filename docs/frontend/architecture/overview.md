@@ -6,7 +6,7 @@
 
 Smart Supply Pro’s frontend is a React single-page application (SPA) that provides the user experience for inventory management, supplier workflows, and analytics. The architecture documentation focuses on **clarity**, **consistency**, and **maintainability** by describing how the application is organized into topics (routing, state, data access, UI, etc.) and how those topics fit together.
 
-> For diagrams and visual references, start at **[Architectural Diagrams](./diagrams/)**.
+> For diagrams and visual references, start at **[Architectural Diagrams](./diagrams/index.md)**.
 
 ## System Context (high-level)
 
@@ -26,67 +26,67 @@ This overview intentionally avoids implementation details. Each topic below link
 
 Each topic links to:
 - the **topic documentation folder**, and
-- the **diagrams entry point** (centralized under `./diagrams/`).
+- the **diagrams entry point** (centralized under `./diagrams/index.md`).
 
 ### App Shell
 - Docs: [App Shell](./app-shell/index.md)
-- Diagrams: [Architectural Diagrams](./diagrams/)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
 - Description: Entry point for shell variants (public vs authenticated), layout composition, preference handling (theme/locale), toasts, settings entry points, and help integration
 
 ### Routing
-- Docs: [Routing](./routing/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
-- Description: to be implemented
+- Docs: [Routing](./routing/index.md)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
+- Description: How URLs map to pages, how routes are grouped (public vs authenticated), guard/redirect behavior, logout/session-expiry navigation, and 404 fallback
 
 ### State
-- Docs: [State](./state/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
-- Description: to be implemented
+- Docs: [State](./state/index.md)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
+- Description: Global cross-cutting state via React Context (auth, settings, toast, help) and the boundaries vs local UI state and server state
 
 ### Data Access
-- Docs: [Data Access](./data-access/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
-- Description: to be implemented
+- Docs: [Data Access](./data-access/index.md)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
+- Description: API layer structure (Axios client, domain fetchers/normalizers, React Query hooks), caching conventions, envelope tolerance, and user-friendly error handling
 
 ### Domains
-- Docs: [Domains](./domains/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
-- Description: to be implemented
+- Docs: [Domains](./domains/index.md)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
+- Description: How domain pages are organized under src/pages/* (Inventory, Suppliers, Analytics, etc.), and what each page orchestrator owns vs shared layers
 
 ### UI Components
 - Docs: [UI Components](./ui/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
 - Description: to be implemented
 
 ### Theming
 - Docs: [Theming](./theming/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
 - Description: to be implemented
 
 ### Internationalization (i18n)
 - Docs: [i18n](./i18n/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
 - Description: to be implemented
 
 ### Performance
 - Docs: [Performance](./performance/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
 - Description: to be implemented
 
 ### Testing
 - Docs: [Testing](./testing/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
 - Description: to be implemented
 
 ### Architectural Decision Records (ADRs)
 - Docs: [ADRs](./adr/)
-- Diagrams: [Architectural Diagrams](./diagrams/)
+- Diagrams: [Architectural Diagrams](./diagrams/index.md)
 - Description: to be implemented
 
 ## Next Steps
 
 1. Read the topic that matches your current task (routing/state/data-access/ui).
-2. Use [Architectural Diagrams](./diagrams/) as the single entry point for visuals.
+2. Use [Architectural Diagrams](./diagrams/index.md) as the single entry point for visuals.
 3. Update each topic’s short description as the documentation evolves.
 
 ---

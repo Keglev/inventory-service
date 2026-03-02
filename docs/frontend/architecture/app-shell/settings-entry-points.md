@@ -37,7 +37,7 @@ Included:
 
 Excluded:
 - Specific settings fields and persistence rules (documented in the Settings section itself)
-- Domain/feature configuration screens (documented under [Domains](../domains/))
+- Domain/feature configuration screens (documented under [Domains](../domains/index.md))
 
 ---
 

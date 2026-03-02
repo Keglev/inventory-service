@@ -23,8 +23,8 @@ Included:
 - Preference persistence at shell level (e.g., theme and locale stored in browser storage)
 
 Excluded:
-- Feature/domain page structure (documented under [Domains](../domains/))
-- API/data-fetching implementation details (documented under [Data Access](../data-access/))
+- Feature/domain page structure (documented under [Domains](../domains/index.md))
+- API/data-fetching implementation details (documented under [Data Access](../data-access/index.md))
 - Component-level UI patterns (documented under [UI Components](../ui/))
 - Detailed routing rules and route guards (documented under [Routing](../routing/))
 - Authentication implementation (documented under the relevant auth sections)

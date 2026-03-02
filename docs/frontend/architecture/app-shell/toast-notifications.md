@@ -43,7 +43,7 @@ Included:
 - User experience guidelines for short, ephemeral messages
 
 Excluded:
-- Centralized error handling strategy for failed network calls (documented under [Data Access](../data-access/))
+- Centralized error handling strategy for failed network calls (documented under [Data Access](../data-access/index.md))
 - Domain-specific notification rules (documented under the relevant domain sections)
 
 ---
