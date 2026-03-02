@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · domains/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#domains" id="toc-domains">Domains</a>
+        <ul>
+        <li><a href="#section-purpose" id="toc-section-purpose">1️⃣
+        Section Purpose</a></li>
+        <li><a href="#scope-boundaries" id="toc-scope-boundaries">2️⃣
+        Scope &amp; Boundaries</a></li>
+        <li><a href="#high-level-diagram" id="toc-high-level-diagram">3️⃣
+        High-Level Diagram</a></li>
+        <li><a href="#section-map-domains"
+        id="toc-section-map-domains">4️⃣ Section Map (Domains)</a></li>
+        <li><a href="#implemented-so-far"
+        id="toc-implemented-so-far">Implemented (so far)</a></li>
+        <li><a href="#planned-next" id="toc-planned-next">Planned
+        (next)</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Frontend Architecture
+        Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="domains">Domains</h1>
+        <h2 id="section-purpose">1️⃣ Section Purpose</h2>
+        <p>This section documents the frontend as a set of
+        <strong>domain-oriented pages</strong> (Inventory, Suppliers,
+        Analytics, …).</p>
+        <p>The goal is to make it clear: - where each “business area”
+        lives in the code (<code>src/pages/&lt;domain&gt;</code>) -
+        which responsibilities belong to the page orchestrator
+        vs. sub-components - how each domain depends on cross-cutting
+        layers (routing, state, data-access)</p>
+        <h2 id="scope-boundaries">2️⃣ Scope &amp; Boundaries</h2>
+        <p>Included: - Domain page folders under
+        <code>frontend/src/pages/*</code> - Page orchestration patterns
+        (composition of hooks, handlers, dialogs, tables) - Domain
+        boundaries and “what belongs here” rules of thumb</p>
+        <p>Excluded: - Global layout/shell responsibilities (see <a
+        href="../app-shell/index.html">App Shell</a>) - Global routing
+        rules and guards (see <a
+        href="../routing/index.html">Routing</a>) - Shared API client +
+        caching/normalization strategy (see <a
+        href="../data-access/index.html">Data Access</a>) - Shared UI
+        component conventions (see <a href="../ui/">UI
+        Components</a>)</p>
+        <h2 id="high-level-diagram">3️⃣ High-Level Diagram</h2>
+        <div class="mermaid">
+        graph TB
+          Routes[Routing] --> Domain[Domain page]
+          Domain --> Orchestrator["Page orchestrator\n(Board/Page component)"]
+          Orchestrator --> State["Domain UI state\n(hooks)"]
+          Orchestrator --> Data["Domain data\n(React Query hooks)"]
+          Orchestrator --> UI["Domain components\n(toolbar/table/dialogs)"]
+
+          Data --> API[Data Access]
+          API --> Backend[Backend API]
+        </div>
+        <h2 id="section-map-domains">4️⃣ Section Map (Domains)</h2>
+        <h2 id="implemented-so-far">Implemented (so far)</h2>
+        <ul>
+        <li><a href="./auth/index.html">Auth</a> - Login/callback/logout
+        pages (<code>src/pages/auth</code>), Demo Mode, and session
+        hydration integration</li>
+        <li><a href="./home/index.html">Home</a> - Root landing page
+        (<code>src/pages/home</code>) that routes users to login, demo,
+        or dashboard</li>
+        <li><a href="./inventory/index.html">Inventory</a> - Inventory
+        Management page (<code>src/pages/inventory</code>) and its
+        orchestrator composition</li>
+        <li><a href="./suppliers/index.html">Suppliers</a> - Suppliers
+        Management page (<code>src/pages/suppliers</code>) with browse +
+        search + CRUD dialogs</li>
+        <li><a href="./analytics/index.html">Analytics</a> - Analytics
+        page (<code>src/pages/analytics</code>) with URL-driven
+        sections, filters, and block-based data fetching</li>
+        <li><a href="./dashboard/index.html">Dashboard</a> - Dashboard
+        page (<code>src/pages/dashboard</code>) with KPIs, compact
+        movement chart, and navigation shortcuts</li>
+        <li><a href="./system/index.html">System</a> - System-level
+        pages (<code>src/pages/system</code>), currently the global 404
+        fallback</li>
+        </ul>
+        <h2 id="planned-next">Planned (next)</h2>
+        <ul>
+        <li>(none right now)</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Frontend Architecture
+        Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+state/state-landscape · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#state-landscape-global-vs-local-vs-server-state"
+        id="toc-state-landscape-global-vs-local-vs-server-state">State
+        Landscape (Global vs Local vs Server-state)</a>
+        <ul>
+        <li><a href="#global-cross-cutting-state"
+        id="toc-global-cross-cutting-state">1) Global cross-cutting
+        state</a></li>
+        <li><a href="#local-ui-state" id="toc-local-ui-state">2) Local
+        UI state</a></li>
+        <li><a href="#server-state" id="toc-server-state">3) Server
+        state</a></li>
+        <li><a href="#conceptual-model"
+        id="toc-conceptual-model">Conceptual model</a></li>
+        <li><a href="#architectural-rule-of-thumb"
+        id="toc-architectural-rule-of-thumb">Architectural rule of
+        thumb</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to State Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="state-landscape-global-vs-local-vs-server-state">State
+        Landscape (Global vs Local vs Server-state)</h1>
+        <p>The frontend intentionally distinguishes between three kinds
+        of state:</p>
+        <ol type="1">
+        <li><strong>Global cross-cutting state</strong> (React
+        Context)</li>
+        <li><strong>Local UI state</strong> (component state /
+        hooks)</li>
+        <li><strong>Server state</strong> (data fetched from the
+        backend)</li>
+        </ol>
+        <p>This separation keeps the application maintainable by
+        preventing “global state sprawl”.</p>
+        <h2 id="global-cross-cutting-state">1) Global cross-cutting
+        state</h2>
+        <p>Global state is used when multiple, unrelated parts of the UI
+        need shared access to a concern that is not specific to one
+        page.</p>
+        <p>Examples in this codebase: - authentication session / current
+        user - user preferences (formatting, density) - help panel
+        open/close + current topic - toast notification API</p>
+        <h2 id="local-ui-state">2) Local UI state</h2>
+        <p>Local state belongs inside the component tree where it is
+        used. This includes UI-only concerns like: - dialog open/close
+        state inside a feature - tab selections that do not need to be
+        shared globally - temporary form input state</p>
+        <h2 id="server-state">3) Server state</h2>
+        <p>Backend data is treated as server state and should be managed
+        via the data-access layer (not via React Context) to enable
+        caching, retries, background refresh, and consistent error
+        handling.</p>
+        <h2 id="conceptual-model">Conceptual model</h2>
+        <div class="mermaid">
+        graph LR
+          Global["Global Context"] --> UI["All UI"]
+          Local["Local State"] --> UI
+          Server["Server State"] --> UI
+
+          Global --- Rules["Cross-cutting only"]
+          Local --- Rules2["Nearest owner"]
+          Server --- Rules3["Fetched + cached"]
+        </div>
+        <h2 id="architectural-rule-of-thumb">Architectural rule of
+        thumb</h2>
+        <ul>
+        <li>If it’s <strong>cross-cutting</strong>, consider a context
+        provider.</li>
+        <li>If it’s <strong>page-local</strong>, keep it local.</li>
+        <li>If it’s <strong>backend-derived</strong>, treat it as server
+        state.</li>
+        </ul>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

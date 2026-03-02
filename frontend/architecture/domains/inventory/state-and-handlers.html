@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/inventory/state-and-handlers · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#inventory-state-handlers"
+        id="toc-inventory-state-handlers">Inventory State &amp;
+        Handlers</a>
+        <ul>
+        <li><a href="#state-model" id="toc-state-model">State
+        model</a></li>
+        <li><a href="#handler-hooks" id="toc-handler-hooks">Handler
+        hooks</a>
+        <ul>
+        <li><a href="#filter-handlers" id="toc-filter-handlers">Filter
+        handlers</a></li>
+        <li><a href="#table-handlers" id="toc-table-handlers">Table
+        handlers</a></li>
+        <li><a href="#toolbar-handlers"
+        id="toc-toolbar-handlers">Toolbar handlers</a></li>
+        <li><a href="#refresh-handler" id="toc-refresh-handler">Refresh
+        handler</a></li>
+        </ul></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Inventory Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="inventory-state-handlers">Inventory State &amp;
+        Handlers</h1>
+        <p>Inventory keeps UI state centralized and pushes update logic
+        into small handler hooks.</p>
+        <h2 id="state-model">State model</h2>
+        <p><code>useInventoryState</code> is the single source of truth
+        for:</p>
+        <ul>
+        <li>Filters
+        <ul>
+        <li><code>supplierId</code>: selected supplier (required to load
+        items)</li>
+        <li><code>q</code>: search string</li>
+        <li><code>belowMinOnly</code>: boolean toggle</li>
+        </ul></li>
+        <li>Pagination &amp; sorting (MUI DataGrid)
+        <ul>
+        <li><code>paginationModel</code>:
+        <code>{ page, pageSize }</code> (0-based)</li>
+        <li><code>sortModel</code>: array with a primary
+        <code>{ field, sort }</code></li>
+        </ul></li>
+        <li>Selection
+        <ul>
+        <li><code>selectedId</code>: selected row id</li>
+        </ul></li>
+        <li>Dialog toggles
+        <ul>
+        <li><code>openNew</code>, <code>openEdit</code>,
+        <code>openEditName</code>, <code>openDelete</code>,
+        <code>openAdjust</code>, <code>openPrice</code></li>
+        </ul></li>
+        </ul>
+        <h2 id="handler-hooks">Handler hooks</h2>
+        <h3 id="filter-handlers">Filter handlers</h3>
+        <p><code>useFilterHandlers</code> encodes a few important
+        invariants: - Changing supplier resets dependent state: - clears
+        selection (<code>selectedId = null</code>) - clears query
+        (<code>q = ''</code>) - resets pagination to first page
+        (<code>page = 0</code>)</p>
+        <ul>
+        <li>Toggling “below minimum only” resets pagination to first
+        page.</li>
+        </ul>
+        <h3 id="table-handlers">Table handlers</h3>
+        <p><code>useTableHandlers</code> is intentionally thin: - row
+        click → set <code>selectedId</code> - pagination change → set
+        <code>paginationModel</code> - sort change → set
+        <code>sortModel</code></p>
+        <h3 id="toolbar-handlers">Toolbar handlers</h3>
+        <p><code>useToolbarHandlers</code> maps buttons to dialog
+        toggles: - Add New → <code>openNew = true</code> - Edit →
+        <code>openEditName = true</code> - Delete →
+        <code>openDelete = true</code> - Adjust Quantity →
+        <code>openAdjust = true</code> - Change Price →
+        <code>openPrice = true</code></p>
+        <h3 id="refresh-handler">Refresh handler</h3>
+        <p><code>useRefreshHandler</code> is a “soft reload”: - resets
+        pagination to page 0 - increments a refresh signal so the
+        inventory query refetches</p>
+        <p>(Exact mechanism is internal to the handler/hook chain.)</p>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart LR
+          UI[Toolbar / Filters / Table] --> Handlers[handlers/*]
+          Handlers --> State[useInventoryState]
+          State --> Data[useDataFetchingLogic]
+          Data --> UI
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

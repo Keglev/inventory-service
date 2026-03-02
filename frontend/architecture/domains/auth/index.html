@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · domains/auth/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#auth-domain" id="toc-auth-domain">Auth Domain</a>
+        <ul>
+        <li><a href="#domain-purpose" id="toc-domain-purpose">1️⃣ Domain
+        Purpose</a></li>
+        <li><a href="#scope-boundaries" id="toc-scope-boundaries">2️⃣
+        Scope &amp; Boundaries</a></li>
+        <li><a href="#high-level-diagram" id="toc-high-level-diagram">3️⃣
+        High-Level Diagram</a></li>
+        <li><a href="#domain-notes-implementation-facing"
+        id="toc-domain-notes-implementation-facing">4️⃣ Domain Notes
+        (Implementation-facing)</a></li>
+        <li><a href="#domain-map-planned-deep-dives"
+        id="toc-domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
+        deep-dives)</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Domains Index</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="auth-domain">Auth Domain</h1>
+        <p>This domain covers the public authentication pages under
+        <code>frontend/src/pages/auth</code> and how they integrate with
+        the global auth state and route guards.</p>
+        <h2 id="domain-purpose">1️⃣ Domain Purpose</h2>
+        <p>The Auth domain provides a minimal, predictable entry/exit
+        experience: - Start Google OAuth2 login (full-page redirect via
+        backend). - Handle the OAuth callback and hydrate the SPA user
+        session. - Support a client-only Demo Mode for read-only
+        exploration. - Perform logout in a way that reliably invalidates
+        the server session.</p>
+        <h2 id="scope-boundaries">2️⃣ Scope &amp; Boundaries</h2>
+        <p>Included: - <code>LoginPage.tsx</code> (SSO entry + Demo Mode
+        entry) - <code>AuthCallback.tsx</code> (session verification via
+        <code>/api/me</code>) - <code>LogoutPage.tsx</code> (client
+        cleanup + backend logout via POST form) -
+        <code>LogoutSuccess.tsx</code> (confirmation screen)</p>
+        <p>Related (cross-cutting, but auth-owned behavior): -
+        <code>AuthContext</code> session hydration + demo persistence
+        (<code>frontend/src/context/auth/AuthContext.ts</code>) - Route
+        guarding (<code>RequireAuth</code>) and route placement in the
+        router - Proactive session checking
+        (<code>useSessionTimeout</code>) in the authenticated shell</p>
+        <p>Excluded: - Global route definitions and shell layout: see <a
+        href="../../routing/index.html">Routing</a> and <a
+        href="../../app-shell/index.html">App Shell</a> - HTTP
+        client/auth redirect rules: see <a
+        href="../../data-access/index.html">Data Access</a> - Auth state
+        API and constraints: see <a
+        href="../../state/auth-context.html">Auth Context</a></p>
+        <h2 id="high-level-diagram">3️⃣ High-Level Diagram</h2>
+        <div class="mermaid">
+        flowchart TD
+          subgraph Public[Public routes - outside AppShell]
+            Login[LoginPage.tsx
+        /login] -->|Google SSO| OAuthRedirect[useAuth().login()
+        window.location.assign]
+            Login -->|Demo Mode| Demo[useAuth().loginAsDemo()
+        persist localStorage]
+
+            Callback[AuthCallback.tsx
+        /auth] --> Verify[GET /api/me
+        (httpClient)]
+            Verify -->|200 OK| Hydrate[useAuth().setUser(...)]
+            Verify -->|error| LoginErr[/login?error=session/]
+
+            LogoutOK[LogoutSuccess.tsx
+        /logout-success]
+          end
+
+          OAuthRedirect --> BackendOAuth[Backend: /oauth2/authorization/google
+        ?return=<origin>]
+          BackendOAuth --> Callback
+          Hydrate --> Dashboard[/dashboard]
+
+          subgraph Guard[Protected routes - inside AppShell]
+            Require[RequireAuth
+        (redirects to /login when unauth)]
+            Shell[AppShell
+        uses useSessionTimeout]
+            AppRoutes[Dashboard / Inventory / Suppliers / Analytics]
+          end
+
+          Dashboard --> Shell
+          Shell --> AppRoutes
+          Require --> AppRoutes
+
+          subgraph Logout[Logout flow]
+            LogoutRoute[/logout] --> LogoutPage[LogoutPage.tsx]
+            LogoutPage --> Clear[queryClient.clear()
+        useAuth().logout()]
+            LogoutPage --> Post[POST form: API_BASE/logout
+        ?return=<origin>/logout-success]
+            Post --> LogoutOK
+          end
+
+          Shell -->|heartbeat 401/403| LogoutRoute
+        </div>
+        <h2 id="domain-notes-implementation-facing">4️⃣ Domain Notes
+        (Implementation-facing)</h2>
+        <ul>
+        <li>Auth is implemented as <strong>public pages</strong> plus
+        <strong>global state</strong>:
+        <ul>
+        <li>Pages under <code>src/pages/auth/*</code> are intentionally
+        minimal and don’t own global routing.</li>
+        <li><code>AuthContext</code> is the single source of truth for
+        <code>user</code>, <code>loading</code>, and
+        <code>logoutInProgress</code>.</li>
+        </ul></li>
+        <li><strong>Session hydration order</strong> (in
+        <code>AuthContext</code>):
+        <ol type="1">
+        <li>Restore Demo user from <code>localStorage</code> (key
+        <code>ssp.demo.session</code>) if present.</li>
+        <li>Otherwise call <code>GET /api/me</code> to hydrate a real
+        user session.</li>
+        </ol></li>
+        <li><strong>OAuth2 entry</strong> is a full-page redirect
+        (<code>window.location.assign</code>):
+        <ul>
+        <li><code>useAuth().login()</code> builds a backend URL like
+        <code>${API_BASE}/oauth2/authorization/google?return=&lt;origin&gt;</code>.</li>
+        <li>The SPA expects to land back on <code>/auth</code> after
+        backend auth completes.</li>
+        </ul></li>
+        <li><strong>Logout is also a full navigation</strong> using a
+        top-level form POST:
+        <ul>
+        <li>Avoids XHR/CORS and ensures server-side session
+        invalidation.</li>
+        <li>Cleanup responsibilities are centralized in
+        <code>LogoutPage</code>:
+        <ul>
+        <li>React Query cache cleared via
+        <code>queryClient.clear()</code>.</li>
+        <li>Client auth state cleared via
+        <code>useAuth().logout()</code>.</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Guard semantics</strong> (<code>RequireAuth</code>):
+        <ul>
+        <li>While auth is bootstrapping (<code>loading=true</code>) it
+        renders a fallback instead of routing.</li>
+        <li><code>logoutInProgress</code> acts like a temporary
+        “loading” state to prevent flashing <code>/login</code> during
+        teardown.</li>
+        <li>Demo users are treated as authenticated, but routes can opt
+        out by omitting <code>allowDemo</code>.</li>
+        </ul></li>
+        </ul>
+        <h2 id="domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
+        deep-dives)</h2>
+        <p>These pages are intentionally not written yet; they will be
+        added as leaf docs next:</p>
+        <ul>
+        <li>OAuth return URL contract: backend expectations and frontend
+        invariants</li>
+        <li>Demo mode boundaries: what is allowed/blocked and where
+        enforcement happens</li>
+        <li>Logout hardening: CSRF considerations and future-proofing
+        the POST flow</li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Domains Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

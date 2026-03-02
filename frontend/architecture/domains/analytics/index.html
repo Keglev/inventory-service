@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/analytics/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#analytics-domain"
+        id="toc-analytics-domain">Analytics Domain</a>
+        <ul>
+        <li><a href="#domain-purpose" id="toc-domain-purpose">1️⃣ Domain
+        Purpose</a></li>
+        <li><a href="#scope-boundaries" id="toc-scope-boundaries">2️⃣
+        Scope &amp; Boundaries</a></li>
+        <li><a href="#high-level-diagram" id="toc-high-level-diagram">3️⃣
+        High-Level Diagram</a></li>
+        <li><a href="#domain-notes-implementation-facing"
+        id="toc-domain-notes-implementation-facing">4️⃣ Domain Notes
+        (Implementation-facing)</a></li>
+        <li><a href="#domain-map-planned-deep-dives"
+        id="toc-domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
+        deep-dives)</a></li>
+        <li><a href="#domain-map-deep-dives"
+        id="toc-domain-map-deep-dives">5️⃣ Domain Map
+        (Deep-dives)</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Domains Index</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="analytics-domain">Analytics Domain</h1>
+        <p>This domain covers the Analytics experience implemented under
+        <code>frontend/src/pages/analytics</code>.</p>
+        <h2 id="domain-purpose">1️⃣ Domain Purpose</h2>
+        <p>The Analytics domain provides a single place to: - explore
+        analytics KPIs and trends (stock value, movement, pricing, low
+        stock, finance) - filter analytics by <strong>date
+        range</strong> and optionally by <strong>supplier</strong> -
+        deep-link and share analytics views via URL state</p>
+        <p>A key intent is that the URL is the source of truth for the
+        current section and filters, so analytics views are
+        bookmarkable.</p>
+        <h2 id="scope-boundaries">2️⃣ Scope &amp; Boundaries</h2>
+        <p>Included: - Page orchestration in <code>Analytics.tsx</code>
+        (tabs/section routing, filter state, URL sync) - Filters UI
+        (<code>components/filters/*</code>) including quick presets +
+        custom ranges - Section navigation
+        (<code>components/AnalyticsNav.tsx</code>) based on route
+        segments - Analytics blocks (<code>blocks/*</code>) that each
+        fetch and render a single chart/table</p>
+        <p>Excluded: - API-level mechanics (Axios client, caching rules,
+        normalization) — see <a href="../../data-access/index.html">Data
+        Access</a> - Global routing rules (guards, shells) — see <a
+        href="../../routing/index.html">Routing</a> - Shared layout
+        chrome (header/sidebar) — see <a
+        href="../../app-shell/index.html">App Shell</a></p>
+        <h2 id="high-level-diagram">3️⃣ High-Level Diagram</h2>
+        <div class="mermaid">
+        flowchart TD
+          URL[URL\n/analytics/:section? + ?from&to&supplierId] --> Page[Analytics.tsx\n(orchestrator)]
+
+          Page --> Tabs[AnalyticsNav\nroute-segment tabs]
+          Page --> Filters[Filters\n(date range + supplier)]
+
+          Filters --> State[AnalyticsFilters state\n(from,to,supplierId,quick)]
+          State --> URL
+
+          Page --> Blocks[Blocks grid\n(StockValue, LowStock, PriceTrend, Finance...)]
+          Blocks --> RQ[React Query\nqueryKey includes filters]
+          RQ --> API[Analytics API\n(src/api/analytics/**)]
+          API --> Backend[Backend /api/analytics/*]
+        </div>
+        <h2 id="domain-notes-implementation-facing">4️⃣ Domain Notes
+        (Implementation-facing)</h2>
+        <ul>
+        <li><strong>Section selection</strong> is URL-driven:
+        <code>/analytics/:section?</code>
+        (e.g. <code>/analytics/pricing</code>).</li>
+        <li><strong>Filters are URL-synced</strong>: <code>from</code>,
+        <code>to</code>, and <code>supplierId</code> are written back to
+        search params.</li>
+        <li><strong>Supplier list</strong> for the filter is fetched
+        once via React Query (<code>['analytics','suppliers']</code>)
+        and then passed into the filter component.</li>
+        <li>Many blocks <strong>gate fetching</strong> via
+        <code>enabled</code> when a required parameter is missing (e.g.,
+        low-stock table requires a supplier).</li>
+        </ul>
+        <h2 id="domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
+        deep-dives)</h2>
+        <h2 id="domain-map-deep-dives">5️⃣ Domain Map (Deep-dives)</h2>
+        <ul>
+        <li><a href="./url-and-section-routing.html">Analytics URL &amp;
+        Section Routing</a></li>
+        <li><a href="./filters-and-url-sync.html">Analytics Filters
+        &amp; URL Sync</a></li>
+        <li><a href="./blocks-and-data-fetching.html">Analytics Blocks
+        &amp; Data Fetching</a></li>
+        <li><a href="./supplier-gated-blocks.html">Supplier-Gated
+        Blocks</a></li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Domains Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

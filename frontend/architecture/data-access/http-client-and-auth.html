@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+data-access/http-client-and-auth · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#http-client-auth-boundaries"
+        id="toc-http-client-auth-boundaries">HTTP Client &amp; Auth
+        Boundaries</a>
+        <ul>
+        <li><a href="#base-url-and-deployment-intent"
+        id="toc-base-url-and-deployment-intent">Base URL and deployment
+        intent</a></li>
+        <li><a href="#cross-cutting-headers"
+        id="toc-cross-cutting-headers">Cross-cutting headers</a></li>
+        <li><a href="#handling-and-navigation-boundaries"
+        id="toc-handling-and-navigation-boundaries">401 handling and
+        navigation boundaries</a></li>
+        <li><a href="#what-this-file-should-not-contain"
+        id="toc-what-this-file-should-not-contain">What this file should
+        not contain</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Data Access Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="http-client-auth-boundaries">HTTP Client &amp; Auth
+        Boundaries</h1>
+        <p>All API calls go through a shared Axios instance in
+        <code>src/api/httpClient.ts</code>.</p>
+        <h2 id="base-url-and-deployment-intent">Base URL and deployment
+        intent</h2>
+        <ul>
+        <li>The client resolves its base URL from
+        <code>VITE_API_BASE</code>.</li>
+        <li>If the env var is missing/blank, it falls back to
+        <strong>same-origin</strong> <code>/api</code>.</li>
+        <li>Requests are sent with <code>withCredentials: true</code> so
+        <strong>session cookies</strong> are included.</li>
+        </ul>
+        <p>Practical implication: - Keep API call sites consistent about
+        whether they include the <code>/api/...</code> prefix in the
+        request path.</p>
+        <h2 id="cross-cutting-headers">Cross-cutting headers</h2>
+        <p>The client sets common defaults: -
+        <code>Accept: application/json</code> -
+        <code>X-Requested-With: XMLHttpRequest</code></p>
+        <h2 id="handling-and-navigation-boundaries">401 handling and
+        navigation boundaries</h2>
+        <p>A response interceptor handles <code>401 Unauthorized</code>
+        centrally: - If the frontend is on a public page
+        (<code>/</code>, <code>/login</code>, <code>/auth*</code>,
+        <code>/logout*</code>): do <strong>not</strong> redirect. - If
+        the request is a <code>/me</code> probe: do <strong>not</strong>
+        redirect. - If a demo session is active: do <strong>not</strong>
+        redirect. - Otherwise: navigate to <code>/login</code>.</p>
+        <p>This keeps “session expired → login” consistent across all
+        feature areas, without duplicating redirect logic in every
+        hook.</p>
+        <h2 id="what-this-file-should-not-contain">What this file should
+        not contain</h2>
+        <ul>
+        <li>Feature-specific endpoints (they belong under
+        <code>src/api/&lt;domain&gt;/*</code>)</li>
+        <li>UI concerns like toasts/snackbars (surface errors up; UI
+        decides how to display)</li>
+        </ul>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+data-access/errors-and-fallbacks · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#errors-fallbacks" id="toc-errors-fallbacks">Errors
+        &amp; Fallbacks</a>
+        <ul>
+        <li><a href="#user-friendly-error-messages"
+        id="toc-user-friendly-error-messages">User-friendly error
+        messages</a></li>
+        <li><a href="#safe-fallbacks-for-list-endpoints"
+        id="toc-safe-fallbacks-for-list-endpoints">Safe fallbacks for
+        list endpoints</a></li>
+        <li><a href="#redirect-vs-error-surface"
+        id="toc-redirect-vs-error-surface">Redirect vs error
+        surface</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Data Access Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="errors-fallbacks">Errors &amp; Fallbacks</h1>
+        <p>The API layer aims to keep failures
+        <strong>user-comprehensible</strong> and to avoid UI crashes
+        caused by unexpected error shapes.</p>
+        <h2 id="user-friendly-error-messages">User-friendly error
+        messages</h2>
+        <p>Inventory utilities include an <code>errorMessage()</code>
+        helper that: - extracts structured messages from Axios-like
+        <code>response.data</code> shapes when present - falls back to
+        status-based messages (e.g., 401/403/404/409/400) - falls back
+        to <code>Error.message</code> or a generic “Request failed”</p>
+        <p>UI code should display the returned string
+        (toast/snackbar/banner) without exposing raw stack traces.</p>
+        <h2 id="safe-fallbacks-for-list-endpoints">Safe fallbacks for
+        list endpoints</h2>
+        <p>Some fetchers are explicitly resilient to network failures by
+        returning “empty page” results: - <code>items: []</code> -
+        <code>total: 0</code></p>
+        <p>This prevents DataGrid-like components from breaking during
+        transient connectivity issues.</p>
+        <h2 id="redirect-vs-error-surface">Redirect vs error
+        surface</h2>
+        <p>Authentication failures (<code>401</code>) are handled
+        centrally in the HTTP client (redirect rules) so feature code
+        doesn’t need to duplicate navigation logic.</p>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

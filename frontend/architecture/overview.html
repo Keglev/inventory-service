@@ -120,7 +120,8 @@
         access, UI, etc.) and how those topics fit together.</p>
         <blockquote>
         <p>For diagrams and visual references, start at <strong><a
-        href="./diagrams/">Architectural Diagrams</a></strong>.</p>
+        href="./diagrams/index.html">Architectural
+        Diagrams</a></strong>.</p>
         </blockquote>
         <h2 id="system-context-high-level">System Context
         (high-level)</h2>
@@ -139,11 +140,11 @@
         find diagrams)</h2>
         <p>Each topic links to: - the <strong>topic documentation
         folder</strong>, and - the <strong>diagrams entry point</strong>
-        (centralized under <code>./diagrams/</code>).</p>
+        (centralized under <code>./diagrams/index.md</code>).</p>
         <h3 id="app-shell">App Shell</h3>
         <ul>
         <li>Docs: <a href="./app-shell/index.html">App Shell</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
         <li>Description: Entry point for shell variants (public vs
         authenticated), layout composition, preference handling
@@ -152,43 +153,52 @@
         </ul>
         <h3 id="routing">Routing</h3>
         <ul>
-        <li>Docs: <a href="./routing/">Routing</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Docs: <a href="./routing/index.html">Routing</a></li>
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
-        <li>Description: to be implemented</li>
+        <li>Description: How URLs map to pages, how routes are grouped
+        (public vs authenticated), guard/redirect behavior,
+        logout/session-expiry navigation, and 404 fallback</li>
         </ul>
         <h3 id="state">State</h3>
         <ul>
-        <li>Docs: <a href="./state/">State</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Docs: <a href="./state/index.html">State</a></li>
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
-        <li>Description: to be implemented</li>
+        <li>Description: Global cross-cutting state via React Context
+        (auth, settings, toast, help) and the boundaries vs local UI
+        state and server state</li>
         </ul>
         <h3 id="data-access">Data Access</h3>
         <ul>
-        <li>Docs: <a href="./data-access/">Data Access</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Docs: <a href="./data-access/index.html">Data
+        Access</a></li>
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
-        <li>Description: to be implemented</li>
+        <li>Description: API layer structure (Axios client, domain
+        fetchers/normalizers, React Query hooks), caching conventions,
+        envelope tolerance, and user-friendly error handling</li>
         </ul>
         <h3 id="domains">Domains</h3>
         <ul>
-        <li>Docs: <a href="./domains/">Domains</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Docs: <a href="./domains/index.html">Domains</a></li>
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
-        <li>Description: to be implemented</li>
+        <li>Description: How domain pages are organized under
+        src/pages/* (Inventory, Suppliers, Analytics, etc.), and what
+        each page orchestrator owns vs shared layers</li>
         </ul>
         <h3 id="ui-components">UI Components</h3>
         <ul>
         <li>Docs: <a href="./ui/">UI Components</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
         <li>Description: to be implemented</li>
         </ul>
         <h3 id="theming">Theming</h3>
         <ul>
         <li>Docs: <a href="./theming/">Theming</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
         <li>Description: to be implemented</li>
         </ul>
@@ -196,21 +206,21 @@
         (i18n)</h3>
         <ul>
         <li>Docs: <a href="./i18n/">i18n</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
         <li>Description: to be implemented</li>
         </ul>
         <h3 id="performance">Performance</h3>
         <ul>
         <li>Docs: <a href="./performance/">Performance</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
         <li>Description: to be implemented</li>
         </ul>
         <h3 id="testing">Testing</h3>
         <ul>
         <li>Docs: <a href="./testing/">Testing</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
         <li>Description: to be implemented</li>
         </ul>
@@ -218,7 +228,7 @@
         Decision Records (ADRs)</h3>
         <ul>
         <li>Docs: <a href="./adr/">ADRs</a></li>
-        <li>Diagrams: <a href="./diagrams/">Architectural
+        <li>Diagrams: <a href="./diagrams/index.html">Architectural
         Diagrams</a></li>
         <li>Description: to be implemented</li>
         </ul>
@@ -226,8 +236,8 @@
         <ol type="1">
         <li>Read the topic that matches your current task
         (routing/state/data-access/ui).</li>
-        <li>Use <a href="./diagrams/">Architectural Diagrams</a> as the
-        single entry point for visuals.</li>
+        <li>Use <a href="./diagrams/index.html">Architectural
+        Diagrams</a> as the single entry point for visuals.</li>
         <li>Update each topic’s short description as the documentation
         evolves.</li>
         </ol>

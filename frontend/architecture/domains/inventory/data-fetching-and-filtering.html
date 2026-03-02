@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/inventory/data-fetching-and-filtering · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#inventory-data-fetching-filtering"
+        id="toc-inventory-data-fetching-filtering">Inventory Data
+        Fetching &amp; Filtering</a>
+        <ul>
+        <li><a href="#where-it-lives" id="toc-where-it-lives">Where it
+        lives</a></li>
+        <li><a href="#server-parameter-translation"
+        id="toc-server-parameter-translation">Server parameter
+        translation</a>
+        <ul>
+        <li><a href="#pagination"
+        id="toc-pagination">Pagination</a></li>
+        <li><a href="#sorting" id="toc-sorting">Sorting</a></li>
+        </ul></li>
+        <li><a href="#fetch-gating-supplier-required"
+        id="toc-fetch-gating-supplier-required">Fetch gating (supplier
+        required)</a></li>
+        <li><a href="#suppliers-list" id="toc-suppliers-list">Suppliers
+        list</a></li>
+        <li><a href="#client-side-filtering-domain-rules"
+        id="toc-client-side-filtering-domain-rules">Client-side
+        filtering (domain rules)</a>
+        <ul>
+        <li><a href="#supplier-fallback-filter"
+        id="toc-supplier-fallback-filter">1) Supplier fallback
+        filter</a></li>
+        <li><a href="#text-search" id="toc-text-search">2) Text
+        search</a></li>
+        <li><a href="#below-minimum-only" id="toc-below-minimum-only">3)
+        “Below minimum only”</a></li>
+        </ul></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Inventory Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="inventory-data-fetching-filtering">Inventory Data
+        Fetching &amp; Filtering</h1>
+        <p>Inventory uses a small adapter layer to translate UI state
+        into server query parameters, then applies a few domain-specific
+        client-side filters.</p>
+        <h2 id="where-it-lives">Where it lives</h2>
+        <ul>
+        <li>State → server params:
+        <code>frontend/src/pages/inventory/handlers/useDataFetchingLogic.ts</code></li>
+        <li>Data loading + derived data:
+        <code>frontend/src/pages/inventory/hooks/useInventoryData.ts</code></li>
+        <li>UI gating when no supplier:
+        <code>frontend/src/pages/inventory/InventoryBoard.tsx</code></li>
+        </ul>
+        <h2 id="server-parameter-translation">Server parameter
+        translation</h2>
+        <h3 id="pagination">Pagination</h3>
+        <p>MUI DataGrid pagination is 0-based, but the backend page API
+        is 1-based.</p>
+        <p><code>useDataFetchingLogic</code> converts: -
+        <code>serverPage = paginationModel.page + 1</code></p>
+        <h3 id="sorting">Sorting</h3>
+        <p>The UI stores a sort model, and the server expects a string:
+        - <code>"&lt;field&gt;,&lt;direction&gt;"</code>
+        (e.g. <code>name,asc</code>)</p>
+        <p>If no sort is set, the default falls back to
+        <code>name,asc</code>.</p>
+        <h2 id="fetch-gating-supplier-required">Fetch gating (supplier
+        required)</h2>
+        <p>Inventory only loads items after a supplier is selected:</p>
+        <ul>
+        <li>In <code>useInventoryData</code>, the <code>load()</code>
+        effect runs only when <code>supplierId</code> is truthy.</li>
+        <li>When no supplier is selected, the server payload is cleared
+        to an empty list.</li>
+        </ul>
+        <p>This is paired with a UI prompt in
+        <code>InventoryBoard</code> (“Select a supplier…”).</p>
+        <h2 id="suppliers-list">Suppliers list</h2>
+        <p>Supplier options for the filter dropdown come from a shared
+        query: - <code>useSuppliersQuery(true)</code></p>
+        <p>This query is independent of the selected supplier (it feeds
+        the supplier selector).</p>
+        <h2 id="client-side-filtering-domain-rules">Client-side
+        filtering (domain rules)</h2>
+        <p>After the server page loads, the Inventory domain
+        applies:</p>
+        <h3 id="supplier-fallback-filter">1) Supplier fallback
+        filter</h3>
+        <p>Even though supplierId is included in the request, the hook
+        also filters rows by supplier id as a safety net.</p>
+        <h3 id="text-search">2) Text search</h3>
+        <p><code>q</code> filters by <code>name</code> (case-insensitive
+        substring match).</p>
+        <h3 id="below-minimum-only">3) “Below minimum only”</h3>
+        <p>Rows are filtered to those with <code>onHand &lt; min</code>.
+        - If <code>minQty</code> is missing/invalid, a default of
+        <code>5</code> is used.</p>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          State[useInventoryState] --> Adapter[useDataFetchingLogic]
+          Adapter --> Query[useInventoryData]
+          Query --> Server[getInventoryPage]
+
+          Server --> Raw[server.items]
+          Raw --> Filter1[Supplier fallback filter]
+          Filter1 --> Filter2[Search filter (q)]
+          Filter2 --> Filter3[Below-min filter]
+          Filter3 --> Rows[filteredItems]
+
+          Rows --> Table[InventoryTable]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

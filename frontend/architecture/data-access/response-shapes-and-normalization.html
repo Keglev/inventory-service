@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+data-access/response-shapes-and-normalization · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#response-shapes-normalization"
+        id="toc-response-shapes-normalization">Response Shapes &amp;
+        Normalization</a>
+        <ul>
+        <li><a href="#envelope-tolerance"
+        id="toc-envelope-tolerance">Envelope tolerance</a></li>
+        <li><a href="#defensive-normalization"
+        id="toc-defensive-normalization">Defensive
+        normalization</a></li>
+        <li><a href="#shared-extraction-helpers"
+        id="toc-shared-extraction-helpers">Shared extraction
+        helpers</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Data Access Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="response-shapes-normalization">Response Shapes &amp;
+        Normalization</h1>
+        <p>Backend responses are treated as <strong>untrusted
+        input</strong>: they may differ by endpoint, evolve over time,
+        or vary between environments.</p>
+        <p>To keep the UI stable, the API layer normalizes backend
+        responses into frontend models.</p>
+        <h2 id="envelope-tolerance">Envelope tolerance</h2>
+        <p>List endpoints may return different “envelopes”, for example:
+        - a plain array: <code>[dto, dto, ...]</code> - a Spring
+        <code>Page</code>:
+        <code>{ content: [...], totalElements: 123, ... }</code> - a
+        custom envelope: <code>{ items: [...] }</code></p>
+        <p>Fetchers in <code>src/api/inventory/*</code> and
+        <code>src/api/suppliers/*</code> are written to tolerate these
+        shapes, extracting rows and calculating totals defensively.</p>
+        <h2 id="defensive-normalization">Defensive normalization</h2>
+        <p>Normalizers convert <code>unknown</code> data to typed models
+        with safe fallbacks.</p>
+        <p>Typical characteristics in this repo: - required fields are
+        validated (e.g., <code>id</code> must exist) - optional fields
+        default to safe values - multiple backend field name variants
+        may be accepted - invalid records are dropped
+        (<code>null</code>) rather than throwing</p>
+        <p>This approach makes list rendering predictable even when
+        backend data is incomplete.</p>
+        <h2 id="shared-extraction-helpers">Shared extraction
+        helpers</h2>
+        <p>Inventory utilities provide shared helpers like: - “extract
+        response.data safely” - “extract array from envelope keys” -
+        type guards to narrow <code>unknown</code> to
+        <code>Record&lt;string, unknown&gt;</code></p>
+        <p>These keep envelope parsing consistent across domains.</p>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

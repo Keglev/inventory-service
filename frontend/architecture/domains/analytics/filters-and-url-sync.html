@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/analytics/filters-and-url-sync · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#analytics-filters-url-sync"
+        id="toc-analytics-filters-url-sync">Analytics Filters &amp; URL
+        Sync</a>
+        <ul>
+        <li><a href="#filter-model-url-contract"
+        id="toc-filter-model-url-contract">Filter model (URL
+        contract)</a></li>
+        <li><a href="#where-it-lives" id="toc-where-it-lives">Where it
+        lives</a></li>
+        <li><a href="#initialization-rules"
+        id="toc-initialization-rules">Initialization rules</a></li>
+        <li><a href="#sync-rules" id="toc-sync-rules">Sync
+        rules</a></li>
+        <li><a href="#reset-behavior" id="toc-reset-behavior">Reset
+        behavior</a></li>
+        <li><a href="#supplier-options"
+        id="toc-supplier-options">Supplier options</a></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Analytics Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="analytics-filters-url-sync">Analytics Filters &amp; URL
+        Sync</h1>
+        <p>Analytics treats filters as <strong>shareable URL
+        state</strong>, not hidden component state.</p>
+        <h2 id="filter-model-url-contract">Filter model (URL
+        contract)</h2>
+        <p>Filters are serialized into search params: -
+        <code>from</code>: ISO date <code>YYYY-MM-DD</code> -
+        <code>to</code>: ISO date <code>YYYY-MM-DD</code> -
+        <code>supplierId</code>: supplier identifier</p>
+        <p>In UI, the filter state also tracks a <code>quick</code>
+        selector
+        (<code>30</code>/<code>90</code>/<code>180</code>/<code>custom</code>).</p>
+        <h2 id="where-it-lives">Where it lives</h2>
+        <ul>
+        <li>State + URL sync:
+        <code>frontend/src/pages/analytics/Analytics.tsx</code></li>
+        <li>Filter UI (controlled):
+        <code>frontend/src/pages/analytics/components/filters/*</code>
+        <ul>
+        <li><code>Filters.tsx</code> (orchestrator)</li>
+        <li><code>DateRangeFilter.tsx</code> (quick presets +
+        custom)</li>
+        <li><code>SupplierFilter.tsx</code> (supplier dropdown)</li>
+        <li><code>Filters.types.ts</code> (serializable filter
+        shape)</li>
+        </ul></li>
+        </ul>
+        <h2 id="initialization-rules">Initialization rules</h2>
+        <p>On first render, <code>Analytics.tsx</code>: 1. Reads
+        <code>from/to/supplierId</code> from
+        <code>location.search</code>. 2. If both <code>from</code> and
+        <code>to</code> exist, treats it as a “custom” range. 3.
+        Otherwise, applies defaults (last 180 days) and marks
+        <code>quick = '180'</code>.</p>
+        <p>This makes fresh visits predictable while still preserving
+        deep links.</p>
+        <h2 id="sync-rules">Sync rules</h2>
+        <p>When <code>filters.from</code>, <code>filters.to</code>, or
+        <code>filters.supplierId</code> change, a <code>useEffect</code>
+        writes them back to search params.</p>
+        <p>Key characteristics: - Only defined values are emitted
+        (missing <code>supplierId</code> is removed). - The URL becomes
+        the canonical representation of the current filter state.</p>
+        <h2 id="reset-behavior">Reset behavior</h2>
+        <p>The filter bar exposes a reset that: - resets date range to
+        180 days - clears <code>supplierId</code> - sets
+        <code>quick = '180'</code></p>
+        <h2 id="supplier-options">Supplier options</h2>
+        <p>The supplier dropdown is populated once per Analytics page
+        load via React Query: - <code>queryKey</code>:
+        <code>['analytics','suppliers']</code> - <code>queryFn</code>:
+        <code>getSuppliersLite</code></p>
+        <p>Then <code>suppliersQ.data</code> is passed into
+        <code>&lt;Filters /&gt;</code>.</p>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          URL[URL search params
+        from/to/supplierId] --> Init[Initial filters state]
+          Init --> UI[Filters component (controlled)]
+          UI --> Change[onChange(nextFilters)]
+          Change --> State[filters state]
+          State --> Effect[useEffect writes search params]
+          Effect --> URL
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

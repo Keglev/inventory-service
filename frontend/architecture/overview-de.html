@@ -123,7 +123,7 @@
         <blockquote>
         <p>Für Diagramme und visuelle Referenzen starten Sie bei
         <strong><a
-        href="./diagrams/">Architektur-Diagramme</a></strong>.</p>
+        href="./diagrams/index.html">Architektur-Diagramme</a></strong>.</p>
         </blockquote>
         <h2 id="systemkontext-high-level">Systemkontext
         (High-Level)</h2>
@@ -143,12 +143,12 @@
         <p>Jedes Thema verlinkt auf: - den <strong>Themenordner</strong>
         (Dokumentation), und - den
         <strong>Diagramm-Einstiegspunkt</strong> (zentral unter
-        <code>./diagrams/</code>).</p>
+        <code>./diagrams/index.md</code>).</p>
         <h3 id="app-shell">App Shell</h3>
         <ul>
         <li>Docs: <a href="./app-shell/index.html">App Shell</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
         <li>Beschreibung: Einstiegspunkt für Shell-Varianten (öffentlich
         vs. authentifiziert), Layout-Komposition, Preferences
         (Theme/Locale), Toasts, Settings-Einstiegspunkte und
@@ -156,45 +156,57 @@
         </ul>
         <h3 id="routing">Routing</h3>
         <ul>
-        <li>Docs: <a href="./routing/">Routing</a></li>
+        <li>Docs: <a href="./routing/index.html">Routing</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
-        <li>Beschreibung: wird implementiert</li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
+        <li>Beschreibung: Wie URLs auf Seiten abgebildet werden, wie
+        Routen gruppiert sind (öffentlich vs. authentifiziert),
+        Guard/Redirect-Verhalten, Logout/Session-Expiry-Navigation und
+        404-Fallback</li>
         </ul>
         <h3 id="state">State</h3>
         <ul>
-        <li>Docs: <a href="./state/">State</a></li>
+        <li>Docs: <a href="./state/index.html">State</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
-        <li>Beschreibung: wird implementiert</li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
+        <li>Beschreibung: Globaler, querschnittlicher State via React
+        Context (Auth, Settings, Toast, Help) sowie Abgrenzung zu
+        lokalem UI-State und Server-State</li>
         </ul>
         <h3 id="datenzugriff-data-access">Datenzugriff (Data
         Access)</h3>
         <ul>
-        <li>Docs: <a href="./data-access/">Data Access</a></li>
+        <li>Docs: <a href="./data-access/index.html">Data
+        Access</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
-        <li>Beschreibung: wird implementiert</li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
+        <li>Beschreibung: Struktur der API-Schicht (Axios-Client,
+        domain-spezifische Fetcher/Normalizers, React-Query-Hooks),
+        Caching-Konventionen, tolerantes Parsing und benutzerfreundliche
+        Fehlermeldungen</li>
         </ul>
         <h3 id="domänen">Domänen</h3>
         <ul>
-        <li>Docs: <a href="./domains/">Domains</a></li>
+        <li>Docs: <a href="./domains/index.html">Domains</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
-        <li>Beschreibung: wird implementiert</li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
+        <li>Beschreibung: Wie Domänen-Seiten unter src/pages/*
+        organisiert sind (Inventory, Suppliers, Analytics usw.) und
+        welche Verantwortlichkeiten der Page-Orchestrator vs. gemeinsame
+        Schichten haben</li>
         </ul>
         <h3 id="ui-komponenten">UI-Komponenten</h3>
         <ul>
         <li>Docs: <a href="./ui/">UI Components</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
         <li>Beschreibung: wird implementiert</li>
         </ul>
         <h3 id="theming">Theming</h3>
         <ul>
         <li>Docs: <a href="./theming/">Theming</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
         <li>Beschreibung: wird implementiert</li>
         </ul>
         <h3 id="internationalisierung-i18n">Internationalisierung
@@ -202,21 +214,21 @@
         <ul>
         <li>Docs: <a href="./i18n/">i18n</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
         <li>Beschreibung: wird implementiert</li>
         </ul>
         <h3 id="performance">Performance</h3>
         <ul>
         <li>Docs: <a href="./performance/">Performance</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
         <li>Beschreibung: wird implementiert</li>
         </ul>
         <h3 id="testing">Testing</h3>
         <ul>
         <li>Docs: <a href="./testing/">Testing</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
         <li>Beschreibung: wird implementiert</li>
         </ul>
         <h3 id="architectural-decision-records-adrs">Architectural
@@ -224,15 +236,16 @@
         <ul>
         <li>Docs: <a href="./adr/">ADRs</a></li>
         <li>Diagramme: <a
-        href="./diagrams/">Architektur-Diagramme</a></li>
+        href="./diagrams/index.html">Architektur-Diagramme</a></li>
         <li>Beschreibung: wird implementiert</li>
         </ul>
         <h2 id="nächste-schritte">Nächste Schritte</h2>
         <ol type="1">
         <li>Lesen Sie das Thema, das zu Ihrer aktuellen Aufgabe passt
         (Routing/State/Data Access/UI).</li>
-        <li>Nutzen Sie <a href="./diagrams/">Architektur-Diagramme</a>
-        als zentralen Einstiegspunkt für Visualisierungen.</li>
+        <li>Nutzen Sie <a
+        href="./diagrams/index.html">Architektur-Diagramme</a> als
+        zentralen Einstiegspunkt für Visualisierungen.</li>
         <li>Aktualisieren Sie die Kurzbeschreibung je Thema, während die
         Dokumentation wächst.</li>
         </ol>

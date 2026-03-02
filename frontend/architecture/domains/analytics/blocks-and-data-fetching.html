@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/analytics/blocks-and-data-fetching · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#analytics-blocks-data-fetching"
+        id="toc-analytics-blocks-data-fetching">Analytics Blocks &amp;
+        Data Fetching</a>
+        <ul>
+        <li><a href="#orchestrator-responsibilities"
+        id="toc-orchestrator-responsibilities">Orchestrator
+        responsibilities</a></li>
+        <li><a href="#block-responsibilities"
+        id="toc-block-responsibilities">Block responsibilities</a></li>
+        <li><a href="#query-key-conventions"
+        id="toc-query-key-conventions">Query key conventions</a></li>
+        <li><a href="#caching-and-retry-defaults"
+        id="toc-caching-and-retry-defaults">Caching and retry
+        defaults</a></li>
+        <li><a href="#charts-and-formatting"
+        id="toc-charts-and-formatting">Charts and formatting</a></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Analytics Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="analytics-blocks-data-fetching">Analytics Blocks &amp;
+        Data Fetching</h1>
+        <p>Analytics is intentionally implemented as a <strong>page
+        orchestrator + independent blocks</strong>.</p>
+        <h2 id="orchestrator-responsibilities">Orchestrator
+        responsibilities</h2>
+        <p><code>frontend/src/pages/analytics/Analytics.tsx</code> owns:
+        - parsing <code>:section</code> and choosing which block group
+        to render - holding the controlled <code>filters</code> state -
+        syncing <code>filters</code> ↔︎ URL search params - fetching
+        supplier options once
+        (<code>['analytics','suppliers']</code>)</p>
+        <p>It does <strong>not</strong> own API DTO mapping or shared
+        HTTP behavior.</p>
+        <h2 id="block-responsibilities">Block responsibilities</h2>
+        <p>Blocks under
+        <code>frontend/src/pages/analytics/blocks/*</code> typically: -
+        render one card/table - declare a React Query query with a
+        stable <code>queryKey</code> - call an analytics API function
+        (under <code>frontend/src/api/analytics/*</code>) - handle
+        loading/empty/error UI locally</p>
+        <p>Examples: - <code>StockValueCard</code> → stock value time
+        series line chart - <code>MovementLineCard</code> → stock in/out
+        over time line chart - <code>LowStockTable</code> → table gated
+        by supplier selection - <code>FinancialSummaryCard</code> →
+        supplier-gated financial summary</p>
+        <h2 id="query-key-conventions">Query key conventions</h2>
+        <p>Blocks key their queries by: - feature
+        (<code>'analytics'</code>) - block name - all filter inputs that
+        affect the request (<code>from/to/supplierId</code>)</p>
+        <p>Example patterns: -
+        <code>['analytics','stockValue', from, to, supplierId ?? null]</code>
+        -
+        <code>['analytics','movementLine', from ?? null, to ?? null, supplierId ?? null]</code></p>
+        <p>This ensures caching is correct and requests deduplicate
+        naturally.</p>
+        <h2 id="caching-and-retry-defaults">Caching and retry
+        defaults</h2>
+        <p>Most blocks use small freshness windows (commonly
+        <code>staleTime: 60_000</code>). Some blocks explicitly set
+        <code>retry: 0</code> when they prefer a fast fallback over
+        repeated retries.</p>
+        <h2 id="charts-and-formatting">Charts and formatting</h2>
+        <p>Charts are rendered using Recharts. Formatting is delegated
+        to shared user preferences: - dates via
+        <code>formatDate(..., userPreferences.dateFormat)</code> -
+        numbers via
+        <code>formatNumber(..., userPreferences.numberFormat, decimals)</code></p>
+        <p>This keeps analytics visuals consistent across locales.</p>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          Filters[filters state
+        (from/to/supplierId)] --> Blocks[Analytics blocks]
+          Blocks --> RQ[React Query]
+          RQ --> API[Analytics API functions
+        src/api/analytics/*]
+          API --> Backend[Backend /api/analytics/*]
+          RQ --> UI[loading / empty / error / data]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
