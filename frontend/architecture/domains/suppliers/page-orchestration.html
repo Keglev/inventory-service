@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/suppliers/page-orchestration · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#suppliers-page-orchestration-suppliersboard"
+        id="toc-suppliers-page-orchestration-suppliersboard">Suppliers
+        Page Orchestration (SuppliersBoard)</a>
+        <ul>
+        <li><a href="#responsibilities"
+        id="toc-responsibilities">Responsibilities</a></li>
+        <li><a href="#composition-overview"
+        id="toc-composition-overview">Composition overview</a></li>
+        <li><a href="#display-modes-row-selection-vs-full-list"
+        id="toc-display-modes-row-selection-vs-full-list">Display modes
+        (row selection vs full list)</a></li>
+        <li><a href="#dialog-lifecycle-wiring"
+        id="toc-dialog-lifecycle-wiring">Dialog lifecycle
+        wiring</a></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Suppliers Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="suppliers-page-orchestration-suppliersboard">Suppliers
+        Page Orchestration (SuppliersBoard)</h1>
+        <p><code>SuppliersBoard.tsx</code> is the Suppliers domain’s
+        page orchestrator. It composes state, handler hooks, data
+        shaping, and presentational components.</p>
+        <h2 id="responsibilities">Responsibilities</h2>
+        <p>Owned by <code>SuppliersBoard</code>: - Instantiate the
+        domain UI state (<code>useSuppliersBoardState</code>). - Bind
+        handler hooks for toolbar/search/filter/table/dialog events. -
+        Shape state into server-friendly parameters via
+        <code>useDataFetchingLogic</code>. - Decide which rows to
+        display (search-selection mode vs paginated mode). - Own dialog
+        open/close wiring and refresh callbacks.</p>
+        <p>Not owned by <code>SuppliersBoard</code>: - HTTP client
+        behavior, error normalization, and shared request policies → <a
+        href="../../data-access/index.html">Data Access</a> - Global
+        auth/route gating → <a
+        href="../../routing/index.html">Routing</a></p>
+        <h2 id="composition-overview">Composition overview</h2>
+        <p><code>SuppliersBoard</code> wires these layers:</p>
+        <ul>
+        <li>State: <code>hooks/useSuppliersBoardState.ts</code></li>
+        <li>Handlers: <code>handlers/*</code></li>
+        <li>Data: <code>handlers/useDataFetchingLogic.ts</code> →
+        <code>hooks/useSuppliersBoardData.ts</code> →
+        <code>api/suppliers/*</code></li>
+        <li>UI:
+        <ul>
+        <li><code>SuppliersToolbar</code></li>
+        <li><code>SuppliersSearchPanel</code></li>
+        <li><code>SuppliersFilterPanel</code></li>
+        <li><code>SuppliersTable</code></li>
+        <li><code>SuppliersDialogs</code> (Create/Edit/Delete)</li>
+        </ul></li>
+        </ul>
+        <h2 id="display-modes-row-selection-vs-full-list">Display modes
+        (row selection vs full list)</h2>
+        <p>The board uses a simple rule to decide what the table
+        shows:</p>
+        <ol type="1">
+        <li>If the user selected a supplier from the search
+        dropdown:</li>
+        </ol>
+        <ul>
+        <li>show only that supplier (single-row “focus mode”)</li>
+        </ul>
+        <ol start="2" type="1">
+        <li>Else if “Show all suppliers” is enabled:</li>
+        </ol>
+        <ul>
+        <li>show the paginated table</li>
+        </ul>
+        <ol start="3" type="1">
+        <li>Else:</li>
+        </ol>
+        <ul>
+        <li>show an empty-state placeholder</li>
+        </ul>
+        <p>This is encoded via <code>displayRows</code> and
+        <code>displayRowCount</code>.</p>
+        <h2 id="dialog-lifecycle-wiring">Dialog lifecycle wiring</h2>
+        <p>Dialogs are controlled from the board: - open state lives in
+        <code>useSuppliersBoardState</code> - close handlers call
+        setters and allow form hooks to reset -
+        onCreated/onUpdated/onDeleted callbacks route through
+        <code>useDialogHandlers</code> to: - toast a status message -
+        invalidate suppliers queries
+        (<code>queryKey: ['suppliers']</code>) - close dialogs and clear
+        selection where appropriate</p>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          Route["/suppliers"] --> Board[SuppliersBoard.tsx]
+
+          Board --> State[useSuppliersBoardState]
+          Board --> Handlers[handlers/*]
+          Board --> Data[useDataFetchingLogic]
+
+          Data --> BoardData[useSuppliersBoardData]
+          BoardData --> Queries[api/suppliers React Query hooks]
+          Queries --> Backend[Backend /api/suppliers]
+
+          Board --> Toolbar[SuppliersToolbar]
+          Board --> Search[SuppliersSearchPanel]
+          Board --> Filters[SuppliersFilterPanel]
+          Board --> Table[SuppliersTable]
+          Board --> Dialogs[SuppliersDialogs]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

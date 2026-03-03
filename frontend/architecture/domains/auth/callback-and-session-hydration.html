@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/auth/callback-and-session-hydration · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#oauth-callback-session-hydration"
+        id="toc-oauth-callback-session-hydration">OAuth Callback &amp;
+        Session Hydration</a>
+        <ul>
+        <li><a href="#where-it-lives" id="toc-where-it-lives">Where it
+        lives</a></li>
+        <li><a href="#callback-responsibility"
+        id="toc-callback-responsibility">Callback
+        responsibility</a></li>
+        <li><a href="#how-it-relates-to-authprovider-hydration"
+        id="toc-how-it-relates-to-authprovider-hydration">How it relates
+        to AuthProvider hydration</a></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Auth Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="oauth-callback-session-hydration">OAuth Callback &amp;
+        Session Hydration</h1>
+        <p>After the backend OAuth flow completes, the SPA verifies the
+        session and hydrates the in-memory user.</p>
+        <h2 id="where-it-lives">Where it lives</h2>
+        <ul>
+        <li>Callback page:
+        <code>frontend/src/pages/auth/AuthCallback.tsx</code></li>
+        <li>Global session hydration:
+        <code>frontend/src/context/auth/AuthContext.ts</code></li>
+        <li>HTTP behavior and 401 redirect rules:
+        <code>frontend/src/api/httpClient.ts</code></li>
+        </ul>
+        <h2 id="callback-responsibility">Callback responsibility</h2>
+        <p><code>AuthCallback.tsx</code> does one job on mount: - call
+        <code>GET /api/me</code></p>
+        <p>On success: - <code>setUser({ email, fullName, role })</code>
+        - <code>navigate('/dashboard', { replace: true })</code></p>
+        <p>On failure: -
+        <code>navigate('/login?error=session', { replace: true })</code></p>
+        <p>It includes a cancellation flag to avoid setting state after
+        unmount.</p>
+        <h2 id="how-it-relates-to-authprovider-hydration">How it relates
+        to AuthProvider hydration</h2>
+        <p>Separately from the callback page, the
+        <code>AuthProvider</code> runs one-time hydration on app
+        start:</p>
+        <ol type="1">
+        <li>Restore demo session from
+        <code>localStorage['ssp.demo.session']</code> if present.</li>
+        <li>Otherwise, attempt <code>GET /api/me</code> to hydrate a
+        real session.</li>
+        </ol>
+        <p>This means: - The callback page is the <em>post-OAuth happy
+        path</em>. - The provider hydration is the <em>bootstrap
+        path</em> (refresh, deep-link, reopening the app).</p>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          BackendOAuth[Backend OAuth completes] --> Callback[/auth]
+          Callback --> Me[GET /api/me]
+          Me -->|200| SetUser[setUser(...) in AuthContext]
+          Me -->|error| LoginErr[/login?error=session]
+          SetUser --> Dash[/dashboard]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

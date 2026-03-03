@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Frontend ·
-diagrams/list-fetching-and-normalization-flow · Smart Supply Pro Docs</title>
+i18n/usage-patterns-and-help-content · Smart Supply Pro Docs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
@@ -66,54 +66,92 @@ diagrams/list-fetching-and-normalization-flow · Smart Supply Pro Docs</title>
             <nav class="toc">
         <h2>On this page</h2>
         <ul>
-        <li><a href="#list-fetching-normalization"
-        id="toc-list-fetching-normalization">List fetching +
-        normalization</a></li>
+        <li><a href="#usage-patterns-help-content"
+        id="toc-usage-patterns-help-content">Usage patterns &amp; help
+        content</a>
+        <ul>
+        <li><a href="#prefer-explicit-namespaces"
+        id="toc-prefer-explicit-namespaces">Prefer explicit
+        namespaces</a></li>
+        <li><a href="#cross-namespace-usage"
+        id="toc-cross-namespace-usage">Cross-namespace usage</a></li>
+        <li><a href="#help-content-is-just-i18n-content"
+        id="toc-help-content-is-just-i18n-content">Help content is just
+        i18n content</a></li>
+        <li><a href="#recommended-workflow-for-adding-help-text"
+        id="toc-recommended-workflow-for-adding-help-text">Recommended
+        workflow for adding help text</a></li>
+        </ul></li>
         </ul>
       </nav>
       
       <article class="doc-body">
         <p><a id="top"></a></p>
-        <p><a href="./index.html">⬅️ Back to Diagrams Index</a></p>
+        <p><a href="./index.html">⬅️ Back to i18n Index</a></p>
         <ul>
-        <li><a href="../index.html">Back to Architecture Index</a></li>
         <li><a href="../overview.html">Back to Overview
         (English)</a></li>
         <li><a href="../overview-de.html">Zurück zum Überblick
         (Deutsch)</a></li>
-        <li><a href="../data-access/index.html">Back to Data
-        Access</a></li>
         </ul>
-        <h1 id="list-fetching-normalization">List fetching +
-        normalization</h1>
-        <p>Inventory and supplier list fetchers are resilient to
-        multiple backend “envelope” shapes and normalize rows
-        defensively.</p>
+        <h1 id="usage-patterns-help-content">Usage patterns &amp; help
+        content</h1>
+        <p>This page documents the preferred patterns for using
+        translations in UI code.</p>
+        <h2 id="prefer-explicit-namespaces">Prefer explicit
+        namespaces</h2>
+        <p>Most screens should bind a namespace explicitly:</p>
+        <ul>
+        <li><code>const { t } = useTranslation('inventory')</code></li>
+        </ul>
+        <p>Then use local keys:</p>
+        <ul>
+        <li><code>t('table.headers.name')</code></li>
+        </ul>
+        <p>This makes it obvious where the content lives.</p>
+        <h2 id="cross-namespace-usage">Cross-namespace usage</h2>
+        <p>For truly shared keys (global navigation/actions), use
+        <code>common</code>:</p>
+        <ul>
+        <li><code>t('common:actions.save')</code></li>
+        </ul>
+        <p>Rule of thumb: - keep domain pages domain-focused - only use
+        <code>common:*</code> for cross-cutting shared UI</p>
+        <h2 id="help-content-is-just-i18n-content">Help content is just
+        i18n content</h2>
+        <p>Help topic metadata is registered in
+        <code>frontend/src/help/topics.ts</code>.</p>
+        <p>The registry stores <strong>keys</strong>, not localized
+        strings:</p>
+        <ul>
+        <li><code>titleKey</code>:
+        e.g. <code>help:inventory.editItem.title</code></li>
+        <li><code>bodyKey</code>:
+        e.g. <code>help:inventory.editItem.body</code></li>
+        </ul>
+        <p>A help UI surface can then render:</p>
+        <ul>
+        <li><code>t(topic.titleKey)</code></li>
+        <li><code>t(topic.bodyKey)</code></li>
+        </ul>
+        <h2 id="recommended-workflow-for-adding-help-text">Recommended
+        workflow for adding help text</h2>
+        <ol type="1">
+        <li>Add topic metadata to <code>HELP_TOPICS</code></li>
+        <li>Add the localized key content to <code>help.json</code> in
+        both languages</li>
+        <li>Use <code>HelpIconButton</code> with <code>topicId</code> to
+        open that topic</li>
+        </ol>
+        <hr />
         <div class="mermaid">
-        flowchart TD
-          A[Fetcher called with params] --> B[httpClient.get('/api/<resource>', { params })]
-          B --> C{Request succeeded?}
-
-          C -->|no| F[Return empty page\nitems=[] total=0]
-
-          C -->|yes| D[Read response.data as unknown]
-          D --> E{Envelope shape?}
-
-          E -->|Plain array| E1[rowsRaw = data]
-          E -->|Spring Page| E2[rowsRaw = data.content]
-          E -->|Custom| E3[rowsRaw = data.items (or similar)]
-          E -->|Other| E4[rowsRaw = []]
-
-          E1 --> G[Normalize each row\n(to<Row> or normalize<Row>)\nfilter nulls]
-          E2 --> G
-          E3 --> G
-          E4 --> G
-
-          G --> H[Compute total\n(totalElements || total || rowsRaw.length)]
-          H --> I[Return { items, total, page, pageSize }]
+        graph LR
+          Button[HelpIconButton] --> Open[openHelp(topicId)]
+          Open --> Ctx[HelpContext]
+          Ctx --> Topic[lookup topic metadata]
+          Topic --> T[t(topicKey)]
+          T --> Text[localized text]
         </div>
-        <p>This keeps UI tables stable even when the backend response
-        format varies.</p>
         <hr />
         <p><a href="#top">Back to top</a></p>
       </article>

@@ -76,9 +76,11 @@
         <li><a href="#domain-notes-implementation-facing"
         id="toc-domain-notes-implementation-facing">4️⃣ Domain Notes
         (Implementation-facing)</a></li>
-        <li><a href="#domain-map-planned-deep-dives"
-        id="toc-domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
-        deep-dives)</a></li>
+        <li><a href="#domain-map-deep-dives"
+        id="toc-domain-map-deep-dives">5️⃣ Domain Map
+        (Deep-dives)</a></li>
+        <li><a href="#related-adrs" id="toc-related-adrs">Related
+        ADRs</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -222,17 +224,27 @@
         out by omitting <code>allowDemo</code>.</li>
         </ul></li>
         </ul>
-        <h2 id="domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
-        deep-dives)</h2>
-        <p>These pages are intentionally not written yet; they will be
-        added as leaf docs next:</p>
+        <h2 id="domain-map-deep-dives">5️⃣ Domain Map (Deep-dives)</h2>
+        <p>Leaf docs for how Auth works:</p>
         <ul>
-        <li>OAuth return URL contract: backend expectations and frontend
-        invariants</li>
-        <li>Demo mode boundaries: what is allowed/blocked and where
-        enforcement happens</li>
-        <li>Logout hardening: CSRF considerations and future-proofing
-        the POST flow</li>
+        <li><a href="./login-and-demo-entry.html">Login &amp; demo
+        entry</a></li>
+        <li><a href="./callback-and-session-hydration.html">OAuth
+        callback &amp; session hydration</a></li>
+        <li><a href="./logout-flow.html">Logout flow (POST
+        form)</a></li>
+        </ul>
+        <h2 id="related-adrs">Related ADRs</h2>
+        <ul>
+        <li><a
+        href="../../adr/adr-0006-global-state-with-context-modules.html">ADR-0006:
+        Global state with Context modules (Auth)</a></li>
+        <li><a
+        href="../../adr/adr-0005-shell-split-authenticated-vs-public.html">ADR-0005:
+        Application shell split (authenticated vs public)</a></li>
+        <li><a
+        href="../../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.html">ADR-0002:
+        API layer abstraction (httpClient 401 rules + /api/me)</a></li>
         </ul>
         <hr />
         <p><a href="../index.html">⬅️ Back to Domains Index</a></p>

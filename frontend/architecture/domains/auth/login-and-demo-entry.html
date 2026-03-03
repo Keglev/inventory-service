@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Frontend ·
-diagrams/connectivity-and-session-probes-flow · Smart Supply Pro Docs</title>
+domains/auth/login-and-demo-entry · Smart Supply Pro Docs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
@@ -66,66 +66,73 @@ diagrams/connectivity-and-session-probes-flow · Smart Supply Pro Docs</title>
             <nav class="toc">
         <h2>On this page</h2>
         <ul>
-        <li><a href="#connectivity-session-probes"
-        id="toc-connectivity-session-probes">Connectivity + session
-        probes</a></li>
+        <li><a href="#login-demo-entry" id="toc-login-demo-entry">Login
+        &amp; Demo Entry</a>
+        <ul>
+        <li><a href="#where-it-lives" id="toc-where-it-lives">Where it
+        lives</a></li>
+        <li><a href="#google-oauth-entry"
+        id="toc-google-oauth-entry">Google OAuth entry</a></li>
+        <li><a href="#error-banner" id="toc-error-banner">Error
+        banner</a></li>
+        <li><a href="#demo-entry" id="toc-demo-entry">Demo
+        entry</a></li>
+        <li><a href="#i18n-contract" id="toc-i18n-contract">i18n
+        contract</a></li>
+        </ul></li>
         </ul>
       </nav>
       
       <article class="doc-body">
         <p><a id="top"></a></p>
-        <p><a href="./index.html">⬅️ Back to Diagrams Index</a></p>
+        <p><a href="./index.html">⬅️ Back to Auth Domain</a></p>
         <ul>
-        <li><a href="../index.html">Back to Architecture Index</a></li>
-        <li><a href="../overview.html">Back to Overview
+        <li><a href="../../overview.html">Back to Overview
         (English)</a></li>
-        <li><a href="../overview-de.html">Zurück zum Überblick
+        <li><a href="../../overview-de.html">Zurück zum Überblick
         (Deutsch)</a></li>
-        <li><a href="../data-access/index.html">Back to Data
-        Access</a></li>
         </ul>
-        <h1 id="connectivity-session-probes">Connectivity + session
-        probes</h1>
-        <p>The frontend uses lightweight probes for “is the backend up?”
-        and “is this session valid?”.</p>
-        <div class="mermaid">
-        sequenceDiagram
-          autonumber
-          participant UI as Page / Bootstrapping
-          participant Probe as testConnection / checkSession
-          participant HC as httpClient (Axios)
-          participant BE as Backend API
-
-          alt Connectivity
-            UI->>Probe: testConnection()
-            Probe->>HC: GET /api/health/db
-            HC->>BE: request
-            BE-->>HC: 200 or error
-            alt 200
-              HC-->>Probe: status=200
-              Probe-->>UI: true
-            else error
-              HC-->>Probe: error
-              Probe-->>UI: false
-            end
-          end
-
-          alt Session validity
-            UI->>Probe: checkSession()
-            Probe->>HC: GET /api/me
-            HC->>BE: request
-            BE-->>HC: 200 (profile) or 401
-            alt 200
-              HC-->>Probe: profile
-              Probe-->>UI: AppUserProfile
-            else 401/other
-              HC-->>Probe: error
-              Probe-->>UI: null
-            end
-          end
-        </div>
-        <p>Important boundary: - <code>/api/me</code> is a probe and
-        should not trigger global redirects.</p>
+        <h1 id="login-demo-entry">Login &amp; Demo Entry</h1>
+        <p>The login screen is intentionally SSO-first and avoids local
+        credentials UX.</p>
+        <h2 id="where-it-lives">Where it lives</h2>
+        <ul>
+        <li>Page:
+        <code>frontend/src/pages/auth/LoginPage.tsx</code></li>
+        <li>Auth actions:
+        <code>frontend/src/context/auth/AuthContext.ts</code> via
+        <code>useAuth()</code></li>
+        </ul>
+        <h2 id="google-oauth-entry">Google OAuth entry</h2>
+        <p>The “Sign in with Google” button calls:</p>
+        <ul>
+        <li><code>useAuth().login()</code></li>
+        </ul>
+        <p><code>login()</code> performs a full-page redirect:</p>
+        <ul>
+        <li><code>window.location.assign(</code><span
+        class="math inline"><em>A</em><em>P</em><em>I</em><sub><em>B</em></sub><em>A</em><em>S</em><em>E</em>/<em>o</em><em>a</em><em>u</em><em>t</em><em>h</em>2/<em>a</em><em>u</em><em>t</em><em>h</em><em>o</em><em>r</em><em>i</em><em>z</em><em>a</em><em>t</em><em>i</em><em>o</em><em>n</em>/<em>g</em><em>o</em><em>o</em><em>g</em><em>l</em><em>e</em>?<em>r</em><em>e</em><em>t</em><em>u</em><em>r</em><em>n</em>=</span>{origin}<code>)</code></li>
+        </ul>
+        <p>Notes: - This is <strong>not</strong> an XHR call. - The
+        <code>return</code> query parameter tells the backend where to
+        send the browser back after OAuth completes.</p>
+        <h2 id="error-banner">Error banner</h2>
+        <p>If <code>?error=</code> is present in the URL, the page shows
+        an error <code>Alert</code>. This is used for cases like: - user
+        canceled OAuth consent - callback failed to verify the
+        session</p>
+        <h2 id="demo-entry">Demo entry</h2>
+        <p>The “Continue in Demo Mode” action: - calls
+        <code>useAuth().loginAsDemo()</code> - navigates to
+        <code>/dashboard</code> with <code>replace: true</code></p>
+        <p>The demo user is persisted under
+        <code>localStorage['ssp.demo.session']</code>.</p>
+        <h2 id="i18n-contract">i18n contract</h2>
+        <p>Login uses the <code>auth</code> namespace keys such as: -
+        <code>signIn</code>, <code>welcome</code>,
+        <code>signInGoogle</code>, <code>or</code>,
+        <code>continueDemo</code>, <code>ssoHint</code>,
+        <code>errorTitle</code></p>
         <hr />
         <p><a href="#top">Back to top</a></p>
       </article>

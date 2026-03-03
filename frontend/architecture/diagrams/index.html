@@ -68,11 +68,24 @@
         <li><a href="#architectural-diagrams"
         id="toc-architectural-diagrams">Architectural Diagrams</a>
         <ul>
+        <li><a href="#system-diagrams" id="toc-system-diagrams">System
+        diagrams</a></li>
+        <li><a href="#routing-diagrams"
+        id="toc-routing-diagrams">Routing diagrams</a></li>
+        <li><a href="#domains-diagrams"
+        id="toc-domains-diagrams">Domains diagrams</a></li>
         <li><a href="#data-access-diagrams"
         id="toc-data-access-diagrams">Data Access diagrams</a></li>
-        <li><a href="#planned-not-yet-diagrammed"
-        id="toc-planned-not-yet-diagrammed">Planned (not yet
-        diagrammed)</a></li>
+        <li><a href="#state-diagrams" id="toc-state-diagrams">State
+        diagrams</a></li>
+        <li><a href="#app-shell-diagrams"
+        id="toc-app-shell-diagrams">App Shell diagrams</a></li>
+        <li><a href="#ui-diagrams" id="toc-ui-diagrams">UI
+        diagrams</a></li>
+        <li><a href="#i18n-diagrams" id="toc-i18n-diagrams">i18n
+        diagrams</a></li>
+        <li><a href="#theming-diagrams"
+        id="toc-theming-diagrams">Theming diagrams</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -89,36 +102,81 @@
         <h1 id="architectural-diagrams">Architectural Diagrams</h1>
         <p>This directory is the single entry point for architecture
         diagrams.</p>
+        <h2 id="system-diagrams">System diagrams</h2>
+        <ul>
+        <li><a href="./system/system-overview.html">System overview</a>
+        - System context for the SPA (browser → frontend → backend →
+        DB)</li>
+        <li><a href="./system/module-map.html">Frontend module map</a> -
+        Major frontend directories and intended dependency
+        direction</li>
+        </ul>
+        <h2 id="routing-diagrams">Routing diagrams</h2>
+        <ul>
+        <li><a href="./routing/routing-flow.html">Routing flow</a> -
+        Public vs authenticated routing, guards, and 404 fallback</li>
+        </ul>
+        <h2 id="domains-diagrams">Domains diagrams</h2>
+        <ul>
+        <li><a href="./domains/domains-overview.html">Domains overview
+        (page orchestration)</a> - The recurring “page orchestrator”
+        shape across domains</li>
+        <li><a
+        href="./domains/dashboard-metrics-parallel-flow.html">Dashboard
+        metrics parallel fetching</a> - Analytics KPI aggregation via
+        <code>Promise.all</code></li>
+        <li><a
+        href="./domains/supplier-scoped-item-search-flow.html">Supplier-scoped
+        item search</a> - Client-side supplier filtering due to backend
+        limitation</li>
+        </ul>
         <h2 id="data-access-diagrams">Data Access diagrams</h2>
         <ul>
-        <li><a href="data-fetching-flow.html">Data fetching flow (React
-        Query)</a> - From UI → React Query hooks → domain fetchers →
-        <code>httpClient</code> → backend</li>
-        <li><a href="http-client-401-redirect-flow.html">HTTP client 401
-        redirect flow</a> - Centralized auth boundary for unauthorized
-        responses</li>
-        <li><a href="list-fetching-and-normalization-flow.html">List
+        <li><a href="./data-access/data-fetching-flow.html">Data
+        fetching flow (React Query)</a> - From UI → React Query hooks →
+        domain fetchers → <code>httpClient</code> → backend</li>
+        <li><a
+        href="./data-access/http-client-401-redirect-flow.html">HTTP
+        client 401 redirect flow</a> - Centralized auth boundary for
+        unauthorized responses</li>
+        <li><a
+        href="./data-access/list-fetching-and-normalization-flow.html">List
         fetching + normalization</a> - Envelope tolerance
         (<code>content</code>/<code>items</code>/array) + defensive
         normalization</li>
         <li><a
-        href="connectivity-and-session-probes-flow.html">Connectivity +
-        session probes</a> - <code>/health/db</code> and
+        href="./data-access/connectivity-and-session-probes-flow.html">Connectivity
+        + session probes</a> - <code>/health/db</code> and
         <code>/api/me</code> probe behaviors</li>
-        <li><a href="dashboard-metrics-parallel-flow.html">Dashboard
-        metrics parallel fetching</a> - Analytics KPI aggregation via
-        <code>Promise.all</code></li>
-        <li><a
-        href="supplier-scoped-item-search-flow.html">Supplier-scoped
-        item search</a> - Client-side supplier filtering due to backend
-        limitation</li>
         </ul>
-        <h2 id="planned-not-yet-diagrammed">Planned (not yet
-        diagrammed)</h2>
+        <h2 id="state-diagrams">State diagrams</h2>
         <ul>
-        <li>System overview</li>
-        <li>Frontend module map</li>
-        <li>Routing flow</li>
+        <li><a href="./state/provider-composition-flow.html">Provider
+        composition (conceptual)</a> - Provider placement and
+        shell-provided UX services</li>
+        </ul>
+        <h2 id="app-shell-diagrams">App Shell diagrams</h2>
+        <ul>
+        <li><a href="./app-shell/shell-variants-and-layout.html">App
+        shell variants &amp; layout</a> - Public pages vs authenticated
+        AppShell composition</li>
+        </ul>
+        <h2 id="ui-diagrams">UI diagrams</h2>
+        <ul>
+        <li><a href="./ui/help-system-flow.html">Help system flow</a> -
+        Help button → context → registry → i18n keys</li>
+        </ul>
+        <h2 id="i18n-diagrams">i18n diagrams</h2>
+        <ul>
+        <li><a href="./i18n/i18n-boot-flow.html">i18n boot flow
+        (German-first)</a> - Language selection and namespace
+        loading</li>
+        </ul>
+        <h2 id="theming-diagrams">Theming diagrams</h2>
+        <ul>
+        <li><a href="./theming/theme-build-and-locale-flow.html">Theme
+        build &amp; locale flow</a> - <code>buildTheme</code> + locale
+        pack merging</li>
         </ul>
         <hr />
         <p><a href="../index.html">⬅️ Back to Frontend Architecture

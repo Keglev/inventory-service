@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/suppliers/data-fetching-and-caching · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#suppliers-data-fetching-caching"
+        id="toc-suppliers-data-fetching-caching">Suppliers Data Fetching
+        &amp; Caching</a>
+        <ul>
+        <li><a href="#where-it-lives" id="toc-where-it-lives">Where it
+        lives</a></li>
+        <li><a href="#server-parameter-translation"
+        id="toc-server-parameter-translation">Server parameter
+        translation</a>
+        <ul>
+        <li><a href="#pagination"
+        id="toc-pagination">Pagination</a></li>
+        <li><a href="#sorting" id="toc-sorting">Sorting</a></li>
+        </ul></li>
+        <li><a href="#paginated-list-query"
+        id="toc-paginated-list-query">Paginated list query</a></li>
+        <li><a href="#search-dropdown-query"
+        id="toc-search-dropdown-query">Search dropdown query</a></li>
+        <li><a href="#response-tolerance-and-normalization"
+        id="toc-response-tolerance-and-normalization">Response tolerance
+        and normalization</a></li>
+        <li><a href="#important-stability-detail-memoized-return-object"
+        id="toc-important-stability-detail-memoized-return-object">Important
+        stability detail: memoized return object</a></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Suppliers Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="suppliers-data-fetching-caching">Suppliers Data Fetching
+        &amp; Caching</h1>
+        <p>Suppliers uses React Query hooks for: - paginated supplier
+        listing - search dropdown results</p>
+        <p>and a small adapter hook to translate UI state into
+        server-compatible parameters.</p>
+        <h2 id="where-it-lives">Where it lives</h2>
+        <ul>
+        <li>State → server params:
+        <code>frontend/src/pages/suppliers/handlers/useDataFetchingLogic.ts</code></li>
+        <li>Data composition:
+        <code>frontend/src/pages/suppliers/hooks/useSuppliersBoardData.ts</code></li>
+        <li>API hooks:
+        <code>frontend/src/api/suppliers/hooks/*</code></li>
+        <li>Fetcher + normalization:
+        <code>frontend/src/api/suppliers/supplierListFetcher.ts</code>,
+        <code>supplierNormalizers.ts</code></li>
+        </ul>
+        <h2 id="server-parameter-translation">Server parameter
+        translation</h2>
+        <h3 id="pagination">Pagination</h3>
+        <p>MUI DataGrid uses 0-based page indices. The backend expects
+        1-based:</p>
+        <ul>
+        <li><code>serverPage = paginationModel.page + 1</code></li>
+        </ul>
+        <h3 id="sorting">Sorting</h3>
+        <p>The server sort is serialized as:</p>
+        <ul>
+        <li><code>"&lt;field&gt;,&lt;direction&gt;"</code> (example:
+        <code>name,asc</code>)</li>
+        </ul>
+        <p>If the UI sort model is empty, the default falls back to
+        <code>name,asc</code>.</p>
+        <h2 id="paginated-list-query">Paginated list query</h2>
+        <p><code>useSupplierPageQuery(params, enabled)</code>: -
+        <code>queryKey</code>:
+        <code>['suppliers','page', page, pageSize, q, sort]</code> -
+        <code>staleTime</code>: 60 seconds - <code>gcTime</code>: 5
+        minutes</p>
+        <p>In <code>useSuppliersBoardData</code>, the <code>q</code>
+        parameter is only passed to the paginated API when: -
+        <code>showAllSuppliers === true</code> and
+        <code>searchQuery.length &gt;= 2</code></p>
+        <p>This avoids filtering the list when the user is only using
+        the dropdown search mode.</p>
+        <h2 id="search-dropdown-query">Search dropdown query</h2>
+        <p><code>useSupplierSearchQuery(query, enabled)</code>: -
+        <code>queryKey</code>:
+        <code>['suppliers','search', query]</code> - enabled only when
+        <code>query.length &gt;= 2</code> - query function calls
+        <code>getSuppliersPage({ page: 1, pageSize: 1000, q: query })</code></p>
+        <p>This means dropdown search is backend-powered and returns
+        full rows for display.</p>
+        <h2 id="response-tolerance-and-normalization">Response tolerance
+        and normalization</h2>
+        <p><code>getSuppliersPage</code> is tolerant of backend response
+        envelopes: - plain arrays - Spring Page-style objects
+        (<code>content</code>, <code>totalElements</code>) - custom
+        envelopes (<code>items</code>, <code>results</code>)</p>
+        <p>Rows are normalized via <code>toSupplierRow</code>.</p>
+        <p>On network errors, the fetcher returns an empty page
+        <code>{ items: [], total: 0 }</code>.</p>
+        <h2
+        id="important-stability-detail-memoized-return-object">Important
+        stability detail: memoized return object</h2>
+        <p><code>useSuppliersBoardData</code> returns a memoized object
+        via <code>React.useMemo</code>. This avoids recreating a new
+        reference on every render, which the code comments call out as
+        important to prevent router update freezes (re-render
+        loops).</p>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          State[useSuppliersBoardState] --> Adapter[useDataFetchingLogic]
+          Adapter --> Data[useSuppliersBoardData]
+
+          Data --> PageQ[useSupplierPageQuery]
+          Data --> SearchQ[useSupplierSearchQuery]
+
+          PageQ --> Fetcher[getSuppliersPage]
+          SearchQ --> Fetcher
+          Fetcher --> Backend[/api/suppliers]
+
+          Data --> UI[SuppliersTable + Search dropdown]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

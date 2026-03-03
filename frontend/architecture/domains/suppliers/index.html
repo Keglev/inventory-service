@@ -78,9 +78,11 @@ domains/suppliers/index · Smart Supply Pro Docs</title>
         <li><a href="#domain-notes-implementation-facing"
         id="toc-domain-notes-implementation-facing">4️⃣ Domain Notes
         (Implementation-facing)</a></li>
-        <li><a href="#domain-map-planned-deep-dives"
-        id="toc-domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
-        deep-dives)</a></li>
+        <li><a href="#domain-map-deep-dives"
+        id="toc-domain-map-deep-dives">5️⃣ Domain Map
+        (Deep-dives)</a></li>
+        <li><a href="#related-adrs" id="toc-related-adrs">Related
+        ADRs</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -150,19 +152,33 @@ domains/suppliers/index · Smart Supply Pro Docs</title>
         <li>“show all suppliers” → show the paginated table</li>
         </ul></li>
         </ul>
-        <h2 id="domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
-        deep-dives)</h2>
-        <p>These pages are intentionally not written yet; they will be
-        added as leaf docs next:</p>
+        <h2 id="domain-map-deep-dives">5️⃣ Domain Map (Deep-dives)</h2>
+        <p>Leaf docs for how Suppliers works:</p>
         <ul>
-        <li>Page orchestration: <code>SuppliersBoard</code>
-        responsibilities and composition</li>
-        <li>Data shaping: page (0-based) → server (1-based) conversion
-        and sort serialization</li>
-        <li>Search flow: query length gating, search results, and
-        selection behavior</li>
-        <li>Dialog lifecycle: create/edit/delete flows and refresh
-        behavior</li>
+        <li><a href="./page-orchestration.html">Page orchestration
+        (SuppliersBoard)</a></li>
+        <li><a href="./state-and-handlers.html">State &amp; handlers
+        (reset invariants)</a></li>
+        <li><a href="./data-fetching-and-caching.html">Data fetching
+        &amp; caching</a></li>
+        <li><a href="./search-and-display-modes.html">Search &amp;
+        display modes</a></li>
+        <li><a href="./dialogs-and-mutations.html">Dialogs &amp;
+        mutations</a></li>
+        <li><a href="./validation-and-authorization.html">Validation
+        &amp; authorization</a></li>
+        </ul>
+        <h2 id="related-adrs">Related ADRs</h2>
+        <ul>
+        <li><a
+        href="../../adr/adr-0003-page-model-and-domain-separation.html">ADR-0003:
+        Page model and domain separation</a></li>
+        <li><a
+        href="../../adr/adr-0004-dialog-workflow-architecture.html">ADR-0004:
+        Dialog/workflow architecture</a></li>
+        <li><a
+        href="../../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.html">ADR-0002:
+        API layer abstraction (httpClient + domain modules)</a></li>
         </ul>
         <hr />
         <p><a href="../index.html">⬅️ Back to Domains Index</a></p>

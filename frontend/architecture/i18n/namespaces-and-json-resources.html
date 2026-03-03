@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+i18n/namespaces-and-json-resources · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#namespaces-json-resources"
+        id="toc-namespaces-json-resources">Namespaces &amp; JSON
+        resources</a>
+        <ul>
+        <li><a href="#file-layout" id="toc-file-layout">File
+        layout</a></li>
+        <li><a href="#namespace-responsibilities"
+        id="toc-namespace-responsibilities">Namespace
+        responsibilities</a></li>
+        <li><a href="#how-namespaces-are-declared"
+        id="toc-how-namespaces-are-declared">How namespaces are
+        declared</a></li>
+        <li><a href="#adding-a-new-translation-key"
+        id="toc-adding-a-new-translation-key">Adding a new translation
+        key</a></li>
+        <li><a href="#help-topics-as-i18n-backed-content"
+        id="toc-help-topics-as-i18n-backed-content">Help topics as
+        i18n-backed content</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to i18n Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="namespaces-json-resources">Namespaces &amp; JSON
+        resources</h1>
+        <p>Smart Supply Pro uses <strong>namespaced translation
+        bundles</strong>, loaded from <code>public/locales/</code>.</p>
+        <h2 id="file-layout">File layout</h2>
+        <p>The backend loader path is:</p>
+        <ul>
+        <li><code>public/locales/{lng}/{ns}.json</code></li>
+        </ul>
+        <p>Example (English):</p>
+        <ul>
+        <li><code>frontend/public/locales/en/common.json</code></li>
+        <li><code>frontend/public/locales/en/inventory.json</code></li>
+        <li><code>frontend/public/locales/en/help.json</code></li>
+        </ul>
+        <p>Example (German):</p>
+        <ul>
+        <li><code>frontend/public/locales/de/common.json</code></li>
+        <li><code>frontend/public/locales/de/inventory.json</code></li>
+        <li><code>frontend/public/locales/de/help.json</code></li>
+        </ul>
+        <h2 id="namespace-responsibilities">Namespace
+        responsibilities</h2>
+        <ul>
+        <li><code>common</code>: shared/global UI (navigation, generic
+        actions)</li>
+        <li><code>&lt;domain&gt;</code> namespaces
+        (<code>inventory</code>, <code>suppliers</code>,
+        <code>analytics</code>, …): domain-specific UI</li>
+        <li><code>system</code>: system-level pages (404, generic system
+        states)</li>
+        <li><code>errors</code>: user-facing error messages</li>
+        <li><code>help</code>: help topic text (titles + body + optional
+        link label)</li>
+        </ul>
+        <h2 id="how-namespaces-are-declared">How namespaces are
+        declared</h2>
+        <ul>
+        <li>The canonical namespace list is a constant in
+        <code>frontend/src/i18n/index.ts</code>.</li>
+        <li>That list is also used to load all namespaces at
+        startup.</li>
+        </ul>
+        <h2 id="adding-a-new-translation-key">Adding a new translation
+        key</h2>
+        <ol type="1">
+        <li>Add the key under the appropriate namespace JSON:
+        <ul>
+        <li><code>frontend/public/locales/en/&lt;ns&gt;.json</code></li>
+        <li><code>frontend/public/locales/de/&lt;ns&gt;.json</code></li>
+        </ul></li>
+        <li>If you added a <strong>new namespace</strong> file:
+        <ul>
+        <li>add it to the namespace list constant</li>
+        <li>add it to <code>frontend/src/i18n/resources.d.ts</code>
+        imports and <code>resources</code> map</li>
+        </ul></li>
+        <li>Use it from code:
+        <ul>
+        <li><code>const { t } = useTranslation('&lt;ns&gt;')</code></li>
+        <li><code>t('&lt;path.to.key&gt;')</code></li>
+        </ul></li>
+        </ol>
+        <h2 id="help-topics-as-i18n-backed-content">Help topics as
+        i18n-backed content</h2>
+        <p>Help topics are registered in
+        <code>frontend/src/help/topics.ts</code>.</p>
+        <p>Each topic maps to i18n keys like:</p>
+        <ul>
+        <li><code>help:&lt;topicId&gt;.title</code></li>
+        <li><code>help:&lt;topicId&gt;.body</code></li>
+        </ul>
+        <p>This keeps help content localized and centralized.</p>
+        <hr />
+        <div class="mermaid">
+        graph LR
+          Topics[HELP_TOPICS registry] --> Keys[i18n keys
+        help:*.title/body]
+          Keys --> JSON[public/locales/{lng}/help.json]
+          JSON --> UI[Help UI renders t(key)]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

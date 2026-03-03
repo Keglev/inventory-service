@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+adr/adr-0006-global-state-with-context-modules · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a
+        href="#adr-0006-global-state-approach-using-context-modules-authsettingstoasthelp"
+        id="toc-adr-0006-global-state-approach-using-context-modules-authsettingstoasthelp">ADR-0006:
+        Global state approach using Context modules
+        (Auth/Settings/Toast/Help)</a>
+        <ul>
+        <li><a href="#status" id="toc-status">Status</a></li>
+        <li><a href="#date" id="toc-date">Date</a></li>
+        <li><a href="#context" id="toc-context">Context</a></li>
+        <li><a href="#decision" id="toc-decision">Decision</a></li>
+        <li><a href="#alternatives-considered"
+        id="toc-alternatives-considered">Alternatives
+        Considered</a></li>
+        <li><a href="#consequences"
+        id="toc-consequences">Consequences</a>
+        <ul>
+        <li><a href="#positive" id="toc-positive">Positive</a></li>
+        <li><a href="#negative-tradeoffs"
+        id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+        </ul></li>
+        <li><a href="#implementation-notes"
+        id="toc-implementation-notes">Implementation Notes</a></li>
+        <li><a href="#references"
+        id="toc-references">References</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1
+        id="adr-0006-global-state-approach-using-context-modules-authsettingstoasthelp">ADR-0006:
+        Global state approach using Context modules
+        (Auth/Settings/Toast/Help)</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-03-03</p>
+        <h2 id="context">Context</h2>
+        <p>The app needs a small set of global, cross-cutting state that
+        must be accessible across domains: - authentication/session
+        state - user preferences and system info - toast notifications -
+        help panel open/close state and current topic</p>
+        <p>Forces/constraints: - <strong>Simplicity:</strong> avoid
+        introducing a full global state framework for limited global
+        needs. - <strong>Separation of concerns:</strong> API state
+        should live in React Query, not in app-global stores. -
+        <strong>Testability:</strong> global behaviors should be
+        testable with provider wrappers.</p>
+        <h2 id="decision">Decision</h2>
+        <p>We use <strong>React Context providers</strong> for global
+        app concerns, and keep other state local:</p>
+        <ul>
+        <li>Context providers under <code>frontend/src/context/*</code>:
+        <ul>
+        <li><code>auth/</code>, <code>settings/</code>,
+        <code>toast/</code>, <code>help/</code></li>
+        </ul></li>
+        <li>Data state lives in React Query hooks (API layer).</li>
+        <li>UI-local state stays inside components/pages.</li>
+        </ul>
+        <p>Access patterns are standardized via: -
+        <code>frontend/src/hooks/createContextHook.ts</code> -
+        convenience hooks like
+        <code>frontend/src/hooks/useAuth.ts</code>,
+        <code>useSettings.ts</code>, <code>useHelp.ts</code></p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Redux / global store</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Centralized state and tooling</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Overhead for the current scale</li>
+        <li>Risk of pushing API state into global store</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>React Query for everything</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Good for server-state</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Not appropriate for UI/session providers like
+        help/toast</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Prop drilling</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>No extra framework</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Becomes unmaintainable across many pages</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Clear split: Context for global app concerns; React Query
+        for server-state.</li>
+        <li>Reusable providers and stable typed hooks.</li>
+        <li>Easy to wrap tests with “all providers”.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>Provider composition order matters and must be managed.</li>
+        <li>Contexts can become “god objects” if scope creeps.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented (paths, key modules)
+        <ul>
+        <li>Providers: <code>frontend/src/context/auth/*</code>,
+        <code>frontend/src/context/settings/*</code>,
+        <code>frontend/src/context/help/*</code>,
+        <code>frontend/src/context/toast/*</code></li>
+        <li>Hook factory:
+        <code>frontend/src/hooks/createContextHook.ts</code></li>
+        <li>Typed access hooks:
+        <code>frontend/src/hooks/useAuth.ts</code>,
+        <code>frontend/src/hooks/useSettings.ts</code>,
+        <code>frontend/src/hooks/useHelp.ts</code></li>
+        </ul></li>
+        <li>Migration notes (if relevant)
+        <ul>
+        <li>Prefer adding new domain state locally; only promote to
+        context if truly cross-cutting.</li>
+        </ul></li>
+        <li>Testing implications (what should be tested and where)
+        <ul>
+        <li>Provider + hook behavior in unit tests.</li>
+        <li>Use
+        <code>frontend/src/__tests__/test/all-providers.tsx</code> to
+        render components under correct providers.</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li>Architecture docs: <a href="../state/index.html">State</a>,
+        <a href="../ui/index.html">UI &amp; UX Building Blocks</a></li>
+        <li>Diagram: <a
+        href="../diagrams/state/provider-composition-flow.html">Provider
+        composition</a></li>
+        <li>Related ADRs: ADR-0002</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

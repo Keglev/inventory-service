@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Frontend ·
-diagrams/supplier-scoped-item-search-flow · Smart Supply Pro Docs</title>
+diagrams/data-access/list-fetching-and-normalization-flow · Smart Supply Pro Docs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
@@ -66,41 +66,55 @@ diagrams/supplier-scoped-item-search-flow · Smart Supply Pro Docs</title>
             <nav class="toc">
         <h2>On this page</h2>
         <ul>
-        <li><a href="#supplier-scoped-item-search"
-        id="toc-supplier-scoped-item-search">Supplier-scoped item
-        search</a></li>
+        <li><a href="#list-fetching-normalization"
+        id="toc-list-fetching-normalization">List fetching +
+        normalization</a></li>
         </ul>
       </nav>
       
       <article class="doc-body">
         <p><a id="top"></a></p>
-        <p><a href="./index.html">⬅️ Back to Diagrams Index</a></p>
+        <p><a href="../index.html">⬅️ Back to Diagrams Index</a></p>
         <ul>
-        <li><a href="../index.html">Back to Architecture Index</a></li>
-        <li><a href="../overview.html">Back to Overview
+        <li><a href="../../index.html">Back to Architecture
+        Index</a></li>
+        <li><a href="../../overview.html">Back to Overview
         (English)</a></li>
-        <li><a href="../overview-de.html">Zurück zum Überblick
+        <li><a href="../../overview-de.html">Zurück zum Überblick
         (Deutsch)</a></li>
-        <li><a href="../data-access/index.html">Back to Data
+        <li><a href="../../data-access/index.html">Back to Data
         Access</a></li>
         </ul>
-        <h1 id="supplier-scoped-item-search">Supplier-scoped item
-        search</h1>
-        <p>The item type-ahead search is supplier-scoped in the UI.
-        Because the backend does not reliably filter by supplier, the
-        hook applies <strong>client-side filtering</strong>.</p>
+        <h1 id="list-fetching-normalization">List fetching +
+        normalization</h1>
+        <p>Inventory and supplier list fetchers are resilient to
+        multiple backend “envelope” shapes and normalize rows
+        defensively.</p>
         <div class="mermaid">
         flowchart TD
-          A[UI calls useItemSearchQuery\n(selectedSupplier, searchQuery)] --> B{enabled?\n(supplier set AND query length ≥ 2)}
-          B -->|no| C[Return [] (idle)]
-          B -->|yes| D[queryFn]
+          A[Fetcher called with params] --> B[httpClient.get('/api/<resource>', { params })]
+          B --> C{Request succeeded?}
 
-          D --> E[Call searchItemsForSupplier\n(supplierId, q, limit=500)]
-          E --> F[Backend returns items\n(may include other suppliers)]
-          F --> G[Client-side filter\nitem.supplierId == selectedSupplier.id]
-          G --> H[Map to ItemOption\n{id, name}]
-          H --> I[Return filtered options]
+          C -->|no| F[Return empty page\nitems=[] total=0]
+
+          C -->|yes| D[Read response.data as unknown]
+          D --> E{Envelope shape?}
+
+          E -->|Plain array| E1[rowsRaw = data]
+          E -->|Spring Page| E2[rowsRaw = data.content]
+          E -->|Custom| E3[rowsRaw = data.items (or similar)]
+          E -->|Other| E4[rowsRaw = []]
+
+          E1 --> G[Normalize each row\n(to<Row> or normalize<Row>)\nfilter nulls]
+          E2 --> G
+          E3 --> G
+          E4 --> G
+
+          G --> H[Compute total\n(totalElements || total || rowsRaw.length)]
+          H --> I[Return { items, total, page, pageSize }]
         </div>
+        <p>This keeps UI tables stable even when the backend response
+        format varies.</p>
         <hr />
         <p><a href="#top">Back to top</a></p>
       </article>

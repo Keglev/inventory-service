@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/dashboard/kpi-metrics · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#dashboard-kpi-metrics"
+        id="toc-dashboard-kpi-metrics">Dashboard KPI Metrics</a>
+        <ul>
+        <li><a href="#where-it-lives" id="toc-where-it-lives">Where it
+        lives</a></li>
+        <li><a href="#data-shape" id="toc-data-shape">Data
+        shape</a></li>
+        <li><a href="#query-behavior" id="toc-query-behavior">Query
+        behavior</a></li>
+        <li><a href="#failure-tolerance-what-users-see"
+        id="toc-failure-tolerance-what-users-see">Failure tolerance:
+        what users see</a></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Dashboard Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="dashboard-kpi-metrics">Dashboard KPI Metrics</h1>
+        <p>The dashboard’s KPI row is intentionally lightweight and
+        resilient. It renders three stat cards backed by a single React
+        Query hook.</p>
+        <h2 id="where-it-lives">Where it lives</h2>
+        <ul>
+        <li>Page orchestrator:
+        <code>frontend/src/pages/dashboard/Dashboard.tsx</code></li>
+        <li>KPI hook:
+        <code>frontend/src/api/analytics/hooks/useDashboardMetrics.ts</code></li>
+        <li>API helpers (tolerant):
+        <code>frontend/src/api/analytics/metrics.ts</code></li>
+        <li>UI component:
+        <code>frontend/src/components/ui/StatCard.tsx</code></li>
+        </ul>
+        <h2 id="data-shape">Data shape</h2>
+        <p><code>useDashboardMetrics()</code> returns:</p>
+        <div class="sourceCode" id="cb1"><pre
+        class="sourceCode ts"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  inventoryCount<span class="op">:</span> <span class="dt">number</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  suppliersCount<span class="op">:</span> <span class="dt">number</span><span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  lowStockCount<span class="op">:</span> <span class="dt">number</span><span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+        <h2 id="query-behavior">Query behavior</h2>
+        <p><code>useDashboardMetrics(true)</code> uses React Query: -
+        <code>queryKey</code>:
+        <code>['analytics', 'dashboard-metrics']</code> -
+        <code>enabled</code>: allows conditional fetching (dashboard can
+        be mounted but not fetch) - <code>staleTime</code>: 2 minutes
+        (fresh enough for KPIs, avoids hammering the backend) -
+        <code>gcTime</code>: 10 minutes (keeps cached data around longer
+        than staleness)</p>
+        <p>The query function loads all metrics in parallel:</p>
+        <div class="sourceCode" id="cb2"><pre
+        class="sourceCode ts"><code class="sourceCode typescript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>([<span class="fu">getItemCount</span>()<span class="op">,</span> <span class="fu">getSupplierCount</span>()<span class="op">,</span> <span class="fu">getLowStockCount</span>()])<span class="op">;</span></span></code></pre></div>
+        <h2 id="failure-tolerance-what-users-see">Failure tolerance:
+        what users see</h2>
+        <p>There are two layers of resilience:</p>
+        <ol type="1">
+        <li>API helper functions are tolerant</li>
+        </ol>
+        <ul>
+        <li><code>getItemCount()</code>,
+        <code>getSupplierCount()</code>, <code>getLowStockCount()</code>
+        catch all errors and return <code>0</code>.</li>
+        <li>Result: even if one endpoint fails, the hook still resolves
+        successfully and the page keeps rendering.</li>
+        </ul>
+        <ol start="2" type="1">
+        <li>StatCard shows a placeholder only for missing values</li>
+        </ol>
+        <ul>
+        <li><code>StatCard</code> renders
+        <code>value ?? '—'</code>.</li>
+        <li>That means:
+        <ul>
+        <li>While loading: skeleton</li>
+        <li>After load: <code>0</code> is displayed if the API helper
+        fell back</li>
+        <li><code>—</code> is only shown when <code>value</code> is
+        actually <code>null</code>/<code>undefined</code> (typically
+        “not loaded yet”)</li>
+        </ul></li>
+        </ul>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          Dashboard[Dashboard.tsx] --> Hook[useDashboardMetrics]
+          Hook --> Q[React Query]
+          Q --> Parallel[Promise.all]
+
+          Parallel --> C1[getItemCount]
+          Parallel --> C2[getSupplierCount]
+          Parallel --> C3[getLowStockCount]
+
+          C1 --> B1[/api/inventory/count]
+          C2 --> B2[/api/suppliers/count]
+          C3 --> B3[/api/analytics/low-stock/count]
+
+          Q --> Cards[StatCard x3]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

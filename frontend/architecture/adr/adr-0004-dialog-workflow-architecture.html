@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+adr/adr-0004-dialog-workflow-architecture · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a
+        href="#adr-0004-dialogworkflow-architecture-dialog-folders-orchestration-pattern"
+        id="toc-adr-0004-dialogworkflow-architecture-dialog-folders-orchestration-pattern">ADR-0004:
+        Dialog/workflow architecture (Dialog folders + orchestration
+        pattern)</a>
+        <ul>
+        <li><a href="#status" id="toc-status">Status</a></li>
+        <li><a href="#date" id="toc-date">Date</a></li>
+        <li><a href="#context" id="toc-context">Context</a></li>
+        <li><a href="#decision" id="toc-decision">Decision</a></li>
+        <li><a href="#alternatives-considered"
+        id="toc-alternatives-considered">Alternatives
+        Considered</a></li>
+        <li><a href="#consequences"
+        id="toc-consequences">Consequences</a>
+        <ul>
+        <li><a href="#positive" id="toc-positive">Positive</a></li>
+        <li><a href="#negative-tradeoffs"
+        id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+        </ul></li>
+        <li><a href="#implementation-notes"
+        id="toc-implementation-notes">Implementation Notes</a></li>
+        <li><a href="#references"
+        id="toc-references">References</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1
+        id="adr-0004-dialogworkflow-architecture-dialog-folders-orchestration-pattern">ADR-0004:
+        Dialog/workflow architecture (Dialog folders + orchestration
+        pattern)</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-03-03</p>
+        <h2 id="context">Context</h2>
+        <p>Domains implement multiple CRUD-like workflows that require
+        dialogs (create/edit/delete, and domain-specific actions like
+        quantity/price adjustments).</p>
+        <p>Forces/constraints: - <strong>Consistency:</strong> dialogs
+        should feel and behave consistently across domains. -
+        <strong>Maintainability:</strong> each dialog should have a
+        clear boundary for UI vs workflow logic. -
+        <strong>Testability:</strong> workflows should be testable
+        without coupling to the entire page.</p>
+        <h2 id="decision">Decision</h2>
+        <p>We structure dialogs as <strong>per-dialog folders</strong>
+        under each domain, while keeping orchestration logic in
+        handlers/hooks:</p>
+        <ul>
+        <li><code>frontend/src/pages/&lt;domain&gt;/dialogs/&lt;DialogName&gt;/*</code>
+        <ul>
+        <li>dialog UI components</li>
+        <li>dialog-local hooks and helpers</li>
+        </ul></li>
+        <li>orchestration responsibilities remain in:
+        <ul>
+        <li><code>frontend/src/pages/&lt;domain&gt;/handlers/*</code>
+        (event wiring)</li>
+        <li>and the page orchestrator (open/close dialog state, selected
+        row)</li>
+        </ul></li>
+        </ul>
+        <p>Examples: -
+        <code>frontend/src/pages/inventory/dialogs/*</code> -
+        <code>frontend/src/pages/suppliers/dialogs/*</code></p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Single shared Dialog framework used
+        everywhere</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>One UI contract</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Often too generic; domain differences leak anyway</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Inline dialogs inside the page file</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Fast to implement</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Page becomes unreadable</li>
+        <li>Hard to test and reuse</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Central dialogs folder across app</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>One place to find dialogs</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Cross-domain coupling</li>
+        <li>Naming collisions and unclear ownership</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Dialog ownership stays with the domain.</li>
+        <li>Dialog UI stays cohesive (folder boundary).</li>
+        <li>Orchestrator pages remain readable and predictable.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>Some dialog patterns may be duplicated across domains until
+        intentionally extracted.</li>
+        <li>Requires keeping orchestration logic out of dialog
+        components.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented (paths, key modules)
+        <ul>
+        <li>Inventory dialogs:
+        <code>frontend/src/pages/inventory/dialogs/*</code> (e.g.,
+        <code>DeleteItemDialog/</code>, <code>EditItemDialog/</code>,
+        …)</li>
+        <li>Suppliers dialogs:
+        <code>frontend/src/pages/suppliers/dialogs/*</code></li>
+        <li>Orchestration:
+        <code>frontend/src/pages/inventory/handlers/*</code>,
+        <code>frontend/src/pages/suppliers/handlers/*</code></li>
+        </ul></li>
+        <li>Migration notes (if relevant)
+        <ul>
+        <li>If a dialog becomes shared across many domains, move it into
+        <code>frontend/src/components/</code> or
+        <code>frontend/src/features/</code> only after it is truly
+        generic.</li>
+        </ul></li>
+        <li>Testing implications (what should be tested and where)
+        <ul>
+        <li>Dialog rendering and interaction:
+        <code>frontend/src/__tests__/app/pages/&lt;domain&gt;/*</code>
+        or dialog-specific tests.</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li>Architecture docs: <a
+        href="../domains/index.html">Domains</a></li>
+        <li>Diagram: <a
+        href="../diagrams/domains/domains-overview.html">Domains
+        overview</a></li>
+        <li>Related ADRs: ADR-0003</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

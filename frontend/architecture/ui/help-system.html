@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · ui/help-system · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#help-system-topics-trigger-button"
+        id="toc-help-system-topics-trigger-button">Help system (topics +
+        trigger button)</a>
+        <ul>
+        <li><a href="#building-blocks" id="toc-building-blocks">Building
+        blocks</a></li>
+        <li><a href="#adding-a-new-help-topic"
+        id="toc-adding-a-new-help-topic">Adding a new help
+        topic</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to UI &amp; UX Building Blocks
+        Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="help-system-topics-trigger-button">Help system (topics +
+        trigger button)</h1>
+        <p>The help system is designed so that:</p>
+        <ul>
+        <li>help topic metadata is centralized</li>
+        <li>help text is fully localized (i18n-backed)</li>
+        <li>UI can open help contextually from any screen</li>
+        </ul>
+        <h2 id="building-blocks">Building blocks</h2>
+        <ol type="1">
+        <li><strong>Topic registry</strong>:
+        <code>frontend/src/help/topics.ts</code>
+        <ul>
+        <li><code>HELP_TOPICS</code> maps a <code>topicId</code> to i18n
+        keys (<code>titleKey</code>, <code>bodyKey</code>, optional
+        <code>linkKey</code>)</li>
+        </ul></li>
+        <li><strong>Global state</strong>:
+        <code>frontend/src/context/help/HelpContext.tsx</code>
+        <ul>
+        <li><code>HelpProvider</code> stores <code>isOpen</code> +
+        <code>currentTopicId</code></li>
+        <li>closes on <code>Escape</code></li>
+        </ul></li>
+        <li><strong>Trigger button</strong>:
+        <code>frontend/src/features/help/components/HelpIconButton.tsx</code>
+        <ul>
+        <li>renders a consistent icon button</li>
+        <li>calls <code>openHelp(topicId)</code></li>
+        </ul></li>
+        <li><strong>Convenience hook</strong>:
+        <code>frontend/src/hooks/useHelp.ts</code>
+        <ul>
+        <li><code>useHelp()</code> is a typed wrapper around
+        HelpContext</li>
+        </ul></li>
+        </ol>
+        <h2 id="adding-a-new-help-topic">Adding a new help topic</h2>
+        <ol type="1">
+        <li>Add metadata entry to <code>HELP_TOPICS</code></li>
+        <li>Add localized strings to
+        <code>public/locales/{de,en}/help.json</code></li>
+        <li>Add a <code>HelpIconButton topicId="..."</code> near the
+        relevant UI</li>
+        </ol>
+        <hr />
+        <div class="mermaid">
+        graph LR
+          Icon[HelpIconButton] --> Open[openHelp(topicId)]
+          Open --> Ctx[HelpContext]
+          Ctx --> Topic[HELP_TOPICS lookup]
+          Topic --> I18N[i18n t(titleKey/bodyKey)]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

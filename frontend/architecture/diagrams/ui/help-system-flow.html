@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Frontend ·
-diagrams/http-client-401-redirect-flow · Smart Supply Pro Docs</title>
+diagrams/ui/help-system-flow · Smart Supply Pro Docs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
@@ -66,45 +66,35 @@ diagrams/http-client-401-redirect-flow · Smart Supply Pro Docs</title>
             <nav class="toc">
         <h2>On this page</h2>
         <ul>
-        <li><a href="#http-client-401-redirect-flow"
-        id="toc-http-client-401-redirect-flow">HTTP client 401 redirect
-        flow</a></li>
+        <li><a href="#help-system-flow" id="toc-help-system-flow">Help
+        system flow</a></li>
         </ul>
       </nav>
       
       <article class="doc-body">
         <p><a id="top"></a></p>
-        <p><a href="./index.html">⬅️ Back to Diagrams Index</a></p>
+        <p><a href="../index.html">⬅️ Back to Diagrams Index</a></p>
         <ul>
-        <li><a href="../index.html">Back to Architecture Index</a></li>
-        <li><a href="../overview.html">Back to Overview
+        <li><a href="../../index.html">Back to Architecture
+        Index</a></li>
+        <li><a href="../../overview.html">Back to Overview
         (English)</a></li>
-        <li><a href="../overview-de.html">Zurück zum Überblick
+        <li><a href="../../overview-de.html">Zurück zum Überblick
         (Deutsch)</a></li>
-        <li><a href="../data-access/index.html">Back to Data
-        Access</a></li>
+        <li><a href="../../ui/index.html">Back to UI</a></li>
         </ul>
-        <h1 id="http-client-401-redirect-flow">HTTP client 401 redirect
-        flow</h1>
-        <p>Unauthorized responses are handled centrally by the Axios
-        response interceptor in <code>src/api/httpClient.ts</code>.</p>
+        <h1 id="help-system-flow">Help system flow</h1>
+        <p>A diagram of how context-sensitive help is opened and
+        rendered.</p>
         <div class="mermaid">
-        flowchart TD
-          A[Axios response error] --> B{status == 401?}
-          B -->|no| Z[Reject error]
-
-          B -->|yes| C{Demo session?}
-          C -->|yes| Z
-          C -->|no| D{On public page?\n/ /login* /auth* /logout*}
-          D -->|yes| Z
-          D -->|no| E{Request is /api/me probe?}
-          E -->|yes| Z
-          E -->|no| F[Redirect to /login]
-          F --> G[Stop handling for this request]
+        graph LR
+          Button[HelpIconButton\n(topicId)] --> Hook[useHelp()]
+          Hook --> Ctx[HelpContext\n(openHelp/closeHelp)]
+          Ctx --> Topic[HELP_TOPICS\nregistry lookup]
+          Topic --> Keys[i18n keys\nhelp:*]
+          Keys --> I18N[i18next]
+          I18N --> Text[Localized title/body]
         </div>
-        <p>Notes: - <code>/api/me</code> is treated as a probe endpoint
-        and should not force navigation. - Public pages avoid redirect
-        loops and flicker.</p>
         <hr />
         <p><a href="#top">Back to top</a></p>
       </article>

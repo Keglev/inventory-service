@@ -78,9 +78,11 @@ domains/dashboard/index · Smart Supply Pro Docs</title>
         <li><a href="#domain-notes-implementation-facing"
         id="toc-domain-notes-implementation-facing">4️⃣ Domain Notes
         (Implementation-facing)</a></li>
-        <li><a href="#domain-map-planned-deep-dives"
-        id="toc-domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
-        deep-dives)</a></li>
+        <li><a href="#domain-map-deep-dives"
+        id="toc-domain-map-deep-dives">5️⃣ Domain Map
+        (Deep-dives)</a></li>
+        <li><a href="#related-adrs" id="toc-related-adrs">Related
+        ADRs</a></li>
         </ul></li>
         </ul>
       </nav>
@@ -152,16 +154,26 @@ domains/dashboard/index · Smart Supply Pro Docs</title>
         (dashboard-scoped) so cache entries don’t collide with analytics
         views.</li>
         </ul>
-        <h2 id="domain-map-planned-deep-dives">5️⃣ Domain Map (Planned
-        deep-dives)</h2>
-        <p>These pages are intentionally not written yet; they will be
-        added as leaf docs next:</p>
+        <h2 id="domain-map-deep-dives">5️⃣ Domain Map (Deep-dives)</h2>
         <ul>
-        <li>KPI metrics: caching policy and failure behavior</li>
-        <li>Movement mini: why it reuses analytics API + how the 90-day
-        window is derived</li>
-        <li>Navigation shortcuts: invariants for routes and guard
-        expectations</li>
+        <li><a href="./kpi-metrics.html">KPI metrics (caching + failure
+        tolerance)</a></li>
+        <li><a href="./movement-mini-chart.html">Movement mini chart
+        (90d window + query)</a></li>
+        <li><a href="./navigation-and-help.html">Navigation shortcuts +
+        help integration</a></li>
+        </ul>
+        <h2 id="related-adrs">Related ADRs</h2>
+        <ul>
+        <li><a
+        href="../../adr/adr-0003-page-model-and-domain-separation.html">ADR-0003:
+        Page model and domain separation</a></li>
+        <li><a
+        href="../../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.html">ADR-0002:
+        API layer abstraction (httpClient + domain modules)</a></li>
+        <li><a
+        href="../../adr/adr-0006-global-state-with-context-modules.html">ADR-0006:
+        Global state with Context modules (Help/Settings)</a></li>
         </ul>
         <hr />
         <p><a href="../index.html">⬅️ Back to Domains Index</a></p>

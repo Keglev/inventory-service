@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+i18n/initialization-and-language-selection · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#initialization-language-selection"
+        id="toc-initialization-language-selection">Initialization &amp;
+        language selection</a>
+        <ul>
+        <li><a href="#where-i18n-is-initialized"
+        id="toc-where-i18n-is-initialized">Where i18n is
+        initialized</a></li>
+        <li><a href="#german-first-behavior-enterprise-default"
+        id="toc-german-first-behavior-enterprise-default">German-first
+        behavior (enterprise default)</a></li>
+        <li><a href="#detection-order-and-persistence"
+        id="toc-detection-order-and-persistence">Detection order and
+        persistence</a></li>
+        <li><a href="#resource-loading-layout"
+        id="toc-resource-loading-layout">Resource loading
+        layout</a></li>
+        <li><a href="#namespaces"
+        id="toc-namespaces">Namespaces</a></li>
+        <li><a href="#debugging-helpers"
+        id="toc-debugging-helpers">Debugging helpers</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to i18n Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="initialization-language-selection">Initialization &amp;
+        language selection</h1>
+        <p>The i18n bootstrapping lives in
+        <code>frontend/src/i18n/index.ts</code> and is imported once
+        (side-effect) from the app entry point.</p>
+        <h2 id="where-i18n-is-initialized">Where i18n is
+        initialized</h2>
+        <ul>
+        <li><code>frontend/src/i18n/index.ts</code> initializes i18next
+        and exports the configured <code>i18n</code> instance.</li>
+        <li>The app should import it once (typically from
+        <code>frontend/src/main.tsx</code>):
+        <ul>
+        <li><code>import './i18n'</code></li>
+        </ul></li>
+        </ul>
+        <h2 id="german-first-behavior-enterprise-default">German-first
+        behavior (enterprise default)</h2>
+        <p>On first visit, the UI language is forced to
+        <strong>German</strong>:</p>
+        <ul>
+        <li>LocalStorage key: <code>i18nextLng</code></li>
+        <li>If the key does not exist:
+        <ul>
+        <li>the code sets it to <code>de</code></li>
+        <li>and initializes i18next with <code>lng: 'de'</code></li>
+        </ul></li>
+        </ul>
+        <p>This ensures “German-first impression”, while still allowing
+        users to override and persist English.</p>
+        <h2 id="detection-order-and-persistence">Detection order and
+        persistence</h2>
+        <p>The app uses <code>i18next-browser-languagedetector</code>,
+        with detection order:</p>
+        <ol type="1">
+        <li><code>localStorage</code> (wins if previously selected)</li>
+        <li><code>querystring</code> (useful for support/testing)</li>
+        <li><code>navigator</code> (browser default)</li>
+        </ol>
+        <p>Persistence uses i18next’s standard localStorage cache with
+        the key <code>i18nextLng</code>.</p>
+        <h2 id="resource-loading-layout">Resource loading layout</h2>
+        <p>The runtime JSON loader (<code>i18next-http-backend</code>)
+        loads:</p>
+        <ul>
+        <li><code>/locales/{{lng}}/{{ns}}.json</code></li>
+        </ul>
+        <p>The <code>loadPath</code> is built from Vite’s base URL:</p>
+        <ul>
+        <li><code>${import.meta.env.BASE_URL}locales/{{lng}}/{{ns}}.json</code></li>
+        </ul>
+        <h2 id="namespaces">Namespaces</h2>
+        <p>The list of maintained namespaces is defined as a constant
+        (e.g. <code>common</code>, <code>auth</code>,
+        <code>inventory</code>, <code>help</code>, …).</p>
+        <p>After <code>init()</code>, the code explicitly calls
+        <code>i18n.loadNamespaces(...)</code> to ensure all namespaces
+        are loaded.</p>
+        <h2 id="debugging-helpers">Debugging helpers</h2>
+        <p>In dev mode, the i18n instance is exposed on
+        <code>window.i18next</code> and logs lifecycle events
+        (<code>initialized</code>, <code>loaded</code>,
+        <code>languageChanged</code>).</p>
+        <hr />
+        <div class="mermaid">
+        graph TD
+          Boot[import './i18n'] --> Init[i18n.init(...)]
+          Init --> Detect[resolve lng]
+          Detect --> Lng[lng = saved || 'de']
+          Init --> Load[backend loads JSON]
+          Load --> Ready[UI can translate]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

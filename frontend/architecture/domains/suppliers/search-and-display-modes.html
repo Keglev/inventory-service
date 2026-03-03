@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/suppliers/search-and-display-modes · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#suppliers-search-display-modes"
+        id="toc-suppliers-search-display-modes">Suppliers Search &amp;
+        Display Modes</a>
+        <ul>
+        <li><a href="#search-dropdown-behavior"
+        id="toc-search-dropdown-behavior">Search dropdown
+        behavior</a></li>
+        <li><a href="#display-mode-selection-what-the-table-shows"
+        id="toc-display-mode-selection-what-the-table-shows">Display
+        mode selection (what the table shows)</a></li>
+        <li><a href="#interaction-between-search-and-show-all"
+        id="toc-interaction-between-search-and-show-all">Interaction
+        between search and “show all”</a></li>
+        <li><a href="#conceptual-flow"
+        id="toc-conceptual-flow">Conceptual flow</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Suppliers Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="suppliers-search-display-modes">Suppliers Search &amp;
+        Display Modes</h1>
+        <p>Suppliers has two user-facing ways to find suppliers:</p>
+        <ol type="1">
+        <li>a type-ahead search dropdown (focus on a single
+        supplier)</li>
+        <li>an explicit “show all suppliers” toggle (browse the
+        paginated list)</li>
+        </ol>
+        <p>These are designed to avoid rendering a large table by
+        default.</p>
+        <h2 id="search-dropdown-behavior">Search dropdown behavior</h2>
+        <p>Component: <code>SuppliersSearchPanel</code></p>
+        <ul>
+        <li>The input hints <code>min 2 chars</code>.</li>
+        <li>Results render in an overlay dropdown only when:
+        <ul>
+        <li>there are results, and</li>
+        <li>no supplier is currently selected
+        (<code>selectedSupplier</code> is null)</li>
+        </ul></li>
+        </ul>
+        <p>Selecting a supplier from the dropdown: - sets
+        <code>selectedSearchResult</code> - sets <code>selectedId</code>
+        (enables edit/delete buttons) - resets pagination to page 0 -
+        updates <code>searchQuery</code> to the supplier name</p>
+        <p>Clearing the selection: - clears
+        <code>selectedSearchResult</code> - clears
+        <code>selectedId</code> - clears <code>searchQuery</code></p>
+        <h2 id="display-mode-selection-what-the-table-shows">Display
+        mode selection (what the table shows)</h2>
+        <p><code>SuppliersBoard</code> computes table rows using:</p>
+        <ul>
+        <li><code>hasSelectedFromSearch = selectedSearchResult !== null</code></li>
+        </ul>
+        <p>Then:</p>
+        <ul>
+        <li>If <code>hasSelectedFromSearch</code>:
+        <ul>
+        <li><code>displayRows</code> is
+        <code>[selectedSearchResult]</code></li>
+        <li><code>displayRowCount</code> is <code>1</code></li>
+        </ul></li>
+        <li>Else if <code>showAllSuppliers</code>:
+        <ul>
+        <li><code>displayRows</code> is <code>data.suppliers</code></li>
+        <li><code>displayRowCount</code> is <code>data.total</code></li>
+        </ul></li>
+        <li>Else:
+        <ul>
+        <li>the table is hidden and an empty placeholder is shown</li>
+        </ul></li>
+        </ul>
+        <p>This design keeps the default page lightweight (no automatic
+        paginated fetch needed to show the table).</p>
+        <h2 id="interaction-between-search-and-show-all">Interaction
+        between search and “show all”</h2>
+        <p>Search selection takes precedence: once a supplier is
+        selected from search, the board shows the single-row mode
+        regardless of <code>showAllSuppliers</code>.</p>
+        <h2 id="conceptual-flow">Conceptual flow</h2>
+        <div class="mermaid">
+        flowchart TD
+          Input[Search input] -->|<2 chars| NoQuery[No query]
+          Input -->|>=2 chars| SearchQ[useSupplierSearchQuery]
+          SearchQ --> Results[Dropdown results]
+
+          Results --> Select[Select supplier]
+          Select --> ModeA[Single-row display]
+
+          Toggle[Show all suppliers] --> ModeB[Paginated display]
+
+          ModeA --> Table[SuppliersTable]
+          ModeB --> Table
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

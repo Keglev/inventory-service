@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+domains/suppliers/validation-and-authorization · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#suppliers-validation-authorization"
+        id="toc-suppliers-validation-authorization">Suppliers Validation
+        &amp; Authorization</a>
+        <ul>
+        <li><a href="#validation-schemas"
+        id="toc-validation-schemas">Validation schemas</a>
+        <ul>
+        <li><a href="#create-supplier-createsupplierschema"
+        id="toc-create-supplier-createsupplierschema">Create supplier
+        (<code>createSupplierSchema</code>)</a></li>
+        <li><a href="#edit-supplier-editsupplierschema"
+        id="toc-edit-supplier-editsupplierschema">Edit supplier
+        (<code>editSupplierSchema</code>)</a></li>
+        </ul></li>
+        <li><a href="#server-side-rules-and-tolerant-client-behavior"
+        id="toc-server-side-rules-and-tolerant-client-behavior">Server-side
+        rules and tolerant client behavior</a></li>
+        <li><a href="#authorization-notes"
+        id="toc-authorization-notes">Authorization notes</a></li>
+        <li><a href="#conceptual-model"
+        id="toc-conceptual-model">Conceptual model</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Suppliers Domain</a></p>
+        <ul>
+        <li><a href="../../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="suppliers-validation-authorization">Suppliers Validation
+        &amp; Authorization</h1>
+        <p>Suppliers uses Zod schemas for client-side validation and
+        relies on the backend as the source of truth for authorization
+        and final business rules.</p>
+        <h2 id="validation-schemas">Validation schemas</h2>
+        <p>Location:
+        <code>frontend/src/api/suppliers/validation.ts</code></p>
+        <h3 id="create-supplier-createsupplierschema">Create supplier
+        (<code>createSupplierSchema</code>)</h3>
+        <ul>
+        <li><code>name</code>: required, trimmed</li>
+        <li><code>contactName</code>: optional → stored as
+        <code>null</code> when empty</li>
+        <li><code>phone</code>: optional → stored as <code>null</code>
+        when empty</li>
+        <li><code>email</code>: optional, validated as email when
+        provided → stored as <code>null</code> when empty</li>
+        </ul>
+        <h3 id="edit-supplier-editsupplierschema">Edit supplier
+        (<code>editSupplierSchema</code>)</h3>
+        <ul>
+        <li><code>supplierId</code>: required</li>
+        <li>contact fields are nullable</li>
+        <li>supplier name is not part of the schema (treated as
+        immutable)</li>
+        </ul>
+        <h2
+        id="server-side-rules-and-tolerant-client-behavior">Server-side
+        rules and tolerant client behavior</h2>
+        <p>Supplier list fetching is designed to be resilient: - the
+        list fetcher tolerates multiple response envelope shapes - on
+        network errors it returns an empty page rather than throwing</p>
+        <p>This keeps the Suppliers board rendering even under partial
+        backend failures.</p>
+        <h2 id="authorization-notes">Authorization notes</h2>
+        <p>The UI and dialog code documents restricted operations:</p>
+        <ul>
+        <li>Delete supplier: ADMIN-only
+        <ul>
+        <li>enforced client-side in <code>useDeleteSupplierForm</code>
+        (blocks the request)</li>
+        <li>enforced server-side (source of truth)</li>
+        </ul></li>
+        <li>Edit supplier: documented as ADMIN-only
+        <ul>
+        <li>the UI may allow opening the dialog based on selection</li>
+        <li>final authorization is backend-owned; client shows
+        user-friendly errors</li>
+        </ul></li>
+        </ul>
+        <p>Demo mode behavior: - Unlike the Inventory domain, Suppliers
+        does not currently implement explicit <code>readOnly</code>
+        dialog props. - If demo sessions are intended to be read-only,
+        enforcement is expected to be handled by backend authorization
+        (and/or could be added later at the dialog level).</p>
+        <h2 id="conceptual-model">Conceptual model</h2>
+        <div class="mermaid">
+        flowchart TD
+          Input[User input] --> Zod[Zod client validation]
+          Zod -->|valid| Request[API request]
+          Zod -->|invalid| Errors[Field-level errors]
+
+          Request --> Backend[Backend validation + auth]
+          Backend -->|ok| Success[Invalidate queries + refresh]
+          Backend -->|rejected| Failure[Show error]
+        </div>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

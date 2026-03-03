@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+adr/adr-0008-testing-structure-and-taxonomy · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a
+        href="#adr-0008-testing-structure-and-taxonomy-under-srctests"
+        id="toc-adr-0008-testing-structure-and-taxonomy-under-srctests">ADR-0008:
+        Testing structure and taxonomy under
+        src/<strong>tests</strong></a>
+        <ul>
+        <li><a href="#status" id="toc-status">Status</a></li>
+        <li><a href="#date" id="toc-date">Date</a></li>
+        <li><a href="#context" id="toc-context">Context</a></li>
+        <li><a href="#decision" id="toc-decision">Decision</a></li>
+        <li><a href="#alternatives-considered"
+        id="toc-alternatives-considered">Alternatives
+        Considered</a></li>
+        <li><a href="#consequences"
+        id="toc-consequences">Consequences</a>
+        <ul>
+        <li><a href="#positive" id="toc-positive">Positive</a></li>
+        <li><a href="#negative-tradeoffs"
+        id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+        </ul></li>
+        <li><a href="#implementation-notes"
+        id="toc-implementation-notes">Implementation Notes</a></li>
+        <li><a href="#references"
+        id="toc-references">References</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1
+        id="adr-0008-testing-structure-and-taxonomy-under-srctests">ADR-0008:
+        Testing structure and taxonomy under
+        src/<strong>tests</strong></h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-03-03</p>
+        <h2 id="context">Context</h2>
+        <p>The frontend includes unit tests and UI/component tests
+        across multiple architectural areas (app shell, menus, API
+        utilities, i18n, routing behaviors).</p>
+        <p>Forces/constraints: - <strong>Clarity:</strong> tests should
+        be easy to find by architecture area. -
+        <strong>Maintainability:</strong> shared test utilities and
+        stubs should not be duplicated. - <strong>Realism:</strong> some
+        tests require rendering with providers; others are pure unit
+        tests.</p>
+        <h2 id="decision">Decision</h2>
+        <p>We keep tests under <code>frontend/src/__tests__/</code> and
+        organize them with a clear taxonomy:</p>
+        <ul>
+        <li><code>frontend/src/__tests__/unit/</code> for pure unit
+        tests (utils, API helpers, i18n init)</li>
+        <li><code>frontend/src/__tests__/app/</code> for
+        app-shell/layout/component tests</li>
+        <li><code>frontend/src/__tests__/routes/</code> for router/guard
+        behaviors (where applicable)</li>
+        <li><code>frontend/src/__tests__/features/</code> for
+        cross-cutting features (help, auth, health) (where
+        applicable)</li>
+        <li><code>frontend/src/__tests__/stubs/</code> for shared
+        fixtures/stubs</li>
+        <li><code>frontend/src/__tests__/test/</code> for test harness:
+        <ul>
+        <li>provider wrappers (e.g.,
+        <code>all-providers.tsx</code>)</li>
+        <li>setup files</li>
+        <li>shared test utilities</li>
+        </ul></li>
+        </ul>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Colocated tests next to source files</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Tests near code</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Harder to discover “all tests for an architecture area”</li>
+        <li>Can clutter production folders</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Single flat tests folder</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Simple</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Scales poorly; naming collisions</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Separate package for tests</strong>
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Clean separation</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Adds complexity and build overhead</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Architecture-aligned test organization.</li>
+        <li>Shared harness and stubs are centralized.</li>
+        <li>Easier onboarding and CI navigation.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>Requires discipline to place tests in the correct
+        subfolder.</li>
+        <li>Some tests may span multiple layers; choose the folder by
+        primary concern.</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented (paths, key modules)
+        <ul>
+        <li>Root: <code>frontend/src/__tests__/</code></li>
+        <li>Harness:
+        <code>frontend/src/__tests__/test/all-providers.tsx</code>,
+        <code>setupTests.ts</code></li>
+        </ul></li>
+        <li>Migration notes (if relevant)
+        <ul>
+        <li>When moving tests, keep imports stable via shared test
+        utilities.</li>
+        </ul></li>
+        <li>Testing implications (what should be tested and where)
+        <ul>
+        <li>Keep unit tests deterministic and fast.</li>
+        <li>Prefer rendering tests with the shared provider
+        harness.</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li>Architecture docs: <a href="../testing/">Testing</a></li>
+        <li>Related ADRs: ADR-0006</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

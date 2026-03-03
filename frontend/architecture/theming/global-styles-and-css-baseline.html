@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Frontend ·
-diagrams/data-fetching-flow · Smart Supply Pro Docs</title>
+theming/global-styles-and-css-baseline · Smart Supply Pro Docs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
@@ -66,62 +66,67 @@ diagrams/data-fetching-flow · Smart Supply Pro Docs</title>
             <nav class="toc">
         <h2>On this page</h2>
         <ul>
-        <li><a href="#data-fetching-flow-react-query"
-        id="toc-data-fetching-flow-react-query">Data fetching flow
-        (React Query)</a></li>
+        <li><a href="#global-styles-css-baseline"
+        id="toc-global-styles-css-baseline">Global styles &amp; CSS
+        baseline</a>
+        <ul>
+        <li><a href="#frontendsrcstylesglobal.css"
+        id="toc-frontendsrcstylesglobal.css"><code>frontend/src/styles/global.css</code></a></li>
+        <li><a href="#cssbaseline-overrides"
+        id="toc-cssbaseline-overrides">CssBaseline overrides</a></li>
+        <li><a href="#rules-of-thumb" id="toc-rules-of-thumb">Rules of
+        thumb</a></li>
+        </ul></li>
         </ul>
       </nav>
       
       <article class="doc-body">
         <p><a id="top"></a></p>
-        <p><a href="./index.html">⬅️ Back to Diagrams Index</a></p>
+        <p><a href="./index.html">⬅️ Back to Theme &amp; Styling
+        Index</a></p>
         <ul>
-        <li><a href="../index.html">Back to Architecture Index</a></li>
         <li><a href="../overview.html">Back to Overview
         (English)</a></li>
         <li><a href="../overview-de.html">Zurück zum Überblick
         (Deutsch)</a></li>
-        <li><a href="../data-access/index.html">Back to Data
-        Access</a></li>
         </ul>
-        <h1 id="data-fetching-flow-react-query">Data fetching flow
-        (React Query)</h1>
-        <p>This diagram shows the typical flow for server-state reads
-        (lists, details, analytics) using React Query hooks and domain
-        fetchers.</p>
+        <h1 id="global-styles-css-baseline">Global styles &amp; CSS
+        baseline</h1>
+        <p>Most styling comes from MUI, but the repo also includes a
+        small amount of global CSS for concerns that are awkward in
+        component-scoped styles.</p>
+        <h2
+        id="frontendsrcstylesglobal.css"><code>frontend/src/styles/global.css</code></h2>
+        <p>This file covers:</p>
+        <ul>
+        <li>full-height layout for <code>html, body, #root</code></li>
+        <li>webkit scrollbars (8px)</li>
+        <li>accessibility helper class:
+        <code>.visually-hidden</code></li>
+        <li>print overrides</li>
+        </ul>
+        <h2 id="cssbaseline-overrides">CssBaseline overrides</h2>
+        <p>The theme also applies global-ish styles via
+        <code>MuiCssBaseline.styleOverrides</code>.</p>
+        <p>Examples include:</p>
+        <ul>
+        <li>scrollbars</li>
+        <li>body background image suppression</li>
+        </ul>
+        <h2 id="rules-of-thumb">Rules of thumb</h2>
+        <ul>
+        <li>Keep global CSS small and purpose-driven.</li>
+        <li>Prefer theme-level <code>CssBaseline</code> overrides for
+        cross-cutting tweaks.</li>
+        <li>Avoid introducing new ad-hoc colors or typography in CSS;
+        use theme tokens.</li>
+        </ul>
+        <hr />
         <div class="mermaid">
-        sequenceDiagram
-          autonumber
-          participant UI as Page / Component
-          participant RQ as React Query hook
-          participant F as Domain fetcher
-          participant HC as httpClient (Axios)
-          participant BE as Backend API
-
-          UI->>RQ: render + call hook(queryKey, enabled)
-          alt enabled = false
-            RQ-->>UI: no request (idle)
-          else enabled = true
-            RQ->>RQ: check cache by queryKey
-            alt cached & fresh (staleTime not exceeded)
-              RQ-->>UI: return cached data
-            else needs fetch
-              RQ->>F: queryFn()
-              F->>HC: GET/POST ...
-              HC->>BE: HTTP request (cookies via withCredentials)
-              BE-->>HC: response (data or error)
-              alt success
-                HC-->>F: response.data
-                F->>F: extract envelope + normalize
-                F-->>RQ: typed model
-                RQ-->>UI: data + status
-              else error
-                HC-->>F: error
-                F-->>RQ: throw or return fallback
-                RQ-->>UI: isError / error (or safe empty model)
-              end
-            end
-          end
+        graph LR
+          Theme[ThemeProvider] --> Baseline[MuiCssBaseline overrides]
+          Baseline --> UI[All components]
+          CSS[global.css] --> UI
         </div>
         <hr />
         <p><a href="#top">Back to top</a></p>

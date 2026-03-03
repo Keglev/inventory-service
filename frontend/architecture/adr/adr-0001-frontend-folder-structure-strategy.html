@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+adr/adr-0001-frontend-folder-structure-strategy · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a
+        href="#adr-0001-frontend-folder-structure-strategy-app-shell-pages-api-cross-cutting"
+        id="toc-adr-0001-frontend-folder-structure-strategy-app-shell-pages-api-cross-cutting">ADR-0001:
+        Frontend folder structure strategy (App Shell + Pages + API +
+        Cross-cutting)</a>
+        <ul>
+        <li><a href="#status" id="toc-status">Status</a></li>
+        <li><a href="#date" id="toc-date">Date</a></li>
+        <li><a href="#context" id="toc-context">Context</a></li>
+        <li><a href="#decision" id="toc-decision">Decision</a></li>
+        <li><a href="#alternatives-considered"
+        id="toc-alternatives-considered">Alternatives
+        Considered</a></li>
+        <li><a href="#consequences"
+        id="toc-consequences">Consequences</a>
+        <ul>
+        <li><a href="#positive" id="toc-positive">Positive</a></li>
+        <li><a href="#negative-tradeoffs"
+        id="toc-negative-tradeoffs">Negative / Tradeoffs</a></li>
+        </ul></li>
+        <li><a href="#implementation-notes"
+        id="toc-implementation-notes">Implementation Notes</a></li>
+        <li><a href="#references"
+        id="toc-references">References</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <h1
+        id="adr-0001-frontend-folder-structure-strategy-app-shell-pages-api-cross-cutting">ADR-0001:
+        Frontend folder structure strategy (App Shell + Pages + API +
+        Cross-cutting)</h1>
+        <h2 id="status">Status</h2>
+        <p>Accepted</p>
+        <h2 id="date">Date</h2>
+        <p>2026-03-03</p>
+        <h2 id="context">Context</h2>
+        <p>The frontend has multiple cross-cutting concerns (auth
+        bootstrap, settings, help, toast UX) and several domain-heavy
+        screens (inventory, suppliers, analytics).</p>
+        <p>Forces/constraints: - <strong>Maintainability:</strong>
+        developers need a predictable place to put new domain UI vs
+        shared infrastructure. - <strong>Testability:</strong>
+        providers/hooks/features should be testable without forcing
+        every test to render the whole app. -
+        <strong>Consistency:</strong> shared patterns (data access,
+        help, settings) must be implemented once and reused. -
+        <strong>Avoiding coupling:</strong> domain pages should not
+        depend on low-level HTTP details or unrelated features.</p>
+        <h2 id="decision">Decision</h2>
+        <p>We adopt a <strong>feature-first + layered</strong> folder
+        strategy:</p>
+        <ul>
+        <li><code>frontend/src/app/*</code>: application shell,
+        navigation, global chrome, settings UI surfaces.</li>
+        <li><code>frontend/src/pages/*</code>: domain pages (Inventory,
+        Suppliers, Dashboard, Analytics, Auth, Home, System).</li>
+        <li><code>frontend/src/api/*</code>: backend-facing API layer
+        (domain modules + hooks) behind a shared
+        <code>httpClient</code>.</li>
+        <li><code>frontend/src/context/*</code>: global state providers
+        (Auth/Settings/Toast/Help).</li>
+        <li><code>frontend/src/features/*</code>: cross-cutting reusable
+        UX features (e.g., auth guard, help trigger, health
+        polling).</li>
+        <li><code>frontend/src/hooks/*</code>,
+        <code>frontend/src/utils/*</code>: shared hooks/utilities that
+        are not tied to one domain.</li>
+        <li><code>frontend/src/i18n/*</code>,
+        <code>frontend/src/theme/*</code>,
+        <code>frontend/src/styles/*</code>: localization, theme factory,
+        and minimal global CSS.</li>
+        </ul>
+        <p>We intentionally keep these architecture boundaries
+        <strong>stable</strong> and document them, rather than mirroring
+        documentation 1:1 with source folders.</p>
+        <h2 id="alternatives-considered">Alternatives Considered</h2>
+        <ol type="1">
+        <li><strong>Strict layer-only structure</strong> (e.g.,
+        everything grouped by layer: components/, hooks/, services/)
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Clear technical layering</li>
+        <li>Easy to apply uniform rules</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Domain ownership becomes unclear</li>
+        <li>Domain-specific UI gets scattered across many folders</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Strict feature-only structure</strong> (everything
+        nested under <code>pages/&lt;domain&gt;</code>)
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Clear ownership per domain</li>
+        <li>Easy to delete/replace features</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Cross-cutting concerns (auth/settings/help) get duplicated
+        or entangled</li>
+        <li>Shared primitives become hard to discover and govern</li>
+        </ul></li>
+        </ul></li>
+        <li><strong>Monolithic “components/” approach</strong> (large
+        shared component library)
+        <ul>
+        <li>Pros:
+        <ul>
+        <li>Reuse is tempting and easy</li>
+        </ul></li>
+        <li>Cons:
+        <ul>
+        <li>Encourages over-sharing and coupling</li>
+        <li>Hard to keep components generic</li>
+        </ul></li>
+        </ul></li>
+        </ol>
+        <h2 id="consequences">Consequences</h2>
+        <h3 id="positive">Positive</h3>
+        <ul>
+        <li>Predictable ownership: domain UI stays under
+        <code>pages/*</code> and shared concerns live in dedicated
+        places.</li>
+        <li>Less accidental coupling: API + context + features remain
+        reusable.</li>
+        <li>Easier docs and onboarding: architecture topics map
+        naturally onto these boundaries.</li>
+        </ul>
+        <h3 id="negative-tradeoffs">Negative / Tradeoffs</h3>
+        <ul>
+        <li>Requires discipline to avoid “misc dumping” into
+        <code>utils/</code> or <code>components/</code>.</li>
+        <li>Some concepts live in both places (e.g., “help” has
+        <code>context/</code>, <code>features/</code>, and
+        <code>help/</code> topic registry).</li>
+        </ul>
+        <h2 id="implementation-notes">Implementation Notes</h2>
+        <ul>
+        <li>Where it is implemented (paths, key modules)
+        <ul>
+        <li>App shell: <code>frontend/src/app/layout/*</code>,
+        <code>frontend/src/app/public-shell/*</code></li>
+        <li>Routes: <code>frontend/src/routes/AppRouter.tsx</code></li>
+        <li>API layer: <code>frontend/src/api/httpClient.ts</code>,
+        <code>frontend/src/api/&lt;domain&gt;/*</code></li>
+        <li>Providers: <code>frontend/src/context/auth/*</code>,
+        <code>frontend/src/context/settings/*</code>,
+        <code>frontend/src/context/help/*</code>,
+        <code>frontend/src/context/toast/*</code></li>
+        <li>Features: <code>frontend/src/features/auth/*</code>,
+        <code>frontend/src/features/help/*</code>,
+        <code>frontend/src/features/health/*</code></li>
+        <li>i18n/theme/styles: <code>frontend/src/i18n/*</code>,
+        <code>frontend/src/theme/*</code>,
+        <code>frontend/src/styles/*</code></li>
+        </ul></li>
+        <li>Migration notes (if relevant)
+        <ul>
+        <li>Prefer moving code into the correct boundary rather than
+        adding new “misc” folders.</li>
+        </ul></li>
+        <li>Testing implications (what should be tested and where)
+        <ul>
+        <li>Tests mirror architecture boundaries under
+        <code>frontend/src/__tests__/*</code>.</li>
+        </ul></li>
+        </ul>
+        <h2 id="references">References</h2>
+        <ul>
+        <li>Architecture docs: <a
+        href="../domains/index.html">Domains</a>, <a
+        href="../data-access/index.html">Data Access</a>, <a
+        href="../ui/index.html">UI &amp; UX Building Blocks</a></li>
+        <li>Diagram: <a
+        href="../diagrams/system/module-map.html">Frontend module
+        map</a></li>
+        <li>Related ADRs: ADR-0002, ADR-0003, ADR-0006</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Frontend ·
-diagrams/dashboard-metrics-parallel-flow · Smart Supply Pro Docs</title>
+theming/theme-factory-and-locales · Smart Supply Pro Docs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
@@ -66,66 +66,85 @@ diagrams/dashboard-metrics-parallel-flow · Smart Supply Pro Docs</title>
             <nav class="toc">
         <h2>On this page</h2>
         <ul>
-        <li><a href="#dashboard-metrics-parallel-fetching"
-        id="toc-dashboard-metrics-parallel-fetching">Dashboard metrics
-        parallel fetching</a></li>
+        <li><a href="#theme-factory-mui-locales"
+        id="toc-theme-factory-mui-locales">Theme factory &amp; MUI
+        locales</a>
+        <ul>
+        <li><a href="#theme-factory-responsibilities"
+        id="toc-theme-factory-responsibilities">Theme factory
+        responsibilities</a></li>
+        <li><a href="#supported-locales"
+        id="toc-supported-locales">Supported locales</a></li>
+        <li><a href="#how-locale-should-be-chosen"
+        id="toc-how-locale-should-be-chosen">How locale should be
+        chosen</a></li>
+        </ul></li>
         </ul>
       </nav>
       
       <article class="doc-body">
         <p><a id="top"></a></p>
-        <p><a href="./index.html">⬅️ Back to Diagrams Index</a></p>
+        <p><a href="./index.html">⬅️ Back to Theme &amp; Styling
+        Index</a></p>
         <ul>
-        <li><a href="../index.html">Back to Architecture Index</a></li>
         <li><a href="../overview.html">Back to Overview
         (English)</a></li>
         <li><a href="../overview-de.html">Zurück zum Überblick
         (Deutsch)</a></li>
-        <li><a href="../data-access/index.html">Back to Data
-        Access</a></li>
         </ul>
-        <h1 id="dashboard-metrics-parallel-fetching">Dashboard metrics
-        parallel fetching</h1>
-        <p>The dashboard KPI hook aggregates multiple backend calls in
-        parallel.</p>
+        <h1 id="theme-factory-mui-locales">Theme factory &amp; MUI
+        locales</h1>
+        <p>The theme factory lives in
+        <code>frontend/src/theme/index.ts</code> and exposes a single
+        entry point:</p>
+        <ul>
+        <li><code>buildTheme(locale, mode)</code></li>
+        </ul>
+        <h2 id="theme-factory-responsibilities">Theme factory
+        responsibilities</h2>
+        <ul>
+        <li>Create a consistent token set for palette, typography,
+        spacing, and shape</li>
+        <li>Merge MUI locale bundles for:
+        <ul>
+        <li>Material Core (<code>@mui/material/locale</code>)</li>
+        <li>X Data Grid (<code>@mui/x-data-grid/locales</code>)</li>
+        </ul></li>
+        <li>Enable CSS variables output
+        (<code>cssVariables: true</code>)</li>
+        <li>Apply <code>responsiveFontSizes()</code> to scale typography
+        on different viewports</li>
+        </ul>
+        <h2 id="supported-locales">Supported locales</h2>
+        <p>The theme layer currently supports:</p>
+        <ul>
+        <li><code>de</code> and <code>en</code></li>
+        </ul>
+        <p>The code merges locale packs like:</p>
+        <ul>
+        <li><code>de</code>: <code>coreDeDE</code> +
+        <code>dataGridDeDE</code></li>
+        <li><code>en</code>: <code>coreEnUS</code> +
+        <code>dataGridEnUS</code></li>
+        </ul>
+        <h2 id="how-locale-should-be-chosen">How locale should be
+        chosen</h2>
+        <ul>
+        <li>The app’s language comes from i18n
+        (<code>i18n.language</code>).</li>
+        <li>The theme locale should match the i18n language base
+        (<code>de</code> / <code>en</code>).</li>
+        </ul>
+        <p>This is important for: - DataGrid built-in strings
+        (pagination, toolbar) - any Material locale-sensitive labels</p>
+        <hr />
         <div class="mermaid">
-        sequenceDiagram
-          autonumber
-          participant UI as Dashboard
-          participant Hook as useDashboardMetrics
-          participant A as getItemCount
-          participant B as getSupplierCount
-          participant C as getLowStockCount
-          participant HC as httpClient
-          participant BE as Backend API
-
-          UI->>Hook: render hook
-          Hook->>Hook: Promise.all([A(), B(), C()])
-
-          par inventory count
-            Hook->>A: call
-            A->>HC: GET /api/inventory/count
-            HC->>BE: request
-            BE-->>HC: number
-            HC-->>A: number
-            A-->>Hook: number
-          and supplier count
-            Hook->>B: call
-            B->>HC: GET /api/suppliers/count
-            HC->>BE: request
-            BE-->>HC: number
-            HC-->>B: number
-            B-->>Hook: number
-          and low-stock count
-            Hook->>C: call
-            C->>HC: GET /api/analytics/low-stock/count
-            HC->>BE: request
-            BE-->>HC: number
-            HC-->>C: number
-            C-->>Hook: number
-          end
-
-          Hook-->>UI: { inventoryCount, suppliersCount, lowStockCount }
+        graph LR
+          I18N[i18n.language] --> Base[base locale
+        'en'|'de']
+          Base --> Theme[buildTheme(base, mode)]
+          Theme --> LocaleBundle[MUI locale bundles]
+          Theme --> Tokens[palette/typography/spacing]
         </div>
         <hr />
         <p><a href="#top">Back to top</a></p>
