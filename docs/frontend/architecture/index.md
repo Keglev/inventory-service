@@ -30,25 +30,27 @@ The frontend is a **React + TypeScript** single-page application built with **Vi
 - **[State](./state/index.md)**
 - **[Data Access](./data-access/index.md)**
 - **[Domains](./domains/index.md)**
-- **[UI Components](./ui/)**
-- **[Theming](./theming/)**
-- **[i18n](./i18n/)**
+- **[UI & UX Building Blocks](./ui/index.md)**
+- **[Theme & Styling](./theming/index.md)**
+- **[Internationalization (i18n)](./i18n/index.md)**
 - **[Performance](./performance/)**
 - **[Testing](./testing/)**
-- **[ADRs](./adr/)**
+- **[ADRs](./adr/index.md)**
 
 ## High-level diagrams (links)
 
 - **[Diagrams directory](./diagrams/index.md)**
-- **[System overview](./diagrams/system-overview.md)** *(planned)*
-- **[Frontend module map](./diagrams/module-map.md)** *(planned)*
-- **[Routing flow](./diagrams/routing-flow.md)** *(planned)*
-- **[Data fetching flow (React Query)](./diagrams/data-fetching-flow.md)**
-- **[HTTP client 401 redirect flow](./diagrams/http-client-401-redirect-flow.md)**
-- **[List fetching + normalization](./diagrams/list-fetching-and-normalization-flow.md)**
-- **[Connectivity + session probes](./diagrams/connectivity-and-session-probes-flow.md)**
-- **[Dashboard metrics parallel fetching](./diagrams/dashboard-metrics-parallel-flow.md)**
-- **[Supplier-scoped item search](./diagrams/supplier-scoped-item-search-flow.md)**
+- **[System overview](./diagrams/system/system-overview.md)**
+- **[Frontend module map](./diagrams/system/module-map.md)**
+- **[Routing flow](./diagrams/routing/routing-flow.md)**
+- **[Domains overview](./diagrams/domains/domains-overview.md)**
+- **[Provider composition](./diagrams/state/provider-composition-flow.md)**
+- **[Data fetching flow (React Query)](./diagrams/data-access/data-fetching-flow.md)**
+- **[HTTP client 401 redirect flow](./diagrams/data-access/http-client-401-redirect-flow.md)**
+- **[List fetching + normalization](./diagrams/data-access/list-fetching-and-normalization-flow.md)**
+- **[Connectivity + session probes](./diagrams/data-access/connectivity-and-session-probes-flow.md)**
+- **[Dashboard metrics parallel fetching](./diagrams/domains/dashboard-metrics-parallel-flow.md)**
+- **[Supplier-scoped item search](./diagrams/domains/supplier-scoped-item-search-flow.md)**
 
 ## Key architectural principles
 

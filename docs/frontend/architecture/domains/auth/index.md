@@ -108,13 +108,19 @@ useAuth().logout()]
   - `logoutInProgress` acts like a temporary “loading” state to prevent flashing `/login` during teardown.
   - Demo users are treated as authenticated, but routes can opt out by omitting `allowDemo`.
 
-## 5️⃣ Domain Map (Planned deep-dives)
+## 5️⃣ Domain Map (Deep-dives)
 
-These pages are intentionally not written yet; they will be added as leaf docs next:
+Leaf docs for how Auth works:
 
-- OAuth return URL contract: backend expectations and frontend invariants
-- Demo mode boundaries: what is allowed/blocked and where enforcement happens
-- Logout hardening: CSRF considerations and future-proofing the POST flow
+- [Login & demo entry](./login-and-demo-entry.md)
+- [OAuth callback & session hydration](./callback-and-session-hydration.md)
+- [Logout flow (POST form)](./logout-flow.md)
+
+## Related ADRs
+
+- [ADR-0006: Global state with Context modules (Auth)](../../adr/adr-0006-global-state-with-context-modules.md)
+- [ADR-0005: Application shell split (authenticated vs public)](../../adr/adr-0005-shell-split-authenticated-vs-public.md)
+- [ADR-0002: API layer abstraction (httpClient 401 rules + /api/me)](../../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.md)
 
 ---
 

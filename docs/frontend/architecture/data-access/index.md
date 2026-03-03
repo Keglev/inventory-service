@@ -52,6 +52,12 @@ graph LR
 - [Errors & Fallbacks](errors-and-fallbacks.md) - Converting failures into user-friendly messages and safe UI defaults
 - [Connectivity & Session Probes](connectivity-and-session-probes.md) - Health/db check and `/api/me` session validation
 
+## Related ADRs
+
+- [ADR-0002: API layer abstraction with shared httpClient](../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.md)
+- [ADR-0006: Global state with Context modules (boundary vs server-state)](../adr/adr-0006-global-state-with-context-modules.md)
+- [ADR-0001: Frontend folder structure strategy](../adr/adr-0001-frontend-folder-structure-strategy.md)
+
 ---
 
 [⬅️ Back to Frontend Architecture Index](../index.md)

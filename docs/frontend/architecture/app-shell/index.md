@@ -57,6 +57,12 @@ graph TB
 - [Settings Entry Points](settings-entry-points.md) - How global settings are exposed from application chrome and owned by the shell lifecycle
 - [Help Integration (Route → Help Topic)](help-integration.md) - Route-based context help model and how the shell surfaces help entry points
 
+## Related ADRs
+
+- [ADR-0005: Application shell split (authenticated vs public)](../adr/adr-0005-shell-split-authenticated-vs-public.md)
+- [ADR-0006: Global state with Context modules](../adr/adr-0006-global-state-with-context-modules.md)
+- [ADR-0001: Frontend folder structure strategy](../adr/adr-0001-frontend-folder-structure-strategy.md)
+
 ---
 
 [⬅️ Back to Frontend Architecture Index](../index.md)

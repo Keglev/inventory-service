@@ -54,6 +54,12 @@ graph TB
 - [Toast Context](toast-context.md) - Ultra-light toast API exposed by shells for ephemeral notifications
 - [Help Context](help-context.md) - Global help panel state: open/close + active topic
 
+## Related ADRs
+
+- [ADR-0006: Global state with Context modules](../adr/adr-0006-global-state-with-context-modules.md)
+- [ADR-0002: API layer abstraction (server-state stays in React Query)](../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.md)
+- [ADR-0001: Frontend folder structure strategy](../adr/adr-0001-frontend-folder-structure-strategy.md)
+
 ---
 
 [⬅️ Back to Frontend Architecture Index](../index.md)

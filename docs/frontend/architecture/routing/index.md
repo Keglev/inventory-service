@@ -58,6 +58,11 @@ graph TB
 - [Loading & 404 Behavior](loading-and-404.md) - Global auth-bootstrap loading screen and the single catch-all Not Found fallback
 - [Routing Contract Tests](routing-contract-tests.md) - The routing invariants protected by contract-style tests
 
+## Related ADRs
+
+- [ADR-0005: Application shell split (authenticated vs public)](../adr/adr-0005-shell-split-authenticated-vs-public.md)
+- [ADR-0001: Frontend folder structure strategy](../adr/adr-0001-frontend-folder-structure-strategy.md)
+
 ---
 
 [⬅️ Back to Frontend Architecture Index](../index.md)

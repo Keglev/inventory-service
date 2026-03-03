@@ -1,11 +1,11 @@
 <a id="top"></a>
 
-[⬅️ Back to Diagrams Index](./index.md)
+[⬅️ Back to Diagrams Index](../index.md)
 
-- [Back to Architecture Index](../index.md)
-- [Back to Overview (English)](../overview.md)
-- [Zurück zum Überblick (Deutsch)](../overview-de.md)
-- [Back to Data Access](../data-access/index.md)
+- [Back to Architecture Index](../../index.md)
+- [Back to Overview (English)](../../overview.md)
+- [Zurück zum Überblick (Deutsch)](../../overview-de.md)
+- [Back to Data Access](../../data-access/index.md)
 
 # Connectivity + session probes
 

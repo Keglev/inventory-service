@@ -54,19 +54,19 @@ Jedes Thema verlinkt auf:
 - Beschreibung: Wie Domänen-Seiten unter src/pages/* organisiert sind (Inventory, Suppliers, Analytics usw.) und welche Verantwortlichkeiten der Page-Orchestrator vs. gemeinsame Schichten haben
 
 ### UI-Komponenten
-- Docs: [UI Components](./ui/)
+- Docs: [UI & UX Building Blocks](./ui/index.md)
 - Diagramme: [Architektur-Diagramme](./diagrams/index.md)
-- Beschreibung: wird implementiert
+- Beschreibung: Geteilte UI-Bausteine (z.B. `StatCard`), gemeinsame Hooks (`createContextHook`, Debounce), Help-Themen + Trigger-Button sowie der Health-Check-Polling-Hook
 
 ### Theming
-- Docs: [Theming](./theming/)
+- Docs: [Theme & Styling](./theming/index.md)
 - Diagramme: [Architektur-Diagramme](./diagrams/index.md)
-- Beschreibung: wird implementiert
+- Beschreibung: MUI Theme-Fabrik (`buildTheme`), Locale-Pakete (Material + DataGrid), kompakte Default-Dichte sowie die kleine Menge globaler CSS-Helper
 
 ### Internationalisierung (i18n)
-- Docs: [i18n](./i18n/)
+- Docs: [Internationalization (i18n)](./i18n/index.md)
 - Diagramme: [Architektur-Diagramme](./diagrams/index.md)
-- Beschreibung: wird implementiert
+- Beschreibung: i18next-Setup (German-first), Namespace-JSON-Struktur unter `public/locales/*`, Key-Typing via `resources.d.ts` und Konventionen für lokalisierte Help-Inhalte
 
 ### Performance
 - Docs: [Performance](./performance/)
@@ -79,9 +79,9 @@ Jedes Thema verlinkt auf:
 - Beschreibung: wird implementiert
 
 ### Architectural Decision Records (ADRs)
-- Docs: [ADRs](./adr/)
+- Docs: [ADRs](./adr/index.md)
 - Diagramme: [Architektur-Diagramme](./diagrams/index.md)
-- Beschreibung: wird implementiert
+- Beschreibung: Entscheidungsdokumente („Warum?“) zu zentralen Architekturentscheidungen (Ordnerstrategie, API-Abstraktion, Page-Modell, Dialog-Workflows, Shell-Split, globaler State via Context, i18n-Integration und Test-Struktur)
 
 ## Nächste Schritte
 

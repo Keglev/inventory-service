@@ -58,13 +58,14 @@ flowchart TD
   - if `user` exists, route to `/dashboard`
   - otherwise route to `/login`
 
-## 5️⃣ Domain Map (Planned deep-dives)
+## 5️⃣ Domain Map (Deep-dives)
 
-These pages are intentionally not written yet; they will be added as leaf docs next (if/when the domain grows):
+- [Not Found Page (404)](./not-found-page.md)
 
-- Global error page / error boundary policy
-- Maintenance / degraded-mode screen (if introduced)
-- Correlation ID / diagnostics patterns for error surfaces
+## Related ADRs
+
+- [ADR-0005: Application shell split (authenticated vs public)](../../adr/adr-0005-shell-split-authenticated-vs-public.md)
+- [ADR-0001: Frontend folder structure strategy](../../adr/adr-0001-frontend-folder-structure-strategy.md)
 
 ---
 

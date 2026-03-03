@@ -63,12 +63,17 @@ flowchart TD
   - `loginAsDemo()` persists a demo user in `localStorage` so deep-links and refreshes remain usable.
   - After starting demo, the app route entry is the same as real users: `/dashboard`.
 
-## 5️⃣ Domain Map (Planned deep-dives)
+## 5️⃣ Domain Map (Deep-dives)
 
-These pages are intentionally not written yet; they will be added as leaf docs next:
+Leaf docs for how Home works:
 
-- Home copy/i18n contract (which `auth` keys are relied on)
-- Why the landing page stays outside `AppShell`
+- [Landing flow & demo entry](./landing-flow-and-demo.md)
+- [AppShell placement rationale](./app-shell-placement.md)
+
+## Related ADRs
+
+- [ADR-0005: Application shell split (authenticated vs public)](../../adr/adr-0005-shell-split-authenticated-vs-public.md)
+- [ADR-0006: Global state with Context modules (Auth)](../../adr/adr-0006-global-state-with-context-modules.md)
 
 ---
 

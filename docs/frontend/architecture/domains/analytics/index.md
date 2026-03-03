@@ -54,14 +54,18 @@ flowchart TD
 - **Supplier list** for the filter is fetched once via React Query (`['analytics','suppliers']`) and then passed into the filter component.
 - Many blocks **gate fetching** via `enabled` when a required parameter is missing (e.g., low-stock table requires a supplier).
 
-## 5️⃣ Domain Map (Planned deep-dives)
-
 ## 5️⃣ Domain Map (Deep-dives)
 
 - [Analytics URL & Section Routing](./url-and-section-routing.md)
 - [Analytics Filters & URL Sync](./filters-and-url-sync.md)
 - [Analytics Blocks & Data Fetching](./blocks-and-data-fetching.md)
 - [Supplier-Gated Blocks](./supplier-gated-blocks.md)
+
+## Related ADRs
+
+- [ADR-0003: Page model and domain separation](../../adr/adr-0003-page-model-and-domain-separation.md)
+- [ADR-0002: API layer abstraction (httpClient + domain modules)](../../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.md)
+- [ADR-0005: Application shell split (authenticated vs public)](../../adr/adr-0005-shell-split-authenticated-vs-public.md)
 
 ---
 

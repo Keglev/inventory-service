@@ -56,14 +56,22 @@ flowchart TD
   - selected search result → show only the selected supplier
   - “show all suppliers” → show the paginated table
 
-## 5️⃣ Domain Map (Planned deep-dives)
+## 5️⃣ Domain Map (Deep-dives)
 
-These pages are intentionally not written yet; they will be added as leaf docs next:
+Leaf docs for how Suppliers works:
 
-- Page orchestration: `SuppliersBoard` responsibilities and composition
-- Data shaping: page (0-based) → server (1-based) conversion and sort serialization
-- Search flow: query length gating, search results, and selection behavior
-- Dialog lifecycle: create/edit/delete flows and refresh behavior
+- [Page orchestration (SuppliersBoard)](./page-orchestration.md)
+- [State & handlers (reset invariants)](./state-and-handlers.md)
+- [Data fetching & caching](./data-fetching-and-caching.md)
+- [Search & display modes](./search-and-display-modes.md)
+- [Dialogs & mutations](./dialogs-and-mutations.md)
+- [Validation & authorization](./validation-and-authorization.md)
+
+## Related ADRs
+
+- [ADR-0003: Page model and domain separation](../../adr/adr-0003-page-model-and-domain-separation.md)
+- [ADR-0004: Dialog/workflow architecture](../../adr/adr-0004-dialog-workflow-architecture.md)
+- [ADR-0002: API layer abstraction (httpClient + domain modules)](../../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.md)
 
 ---
 

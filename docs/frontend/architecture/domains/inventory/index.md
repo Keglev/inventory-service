@@ -56,6 +56,12 @@ Leaf docs for how Inventory works:
 - [Dialogs & mutations](./dialogs-and-mutations.md)
 - [Validation & authorization](./validation-and-authorization.md)
 
+## Related ADRs
+
+- [ADR-0003: Page model and domain separation](../../adr/adr-0003-page-model-and-domain-separation.md)
+- [ADR-0004: Dialog/workflow architecture](../../adr/adr-0004-dialog-workflow-architecture.md)
+- [ADR-0002: API layer abstraction (httpClient + domain modules)](../../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.md)
+
 ---
 
 [⬅️ Back to Domains Index](../index.md)

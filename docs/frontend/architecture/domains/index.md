@@ -57,6 +57,12 @@ graph TB
 
 - (none right now)
 
+## Related ADRs
+
+- [ADR-0003: Page model and domain separation](../adr/adr-0003-page-model-and-domain-separation.md)
+- [ADR-0004: Dialog/workflow architecture](../adr/adr-0004-dialog-workflow-architecture.md)
+- [ADR-0001: Frontend folder structure strategy](../adr/adr-0001-frontend-folder-structure-strategy.md)
+
 
 ---
 

@@ -60,13 +60,17 @@ flowchart TD
 - The movement mini-chart reuses the analytics API and uses a fixed 90-day window.
 - Dashboard queries use their own query keys (dashboard-scoped) so cache entries don’t collide with analytics views.
 
-## 5️⃣ Domain Map (Planned deep-dives)
+## 5️⃣ Domain Map (Deep-dives)
 
-These pages are intentionally not written yet; they will be added as leaf docs next:
+- [KPI metrics (caching + failure tolerance)](./kpi-metrics.md)
+- [Movement mini chart (90d window + query)](./movement-mini-chart.md)
+- [Navigation shortcuts + help integration](./navigation-and-help.md)
 
-- KPI metrics: caching policy and failure behavior
-- Movement mini: why it reuses analytics API + how the 90-day window is derived
-- Navigation shortcuts: invariants for routes and guard expectations
+## Related ADRs
+
+- [ADR-0003: Page model and domain separation](../../adr/adr-0003-page-model-and-domain-separation.md)
+- [ADR-0002: API layer abstraction (httpClient + domain modules)](../../adr/adr-0002-api-layer-abstraction-httpclient-and-domain-modules.md)
+- [ADR-0006: Global state with Context modules (Help/Settings)](../../adr/adr-0006-global-state-with-context-modules.md)
 
 ---
 
