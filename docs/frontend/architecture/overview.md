@@ -69,14 +69,14 @@ Each topic links to:
 - Description: i18next setup (German-first), namespace JSON structure under `public/locales/*`, key typing via `resources.d.ts`, and help-content localization conventions
 
 ### Performance
-- Docs: [Performance](./performance/)
+- Docs: [Performance](./performance/index.md)
 - Diagrams: [Architectural Diagrams](./diagrams/index.md)
-- Description: to be implemented
+- Description: Bundle strategy, (future) lazy loading seams, rendering optimization for tables/dialog-heavy workflows/analytics blocks, API caching (React Query), and build + delivery behavior
 
 ### Testing
-- Docs: [Testing](./testing/)
+- Docs: [Testing](./testing/index.md)
 - Diagrams: [Architectural Diagrams](./diagrams/index.md)
-- Description: to be implemented
+- Description: Testing architecture and conventions (layers/pyramid, directory taxonomy, mocking policy, shared render helpers/providers, and coverage interpretation)
 
 ### Architectural Decision Records (ADRs)
 - Docs: [ADRs](./adr/index.md)

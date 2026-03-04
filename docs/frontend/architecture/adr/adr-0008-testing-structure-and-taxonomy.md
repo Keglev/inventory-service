@@ -70,5 +70,5 @@ We keep tests under `frontend/src/__tests__/` and organize them with a clear tax
   - Prefer rendering tests with the shared provider harness.
 
 ## References
-- Architecture docs: [Testing](../testing/)
+- Architecture docs: [Testing](../testing/index.md)
 - Related ADRs: ADR-0006

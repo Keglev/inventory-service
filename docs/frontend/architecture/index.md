@@ -33,8 +33,8 @@ The frontend is a **React + TypeScript** single-page application built with **Vi
 - **[UI & UX Building Blocks](./ui/index.md)**
 - **[Theme & Styling](./theming/index.md)**
 - **[Internationalization (i18n)](./i18n/index.md)**
-- **[Performance](./performance/)**
-- **[Testing](./testing/)**
+- **[Performance](./performance/index.md)**
+- **[Testing](./testing/index.md)**
 - **[ADRs](./adr/index.md)**
 
 ## High-level diagrams (links)
