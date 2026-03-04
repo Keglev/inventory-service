@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · performance/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#performance" id="toc-performance">Performance</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">1️⃣ Purpose</a></li>
+        <li><a href="#scope-boundaries" id="toc-scope-boundaries">2️⃣
+        Scope &amp; Boundaries</a></li>
+        <li><a href="#high-level-diagram" id="toc-high-level-diagram">3️⃣
+        High-Level Diagram</a></li>
+        <li><a href="#contents" id="toc-contents">4️⃣ Contents</a></li>
+        <li><a href="#related-adrs" id="toc-related-adrs">Related
+        ADRs</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Frontend Architecture
+        Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="performance">Performance</h1>
+        <h2 id="purpose">1️⃣ Purpose</h2>
+        <p>This section documents how the frontend is kept <strong>fast
+        under load</strong> and <strong>predictable in
+        production</strong>.</p>
+        <p>“Performance” here covers:</p>
+        <ul>
+        <li>bundle size and code splitting (initial load)</li>
+        <li>lazy loading patterns (route-level and
+        interaction-level)</li>
+        <li>rendering optimization for large tables, dialog-heavy
+        workflows, and analytics blocks</li>
+        <li>API caching and request shaping (React Query)</li>
+        <li>build + delivery behavior (Vite output + Nginx caching
+        rules)</li>
+        </ul>
+        <h2 id="scope-boundaries">2️⃣ Scope &amp; Boundaries</h2>
+        <p>Included: - Vite build configuration (vendor chunking, chunk
+        size warnings) - SPA delivery via Nginx (asset caching, SPA
+        fallback, API reverse-proxy) - React rendering guidance
+        (memoization, list/table strategy) - React Query cache strategy
+        and query gating</p>
+        <p>Excluded: - Backend performance tuning (DB indexes, API
+        response optimization) - Infrastructure sizing and autoscaling
+        (platform concerns)</p>
+        <h2 id="high-level-diagram">3️⃣ High-Level Diagram</h2>
+        <div class="mermaid">
+        flowchart LR
+          User[User] --> Browser[Browser]
+
+          subgraph Delivery[Delivery]
+            Nginx[Nginx
+            - serves SPA assets
+            - caches /assets immutable
+            - SPA fallback to index.html]
+          end
+
+          subgraph Frontend[Frontend SPA]
+            React[React UI]
+            RQ[React Query cache]
+          end
+
+          Browser --> Nginx
+          Nginx --> React
+          React --> RQ
+          React -->|/api/* (same-origin)| Nginx
+          Nginx -->|reverse proxy| Backend[Backend API]
+        </div>
+        <h2 id="contents">4️⃣ Contents</h2>
+        <ul>
+        <li><a href="./bundle-strategy.html">Bundle strategy</a></li>
+        <li><a href="./lazy-loading.html">Lazy loading</a></li>
+        <li><a href="./rendering-optimization.html">Rendering
+        optimization</a></li>
+        <li><a href="./api-caching.html">API caching (React
+        Query)</a></li>
+        <li><a href="./build-and-deployment.html">Build &amp; deployment
+        (delivery)</a></li>
+        </ul>
+        <h2 id="related-adrs">Related ADRs</h2>
+        <ul>
+        <li><a
+        href="../adr/adr-0003-page-orchestration-and-domain-boundaries.html">ADR-0003:
+        Page orchestration and domain boundaries</a></li>
+        <li><a
+        href="../adr/adr-0004-dialog-workflow-architecture.html">ADR-0004:
+        Dialog/workflow architecture (domain-owned workflows)</a></li>
+        <li><a
+        href="../adr/adr-0002-api-layer-abstraction-and-error-handling.html">ADR-0002:
+        API layer abstraction and error handling</a></li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Frontend Architecture
+        Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

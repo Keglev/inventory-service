@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · testing/index · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#testing" id="toc-testing">Testing</a>
+        <ul>
+        <li><a href="#purpose" id="toc-purpose">1️⃣ Purpose</a></li>
+        <li><a href="#scope-boundaries" id="toc-scope-boundaries">2️⃣
+        Scope &amp; Boundaries</a></li>
+        <li><a href="#contents" id="toc-contents">3️⃣ Contents</a></li>
+        <li><a href="#what-is-tested-where-quick-map"
+        id="toc-what-is-tested-where-quick-map">4️⃣ What is tested where
+        (quick map)</a></li>
+        <li><a href="#related-adrs" id="toc-related-adrs">Related
+        ADRs</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a href="../index.html">⬅️ Back to Frontend Architecture
+        Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="testing">Testing</h1>
+        <h2 id="purpose">1️⃣ Purpose</h2>
+        <p>Frontend tests in this repo are designed for <strong>fast
+        feedback</strong> and <strong>high confidence
+        refactors</strong>:</p>
+        <ul>
+        <li>Prefer deterministic tests that run the same way on every
+        machine.</li>
+        <li>Treat tests as a safety net for <strong>contracts</strong>
+        (hook outputs, component props, route behavior).</li>
+        <li>Mock external boundaries (network, i18n runtime, heavy UI
+        libraries) rather than testing their internals.</li>
+        <li>Keep failures actionable: a failing test should clearly
+        point at a broken contract.</li>
+        <li>Avoid flaky timing: no real clocks, no real network, minimal
+        reliance on browser quirks.</li>
+        </ul>
+        <h2 id="scope-boundaries">2️⃣ Scope &amp; Boundaries</h2>
+        <p>Included: - Unit tests for pure utilities,
+        formatting/parsing, and API/client contracts. - Component tests
+        using React Testing Library (RTL) focused on behavior and
+        accessibility. - Contract tests that verify integration
+        boundaries (e.g., shell orchestration, routing groups).</p>
+        <p>Excluded: - Internal behavior of third-party libraries (MUI
+        internals, React Router internals, i18next internals). - Visual
+        styling correctness (that belongs to manual review / visual
+        regression, if introduced).</p>
+        <h2 id="contents">3️⃣ Contents</h2>
+        <ul>
+        <li><a href="./strategy.html">Testing strategy (layers /
+        pyramid)</a></li>
+        <li><a href="./test-structure.html">Test structure &amp; naming
+        conventions</a></li>
+        <li><a href="./mocking-and-stubs.html">Mocking, stubs, and test
+        doubles</a></li>
+        <li><a href="./rendering-helpers.html">Rendering helpers &amp;
+        provider setup</a></li>
+        <li><a href="./coverage.html">Coverage philosophy &amp;
+        reports</a></li>
+        <li><a href="./what-to-test.html">What to test (practical
+        checklist)</a></li>
+        </ul>
+        <h2 id="what-is-tested-where-quick-map">4️⃣ What is tested where
+        (quick map)</h2>
+        <ul>
+        <li><code>frontend/src/__tests__/unit/*</code>
+        <ul>
+        <li>Pure logic and contracts (e.g., formatters, system info
+        parsing, API client defaults).</li>
+        </ul></li>
+        <li><code>frontend/src/__tests__/routes/*</code>
+        <ul>
+        <li>Router and route-grouping contracts.</li>
+        </ul></li>
+        <li><code>frontend/src/__tests__/app/*</code>
+        <ul>
+        <li>App shell orchestration (header/sidebar wiring, settings
+        surfaces, public shell).</li>
+        </ul></li>
+        <li><code>frontend/src/__tests__/components/*</code>
+        <ul>
+        <li>Page/presentational component contracts (rendering and event
+        wiring).</li>
+        </ul></li>
+        <li><code>frontend/src/__tests__/context/*</code>,
+        <code>features/*</code>, <code>hooks/*</code>
+        <ul>
+        <li>Cross-cutting modules and reusable hooks.</li>
+        </ul></li>
+        </ul>
+        <h2 id="related-adrs">Related ADRs</h2>
+        <ul>
+        <li><a
+        href="../adr/adr-0008-testing-structure-and-taxonomy.html">ADR-0008:
+        Testing structure and taxonomy</a></li>
+        </ul>
+        <hr />
+        <p><a href="../index.html">⬅️ Back to Frontend Architecture
+        Index</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

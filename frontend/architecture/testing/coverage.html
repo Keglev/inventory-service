@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend · testing/coverage · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#coverage" id="toc-coverage">Coverage</a>
+        <ul>
+        <li><a href="#philosophy"
+        id="toc-philosophy">Philosophy</a></li>
+        <li><a href="#what-should-have-strong-coverage"
+        id="toc-what-should-have-strong-coverage">What should have
+        strong coverage</a></li>
+        <li><a href="#lower-value-to-chase"
+        id="toc-lower-value-to-chase">Lower value to chase</a></li>
+        <li><a href="#how-to-run-coverage-locally"
+        id="toc-how-to-run-coverage-locally">How to run coverage
+        locally</a></li>
+        <li><a href="#where-reports-live"
+        id="toc-where-reports-live">Where reports live</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="coverage">Coverage</h1>
+        <p>Coverage is a tool for <strong>risk management</strong>, not
+        a score to maximize.</p>
+        <h2 id="philosophy">Philosophy</h2>
+        <ul>
+        <li>Aim for strong coverage on <strong>critical flows</strong>
+        and <strong>high-change logic</strong>.</li>
+        <li>Use coverage to find untested branches (errors, fallbacks,
+        edge cases).</li>
+        <li>Do not chase 100% on low-value code (tiny presentational
+        wrappers, library glue).</li>
+        </ul>
+        <h2 id="what-should-have-strong-coverage">What should have
+        strong coverage</h2>
+        <p>Typically high-value targets: -
+        <code>src/api/*/hooks/*</code> and API utilities -
+        <code>src/pages/*/handlers/*</code> and workflow orchestration
+        helpers - <code>src/utils/*</code> and validation/normalization
+        logic</p>
+        <h2 id="lower-value-to-chase">Lower value to chase</h2>
+        <ul>
+        <li>tiny presentational components that mostly render MUI
+        primitives</li>
+        <li>MUI wrapper components where behavior is in the library</li>
+        </ul>
+        <h2 id="how-to-run-coverage-locally">How to run coverage
+        locally</h2>
+        <p>From the <code>frontend/</code> directory: -
+        <code>npm test -- --coverage</code></p>
+        <p>Alternative (CI-like): -
+        <code>npx vitest run --coverage</code></p>
+        <h2 id="where-reports-live">Where reports live</h2>
+        <p>Vitest writes reports to: -
+        <code>frontend/coverage/</code></p>
+        <p>Useful entry points: -
+        <code>frontend/coverage/index.html</code> -
+        <code>frontend/coverage/lcov-report/index.html</code></p>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

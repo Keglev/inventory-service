@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+performance/rendering-optimization · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#rendering-optimization"
+        id="toc-rendering-optimization">Rendering optimization</a>
+        <ul>
+        <li><a href="#tables-inventorysuppliers"
+        id="toc-tables-inventorysuppliers">1) Tables
+        (Inventory/Suppliers)</a>
+        <ul>
+        <li><a href="#datagrid-performance-basics"
+        id="toc-datagrid-performance-basics">DataGrid performance
+        basics</a></li>
+        <li><a href="#keep-prop-identity-stable"
+        id="toc-keep-prop-identity-stable">Keep prop identity
+        stable</a></li>
+        </ul></li>
+        <li><a href="#dialog-heavy-ui-workflows"
+        id="toc-dialog-heavy-ui-workflows">2) Dialog-heavy UI
+        (workflows)</a></li>
+        <li><a href="#analytics-blocks-charts-and-computed-views"
+        id="toc-analytics-blocks-charts-and-computed-views">3) Analytics
+        blocks (charts and computed views)</a>
+        <ul>
+        <li><a href="#debounced-inputs-to-avoid-re-render-storms"
+        id="toc-debounced-inputs-to-avoid-re-render-storms">Debounced
+        inputs to avoid re-render storms</a></li>
+        </ul></li>
+        <li><a href="#practical-checklist"
+        id="toc-practical-checklist">4) Practical checklist</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Performance Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="rendering-optimization">Rendering optimization</h1>
+        <p>This section focuses on “React work” (re-renders, expensive
+        computations, and large UI trees) and the patterns used in this
+        repo.</p>
+        <h2 id="tables-inventorysuppliers">1) Tables
+        (Inventory/Suppliers)</h2>
+        <h3 id="datagrid-performance-basics">DataGrid performance
+        basics</h3>
+        <p>The Inventory and Suppliers pages are built on MUI X
+        DataGrid, which is designed for large datasets.</p>
+        <p>Repo patterns that support DataGrid performance:</p>
+        <ul>
+        <li>Column definitions are memoized (e.g.,
+        <code>useInventoryColumns</code> returns
+        <code>useMemo</code>-stable columns).</li>
+        <li>Handler props are typically stable via
+        <code>useCallback</code> hooks in <code>handlers/*</code>.</li>
+        <li>Server-side pagination and sorting reduce client-side
+        rendering work and avoid holding huge datasets in memory.</li>
+        </ul>
+        <h3 id="keep-prop-identity-stable">Keep prop identity
+        stable</h3>
+        <p>For large components like DataGrid, stable prop identity
+        matters:</p>
+        <ul>
+        <li>Prefer <code>useMemo</code> for <code>columns</code> and
+        computed row arrays.</li>
+        <li>Prefer <code>useCallback</code> for <code>onRowClick</code>,
+        pagination/sort handlers.</li>
+        </ul>
+        <h2 id="dialog-heavy-ui-workflows">2) Dialog-heavy UI
+        (workflows)</h2>
+        <p>Inventory and Suppliers workflows are dialog-driven
+        (create/edit/delete/adjust/change-price).</p>
+        <p>Current behavior:</p>
+        <ul>
+        <li>Dialog components are composed at the page level
+        (<code>InventoryDialogs</code>,
+        <code>SuppliersDialogs</code>).</li>
+        <li>Dialog content is not necessarily mounted when closed (MUI
+        Dialog defaults), but the <em>code</em> is already included in
+        the page bundle.</li>
+        </ul>
+        <p>Optimization lever:</p>
+        <ul>
+        <li>If dialogs become large, treat them as “interaction-level
+        bundles” (lazy load on open) to reduce initial route cost.</li>
+        </ul>
+        <h2 id="analytics-blocks-charts-and-computed-views">3) Analytics
+        blocks (charts and computed views)</h2>
+        <p>The Analytics page composes “blocks” and uses conditional
+        rendering by section:</p>
+        <ul>
+        <li>Only the blocks for the active section render.</li>
+        <li>Each block tends to own its own query and uses memoization
+        for derived data.</li>
+        </ul>
+        <p>Common patterns used in blocks:</p>
+        <ul>
+        <li><code>useMemo</code> for derived series/rows (avoid
+        recomputing for unrelated renders).</li>
+        <li><code>useCallback</code> for formatters passed into
+        chart/table components.</li>
+        </ul>
+        <h3 id="debounced-inputs-to-avoid-re-render-storms">Debounced
+        inputs to avoid re-render storms</h3>
+        <p>Typeahead inputs and search are debounced using
+        <code>useDebounced(...)</code>.</p>
+        <p>This reduces:</p>
+        <ul>
+        <li>render churn while typing</li>
+        <li>request churn against the backend</li>
+        </ul>
+        <h2 id="practical-checklist">4) Practical checklist</h2>
+        <ul>
+        <li>Avoid computing derived arrays inline in JSX for large
+        lists/series.</li>
+        <li>Prefer controlled state that is scoped to the smallest
+        component that needs it.</li>
+        <li>Use <code>enabled</code> and debouncing to keep queries from
+        firing on every keystroke.</li>
+        <li>Keep “layout chrome” stable; avoid putting fast-changing
+        state in the AppShell.</li>
+        </ul>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

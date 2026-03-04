@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+performance/api-caching · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#api-caching-react-query"
+        id="toc-api-caching-react-query">API caching (React Query)</a>
+        <ul>
+        <li><a href="#global-defaults" id="toc-global-defaults">1)
+        Global defaults</a></li>
+        <li><a href="#per-query-freshness-vs-memory"
+        id="toc-per-query-freshness-vs-memory">2) Per-query freshness vs
+        memory</a></li>
+        <li><a href="#query-gating-avoid-unnecessary-requests"
+        id="toc-query-gating-avoid-unnecessary-requests">3) Query gating
+        (avoid unnecessary requests)</a></li>
+        <li><a href="#query-keys-and-invalidation"
+        id="toc-query-keys-and-invalidation">4) Query keys and
+        invalidation</a></li>
+        <li><a href="#relationship-to-http-caching"
+        id="toc-relationship-to-http-caching">5) Relationship to HTTP
+        caching</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Performance Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="api-caching-react-query">API caching (React Query)</h1>
+        <p>The frontend uses TanStack React Query as its
+        <strong>in-memory cache</strong> and request orchestration
+        layer.</p>
+        <p>This is the primary caching mechanism for API data in the
+        SPA.</p>
+        <h2 id="global-defaults">1) Global defaults</h2>
+        <p>The <code>QueryClient</code> is configured with conservative
+        defaults:</p>
+        <ul>
+        <li><code>refetchOnWindowFocus: false</code> (avoid surprise
+        traffic)</li>
+        <li><code>retry: 1</code> (small resilience without long retry
+        storms)</li>
+        <li><code>staleTime: 60_000</code> (treat most data as “fresh
+        for 60s”)</li>
+        </ul>
+        <p>These defaults can be overridden per-query.</p>
+        <h2 id="per-query-freshness-vs-memory">2) Per-query freshness vs
+        memory</h2>
+        <p>React Query distinguishes:</p>
+        <ul>
+        <li><code>staleTime</code>: how long data is considered “fresh”
+        (no refetch on mount)</li>
+        <li><code>gcTime</code>: how long unused cache data remains in
+        memory before being garbage collected</li>
+        </ul>
+        <p>In this repo you’ll see patterns like:</p>
+        <ul>
+        <li>Analytics trend data: <code>staleTime</code> around 5
+        minutes, <code>gcTime</code> around 15 minutes.</li>
+        <li>Dashboard KPIs: <code>staleTime</code> around 2 minutes,
+        longer <code>gcTime</code> to avoid re-fetching when navigating
+        back.</li>
+        </ul>
+        <h2 id="query-gating-avoid-unnecessary-requests">3) Query gating
+        (avoid unnecessary requests)</h2>
+        <p>Use <code>enabled</code> and input gating to keep expensive
+        queries from firing:</p>
+        <ul>
+        <li>Only fetch when required inputs exist (e.g., supplierId
+        selected).</li>
+        <li>Debounce typeahead search inputs and use the debounced value
+        in the query key.</li>
+        </ul>
+        <p>This reduces backend load under real user behavior (typing,
+        tabbing, fast navigation).</p>
+        <h2 id="query-keys-and-invalidation">4) Query keys and
+        invalidation</h2>
+        <p>Guidelines used across the codebase:</p>
+        <ul>
+        <li>Query keys are structured arrays (e.g.,
+        <code>['analytics', 'stock-value', params]</code>).</li>
+        <li>Params objects are included when they represent the
+        “identity” of the query.</li>
+        </ul>
+        <p>When a mutation happens (create/update/delete), invalidate
+        only the affected query families (inventory list, supplier list,
+        etc.). This keeps UI responsive and avoids refetching unrelated
+        analytics.</p>
+        <h2 id="relationship-to-http-caching">5) Relationship to HTTP
+        caching</h2>
+        <ul>
+        <li>Axios requests here are not configured for browser HTTP
+        cache (and many API routes are not safely cacheable by
+        intermediaries).</li>
+        <li>The SPA relies primarily on React Query’s in-memory cache
+        for read performance.</li>
+        <li>Static assets are cached at the Nginx/browser layer (see
+        build &amp; deployment docs).</li>
+        </ul>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

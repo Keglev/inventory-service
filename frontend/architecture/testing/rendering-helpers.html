@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+testing/rendering-helpers · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#rendering-helpers-provider-setup"
+        id="toc-rendering-helpers-provider-setup">Rendering Helpers
+        &amp; Provider Setup</a>
+        <ul>
+        <li><a href="#global-test-setup"
+        id="toc-global-test-setup">Global test setup</a></li>
+        <li><a href="#renderwithproviders-render"
+        id="toc-renderwithproviders-render"><code>renderWithProviders()</code>
+        / <code>render</code></a>
+        <ul>
+        <li><a href="#provider-composition"
+        id="toc-provider-composition">Provider composition</a></li>
+        <li><a href="#minimal-example" id="toc-minimal-example">Minimal
+        example</a></li>
+        </ul></li>
+        <li><a href="#when-to-add-extra-providers"
+        id="toc-when-to-add-extra-providers">When to add extra
+        providers</a></li>
+        <li><a href="#react-query-hook-helpers"
+        id="toc-react-query-hook-helpers">React Query hook
+        helpers</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="rendering-helpers-provider-setup">Rendering Helpers
+        &amp; Provider Setup</h1>
+        <p>Most component tests should use the shared render helper so
+        provider wiring stays consistent.</p>
+        <h2 id="global-test-setup">Global test setup</h2>
+        <p>Vitest loads: -
+        <code>frontend/src/__tests__/test/setupTests.ts</code></p>
+        <p>It registers: - <code>@testing-library/jest-dom</code>
+        matchers - a test-only patch to stub MUI icon imports</p>
+        <h2
+        id="renderwithproviders-render"><code>renderWithProviders()</code>
+        / <code>render</code></h2>
+        <p>Preferred import: -
+        <code>frontend/src/__tests__/test/test-utils.tsx</code></p>
+        <p>This module: - defines <code>renderWithProviders(ui)</code> -
+        re-exports RTL utilities - also exports <code>render</code> as
+        an alias of <code>renderWithProviders</code></p>
+        <h3 id="provider-composition">Provider composition</h3>
+        <p><code>AllProviders</code> currently wraps with: -
+        <code>QueryClientProvider</code> (fresh client per render;
+        retries disabled; <code>gcTime: 0</code>) -
+        <code>MemoryRouter</code></p>
+        <p>This matches the repo’s general testing goal:
+        <strong>isolation and determinism</strong>.</p>
+        <h3 id="minimal-example">Minimal example</h3>
+        <pre class="tsx"><code>import { render, screen } from &#39;@/__tests__/test/test-utils&#39;;
+
+test(&#39;renders text&#39;, () =&gt; {
+  render(&lt;div&gt;Hello&lt;/div&gt;);
+  expect(screen.getByText(&#39;Hello&#39;)).toBeInTheDocument();
+});</code></pre>
+        <h2 id="when-to-add-extra-providers">When to add extra
+        providers</h2>
+        <p>Not every test needs every real provider. Use the smallest
+        setup that matches the contract.</p>
+        <p>Examples already present in the repo: - Some tests wrap a
+        component in <code>ThemeProvider</code> +
+        <code>createTheme()</code> when a component relies on MUI theme
+        context. - Route tests use
+        <code>MemoryRouter initialEntries={[path]}</code> to render at a
+        specific URL.</p>
+        <h2 id="react-query-hook-helpers">React Query hook helpers</h2>
+        <p>For hook/unit tests that only need React Query (not routing),
+        use: -
+        <code>frontend/src/__tests__/unit/utils/reactQueryTestUtils.tsx</code>
+        (<code>createReactQueryWrapper</code>)</p>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

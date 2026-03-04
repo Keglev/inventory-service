@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+testing/test-structure · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#test-structure-naming-conventions"
+        id="toc-test-structure-naming-conventions">Test Structure &amp;
+        Naming Conventions</a>
+        <ul>
+        <li><a href="#high-level-tree-actual"
+        id="toc-high-level-tree-actual">High-level tree
+        (actual)</a></li>
+        <li><a href="#what-belongs-in-unit-vs-test"
+        id="toc-what-belongs-in-unit-vs-test">What belongs in
+        <code>unit/</code> vs <code>test/</code></a></li>
+        <li><a href="#mirroring-source-structure"
+        id="toc-mirroring-source-structure">Mirroring source
+        structure</a></li>
+        <li><a href="#naming-conventions"
+        id="toc-naming-conventions">Naming conventions</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Testing Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="test-structure-naming-conventions">Test Structure &amp;
+        Naming Conventions</h1>
+        <p>This page answers: <strong>Where do I put tests and
+        why?</strong></p>
+        <h2 id="high-level-tree-actual">High-level tree (actual)</h2>
+        <p>Tests live under <code>frontend/src/__tests__/</code>:</p>
+        <ul>
+        <li><code>app/</code> — app-shell and app-level UI orchestration
+        tests (layout, menus, settings, public shell)</li>
+        <li><code>components/</code> — component-level tests for UI
+        building blocks and page components</li>
+        <li><code>context/</code> — context modules and provider-level
+        contracts</li>
+        <li><code>features/</code> — cross-cutting features
+        (auth/help/health)</li>
+        <li><code>routes/</code> — routing contract tests</li>
+        <li><code>hooks/</code> — reusable hooks (debounce, context
+        hooks, etc.)</li>
+        <li><code>unit/</code> — unit tests for pure logic and
+        contracts</li>
+        <li><code>test/</code> — test harness utilities (setup file,
+        provider wrappers, RTL helpers)</li>
+        <li><code>stubs/</code> — test-only module stubs (DataGrid,
+        locales, icons, CSS)</li>
+        </ul>
+        <h2 id="what-belongs-in-unit-vs-test">What belongs in
+        <code>unit/</code> vs <code>test/</code></h2>
+        <ul>
+        <li><code>unit/</code> means: the test subject is
+        <strong>pure</strong> or close to pure.
+        <ul>
+        <li>Example: formatting/parsing helpers, small API
+        invariants.</li>
+        </ul></li>
+        <li><code>test/</code> means: <strong>test
+        infrastructure</strong>, not “integration tests”.
+        <ul>
+        <li><code>setupTests.ts</code> registers global matchers and
+        patches heavy imports.</li>
+        <li><code>all-providers.tsx</code> defines the shared provider
+        wrapper.</li>
+        <li><code>test-utils.tsx</code> exports
+        <code>renderWithProviders()</code> and re-exports RTL
+        utilities.</li>
+        </ul></li>
+        </ul>
+        <h2 id="mirroring-source-structure">Mirroring source
+        structure</h2>
+        <p>General rule: - Mirror the source structure when the primary
+        intent is “tests for this module family”. - Examples:
+        <code>app/</code>, <code>routes/</code>, <code>features/</code>,
+        <code>context/</code>, <code>hooks/</code>.</p>
+        <p>Exceptions: - <code>unit/</code> is allowed to group by “pure
+        concerns” even if source lives elsewhere. - <code>stubs/</code>
+        groups test-only replacements regardless of source layout.</p>
+        <h2 id="naming-conventions">Naming conventions</h2>
+        <p>File extensions: - <code>*.test.ts</code> — unit tests for
+        utilities, hooks without JSX - <code>*.test.tsx</code> —
+        component tests and anything with JSX</p>
+        <p>Qualifiers: - Use dot qualifiers to make intent explicit when
+        a module has multiple behaviors. - Example pattern already used
+        in the repo: <code>Component.variant.test.tsx</code></p>
+        <p>Contract vs integration-ish naming: - Prefer making the
+        <em>contract</em> explicit in the file header and test names. -
+        If needed, add a qualifier like <code>.contract.test.tsx</code>
+        or <code>.workflow.test.tsx</code>.</p>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

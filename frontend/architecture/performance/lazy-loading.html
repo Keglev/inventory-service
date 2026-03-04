@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+performance/lazy-loading · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#lazy-loading" id="toc-lazy-loading">Lazy
+        loading</a>
+        <ul>
+        <li><a href="#current-state-in-this-repo"
+        id="toc-current-state-in-this-repo">Current state (in this
+        repo)</a>
+        <ul>
+        <li><a href="#routespages-are-eager-loaded"
+        id="toc-routespages-are-eager-loaded">Routes/pages are
+        eager-loaded</a></li>
+        <li><a href="#suspense-boundaries-exist"
+        id="toc-suspense-boundaries-exist">Suspense boundaries
+        exist</a></li>
+        </ul></li>
+        <li><a href="#recommended-patterns-when-we-need-them"
+        id="toc-recommended-patterns-when-we-need-them">Recommended
+        patterns (when we need them)</a>
+        <ul>
+        <li><a href="#route-level-lazy-loading"
+        id="toc-route-level-lazy-loading">1) Route-level lazy
+        loading</a></li>
+        <li><a href="#interaction-level-lazy-loading-dialogs"
+        id="toc-interaction-level-lazy-loading-dialogs">2)
+        Interaction-level lazy loading (dialogs)</a></li>
+        <li><a href="#keep-the-steady-state-fast"
+        id="toc-keep-the-steady-state-fast">3) Keep the “steady state”
+        fast</a></li>
+        </ul></li>
+        <li><a href="#route-level-separation-inventory-vs-analytics"
+        id="toc-route-level-separation-inventory-vs-analytics">Route-level
+        separation (Inventory vs Analytics)</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Performance Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="lazy-loading">Lazy loading</h1>
+        <p>Lazy loading is used to reduce the amount of code needed for
+        the <strong>first render</strong> and to defer rarely used UI
+        until it is needed.</p>
+        <h2 id="current-state-in-this-repo">Current state (in this
+        repo)</h2>
+        <h3 id="routespages-are-eager-loaded">Routes/pages are
+        eager-loaded</h3>
+        <p><code>AppRouter</code> imports page components directly
+        (eagerly). There is currently no route-level
+        <code>React.lazy(() =&gt; import(...))</code> for:</p>
+        <ul>
+        <li><code>InventoryBoard</code></li>
+        <li><code>SuppliersBoard</code></li>
+        <li><code>Analytics</code></li>
+        </ul>
+        <h3 id="suspense-boundaries-exist">Suspense boundaries
+        exist</h3>
+        <p>The public shell wraps its <code>&lt;Outlet /&gt;</code> in a
+        <code>React.Suspense</code> boundary.</p>
+        <p>This is useful if/when public pages are moved to lazy
+        imports, but today it mainly serves as “future-proofing”.</p>
+        <h2 id="recommended-patterns-when-we-need-them">Recommended
+        patterns (when we need them)</h2>
+        <p>The goal is to introduce lazy loading only where it actually
+        improves perceived performance.</p>
+        <h3 id="route-level-lazy-loading">1) Route-level lazy
+        loading</h3>
+        <p>Good candidates:</p>
+        <ul>
+        <li><code>Analytics</code> (charts + multiple blocks)</li>
+        <li><code>InventoryBoard</code> and/or the DataGrid-heavy
+        sub-tree</li>
+        </ul>
+        <p>Pattern:</p>
+        <ul>
+        <li>Convert the page import to
+        <code>React.lazy(() =&gt; import(...))</code></li>
+        <li>Wrap the route element in <code>Suspense</code> with a small
+        fallback</li>
+        </ul>
+        <h3 id="interaction-level-lazy-loading-dialogs">2)
+        Interaction-level lazy loading (dialogs)</h3>
+        <p>This repo is intentionally dialog-heavy (inventory and
+        supplier workflows live in dialogs).</p>
+        <p>Currently, dialogs are imported eagerly into the page bundle
+        (even if they are closed most of the time). For bundle-size
+        wins, consider lazy-loading dialog components and only importing
+        when <code>open === true</code>.</p>
+        <p>This tends to pay off when dialogs include:</p>
+        <ul>
+        <li>heavy form schemas and validation</li>
+        <li>typeahead/autocomplete logic</li>
+        <li>secondary API hooks</li>
+        </ul>
+        <h3 id="keep-the-steady-state-fast">3) Keep the “steady state”
+        fast</h3>
+        <p>Lazy loading can introduce jank if it triggers while the user
+        is actively interacting.</p>
+        <p>Heuristics:</p>
+        <ul>
+        <li>Preload when it’s likely needed soon (e.g., after a row is
+        selected, start preloading Edit/Delete dialogs).</li>
+        <li>Avoid lazy loading UI that is always visible (navigation
+        chrome).</li>
+        </ul>
+        <h2
+        id="route-level-separation-inventory-vs-analytics">Route-level
+        separation (Inventory vs Analytics)</h2>
+        <p>Even without lazy loading, the route structure already
+        separates concerns:</p>
+        <ul>
+        <li><code>/inventory</code> is DataGrid + dialog workflows</li>
+        <li><code>/analytics/:section?</code> is chart + block-driven
+        views</li>
+        </ul>
+        <p>Lazy loading is the next step if we want that separation to
+        show up in the JS delivery profile.</p>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>

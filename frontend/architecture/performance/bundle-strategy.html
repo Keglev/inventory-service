@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frontend ·
+performance/bundle-strategy · Smart Supply Pro Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS lives under /templates on GitHub Pages for inventory-service repo -->
+  <link rel="stylesheet" href="/inventory-service/templates/docs.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/inventory-service/" class="logo">📦 Smart Supply Pro Docs</a>
+      <nav class="nav">
+      <a href="/inventory-service/architecture/index.html">Backend Architecture</a>
+      <a href="/inventory-service/architecture/overview-de.html">Backend Architektur Deutsch</a>
+      <a href="/inventory-service/frontend/architecture/index.html">Frontend Architecture</a>
+      <a href="/inventory-service/frontend/architecture/overview-de.html">Frontend Architektur Deutsch</a>
+      <a href="/inventory-service/backend/api/index.html">Backend API</a>
+      <a href="/inventory-service/frontend/api/index.html">Frontend API</a>
+      <a href="/inventory-service/backend/coverage/index.html">Backend Coverage</a>  
+      <a href="/inventory-service/frontend/coverage/index.html">Frontend Coverage</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h2>Backend</h2>
+      <ul>
+        <li><a href="/inventory-service/architecture/overview.html">Architecture Overview</a></li>
+        <li><a href="/inventory-service/architecture/overview-de.html">Architektur-Überblick</a></li>
+        <li><a href="/inventory-service/architecture/layers/overview.html">Layers</a></li>
+        <li><a href="/inventory-service/architecture/model/index.html">Data Models</a></li>
+        <li><a href="/inventory-service/architecture/enums/index.html">Enums</a></li>
+        <li><a href="/inventory-service/architecture/dto/index.html">DTOs</a></li>
+        <li><a href="/inventory-service/architecture/config/index.html">Config</a></li>
+        <li><a href="/inventory-service/architecture/controller/index.html">Controllers</a></li>
+        <li><a href="/inventory-service/architecture/security/index.html">Security</a></li>
+        <li><a href="/inventory-service/architecture/deployment/index.html">Deployment</a></li>
+        <li><a href="/inventory-service/architecture/exception/index.html">Exception Handling</a></li>
+        <li><a href="/inventory-service/architecture/integration/index.html">Integration</a></li>
+        <li><a href="/inventory-service/architecture/repository/index.html">Repository</a></li>
+        <li><a href="/inventory-service/architecture/resources/index.html">Resources</a></li>
+        <li><a href="/inventory-service/architecture/validation/index.html">Validation</a></li>
+        <li><a href="/inventory-service/architecture/testing/index.html">Testing</a></li>
+        <li><a href="/inventory-service/architecture/diagrams/index.html">Diagrams</a></li>
+      </ul>
+
+      <h2>Frontend</h2>
+      <ul>
+        <h3>Docs coming soon</h3>
+        <!-- Future <li><a href="/inventory-service/frontend/architecture/overview.html">Architecture Overview</a></li> -->
+      </ul>
+
+      <h2>Quality</h2>
+      <ul>
+        <li><a href="/inventory-service/backend/api/index.html">API Reference</a></li>
+        <li><a href="/inventory-service/backend/coverage/index.html">JaCoCo Coverage</a></li>
+      </ul>
+    </aside>
+
+    <section class="content">
+            <nav class="toc">
+        <h2>On this page</h2>
+        <ul>
+        <li><a href="#bundle-strategy" id="toc-bundle-strategy">Bundle
+        strategy</a>
+        <ul>
+        <li><a href="#current-state" id="toc-current-state">Current
+        state</a>
+        <ul>
+        <li><a href="#manual-vendor-chunks"
+        id="toc-manual-vendor-chunks">Manual vendor chunks</a></li>
+        <li><a href="#chunk-size-warning-limit"
+        id="toc-chunk-size-warning-limit">Chunk size warning
+        limit</a></li>
+        </ul></li>
+        <li><a href="#route-level-separation-inventory-vs-analytics"
+        id="toc-route-level-separation-inventory-vs-analytics">Route-level
+        separation (Inventory vs Analytics)</a></li>
+        <li><a href="#why-this-matters" id="toc-why-this-matters">Why
+        this matters</a></li>
+        <li><a href="#practical-guidelines"
+        id="toc-practical-guidelines">Practical guidelines</a></li>
+        </ul></li>
+        </ul>
+      </nav>
+      
+      <article class="doc-body">
+        <p><a id="top"></a></p>
+        <p><a href="./index.html">⬅️ Back to Performance Index</a></p>
+        <ul>
+        <li><a href="../overview.html">Back to Overview
+        (English)</a></li>
+        <li><a href="../overview-de.html">Zurück zum Überblick
+        (Deutsch)</a></li>
+        </ul>
+        <h1 id="bundle-strategy">Bundle strategy</h1>
+        <p>This repo uses Vite’s production build with explicit
+        <strong>vendor chunking</strong> to keep bundle size
+        predictable.</p>
+        <h2 id="current-state">Current state</h2>
+        <h3 id="manual-vendor-chunks">Manual vendor chunks</h3>
+        <p>The Vite config defines <code>manualChunks</code> for the
+        major dependency families:</p>
+        <ul>
+        <li>React: <code>react</code>, <code>react-dom</code></li>
+        <li>MUI: <code>@mui/material</code>,
+        <code>@mui/icons-material</code>,
+        <code>@mui/x-data-grid</code></li>
+        <li>Router: <code>react-router-dom</code></li>
+        <li>Forms/validation: <code>react-hook-form</code>,
+        <code>zod</code></li>
+        <li>Charts: <code>recharts</code></li>
+        <li>i18n: <code>i18next</code>, <code>react-i18next</code>,
+        detector/backend</li>
+        <li>Utilities: <code>axios</code>,
+        <code>@tanstack/react-query</code>, <code>dayjs</code></li>
+        </ul>
+        <p>This helps prevent “everything ends up in one vendor chunk”
+        and makes it easier to see what grows over time.</p>
+        <h3 id="chunk-size-warning-limit">Chunk size warning limit</h3>
+        <p><code>chunkSizeWarningLimit</code> is set to <code>800</code>
+        KB so we still get warnings for unexpected growth, while
+        acknowledging that MUI can produce a larger chunk.</p>
+        <h2
+        id="route-level-separation-inventory-vs-analytics">Route-level
+        separation (Inventory vs Analytics)</h2>
+        <p>From a code organization perspective, Inventory and Analytics
+        are already separate page modules
+        (<code>src/pages/inventory/*</code> vs
+        <code>src/pages/analytics/*</code>).</p>
+        <p>However, the <strong>router currently imports pages
+        eagerly</strong> (no <code>React.lazy</code> for route
+        elements). That means:</p>
+        <ul>
+        <li>the “Inventory vs Analytics” separation exists in the source
+        tree,</li>
+        <li>but not (yet) as route-level code-splitting at runtime.</li>
+        </ul>
+        <p>If route-level code splitting becomes a priority, the
+        existing page boundaries are the right seams to introduce
+        it.</p>
+        <h2 id="why-this-matters">Why this matters</h2>
+        <ul>
+        <li><strong>Initial load</strong>: keeping “rarely used”
+        libraries (charts, DataGrid, big dialogs) out of the initial JS
+        reduces time-to-interactive.</li>
+        <li><strong>Caching</strong>: stable chunks with hashed
+        filenames can be cached aggressively by the browser/CDN.</li>
+        <li><strong>Operational clarity</strong>: if a chunk grows
+        unexpectedly, it’s easier to attribute it to a dependency
+        family.</li>
+        </ul>
+        <h2 id="practical-guidelines">Practical guidelines</h2>
+        <ul>
+        <li>Keep “shared utilities” small and stable; avoid importing
+        heavy UI libs from generic helpers.</li>
+        <li>Prefer importing charts only in analytics-related
+        modules.</li>
+        <li>Keep dialog workflows in domain folders (already true), and
+        consider interaction-level lazy loading for large dialogs.</li>
+        </ul>
+        <hr />
+        <p><a href="#top">Back to top</a></p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Smart Supply Pro · Generated by Docs Pipeline
+  </footer>
+
+  <!-- Mermaid for diagrams in ```mermaid``` blocks -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+</body>
+</html>
