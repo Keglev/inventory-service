@@ -106,6 +106,90 @@ class OAuth2AuthenticationTest {
 
 ### Custom OAuth2UserService Testing
 
+There are two complementary ways to test OAuth2 user handling:
+
+1) **Unit tests** for the service logic (fast, deterministic, no Spring context)
+2) **MVC slice / integration tests** for wiring and endpoint behavior (slower, validates SecurityConfig)
+
+Use unit tests to cover the high-value business logic: auto-provisioning, role assignment, and role healing.
+Use MVC slice tests (e.g., `@WebMvcTest`) to verify the OAuth2 authorization endpoint, CORS, and RBAC rules.
+
+---
+
+#### Unit: Test the real service logic (recommended for coverage)
+
+`CustomOAuth2UserService#loadUser(...)` normally delegates to Spring’s `DefaultOAuth2UserService` to call the
+provider user-info endpoint. That provider call is network-bound and non-deterministic, so unit tests should
+avoid it.
+
+This codebase supports a clean unit-test seam by overriding `loadFromProvider(...)` in tests:
+
+```java
+class CustomOAuth2UserServiceTest {
+    @Test
+    void missingEmail_isRejected() {
+        AppUserRepository repo = mock(AppUserRepository.class);
+
+        CustomOAuth2UserService svc = new CustomOAuth2UserService(repo) {
+            @Override protected OAuth2User loadFromProvider(OAuth2UserRequest req) {
+                return oauthUserWithAttributes(Map.of("name", "Alice"));
+            }
+        };
+
+        assertThatThrownBy(() -> svc.loadUser(mock(OAuth2UserRequest.class)))
+            .isInstanceOf(OAuth2AuthenticationException.class);
+    }
+}
+```
+
+See the concrete implementation in the test suite:
+`src/test/java/com/smartsupplypro/inventory/service/CustomOAuth2UserServiceTest.java`.
+
+Notes:
+- The service reads `APP_ADMIN_EMAILS` directly from the process environment; unit tests should avoid depending
+    on local/CI environment by using a random email that is extremely unlikely to be in the allow-list.
+- `OAuth2AuthenticationException` may have a `null` message; assert on `ex.getError().getErrorCode()`.
+
+---
+
+### Custom OidcUserService Testing
+
+`CustomOidcUserService#loadUser(...)` normally delegates to Spring’s `OidcUserService`.
+Depending on provider configuration, that default service may contact the user-info endpoint, which makes
+unit tests non-deterministic.
+
+This codebase supports a clean unit-test seam by overriding `loadFromProvider(...)` in tests:
+
+```java
+class CustomOidcUserServiceTest {
+    @Test
+    void missingEmail_isRejected() {
+        AppUserRepository repo = mock(AppUserRepository.class);
+
+        CustomOidcUserService svc = new CustomOidcUserService(repo) {
+            @Override protected OidcUser loadFromProvider(OidcUserRequest req) {
+                return upstreamOidcUser(null, "Alice");
+            }
+        };
+
+        assertThatThrownBy(() -> svc.loadUser(mock(OidcUserRequest.class)))
+            .isInstanceOf(OAuth2AuthenticationException.class);
+    }
+}
+```
+
+See the concrete implementation in the test suite:
+`src/test/java/com/smartsupplypro/inventory/service/CustomOidcUserServiceTest.java`.
+
+Notes:
+- The service reads `APP_ADMIN_EMAILS` directly from the process environment; unit tests should avoid depending
+    on local/CI environment by using a random email that is extremely unlikely to be in the allow-list.
+- `OAuth2AuthenticationException` may have a `null` message; assert on `ex.getError().getErrorCode()`.
+
+---
+
+#### MVC slice: Validate wiring / flow
+
 ```java
 @WebMvcTest
 @Import(TestSecurityConfig.class)
@@ -115,32 +199,8 @@ class OAuth2UserServiceTest {
     @MockitoBean CustomOAuth2UserService customUserService;
     @MockitoBean AppUserRepository appUserRepository;
     
-    @Test
-    @DisplayName("OAuth2 login creates AppUser if not exists")
-    void oauth2Login_newUser_createsAppUser() {
-        // Setup: Mock OAuth2 user from Google
-        OAuth2User oAuth2User = mock(OAuth2User.class);
-        when(oAuth2User.getAttribute("email"))
-            .thenReturn("john@example.com");
-        when(oAuth2User.getAttribute("name"))
-            .thenReturn("John Doe");
-        
-        // Setup: Service creates AppUser
-        AppUser appUser = AppUser.builder()
-            .email("john@example.com")
-            .username("john@example.com")
-            .role(Role.USER)
-            .build();
-        when(customUserService.loadUser(any(OAuth2UserRequest.class)))
-            .thenReturn(new DefaultOAuth2User(
-                AuthorityUtils.createAuthorityList("ROLE_USER"),
-                Map.of("email", "john@example.com", "name", "John Doe"),
-                "email"
-            ));
-        
-        // OAuth2 login should complete successfully
-        // (verified via actual OAuth2 callback flow)
-    }
+    // MVC slice tests typically mock CustomOAuth2UserService.
+    // This validates SecurityConfig wiring and endpoint behavior, not the service’s internal provisioning logic.
 }
 ```
 

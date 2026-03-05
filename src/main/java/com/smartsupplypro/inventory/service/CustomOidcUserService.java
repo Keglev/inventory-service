@@ -91,7 +91,7 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
         // Enterprise Comment: OIDC User Loading
         // Delegate to OidcUserService to handle ID token validation and claims extraction.
         // This ensures OpenID Connect standards (JWT signature, issuer validation, nonce) are enforced.
-        OidcUser oidc = new OidcUserService().loadUser(request);
+        OidcUser oidc = loadFromProvider(request);
 
         final String email = oidc.getEmail(); // same as oidc.getAttribute("email")
         final String name  = oidc.getFullName(); // falls back to "name" claim if present
@@ -141,5 +141,15 @@ public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest,
             oidc.getUserInfo(),
             "email"
         );
+    }
+
+    /**
+     * Loads the user from the upstream OIDC provider.
+     *
+     * <p>Extracted for testability: unit tests can override this method to provide a deterministic
+     * {@link OidcUser} without hitting an actual provider user-info endpoint.
+     */
+    protected OidcUser loadFromProvider(OidcUserRequest request) throws OAuth2AuthenticationException {
+        return new OidcUserService().loadUser(request);
     }
 }

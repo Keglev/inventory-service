@@ -83,7 +83,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
         // Enterprise Comment: OAuth2 User Loading
         // Delegates to default service for upstream provider communication
-        OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(request);
+        OAuth2User oauthUser = loadFromProvider(request);
 
         final String email = oauthUser.getAttribute("email");
         final String name  = oauthUser.getAttribute("name");
@@ -132,5 +132,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         attributes.put("appRole", roleName);
 
         return new DefaultOAuth2User(Collections.singletonList(roleAuthority), attributes, "email");
+    }
+
+    /**
+     * Loads the user from the upstream OAuth2 provider.
+     *
+     * <p>Extracted for testability: unit tests can override this method to provide a deterministic
+     * {@link OAuth2User} without hitting the network.
+     */
+    protected OAuth2User loadFromProvider(OAuth2UserRequest request) throws OAuth2AuthenticationException {
+        return new DefaultOAuth2UserService().loadUser(request);
     }
 }
