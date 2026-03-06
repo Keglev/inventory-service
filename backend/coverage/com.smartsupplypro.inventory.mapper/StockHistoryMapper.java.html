@@ -54,22 +54,22 @@ public final class StockHistoryMapper {
      * @implNote Enum transformation ensures backward compatibility with external systems
      */
     public static StockHistoryDTO toDTO(StockHistory history) {
-<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (history == null) {</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (history == null) {</span>
 <span class="nc" id="L58">            return null;</span>
         }
         
         // Transform enum safely for external system compatibility
-<span class="nc" id="L62">        String reasonString = transformEnumSafely(history.getReason());</span>
+<span class="fc" id="L62">        String reasonString = transformEnumSafely(history.getReason());</span>
         
-<span class="nc" id="L64">        return StockHistoryDTO.builder()</span>
-<span class="nc" id="L65">                .id(history.getId())</span>
-<span class="nc" id="L66">                .itemId(history.getItemId())</span>
-<span class="nc" id="L67">                .change(history.getChange())</span>
-<span class="nc" id="L68">                .reason(reasonString)</span>
-<span class="nc" id="L69">                .createdBy(history.getCreatedBy())</span>
-<span class="nc" id="L70">                .timestamp(history.getTimestamp())</span>
-<span class="nc" id="L71">                .priceAtChange(history.getPriceAtChange())</span>
-<span class="nc" id="L72">                .build();</span>
+<span class="fc" id="L64">        return StockHistoryDTO.builder()</span>
+<span class="fc" id="L65">                .id(history.getId())</span>
+<span class="fc" id="L66">                .itemId(history.getItemId())</span>
+<span class="fc" id="L67">                .change(history.getChange())</span>
+<span class="fc" id="L68">                .reason(reasonString)</span>
+<span class="fc" id="L69">                .createdBy(history.getCreatedBy())</span>
+<span class="fc" id="L70">                .timestamp(history.getTimestamp())</span>
+<span class="fc" id="L71">                .priceAtChange(history.getPriceAtChange())</span>
+<span class="fc" id="L72">                .build();</span>
     }
 
     /**
@@ -121,7 +121,7 @@ public final class StockHistoryMapper {
      * @return string representation or null if enum is null
      */
     private static String transformEnumSafely(StockChangeReason reason) {
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        return reason != null ? reason.name() : null;</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        return reason != null ? reason.name() : null;</span>
     }
     
     /**

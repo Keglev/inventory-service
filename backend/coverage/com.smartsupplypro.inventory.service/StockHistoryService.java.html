@@ -65,9 +65,9 @@ public class StockHistoryService {
      * @return list of stock history DTOs
      */
     public List&lt;StockHistoryDTO&gt; getAll() {
-<span class="nc" id="L68">        return repository.findAll().stream()</span>
-<span class="nc" id="L69">                .map(StockHistoryMapper::toDTO)</span>
-<span class="nc" id="L70">                .collect(Collectors.toList());</span>
+<span class="fc" id="L68">        return repository.findAll().stream()</span>
+<span class="fc" id="L69">                .map(StockHistoryMapper::toDTO)</span>
+<span class="fc" id="L70">                .collect(Collectors.toList());</span>
     }
 
     /**
@@ -77,8 +77,8 @@ public class StockHistoryService {
      */
     public List&lt;StockHistoryDTO&gt; getByItemId(String itemId) {
         // Prefer ordered repo method (added in our repository suggestions)
-<span class="nc" id="L80">        var list = repository.findByItemIdOrderByTimestampDesc(itemId);</span>
-<span class="nc" id="L81">        return list.stream().map(StockHistoryMapper::toDTO).toList();</span>
+<span class="fc" id="L80">        var list = repository.findByItemIdOrderByTimestampDesc(itemId);</span>
+<span class="fc" id="L81">        return list.stream().map(StockHistoryMapper::toDTO).toList();</span>
     }
 
     /**
@@ -87,8 +87,8 @@ public class StockHistoryService {
      * @return list of stock history DTOs ordered by timestamp descending
      */
     public List&lt;StockHistoryDTO&gt; getByReason(StockChangeReason reason) {
-<span class="nc" id="L90">        var list = repository.findByReasonOrderByTimestampDesc(reason);</span>
-<span class="nc" id="L91">        return list.stream().map(StockHistoryMapper::toDTO).toList();</span>
+<span class="fc" id="L90">        var list = repository.findByReasonOrderByTimestampDesc(reason);</span>
+<span class="fc" id="L91">        return list.stream().map(StockHistoryMapper::toDTO).toList();</span>
     }
 
     /**
@@ -105,8 +105,8 @@ public class StockHistoryService {
                                               String itemName,
                                               String supplierId,
                                               Pageable pageable) {
-<span class="nc" id="L108">        return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)</span>
-<span class="nc" id="L109">                .map(StockHistoryMapper::toDTO);</span>
+<span class="fc" id="L108">        return repository.findFiltered(startDate, endDate, itemName, supplierId, pageable)</span>
+<span class="fc" id="L109">                .map(StockHistoryMapper::toDTO);</span>
     }
 
     /**
@@ -182,26 +182,26 @@ public class StockHistoryService {
      */
     public void save(StockHistoryDTO dto) {
         // Validate DTO with domain rules
-<span class="nc" id="L185">        StockHistoryValidator.validate(dto);</span>
+<span class="fc" id="L185">        StockHistoryValidator.validate(dto);</span>
 
-<span class="nc" id="L187">        String supplierId = resolveSupplierId(dto.getItemId());</span>
+<span class="fc" id="L187">        String supplierId = resolveSupplierId(dto.getItemId());</span>
 
         // Map &amp; persist
-<span class="nc" id="L190">        StockHistory history = StockHistory.builder()</span>
-<span class="nc" id="L191">                .id(&quot;sh-&quot; + dto.getItemId() + &quot;-&quot; + System.currentTimeMillis())</span>
-<span class="nc" id="L192">                .itemId(dto.getItemId())</span>
-<span class="nc" id="L193">                .supplierId(supplierId)</span>
-<span class="nc" id="L194">                .change(dto.getChange())</span>
-<span class="nc bnc" id="L195" title="All 2 branches missed.">                .reason(dto.getReason() != null</span>
-<span class="nc" id="L196">                        ? StockChangeReason.valueOf(dto.getReason())</span>
+<span class="fc" id="L190">        StockHistory history = StockHistory.builder()</span>
+<span class="fc" id="L191">                .id(&quot;sh-&quot; + dto.getItemId() + &quot;-&quot; + System.currentTimeMillis())</span>
+<span class="fc" id="L192">                .itemId(dto.getItemId())</span>
+<span class="fc" id="L193">                .supplierId(supplierId)</span>
+<span class="fc" id="L194">                .change(dto.getChange())</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">                .reason(dto.getReason() != null</span>
+<span class="fc" id="L196">                        ? StockChangeReason.valueOf(dto.getReason())</span>
 <span class="nc" id="L197">                        : null)</span>
-<span class="nc" id="L198">                .createdBy(dto.getCreatedBy())</span>
-<span class="nc" id="L199">                .timestamp(LocalDateTime.now())</span>
-<span class="nc" id="L200">                .priceAtChange(dto.getPriceAtChange())</span>
-<span class="nc" id="L201">                .build();</span>
+<span class="fc" id="L198">                .createdBy(dto.getCreatedBy())</span>
+<span class="fc" id="L199">                .timestamp(LocalDateTime.now())</span>
+<span class="fc" id="L200">                .priceAtChange(dto.getPriceAtChange())</span>
+<span class="fc" id="L201">                .build();</span>
 
-<span class="nc" id="L203">        repository.save(history);</span>
-<span class="nc" id="L204">    }</span>
+<span class="fc" id="L203">        repository.save(history);</span>
+<span class="fc" id="L204">    }</span>
 
     /**
      * Records item deletion in stock history (legacy convention: -1 quantity).
