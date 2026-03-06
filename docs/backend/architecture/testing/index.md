@@ -165,7 +165,7 @@ src/test/java/com/smartsupplypro/inventory/
 │   ├── CustomOAuth2UserServiceTest.java          (Unit: OAuth2 provisioning + roles)
 │   ├── CustomOidcUserServiceTest.java            (Unit: OIDC provisioning + roles)
 │   ├── SupplierServiceTest.java                  (Unit: ~150 lines)
-│   ├── StockHistoryServiceTest.java              (Unit: ~100 lines)
+│   ├── StockHistoryServiceTest.java              (Unit: stock audit logging + queries)
 │   └── impl/
 │       ├── InventoryItemServiceImplSaveTest.java (Unit: 120 lines)
 │       ├── InventoryItemServiceImplSearchTest.java
