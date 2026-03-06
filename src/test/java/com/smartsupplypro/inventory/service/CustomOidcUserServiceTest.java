@@ -238,4 +238,39 @@ class CustomOidcUserServiceTest {
 
         Mockito.verify(repo, Mockito.times(1)).save(existing);
     }
+
+    @Test
+    void loadUser_doesNotPersist_whenExistingRoleAlreadyMatchesDesired_andPreservesProviderAuthorities() {
+        // Scenario: existing user is found and already has the desired role.
+        // Enterprise rationale: keep login idempotent (no-op "role healing") and avoid unnecessary writes.
+        // Expected: repository.save(...) is not called; returned principal includes provider authorities AND ROLE_USER.
+        AppUserRepository repo = Mockito.mock(AppUserRepository.class);
+        String email = nonAdminEmail();
+
+        OidcUser upstream = upstreamOidcUser(email, "Alice");
+
+        AppUser existing = new AppUser();
+        existing.setEmail(email);
+        existing.setName("Alice");
+        existing.setRole(Role.USER);
+
+        Mockito.when(repo.findByEmail(email)).thenReturn(Optional.of(existing));
+
+        CustomOidcUserService service = new CustomOidcUserService(repo) {
+            @Override
+            protected OidcUser loadFromProvider(OidcUserRequest request) {
+                return upstream;
+            }
+        };
+
+        OidcUser result = service.loadUser(Mockito.mock(OidcUserRequest.class));
+
+        Assertions.assertThat(result.getEmail()).isEqualTo(email);
+        Assertions.assertThat(result.getAuthorities())
+            .extracting(GrantedAuthority::getAuthority)
+            .contains("ROLE_OIDC", "ROLE_USER");
+
+        Mockito.verify(repo, Mockito.times(1)).findByEmail(email);
+        Mockito.verify(repo, Mockito.never()).save(any(AppUser.class));
+    }
 }

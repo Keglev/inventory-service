@@ -174,27 +174,39 @@ public class StockHistoryService {
 
         repository.save(history);
     }
-    
+
     /**
-     * Persists validated stock history DTO with server timestamp.
-     * @param dto validated stock history DTO
-     * @throws IllegalArgumentException if validation fails
+     * Persists a stock-history event based on an API-facing DTO.
+     *
+     * <p><b>Enterprise behavior</b>:
+     * This overload exists for controller/service boundaries where inputs arrive as DTOs.
+     * The method applies domain validation, enriches the record with denormalized references
+     * (supplierId), and uses a server-authoritative timestamp for audit consistency.</p>
+     *
+     * <p><b>Validation contract</b>:
+     * {@link com.smartsupplypro.inventory.validation.StockHistoryValidator} guarantees that
+     * required fields are present and consistent. In particular, {@code dto.getReason()} is
+     * expected to be non-null and a valid {@code StockChangeReason} name, so converting via
+     * {@link com.smartsupplypro.inventory.enums.StockChangeReason#valueOf(String)} does not
+     * require defensive null-branches.</p>
+     *
+     * @param dto stock history DTO (validated by this method)
+     * @throws IllegalArgumentException if validation fails or the reason is not a valid enum name
      */
     public void save(StockHistoryDTO dto) {
-        // Validate DTO with domain rules
+        // Enterprise validation: enforce domain invariants at the write boundary.
         StockHistoryValidator.validate(dto);
 
+        // Enterprise denormalization: store supplierId on the history row for analytics queries.
         String supplierId = resolveSupplierId(dto.getItemId());
 
-        // Map & persist
+        // Map DTO -> immutable audit event and persist with server-authoritative timestamp.
         StockHistory history = StockHistory.builder()
                 .id("sh-" + dto.getItemId() + "-" + System.currentTimeMillis())
                 .itemId(dto.getItemId())
                 .supplierId(supplierId)
                 .change(dto.getChange())
-                .reason(dto.getReason() != null
-                        ? StockChangeReason.valueOf(dto.getReason())
-                        : null)
+                .reason(StockChangeReason.valueOf(dto.getReason()))
                 .createdBy(dto.getCreatedBy())
                 .timestamp(LocalDateTime.now())
                 .priceAtChange(dto.getPriceAtChange())

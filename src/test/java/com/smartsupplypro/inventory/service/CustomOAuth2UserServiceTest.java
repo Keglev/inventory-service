@@ -250,4 +250,43 @@ class CustomOAuth2UserServiceTest {
         Mockito.verify(repo, Mockito.times(1)).save(existing);
         Mockito.verify(repo, Mockito.times(1)).findByEmail(email);
     }
+
+    @Test
+    void loadUser_doesNotPersist_whenExistingRoleAlreadyMatchesDesired() {
+        // Scenario: existing user is found and the stored role already matches the desired role.
+        // Enterprise rationale: avoid unnecessary writes during login (idempotent "role healing").
+        // Expected: repository.save(...) is not called; returned principal still contains appRole and ROLE_USER.
+        AppUserRepository repo = Mockito.mock(AppUserRepository.class);
+        String email = nonAdminEmail();
+
+        OAuth2User upstream = oauthUserWithAttributes(Map.of(
+            "email", email,
+            "name", "Alice"
+        ));
+
+        AppUser existing = new AppUser();
+        existing.setEmail(email);
+        existing.setName("Alice");
+        existing.setRole(Role.USER);
+
+        Mockito.when(repo.findByEmail(email)).thenReturn(Optional.of(existing));
+
+        CustomOAuth2UserService service = new CustomOAuth2UserService(repo) {
+            @Override
+            protected OAuth2User loadFromProvider(OAuth2UserRequest request) {
+                return upstream;
+            }
+        };
+
+        OAuth2User result = service.loadUser(Mockito.mock(OAuth2UserRequest.class));
+
+        Assertions.assertThat((String) result.getAttribute("email")).isEqualTo(email);
+        Assertions.assertThat((String) result.getAttribute("appRole")).isEqualTo("USER");
+        Assertions.assertThat(result.getAuthorities())
+            .extracting(GrantedAuthority::getAuthority)
+            .containsExactly("ROLE_USER");
+
+        Mockito.verify(repo, Mockito.times(1)).findByEmail(email);
+        Mockito.verify(repo, Mockito.never()).save(any(AppUser.class));
+    }
 }
