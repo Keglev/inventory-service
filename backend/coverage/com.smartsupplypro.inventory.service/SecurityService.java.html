@@ -70,8 +70,8 @@ import org.springframework.stereotype.Service;
 
         // Step 2: Handle unauthenticated requests (null or !isAuthenticated)
         // In these cases, demo mode doesn't apply (no user to be in demo)
-<span class="pc bpc" id="L73" title="2 of 4 branches missed.">        if (authentication == null || !authentication.isAuthenticated()) {</span>
-<span class="nc" id="L74">            return false;</span>
+<span class="fc bfc" id="L73" title="All 4 branches covered.">        if (authentication == null || !authentication.isAuthenticated()) {</span>
+<span class="fc" id="L74">            return false;</span>
         }
 
         // Step 3: Extract principal object from authentication token
@@ -80,14 +80,14 @@ import org.springframework.stereotype.Service;
 
         // Step 4: Handle OAuth2 runtime authentication
         // At runtime (with real OAuth2), the principal is an OAuth2User with attributes map
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (principal instanceof OAuth2User oauth2User) {</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (principal instanceof OAuth2User oauth2User) {</span>
             // OAuth2User stores custom attributes (like isDemo) in an attributes map
             // Attribute key must match what CustomOAuth2UserService or CustomOidcUserService sets
-<span class="nc" id="L86">            Boolean isDemoAttribute = oauth2User.getAttribute(&quot;isDemo&quot;);</span>
+<span class="fc" id="L86">            Boolean isDemoAttribute = oauth2User.getAttribute(&quot;isDemo&quot;);</span>
 
             // Boolean.TRUE.equals() safely handles null (returns false) and type checking
             // This prevents NullPointerException if isDemo attribute is missing
-<span class="nc" id="L90">            return Boolean.TRUE.equals(isDemoAttribute);</span>
+<span class="fc" id="L90">            return Boolean.TRUE.equals(isDemoAttribute);</span>
         }
 
         // Step 5: Handle test authentication (@WithMockUser)
