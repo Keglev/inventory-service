@@ -422,6 +422,16 @@ Write Request? → Deny with &quot;Demo Mode&quot; message
 <span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
         <hr />
         <h2 id="testing-demo-mode">Testing Demo Mode</h2>
+        <p>Demo mode is enforced at multiple layers, so tests are split
+        accordingly:</p>
+        <ul>
+        <li><strong>Unit:</strong> <code>SecurityServiceTest</code>
+        covers <code>SecurityService#isDemo()</code> principal/attribute
+        handling (used by <code>@PreAuthorize</code>).</li>
+        <li><strong>Integration:</strong> Security filter chain +
+        controller behavior (read allowed, writes blocked) is validated
+        by the <code>security/</code> integration tests.</li>
+        </ul>
         <h3 id="unit-test-example">Unit Test Example</h3>
         <div class="sourceCode" id="cb19"><pre
         class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@SpringBootTest</span><span class="op">(</span>webEnvironment <span class="op">=</span> WebEnvironment<span class="op">.</span><span class="fu">RANDOM_PORT</span><span class="op">)</span></span>

@@ -107,6 +107,9 @@ testing/security-testing · Smart Supply Pro Docs</title>
         <li><a href="#custom-oidcuserservice-testing"
         id="toc-custom-oidcuserservice-testing">Custom OidcUserService
         Testing</a></li>
+        <li><a href="#securityservice-demo-mode-unit-testing"
+        id="toc-securityservice-demo-mode-unit-testing">SecurityService
+        (Demo Mode) Unit Testing</a></li>
         </ul></li>
         <li><a href="#authorization-rbac-testing"
         id="toc-authorization-rbac-testing">Authorization (RBAC)
@@ -375,6 +378,24 @@ testing/security-testing · Smart Supply Pro Docs</title>
         <code>OAuth2AuthenticationException</code> may have a
         <code>null</code> message; assert on
         <code>ex.getError().getErrorCode()</code>.</p>
+        <hr />
+        <h3 id="securityservice-demo-mode-unit-testing">SecurityService
+        (Demo Mode) Unit Testing</h3>
+        <p><code>SecurityService#isDemo()</code> is referenced by
+        method-level authorization checks (for example:
+        <code>@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")</code>).</p>
+        <p>Unit tests should validate behavior across the main
+        principal/authentication shapes:</p>
+        <ul>
+        <li>Unauthenticated / missing authentication -&gt; false</li>
+        <li>Authenticated but non-OAuth2 principal -&gt; false</li>
+        <li>OAuth2 principal with attribute <code>isDemo=true</code>
+        -&gt; true</li>
+        <li>OAuth2 principal with missing <code>isDemo</code> attribute
+        -&gt; false</li>
+        </ul>
+        <p>See the concrete implementation in the test suite:
+        <code>src/test/java/com/smartsupplypro/inventory/service/SecurityServiceTest.java</code>.</p>
         <hr />
         <h4 id="mvc-slice-validate-wiring-flow">MVC slice: Validate
         wiring / flow</h4>
