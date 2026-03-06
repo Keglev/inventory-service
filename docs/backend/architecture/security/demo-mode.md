@@ -311,6 +311,11 @@ async function makeRequest(method: string, url: string, data?: unknown) {
 
 ## Testing Demo Mode
 
+Demo mode is enforced at multiple layers, so tests are split accordingly:
+
+- **Unit:** `SecurityServiceTest` covers `SecurityService#isDemo()` principal/attribute handling (used by `@PreAuthorize`).
+- **Integration:** Security filter chain + controller behavior (read allowed, writes blocked) is validated by the `security/` integration tests.
+
 ### Unit Test Example
 
 ```java

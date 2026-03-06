@@ -188,6 +188,23 @@ Notes:
 
 ---
 
+### SecurityService (Demo Mode) Unit Testing
+
+`SecurityService#isDemo()` is referenced by method-level authorization checks (for example:
+`@PreAuthorize("hasRole('ADMIN') and !@securityService.isDemo()")`).
+
+Unit tests should validate behavior across the main principal/authentication shapes:
+
+- Unauthenticated / missing authentication -> false
+- Authenticated but non-OAuth2 principal -> false
+- OAuth2 principal with attribute `isDemo=true` -> true
+- OAuth2 principal with missing `isDemo` attribute -> false
+
+See the concrete implementation in the test suite:
+`src/test/java/com/smartsupplypro/inventory/service/SecurityServiceTest.java`.
+
+---
+
 #### MVC slice: Validate wiring / flow
 
 ```java

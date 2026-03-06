@@ -144,15 +144,22 @@ APP_FRONTEND_BASE_URL=https://inventory.example.com
 - Performs role healing (updates role if allow-list changed)
 - Returns OAuth2User with ROLE_* authorities
 
+**Testability Note:** The upstream provider user-info call is encapsulated behind a protected
+`loadFromProvider(...)` method so unit tests can override it and avoid network/provider calls.
+
 **Code Example:**
 ```java
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
+    protected OAuth2User loadFromProvider(OAuth2UserRequest request) {
+        return new DefaultOAuth2UserService().loadUser(request);
+    }
     
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) {
         // 1. Delegate to default service for upstream provider communication
-        OAuth2User oauthUser = new DefaultOAuth2UserService().loadUser(request);
+        OAuth2User oauthUser = loadFromProvider(request);
         
         // 2. Extract email and name
         String email = oauthUser.getAttribute("email");

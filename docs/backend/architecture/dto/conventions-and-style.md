@@ -245,7 +245,7 @@ public class StockUpdateDTO {
 public class StockUpdateValidator implements ConstraintValidator<StockUpdateValid, StockUpdateDTO> {
     public boolean isValid(StockUpdateDTO dto, ConstraintValidatorContext context) {
         // Business logic: e.g., "sold_to_customer" requires adjustment reason
-        return dto.getReason() != null || !"sold".equals(dto.getReason());
+        return dto.getReason() != null && !"sold".equalsIgnoreCase(dto.getReason());
     }
 }
 ```
